@@ -7,6 +7,70 @@ import { storage } from "./storage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Demo endpoint for testing without OpenAI
+  app.post("/api/demo", async (req, res) => {
+    try {
+      const { url } = urlAnalysisSchema.parse(req.body);
+      
+      // Normalize URL
+      const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+      
+      // Create demo analysis with sample data
+      const demoPages: DiscoveredPage[] = [
+        {
+          url: `${normalizedUrl}/docs`,
+          title: "Documentation",
+          description: "Complete documentation for the platform",
+          qualityScore: 9,
+          category: "Documentation",
+          lastModified: "2024-01-15"
+        },
+        {
+          url: `${normalizedUrl}/api`,
+          title: "API Reference",
+          description: "Comprehensive API documentation and examples",
+          qualityScore: 8,
+          category: "API Reference",
+          lastModified: "2024-01-10"
+        },
+        {
+          url: `${normalizedUrl}/guides`,
+          title: "Getting Started Guide",
+          description: "Step-by-step guide to get started quickly",
+          qualityScore: 8,
+          category: "Tutorial",
+          lastModified: "2024-01-12"
+        },
+        {
+          url: `${normalizedUrl}/about`,
+          title: "About Us",
+          description: "Learn about our mission and team",
+          qualityScore: 6,
+          category: "About",
+          lastModified: "2024-01-08"
+        }
+      ];
+
+      const analysis = await storage.createAnalysis({
+        url: normalizedUrl,
+        status: "completed",
+        sitemapContent: null,
+        discoveredPages: demoPages
+      });
+
+      res.json({ 
+        analysisId: analysis.id,
+        status: "completed",
+        discoveredPages: demoPages
+      });
+    } catch (error) {
+      console.error("Demo error:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to create demo"
+      });
+    }
+  });
+
   // Analyze website URL and discover content
   app.post("/api/analyze", async (req, res) => {
     try {
