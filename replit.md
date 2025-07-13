@@ -44,8 +44,9 @@ The backend follows a RESTful API pattern with Express.js:
 
 - **Route Handlers**: Clean separation of concerns with dedicated route files
 - **Services**: Business logic separated into service layers
-- **Storage**: Abstracted storage interface with in-memory implementation
-- **AI Integration**: OpenAI service for content analysis
+- **Storage**: Abstracted storage interface with PostgreSQL database implementation
+- **Database**: PostgreSQL with Drizzle ORM for data persistence
+- **AI Integration**: OpenAI service for content analysis (with fallback mode)
 - **Middleware**: Request logging and error handling
 
 ### Database Schema
@@ -54,6 +55,12 @@ The application uses Drizzle ORM with PostgreSQL:
 - **users**: User management (basic structure)
 - **sitemapAnalysis**: Website analysis records with JSON fields for discovered pages
 - **llmTextFiles**: Generated LLM.txt files with selected pages and content
+
+### Database Configuration
+- **Connection**: PostgreSQL via Neon serverless with WebSocket support
+- **ORM**: Drizzle ORM with strict TypeScript integration
+- **Migrations**: Schema changes applied via `npm run db:push`
+- **Storage**: DatabaseStorage class implements IStorage interface
 
 ## Data Flow
 
