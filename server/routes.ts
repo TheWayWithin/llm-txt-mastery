@@ -45,7 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           url: `${normalizedUrl}/about`,
           title: "About Us",
           description: "Learn about our mission and team",
-          qualityScore: 6,
+          qualityScore: 7,
           category: "About",
           lastModified: "2024-01-08"
         }
