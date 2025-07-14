@@ -50,7 +50,7 @@ function generateFallbackAnalysis(url: string, htmlContent: string): ContentAnal
   // Extract description
   let description = $('meta[name="description"]').attr('content') || '';
   if (!description) {
-    description = $('p').first().text().trim().substring(0, 150);
+    description = $('p').first().text().trim().substring(0, 300);
   }
   if (!description) {
     description = 'Content page from ' + new URL(url).hostname;
@@ -88,9 +88,18 @@ function generateFallbackAnalysis(url: string, htmlContent: string): ContentAnal
   
   qualityScore = Math.max(1, Math.min(10, qualityScore));
   
+  // Ensure description doesn't cut off mid-word
+  let finalDescription = description.substring(0, 300) || "No description available";
+  if (description.length > 300) {
+    const lastSpace = finalDescription.lastIndexOf(' ');
+    if (lastSpace > 250) { // Only truncate at word boundary if it's not too short
+      finalDescription = finalDescription.substring(0, lastSpace) + '...';
+    }
+  }
+
   return {
     title: title.substring(0, 100) || "Untitled Page",
-    description: description.substring(0, 150) || "No description available",
+    description: finalDescription,
     qualityScore,
     category,
     relevance: qualityScore // Use quality score as relevance for fallback
