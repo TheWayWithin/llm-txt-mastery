@@ -74,14 +74,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analyze website URL and discover content
   app.post("/api/analyze", async (req, res) => {
     try {
-      const { url } = urlAnalysisSchema.parse(req.body);
+      const { url, force = false } = z.object({
+        url: z.string(),
+        force: z.boolean().optional().default(false)
+      }).parse(req.body);
       
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
       
-      // Check if already analyzed recently
+      // Check if already analyzing (to prevent duplicate analysis)
       const existingAnalysis = await storage.getAnalysisByUrl(normalizedUrl);
-      if (existingAnalysis && existingAnalysis.status === "completed") {
+      if (existingAnalysis && existingAnalysis.status === "analyzing") {
+        return res.json({ 
+          analysisId: existingAnalysis.id,
+          status: "analyzing"
+        });
+      }
+
+      // If force flag is not set and we have a completed analysis, return it
+      if (!force && existingAnalysis && existingAnalysis.status === "completed") {
         return res.json({ 
           analysisId: existingAnalysis.id,
           status: "completed",

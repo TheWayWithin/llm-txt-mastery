@@ -30,9 +30,9 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete }: Cont
   const [analysisId, setAnalysisId] = useState<number | null>(null);
 
   const startAnalysisMutation = useMutation({
-    mutationFn: async (url: string) => {
+    mutationFn: async ({ url, force = false }: { url: string; force?: boolean }) => {
       // Use real sitemap analysis endpoint
-      const response = await apiRequest("POST", "/api/analyze", { url });
+      const response = await apiRequest("POST", "/api/analyze", { url, force });
       return response.json();
     },
     onSuccess: (data) => {
@@ -57,7 +57,7 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete }: Cont
 
   useEffect(() => {
     if (websiteUrl) {
-      startAnalysisMutation.mutate(websiteUrl);
+      startAnalysisMutation.mutate({ url: websiteUrl });
     }
   }, [websiteUrl]);
 
