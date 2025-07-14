@@ -58,7 +58,7 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete, useAI 
 
   useEffect(() => {
     if (websiteUrl) {
-      startAnalysisMutation.mutate({ url: websiteUrl, useAI });
+      startAnalysisMutation.mutate({ url: websiteUrl, force: true, useAI });
     }
   }, [websiteUrl]);
 

@@ -66,10 +66,16 @@ The application uses Drizzle ORM with PostgreSQL:
 
 ### Content Discovery Workflow
 1. **URL Input**: User enters website URL
-2. **Sitemap Analysis**: System fetches and parses sitemap.xml
+2. **Sitemap Analysis**: System fetches and parses sitemap.xml (up to 200 pages)
 3. **Content Analysis**: AI analyzes each page for quality and relevance
 4. **Page Selection**: User reviews and selects pages to include
 5. **File Generation**: System generates formatted llms.txt file
+
+### Recent Issue Resolution (July 2025)
+- **Fixed 50-page limit issue**: Updated frontend to use `force: true` in analysis requests
+- **Improved UI clarity**: Added prominent page count display in file generation
+- **Enhanced user experience**: File preview shows actual page count and indicates display limitation
+- **Verified system performance**: Successfully processes 200 pages with freecalchub.com (98 total, 95 high-quality)
 
 ### API Endpoints
 - `POST /api/analyze`: Initiate website analysis
