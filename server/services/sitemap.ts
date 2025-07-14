@@ -12,18 +12,25 @@ export interface SitemapEntry {
 }
 
 export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
+  // Extract root domain for sitemap discovery
+  const urlObj = new URL(baseUrl);
+  const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
+  
+  console.log(`Searching for sitemap for baseUrl: ${baseUrl}, rootDomain: ${rootDomain}`);
+  
   const sitemapUrls = [
-    `${baseUrl}/sitemap.xml`,
-    `${baseUrl}/sitemap_index.xml`,
-    `${baseUrl}/sitemap/sitemap.xml`,
-    `${baseUrl}/sitemaps/sitemap.xml`,
-    `${baseUrl}/wp-sitemap.xml`,
-    `${baseUrl}/sitemap-index.xml`,
-    `${baseUrl}/post-sitemap.xml`
+    `${rootDomain}/sitemap.xml`,
+    `${rootDomain}/sitemap_index.xml`,
+    `${rootDomain}/sitemap/sitemap.xml`,
+    `${rootDomain}/sitemaps/sitemap.xml`,
+    `${rootDomain}/wp-sitemap.xml`,
+    `${rootDomain}/sitemap-index.xml`,
+    `${rootDomain}/post-sitemap.xml`
   ];
 
   for (const sitemapUrl of sitemapUrls) {
     try {
+      console.log(`Trying sitemap URL: ${sitemapUrl}`);
       const response = await fetch(sitemapUrl, {
         headers: {
           'User-Agent': 'LLM.txt Mastery Bot 1.0'
@@ -32,8 +39,13 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
       });
 
       if (response.ok) {
+        console.log(`Successfully fetched sitemap from: ${sitemapUrl}`);
         const xml = await response.text();
-        return await parseSitemap(xml);
+        const entries = await parseSitemap(xml);
+        console.log(`Parsed ${entries.length} entries from sitemap`);
+        return entries;
+      } else {
+        console.log(`HTTP ${response.status} for ${sitemapUrl}`);
       }
     } catch (error) {
       console.log(`Failed to fetch ${sitemapUrl}:`, error.message);
@@ -42,16 +54,24 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
 
   // Fallback: try to discover pages from robots.txt
   try {
-    const robotsResponse = await fetch(`${baseUrl}/robots.txt`);
+    const robotsResponse = await fetch(`${rootDomain}/robots.txt`);
     if (robotsResponse.ok) {
       const robotsText = await robotsResponse.text();
       const sitemapMatch = robotsText.match(/Sitemap:\s*(.+)/i);
       if (sitemapMatch) {
         const sitemapUrl = sitemapMatch[1].trim();
-        const response = await fetch(sitemapUrl);
+        console.log(`Found sitemap in robots.txt: ${sitemapUrl}`);
+        const response = await fetch(sitemapUrl, {
+          headers: {
+            'User-Agent': 'LLM.txt Mastery Bot 1.0'
+          },
+          timeout: 10000
+        });
         if (response.ok) {
           const xml = await response.text();
-          return await parseSitemap(xml);
+          const entries = await parseSitemap(xml);
+          console.log(`Successfully parsed sitemap from robots.txt: ${entries.length} entries`);
+          return entries;
         }
       }
     }
@@ -61,7 +81,7 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
 
   // Final fallback: basic page crawling
   console.log("No sitemap found, using basic crawling fallback");
-  return await basicCrawlFallback(baseUrl);
+  return await basicCrawlFallback(rootDomain);
 }
 
 async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
