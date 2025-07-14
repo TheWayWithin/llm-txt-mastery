@@ -6,7 +6,7 @@ A systematic web application for creating AI-optimized llms.txt files through si
 
 - **Intelligent Sitemap Discovery**: Automatically finds and parses website sitemaps with multiple fallback strategies
 - **AI-Powered Content Analysis**: Uses OpenAI GPT-4o to analyze and score page quality for AI systems
-- **Multi-Page Discovery**: Analyzes up to 50 high-quality pages from real website sitemaps
+- **Multi-Page Discovery**: Analyzes up to 200 high-quality pages from real website sitemaps
 - **Expert Content Curation**: Review and select the most valuable pages for your llms.txt file
 - **Standards-Compliant Output**: Generates properly formatted llms.txt files following AI accessibility standards
 - **Real-Time Processing**: Live analysis progress with detailed feedback
