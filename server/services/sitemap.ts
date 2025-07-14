@@ -25,6 +25,35 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   
   console.log(`Searching for sitemap for baseUrl: ${baseUrl}, rootDomain: ${rootDomain}`);
   
+  // Check if we need to handle redirects first
+  let redirectPath = '';
+  try {
+    const rootResponse = await fetch(`${rootDomain}/sitemap.xml`, {
+      method: 'HEAD',
+      headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' },
+      timeout: 5000
+    });
+    
+    if (!rootResponse.ok) {
+      // Try to detect redirect pattern by checking the homepage
+      const homepageResponse = await fetch(rootDomain, {
+        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' },
+        timeout: 5000
+      });
+      
+      if (homepageResponse.ok) {
+        const html = await homepageResponse.text();
+        const redirectMatch = html.match(/window\.location\.href\s*=\s*["']([^"']+)["']/);
+        if (redirectMatch) {
+          redirectPath = redirectMatch[1];
+          console.log(`Detected redirect pattern to: ${redirectPath}`);
+        }
+      }
+    }
+  } catch (error) {
+    console.log('Error checking for redirects:', error.message);
+  }
+  
   const sitemapUrls = [
     `${rootDomain}/sitemap.xml`,
     `${rootDomain}/sitemap_index.xml`,
@@ -34,6 +63,17 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
     `${rootDomain}/sitemap-index.xml`,
     `${rootDomain}/post-sitemap.xml`
   ];
+  
+  // Add redirect-based sitemap URLs if we found a redirect
+  if (redirectPath) {
+    const redirectBase = redirectPath.startsWith('/') ? `${rootDomain}${redirectPath}` : `${rootDomain}/${redirectPath}`;
+    sitemapUrls.unshift(
+      `${redirectBase}/sitemap.xml`,
+      `${redirectBase}/sitemap_index.xml`,
+      `${redirectBase}/sitemap/sitemap.xml`,
+      `${redirectBase}/sitemaps/sitemap.xml`
+    );
+  }
 
   for (const sitemapUrl of sitemapUrls) {
     try {
@@ -48,14 +88,25 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
       if (response.ok) {
         console.log(`Successfully fetched sitemap from: ${sitemapUrl}`);
         const xml = await response.text();
+        
+        // Log first 200 characters to debug content
+        console.log(`Sitemap content preview: ${xml.substring(0, 200)}...`);
+        
         const entries = await parseSitemap(xml);
         console.log(`Parsed ${entries.length} entries from sitemap`);
-        return {
-          entries,
-          sitemapFound: true,
-          analysisMethod: "sitemap",
-          message: `Found sitemap with ${entries.length} pages`
-        };
+        
+        // If we got 0 entries from a successful response, something is wrong
+        if (entries.length === 0) {
+          console.log(`Warning: Sitemap returned 0 entries, likely HTML redirect or invalid XML`);
+          // Continue to try other sitemap locations
+        } else {
+          return {
+            entries,
+            sitemapFound: true,
+            analysisMethod: "sitemap",
+            message: `Found sitemap with ${entries.length} pages`
+          };
+        }
       } else {
         console.log(`HTTP ${response.status} for ${sitemapUrl}`);
       }
@@ -275,6 +326,12 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
 
 export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
   try {
+    // Check if the response is HTML instead of XML (common redirect pattern)
+    if (xml.trim().startsWith('<!DOCTYPE html') || xml.trim().startsWith('<html')) {
+      console.log('Received HTML instead of XML sitemap, likely a redirect');
+      return [];
+    }
+    
     const result = await parseStringPromise(xml);
     const entries: SitemapEntry[] = [];
 
