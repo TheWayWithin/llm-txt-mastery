@@ -382,7 +382,7 @@ export async function fetchPageContent(url: string): Promise<string> {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'LLM.txt Mastery Bot 1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       },
       timeout: 10000
     });
@@ -544,6 +544,10 @@ export async function analyzeDiscoveredPages(entries: SitemapEntry[], useAI: boo
 
   console.log(`Analyzing ${pagesToAnalyze.length} pages from ${entries.length} discovered pages`);
 
+  // Track consecutive failures to detect bot protection
+  let consecutiveFailures = 0;
+  const MAX_CONSECUTIVE_FAILURES = 10;
+
   // Process pages in larger batches for better performance
   const batchSize = 20;
   for (let i = 0; i < pagesToAnalyze.length; i += batchSize) {
@@ -560,7 +564,8 @@ export async function analyzeDiscoveredPages(entries: SitemapEntry[], useAI: boo
           description: analysis.description,
           qualityScore: analysis.qualityScore,
           category: analysis.category,
-          lastModified: entry.lastmod
+          lastModified: entry.lastmod,
+          success: true
         };
       } catch (error) {
         console.log(`Failed to analyze ${entry.url}:`, error.message);
@@ -570,18 +575,34 @@ export async function analyzeDiscoveredPages(entries: SitemapEntry[], useAI: boo
           description: "Unable to analyze this page",
           qualityScore: 1,
           category: "Error",
-          lastModified: entry.lastmod
+          lastModified: entry.lastmod,
+          success: false
         };
       }
     });
 
     const batchResults = await Promise.allSettled(batchPromises);
     
+    let batchFailures = 0;
     batchResults.forEach((result) => {
       if (result.status === "fulfilled") {
-        pages.push(result.value);
+        const { success, ...pageData } = result.value;
+        pages.push(pageData);
+        
+        if (!success) {
+          batchFailures++;
+          consecutiveFailures++;
+        } else {
+          consecutiveFailures = 0; // Reset on success
+        }
       }
     });
+
+    // Early exit if we detect bot protection (all pages failing)
+    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      console.log(`Detected potential bot protection (${consecutiveFailures} consecutive failures). Stopping analysis.`);
+      break;
+    }
 
     // Reduced delay between batches
     if (i + batchSize < pagesToAnalyze.length) {

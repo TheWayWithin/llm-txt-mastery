@@ -8,7 +8,7 @@ async function testUrl() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: 'https://nodejs.org/',
+        url: 'https://www.namecheap.com/',
         useAI: false
       })
     });
