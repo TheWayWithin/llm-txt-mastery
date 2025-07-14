@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Star } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { DiscoveredPage, SelectedPage } from "@shared/schema";
 
 interface ContentReviewProps {
@@ -18,11 +19,12 @@ interface ContentReviewProps {
 type FilterType = "all" | "high-quality" | "documentation" | "tutorials";
 
 export default function ContentReview({ analysisId, discoveredPages, onFileGenerated }: ContentReviewProps) {
+  const { toast } = useToast();
   const [selectedPages, setSelectedPages] = useState<Record<string, boolean>>(() => {
-    // Auto-select high quality pages (score >= 7)
+    // Auto-select high quality pages (score >= 6)
     const initial: Record<string, boolean> = {};
     discoveredPages.forEach(page => {
-      initial[page.url] = page.qualityScore >= 7;
+      initial[page.url] = page.qualityScore >= 6;
     });
     return initial;
   });
@@ -39,10 +41,20 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
       return response.json();
     },
     onSuccess: (data) => {
+      console.log("File generated successfully:", data);
+      toast({
+        title: "Success", 
+        description: `Generated LLM.txt file with ${data.pageCount} pages`,
+      });
       onFileGenerated(data.id);
     },
     onError: (error) => {
       console.error("File generation failed:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate LLM.txt file",
+        variant: "destructive",
+      });
     }
   });
 
@@ -99,6 +111,9 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
       selected: selectedPages[page.url] || false
     }));
 
+    const actuallySelected = selectedPagesData.filter(p => p.selected);
+    console.log(`Generating file with ${actuallySelected.length} selected pages from ${discoveredPages.length} total pages`);
+    
     generateFileMutation.mutate(selectedPagesData);
   };
 
