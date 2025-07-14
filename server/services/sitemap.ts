@@ -538,8 +538,8 @@ export async function analyzeDiscoveredPages(entries: SitemapEntry[], useAI: boo
   const relevantPages = filterRelevantPages(entries);
   const pages: DiscoveredPage[] = [];
 
-  // Limit to first 50 pages for better performance but still comprehensive coverage
-  const maxPages = Math.min(50, relevantPages.length);
+  // Limit to first 200 pages for better performance but still comprehensive coverage
+  const maxPages = Math.min(200, relevantPages.length);
   const pagesToAnalyze = relevantPages.slice(0, maxPages);
 
   console.log(`Analyzing ${pagesToAnalyze.length} pages from ${entries.length} discovered pages`);
