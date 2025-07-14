@@ -8,7 +8,7 @@ async function testUrl() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: 'https://aisearchmastery.com/',
+        url: 'https://nodejs.org/',
         useAI: false
       })
     });
