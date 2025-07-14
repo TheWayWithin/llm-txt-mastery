@@ -8,7 +8,7 @@ async function testUrl() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: 'https://tailwindcss.com/',
+        url: 'https://aisearchmastery.com/',
         useAI: false
       })
     });
