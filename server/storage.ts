@@ -1,6 +1,6 @@
 import { users, sitemapAnalysis, llmTextFiles, type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -131,7 +131,8 @@ export class DatabaseStorage implements IStorage {
     const [analysis] = await db
       .select()
       .from(sitemapAnalysis)
-      .where(eq(sitemapAnalysis.url, url));
+      .where(eq(sitemapAnalysis.url, url))
+      .orderBy(desc(sitemapAnalysis.id));
     return analysis || undefined;
   }
 
