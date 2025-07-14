@@ -1,11 +1,34 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { urlAnalysisSchema, insertSitemapAnalysisSchema, insertLlmTextFileSchema, DiscoveredPage, SelectedPage } from "@shared/schema";
+import { urlAnalysisSchema, insertSitemapAnalysisSchema, insertLlmTextFileSchema, emailCaptureSchema, DiscoveredPage, SelectedPage } from "@shared/schema";
 import { fetchSitemap, analyzeDiscoveredPages } from "./services/sitemap";
 import { storage } from "./storage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Email capture endpoint for freemium model
+  app.post("/api/email-capture", async (req, res) => {
+    try {
+      const emailData = emailCaptureSchema.parse(req.body);
+      
+      // Check if email already exists
+      const existingCapture = await storage.getEmailCapture(emailData.email);
+      if (existingCapture) {
+        return res.json({ message: "Email already captured", capture: existingCapture });
+      }
+      
+      // Create new email capture
+      const capture = await storage.createEmailCapture(emailData);
+      res.json({ message: "Email captured successfully", capture });
+    } catch (error) {
+      console.error("Email capture error:", error);
+      res.status(400).json({ 
+        message: "Failed to capture email", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
   
   // Demo endpoint for testing without OpenAI
   app.post("/api/demo", async (req, res) => {
@@ -74,9 +97,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analyze website URL and discover content
   app.post("/api/analyze", async (req, res) => {
     try {
-      const { url, force = false } = z.object({
+      const { url, force = false, useAI = false } = z.object({
         url: z.string(),
-        force: z.boolean().optional().default(false)
+        force: z.boolean().optional().default(false),
+        useAI: z.boolean().optional().default(false)
       }).parse(req.body);
       
       // Normalize URL
@@ -109,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Start analysis process (async)
-      analyzeWebsite(analysis.id, normalizedUrl);
+      analyzeWebsite(analysis.id, normalizedUrl, useAI);
 
       res.json({ 
         analysisId: analysis.id,
@@ -235,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function analyzeWebsite(analysisId: number, url: string) {
+async function analyzeWebsite(analysisId: number, url: string, useAI: boolean = false) {
   try {
     // Fetch and parse sitemap
     const sitemapEntries = await fetchSitemap(url);
@@ -246,8 +270,8 @@ async function analyzeWebsite(analysisId: number, url: string) {
       status: "processing"
     });
 
-    // Analyze discovered pages
-    const discoveredPages = await analyzeDiscoveredPages(sitemapEntries);
+    // Analyze discovered pages with AI flag
+    const discoveredPages = await analyzeDiscoveredPages(sitemapEntries, useAI);
     
     // Update analysis with results
     await storage.updateAnalysis(analysisId, {

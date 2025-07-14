@@ -9,6 +9,7 @@ import { DiscoveredPage } from "@shared/schema";
 interface ContentAnalysisProps {
   websiteUrl: string;
   onAnalysisComplete: (analysisId: number, pages: DiscoveredPage[]) => void;
+  useAI?: boolean;
 }
 
 interface AnalysisStep {
@@ -24,15 +25,15 @@ const analysisSteps: AnalysisStep[] = [
   { id: "descriptions", label: "Generating AI-powered descriptions", progress: 100 }
 ];
 
-export default function ContentAnalysis({ websiteUrl, onAnalysisComplete }: ContentAnalysisProps) {
+export default function ContentAnalysis({ websiteUrl, onAnalysisComplete, useAI = false }: ContentAnalysisProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [analysisId, setAnalysisId] = useState<number | null>(null);
 
   const startAnalysisMutation = useMutation({
-    mutationFn: async ({ url, force = false }: { url: string; force?: boolean }) => {
+    mutationFn: async ({ url, force = false, useAI = false }: { url: string; force?: boolean; useAI?: boolean }) => {
       // Use real sitemap analysis endpoint
-      const response = await apiRequest("POST", "/api/analyze", { url, force });
+      const response = await apiRequest("POST", "/api/analyze", { url, force, useAI });
       return response.json();
     },
     onSuccess: (data) => {
@@ -57,7 +58,7 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete }: Cont
 
   useEffect(() => {
     if (websiteUrl) {
-      startAnalysisMutation.mutate({ url: websiteUrl });
+      startAnalysisMutation.mutate({ url: websiteUrl, useAI });
     }
   }, [websiteUrl]);
 

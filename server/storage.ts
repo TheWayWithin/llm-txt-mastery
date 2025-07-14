@@ -1,4 +1,4 @@
-import { users, sitemapAnalysis, llmTextFiles, type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile } from "@shared/schema";
+import { users, sitemapAnalysis, llmTextFiles, emailCaptures, type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile, type EmailCapture, type InsertEmailCapture } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
@@ -19,23 +19,31 @@ export interface IStorage {
   // LLM file methods
   createLlmFile(llmFile: InsertLlmTextFile): Promise<LlmTextFile>;
   getLlmFile(id: number): Promise<LlmTextFile | undefined>;
+  
+  // Email capture methods
+  createEmailCapture(emailCapture: InsertEmailCapture): Promise<EmailCapture>;
+  getEmailCapture(email: string): Promise<EmailCapture | undefined>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private analyses: Map<number, SitemapAnalysis>;
   private llmFiles: Map<number, LlmTextFile>;
+  private emailCaptures: Map<string, EmailCapture>;
   private currentUserId: number;
   private currentAnalysisId: number;
   private currentLlmFileId: number;
+  private currentEmailCaptureId: number;
 
   constructor() {
     this.users = new Map();
     this.analyses = new Map();
     this.llmFiles = new Map();
+    this.emailCaptures = new Map();
     this.currentUserId = 1;
     this.currentAnalysisId = 1;
     this.currentLlmFileId = 1;
+    this.currentEmailCaptureId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -105,6 +113,24 @@ export class MemStorage implements IStorage {
 
   async getLlmFile(id: number): Promise<LlmTextFile | undefined> {
     return this.llmFiles.get(id);
+  }
+
+  // Email capture methods
+  async createEmailCapture(insertEmailCapture: InsertEmailCapture): Promise<EmailCapture> {
+    const id = this.currentEmailCaptureId++;
+    const emailCapture: EmailCapture = {
+      id,
+      email: insertEmailCapture.email,
+      websiteUrl: insertEmailCapture.websiteUrl,
+      tier: insertEmailCapture.tier || "free",
+      createdAt: new Date(),
+    };
+    this.emailCaptures.set(insertEmailCapture.email, emailCapture);
+    return emailCapture;
+  }
+
+  async getEmailCapture(email: string): Promise<EmailCapture | undefined> {
+    return this.emailCaptures.get(email);
   }
 }
 
@@ -184,6 +210,27 @@ export class DatabaseStorage implements IStorage {
       .from(llmTextFiles)
       .where(eq(llmTextFiles.id, id));
     return llmFile || undefined;
+  }
+
+  // Email capture methods
+  async createEmailCapture(insertEmailCapture: InsertEmailCapture): Promise<EmailCapture> {
+    const [emailCapture] = await db
+      .insert(emailCaptures)
+      .values({
+        email: insertEmailCapture.email,
+        websiteUrl: insertEmailCapture.websiteUrl,
+        tier: insertEmailCapture.tier || "free"
+      })
+      .returning();
+    return emailCapture;
+  }
+
+  async getEmailCapture(email: string): Promise<EmailCapture | undefined> {
+    const [emailCapture] = await db
+      .select()
+      .from(emailCaptures)
+      .where(eq(emailCaptures.email, email));
+    return emailCapture || undefined;
   }
 }
 

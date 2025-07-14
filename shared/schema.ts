@@ -8,6 +8,14 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+export const emailCaptures = pgTable("email_captures", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  websiteUrl: text("website_url").notNull(),
+  tier: text("tier").notNull().default("free"), // "free" or "premium"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const sitemapAnalysis = pgTable("sitemap_analysis", {
   id: serial("id").primaryKey(),
   url: text("url").notNull(),
@@ -69,3 +77,18 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
+
+export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).pick({
+  email: true,
+  websiteUrl: true,
+  tier: true,
+});
+
+export const emailCaptureSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  websiteUrl: z.string().url("Please enter a valid URL"),
+  tier: z.enum(["free", "premium"]).default("free"),
+});
+
+export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;
+export type EmailCapture = typeof emailCaptures.$inferSelect;

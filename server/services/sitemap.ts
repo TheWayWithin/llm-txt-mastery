@@ -351,7 +351,7 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
   return prioritized;
 }
 
-export async function analyzeDiscoveredPages(entries: SitemapEntry[]): Promise<DiscoveredPage[]> {
+export async function analyzeDiscoveredPages(entries: SitemapEntry[], useAI: boolean = false): Promise<DiscoveredPage[]> {
   const relevantPages = filterRelevantPages(entries);
   const pages: DiscoveredPage[] = [];
 
@@ -369,7 +369,7 @@ export async function analyzeDiscoveredPages(entries: SitemapEntry[]): Promise<D
     const batchPromises = batch.map(async (entry) => {
       try {
         const content = await fetchPageContent(entry.url);
-        const analysis = await analyzePageContent(entry.url, content);
+        const analysis = await analyzePageContent(entry.url, content, useAI);
         
         return {
           url: entry.url,

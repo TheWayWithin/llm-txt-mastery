@@ -2,16 +2,19 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain } from "lucide-react";
 import UrlInput from "@/components/url-input";
+import EmailCapture from "@/components/email-capture";
 import ContentAnalysis from "@/components/content-analysis";
 import ContentReview from "@/components/content-review";
 import FileGeneration from "@/components/file-generation";
 import { DiscoveredPage } from "@shared/schema";
 
 export default function Home() {
-  const [currentStep, setCurrentStep] = useState<'input' | 'analysis' | 'review' | 'generation'>('input');
+  const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'analysis' | 'review' | 'generation'>('input');
   const [analysisId, setAnalysisId] = useState<number | null>(null);
   const [discoveredPages, setDiscoveredPages] = useState<DiscoveredPage[]>([]);
   const [websiteUrl, setWebsiteUrl] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [userTier, setUserTier] = useState<"free" | "premium">("free");
   const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
 
   const handleAnalysisComplete = (id: number, pages: DiscoveredPage[]) => {
@@ -30,6 +33,8 @@ export default function Home() {
     setAnalysisId(null);
     setDiscoveredPages([]);
     setWebsiteUrl("");
+    setUserEmail("");
+    setUserTier("free");
     setGeneratedFileId(null);
   };
 
@@ -91,20 +96,34 @@ export default function Home() {
           <UrlInput
             onAnalysisStart={(url) => {
               setWebsiteUrl(url);
-              setCurrentStep('analysis');
+              setCurrentStep('email');
             }}
             isVisible={currentStep === 'input'}
           />
 
-          {/* Step 2: Content Analysis */}
+          {/* Step 2: Email Capture */}
+          {currentStep === 'email' && (
+            <EmailCapture
+              websiteUrl={websiteUrl}
+              onEmailCaptured={(email, tier) => {
+                setUserEmail(email);
+                setUserTier(tier);
+                setCurrentStep('analysis');
+              }}
+              isVisible={currentStep === 'email'}
+            />
+          )}
+
+          {/* Step 3: Content Analysis */}
           {currentStep === 'analysis' && (
             <ContentAnalysis
               websiteUrl={websiteUrl}
               onAnalysisComplete={handleAnalysisComplete}
+              useAI={userTier === 'premium'}
             />
           )}
 
-          {/* Step 3: Content Review */}
+          {/* Step 4: Content Review */}
           {currentStep === 'review' && analysisId && (
             <ContentReview
               analysisId={analysisId}
@@ -113,7 +132,7 @@ export default function Home() {
             />
           )}
 
-          {/* Step 4: File Generation */}
+          {/* Step 5: File Generation */}
           {currentStep === 'generation' && generatedFileId && (
             <FileGeneration
               fileId={generatedFileId}
