@@ -196,7 +196,7 @@ export async function fetchPageContent(url: string): Promise<string> {
 
 export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
   const excludePatterns = [
-    /\.(jpg|jpeg|png|gif|pdf|zip|xml|json)$/i,
+    /\.(jpg|jpeg|png|gif|pdf|zip|xml|json|css|js|woff|woff2|ttf|eot|ico|svg)$/i,
     /\/wp-admin\//i,
     /\/admin\//i,
     /\/login/i,
@@ -205,15 +205,25 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
     /\/checkout/i,
     /\/account/i,
     /\/dashboard/i,
-    /\?/,
-    /#/,
     /\/search/i,
     /\/tag\//i,
     /\/category\//i,
-    /\/page\/\d+/i
+    /\/page\/\d+/i,
+    /\/\d{4}\/\d{2}\/\d{2}\//i, // Date-based URLs
+    /\/author\//i,
+    /\/user\//i,
+    /\/profile\//i,
+    /\/wp-content\//i,
+    /\/assets\//i,
+    /\/static\//i,
+    /\/images\//i,
+    /\/css\//i,
+    /\/js\//i,
+    /\/fonts\//i,
+    /\/media\//i
   ];
 
-  const includePatterns = [
+  const highPriorityPatterns = [
     /\/docs?\//i,
     /\/documentation/i,
     /\/guide/i,
@@ -225,18 +235,60 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
     /\/faq/i,
     /\/about/i,
     /\/support/i,
-    /\/blog/i,
-    /\/articles?/i,
-    /\/resources?/i,
-    /\/examples?/i,
     /\/getting-started/i,
     /\/best-practices/i,
     /\/troubleshooting/i,
     /\/changelog/i,
-    /\/roadmap/i
+    /\/roadmap/i,
+    /\/features/i,
+    /\/pricing/i,
+    /\/contact/i,
+    /\/learn/i,
+    /\/how-to/i,
+    /\/examples?/i,
+    /\/resources?/i,
+    /\/templates?/i,
+    /\/integrations?/i,
+    /\/tools?/i,
+    /\/sdk/i,
+    /\/cli/i,
+    /\/quickstart/i,
+    /\/overview/i,
+    /\/introduction/i
   ];
 
-  return entries.filter(entry => {
+  const mediumPriorityPatterns = [
+    /\/blog/i,
+    /\/articles?/i,
+    /\/news/i,
+    /\/updates/i,
+    /\/release-notes/i,
+    /\/announcements/i,
+    /\/case-studies/i,
+    /\/stories/i,
+    /\/solutions/i,
+    /\/products?/i,
+    /\/services?/i,
+    /\/platform/i,
+    /\/security/i,
+    /\/privacy/i,
+    /\/legal/i,
+    /\/terms/i,
+    /\/compliance/i,
+    /\/enterprise/i,
+    /\/business/i,
+    /\/developers?/i,
+    /\/community/i,
+    /\/partners?/i,
+    /\/careers?/i,
+    /\/company/i,
+    /\/team/i,
+    /\/mission/i,
+    /\/vision/i,
+    /\/values/i
+  ];
+
+  const filtered = entries.filter(entry => {
     const url = entry.url.toLowerCase();
     
     // Exclude unwanted patterns
@@ -244,24 +296,55 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
       return false;
     }
 
-    // Prefer pages with include patterns
-    if (includePatterns.some(pattern => pattern.test(url))) {
-      return true;
+    // Skip URLs with query parameters or fragments
+    if (url.includes('?') || url.includes('#')) {
+      return false;
     }
 
-    // Include main pages and paths without file extensions
-    return !url.includes('.') || url.endsWith('/');
+    return true;
   });
+
+  // Sort by priority: high priority first, then medium, then others
+  const prioritized = filtered.sort((a, b) => {
+    const urlA = a.url.toLowerCase();
+    const urlB = b.url.toLowerCase();
+    
+    const isHighPriorityA = highPriorityPatterns.some(pattern => pattern.test(urlA));
+    const isHighPriorityB = highPriorityPatterns.some(pattern => pattern.test(urlB));
+    
+    if (isHighPriorityA && !isHighPriorityB) return -1;
+    if (!isHighPriorityA && isHighPriorityB) return 1;
+    
+    const isMediumPriorityA = mediumPriorityPatterns.some(pattern => pattern.test(urlA));
+    const isMediumPriorityB = mediumPriorityPatterns.some(pattern => pattern.test(urlB));
+    
+    if (isMediumPriorityA && !isMediumPriorityB) return -1;
+    if (!isMediumPriorityA && isMediumPriorityB) return 1;
+    
+    // Homepage always comes first
+    if (urlA.endsWith('/') && urlA.split('/').length <= 4) return -1;
+    if (urlB.endsWith('/') && urlB.split('/').length <= 4) return 1;
+    
+    return 0;
+  });
+
+  return prioritized;
 }
 
 export async function analyzeDiscoveredPages(entries: SitemapEntry[]): Promise<DiscoveredPage[]> {
   const relevantPages = filterRelevantPages(entries);
   const pages: DiscoveredPage[] = [];
 
-  // Process pages in batches to avoid overwhelming the server
-  const batchSize = 10;
-  for (let i = 0; i < relevantPages.length; i += batchSize) {
-    const batch = relevantPages.slice(i, i + batchSize);
+  // Limit to first 50 pages for better performance but still comprehensive coverage
+  const maxPages = Math.min(50, relevantPages.length);
+  const pagesToAnalyze = relevantPages.slice(0, maxPages);
+
+  console.log(`Analyzing ${pagesToAnalyze.length} pages from ${entries.length} discovered pages`);
+
+  // Process pages in larger batches for better performance
+  const batchSize = 20;
+  for (let i = 0; i < pagesToAnalyze.length; i += batchSize) {
+    const batch = pagesToAnalyze.slice(i, i + batchSize);
     
     const batchPromises = batch.map(async (entry) => {
       try {
@@ -297,9 +380,9 @@ export async function analyzeDiscoveredPages(entries: SitemapEntry[]): Promise<D
       }
     });
 
-    // Add delay between batches to be respectful
-    if (i + batchSize < relevantPages.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    // Reduced delay between batches
+    if (i + batchSize < pagesToAnalyze.length) {
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
