@@ -102,14 +102,24 @@ export default function FileGeneration({ fileId, onStartOver }: FileGenerationPr
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-framework-black">File Preview</h4>
-            <div className="flex items-center space-x-2 text-sm text-ai-silver">
-              <FileText className="h-4 w-4" />
-              <span>
-                {fileData?.fileSize ? formatFileSize(fileData.fileSize) : "N/A"}
-              </span>
+            <div className="flex items-center space-x-4 text-sm text-ai-silver">
+              <div className="flex items-center space-x-2">
+                <span className="font-medium text-framework-black">
+                  {fileData?.pageCount || 0} pages
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <FileText className="h-4 w-4" />
+                <span>
+                  {fileData?.fileSize ? formatFileSize(fileData.fileSize) : "N/A"}
+                </span>
+              </div>
             </div>
           </div>
           <div className="bg-slate-50 rounded-lg p-4 border border-slate-200 max-h-96 overflow-y-auto">
+            <div className="text-xs text-ai-silver mb-2 italic">
+              Preview shows first portion of file. Full content available via download.
+            </div>
             <pre className="text-sm text-framework-black font-mono whitespace-pre-wrap">
               <code>{fileData?.content || "No content available"}</code>
             </pre>

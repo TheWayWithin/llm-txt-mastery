@@ -241,7 +241,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
               disabled={selectedCount === 0 || generateFileMutation.isPending}
               className="bg-innovation-teal hover:bg-innovation-teal/90 text-white"
             >
-              {generateFileMutation.isPending ? "Generating..." : "Generate LLM.txt File"}
+              {generateFileMutation.isPending ? "Generating..." : `Generate LLM.txt File (${selectedCount} pages)`}
             </Button>
           </div>
         </div>
