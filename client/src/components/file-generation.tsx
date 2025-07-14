@@ -46,16 +46,14 @@ export default function FileGeneration({ fileId, onStartOver }: FileGenerationPr
   };
 
   const handleDownloadFile = () => {
-    if (fileData?.content) {
-      const blob = new Blob([fileData.content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "llms.txt";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    if (fileId) {
+      // Use the server's download endpoint which has proper headers
+      const link = document.createElement('a');
+      link.href = `/api/download/${fileId}`;
+      link.download = 'llms.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -117,8 +115,16 @@ export default function FileGeneration({ fileId, onStartOver }: FileGenerationPr
             </div>
           </div>
           <div className="bg-slate-50 rounded-lg p-4 border border-slate-200 max-h-96 overflow-y-auto">
-            <div className="text-xs text-ai-silver mb-2 italic">
-              Preview shows first portion of file. Full content available via download.
+            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
+              <div className="text-sm text-blue-800 font-medium mb-1">
+                📋 Preview Limitation Notice
+              </div>
+              <div className="text-xs text-blue-700">
+                This preview shows only the first portion of your LLM.txt file due to display constraints. 
+                The complete file contains <span className="font-bold">{fileData?.pageCount || 0} pages</span> and 
+                is <span className="font-bold">{fileData?.fileSize ? formatFileSize(fileData.fileSize) : "N/A"}</span>. 
+                Use the download button below to get the full file.
+              </div>
             </div>
             <pre className="text-sm text-framework-black font-mono whitespace-pre-wrap">
               <code>{fileData?.content || "No content available"}</code>
