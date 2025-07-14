@@ -159,6 +159,50 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete, useAI 
             </div>
           ))}
         </div>
+
+        {/* Analysis Results */}
+        {analysisData && analysisData.status === "completed" && (
+          <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <h4 className="font-semibold text-framework-black mb-3">Analysis Results</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-ai-silver">Site Type:</span>
+                <span className="text-framework-black font-medium">
+                  {analysisData.siteType === "single-page" ? "Single-Page Site" : 
+                   analysisData.siteType === "multi-page" ? "Multi-Page Site" : "Unknown"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ai-silver">Sitemap Found:</span>
+                <span className="text-framework-black font-medium">
+                  {analysisData.sitemapFound ? "Yes" : "No"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ai-silver">Analysis Method:</span>
+                <span className="text-framework-black font-medium">
+                  {analysisData.analysisMethod === "sitemap" ? "Sitemap Discovery" :
+                   analysisData.analysisMethod === "robots.txt" ? "Robots.txt Fallback" :
+                   analysisData.analysisMethod === "homepage-only" ? "Homepage Only" :
+                   analysisData.analysisMethod === "fallback-crawl" ? "Basic Crawling" : "Unknown"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ai-silver">Pages Found:</span>
+                <span className="text-framework-black font-medium">
+                  {analysisData.totalPagesFound}
+                </span>
+              </div>
+              {analysisData.message && (
+                <div className="pt-2 border-t border-slate-200">
+                  <p className="text-ai-silver text-xs">
+                    {analysisData.message}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

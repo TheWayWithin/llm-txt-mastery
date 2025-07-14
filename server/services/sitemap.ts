@@ -11,7 +11,14 @@ export interface SitemapEntry {
   priority?: string;
 }
 
-export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
+export interface SitemapResult {
+  entries: SitemapEntry[];
+  sitemapFound: boolean;
+  analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
+  message: string;
+}
+
+export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   // Extract root domain for sitemap discovery
   const urlObj = new URL(baseUrl);
   const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
@@ -43,7 +50,12 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
         const xml = await response.text();
         const entries = await parseSitemap(xml);
         console.log(`Parsed ${entries.length} entries from sitemap`);
-        return entries;
+        return {
+          entries,
+          sitemapFound: true,
+          analysisMethod: "sitemap",
+          message: `Found sitemap with ${entries.length} pages`
+        };
       } else {
         console.log(`HTTP ${response.status} for ${sitemapUrl}`);
       }
@@ -71,7 +83,12 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
           const xml = await response.text();
           const entries = await parseSitemap(xml);
           console.log(`Successfully parsed sitemap from robots.txt: ${entries.length} entries`);
-          return entries;
+          return {
+            entries,
+            sitemapFound: true,
+            analysisMethod: "robots.txt",
+            message: `Found sitemap via robots.txt with ${entries.length} pages`
+          };
         }
       }
     }
@@ -79,9 +96,118 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
     console.log("Robots.txt fallback failed:", error.message);
   }
 
-  // Final fallback: basic page crawling
+  // Check if this is a single-page site by analyzing the homepage
+  const homepageAnalysis = await analyzeHomepage(baseUrl);
+  if (homepageAnalysis.isSinglePage) {
+    console.log("Detected single-page site, analyzing homepage only");
+    return {
+      entries: [{ url: baseUrl, lastmod: new Date().toISOString() }],
+      sitemapFound: false,
+      analysisMethod: "homepage-only",
+      message: "No sitemap found. This appears to be a single-page site. Analysis includes homepage only."
+    };
+  }
+
+  // Final fallback: basic page crawling for multi-page sites
   console.log("No sitemap found, using basic crawling fallback");
-  return await basicCrawlFallback(rootDomain);
+  const fallbackEntries = await basicCrawlFallback(rootDomain);
+  return {
+    entries: fallbackEntries,
+    sitemapFound: false,
+    analysisMethod: "fallback-crawl",
+    message: `No sitemap found. Discovered ${fallbackEntries.length} pages through basic crawling. Some pages may be missing.`
+  };
+}
+
+async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, indicators: string[] }> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'LLM.txt Mastery Bot 1.0'
+      },
+      timeout: 10000
+    });
+
+    if (!response.ok) {
+      return { isSinglePage: false, indicators: ['failed-to-fetch'] };
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    const indicators: string[] = [];
+    let singlePageScore = 0;
+    
+    // Check for single-page app indicators
+    const reactIndicators = $('#root, [data-reactroot], .react-app').length;
+    const vueIndicators = $('#app, [data-v-], .vue-app').length;
+    const angularIndicators = $('[ng-app], [data-ng-app], .angular-app').length;
+    const nextjsIndicators = $('#__next, [data-nextjs-page]').length;
+    
+    if (reactIndicators > 0) {
+      indicators.push('react-app');
+      singlePageScore += 2;
+    }
+    if (vueIndicators > 0) {
+      indicators.push('vue-app');
+      singlePageScore += 2;
+    }
+    if (angularIndicators > 0) {
+      indicators.push('angular-app');
+      singlePageScore += 2;
+    }
+    if (nextjsIndicators > 0) {
+      indicators.push('nextjs-app');
+      singlePageScore += 1; // Next.js can be multi-page
+    }
+    
+    // Check for navigation complexity
+    const navLinks = $('nav a, .nav a, .navigation a, header a').length;
+    const footerLinks = $('footer a, .footer a').length;
+    const internalLinks = $('a[href^="/"], a[href^="./"], a[href^="../"]').length;
+    
+    if (navLinks <= 3) {
+      indicators.push('minimal-navigation');
+      singlePageScore += 1;
+    }
+    if (internalLinks <= 5) {
+      indicators.push('few-internal-links');
+      singlePageScore += 1;
+    }
+    
+    // Check for traditional multi-page indicators
+    const breadcrumbs = $('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"]').length;
+    const pagination = $('.pagination, .pager, .page-numbers').length;
+    
+    if (breadcrumbs > 0) {
+      indicators.push('has-breadcrumbs');
+      singlePageScore -= 1;
+    }
+    if (pagination > 0) {
+      indicators.push('has-pagination');
+      singlePageScore -= 1;
+    }
+    
+    // Check meta tags and title for SPA indicators
+    const title = $('title').text().toLowerCase();
+    const description = $('meta[name="description"]').attr('content')?.toLowerCase() || '';
+    
+    if (title.includes('app') || description.includes('app')) {
+      indicators.push('app-terminology');
+      singlePageScore += 1;
+    }
+    
+    console.log(`Homepage analysis for ${url}: score=${singlePageScore}, indicators=[${indicators.join(', ')}]`);
+    
+    return {
+      isSinglePage: singlePageScore >= 3,
+      indicators
+    };
+    
+  } catch (error) {
+    console.log(`Homepage analysis failed for ${url}:`, error.message);
+    return { isSinglePage: false, indicators: ['analysis-failed'] };
+  }
 }
 
 async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {

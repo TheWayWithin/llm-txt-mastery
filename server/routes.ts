@@ -161,7 +161,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: analysis.id,
         url: analysis.url,
         status: analysis.status,
-        discoveredPages: analysis.discoveredPages || []
+        discoveredPages: analysis.discoveredPages || [],
+        siteType: analysis.analysisMetadata?.siteType || "unknown",
+        sitemapFound: analysis.analysisMetadata?.sitemapFound || false,
+        analysisMethod: analysis.analysisMetadata?.analysisMethod || "unknown",
+        message: analysis.analysisMetadata?.message || "Analysis completed",
+        totalPagesFound: analysis.analysisMetadata?.totalPagesFound || 0
       });
     } catch (error) {
       console.error("Get analysis error:", error);
@@ -261,22 +266,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 async function analyzeWebsite(analysisId: number, url: string, useAI: boolean = false) {
   try {
-    // Fetch and parse sitemap
-    const sitemapEntries = await fetchSitemap(url);
+    // Fetch and parse sitemap with enhanced detection
+    const sitemapResult = await fetchSitemap(url);
+    
+    // Determine site type based on results
+    const siteType = determineSiteType(sitemapResult);
     
     // Update analysis with sitemap data
     await storage.updateAnalysis(analysisId, {
-      sitemapContent: sitemapEntries,
+      sitemapContent: sitemapResult.entries,
       status: "processing"
     });
 
     // Analyze discovered pages with AI flag
-    const discoveredPages = await analyzeDiscoveredPages(sitemapEntries, useAI);
+    const discoveredPages = await analyzeDiscoveredPages(sitemapResult.entries, useAI);
     
-    // Update analysis with results
+    // Update analysis with results including site analysis metadata
     await storage.updateAnalysis(analysisId, {
       discoveredPages,
-      status: "completed"
+      status: "completed",
+      // Store analysis metadata in the analysis record
+      analysisMetadata: {
+        siteType,
+        sitemapFound: sitemapResult.sitemapFound,
+        analysisMethod: sitemapResult.analysisMethod,
+        message: sitemapResult.message,
+        totalPagesFound: sitemapResult.entries.length
+      }
     });
 
   } catch (error) {
@@ -286,6 +302,19 @@ async function analyzeWebsite(analysisId: number, url: string, useAI: boolean = 
       discoveredPages: []
     });
   }
+}
+
+function determineSiteType(sitemapResult: any): "single-page" | "multi-page" | "unknown" {
+  if (sitemapResult.analysisMethod === "homepage-only") {
+    return "single-page";
+  }
+  if (sitemapResult.entries.length === 1) {
+    return "single-page";
+  }
+  if (sitemapResult.entries.length > 1) {
+    return "multi-page";
+  }
+  return "unknown";
 }
 
 function generateLlmTxtContent(baseUrl: string, selectedPages: SelectedPage[]): string {

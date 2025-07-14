@@ -22,6 +22,13 @@ export const sitemapAnalysis = pgTable("sitemap_analysis", {
   sitemapContent: jsonb("sitemap_content"),
   discoveredPages: jsonb("discovered_pages").$type<DiscoveredPage[]>(),
   status: text("status").notNull().default("pending"),
+  analysisMetadata: jsonb("analysis_metadata").$type<{
+    siteType: "single-page" | "multi-page" | "unknown";
+    sitemapFound: boolean;
+    analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
+    message: string;
+    totalPagesFound: number;
+  }>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -40,6 +47,17 @@ export interface DiscoveredPage {
   qualityScore: number;
   category: string;
   lastModified?: string;
+}
+
+export interface SiteAnalysisResult {
+  analysisId: number;
+  status: "analyzing" | "completed" | "failed";
+  discoveredPages: DiscoveredPage[];
+  siteType: "single-page" | "multi-page" | "unknown";
+  sitemapFound: boolean;
+  analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
+  message: string;
+  totalPagesFound: number;
 }
 
 export interface SelectedPage {
