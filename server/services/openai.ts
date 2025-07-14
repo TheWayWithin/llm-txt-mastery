@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import * as cheerio from "cheerio";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
@@ -14,14 +15,26 @@ export interface ContentAnalysisResult {
 }
 
 export async function analyzePageContent(url: string, htmlContent: string): Promise<ContentAnalysisResult> {
-  // Use fallback analysis for demo purposes when OpenAI quota is exceeded
-  console.log("Using fallback analysis for:", url);
-  return generateFallbackAnalysis(url, htmlContent);
+  try {
+    // Use fallback analysis for demo purposes when OpenAI quota is exceeded
+    console.log("Using fallback analysis for:", url);
+    return generateFallbackAnalysis(url, htmlContent);
+  } catch (error) {
+    console.error("Fallback analysis failed for:", url, error);
+    
+    // Super simple fallback when even HTML parsing fails
+    return {
+      title: new URL(url).pathname.split('/').pop() || 'Page',
+      description: `Content from ${new URL(url).hostname}`,
+      qualityScore: 5,
+      category: 'General',
+      relevance: 5
+    };
+  }
 }
 
 function generateFallbackAnalysis(url: string, htmlContent: string): ContentAnalysisResult {
   // Basic HTML parsing to extract title and create analysis
-  const cheerio = require('cheerio');
   const $ = cheerio.load(htmlContent);
   
   // Extract title

@@ -16,7 +16,10 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
     `${baseUrl}/sitemap.xml`,
     `${baseUrl}/sitemap_index.xml`,
     `${baseUrl}/sitemap/sitemap.xml`,
-    `${baseUrl}/sitemaps/sitemap.xml`
+    `${baseUrl}/sitemaps/sitemap.xml`,
+    `${baseUrl}/wp-sitemap.xml`,
+    `${baseUrl}/sitemap-index.xml`,
+    `${baseUrl}/post-sitemap.xml`
   ];
 
   for (const sitemapUrl of sitemapUrls) {
@@ -56,7 +59,72 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapEntry[]> {
     console.log("Robots.txt fallback failed:", error.message);
   }
 
-  throw new Error("Could not find or parse sitemap.xml");
+  // Final fallback: basic page crawling
+  console.log("No sitemap found, using basic crawling fallback");
+  return await basicCrawlFallback(baseUrl);
+}
+
+async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
+  const commonPaths = [
+    '/',
+    '/docs',
+    '/documentation',
+    '/api',
+    '/guides',
+    '/guide',
+    '/tutorials',
+    '/tutorial',
+    '/help',
+    '/support',
+    '/about',
+    '/getting-started',
+    '/quickstart',
+    '/reference',
+    '/examples',
+    '/blog',
+    '/news',
+    '/faq',
+    '/changelog',
+    '/roadmap'
+  ];
+
+  const pages: SitemapEntry[] = [];
+  
+  for (const path of commonPaths) {
+    const url = `${baseUrl}${path}`;
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'LLM.txt Mastery Bot 1.0'
+        },
+        timeout: 5000
+      });
+
+      if (response.ok) {
+        pages.push({
+          url: url,
+          lastmod: response.headers.get('last-modified') || undefined,
+          changefreq: 'weekly',
+          priority: path === '/' ? '1.0' : '0.8'
+        });
+      }
+    } catch (error) {
+      // Ignore errors for individual pages
+    }
+  }
+
+  if (pages.length === 0) {
+    // At minimum, include the homepage
+    pages.push({
+      url: baseUrl,
+      lastmod: new Date().toISOString(),
+      changefreq: 'weekly',
+      priority: '1.0'
+    });
+  }
+
+  return pages;
 }
 
 export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {

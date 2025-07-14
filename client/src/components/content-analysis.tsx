@@ -31,8 +31,8 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete }: Cont
 
   const startAnalysisMutation = useMutation({
     mutationFn: async (url: string) => {
-      // Use demo endpoint for testing
-      const response = await apiRequest("POST", "/api/demo", { url });
+      // Use real sitemap analysis endpoint
+      const response = await apiRequest("POST", "/api/analyze", { url });
       return response.json();
     },
     onSuccess: (data) => {
