@@ -1,13 +1,20 @@
-import { users, sitemapAnalysis, llmTextFiles, emailCaptures, type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile, type EmailCapture, type InsertEmailCapture } from "@shared/schema";
+import { 
+  users, sitemapAnalysis, llmTextFiles, emailCaptures, subscriptions, paymentHistory, usageTracking, analysisCache,
+  type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile, 
+  type EmailCapture, type InsertEmailCapture, type Subscription, type InsertSubscription, type PaymentHistory, type InsertPaymentHistory,
+  type UsageTrackingDb, type InsertUsageTracking, type AnalysisCacheDb, type InsertAnalysisCache
+} from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
 
 export interface IStorage {
+  // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   // Analysis methods
@@ -23,6 +30,25 @@ export interface IStorage {
   // Email capture methods
   createEmailCapture(emailCapture: InsertEmailCapture): Promise<EmailCapture>;
   getEmailCapture(email: string): Promise<EmailCapture | undefined>;
+  
+  // Subscription methods
+  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  getSubscription(userId: number): Promise<Subscription | undefined>;
+  getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | undefined>;
+  updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription | undefined>;
+  
+  // Payment history methods
+  createPaymentHistory(payment: InsertPaymentHistory): Promise<PaymentHistory>;
+  getPaymentHistory(userId: number): Promise<PaymentHistory[]>;
+  
+  // Usage tracking methods
+  createOrUpdateUsage(usage: InsertUsageTracking): Promise<UsageTrackingDb>;
+  getUsageByDate(userId: number, date: string): Promise<UsageTrackingDb | undefined>;
+  
+  // Cache methods
+  createCacheEntry(cache: InsertAnalysisCache): Promise<AnalysisCacheDb>;
+  getCacheEntry(urlHash: string, tier: string): Promise<AnalysisCacheDb | undefined>;
+  updateCacheHitCount(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -30,20 +56,36 @@ export class MemStorage implements IStorage {
   private analyses: Map<number, SitemapAnalysis>;
   private llmFiles: Map<number, LlmTextFile>;
   private emailCaptures: Map<string, EmailCapture>;
+  private subscriptions: Map<number, Subscription>;
+  private paymentHistory: Map<number, PaymentHistory>;
+  private usageTracking: Map<string, UsageTrackingDb>; // key: userId:date
+  private cacheEntries: Map<string, AnalysisCacheDb>; // key: urlHash
   private currentUserId: number;
   private currentAnalysisId: number;
   private currentLlmFileId: number;
   private currentEmailCaptureId: number;
+  private currentSubscriptionId: number;
+  private currentPaymentId: number;
+  private currentUsageId: number;
+  private currentCacheId: number;
 
   constructor() {
     this.users = new Map();
     this.analyses = new Map();
     this.llmFiles = new Map();
     this.emailCaptures = new Map();
+    this.subscriptions = new Map();
+    this.paymentHistory = new Map();
+    this.usageTracking = new Map();
+    this.cacheEntries = new Map();
     this.currentUserId = 1;
     this.currentAnalysisId = 1;
     this.currentLlmFileId = 1;
     this.currentEmailCaptureId = 1;
+    this.currentSubscriptionId = 1;
+    this.currentPaymentId = 1;
+    this.currentUsageId = 1;
+    this.currentCacheId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -54,6 +96,15 @@ export class MemStorage implements IStorage {
     return Array.from(this.users.values()).find(
       (user) => user.username === username,
     );
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    // In MemStorage, we'll find user via email capture for now
+    const emailCapture = await this.getEmailCapture(email);
+    if (emailCapture?.userId) {
+      return this.getUser(emailCapture.userId);
+    }
+    return undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -74,11 +125,12 @@ export class MemStorage implements IStorage {
     const id = this.currentAnalysisId++;
     const analysis: SitemapAnalysis = {
       id,
+      userId: insertAnalysis.userId || null,
       url: insertAnalysis.url,
       status: insertAnalysis.status || "pending",
       sitemapContent: insertAnalysis.sitemapContent || null,
-      discoveredPages: (insertAnalysis.discoveredPages as any) || null,
-      analysisMetadata: (insertAnalysis.analysisMetadata as any) || null,
+      discoveredPages: insertAnalysis.discoveredPages || null,
+      analysisMetadata: insertAnalysis.analysisMetadata || null,
       createdAt: new Date(),
     };
     this.analyses.set(id, analysis);
@@ -103,8 +155,9 @@ export class MemStorage implements IStorage {
     const id = this.currentLlmFileId++;
     const llmFile: LlmTextFile = {
       id,
+      userId: insertLlmFile.userId || null,
       analysisId: insertLlmFile.analysisId || null,
-      selectedPages: (insertLlmFile.selectedPages as any) || null,
+      selectedPages: insertLlmFile.selectedPages || null,
       content: insertLlmFile.content,
       createdAt: new Date(),
     };
@@ -121,6 +174,7 @@ export class MemStorage implements IStorage {
     const id = this.currentEmailCaptureId++;
     const emailCapture: EmailCapture = {
       id,
+      userId: insertEmailCapture.userId || null,
       email: insertEmailCapture.email,
       websiteUrl: insertEmailCapture.websiteUrl,
       tier: insertEmailCapture.tier || "starter",
@@ -133,6 +187,149 @@ export class MemStorage implements IStorage {
   async getEmailCapture(email: string): Promise<EmailCapture | undefined> {
     return this.emailCaptures.get(email);
   }
+
+  // Subscription methods
+  async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
+    const id = this.currentSubscriptionId++;
+    const subscription: Subscription = {
+      id,
+      userId: insertSubscription.userId,
+      stripeCustomerId: insertSubscription.stripeCustomerId || null,
+      stripeSubscriptionId: insertSubscription.stripeSubscriptionId || null,
+      tier: insertSubscription.tier || "starter",
+      status: insertSubscription.status || "active",
+      currentPeriodStart: insertSubscription.currentPeriodStart || null,
+      currentPeriodEnd: insertSubscription.currentPeriodEnd || null,
+      cancelAtPeriodEnd: insertSubscription.cancelAtPeriodEnd || false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.subscriptions.set(id, subscription);
+    return subscription;
+  }
+
+  async getSubscription(userId: number): Promise<Subscription | undefined> {
+    return Array.from(this.subscriptions.values()).find(
+      (subscription) => subscription.userId === userId,
+    );
+  }
+
+  async getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | undefined> {
+    return Array.from(this.subscriptions.values()).find(
+      (subscription) => subscription.stripeSubscriptionId === stripeSubscriptionId,
+    );
+  }
+
+  async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription | undefined> {
+    const existing = this.subscriptions.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...updates, updatedAt: new Date() };
+    this.subscriptions.set(id, updated);
+    return updated;
+  }
+
+  // Payment history methods
+  async createPaymentHistory(insertPayment: InsertPaymentHistory): Promise<PaymentHistory> {
+    const id = this.currentPaymentId++;
+    const payment: PaymentHistory = {
+      id,
+      userId: insertPayment.userId,
+      subscriptionId: insertPayment.subscriptionId || null,
+      stripePaymentIntentId: insertPayment.stripePaymentIntentId || null,
+      amount: insertPayment.amount,
+      currency: insertPayment.currency || "usd",
+      status: insertPayment.status,
+      createdAt: new Date(),
+    };
+    this.paymentHistory.set(id, payment);
+    return payment;
+  }
+
+  async getPaymentHistory(userId: number): Promise<PaymentHistory[]> {
+    return Array.from(this.paymentHistory.values()).filter(
+      (payment) => payment.userId === userId,
+    );
+  }
+
+  // Usage tracking methods
+  async createOrUpdateUsage(insertUsage: InsertUsageTracking): Promise<UsageTrackingDb> {
+    const key = `${insertUsage.userId}:${insertUsage.date}`;
+    const existing = this.usageTracking.get(key);
+    
+    if (existing) {
+      const updated: UsageTrackingDb = {
+        ...existing,
+        analysesCount: existing.analysesCount + (insertUsage.analysesCount || 0),
+        pagesProcessed: existing.pagesProcessed + (insertUsage.pagesProcessed || 0),
+        aiCallsCount: existing.aiCallsCount + (insertUsage.aiCallsCount || 0),
+        htmlExtractionsCount: existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
+        cacheHits: existing.cacheHits + (insertUsage.cacheHits || 0),
+        totalCost: existing.totalCost + (insertUsage.totalCost || 0),
+        updatedAt: new Date(),
+      };
+      this.usageTracking.set(key, updated);
+      return updated;
+    } else {
+      const id = this.currentUsageId++;
+      const usage: UsageTrackingDb = {
+        id,
+        userId: insertUsage.userId,
+        date: insertUsage.date,
+        analysesCount: insertUsage.analysesCount || 0,
+        pagesProcessed: insertUsage.pagesProcessed || 0,
+        aiCallsCount: insertUsage.aiCallsCount || 0,
+        htmlExtractionsCount: insertUsage.htmlExtractionsCount || 0,
+        cacheHits: insertUsage.cacheHits || 0,
+        totalCost: insertUsage.totalCost || 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.usageTracking.set(key, usage);
+      return usage;
+    }
+  }
+
+  async getUsageByDate(userId: number, date: string): Promise<UsageTrackingDb | undefined> {
+    const key = `${userId}:${date}`;
+    return this.usageTracking.get(key);
+  }
+
+  // Cache methods
+  async createCacheEntry(insertCache: InsertAnalysisCache): Promise<AnalysisCacheDb> {
+    const id = this.currentCacheId++;
+    const cache: AnalysisCacheDb = {
+      id,
+      url: insertCache.url,
+      urlHash: insertCache.urlHash,
+      contentHash: insertCache.contentHash,
+      lastModified: insertCache.lastModified || null,
+      etag: insertCache.etag || null,
+      analysisResult: insertCache.analysisResult || null,
+      tier: insertCache.tier,
+      cachedAt: new Date(),
+      expiresAt: insertCache.expiresAt,
+      hitCount: insertCache.hitCount || 0,
+    };
+    this.cacheEntries.set(insertCache.urlHash, cache);
+    return cache;
+  }
+
+  async getCacheEntry(urlHash: string, tier: string): Promise<AnalysisCacheDb | undefined> {
+    const entry = this.cacheEntries.get(urlHash);
+    if (entry && entry.tier === tier) {
+      return entry;
+    }
+    return undefined;
+  }
+
+  async updateCacheHitCount(id: number): Promise<void> {
+    const entry = Array.from(this.cacheEntries.values()).find(e => e.id === id);
+    if (entry) {
+      entry.hitCount++;
+      this.cacheEntries.set(entry.urlHash, entry);
+    }
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -144,6 +341,18 @@ export class DatabaseStorage implements IStorage {
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    // Join with emailCaptures to find user by email
+    const result = await db
+      .select({ user: users })
+      .from(users)
+      .innerJoin(emailCaptures, eq(users.id, emailCaptures.userId))
+      .where(eq(emailCaptures.email, email))
+      .limit(1);
+    
+    return result[0]?.user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -167,11 +376,12 @@ export class DatabaseStorage implements IStorage {
     const [analysis] = await db
       .insert(sitemapAnalysis)
       .values({
+        userId: insertAnalysis.userId,
         url: insertAnalysis.url,
         status: insertAnalysis.status,
         sitemapContent: insertAnalysis.sitemapContent,
-        discoveredPages: insertAnalysis.discoveredPages as any,
-        analysisMetadata: insertAnalysis.analysisMetadata as any
+        discoveredPages: insertAnalysis.discoveredPages,
+        analysisMetadata: insertAnalysis.analysisMetadata
       })
       .returning();
     return analysis;
@@ -198,8 +408,9 @@ export class DatabaseStorage implements IStorage {
     const [llmFile] = await db
       .insert(llmTextFiles)
       .values({
+        userId: insertLlmFile.userId,
         analysisId: insertLlmFile.analysisId,
-        selectedPages: insertLlmFile.selectedPages as any,
+        selectedPages: insertLlmFile.selectedPages,
         content: insertLlmFile.content
       })
       .returning();
@@ -219,6 +430,7 @@ export class DatabaseStorage implements IStorage {
     const [emailCapture] = await db
       .insert(emailCaptures)
       .values({
+        userId: insertEmailCapture.userId,
         email: insertEmailCapture.email,
         websiteUrl: insertEmailCapture.websiteUrl,
         tier: insertEmailCapture.tier || "starter"
@@ -233,6 +445,122 @@ export class DatabaseStorage implements IStorage {
       .from(emailCaptures)
       .where(eq(emailCaptures.email, email));
     return emailCapture || undefined;
+  }
+
+  // Subscription methods
+  async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
+    const [subscription] = await db
+      .insert(subscriptions)
+      .values(insertSubscription)
+      .returning();
+    return subscription;
+  }
+
+  async getSubscription(userId: number): Promise<Subscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, userId))
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1);
+    return subscription || undefined;
+  }
+
+  async getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId));
+    return subscription || undefined;
+  }
+
+  async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription | undefined> {
+    const [subscription] = await db
+      .update(subscriptions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(subscriptions.id, id))
+      .returning();
+    return subscription || undefined;
+  }
+
+  // Payment history methods
+  async createPaymentHistory(insertPayment: InsertPaymentHistory): Promise<PaymentHistory> {
+    const [payment] = await db
+      .insert(paymentHistory)
+      .values(insertPayment)
+      .returning();
+    return payment;
+  }
+
+  async getPaymentHistory(userId: number): Promise<PaymentHistory[]> {
+    const payments = await db
+      .select()
+      .from(paymentHistory)
+      .where(eq(paymentHistory.userId, userId))
+      .orderBy(desc(paymentHistory.createdAt));
+    return payments;
+  }
+
+  // Usage tracking methods
+  async createOrUpdateUsage(insertUsage: InsertUsageTracking): Promise<UsageTrackingDb> {
+    // For PostgreSQL, we'll implement upsert manually
+    const existing = await this.getUsageByDate(insertUsage.userId, insertUsage.date);
+    
+    if (existing) {
+      const [usage] = await db
+        .update(usageTracking)
+        .set({
+          analysesCount: existing.analysesCount + (insertUsage.analysesCount || 0),
+          pagesProcessed: existing.pagesProcessed + (insertUsage.pagesProcessed || 0),
+          aiCallsCount: existing.aiCallsCount + (insertUsage.aiCallsCount || 0),
+          htmlExtractionsCount: existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
+          cacheHits: existing.cacheHits + (insertUsage.cacheHits || 0),
+          totalCost: existing.totalCost + (insertUsage.totalCost || 0),
+          updatedAt: new Date(),
+        })
+        .where(eq(usageTracking.id, existing.id))
+        .returning();
+      return usage;
+    } else {
+      const [usage] = await db
+        .insert(usageTracking)
+        .values(insertUsage)
+        .returning();
+      return usage;
+    }
+  }
+
+  async getUsageByDate(userId: number, date: string): Promise<UsageTrackingDb | undefined> {
+    const [usage] = await db
+      .select()
+      .from(usageTracking)
+      .where(and(eq(usageTracking.userId, userId), eq(usageTracking.date, date)));
+    return usage || undefined;
+  }
+
+  // Cache methods
+  async createCacheEntry(insertCache: InsertAnalysisCache): Promise<AnalysisCacheDb> {
+    const [cache] = await db
+      .insert(analysisCache)
+      .values(insertCache)
+      .returning();
+    return cache;
+  }
+
+  async getCacheEntry(urlHash: string, tier: string): Promise<AnalysisCacheDb | undefined> {
+    const [cache] = await db
+      .select()
+      .from(analysisCache)
+      .where(and(eq(analysisCache.urlHash, urlHash), eq(analysisCache.tier, tier)))
+      .limit(1);
+    return cache || undefined;
+  }
+
+  async updateCacheHitCount(id: number): Promise<void> {
+    await db
+      .update(analysisCache)
+      .set({ hitCount: sql`${analysisCache.hitCount} + 1` })
+      .where(eq(analysisCache.id, id));
   }
 }
 

@@ -199,6 +199,20 @@ export default function ContentAnalysis({ websiteUrl, userEmail, onAnalysisCompl
                   {analysisData.totalPagesFound}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ai-silver">Pages Analyzed:</span>
+                <span className="text-framework-black font-medium">
+                  {analysisData.discoveredPages.length}
+                </span>
+              </div>
+              {analysisData.discoveredPages.length < analysisData.totalPagesFound && (
+                <div className="flex items-center justify-between">
+                  <span className="text-ai-silver">Pages Skipped:</span>
+                  <span className="text-yellow-600 font-medium">
+                    {analysisData.totalPagesFound - analysisData.discoveredPages.length}
+                  </span>
+                </div>
+              )}
               {analysisData.message && (
                 <div className="pt-2 border-t border-slate-200">
                   <p className="text-ai-silver text-xs">

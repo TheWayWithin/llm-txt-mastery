@@ -10,14 +10,41 @@ export const users = pgTable("users", {
 
 export const emailCaptures = pgTable("email_captures", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
   email: text("email").notNull().unique(),
   websiteUrl: text("website_url").notNull(),
   tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  stripeSubscriptionId: text("stripe_subscription_id").unique(),
+  tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
+  status: text("status").notNull().default("active"), // "active", "canceled", "past_due", "incomplete"
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const paymentHistory = pgTable("payment_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  amount: integer("amount").notNull(), // Amount in cents
+  currency: text("currency").notNull().default("usd"),
+  status: text("status").notNull(), // "succeeded", "failed", "pending"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const sitemapAnalysis = pgTable("sitemap_analysis", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
   url: text("url").notNull(),
   sitemapContent: jsonb("sitemap_content"),
   discoveredPages: jsonb("discovered_pages").$type<DiscoveredPage[]>(),
@@ -47,10 +74,39 @@ export const sitemapAnalysis = pgTable("sitemap_analysis", {
 
 export const llmTextFiles = pgTable("llm_text_files", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
   analysisId: integer("analysis_id").references(() => sitemapAnalysis.id),
   selectedPages: jsonb("selected_pages").$type<SelectedPage[]>(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const usageTracking = pgTable("usage_tracking", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  analysesCount: integer("analyses_count").notNull().default(0),
+  pagesProcessed: integer("pages_processed").notNull().default(0),
+  aiCallsCount: integer("ai_calls_count").notNull().default(0),
+  htmlExtractionsCount: integer("html_extractions_count").notNull().default(0),
+  cacheHits: integer("cache_hits").notNull().default(0),
+  totalCost: integer("total_cost").notNull().default(0), // Cost in cents
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const analysisCache = pgTable("analysis_cache", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  urlHash: text("url_hash").notNull().unique(),
+  contentHash: text("content_hash").notNull(),
+  lastModified: text("last_modified"),
+  etag: text("etag"),
+  analysisResult: jsonb("analysis_result").$type<DiscoveredPage[]>(),
+  tier: text("tier").notNull(),
+  cachedAt: timestamp("cached_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  hitCount: integer("hit_count").notNull().default(0),
 });
 
 export interface DiscoveredPage {
@@ -92,6 +148,7 @@ export const urlAnalysisSchema = z.object({
 });
 
 export const insertSitemapAnalysisSchema = createInsertSchema(sitemapAnalysis).pick({
+  userId: true,
   url: true,
   sitemapContent: true,
   discoveredPages: true,
@@ -100,6 +157,7 @@ export const insertSitemapAnalysisSchema = createInsertSchema(sitemapAnalysis).p
 });
 
 export const insertLlmTextFileSchema = createInsertSchema(llmTextFiles).pick({
+  userId: true,
   analysisId: true,
   selectedPages: true,
   content: true,
@@ -118,9 +176,53 @@ export const insertUserSchema = createInsertSchema(users).pick({
 });
 
 export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).pick({
+  userId: true,
   email: true,
   websiteUrl: true,
   tier: true,
+});
+
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).pick({
+  userId: true,
+  stripeCustomerId: true,
+  stripeSubscriptionId: true,
+  tier: true,
+  status: true,
+  currentPeriodStart: true,
+  currentPeriodEnd: true,
+  cancelAtPeriodEnd: true,
+});
+
+export const insertPaymentHistorySchema = createInsertSchema(paymentHistory).pick({
+  userId: true,
+  subscriptionId: true,
+  stripePaymentIntentId: true,
+  amount: true,
+  currency: true,
+  status: true,
+});
+
+export const insertUsageTrackingSchema = createInsertSchema(usageTracking).pick({
+  userId: true,
+  date: true,
+  analysesCount: true,
+  pagesProcessed: true,
+  aiCallsCount: true,
+  htmlExtractionsCount: true,
+  cacheHits: true,
+  totalCost: true,
+});
+
+export const insertAnalysisCacheSchema = createInsertSchema(analysisCache).pick({
+  url: true,
+  urlHash: true,
+  contentHash: true,
+  lastModified: true,
+  etag: true,
+  analysisResult: true,
+  tier: true,
+  expiresAt: true,
+  hitCount: true,
 });
 
 export const emailCaptureSchema = z.object({
@@ -131,6 +233,14 @@ export const emailCaptureSchema = z.object({
 
 export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;
 export type EmailCapture = typeof emailCaptures.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertPaymentHistory = z.infer<typeof insertPaymentHistorySchema>;
+export type PaymentHistory = typeof paymentHistory.$inferSelect;
+export type InsertUsageTracking = z.infer<typeof insertUsageTrackingSchema>;
+export type UsageTrackingDb = typeof usageTracking.$inferSelect;
+export type InsertAnalysisCache = z.infer<typeof insertAnalysisCacheSchema>;
+export type AnalysisCacheDb = typeof analysisCache.$inferSelect;
 
 // Tier-based types
 export type UserTier = 'starter' | 'growth' | 'scale';
@@ -152,6 +262,7 @@ export interface TierLimits {
   };
 }
 
+// Legacy interfaces for backward compatibility - use database types for new code
 export interface CachedAnalysis {
   id: number;
   url: string;
@@ -168,12 +279,16 @@ export interface CachedAnalysis {
 
 export interface UsageTracking {
   id: number;
+  userId?: number;
   userEmail?: string;
-  date: Date;
+  date: string;
   analysesCount: number;
   pagesProcessed: number;
-  aiCallsCount: number;
-  htmlExtractionsCount: number;
+  aiCallsCount?: number;
+  htmlExtractionsCount?: number;
   cacheHits: number;
-  totalCost: number;
+  cost?: number;
+  totalCost?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

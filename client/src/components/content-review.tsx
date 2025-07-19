@@ -161,6 +161,45 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
           </div>
         </div>
 
+        {/* Quality Scoring Info */}
+        <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-start space-x-2">
+            <Star className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-semibold text-blue-900 mb-1">Quality Scoring Guide</h4>
+              <p className="text-sm text-blue-800 mb-2">
+                Each page is scored 1-10 based on AI analysis of content relevance, technical depth, 
+                SEO optimization, and information architecture for AI understanding.
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="px-2 py-1 bg-green-100 text-green-800 rounded">8-10: High Quality</span>
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">6-7: Medium Quality</span>
+                <span className="px-2 py-1 bg-red-100 text-red-800 rounded">1-5: Low Quality</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="mb-4 grid grid-cols-4 gap-4 text-center">
+          <div className="p-3 bg-slate-50 rounded-lg">
+            <div className="text-lg font-semibold text-framework-black">{discoveredPages.length}</div>
+            <div className="text-xs text-ai-silver">Total Found</div>
+          </div>
+          <div className="p-3 bg-green-50 rounded-lg">
+            <div className="text-lg font-semibold text-green-700">{Object.values(selectedPages).filter(Boolean).length}</div>
+            <div className="text-xs text-green-600">Selected</div>
+          </div>
+          <div className="p-3 bg-red-50 rounded-lg">
+            <div className="text-lg font-semibold text-red-700">{discoveredPages.length - Object.values(selectedPages).filter(Boolean).length}</div>
+            <div className="text-xs text-red-600">Excluded</div>
+          </div>
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <div className="text-lg font-semibold text-blue-700">{discoveredPages.filter(p => p.qualityScore >= 8).length}</div>
+            <div className="text-xs text-blue-600">High Quality</div>
+          </div>
+        </div>
+
         {/* Filter Controls */}
         <div className="mb-6 flex items-center space-x-4">
           <div className="flex items-center space-x-2">
