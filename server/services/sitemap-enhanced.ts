@@ -34,11 +34,19 @@ export async function analyzeDiscoveredPagesWithCache(
   const relevantPages = filterRelevantPages(entries);
   const tierLimits = TIER_LIMITS[tier];
   
-  // Apply tier-based page limit
-  const maxPages = Math.min(tierLimits.maxPagesPerAnalysis, relevantPages.length);
-  const pagesToAnalyze = relevantPages.slice(0, maxPages);
+  // Apply tier-based page limit (bypass in development)
+  let pagesToAnalyze: SitemapEntry[];
   
-  console.log(`Analyzing ${pagesToAnalyze.length} pages for ${userEmail} (tier: ${tier})`);
+  if (process.env.NODE_ENV === 'development') {
+    // Development mode: analyze all relevant pages (no tier limits)
+    pagesToAnalyze = relevantPages;
+    console.log(`🚀 [DEV MODE] Analyzing ALL ${pagesToAnalyze.length} pages for ${userEmail} (tier: ${tier}) - bypassing tier limit of ${tierLimits.maxPagesPerAnalysis}`);
+  } else {
+    // Production mode: respect tier limits
+    const maxPages = Math.min(tierLimits.maxPagesPerAnalysis, relevantPages.length);
+    pagesToAnalyze = relevantPages.slice(0, maxPages);
+    console.log(`Analyzing ${pagesToAnalyze.length} pages for ${userEmail} (tier: ${tier})`);
+  }
   
   const pages: DiscoveredPage[] = [];
   const startTime = Date.now();
