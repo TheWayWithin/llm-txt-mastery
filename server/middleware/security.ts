@@ -2,15 +2,17 @@ import helmet from 'helmet';
 import type { Express } from 'express';
 
 export function setupSecurityMiddleware(app: Express) {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
   // Use helmet for security headers
   app.use(helmet({
-    // Content Security Policy
-    contentSecurityPolicy: {
+    // Content Security Policy - More permissive in development
+    contentSecurityPolicy: isDevelopment ? false : {
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
@@ -61,26 +63,28 @@ export function setupSecurityMiddleware(app: Express) {
     xssFilter: true,
   }));
 
-  // Additional security headers
-  app.use((req, res, next) => {
-    // Prevent MIME type sniffing
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    
-    // Prevent clickjacking
-    res.setHeader('X-Frame-Options', 'DENY');
-    
-    // XSS protection
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    
-    // Referrer policy
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    
-    // Permissions policy (formerly Feature Policy)
-    res.setHeader('Permissions-Policy', 
-      'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
-    
-    next();
-  });
+  // Additional security headers - Only apply in production
+  if (!isDevelopment) {
+    app.use((req, res, next) => {
+      // Prevent MIME type sniffing
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      
+      // Prevent clickjacking
+      res.setHeader('X-Frame-Options', 'DENY');
+      
+      // XSS protection
+      res.setHeader('X-XSS-Protection', '1; mode=block');
+      
+      // Referrer policy
+      res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+      
+      // Permissions policy (formerly Feature Policy)
+      res.setHeader('Permissions-Policy', 
+        'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+      
+      next();
+    });
+  }
 }
 
 // CORS configuration for production
