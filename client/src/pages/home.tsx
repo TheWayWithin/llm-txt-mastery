@@ -6,15 +6,17 @@ import EmailCapture from "@/components/email-capture";
 import ContentAnalysis from "@/components/content-analysis";
 import ContentReview from "@/components/content-review";
 import FileGeneration from "@/components/file-generation";
+import TierLimitsDisplay from "@/components/tier-limits-display";
+import UsageDisplay from "@/components/usage-display";
 import { DiscoveredPage } from "@shared/schema";
 
 export default function Home() {
-  const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'analysis' | 'review' | 'generation'>('input');
+  const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'limits' | 'analysis' | 'review' | 'generation'>('input');
   const [analysisId, setAnalysisId] = useState<number | null>(null);
   const [discoveredPages, setDiscoveredPages] = useState<DiscoveredPage[]>([]);
   const [websiteUrl, setWebsiteUrl] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
-  const [userTier, setUserTier] = useState<"free" | "premium">("free");
+  const [userTier, setUserTier] = useState<"starter" | "growth" | "scale">("starter");
   const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
 
   const handleAnalysisComplete = (id: number, pages: DiscoveredPage[]) => {
@@ -34,7 +36,7 @@ export default function Home() {
     setDiscoveredPages([]);
     setWebsiteUrl("");
     setUserEmail("");
-    setUserTier("free");
+    setUserTier("starter");
     setGeneratedFileId(null);
   };
 
@@ -92,6 +94,11 @@ export default function Home() {
 
         {/* Progressive Steps */}
         <div className="space-y-8">
+          {/* Usage Display for logged in users */}
+          {userEmail && (
+            <UsageDisplay userEmail={userEmail} />
+          )}
+          
           {/* Step 1: URL Input */}
           <UrlInput
             onAnalysisStart={(url) => {
@@ -108,22 +115,33 @@ export default function Home() {
               onEmailCaptured={(email, tier) => {
                 setUserEmail(email);
                 setUserTier(tier);
-                setCurrentStep('analysis');
+                setCurrentStep('limits');
               }}
               isVisible={currentStep === 'email'}
             />
           )}
 
-          {/* Step 3: Content Analysis */}
-          {currentStep === 'analysis' && (
-            <ContentAnalysis
-              websiteUrl={websiteUrl}
-              onAnalysisComplete={handleAnalysisComplete}
-              useAI={userTier === 'premium'}
+          {/* Step 3: Tier Limits Check */}
+          {currentStep === 'limits' && (
+            <TierLimitsDisplay
+              url={websiteUrl}
+              email={userEmail}
+              onProceed={() => setCurrentStep('analysis')}
+              isVisible={currentStep === 'limits'}
             />
           )}
 
-          {/* Step 4: Content Review */}
+          {/* Step 4: Content Analysis */}
+          {currentStep === 'analysis' && (
+            <ContentAnalysis
+              websiteUrl={websiteUrl}
+              userEmail={userEmail}
+              onAnalysisComplete={handleAnalysisComplete}
+              useAI={userTier !== 'starter'}
+            />
+          )}
+
+          {/* Step 5: Content Review */}
           {currentStep === 'review' && analysisId && (
             <ContentReview
               analysisId={analysisId}
@@ -132,7 +150,7 @@ export default function Home() {
             />
           )}
 
-          {/* Step 5: File Generation */}
+          {/* Step 6: File Generation */}
           {currentStep === 'generation' && generatedFileId && (
             <FileGeneration
               fileId={generatedFileId}

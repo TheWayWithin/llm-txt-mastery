@@ -12,7 +12,7 @@ export const emailCaptures = pgTable("email_captures", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   websiteUrl: text("website_url").notNull(),
-  tier: text("tier").notNull().default("free"), // "free" or "premium"
+  tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -28,6 +28,19 @@ export const sitemapAnalysis = pgTable("sitemap_analysis", {
     analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
     message: string;
     totalPagesFound: number;
+    userEmail?: string;
+    tier?: UserTier;
+    metrics?: {
+      cacheHit: boolean;
+      processingTime: number;
+      apiCalls: number;
+      costSaved: number;
+      analyzedPages?: number;
+      cachedPages?: number;
+      aiCallsUsed?: number;
+      htmlExtractionsUsed?: number;
+    };
+    processingTime?: number;
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -50,14 +63,21 @@ export interface DiscoveredPage {
 }
 
 export interface SiteAnalysisResult {
-  analysisId: number;
-  status: "analyzing" | "completed" | "failed";
+  id: number;
+  url: string;
+  status: "analyzing" | "completed" | "failed" | "pending" | "processing";
   discoveredPages: DiscoveredPage[];
   siteType: "single-page" | "multi-page" | "unknown";
   sitemapFound: boolean;
   analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
   message: string;
   totalPagesFound: number;
+  metrics?: {
+    cacheHit: boolean;
+    processingTime: number;
+    apiCalls: number;
+    costSaved: number;
+  };
 }
 
 export interface SelectedPage {
@@ -76,6 +96,7 @@ export const insertSitemapAnalysisSchema = createInsertSchema(sitemapAnalysis).p
   sitemapContent: true,
   discoveredPages: true,
   status: true,
+  analysisMetadata: true,
 });
 
 export const insertLlmTextFileSchema = createInsertSchema(llmTextFiles).pick({
@@ -105,8 +126,54 @@ export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).pick({
 export const emailCaptureSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   websiteUrl: z.string().url("Please enter a valid URL"),
-  tier: z.enum(["free", "premium"]).default("free"),
+  tier: z.enum(["starter", "growth", "scale"]).default("starter"),
 });
 
 export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;
 export type EmailCapture = typeof emailCaptures.$inferSelect;
+
+// Tier-based types
+export type UserTier = 'starter' | 'growth' | 'scale';
+
+export interface TierLimits {
+  tier: UserTier;
+  dailyAnalyses: number;
+  maxPagesPerAnalysis: number;
+  aiPagesLimit: number;
+  cacheDurationDays: number;
+  features: {
+    htmlExtraction: boolean;
+    aiAnalysis: boolean;
+    fileHistory: boolean;
+    prioritySupport: boolean;
+    smartCaching: boolean;
+    whiteLabel?: boolean;
+    apiAccess?: boolean;
+  };
+}
+
+export interface CachedAnalysis {
+  id: number;
+  url: string;
+  urlHash: string;
+  contentHash: string;
+  lastModified?: string;
+  etag?: string;
+  analysisResult: DiscoveredPage[];
+  tier: UserTier;
+  cachedAt: Date;
+  expiresAt: Date;
+  hitCount: number;
+}
+
+export interface UsageTracking {
+  id: number;
+  userEmail?: string;
+  date: Date;
+  analysesCount: number;
+  pagesProcessed: number;
+  aiCallsCount: number;
+  htmlExtractionsCount: number;
+  cacheHits: number;
+  totalCost: number;
+}

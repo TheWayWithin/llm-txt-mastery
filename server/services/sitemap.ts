@@ -534,12 +534,16 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
   return prioritized;
 }
 
-export async function analyzeDiscoveredPages(entries: SitemapEntry[], useAI: boolean = false): Promise<DiscoveredPage[]> {
+export async function analyzeDiscoveredPages(
+  entries: SitemapEntry[], 
+  useAI: boolean = false,
+  maxPagesLimit: number = 200
+): Promise<DiscoveredPage[]> {
   const relevantPages = filterRelevantPages(entries);
   const pages: DiscoveredPage[] = [];
 
-  // Limit to first 200 pages for better performance but still comprehensive coverage
-  const maxPages = Math.min(200, relevantPages.length);
+  // Use tier-based limit instead of hardcoded 200
+  const maxPages = Math.min(maxPagesLimit, relevantPages.length);
   const pagesToAnalyze = relevantPages.slice(0, maxPages);
 
   console.log(`Analyzing ${pagesToAnalyze.length} pages from ${entries.length} discovered pages`);

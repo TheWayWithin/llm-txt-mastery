@@ -16,7 +16,7 @@ import { z } from "zod";
 
 interface EmailCaptureProps {
   websiteUrl: string;
-  onEmailCaptured: (email: string, tier: "free" | "premium") => void;
+  onEmailCaptured: (email: string, tier: "starter" | "growth" | "scale") => void;
   isVisible: boolean;
 }
 
@@ -24,14 +24,14 @@ type FormData = z.infer<typeof emailCaptureSchema>;
 
 export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }: EmailCaptureProps) {
   const { toast } = useToast();
-  const [selectedTier, setSelectedTier] = useState<"free" | "premium">("free");
+  const [selectedTier, setSelectedTier] = useState<"starter" | "growth" | "scale">("starter");
 
   const form = useForm<FormData>({
     resolver: zodResolver(emailCaptureSchema),
     defaultValues: {
       email: "",
       websiteUrl: websiteUrl,
-      tier: "free",
+      tier: "starter",
     },
   });
 
@@ -77,34 +77,49 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }:
         <div className="space-y-4">
           <RadioGroup 
             value={selectedTier} 
-            onValueChange={(value: "free" | "premium") => setSelectedTier(value)}
+            onValueChange={(value: any) => setSelectedTier(value)}
             className="space-y-3"
           >
-            {/* Free Tier */}
+            {/* Starter Tier */}
             <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
-              <RadioGroupItem value="free" id="free" />
+              <RadioGroupItem value="starter" id="starter" />
               <div className="flex-1">
-                <Label htmlFor="free" className="flex items-center space-x-2 cursor-pointer">
+                <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer">
                   <Check className="text-green-600 w-4 h-4" />
-                  <span className="font-medium">Free Analysis</span>
+                  <span className="font-medium">Starter (Free)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-1">
-                  HTML extraction • Meta descriptions • Basic categorization
+                  1 analysis/day • 50 pages max • HTML extraction • Basic categorization
                 </p>
               </div>
             </div>
 
-            {/* Premium Tier */}
+            {/* Growth Tier */}
             <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
-              <RadioGroupItem value="premium" id="premium" />
+              <RadioGroupItem value="growth" id="growth" />
               <div className="flex-1">
-                <Label htmlFor="premium" className="flex items-center space-x-2 cursor-pointer">
-                  <Crown className="text-mastery-blue w-4 h-4" />
-                  <span className="font-medium">AI-Enhanced Analysis</span>
-                  <span className="text-xs bg-innovation-teal text-white px-2 py-1 rounded">PREMIUM</span>
+                <Label htmlFor="growth" className="flex items-center space-x-2 cursor-pointer">
+                  <Zap className="text-innovation-teal w-4 h-4" />
+                  <span className="font-medium">Growth ($25/mo)</span>
+                  <span className="text-xs bg-innovation-teal text-white px-2 py-1 rounded">POPULAR</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-1">
-                  AI-optimized descriptions • Advanced categorization • Quality scoring
+                  Unlimited analyses • 1,000 pages • AI-enhanced (first 200) • Smart caching
+                </p>
+              </div>
+            </div>
+
+            {/* Scale Tier */}
+            <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
+              <RadioGroupItem value="scale" id="scale" />
+              <div className="flex-1">
+                <Label htmlFor="scale" className="flex items-center space-x-2 cursor-pointer">
+                  <Crown className="text-mastery-blue w-4 h-4" />
+                  <span className="font-medium">Scale ($99/mo)</span>
+                  <span className="text-xs bg-mastery-blue text-white px-2 py-1 rounded">ENTERPRISE</span>
+                </Label>
+                <p className="text-sm text-ai-silver mt-1">
+                  Unlimited everything • Full AI analysis • API access • White-label options
                 </p>
               </div>
             </div>
@@ -135,10 +150,12 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }:
 
             <div className="flex items-center justify-between pt-4">
               <div className="text-xs text-ai-silver">
-                {selectedTier === "free" ? (
+                {selectedTier === "starter" ? (
                   <span>✓ Instant access • No payment required</span>
+                ) : selectedTier === "growth" ? (
+                  <span>✓ Professional features • Smart caching</span>
                 ) : (
-                  <span>✓ AI-powered analysis • Premium features</span>
+                  <span>✓ Enterprise features • Priority support</span>
                 )}
               </div>
               <Button 

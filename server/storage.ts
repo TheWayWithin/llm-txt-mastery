@@ -78,6 +78,7 @@ export class MemStorage implements IStorage {
       status: insertAnalysis.status || "pending",
       sitemapContent: insertAnalysis.sitemapContent || null,
       discoveredPages: (insertAnalysis.discoveredPages as any) || null,
+      analysisMetadata: (insertAnalysis.analysisMetadata as any) || null,
       createdAt: new Date(),
     };
     this.analyses.set(id, analysis);
@@ -122,7 +123,7 @@ export class MemStorage implements IStorage {
       id,
       email: insertEmailCapture.email,
       websiteUrl: insertEmailCapture.websiteUrl,
-      tier: insertEmailCapture.tier || "free",
+      tier: insertEmailCapture.tier || "starter",
       createdAt: new Date(),
     };
     this.emailCaptures.set(insertEmailCapture.email, emailCapture);
@@ -169,7 +170,8 @@ export class DatabaseStorage implements IStorage {
         url: insertAnalysis.url,
         status: insertAnalysis.status,
         sitemapContent: insertAnalysis.sitemapContent,
-        discoveredPages: insertAnalysis.discoveredPages
+        discoveredPages: insertAnalysis.discoveredPages as any,
+        analysisMetadata: insertAnalysis.analysisMetadata as any
       })
       .returning();
     return analysis;
@@ -197,7 +199,7 @@ export class DatabaseStorage implements IStorage {
       .insert(llmTextFiles)
       .values({
         analysisId: insertLlmFile.analysisId,
-        selectedPages: insertLlmFile.selectedPages,
+        selectedPages: insertLlmFile.selectedPages as any,
         content: insertLlmFile.content
       })
       .returning();
@@ -219,7 +221,7 @@ export class DatabaseStorage implements IStorage {
       .values({
         email: insertEmailCapture.email,
         websiteUrl: insertEmailCapture.websiteUrl,
-        tier: insertEmailCapture.tier || "free"
+        tier: insertEmailCapture.tier || "starter"
       })
       .returning();
     return emailCapture;
@@ -234,4 +236,7 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Use in-memory storage if DATABASE_URL is not properly configured
+export const storage = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes("localhost:5432/test") 
+  ? new DatabaseStorage() 
+  : new MemStorage();

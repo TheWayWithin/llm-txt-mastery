@@ -7,34 +7,12 @@ import { analyzeDiscoveredPagesWithCache } from "./services/sitemap-enhanced";
 import { storage } from "./storage";
 import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
-import { requireAuth, optionalAuth } from "./middleware/auth";
-import authRoutes from "./routes/auth";
-import { trackAnalysisCompleted, triggerUpgradeSequence, isConvertKitConfigured, getConvertKitConfig } from "./services/convertkit";
+import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Authentication routes
-  app.use('/api/auth', authRoutes);
-  
-  // ConvertKit configuration status endpoint
-  app.get("/api/convertkit/status", async (req, res) => {
-    try {
-      const config = getConvertKitConfig();
-      res.json({
-        status: "success",
-        config
-      });
-    } catch (error) {
-      console.error("ConvertKit status error:", error);
-      res.status(500).json({
-        status: "error",
-        message: "Failed to get ConvertKit configuration"
-      });
-    }
-  });
-  
   // Email capture endpoint for freemium model
-  app.post("/api/email-capture", async (req, res) => {
+  app.post("/api/email-capture", apiLimiter, async (req, res) => {
     try {
       const emailData = emailCaptureSchema.parse(req.body);
       
@@ -48,16 +26,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Create new email capture with selected tier
+      // Create new email capture with default tier
       const capture = await storage.createEmailCapture({
         ...emailData,
-        tier: emailData.tier as any // Use the selected tier
+        tier: 'starter' as any // Default to starter tier
       });
       
       res.json({ 
         message: "Email captured successfully", 
         capture,
-        tier: emailData.tier
+        tier: 'starter'
       });
     } catch (error) {
       console.error("Email capture error:", error);
@@ -106,16 +84,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Enhanced analyze endpoint with caching and tier support
-  app.post("/api/analyze", requireAuth, async (req, res) => {
+  app.post("/api/analyze", analysisLimiter, async (req, res) => {
     try {
-      const { url, force = false } = z.object({
+      const { url, force = false, email } = z.object({
         url: z.string(),
-        force: z.boolean().optional().default(false)
+        force: z.boolean().optional().default(false),
+        email: z.string().optional()
       }).parse(req.body);
       
-      // Use authenticated user information
-      const userEmail = req.user!.email;
-      const tier = req.user!.tier;
+      // Require email for tier-based analysis
+      if (!email) {
+        return res.status(400).json({ 
+          message: "Email required for analysis. Please sign up first." 
+        });
+      }
+      
+      // Get user tier
+      const tier = await getUserTier(email);
       
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -125,21 +110,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pageCount = sitemapResult.entries.length;
       
       // Check usage limits
-      const usageCheck = await checkUsageLimits(userEmail, pageCount);
+      const usageCheck = await checkUsageLimits(email, pageCount);
       if (!usageCheck.allowed) {
-        // Trigger upgrade sequence in ConvertKit if configured
-        if (isConvertKitConfigured()) {
-          try {
-            let limitType: 'daily_analyses' | 'page_limit' | 'ai_limit' = 'page_limit';
-            if (usageCheck.reason.includes('daily')) limitType = 'daily_analyses';
-            if (usageCheck.reason.includes('AI')) limitType = 'ai_limit';
-            
-            await triggerUpgradeSequence(userEmail, tier, limitType);
-          } catch (error) {
-            console.error('ConvertKit upgrade sequence failed:', error);
-          }
-        }
-        
         return res.status(403).json({
           message: usageCheck.reason,
           currentUsage: usageCheck.currentUsage,
@@ -160,7 +132,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If force flag is not set and we have a completed analysis, return it
       if (!force && existingAnalysis && existingAnalysis.status === "completed") {
         // Check if it's recent enough based on tier cache duration
-        const analysisAge = Date.now() - new Date(existingAnalysis.createdAt).getTime();
+        const analysisAge = existingAnalysis.createdAt ? 
+          Date.now() - new Date(existingAnalysis.createdAt).getTime() : 
+          Date.now();
         const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
         
         if (analysisAge < maxAge) {
@@ -180,11 +154,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sitemapContent: null,
         discoveredPages: [],
         // Store user email for tracking
-        analysisMetadata: { userEmail: userEmail } as any
+        analysisMetadata: { userEmail: email } as any
       });
 
       // Start analysis process (async)
-      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, userEmail, tier);
+      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, email, tier);
 
       res.json({ 
         analysisId: analysis.id,
@@ -264,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keep existing endpoints
-  app.post("/api/generate-llm-file", requireAuth, async (req, res) => {
+  app.post("/api/generate-llm-file", fileGenerationLimiter, async (req, res) => {
     try {
       const { analysisId, selectedPages } = z.object({
         analysisId: z.number(),
@@ -309,7 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get LLM file data
-  app.get("/api/llm-file/:id", requireAuth, async (req, res) => {
+  app.get("/api/llm-file/:id", async (req, res) => {
     try {
       const fileId = parseInt(req.params.id);
       const llmFile = await storage.getLlmFile(fileId);
@@ -331,7 +305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Download LLM.txt file
-  app.get("/api/download/:id", requireAuth, async (req, res) => {
+  app.get("/api/download/:id", async (req, res) => {
     try {
       const fileId = parseInt(req.params.id);
       const llmFile = await storage.getLlmFile(fileId);
@@ -391,21 +365,6 @@ async function analyzeWebsiteEnhanced(
       metrics.cachedPages,
       metrics.estimatedCost
     );
-    
-    // Track analysis completion in ConvertKit if configured
-    if (isConvertKitConfigured()) {
-      try {
-        await trackAnalysisCompleted(userEmail, {
-          url,
-          pageCount: metrics.totalPages,
-          tier,
-          cacheHits: metrics.cachedPages,
-          analysisTime: (Date.now() - startTime) / 1000
-        });
-      } catch (error) {
-        console.error('ConvertKit analysis tracking failed:', error);
-      }
-    }
     
     // Update analysis with results and metrics
     await storage.updateAnalysis(analysisId, {

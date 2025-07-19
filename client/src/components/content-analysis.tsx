@@ -4,10 +4,11 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle, Circle, Loader2 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { DiscoveredPage } from "@shared/schema";
+import { DiscoveredPage, SiteAnalysisResult } from "@shared/schema";
 
 interface ContentAnalysisProps {
   websiteUrl: string;
+  userEmail: string;
   onAnalysisComplete: (analysisId: number, pages: DiscoveredPage[]) => void;
   useAI?: boolean;
 }
@@ -25,15 +26,15 @@ const analysisSteps: AnalysisStep[] = [
   { id: "descriptions", label: "Generating AI-powered descriptions", progress: 100 }
 ];
 
-export default function ContentAnalysis({ websiteUrl, onAnalysisComplete, useAI = false }: ContentAnalysisProps) {
+export default function ContentAnalysis({ websiteUrl, userEmail, onAnalysisComplete, useAI = false }: ContentAnalysisProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [analysisId, setAnalysisId] = useState<number | null>(null);
 
   const startAnalysisMutation = useMutation({
-    mutationFn: async ({ url, force = false, useAI = false }: { url: string; force?: boolean; useAI?: boolean }) => {
-      // Use real sitemap analysis endpoint
-      const response = await apiRequest("POST", "/api/analyze", { url, force, useAI });
+    mutationFn: async ({ url, force = false, email }: { url: string; force?: boolean; email: string }) => {
+      // Use real sitemap analysis endpoint with email for tier-based analysis
+      const response = await apiRequest("POST", "/api/analyze", { url, force, email });
       return response.json();
     },
     onSuccess: (data) => {
@@ -47,20 +48,25 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete, useAI 
     }
   });
 
-  const { data: analysisData, error } = useQuery({
+  const { data: analysisData, error } = useQuery<SiteAnalysisResult>({
     queryKey: ["/api/analysis", analysisId],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/analysis/${analysisId}`);
+      return response.json();
+    },
     enabled: !!analysisId,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Stop polling when analysis is complete
+      const data = query?.state?.data;
       return data?.status === "completed" || data?.status === "failed" ? false : 2000;
     },
   });
 
   useEffect(() => {
-    if (websiteUrl) {
-      startAnalysisMutation.mutate({ url: websiteUrl, force: true, useAI });
+    if (websiteUrl && userEmail) {
+      startAnalysisMutation.mutate({ url: websiteUrl, force: true, email: userEmail });
     }
-  }, [websiteUrl]);
+  }, [websiteUrl, userEmail]);
 
   useEffect(() => {
     if (analysisData) {
@@ -197,6 +203,23 @@ export default function ContentAnalysis({ websiteUrl, onAnalysisComplete, useAI 
                 <div className="pt-2 border-t border-slate-200">
                   <p className="text-ai-silver text-xs">
                     {analysisData.message}
+                  </p>
+                </div>
+              )}
+              {analysisData.metrics && (
+                <div className="pt-2 border-t border-slate-200 space-y-1">
+                  <p className="text-framework-black text-xs font-semibold">Performance Metrics:</p>
+                  <p className="text-ai-silver text-xs">
+                    • Cache hit: {analysisData.metrics.cacheHit ? 'Yes' : 'No'}
+                  </p>
+                  <p className="text-ai-silver text-xs">
+                    • Processing time: {analysisData.metrics.processingTime}s
+                  </p>
+                  <p className="text-ai-silver text-xs">
+                    • API calls: {analysisData.metrics.apiCalls}
+                  </p>
+                  <p className="text-ai-silver text-xs">
+                    • Cost saved: ${analysisData.metrics.costSaved.toFixed(2)}
                   </p>
                 </div>
               )}
