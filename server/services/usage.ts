@@ -79,6 +79,25 @@ export async function checkUsageLimits(
   userEmail: string, 
   requestedPages: number
 ): Promise<UsageCheckResult> {
+  // Development bypass - skip all limits in development mode
+  if (process.env.NODE_ENV === 'development') {
+    const tier = await getUserTier(userEmail);
+    const limits = TIER_LIMITS[tier];
+    
+    console.log(`🚀 [DEV MODE] Bypassing usage limits for ${userEmail} (${tier} tier) - ${requestedPages} pages`);
+    
+    return {
+      allowed: true,
+      reason: undefined,
+      currentUsage: { analysesToday: 0, pagesProcessedToday: 0 },
+      limits: {
+        dailyAnalyses: limits.dailyAnalyses,
+        maxPagesPerAnalysis: limits.maxPagesPerAnalysis,
+        aiPagesLimit: limits.aiPagesLimit
+      }
+    };
+  }
+
   try {
     const tier = await getUserTier(userEmail);
     const limits = TIER_LIMITS[tier];
