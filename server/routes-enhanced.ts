@@ -431,18 +431,21 @@ function generateLlmTxtContent(
 # Created: ${createdDate}
 #
 # === ANALYSIS SUMMARY ===
-# Pages Found: ${totalFound}
-# Pages Analyzed: ${analyzed}
-# Pages Included: ${selectedPages.length}
-# Pages Excluded: ${excluded}
+# Pages Found: ${totalFound} (discovered in sitemap and crawling)
+# Pages Analyzed: ${analyzed} (successfully fetched and scored)
+# Pages Included: ${selectedPages.length} (selected for LLM.txt file)
+# Pages Excluded: ${excluded} (filtered out during review)
+#
+# Note: ${totalFound - analyzed} pages were skipped due to access restrictions,
+# errors during fetching, or content filtering (file downloads, admin pages, etc.)
 #
 # === QUALITY SCORING REFERENCE ===
 # Quality scores range from 1-10 based on AI analysis of:
-# - Content relevance and depth
-# - Technical documentation quality  
-# - SEO optimization and structure
-# - Information architecture
-# - User experience indicators
+# - Content relevance and depth (30%)
+# - Technical documentation quality (25%)
+# - SEO optimization and structure (20%)
+# - Information architecture (15%)
+# - User experience indicators (10%)
 #
 # Learn more about LLM.txt format: https://llmtxt.com/docs/format
 # Understanding quality scores: https://llmtxt.com/docs/quality-scoring

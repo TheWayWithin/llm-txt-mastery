@@ -157,7 +157,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
             <h3 className="text-xl font-semibold text-framework-black">Expert-Guided Content Review</h3>
           </div>
           <div className="text-sm text-ai-silver">
-            {discoveredPages.length} pages discovered
+            {discoveredPages.length} pages analyzed for review
           </div>
         </div>
 
@@ -171,11 +171,15 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
                 Each page is scored 1-10 based on AI analysis of content relevance, technical depth, 
                 SEO optimization, and information architecture for AI understanding.
               </p>
-              <div className="flex flex-wrap gap-2 text-xs">
+              <div className="flex flex-wrap gap-2 text-xs mb-2">
                 <span className="px-2 py-1 bg-green-100 text-green-800 rounded">8-10: High Quality</span>
                 <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">6-7: Medium Quality</span>
                 <span className="px-2 py-1 bg-red-100 text-red-800 rounded">1-5: Low Quality</span>
               </div>
+              <p className="text-xs text-blue-700">
+                💡 <strong>Note:</strong> "Pages Analyzed" shows only pages that were successfully fetched and scored. 
+                Some discovered pages may be skipped due to access restrictions, errors, or filtering.
+              </p>
             </div>
           </div>
         </div>
@@ -184,7 +188,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
         <div className="mb-4 grid grid-cols-4 gap-4 text-center">
           <div className="p-3 bg-slate-50 rounded-lg">
             <div className="text-lg font-semibold text-framework-black">{discoveredPages.length}</div>
-            <div className="text-xs text-ai-silver">Total Found</div>
+            <div className="text-xs text-ai-silver">Pages Analyzed</div>
           </div>
           <div className="p-3 bg-green-50 rounded-lg">
             <div className="text-lg font-semibold text-green-700">{Object.values(selectedPages).filter(Boolean).length}</div>
