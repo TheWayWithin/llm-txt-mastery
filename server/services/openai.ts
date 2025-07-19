@@ -54,15 +54,42 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   // Extract description
   let description = $('meta[name="description"]').attr('content') || '';
   if (!description) {
-    description = $('p').first().text().trim().substring(0, 300);
-  }
-  if (!description) {
-    description = 'Content page from ' + new URL(url).hostname;
+    // Try to get meaningful content from paragraphs and lists
+    const firstParagraph = $('p').first().text().trim();
+    const listContent = $('ul li, ol li').map((_, el) => $(el).text().trim()).get().slice(0, 3).join(', ');
+    
+    if (firstParagraph && firstParagraph.length > 10) {
+      description = firstParagraph;
+      // If we have list items and the paragraph is just navigation text, include list info
+      if (firstParagraph.toLowerCase().includes('from here you can') && listContent) {
+        description = `${firstParagraph} ${listContent}`;
+      }
+    } else if (listContent) {
+      description = `Navigation page with links to: ${listContent}`;
+    } else {
+      // Look for any substantial text content
+      const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
+      description = bodyText.substring(0, 200) || 'Content page from ' + new URL(url).hostname;
+    }
   }
   
-  // Determine category based on URL patterns
+  // Calculate quality score based on content indicators
+  let qualityScore = 3; // Lower base score for more realistic assessment
+  
+  // Extract text content for analysis
+  const textContent = $('body').text().trim();
+  const wordCount = textContent.split(/\s+/).filter(word => word.length > 0).length;
+  const paragraphCount = $('p').length;
+  const listItemCount = $('li').length;
+  const headingCount = $('h1, h2, h3, h4, h5, h6').length;
+  const codeBlockCount = $('code, pre').length;
+  const linkCount = $('a').length;
+  
+  // Determine category based on URL patterns and content
   let category = "General";
   const urlLower = url.toLowerCase();
+  const contentLower = textContent.toLowerCase();
+  
   if (urlLower.includes('/docs') || urlLower.includes('/documentation')) {
     category = "Documentation";
   } else if (urlLower.includes('/api')) {
@@ -73,24 +100,72 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
     category = "Blog";
   } else if (urlLower.includes('/about')) {
     category = "About";
+  } else if (urlLower.includes('cern.ch') && contentLower.includes('first website')) {
+    category = "Historical";
+    // Historical significance but should still be reasonable
+    qualityScore += 0.5;
+  } else if (contentLower.includes('navigation') || 
+            contentLower.includes('from here you can') ||
+            listItemCount > paragraphCount) {
+    category = "Navigation";
   }
   
-  // Calculate quality score based on content indicators
-  let qualityScore = 5; // Base score
+  // Content depth scoring (more stringent)
+  if (wordCount > 100) qualityScore += 1;
+  if (wordCount > 300) qualityScore += 1;
+  if (wordCount > 500) qualityScore += 1;
   
-  // Increase score for valuable content indicators
-  if (title.length > 10) qualityScore += 1;
-  if (description.length > 50) qualityScore += 1;
-  if ($('h1, h2, h3').length > 2) qualityScore += 1;
-  if ($('p').length > 3) qualityScore += 1;
-  if ($('code, pre').length > 0) qualityScore += 1;
+  // Structure scoring
+  if (headingCount >= 2) qualityScore += 0.5;
+  if (paragraphCount >= 3) qualityScore += 0.5;
+  if (codeBlockCount > 0) qualityScore += 1;
   
-  // Decrease score for less valuable content
-  if (title.toLowerCase().includes('404') || title.toLowerCase().includes('error')) {
+  // Content quality indicators
+  if (title.length > 20 && !title.includes('http://') && !title.includes('https://')) {
+    qualityScore += 0.5;
+  }
+  if (description.length > 100 && !description.includes('From here you can')) {
+    qualityScore += 0.5;
+  }
+  
+  
+  // Navigation vs content pages - be more aggressive about detection
+  const isNavigationPage = textContent.toLowerCase().includes('from here you can') ||
+                          textContent.toLowerCase().includes('select from') ||
+                          textContent.toLowerCase().includes('choose from') ||
+                          (listItemCount > 2 && paragraphCount <= 2 && wordCount < 300);
+  
+  if (isNavigationPage) {
+    // Navigation pages should score low regardless of other factors
+    qualityScore = Math.max(1, Math.min(3, qualityScore - 1));
+    console.log(`Detected navigation page: ${url}, reducing quality score`);
+  }
+  
+  // Error and low-value page detection
+  if (title.toLowerCase().includes('404') || 
+      title.toLowerCase().includes('error') ||
+      textContent.toLowerCase().includes('page not found')) {
     qualityScore = 1;
   }
   
-  qualityScore = Math.max(1, Math.min(10, qualityScore));
+  // Placeholder content detection
+  if (textContent.toLowerCase().includes('lorem ipsum') ||
+      textContent.toLowerCase().includes('coming soon') ||
+      textContent.toLowerCase().includes('under construction')) {
+    qualityScore = Math.max(1, qualityScore - 2);
+  }
+  
+  // Incomplete content detection - be more aggressive
+  if (description.endsWith(':') || 
+      description.endsWith('can:') ||
+      description.includes('From here you can:') ||
+      description.includes('From here you can') ||
+      description.length < 30) {
+    qualityScore = Math.max(1, qualityScore - 2);
+    console.log(`Detected incomplete/minimal content: ${url}, description: "${description}"`);
+  }
+  
+  qualityScore = Math.max(1, Math.min(10, Math.round(qualityScore * 2) / 2)); // Round to nearest 0.5
   
   // Ensure description doesn't cut off mid-word
   let finalDescription = description.substring(0, 300) || "No description available";
