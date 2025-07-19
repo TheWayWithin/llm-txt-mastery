@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Copy, Download, FileText } from "lucide-react";
+import { CheckCircle, Copy, Download, FileText, BarChart3 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
 interface FileGenerationProps {
   fileId: number;
+  analysisId?: number;
   onStartOver: () => void;
+  onViewAnalysis?: () => void;
 }
 
-export default function FileGeneration({ fileId, onStartOver }: FileGenerationProps) {
+export default function FileGeneration({ fileId, analysisId, onStartOver, onViewAnalysis }: FileGenerationProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -161,6 +163,16 @@ export default function FileGeneration({ fileId, onStartOver }: FileGenerationPr
             </p>
           </div>
           <div className="flex items-center space-x-3">
+            {onViewAnalysis && (
+              <Button
+                variant="outline"
+                onClick={onViewAnalysis}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                View Analysis Details
+              </Button>
+            )}
             <Button
               variant="secondary"
               onClick={handleCopyToClipboard}

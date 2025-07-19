@@ -40,6 +40,10 @@ export default function Home() {
     setGeneratedFileId(null);
   };
 
+  const handleViewAnalysisDetails = () => {
+    setCurrentStep('review');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -154,7 +158,9 @@ export default function Home() {
           {currentStep === 'generation' && generatedFileId && (
             <FileGeneration
               fileId={generatedFileId}
+              analysisId={analysisId || undefined}
               onStartOver={resetWorkflow}
+              onViewAnalysis={handleViewAnalysisDetails}
             />
           )}
         </div>

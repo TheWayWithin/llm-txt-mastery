@@ -473,8 +473,12 @@ ${excludedPages
   .map(page => `# ${page.url}: ${page.title}`)
   .join('\n')}${excluded > 20 ? `\n# ... and ${excluded - 20} more pages` : ''}
 #
-# To see all excluded pages and their quality scores, visit:
-# https://llmtxt.com/analysis/${analysisMetadata?.analysisId || 'view'}`;
+# === ANALYSIS DETAILS ===
+# To review the complete analysis, quality scores, and make changes:
+# https://llmtxt.com/analysis/${analysisMetadata?.analysisId || 'view'}
+#
+# For support or questions about this analysis:
+# https://llmtxt.com/contact`;
   }
 
   return header + content + excludedSection;

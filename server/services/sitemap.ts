@@ -262,33 +262,57 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
 }
 
 async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
-  const commonPaths = [
-    '/',
-    '/docs',
-    '/documentation',
-    '/api',
-    '/guides',
-    '/guide',
-    '/tutorials',
-    '/tutorial',
-    '/help',
-    '/support',
-    '/about',
-    '/getting-started',
-    '/quickstart',
-    '/reference',
-    '/examples',
-    '/blog',
-    '/news',
-    '/faq',
-    '/changelog',
-    '/roadmap'
-  ];
-
+  console.log(`Starting enhanced crawling fallback for ${baseUrl}`);
+  
+  const discoveredUrls = new Set<string>();
   const pages: SitemapEntry[] = [];
   
+  // Step 1: Extract root domain for consistent URL handling
+  const urlObj = new URL(baseUrl);
+  const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
+  
+  // Step 2: Crawl the homepage first to discover internal links
+  try {
+    const homepageUrls = await crawlPageForLinks(baseUrl, rootDomain);
+    homepageUrls.forEach(url => discoveredUrls.add(url));
+    console.log(`Discovered ${homepageUrls.length} links from homepage`);
+  } catch (error) {
+    console.log(`Homepage crawling failed: ${error.message}`);
+  }
+  
+  // Step 3: Try common paths
+  const commonPaths = [
+    '/',
+    '/docs', '/documentation', '/doc',
+    '/api', '/api-docs', '/api/docs',
+    '/guides', '/guide', '/tutorials', '/tutorial',
+    '/help', '/support', '/faq',
+    '/about', '/about-us',
+    '/getting-started', '/quickstart', '/start',
+    '/reference', '/refs',
+    '/examples', '/example', '/demos', '/demo',
+    '/blog', '/posts', '/articles',
+    '/news', '/updates',
+    '/changelog', '/releases',
+    '/roadmap', '/plans',
+    '/contact', '/contacts',
+    '/team', '/company',
+    '/pricing', '/plans',
+    '/features', '/capabilities',
+    '/download', '/downloads'
+  ];
+
   for (const path of commonPaths) {
-    const url = `${baseUrl}${path}`;
+    const url = `${rootDomain}${path}`;
+    if (!discoveredUrls.has(url)) {
+      discoveredUrls.add(url);
+    }
+  }
+  
+  console.log(`Total URLs to check: ${discoveredUrls.size}`);
+  
+  // Step 4: Validate discovered URLs
+  const validationPromises = Array.from(discoveredUrls).slice(0, 50).map(async (url) => {
     try {
       const response = await fetch(url, {
         method: 'HEAD',
@@ -299,20 +323,27 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
       });
 
       if (response.ok) {
-        pages.push({
+        return {
           url: url,
           lastmod: response.headers.get('last-modified') || undefined,
           changefreq: 'weekly',
-          priority: path === '/' ? '1.0' : '0.8'
-        });
+          priority: url === baseUrl || url === rootDomain || url === `${rootDomain}/` ? '1.0' : '0.8'
+        };
       }
     } catch (error) {
       // Ignore errors for individual pages
     }
-  }
+    return null;
+  });
+
+  const validationResults = await Promise.all(validationPromises);
+  const validPages = validationResults.filter(page => page !== null);
+  pages.push(...validPages);
+
+  console.log(`Enhanced crawling found ${pages.length} valid pages`);
 
   if (pages.length === 0) {
-    // At minimum, include the homepage
+    // At minimum, include the original URL
     pages.push({
       url: baseUrl,
       lastmod: new Date().toISOString(),
@@ -322,6 +353,76 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   }
 
   return pages;
+}
+
+async function crawlPageForLinks(url: string, rootDomain: string): Promise<string[]> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'LLM.txt Mastery Bot 1.0'
+      },
+      timeout: 10000
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    const links: string[] = [];
+
+    // Extract all internal links
+    $('a[href]').each((_, element) => {
+      const href = $(element).attr('href');
+      if (href) {
+        try {
+          let fullUrl: string;
+          
+          if (href.startsWith('http')) {
+            // Absolute URL - only include if same domain
+            const linkUrl = new URL(href);
+            if (linkUrl.hostname === new URL(rootDomain).hostname) {
+              fullUrl = href;
+            } else {
+              return; // Skip external links
+            }
+          } else if (href.startsWith('/')) {
+            // Relative to root
+            fullUrl = `${rootDomain}${href}`;
+          } else if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+            // Skip anchors and non-HTTP links
+            return;
+          } else {
+            // Relative to current page
+            const baseUrl = new URL(url);
+            fullUrl = new URL(href, baseUrl.href).href;
+          }
+          
+          // Clean up URL (remove fragments, normalize)
+          const cleanUrl = new URL(fullUrl);
+          cleanUrl.hash = '';
+          const finalUrl = cleanUrl.href;
+          
+          // Filter out unwanted file types and paths
+          if (!finalUrl.match(/\.(jpg|jpeg|png|gif|pdf|zip|doc|docx|xls|xlsx|ppt|pptx|mp3|mp4|avi|mov)$/i) &&
+              !finalUrl.includes('/wp-admin/') &&
+              !finalUrl.includes('/admin/') &&
+              !finalUrl.includes('/login') &&
+              !finalUrl.includes('/logout')) {
+            links.push(finalUrl);
+          }
+        } catch (error) {
+          // Skip malformed URLs
+        }
+      }
+    });
+
+    return [...new Set(links)]; // Remove duplicates
+  } catch (error) {
+    console.log(`Failed to crawl ${url} for links: ${error.message}`);
+    return [];
+  }
 }
 
 export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
