@@ -7,13 +7,26 @@ import { DiscoveredPage, UserTier, TierLimits, CachedAnalysis } from "@shared/sc
 export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
   starter: {
     dailyAnalyses: 1,
-    maxPagesPerAnalysis: 50,
+    maxPagesPerAnalysis: 20, // Reduced from 50 to encourage upgrades
     aiPagesLimit: 0,
     cacheDurationDays: 30,
     features: {
       htmlExtraction: true,
       aiAnalysis: false,
       fileHistory: false,
+      prioritySupport: false,
+      smartCaching: true
+    }
+  },
+  coffee: {
+    dailyAnalyses: 999, // No daily limit, credit-based instead
+    maxPagesPerAnalysis: 200, // 10x more than free tier
+    aiPagesLimit: 200, // Full AI analysis for coffee tier
+    cacheDurationDays: 7, // Same as growth tier
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true, // AI analysis enabled for coffee tier
+      fileHistory: false, // No file history for one-time purchases
       prioritySupport: false,
       smartCaching: true
     }

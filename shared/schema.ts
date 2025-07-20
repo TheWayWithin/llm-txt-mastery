@@ -109,6 +109,31 @@ export const analysisCache = pgTable("analysis_cache", {
   hitCount: integer("hit_count").notNull().default(0),
 });
 
+export const oneTimeCredits = pgTable("one_time_credits", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  creditsRemaining: integer("credits_remaining").notNull().default(0),
+  creditsTotal: integer("credits_total").notNull().default(0),
+  productType: text("product_type").notNull().default("coffee"), // "coffee", future: "pro", etc.
+  priceId: text("price_id"), // Stripe price ID for the purchase
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  expiresAt: timestamp("expires_at"), // null = no expiration
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const userProfiles = pgTable("user_profiles", {
+  id: text("id").primaryKey(), // Supabase user UUID
+  email: text("email").notNull(),
+  tier: text("tier").notNull().default("starter"),
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  subscriptionId: text("subscription_id"),
+  subscriptionStatus: text("subscription_status"),
+  creditsRemaining: integer("credits_remaining").notNull().default(0), // Current coffee credits
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export interface DiscoveredPage {
   url: string;
   title: string;
@@ -225,10 +250,30 @@ export const insertAnalysisCacheSchema = createInsertSchema(analysisCache).pick(
   hitCount: true,
 });
 
+export const insertOneTimeCreditSchema = createInsertSchema(oneTimeCredits).pick({
+  userId: true,
+  creditsRemaining: true,
+  creditsTotal: true,
+  productType: true,
+  priceId: true,
+  stripePaymentIntentId: true,
+  expiresAt: true,
+});
+
+export const insertUserProfileSchema = createInsertSchema(userProfiles).pick({
+  id: true,
+  email: true,
+  tier: true,
+  stripeCustomerId: true,
+  subscriptionId: true,
+  subscriptionStatus: true,
+  creditsRemaining: true,
+});
+
 export const emailCaptureSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   websiteUrl: z.string().url("Please enter a valid URL"),
-  tier: z.enum(["starter", "growth", "scale"]).default("starter"),
+  tier: z.enum(["starter", "coffee", "growth", "scale"]).default("starter"),
 });
 
 export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;
@@ -241,9 +286,13 @@ export type InsertUsageTracking = z.infer<typeof insertUsageTrackingSchema>;
 export type UsageTrackingDb = typeof usageTracking.$inferSelect;
 export type InsertAnalysisCache = z.infer<typeof insertAnalysisCacheSchema>;
 export type AnalysisCacheDb = typeof analysisCache.$inferSelect;
+export type InsertOneTimeCredit = z.infer<typeof insertOneTimeCreditSchema>;
+export type OneTimeCredit = typeof oneTimeCredits.$inferSelect;
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type UserProfile = typeof userProfiles.$inferSelect;
 
 // Tier-based types
-export type UserTier = 'starter' | 'growth' | 'scale';
+export type UserTier = 'starter' | 'coffee' | 'growth' | 'scale';
 
 export interface TierLimits {
   tier: UserTier;
