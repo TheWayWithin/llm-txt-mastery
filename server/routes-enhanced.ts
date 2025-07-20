@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
+import { registerStripeRoutes } from "./routes/stripe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -329,6 +330,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to download file" });
     }
   });
+
+  // Register Stripe payment routes
+  registerStripeRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

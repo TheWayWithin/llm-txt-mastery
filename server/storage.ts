@@ -1,8 +1,9 @@
 import { 
-  users, sitemapAnalysis, llmTextFiles, emailCaptures, subscriptions, paymentHistory, usageTracking, analysisCache,
+  users, sitemapAnalysis, llmTextFiles, emailCaptures, subscriptions, paymentHistory, usageTracking, analysisCache, oneTimeCredits, userProfiles,
   type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile, 
   type EmailCapture, type InsertEmailCapture, type Subscription, type InsertSubscription, type PaymentHistory, type InsertPaymentHistory,
-  type UsageTrackingDb, type InsertUsageTracking, type AnalysisCacheDb, type InsertAnalysisCache
+  type UsageTrackingDb, type InsertUsageTracking, type AnalysisCacheDb, type InsertAnalysisCache,
+  type OneTimeCredit, type InsertOneTimeCredit, type UserProfile, type InsertUserProfile
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -49,6 +50,16 @@ export interface IStorage {
   createCacheEntry(cache: InsertAnalysisCache): Promise<AnalysisCacheDb>;
   getCacheEntry(urlHash: string, tier: string): Promise<AnalysisCacheDb | undefined>;
   updateCacheHitCount(id: number): Promise<void>;
+  
+  // User profile methods
+  createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
+  getUserProfile(id: string): Promise<UserProfile | undefined>;
+  updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined>;
+  
+  // One-time credit methods
+  createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit>;
+  getUserCredits(userId: number): Promise<OneTimeCredit[]>;
+  consumeCredit(userId: number, amount?: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -60,6 +71,8 @@ export class MemStorage implements IStorage {
   private paymentHistory: Map<number, PaymentHistory>;
   private usageTracking: Map<string, UsageTrackingDb>; // key: userId:date
   private cacheEntries: Map<string, AnalysisCacheDb>; // key: urlHash
+  private userProfiles: Map<string, UserProfile>; // key: userId (string for Supabase UUID)
+  private oneTimeCredits: Map<number, OneTimeCredit>;
   private currentUserId: number;
   private currentAnalysisId: number;
   private currentLlmFileId: number;
@@ -68,6 +81,7 @@ export class MemStorage implements IStorage {
   private currentPaymentId: number;
   private currentUsageId: number;
   private currentCacheId: number;
+  private currentCreditId: number;
 
   constructor() {
     this.users = new Map();
@@ -78,6 +92,8 @@ export class MemStorage implements IStorage {
     this.paymentHistory = new Map();
     this.usageTracking = new Map();
     this.cacheEntries = new Map();
+    this.userProfiles = new Map();
+    this.oneTimeCredits = new Map();
     this.currentUserId = 1;
     this.currentAnalysisId = 1;
     this.currentLlmFileId = 1;
@@ -86,6 +102,7 @@ export class MemStorage implements IStorage {
     this.currentPaymentId = 1;
     this.currentUsageId = 1;
     this.currentCacheId = 1;
+    this.currentCreditId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -329,6 +346,71 @@ export class MemStorage implements IStorage {
       entry.hitCount++;
       this.cacheEntries.set(entry.urlHash, entry);
     }
+  }
+
+  // User profile methods
+  async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    const newProfile: UserProfile = {
+      ...profile,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.userProfiles.set(profile.id, newProfile);
+    return newProfile;
+  }
+
+  async getUserProfile(id: string): Promise<UserProfile | undefined> {
+    return this.userProfiles.get(id);
+  }
+
+  async updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined> {
+    const existing = this.userProfiles.get(id);
+    if (existing) {
+      const updated = { ...existing, ...updates, updatedAt: new Date() };
+      this.userProfiles.set(id, updated);
+      return updated;
+    }
+    return undefined;
+  }
+
+  // One-time credit methods
+  async createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit> {
+    const id = this.currentCreditId++;
+    const newCredit: OneTimeCredit = {
+      id,
+      ...credit,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.oneTimeCredits.set(id, newCredit);
+    return newCredit;
+  }
+
+  async getUserCredits(userId: number): Promise<OneTimeCredit[]> {
+    return Array.from(this.oneTimeCredits.values())
+      .filter(credit => credit.userId === userId);
+  }
+
+  async consumeCredit(userId: number, amount = 1): Promise<boolean> {
+    const userCredits = await this.getUserCredits(userId);
+    const availableCredit = userCredits.find(credit => credit.creditsRemaining > 0);
+    
+    if (availableCredit && availableCredit.creditsRemaining >= amount) {
+      availableCredit.creditsRemaining -= amount;
+      availableCredit.updatedAt = new Date();
+      this.oneTimeCredits.set(availableCredit.id, availableCredit);
+      
+      // Update user profile credits
+      const profile = await this.getUserProfile(userId.toString());
+      if (profile) {
+        await this.updateUserProfile(userId.toString(), {
+          creditsRemaining: (profile.creditsRemaining || 0) - amount
+        });
+      }
+      
+      return true;
+    }
+    return false;
   }
 }
 
