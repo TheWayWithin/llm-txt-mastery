@@ -66,9 +66,10 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Use port 3000 for local development (5000 conflicts with macOS)
-  const port = parseInt(process.env.PORT || "3000", 10);
-  server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
+  // Use port from environment or default to 8080
+  const port = parseInt(process.env.PORT || "8080", 10);
+  const host = process.env.HOST || "0.0.0.0";
+  server.listen(port, host, () => {
+    log(`serving on port ${port} (host: ${host})`);
   });
 })();

@@ -16,17 +16,20 @@ const convertKit = {
 const CONVERTKIT_CONFIG = {
   forms: {
     starter: process.env.CONVERTKIT_STARTER_FORM_ID || '',
+    coffee: process.env.CONVERTKIT_COFFEE_FORM_ID || '',
     growth: process.env.CONVERTKIT_GROWTH_FORM_ID || '',
     scale: process.env.CONVERTKIT_SCALE_FORM_ID || ''
   },
   sequences: {
     onboarding: process.env.CONVERTKIT_ONBOARDING_SEQUENCE_ID || '',
+    coffeeUpgrade: process.env.CONVERTKIT_COFFEE_UPGRADE_SEQUENCE_ID || '',
     growthUpgrade: process.env.CONVERTKIT_GROWTH_UPGRADE_SEQUENCE_ID || '',
     scaleUpgrade: process.env.CONVERTKIT_SCALE_UPGRADE_SEQUENCE_ID || '',
     usageLimits: process.env.CONVERTKIT_USAGE_LIMITS_SEQUENCE_ID || ''
   },
   tags: {
     starter: process.env.CONVERTKIT_STARTER_TAG_ID || '',
+    coffee: process.env.CONVERTKIT_COFFEE_TAG_ID || '',
     growth: process.env.CONVERTKIT_GROWTH_TAG_ID || '',
     scale: process.env.CONVERTKIT_SCALE_TAG_ID || '',
     analysisCompleted: process.env.CONVERTKIT_ANALYSIS_COMPLETED_TAG_ID || '',
@@ -47,7 +50,7 @@ export interface ConvertKitSubscriber {
 // Subscribe user to ConvertKit based on tier
 export async function subscribeToTier(
   email: string, 
-  tier: 'starter' | 'growth' | 'scale',
+  tier: 'starter' | 'coffee' | 'growth' | 'scale',
   firstName?: string,
   lastName?: string
 ): Promise<ConvertKitSubscriber | null> {
@@ -89,7 +92,7 @@ export async function subscribeToTier(
 // Update user tier in ConvertKit
 export async function updateSubscriberTier(
   email: string, 
-  newTier: 'starter' | 'growth' | 'scale'
+  newTier: 'starter' | 'coffee' | 'growth' | 'scale'
 ): Promise<void> {
   try {
     // Get subscriber by email
@@ -178,7 +181,7 @@ export async function trackAnalysisCompleted(
 // Trigger upgrade sequence when user hits limits
 export async function triggerUpgradeSequence(
   email: string,
-  currentTier: 'starter' | 'growth' | 'scale',
+  currentTier: 'starter' | 'coffee' | 'growth' | 'scale',
   limitType: 'daily_analyses' | 'page_limit' | 'ai_limit'
 ): Promise<void> {
   try {
@@ -227,7 +230,7 @@ export async function triggerUpgradeSequence(
 // Send welcome email with onboarding sequence
 export async function triggerOnboardingSequence(
   email: string,
-  tier: 'starter' | 'growth' | 'scale'
+  tier: 'starter' | 'coffee' | 'growth' | 'scale'
 ): Promise<void> {
   try {
     const subscribers = await convertKit.getSubscribers({ email_address: email })

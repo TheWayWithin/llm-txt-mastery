@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthNav } from "@/components/AuthNav";
 import UrlInput from "@/components/url-input";
 import EmailCapture from "@/components/email-capture";
 import ContentAnalysis from "@/components/content-analysis";
@@ -11,13 +13,18 @@ import UsageDisplay from "@/components/usage-display";
 import { DiscoveredPage } from "@shared/schema";
 
 export default function Home() {
+  const { user, userProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'limits' | 'analysis' | 'review' | 'generation'>('input');
   const [analysisId, setAnalysisId] = useState<number | null>(null);
   const [discoveredPages, setDiscoveredPages] = useState<DiscoveredPage[]>([]);
   const [websiteUrl, setWebsiteUrl] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
-  const [userTier, setUserTier] = useState<"starter" | "growth" | "scale">("starter");
+  const [userTier, setUserTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
   const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
+
+  // Use authenticated user data if available
+  const effectiveEmail = user?.email || userEmail;
+  const effectiveTier = userProfile?.tier || userTier;
 
   const handleAnalysisComplete = (id: number, pages: DiscoveredPage[]) => {
     setAnalysisId(id);
@@ -59,9 +66,12 @@ export default function Home() {
                 <p className="text-sm text-ai-silver">Expert-Crafted AI Content Accessibility</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-ai-silver">Created by AI Search Mastery</p>
-              <p className="text-xs text-ai-silver">MASTERY-AI Framework Developer</p>
+            <div className="flex items-center space-x-6">
+              <AuthNav />
+              <div className="text-right hidden md:block">
+                <p className="text-sm text-ai-silver">Created by AI Search Mastery</p>
+                <p className="text-xs text-ai-silver">MASTERY-AI Framework Developer</p>
+              </div>
             </div>
           </div>
         </div>
@@ -99,21 +109,26 @@ export default function Home() {
         {/* Progressive Steps */}
         <div className="space-y-8">
           {/* Usage Display for logged in users */}
-          {userEmail && (
-            <UsageDisplay userEmail={userEmail} />
+          {effectiveEmail && (
+            <UsageDisplay userEmail={effectiveEmail} />
           )}
           
           {/* Step 1: URL Input */}
           <UrlInput
             onAnalysisStart={(url) => {
               setWebsiteUrl(url);
-              setCurrentStep('email');
+              // Skip email capture if user is authenticated
+              if (user) {
+                setCurrentStep('limits');
+              } else {
+                setCurrentStep('email');
+              }
             }}
             isVisible={currentStep === 'input'}
           />
 
-          {/* Step 2: Email Capture */}
-          {currentStep === 'email' && (
+          {/* Step 2: Email Capture (only for non-authenticated users) */}
+          {currentStep === 'email' && !user && (
             <EmailCapture
               websiteUrl={websiteUrl}
               onEmailCaptured={(email, tier) => {
@@ -129,7 +144,7 @@ export default function Home() {
           {currentStep === 'limits' && (
             <TierLimitsDisplay
               url={websiteUrl}
-              email={userEmail}
+              email={effectiveEmail}
               onProceed={() => setCurrentStep('analysis')}
               isVisible={currentStep === 'limits'}
             />
@@ -139,9 +154,9 @@ export default function Home() {
           {currentStep === 'analysis' && (
             <ContentAnalysis
               websiteUrl={websiteUrl}
-              userEmail={userEmail}
+              userEmail={effectiveEmail}
               onAnalysisComplete={handleAnalysisComplete}
-              useAI={userTier !== 'starter'}
+              useAI={effectiveTier !== 'starter'}
             />
           )}
 

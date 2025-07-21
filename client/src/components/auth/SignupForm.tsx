@@ -10,7 +10,7 @@ import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 interface SignupFormProps {
   onSwitchToLogin: () => void
   defaultEmail?: string
-  defaultTier?: 'starter' | 'growth' | 'scale'
+  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale'
 }
 
 export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = 'starter' }: SignupFormProps) {

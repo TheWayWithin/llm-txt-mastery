@@ -11,7 +11,7 @@ const router = Router()
 const signUpSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  tier: z.enum(['starter', 'growth', 'scale']).default('starter')
+  tier: z.enum(['starter', 'coffee', 'growth', 'scale']).default('starter')
 })
 
 const signInSchema = z.object({
@@ -20,7 +20,7 @@ const signInSchema = z.object({
 })
 
 const updateTierSchema = z.object({
-  tier: z.enum(['starter', 'growth', 'scale'])
+  tier: z.enum(['starter', 'coffee', 'growth', 'scale'])
 })
 
 const passwordResetSchema = z.object({
