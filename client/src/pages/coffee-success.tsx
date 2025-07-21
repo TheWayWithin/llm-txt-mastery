@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Loader2, ArrowRight, Coffee } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function CoffeeSuccess() {
   const [searchParams] = useSearchParams();

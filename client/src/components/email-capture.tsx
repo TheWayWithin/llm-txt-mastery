@@ -16,7 +16,7 @@ import { z } from "zod";
 
 interface EmailCaptureProps {
   websiteUrl: string;
-  onEmailCaptured: (email: string, tier: "starter" | "growth" | "scale") => void;
+  onEmailCaptured: (email: string, tier: "starter" | "coffee" | "growth" | "scale") => void;
   isVisible: boolean;
 }
 
@@ -24,7 +24,7 @@ type FormData = z.infer<typeof emailCaptureSchema>;
 
 export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }: EmailCaptureProps) {
   const { toast } = useToast();
-  const [selectedTier, setSelectedTier] = useState<"starter" | "growth" | "scale">("starter");
+  const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
 
   const form = useForm<FormData>({
     resolver: zodResolver(emailCaptureSchema),
@@ -90,6 +90,21 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }:
                 </Label>
                 <p className="text-sm text-ai-silver mt-1">
                   1 analysis/day • 50 pages max • HTML extraction • Basic categorization
+                </p>
+              </div>
+            </div>
+
+            {/* Coffee Tier */}
+            <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 transition-colors border-orange-200 bg-orange-50">
+              <RadioGroupItem value="coffee" id="coffee" />
+              <div className="flex-1">
+                <Label htmlFor="coffee" className="flex items-center space-x-2 cursor-pointer">
+                  <span className="text-orange-600">☕</span>
+                  <span className="font-medium">Coffee Analysis ($4.95)</span>
+                  <span className="text-xs bg-orange-600 text-white px-2 py-1 rounded">ONE-TIME</span>
+                </Label>
+                <p className="text-sm text-orange-700 mt-1">
+                  1 premium analysis • 200 pages • Full AI-enhanced • No subscription
                 </p>
               </div>
             </div>

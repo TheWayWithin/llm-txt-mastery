@@ -8,7 +8,7 @@ declare global {
       user?: {
         id: string
         email: string
-        tier: 'starter' | 'growth' | 'scale'
+        tier: 'starter' | 'coffee' | 'growth' | 'scale'
       }
     }
   }
@@ -92,7 +92,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
 }
 
 // Middleware to check if user has sufficient tier for operation
-export function requireTier(minTier: 'starter' | 'growth' | 'scale') {
+export function requireTier(minTier: 'starter' | 'coffee' | 'growth' | 'scale') {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ 
@@ -101,7 +101,7 @@ export function requireTier(minTier: 'starter' | 'growth' | 'scale') {
       })
     }
     
-    const tierLevels = { starter: 1, growth: 2, scale: 3 }
+    const tierLevels = { starter: 1, coffee: 2, growth: 3, scale: 4 }
     const userTierLevel = tierLevels[req.user.tier]
     const requiredTierLevel = tierLevels[minTier]
     

@@ -2,14 +2,28 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { supabase, getCurrentUser, onAuthStateChange } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 
+interface UserProfile {
+  id: string
+  email: string
+  tier: 'starter' | 'coffee' | 'growth' | 'scale'
+  creditsRemaining: number
+  stripeCustomerId?: string
+  subscriptionId?: string
+  subscriptionStatus?: string
+  created_at: string
+  updated_at: string
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, tier?: 'starter' | 'coffee' | 'growth' | 'scale') => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
-  userProfile: any
+  userProfile: UserProfile | null
   refreshProfile: () => Promise<void>
+  hasCredits: boolean
+  canAnalyze: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -28,7 +42,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
-  const [userProfile, setUserProfile] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -82,7 +96,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, tier: 'starter' | 'coffee' | 'growth' | 'scale' = 'starter') => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -99,7 +113,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .insert({
           id: data.user.id,
           email: data.user.email,
-          tier: 'starter',
+          tier,
+          creditsRemaining: 0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -131,6 +146,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Computed properties
+  const hasCredits = userProfile?.tier === 'coffee' && (userProfile?.creditsRemaining || 0) > 0
+  const canAnalyze = !user || userProfile?.tier === 'starter' || hasCredits || ['growth', 'scale'].includes(userProfile?.tier || '')
+
   const value = {
     user,
     loading,
@@ -138,7 +157,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signIn,
     signOut,
     userProfile,
-    refreshProfile
+    refreshProfile,
+    hasCredits,
+    canAnalyze
   }
 
   return (

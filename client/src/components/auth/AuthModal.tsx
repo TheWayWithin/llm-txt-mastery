@@ -9,7 +9,7 @@ interface AuthModalProps {
   onClose: () => void
   defaultMode?: 'login' | 'signup' | 'forgot-password'
   defaultEmail?: string
-  defaultTier?: 'starter' | 'growth' | 'scale'
+  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale'
 }
 
 export function AuthModal({ 

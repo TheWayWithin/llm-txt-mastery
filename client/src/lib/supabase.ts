@@ -11,7 +11,7 @@ export interface User {
   id: string
   email: string
   emailVerified: boolean
-  tier: 'starter' | 'growth' | 'scale'
+  tier: 'starter' | 'coffee' | 'growth' | 'scale'
 }
 
 // Authentication functions

@@ -205,6 +205,55 @@ export async function trackUsage(
   }
 }
 
+// Coffee tier credit management
+export async function checkCoffeeCredits(userId: string): Promise<{ hasCredits: boolean; creditsRemaining: number }> {
+  try {
+    const userProfile = await storage.getUserProfile(userId);
+    const creditsRemaining = userProfile?.creditsRemaining || 0;
+    
+    return {
+      hasCredits: creditsRemaining > 0,
+      creditsRemaining
+    };
+  } catch (error) {
+    console.error('Error checking coffee credits:', error);
+    return { hasCredits: false, creditsRemaining: 0 };
+  }
+}
+
+export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
+  try {
+    const userProfile = await storage.getUserProfile(userId);
+    if (!userProfile || userProfile.creditsRemaining <= 0) {
+      return false;
+    }
+    
+    // Consume one credit
+    await storage.updateUserProfile(userId, {
+      creditsRemaining: userProfile.creditsRemaining - 1
+    });
+    
+    console.log(`Consumed 1 coffee credit for user: ${userId}. Remaining: ${userProfile.creditsRemaining - 1}`);
+    return true;
+  } catch (error) {
+    console.error('Error consuming coffee credit:', error);
+    return false;
+  }
+}
+
+export async function getUserTierFromAuth(user: { id: string; email: string; tier: UserTier } | undefined, email?: string): Promise<UserTier> {
+  if (user) {
+    // Get tier from authenticated user profile
+    const userProfile = await storage.getUserProfile(user.id);
+    return userProfile?.tier || user.tier || 'starter';
+  } else if (email) {
+    // Fallback to email-based tier lookup for backward compatibility
+    return await getUserTier(email);
+  } else {
+    return 'starter';
+  }
+}
+
 // Get usage statistics for a user
 export async function getUserUsageStats(userEmail: string, days: number = 30): Promise<any> {
   try {

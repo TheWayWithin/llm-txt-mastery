@@ -5,9 +5,10 @@ import { urlAnalysisSchema, insertSitemapAnalysisSchema, insertLlmTextFileSchema
 import { fetchSitemap } from "./services/sitemap";
 import { analyzeDiscoveredPagesWithCache } from "./services/sitemap-enhanced";
 import { storage } from "./storage";
-import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost } from "./services/usage";
+import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
+import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -85,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Enhanced analyze endpoint with caching and tier support
-  app.post("/api/analyze", analysisLimiter, async (req, res) => {
+  app.post("/api/analyze", analysisLimiter, optionalAuth, async (req, res) => {
     try {
       const { url, force = false, email } = z.object({
         url: z.string(),
@@ -93,15 +94,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: z.string().optional()
       }).parse(req.body);
       
-      // Require email for tier-based analysis
-      if (!email) {
+      // Get user information (authenticated or email-based)
+      const user = req.user;
+      const userEmail = user?.email || email;
+      
+      if (!userEmail) {
         return res.status(400).json({ 
           message: "Email required for analysis. Please sign up first." 
         });
       }
       
-      // Get user tier
-      const tier = await getUserTier(email);
+      // Get user tier (prioritize authenticated user data)
+      const tier = await getUserTierFromAuth(user, userEmail);
       
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -110,8 +114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sitemapResult = await fetchSitemap(normalizedUrl);
       const pageCount = sitemapResult.entries.length;
       
-      // Check usage limits
-      const usageCheck = await checkUsageLimits(email, pageCount);
+      // Check usage limits (for non-authenticated users or non-coffee tier)
+      const usageCheck = await checkUsageLimits(userEmail, pageCount);
       if (!usageCheck.allowed) {
         return res.status(403).json({
           message: usageCheck.reason,
@@ -119,6 +123,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           limits: usageCheck.limits,
           suggestedUpgrade: usageCheck.suggestedUpgrade
         });
+      }
+      
+      // For coffee tier users, check credits instead of daily limits
+      if (tier === 'coffee' && user?.id) {
+        const creditCheck = await checkCoffeeCredits(user.id);
+        if (!creditCheck.hasCredits) {
+          return res.status(403).json({
+            message: "No coffee credits remaining. Purchase more credits or upgrade to Growth tier for unlimited analyses.",
+            currentCredits: creditCheck.creditsRemaining,
+            tier: 'coffee',
+            suggestedUpgrade: 'growth'
+          });
+        }
       }
       
       // Check if already analyzing (to prevent duplicate analysis)
@@ -376,6 +393,14 @@ async function analyzeWebsiteEnhanced(
       metrics.cachedPages,
       metrics.estimatedCost
     );
+    
+    // Consume coffee credit if user is on coffee tier
+    if (tier === 'coffee' && req.user?.id) {
+      const creditConsumed = await consumeCoffeeCredit(req.user.id);
+      if (!creditConsumed) {
+        console.error(`Failed to consume coffee credit for user: ${req.user.id}`);
+      }
+    }
     
     // Update analysis with results and metrics
     await storage.updateAnalysis(analysisId, {
