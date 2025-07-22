@@ -10,13 +10,8 @@
   node_bundler = "esbuild"
 
 [[redirects]]
-  from = "/api/email-capture"
-  to = "/.netlify/functions/email-capture"
-  status = 200
-
-[[redirects]]
-  from = "/api/check-limits"
-  to = "/.netlify/functions/check-limits"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
 
 [[redirects]]
