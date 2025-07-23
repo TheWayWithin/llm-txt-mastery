@@ -47,6 +47,7 @@ exports.handler = async (event, context) => {
         content: 'This is the main landing page content...',
         contentLength: 1250,
         qualityScore: 85,
+        category: 'Landing Page',
         selected: true
       },
       {
@@ -56,6 +57,7 @@ exports.handler = async (event, context) => {
         content: 'We are a leading company in our field...',
         contentLength: 890,
         qualityScore: 78,
+        category: 'About',
         selected: true
       },
       {
@@ -65,6 +67,7 @@ exports.handler = async (event, context) => {
         content: 'We provide comprehensive services including...',
         contentLength: 1450,
         qualityScore: 82,
+        category: 'Services',
         selected: true
       }
     ];
