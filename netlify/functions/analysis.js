@@ -38,37 +38,61 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // For demo purposes, return a mock completed analysis
+    // Generate realistic mock pages based on the analysis
+    // For demo purposes, we'll create pages that look like they came from the actual website
+    const baseUrl = 'https://freecalchub.com'; // Default for demo, should be dynamic
+    const siteName = 'FreeCalcHub';
+    
     const mockPages = [
       {
-        url: 'https://example.com/',
-        title: 'Home Page',
-        description: 'Welcome to our website',
-        content: 'This is the main landing page content...',
-        contentLength: 1250,
-        qualityScore: 85,
+        url: `${baseUrl}/`,
+        title: `${siteName} - Free Online Calculators`,
+        description: 'Access hundreds of free online calculators for finance, math, health, and more',
+        content: `Welcome to ${siteName}! We provide comprehensive free online calculators for all your calculation needs. Our tools are designed to be accurate, fast, and easy to use.`,
+        contentLength: Math.floor(Math.random() * 800) + 800,
+        qualityScore: Math.floor(Math.random() * 20) + 80,
         category: 'Landing Page',
         selected: true
       },
       {
-        url: 'https://example.com/about',
-        title: 'About Us',
-        description: 'Learn more about our company',
-        content: 'We are a leading company in our field...',
-        contentLength: 890,
-        qualityScore: 78,
-        category: 'About',
+        url: `${baseUrl}/financial-calculators`,
+        title: 'Financial Calculators - Mortgage, Loan & Investment Tools',
+        description: 'Calculate mortgages, loans, investments, and other financial metrics',
+        content: 'Our comprehensive suite of financial calculators helps you make informed decisions about mortgages, loans, investments, retirement planning, and more.',
+        contentLength: Math.floor(Math.random() * 600) + 600,
+        qualityScore: Math.floor(Math.random() * 15) + 75,
+        category: 'Financial Tools',
         selected: true
       },
       {
-        url: 'https://example.com/services',
-        title: 'Our Services',
-        description: 'Discover what we offer',
-        content: 'We provide comprehensive services including...',
-        contentLength: 1450,
-        qualityScore: 82,
-        category: 'Services',
+        url: `${baseUrl}/math-calculators`,
+        title: 'Math Calculators - Algebra, Geometry & Statistics',
+        description: 'Solve complex math problems with our advanced calculators',
+        content: 'From basic arithmetic to advanced calculus, our math calculators cover algebra, geometry, trigonometry, statistics, and more.',
+        contentLength: Math.floor(Math.random() * 500) + 500,
+        qualityScore: Math.floor(Math.random() * 10) + 70,
+        category: 'Math Tools',
         selected: true
+      },
+      {
+        url: `${baseUrl}/health-calculators`,
+        title: 'Health & Fitness Calculators - BMI, Calorie & Nutrition',
+        description: 'Calculate BMI, calories, body fat, and other health metrics',
+        content: 'Track your health and fitness goals with our health calculators including BMI, calorie needs, body fat percentage, and nutrition tracking.',
+        contentLength: Math.floor(Math.random() * 400) + 400,
+        qualityScore: Math.floor(Math.random() * 15) + 65,
+        category: 'Health Tools',
+        selected: true
+      },
+      {
+        url: `${baseUrl}/about`,
+        title: 'About FreeCalcHub - Our Mission',
+        description: 'Learn about our mission to provide free, accurate calculation tools',
+        content: 'FreeCalcHub was founded to provide free, accurate, and easy-to-use calculators for everyone. Our team of developers and mathematicians work to ensure all tools are reliable.',
+        contentLength: Math.floor(Math.random() * 300) + 300,
+        qualityScore: Math.floor(Math.random() * 10) + 60,
+        category: 'About',
+        selected: false
       }
     ];
     
@@ -78,7 +102,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ 
         id: parseInt(analysisId),
         status: "completed",
-        websiteUrl: "https://example.com",
+        websiteUrl: baseUrl,
         totalPages: mockPages.length,
         totalPagesFound: mockPages.length,
         pagesWithContent: mockPages.length,
