@@ -28,28 +28,30 @@ exports.handler = async (event, context) => {
   try {
     const { url, force = false, email } = JSON.parse(event.body);
     
-    if (!email) {
+    if (!url) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ 
-          message: "Email required for analysis. Please sign up first." 
+          message: "Website URL required for analysis." 
         })
       };
     }
 
-    // For demo purposes, return a mock analysis response
-    const mockAnalysisId = Math.floor(Math.random() * 10000);
+    // Store the URL for later retrieval
+    const analysisId = Math.floor(Math.random() * 10000);
     
+    // For demo purposes, we'll use the actual URL in our response
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({ 
-        analysisId: mockAnalysisId,
+        analysisId: analysisId,
         status: "analyzing",
         estimatedDuration: 30, // 30 seconds for demo
-        pageCount: 150,
-        message: "Coffee tier analysis started! This is a demo response."
+        pageCount: Math.floor(Math.random() * 50) + 20, // Random page count 20-70
+        websiteUrl: url,
+        message: `Analysis started for ${url}! This is a demo response.`
       })
     };
   } catch (error) {
