@@ -59,14 +59,14 @@ exports.handler = async (event, context) => {
     selectedPages
       .filter(page => page.selected)
       .forEach(page => {
-        llmContent += `## ${page.title}\n`;
-        llmContent += `URL: ${page.url}\n`;
-        llmContent += `Category: ${page.category}\n`;
-        llmContent += `Quality Score: ${page.qualityScore}/10\n`;
+        llmContent += `## ${page.title || 'Untitled Page'}\n`;
+        llmContent += `URL: ${page.url || 'No URL'}\n`;
+        llmContent += `Category: ${page.category || 'Uncategorized'}\n`;
+        llmContent += `Quality Score: ${page.qualityScore || 'N/A'}/10\n`;
         if (page.description) {
           llmContent += `Description: ${page.description}\n`;
         }
-        llmContent += `\n${page.content}\n\n`;
+        llmContent += `\n${page.content || 'No content available'}\n\n`;
         llmContent += `---\n\n`;
       });
 
