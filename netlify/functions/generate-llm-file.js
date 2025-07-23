@@ -45,6 +45,9 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Debug: Log the first page to see what fields we're getting
+    console.log('First page structure:', JSON.stringify(selectedPages[0], null, 2));
+
     // Generate mock LLM.txt file content
     const websiteUrl = selectedPages[0]?.url ? new URL(selectedPages[0].url).origin : 'https://example.com';
     const timestamp = new Date().toISOString();
@@ -56,9 +59,16 @@ exports.handler = async (event, context) => {
     llmContent += `---\n\n`;
 
     // Add content for each selected page
-    selectedPages
-      .filter(page => page.selected)
-      .forEach(page => {
+    const selectedPagesOnly = selectedPages.filter(page => page.selected);
+    console.log(`Processing ${selectedPagesOnly.length} selected pages`);
+    
+    selectedPagesOnly.forEach((page, index) => {
+        console.log(`Page ${index + 1}:`, {
+          title: page.title,
+          hasContent: !!page.content,
+          contentLength: page.content ? page.content.length : 0
+        });
+        
         llmContent += `## ${page.title || 'Untitled Page'}\n`;
         llmContent += `URL: ${page.url || 'No URL'}\n`;
         llmContent += `Category: ${page.category || 'Uncategorized'}\n`;
@@ -66,7 +76,10 @@ exports.handler = async (event, context) => {
         if (page.description) {
           llmContent += `Description: ${page.description}\n`;
         }
-        llmContent += `\n${page.content || 'No content available'}\n\n`;
+        
+        // More robust content handling
+        const content = page.content || page.text || page.body || 'No content available';
+        llmContent += `\n${content}\n\n`;
         llmContent += `---\n\n`;
       });
 
