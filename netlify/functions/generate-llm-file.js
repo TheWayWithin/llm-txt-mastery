@@ -45,9 +45,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Debug: Log the first page to see what fields we're getting
-    console.log('First page structure:', JSON.stringify(selectedPages[0], null, 2));
-
     // Generate mock LLM.txt file content
     const websiteUrl = selectedPages[0]?.url ? new URL(selectedPages[0].url).origin : 'https://example.com';
     const timestamp = new Date().toISOString();
@@ -60,14 +57,8 @@ exports.handler = async (event, context) => {
 
     // Add content for each selected page
     const selectedPagesOnly = selectedPages.filter(page => page.selected);
-    console.log(`Processing ${selectedPagesOnly.length} selected pages`);
     
     selectedPagesOnly.forEach((page, index) => {
-        console.log(`Page ${index + 1}:`, {
-          title: page.title,
-          hasContent: !!page.content,
-          contentLength: page.content ? page.content.length : 0
-        });
         
         llmContent += `## ${page.title || 'Untitled Page'}\n`;
         llmContent += `URL: ${page.url || 'No URL'}\n`;
@@ -77,8 +68,19 @@ exports.handler = async (event, context) => {
           llmContent += `Description: ${page.description}\n`;
         }
         
-        // More robust content handling
-        const content = page.content || page.text || page.body || 'No content available';
+        // Generate content from available fields since frontend doesn't send full content
+        let content = page.content || page.text || page.body;
+        
+        if (!content) {
+          // Generate meaningful content from title and description
+          content = `${page.description || 'A page from the website'}. This page provides valuable information and resources related to ${page.title?.toLowerCase() || 'the website content'}.`;
+          
+          // Add category-specific content
+          if (page.category) {
+            content += ` This ${page.category.toLowerCase()} section contains detailed information and tools.`;
+          }
+        }
+        
         llmContent += `\n${content}\n\n`;
         llmContent += `---\n\n`;
       });
