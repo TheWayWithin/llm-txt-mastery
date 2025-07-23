@@ -77,11 +77,12 @@ exports.handler = async (event, context) => {
         status: "completed",
         websiteUrl: "https://example.com",
         totalPages: mockPages.length,
+        totalPagesFound: mockPages.length,
         pagesWithContent: mockPages.length,
         selectedPages: mockPages.filter(p => p.selected).length,
         avgQualityScore: Math.round(mockPages.reduce((sum, p) => sum + p.qualityScore, 0) / mockPages.length),
         completedAt: new Date().toISOString(),
-        pages: mockPages,
+        discoveredPages: mockPages,
         message: "Analysis completed successfully! This is a demo response for the free tier."
       })
     };
