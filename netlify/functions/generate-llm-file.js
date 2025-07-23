@@ -26,13 +26,22 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const selectedPages = JSON.parse(event.body);
+    const requestBody = JSON.parse(event.body);
+    
+    // Handle both formats: direct array or object with selectedPages property
+    const selectedPages = Array.isArray(requestBody) ? requestBody : requestBody.selectedPages;
+    const analysisId = requestBody.analysisId;
     
     if (!Array.isArray(selectedPages) || selectedPages.length === 0) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ message: 'Selected pages required' })
+        body: JSON.stringify({ 
+          message: 'Selected pages required',
+          received: typeof requestBody,
+          hasSelectedPages: !!requestBody.selectedPages,
+          selectedPagesLength: Array.isArray(selectedPages) ? selectedPages.length : 'not array'
+        })
       };
     }
 
@@ -69,6 +78,7 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         id: fileId,
+        analysisId: analysisId,
         filename: `llm-txt-${Date.now()}.txt`,
         content: llmContent,
         selectedPages: selectedPages.filter(p => p.selected).length,
