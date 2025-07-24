@@ -41,14 +41,15 @@ exports.handler = async (event, context) => {
     // Debug: Log the incoming request
     console.log('Analyze request:', { url, email, tier, force });
 
-    // Workaround: For now, assume any email request might be Coffee tier
-    // Check query parameters or use different logic
-    const queryString = event.rawQuery || '';
-    const isCoffeeTier = queryString.includes('tier=coffee') || 
-                        queryString.includes('coffee') ||
-                        (email && email.includes('jamie')); // Temporary for testing
-
-    console.log('Coffee tier detection:', { queryString, isCoffeeTier, email });
+    // Simplified workaround: Force Coffee tier for testing
+    const isCoffeeTier = email && email.includes('jamie.watters');
+    
+    console.log('Coffee tier detection:', { 
+      email, 
+      isCoffeeTier, 
+      tier,
+      willTriggerPayment: tier === 'coffee' || isCoffeeTier 
+    });
 
     // Check if this is a Coffee tier request that needs payment
     if (tier === 'coffee' || isCoffeeTier) {
