@@ -91,12 +91,16 @@ Track your health and fitness goals with our health calculators including BMI, c
     
     return {
       statusCode: 200,
-      headers: {
-        ...headers,
-        'Content-Type': 'text/plain',
-        'Content-Disposition': `attachment; filename="freecalchub-llm-txt-${fileId}.txt"`
-      },
-      body: sampleContent
+      headers,
+      body: JSON.stringify({
+        id: parseInt(fileId),
+        filename: `freecalchub-llm-txt-${fileId}.txt`,
+        content: sampleContent,
+        websiteUrl: 'https://freecalchub.com',
+        generatedAt: new Date().toISOString(),
+        selectedPages: 4,
+        totalPages: 5
+      })
     };
   } catch (error) {
     console.error("File retrieval error:", error);
