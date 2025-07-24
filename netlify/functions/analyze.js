@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { url, force = false, email } = JSON.parse(event.body);
+    const { url, force = false, email, tier } = JSON.parse(event.body);
     
     if (!url) {
       return {
@@ -34,6 +34,21 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({ 
           message: "Website URL required for analysis." 
+        })
+      };
+    }
+
+    // Check if this is a Coffee tier request that needs payment
+    if (tier === 'coffee') {
+      return {
+        statusCode: 402, // Payment Required
+        headers,
+        body: JSON.stringify({ 
+          message: "Payment required for Coffee tier analysis",
+          tier: "coffee",
+          price: 4.95,
+          redirectToPayment: true,
+          checkoutUrl: `/coffee-checkout?url=${encodeURIComponent(url)}&email=${encodeURIComponent(email)}`
         })
       };
     }
