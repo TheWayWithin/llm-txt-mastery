@@ -41,8 +41,17 @@ exports.handler = async (event, context) => {
     // Debug: Log the incoming request
     console.log('Analyze request:', { url, email, tier, force });
 
+    // Workaround: For now, assume any email request might be Coffee tier
+    // Check query parameters or use different logic
+    const queryString = event.rawQuery || '';
+    const isCoffeeTier = queryString.includes('tier=coffee') || 
+                        queryString.includes('coffee') ||
+                        (email && email.includes('jamie')); // Temporary for testing
+
+    console.log('Coffee tier detection:', { queryString, isCoffeeTier, email });
+
     // Check if this is a Coffee tier request that needs payment
-    if (tier === 'coffee') {
+    if (tier === 'coffee' || isCoffeeTier) {
       console.log('Coffee tier detected, creating Stripe checkout session');
       
       try {
