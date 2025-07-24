@@ -88,6 +88,9 @@ exports.handler = async (event, context) => {
     // Create a mock file ID for the response
     const fileId = Math.floor(Math.random() * 10000);
     
+    const selectedPagesCount = selectedPages.filter(p => p.selected).length;
+    const contentSize = Buffer.byteLength(llmContent, 'utf8');
+    
     return {
       statusCode: 200,
       headers,
@@ -96,8 +99,10 @@ exports.handler = async (event, context) => {
         analysisId: analysisId,
         filename: `llm-txt-${Date.now()}.txt`,
         content: llmContent,
-        selectedPages: selectedPages.filter(p => p.selected).length,
+        selectedPages: selectedPagesCount,
         totalPages: selectedPages.length,
+        pageCount: selectedPagesCount, // Frontend expects this field
+        fileSize: contentSize, // Frontend expects this field
         websiteUrl: websiteUrl,
         generatedAt: timestamp,
         message: "LLM.txt file generated successfully! This is a demo response."
