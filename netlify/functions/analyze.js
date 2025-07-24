@@ -38,19 +38,57 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Debug: Log the incoming request
+    console.log('Analyze request:', { url, email, tier, force });
+
     // Check if this is a Coffee tier request that needs payment
     if (tier === 'coffee') {
-      return {
-        statusCode: 402, // Payment Required
-        headers,
-        body: JSON.stringify({ 
-          message: "Payment required for Coffee tier analysis",
-          tier: "coffee",
-          price: 4.95,
-          redirectToPayment: true,
-          checkoutUrl: `/coffee-checkout?url=${encodeURIComponent(url)}&email=${encodeURIComponent(email)}`
-        })
-      };
+      console.log('Coffee tier detected, creating Stripe checkout session');
+      
+      try {
+        // Initialize Stripe and create checkout session immediately
+        const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+        
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [{
+            price: process.env.STRIPE_LLM_TXT_COFFEE_PRICE_ID,
+            quantity: 1,
+          }],
+          mode: 'payment',
+          customer_email: email,
+          metadata: {
+            tier: 'coffee',
+            websiteUrl: url,
+            email: email
+          },
+          success_url: `https://llmtxtmastery.com/coffee-success?session_id={CHECKOUT_SESSION_ID}&url=${encodeURIComponent(url)}`,
+          cancel_url: `https://llmtxtmastery.com/coffee-cancel`,
+        });
+
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ 
+            requiresPayment: true,
+            tier: "coffee",
+            price: 4.95,
+            stripeSessionId: session.id,
+            stripeCheckoutUrl: session.url,
+            message: "Redirecting to Stripe checkout for Coffee tier payment"
+          })
+        };
+      } catch (stripeError) {
+        console.error('Stripe error:', stripeError);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            message: "Failed to create payment session",
+            error: stripeError.message
+          })
+        };
+      }
     }
 
     // Store the URL for later retrieval
