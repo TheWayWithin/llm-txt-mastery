@@ -211,10 +211,75 @@ OPENAI_API_KEY=sk-...
 - **Upgrade progression** (coffee → growth → scale)
 - **Customer lifetime value** by tier
 
-## Final Status: PRODUCTION READY 🚀
+## Current Status: DEMO READY → PRODUCTION MIGRATION REQUIRED ⚠️
 
-The LLM.txt Mastery application with coffee tier implementation is **complete and production-ready**. All core functionality has been implemented, tested, and validated. The system is ready for deployment and customer acquisition.
+### Architecture Decision: Railway + Netlify Split Deployment
 
-**Commit Hash**: `5f0d76c` - Complete coffee tier implementation  
-**GitHub**: All changes pushed to main branch  
-**Next Priority**: Production deployment and authentication integration
+**Critical Discovery**: The application was built as a monolithic Express.js backend but deployed as Netlify serverless functions with mock data. This mismatch caused all integration issues.
+
+**Current State**: 
+- ✅ **Demo Functional**: www.llmtxtmastery.com working with mock data
+- ✅ **Backend Complete**: Full Express.js application with real website analysis
+- ✅ **Payment Verified**: Stripe integration tested and working
+- ❌ **Architecture Mismatch**: Using serverless functions instead of intended monolith
+
+### Next Priority: Deploy Real Backend to Railway
+
+**Immediate Tasks**:
+1. **Deploy Express.js backend to Railway** (2-4 hours)
+2. **Update Netlify frontend API URL** to point to Railway
+3. **Test real website analysis** (not mock data)
+4. **Verify end-to-end payment flow** with actual backend
+
+**Timeline**: Production-ready in 1-2 days with Railway deployment
+
+**Commit Hash**: `ba8f730` - Current demo implementation with serverless functions  
+**GitHub**: All changes pushed to main branch
+
+## Railway + Netlify Deployment Plan 🚄
+
+### Final Architecture
+```
+Frontend (Netlify) → Backend (Railway) → Database (Railway PostgreSQL)
+www.llmtxtmastery.com → api.llmtxtmastery.com → PostgreSQL
+```
+
+### Deployment Steps
+
+#### Phase 1: Railway Backend Setup (2-4 hours)
+1. **Create Railway account** and connect GitHub repository
+2. **Deploy Express.js backend** from `server/` directory
+3. **Setup PostgreSQL** database with Railway's managed service
+4. **Configure environment variables** (migrate from Netlify to Railway):
+   - DATABASE_URL (Railway managed)
+   - OPENAI_API_KEY
+   - STRIPE_SECRET_KEY + all Stripe config
+   - 25+ additional production environment variables
+5. **Run database migrations** using existing Drizzle schema
+6. **Configure custom domain**: api.llmtxtmastery.com
+
+#### Phase 2: Frontend Integration (30 minutes)
+1. **Update Netlify environment variables**:
+   - `VITE_API_URL=https://your-railway-app.up.railway.app`
+   - Keep frontend-only vars: VITE_STRIPE_PUBLISHABLE_KEY, Supabase keys
+2. **Configure CORS** in Railway backend for Netlify domain
+3. **Test API connectivity** between platforms
+
+#### Phase 3: Production Testing (1-2 hours)
+1. **Test real website analysis** (not mock data)
+2. **Verify Coffee tier payment flow** end-to-end
+3. **Test file generation** with actual website content
+4. **Validate Stripe webhooks** with Railway backend
+5. **Performance testing** and monitoring setup
+
+### Cost Structure
+- **Netlify**: Free tier (frontend hosting)
+- **Railway**: ~$5/month (backend + PostgreSQL database)
+- **Total**: ~$5/month production infrastructure
+
+### Benefits of This Architecture
+- **Real Functionality**: Actual website analysis instead of mock data
+- **Scalability**: Each service scales independently
+- **Maintainability**: Single backend codebase to maintain
+- **Speed**: Fastest path to production (uses existing complete backend)
+- **Cost Effective**: Minimal monthly cost for full functionality

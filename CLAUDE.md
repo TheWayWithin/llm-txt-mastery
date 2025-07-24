@@ -2,16 +2,23 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Production Architecture: Railway + Netlify Split Deployment
+
+**Frontend**: Netlify (www.llmtxtmastery.com) - React app with static hosting  
+**Backend**: Railway (api.llmtxtmastery.com) - Express.js API with PostgreSQL  
+**Integration**: Frontend calls Railway API via CORS-enabled endpoints
+
 ## Common Development Commands
 
-### Development and Build
+### Local Development
 - `npm run dev` - Start development server (runs both frontend and backend on port 5000)
 - `npm run build` - Build for production (builds frontend with Vite and backend with ESBuild)
-- `npm start` - Start production server
+- `npm start` - Start production server locally
 - `npm run check` - Run TypeScript type checking
 
 ### Database Management
 - `npm run db:push` - Push database schema changes using Drizzle Kit
+- `npm run migrate` - Run database migrations
 
 ## Project Architecture
 
@@ -19,10 +26,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates optimized `llms.txt` files for AI systems. The application uses a monorepo structure with shared schemas and follows a freemium model with AI-enhanced analysis for premium users.
 
 ### Core Architecture
-- **Frontend**: React 18 with TypeScript, Tailwind CSS, shadcn/ui components
-- **Backend**: Express.js with TypeScript, PostgreSQL with Drizzle ORM
+- **Frontend**: React 18 with TypeScript, Tailwind CSS, shadcn/ui components (Deployed on Netlify)
+- **Backend**: Express.js with TypeScript, PostgreSQL with Drizzle ORM (Deployed on Railway)
 - **Shared**: Common schemas and types in `shared/schema.ts`
-- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations (Railway managed)
+- **Integration**: CORS-enabled API calls from Netlify frontend to Railway backend
 
 ### Key Directories
 - `client/` - React frontend application
@@ -49,8 +57,22 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 - **Storage Service** (`server/storage.ts`): Database operations using Drizzle ORM
 
 ### Environment Variables
-- `DATABASE_URL` - PostgreSQL connection string
+
+#### Frontend (Netlify)
+- `VITE_API_URL` - Railway backend URL (e.g., https://api.llmtxtmastery.com)
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_ANON_KEY` - Supabase anonymous key
+
+#### Backend (Railway)
+- `DATABASE_URL` - PostgreSQL connection string (Railway managed)
 - `OPENAI_API_KEY` - OpenAI API key for AI-enhanced analysis
+- `STRIPE_SECRET_KEY` - Stripe secret key
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret
+- `STRIPE_LLM_TXT_COFFEE_PRICE_ID` - Coffee tier price ID
+- `STRIPE_LLM_TXT_GROWTH_PRICE_ID` - Growth tier price ID
+- `STRIPE_LLM_TXT_SCALE_PRICE_ID` - Scale tier price ID
+- Plus 20+ additional environment variables for full functionality
 
 ### Important Technical Details
 - Uses Drizzle ORM with PostgreSQL for type-safe database operations
@@ -60,16 +82,32 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 - Uses batch processing for content analysis to avoid rate limits
 - Implements bot protection detection with consecutive failure tracking
 
-### API Endpoints
-- `POST /api/analyze` - Analyze website and discover pages
+### API Endpoints (Railway Backend)
+- `POST /api/analyze` - Analyze website and discover pages (real analysis, not mock)
 - `GET /api/analysis/:id` - Get analysis status and results
 - `POST /api/generate-llm-file` - Generate LLM.txt file from selected pages
 - `GET /api/download/:id` - Download generated LLM.txt file
 - `POST /api/email-capture` - Capture user email for freemium model
+- `POST /api/stripe/create-checkout` - Create Stripe checkout sessions
+- `POST /api/stripe/webhook` - Handle Stripe webhooks
+- `GET /api/health` - Health check endpoint
 
 ### Development Notes
-- The application runs on port 5000 for both development and production
-- Frontend and backend are served from the same Express server
+
+#### Local Development
+- The application runs on port 5000 for local development
+- Frontend and backend are served from the same Express server locally
 - Uses Vite for frontend development with hot reloading
 - TypeScript is used throughout with strict type checking
+
+#### Production Deployment
+- **Frontend**: Netlify auto-deploys from GitHub (client/ directory)
+- **Backend**: Railway auto-deploys from GitHub (server/ directory)
+- **Database**: Railway managed PostgreSQL with connection pooling
+- **CORS**: Backend configured to allow requests from Netlify domain
+- **Environment**: Variables split between platforms based on usage
+
+#### Database Management
 - Database migrations are handled through Drizzle Kit
+- Railway provides connection string via DATABASE_URL
+- Connection pooling enabled for production performance
