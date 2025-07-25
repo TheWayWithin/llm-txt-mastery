@@ -10,6 +10,9 @@ import { setupSecurityMiddleware } from "./middleware/security";
 
 const app = express();
 
+// Trust proxy for Railway deployment
+app.set('trust proxy', true);
+
 // Apply security middleware first
 setupSecurityMiddleware(app);
 
