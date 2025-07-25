@@ -11,6 +11,7 @@ export const apiLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  trustProxy: true, // Trust Railway proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many requests from this IP, please try again later.',
@@ -29,6 +30,7 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
   skipSuccessfulRequests: true, // Don't count successful requests
   handler: (req: Request, res: Response) => {
     res.status(429).json({
@@ -48,6 +50,7 @@ export const passwordResetLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many password reset attempts from this IP, please try again later.',
@@ -66,6 +69,7 @@ export const analysisLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many analysis requests from this IP, please try again later.',
@@ -84,6 +88,7 @@ export const fileGenerationLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many file generation requests from this IP, please try again later.',
