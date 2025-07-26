@@ -13,6 +13,41 @@ import { registerStripeRoutes } from "./routes/stripe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Debug tier lookup (temporary endpoint)
+  app.post("/api/debug-tier", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email required" });
+      }
+      
+      // Check what getUserTier returns
+      const detectedTier = await getUserTier(email);
+      
+      // Check email capture directly
+      const emailCapture = await storage.getEmailCapture(email);
+      
+      res.json({
+        email,
+        detectedTier,
+        emailCapture: emailCapture ? {
+          tier: emailCapture.tier,
+          email: emailCapture.email,
+          createdAt: emailCapture.createdAt,
+          updatedAt: emailCapture.updatedAt
+        } : null
+      });
+      
+    } catch (error) {
+      console.error("Debug tier error:", error);
+      res.status(500).json({ 
+        message: "Failed to debug tier", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Manual Coffee tier fix for existing customers (temporary endpoint)
   app.post("/api/fix-coffee-tier", async (req, res) => {
     try {
