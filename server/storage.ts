@@ -551,6 +551,20 @@ export class DatabaseStorage implements IStorage {
     return emailCapture || undefined;
   }
 
+  async updateEmailCapture(email: string, updates: Partial<EmailCapture>): Promise<EmailCapture | undefined> {
+    const [updated] = await db
+      .update(emailCaptures)
+      .set({
+        tier: updates.tier,
+        websiteUrl: updates.websiteUrl,
+        userId: updates.userId,
+        updatedAt: new Date()
+      })
+      .where(eq(emailCaptures.email, email))
+      .returning();
+    return updated || undefined;
+  }
+
   // Subscription methods
   async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
     const [subscription] = await db
