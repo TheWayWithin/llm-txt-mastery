@@ -50,9 +50,10 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
   const handleDownloadFile = () => {
     if (fileId) {
       console.log('Downloading file with ID:', fileId);
-      // Use the server's download endpoint which has proper headers
+      // Use the Railway backend URL directly for download
+      const baseUrl = import.meta.env.VITE_API_URL || '';
       const link = document.createElement('a');
-      link.href = `/api/download/${fileId}`;
+      link.href = `${baseUrl}/api/download/${fileId}`;
       link.download = 'llms.txt';
       document.body.appendChild(link);
       link.click();
