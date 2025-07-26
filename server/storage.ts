@@ -31,6 +31,7 @@ export interface IStorage {
   // Email capture methods
   createEmailCapture(emailCapture: InsertEmailCapture): Promise<EmailCapture>;
   getEmailCapture(email: string): Promise<EmailCapture | undefined>;
+  updateEmailCapture(email: string, updates: Partial<EmailCapture>): Promise<EmailCapture | undefined>;
   
   // Subscription methods
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
@@ -54,6 +55,7 @@ export interface IStorage {
   // User profile methods
   createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
   getUserProfile(id: string): Promise<UserProfile | undefined>;
+  getUserProfileByEmail(email: string): Promise<UserProfile | undefined>;
   updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined>;
   
   // One-time credit methods
@@ -203,6 +205,16 @@ export class MemStorage implements IStorage {
 
   async getEmailCapture(email: string): Promise<EmailCapture | undefined> {
     return this.emailCaptures.get(email);
+  }
+
+  async updateEmailCapture(email: string, updates: Partial<EmailCapture>): Promise<EmailCapture | undefined> {
+    const existing = this.emailCaptures.get(email);
+    if (existing) {
+      const updated = { ...existing, ...updates, updatedAt: new Date() };
+      this.emailCaptures.set(email, updated);
+      return updated;
+    }
+    return undefined;
   }
 
   // Subscription methods
@@ -361,6 +373,16 @@ export class MemStorage implements IStorage {
 
   async getUserProfile(id: string): Promise<UserProfile | undefined> {
     return this.userProfiles.get(id);
+  }
+
+  async getUserProfileByEmail(email: string): Promise<UserProfile | undefined> {
+    // Search through user profiles to find one with matching email
+    for (const profile of this.userProfiles.values()) {
+      if (profile.email === email) {
+        return profile;
+      }
+    }
+    return undefined;
   }
 
   async updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined> {

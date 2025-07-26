@@ -298,6 +298,9 @@ async function handleCheckoutCompleted(session: any) {
       // Handle one-time coffee purchase
       console.log(`Processing coffee purchase for user: ${userId}`);
       
+      // Get customer email from Stripe session
+      const customerEmail = session.customer_details?.email || session.customer_email;
+      
       // Create credit record
       await storage.createOneTimeCredit({
         userId: parseInt(userId), // Convert to number for database
@@ -316,6 +319,28 @@ async function handleCheckoutCompleted(session: any) {
         creditsRemaining: currentCredits + 1,
         tier: 'coffee' // Update tier to coffee
       });
+      
+      // CRITICAL FIX: Update emailCaptures table with Coffee tier
+      if (customerEmail) {
+        try {
+          const existingCapture = await storage.getEmailCapture(customerEmail);
+          if (existingCapture) {
+            // Update existing email capture to Coffee tier
+            await storage.updateEmailCapture(customerEmail, { tier: 'coffee' });
+            console.log(`Updated email capture for ${customerEmail} to Coffee tier`);
+          } else {
+            // Create new email capture record for Coffee tier
+            await storage.createEmailCapture({
+              email: customerEmail,
+              tier: 'coffee',
+              websiteUrl: null
+            });
+            console.log(`Created email capture for ${customerEmail} as Coffee tier`);
+          }
+        } catch (error) {
+          console.error(`Failed to update email capture for ${customerEmail}:`, error);
+        }
+      }
       
       console.log(`Added 1 coffee credit to user: ${userId}`);
       

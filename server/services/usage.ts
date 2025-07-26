@@ -17,11 +17,21 @@ export interface UsageCheckResult {
   suggestedUpgrade?: UserTier;
 }
 
-// Get user's current tier
+// Get user's current tier (checks both userProfiles and emailCaptures)
 export async function getUserTier(userEmail: string): Promise<UserTier> {
   try {
+    // First check userProfiles table (post-purchase, more authoritative)
+    const userProfile = await storage.getUserProfileByEmail(userEmail);
+    if (userProfile?.tier) {
+      console.log(`Found tier from userProfile for ${userEmail}: ${userProfile.tier}`);
+      return userProfile.tier;
+    }
+    
+    // Fallback to emailCaptures table (pre-purchase)
     const emailCapture = await storage.getEmailCapture(userEmail);
-    return emailCapture?.tier || 'starter';
+    const tier = emailCapture?.tier || 'starter';
+    console.log(`Found tier from emailCapture for ${userEmail}: ${tier}`);
+    return tier;
   } catch (error) {
     console.error('Error getting user tier:', error);
     return 'starter';
