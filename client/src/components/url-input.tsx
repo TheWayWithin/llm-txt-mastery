@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,20 @@ import { Search, CheckCircle, Info } from "lucide-react";
 interface UrlInputProps {
   onAnalysisStart: (url: string) => void;
   isVisible: boolean;
+  prefilledUrl?: string;
 }
 
-export default function UrlInput({ onAnalysisStart, isVisible }: UrlInputProps) {
+export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: UrlInputProps) {
   const [url, setUrl] = useState("");
   const [isValid, setIsValid] = useState(false);
+
+  // Set pre-filled URL if provided
+  useEffect(() => {
+    if (prefilledUrl) {
+      setUrl(prefilledUrl);
+      validateUrl(prefilledUrl);
+    }
+  }, [prefilledUrl]);
 
   const validateUrl = (value: string) => {
     const urlPattern = /^https?:\/\/.+\..+/;

@@ -114,10 +114,20 @@ export function registerStripeRoutes(app: Express) {
 
       // Create one-time payment checkout session
       const priceId = TIER_PRICES.coffee.priceId;
+      
+      // Encode website URL and email for success redirect
+      const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
+      const encodedEmail = encodeURIComponent(userEmail);
+      
+      let successUrl = `${req.headers.origin}/coffee-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}`;
+      if (websiteUrl) {
+        successUrl += `&website=${encodedWebsiteUrl}`;
+      }
+        
       const session = await createOneTimeCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
-        successUrl: `${req.headers.origin}/coffee-success?session_id={CHECKOUT_SESSION_ID}`,
+        successUrl,
         cancelUrl: `${req.headers.origin}/coffee-cancel`,
         userId: emailCapture.id.toString(),
         productType: 'coffee'
