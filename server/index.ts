@@ -4,14 +4,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes-enhanced";
 import { setupVite, serveStatic, log } from "./vite";
-import { setupSecurityMiddleware } from "./middleware/security";
+import { setupSecurityMiddleware, corsOptions } from "./middleware/security";
 
 const app = express();
 
 // Trust proxy for Railway deployment
 app.set('trust proxy', true);
+
+// Enable CORS for cross-origin requests
+app.use(cors(corsOptions));
 
 // Apply security middleware first
 setupSecurityMiddleware(app);
