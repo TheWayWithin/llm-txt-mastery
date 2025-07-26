@@ -68,6 +68,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Manual Coffee tier fix for existing customers (temporary endpoint)
+  app.post("/api/fix-coffee-tier", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email required" });
+      }
+      
+      // Update email capture to Coffee tier
+      const existingCapture = await storage.getEmailCapture(email);
+      if (existingCapture) {
+        await storage.updateEmailCapture(email, { tier: 'coffee' });
+        console.log(`Manually updated ${email} to Coffee tier`);
+        res.json({ 
+          message: "Successfully updated to Coffee tier",
+          tier: 'coffee',
+          previousTier: existingCapture.tier
+        });
+      } else {
+        // Create new Coffee tier email capture
+        await storage.createEmailCapture({
+          email,
+          tier: 'coffee',
+          websiteUrl: null
+        });
+        console.log(`Created Coffee tier record for ${email}`);
+        res.json({ 
+          message: "Created Coffee tier record",
+          tier: 'coffee',
+          previousTier: 'none'
+        });
+      }
+      
+    } catch (error) {
+      console.error("Coffee tier fix error:", error);
+      res.status(500).json({ 
+        message: "Failed to fix Coffee tier", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Check usage limits before analysis
   app.post("/api/check-limits", async (req, res) => {
     try {
