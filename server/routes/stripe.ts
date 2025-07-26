@@ -86,46 +86,31 @@ export function registerStripeRoutes(app: Express) {
   });
 
   // Create one-time checkout session for coffee tier
-  app.post("/api/stripe/create-coffee-checkout", requireAuth, apiLimiter, async (req, res) => {
+  app.post("/api/stripe/create-coffee-checkout", apiLimiter, async (req, res) => {
     try {
-      const userId = req.user?.id;
-      const userEmail = req.user?.email;
+      const { email, websiteUrl } = z.object({
+        email: z.string().email(),
+        websiteUrl: z.string().url().optional()
+      }).parse(req.body);
 
-      if (!userId || !userEmail) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
+      // For freemium flow, accept email from request body instead of auth
+      const userEmail = email;
 
-      // Get or create user profile
-      let userProfile = await storage.getUserProfile(userId);
-      if (!userProfile) {
-        userProfile = await storage.createUserProfile({
-          id: userId,
+      // Get or create email capture record (for freemium users)
+      let emailCapture = await storage.getEmailCapture(userEmail);
+      if (!emailCapture) {
+        emailCapture = await storage.createEmailCapture({
           email: userEmail,
           tier: 'starter',
-          stripeCustomerId: null,
-          subscriptionId: null,
-          subscriptionStatus: null,
-          creditsRemaining: 0
+          websiteUrl: websiteUrl || null
         });
       }
 
-      // Get or create Stripe customer
-      let stripeCustomer;
-      if (userProfile.stripeCustomerId) {
-        stripeCustomer = await getStripeCustomer(userProfile.stripeCustomerId);
-      }
-      
-      if (!stripeCustomer) {
-        stripeCustomer = await createStripeCustomer({
-          email: userEmail,
-          userId: userId
-        });
-        
-        // Update user profile with Stripe customer ID
-        await storage.updateUserProfile(userId, {
-          stripeCustomerId: stripeCustomer.id
-        });
-      }
+      // Create Stripe customer (don't need user profile for freemium checkout)
+      const stripeCustomer = await createStripeCustomer({
+        email: userEmail,
+        userId: emailCapture.id.toString() // Use email capture ID
+      });
 
       // Create one-time payment checkout session
       const priceId = TIER_PRICES.coffee.priceId;
@@ -134,7 +119,7 @@ export function registerStripeRoutes(app: Express) {
         priceId,
         successUrl: `${req.headers.origin}/coffee-success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${req.headers.origin}/coffee-cancel`,
-        userId,
+        userId: emailCapture.id.toString(),
         productType: 'coffee'
       });
 
