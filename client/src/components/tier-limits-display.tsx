@@ -98,10 +98,21 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                       size="sm" 
                       variant="outline" 
                       className="text-mastery-blue border-mastery-blue"
-                      onClick={() => {
+                      onClick={async () => {
                         if (suggestedUpgrade === 'coffee') {
-                          // Trigger coffee tier purchase
-                          window.location.href = `/coffee-checkout?email=${encodeURIComponent(email)}&websiteUrl=${encodeURIComponent(url)}`;
+                          // Trigger coffee tier purchase via API
+                          try {
+                            const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+                              email,
+                              websiteUrl: url
+                            });
+                            const data = await response.json();
+                            if (data.url) {
+                              window.location.href = data.url;
+                            }
+                          } catch (error) {
+                            console.error('Coffee checkout error:', error);
+                          }
                         } else {
                           // For growth/scale tiers, show subscription management
                           window.location.href = '/subscription';
