@@ -1,24 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Loader2, ArrowRight, Coffee } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { CheckCircle, ArrowRight, Coffee } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
 
 export default function CoffeeSuccess() {
-  const [searchParams] = useSearchParams();
-  const { user, refreshUser } = useAuth();
+  const [location] = useLocation();
   const [loading, setLoading] = useState(true);
-  const sessionId = searchParams.get('session_id');
+  
+  // Extract session_id from URL
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const sessionId = urlParams.get('session_id');
 
   useEffect(() => {
-    // Refresh user data to get updated credits
-    if (user && refreshUser) {
-      refreshUser().finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [user, refreshUser]);
+    // Simple loading delay to show the animation
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -62,17 +60,13 @@ export default function CoffeeSuccess() {
               )}
 
               <div className="space-y-3">
-                <Link to="/">
-                  <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                    <ArrowRight className="h-4 w-4 mr-2" />
-                    Start Your Analysis
-                  </Button>
-                </Link>
-                
-                <Link to="/pricing">
-                  <Button variant="outline" className="w-full">
-                    View All Plans
-                  </Button>
+                <Link href="/">
+                  <a className="block">
+                    <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      Start Your Analysis
+                    </Button>
+                  </a>
                 </Link>
               </div>
 
