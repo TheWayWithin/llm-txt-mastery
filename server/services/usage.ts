@@ -108,7 +108,7 @@ export async function checkUsageLimits(
     
     // Check daily analysis limit
     if (analysesToday >= limits.dailyAnalyses) {
-      const suggestedUpgrade = tier === 'starter' ? 'growth' : 'scale';
+      const suggestedUpgrade = tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
       return {
         allowed: false,
         reason: `Daily limit reached. ${tier} tier allows ${limits.dailyAnalyses} analysis${limits.dailyAnalyses > 1 ? 'es' : ''} per day.`,
@@ -124,7 +124,7 @@ export async function checkUsageLimits(
     
     // Check pages per analysis limit
     if (requestedPages > limits.maxPagesPerAnalysis) {
-      const suggestedUpgrade = tier === 'starter' ? 'growth' : 'scale';
+      const suggestedUpgrade = tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
       return {
         allowed: false,
         reason: `Too many pages requested. ${tier} tier allows maximum ${limits.maxPagesPerAnalysis} pages per analysis.`,
