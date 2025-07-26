@@ -73,6 +73,17 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }:
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Returning Customer Notice */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-blue-800 mb-2">
+            ☕ Already purchased Coffee tier?
+          </h4>
+          <p className="text-xs text-blue-700 mb-3">
+            If you recently purchased the $4.95 Coffee tier, just enter your email below and select "Coffee" - 
+            we'll recognize your purchase and proceed directly to premium analysis.
+          </p>
+        </div>
+
         {/* Tier Selection */}
         <div className="space-y-4">
           <RadioGroup 
