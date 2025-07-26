@@ -19,7 +19,8 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
   const { data: fileData, isLoading } = useQuery({
     queryKey: ["/api/llm-file", fileId],
     queryFn: async () => {
-      const response = await fetch(`/api/llm-file/${fileId}`);
+      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${baseUrl}/api/llm-file/${fileId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch file data");
       }
