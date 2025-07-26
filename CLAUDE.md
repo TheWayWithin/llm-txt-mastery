@@ -111,3 +111,62 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 - Database migrations are handled through Drizzle Kit
 - Railway provides connection string via DATABASE_URL
 - Connection pooling enabled for production performance
+
+## Deployment Lessons Learned
+
+### Critical Production Issues Resolved
+
+1. **Express.js vs Serverless Mismatch**
+   - Issue: App built as monolithic Express.js but deployed as serverless functions
+   - Solution: Split to Railway (backend) + Netlify (frontend) architecture
+   - Learning: Match deployment strategy to application architecture from start
+
+2. **Import.meta.dirname Bundling Failures**
+   - Issue: `import.meta.dirname` caused Railway deployment crashes
+   - Solution: Replace with `process.cwd()` and dynamic imports
+   - Learning: Test production bundling early with ES modules
+
+3. **Database Driver Compatibility**
+   - Issue: Neon WebSocket driver incompatible with Railway PostgreSQL
+   - Solution: Switch to standard `pg` driver with `drizzle-orm/node-postgres`
+   - Learning: Verify database drivers work with deployment platform
+
+4. **Frontend API Communication**
+   - Issue: Relative URLs pointed to wrong endpoints after split
+   - Solution: Implement `VITE_API_URL` for all API calls
+   - Learning: Environment-based API URLs essential for split architectures
+
+5. **CORS and Trust Proxy Configuration**
+   - Issue: Cross-origin requests blocked, rate limiting failed
+   - Solution: Add CORS middleware + `app.set('trust proxy', true)`
+   - Learning: Railway requires trust proxy for proper request handling
+
+### Customer Journey Issues (Current)
+
+**Problem**: Coffee tier purchasers still see tier selection after payment
+**Root Cause**: Missing URL preservation and tier detection in post-payment flow
+**Status**: Actively being fixed
+
+## Common Troubleshooting
+
+### Railway Backend Issues
+- Check deployment logs in Railway dashboard
+- Verify environment variables are set correctly
+- Ensure DATABASE_URL connects to Railway PostgreSQL
+- Test health endpoint: `curl https://llm-txt-mastery-production.up.railway.app/health`
+
+### Netlify Frontend Issues  
+- Check build logs in Netlify dashboard
+- Verify VITE_API_URL points to Railway backend
+- Test CORS by checking browser network tab
+- Ensure build command uses `npm run build`
+
+### Database Connection Issues
+- Run `npm run db:push` with Railway DATABASE_URL
+- Check if tables exist in Railway PostgreSQL dashboard
+- Verify Drizzle schema matches database structure
+
+### Stripe Payment Issues
+- Check webhook endpoint in Stripe dashboard
+- Verify webhook secret matches STRIPE_WEBHOOK_SECRET
+- Test payment flow in Stripe test mode first
