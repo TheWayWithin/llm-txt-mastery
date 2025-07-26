@@ -97,7 +97,8 @@ export const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5000',
-      'https://llm-txt-mastery.vercel.app', // Add your production domain
+      'https://www.llmtxtmastery.com',
+      'https://llmtxtmastery.com',
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
