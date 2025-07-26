@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,9 +11,11 @@ import FileGeneration from "@/components/file-generation";
 import TierLimitsDisplay from "@/components/tier-limits-display";
 import UsageDisplay from "@/components/usage-display";
 import { DiscoveredPage } from "@shared/schema";
+import { useLocation } from "wouter";
 
 export default function Home() {
   const { user, userProfile } = useAuth();
+  const [location] = useLocation();
   const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'limits' | 'analysis' | 'review' | 'generation'>('input');
   const [analysisId, setAnalysisId] = useState<number | null>(null);
   const [discoveredPages, setDiscoveredPages] = useState<DiscoveredPage[]>([]);
@@ -21,6 +23,25 @@ export default function Home() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [userTier, setUserTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
   const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
+
+  // Check for URL parameters (from coffee success redirect)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const prefilledUrl = urlParams.get('url');
+    const prefilledEmail = urlParams.get('email');
+    const isCoffeeReturn = urlParams.get('coffee') === 'true';
+    
+    if (prefilledUrl) {
+      setWebsiteUrl(prefilledUrl);
+    }
+    
+    // If returning from coffee purchase, set tier and skip to limits
+    if (isCoffeeReturn && prefilledEmail) {
+      setUserTier('coffee');
+      setUserEmail(prefilledEmail);
+      setCurrentStep('limits');
+    }
+  }, [location]);
 
   // Use authenticated user data if available
   const effectiveEmail = user?.email || userEmail;
@@ -125,6 +146,7 @@ export default function Home() {
               }
             }}
             isVisible={currentStep === 'input'}
+            prefilledUrl={websiteUrl}
           />
 
           {/* Step 2: Email Capture (only for non-authenticated users) */}

@@ -23,10 +23,11 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
     onSuccess: (data) => {
       setLimitsData(data);
       if (data.allowed) {
-        // Auto-proceed after 2 seconds if allowed
+        // Coffee+ tier users proceed immediately, starter tier waits 2 seconds
+        const delay = data.tier === 'coffee' || data.tier === 'growth' || data.tier === 'scale' ? 500 : 2000;
         setTimeout(() => {
           onProceed();
-        }, 2000);
+        }, delay);
       }
     },
   });
@@ -76,7 +77,9 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                   </div>
                 </div>
                 <p className="text-sm text-green-700 pt-1">
-                  Starting analysis in 2 seconds...
+                  {tier === 'coffee' || tier === 'growth' || tier === 'scale' 
+                    ? 'Starting premium analysis...' 
+                    : 'Starting analysis in 2 seconds...'}
                 </p>
               </>
             ) : (

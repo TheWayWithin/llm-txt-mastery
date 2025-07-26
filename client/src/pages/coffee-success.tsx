@@ -8,9 +8,11 @@ export default function CoffeeSuccess() {
   const [location] = useLocation();
   const [loading, setLoading] = useState(true);
   
-  // Extract session_id from URL
+  // Extract session_id, website URL, and email from URL
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const sessionId = urlParams.get('session_id');
+  const websiteUrl = urlParams.get('website');
+  const email = urlParams.get('email');
 
   useEffect(() => {
     // Simple loading delay to show the animation
@@ -60,14 +62,25 @@ export default function CoffeeSuccess() {
               )}
 
               <div className="space-y-3">
-                <Link href="/">
-                  <a className="block">
-                    <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                      <ArrowRight className="h-4 w-4 mr-2" />
-                      Start Your Analysis
-                    </Button>
-                  </a>
-                </Link>
+                {websiteUrl && email ? (
+                  <Link href={`/?url=${encodeURIComponent(websiteUrl)}&email=${encodeURIComponent(email)}&coffee=true`}>
+                    <a className="block">
+                      <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                        <ArrowRight className="h-4 w-4 mr-2" />
+                        Continue Analysis of {new URL(websiteUrl).hostname}
+                      </Button>
+                    </a>
+                  </Link>
+                ) : (
+                  <Link href="/">
+                    <a className="block">
+                      <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                        <ArrowRight className="h-4 w-4 mr-2" />
+                        Start Your Analysis
+                      </Button>
+                    </a>
+                  </Link>
+                )}
               </div>
 
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
