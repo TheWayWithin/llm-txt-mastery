@@ -94,8 +94,21 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                 </div>
                 {suggestedUpgrade && (
                   <div className="pt-2">
-                    <Button size="sm" variant="outline" className="text-mastery-blue border-mastery-blue">
-                      Upgrade to {suggestedUpgrade.toUpperCase()}
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-mastery-blue border-mastery-blue"
+                      onClick={() => {
+                        if (suggestedUpgrade === 'coffee') {
+                          // Trigger coffee tier purchase
+                          window.location.href = `/coffee-checkout?email=${encodeURIComponent(email)}&websiteUrl=${encodeURIComponent(url)}`;
+                        } else {
+                          // For growth/scale tiers, show subscription management
+                          window.location.href = '/subscription';
+                        }
+                      }}
+                    >
+                      {suggestedUpgrade === 'coffee' ? 'Get Coffee Analysis ($4.95)' : `Upgrade to ${suggestedUpgrade.toUpperCase()}`}
                     </Button>
                   </div>
                 )}
