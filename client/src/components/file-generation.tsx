@@ -49,6 +49,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
 
   const handleDownloadFile = () => {
     if (fileId) {
+      console.log('Downloading file with ID:', fileId);
       // Use the server's download endpoint which has proper headers
       const link = document.createElement('a');
       link.href = `/api/download/${fileId}`;
@@ -56,6 +57,8 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    } else {
+      console.error('No fileId available for download');
     }
   };
 
@@ -186,7 +189,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
               className="bg-innovation-teal hover:bg-innovation-teal/90 text-white"
             >
               <Download className="h-4 w-4 mr-2" />
-              Download llms.txt
+              Download llms.txt (ID: {fileId})
             </Button>
           </div>
         </div>
