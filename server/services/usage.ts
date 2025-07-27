@@ -20,6 +20,12 @@ export interface UsageCheckResult {
 // Get user's current tier (simplified to use emailCaptures only for now)
 export async function getUserTier(userEmail: string): Promise<UserTier> {
   try {
+    // Temporary manual override for Coffee tier customer
+    if (userEmail === 'jamie.watters.mail@icloud.com') {
+      console.log(`Manual override: ${userEmail} set to Coffee tier`);
+      return 'coffee';
+    }
+    
     // Check emailCaptures table directly (where Coffee tier is stored)
     const emailCapture = await storage.getEmailCapture(userEmail);
     const tier = emailCapture?.tier || 'starter';
