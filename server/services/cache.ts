@@ -153,7 +153,7 @@ export async function hasPageChanged(url: string, cached: CachedAnalysis): Promi
     // If no reliable headers, fetch content and compare hash
     if (!cached.lastModified && !cached.etag) {
       const contentResponse = await fetchWithTimeout(url, {
-        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' }
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
       }, 10000);
       
       if (contentResponse.ok) {
