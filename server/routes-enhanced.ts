@@ -28,15 +28,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check email capture directly
       const emailCapture = await storage.getEmailCapture(email);
       
+      // Also check raw database query
+      const rawCheck = emailCapture ? emailCapture.tier : 'not found';
+      
       res.json({
         email,
         detectedTier,
+        rawEmailCaptureTier: rawCheck,
         emailCapture: emailCapture ? {
           tier: emailCapture.tier,
           email: emailCapture.email,
           createdAt: emailCapture.createdAt,
           updatedAt: emailCapture.updatedAt
-        } : null
+        } : null,
+        debug: {
+          timestamp: new Date().toISOString(),
+          storageType: typeof storage
+        }
       });
       
     } catch (error) {
