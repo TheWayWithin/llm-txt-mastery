@@ -4,6 +4,27 @@ import * as cheerio from "cheerio";
 import { DiscoveredPage } from "@shared/schema";
 import { analyzePageContent } from "./openai";
 
+// Helper function to implement fetch with timeout using AbortController
+async function fetchWithTimeout(url: string, options: any = {}, timeoutMs: number = 10000): Promise<any> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  }
+}
+
 export interface SitemapEntry {
   url: string;
   lastmod?: string;
@@ -28,18 +49,16 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   // Check if we need to handle redirects first
   let redirectPath = '';
   try {
-    const rootResponse = await fetch(`${rootDomain}/sitemap.xml`, {
+    const rootResponse = await fetchWithTimeout(`${rootDomain}/sitemap.xml`, {
       method: 'HEAD',
-      headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' },
-      timeout: 5000
-    });
+      headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' }
+    }, 5000);
     
     if (!rootResponse.ok) {
       // Try to detect redirect pattern by checking the homepage
-      const homepageResponse = await fetch(rootDomain, {
-        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' },
-        timeout: 5000
-      });
+      const homepageResponse = await fetchWithTimeout(rootDomain, {
+        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' }
+      }, 5000);
       
       if (homepageResponse.ok) {
         const html = await homepageResponse.text();
@@ -78,12 +97,11 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   for (const sitemapUrl of sitemapUrls) {
     try {
       console.log(`Trying sitemap URL: ${sitemapUrl}`);
-      const response = await fetch(sitemapUrl, {
+      const response = await fetchWithTimeout(sitemapUrl, {
         headers: {
           'User-Agent': 'LLM.txt Mastery Bot 1.0'
-        },
-        timeout: 10000
-      });
+        }
+      }, 10000);
 
       if (response.ok) {
         console.log(`Successfully fetched sitemap from: ${sitemapUrl}`);
@@ -117,19 +135,18 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
 
   // Fallback: try to discover pages from robots.txt
   try {
-    const robotsResponse = await fetch(`${rootDomain}/robots.txt`);
+    const robotsResponse = await fetchWithTimeout(`${rootDomain}/robots.txt`, {}, 5000);
     if (robotsResponse.ok) {
       const robotsText = await robotsResponse.text();
       const sitemapMatch = robotsText.match(/Sitemap:\s*(.+)/i);
       if (sitemapMatch) {
         const sitemapUrl = sitemapMatch[1].trim();
         console.log(`Found sitemap in robots.txt: ${sitemapUrl}`);
-        const response = await fetch(sitemapUrl, {
+        const response = await fetchWithTimeout(sitemapUrl, {
           headers: {
             'User-Agent': 'LLM.txt Mastery Bot 1.0'
-          },
-          timeout: 10000
-        });
+          }
+        }, 10000);
         if (response.ok) {
           const xml = await response.text();
           const entries = await parseSitemap(xml);
@@ -172,12 +189,11 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
 
 async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, indicators: string[] }> {
   try {
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
       headers: {
         'User-Agent': 'LLM.txt Mastery Bot 1.0'
-      },
-      timeout: 10000
-    });
+      }
+    }, 10000);
 
     if (!response.ok) {
       return { isSinglePage: false, indicators: ['failed-to-fetch'] };
@@ -314,13 +330,12 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   // Step 4: Validate discovered URLs
   const validationPromises = Array.from(discoveredUrls).slice(0, 50).map(async (url) => {
     try {
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         method: 'HEAD',
         headers: {
           'User-Agent': 'LLM.txt Mastery Bot 1.0'
-        },
-        timeout: 5000
-      });
+        }
+      }, 5000);
 
       if (response.ok) {
         return {
@@ -357,12 +372,11 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
 
 async function crawlPageForLinks(url: string, rootDomain: string): Promise<string[]> {
   try {
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
       headers: {
         'User-Agent': 'LLM.txt Mastery Bot 1.0'
-      },
-      timeout: 10000
-    });
+      }
+    }, 10000);
 
     if (!response.ok) {
       return [];
@@ -445,7 +459,7 @@ export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
       for (const sitemap of sitemaps) {
         const sitemapUrl = sitemap.loc[0];
         try {
-          const response = await fetch(sitemapUrl);
+          const response = await fetchWithTimeout(sitemapUrl, {}, 10000);
           if (response.ok) {
             const sitemapXml = await response.text();
             const subEntries = await parseSitemap(sitemapXml);
@@ -481,12 +495,11 @@ export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
 
 export async function fetchPageContent(url: string): Promise<string> {
   try {
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      },
-      timeout: 10000
-    });
+      }
+    }, 10000);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);

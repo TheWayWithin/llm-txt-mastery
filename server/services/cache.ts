@@ -3,6 +3,27 @@ import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import { DiscoveredPage, UserTier, TierLimits, CachedAnalysis } from "@shared/schema";
 
+// Helper function to implement fetch with timeout using AbortController
+async function fetchWithTimeout(url: string, options: any = {}, timeoutMs: number = 10000): Promise<any> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  }
+}
+
 // Tier configurations
 export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
   starter: {
@@ -104,11 +125,10 @@ export async function hasPageChanged(url: string, cached: CachedAnalysis): Promi
       headers['If-None-Match'] = cached.etag;
     }
     
-    const response = await fetch(url, { 
+    const response = await fetchWithTimeout(url, { 
       method: 'HEAD',
-      headers,
-      timeout: 5000
-    });
+      headers
+    }, 5000);
     
     // 304 Not Modified means content hasn't changed
     if (response.status === 304) {
@@ -132,10 +152,9 @@ export async function hasPageChanged(url: string, cached: CachedAnalysis): Promi
     
     // If no reliable headers, fetch content and compare hash
     if (!cached.lastModified && !cached.etag) {
-      const contentResponse = await fetch(url, {
-        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' },
-        timeout: 10000
-      });
+      const contentResponse = await fetchWithTimeout(url, {
+        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' }
+      }, 10000);
       
       if (contentResponse.ok) {
         const content = await contentResponse.text();
