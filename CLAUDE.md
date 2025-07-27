@@ -5,8 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Production Architecture: Railway + Netlify Split Deployment
 
 **Frontend**: Netlify (www.llmtxtmastery.com) - React app with static hosting  
-**Backend**: Railway (api.llmtxtmastery.com) - Express.js API with PostgreSQL  
+**Backend**: Railway (llm-txt-mastery-production.up.railway.app) - Express.js API with PostgreSQL  
 **Integration**: Frontend calls Railway API via CORS-enabled endpoints
+
+**Status**: ✅ FULLY OPERATIONAL - All critical issues resolved, end-to-end flow working
 
 ## Common Development Commands
 
@@ -59,10 +61,10 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 ### Environment Variables
 
 #### Frontend (Netlify)
-- `VITE_API_URL` - Railway backend URL (e.g., https://api.llmtxtmastery.com)
+- `VITE_API_URL` - Railway backend URL (https://llm-txt-mastery-production.up.railway.app)
 - `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `SUPABASE_URL` - Supabase project URL
-- `SUPABASE_ANON_KEY` - Supabase anonymous key
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
 
 #### Backend (Railway)
 - `DATABASE_URL` - PostgreSQL connection string (Railway managed)
@@ -141,11 +143,12 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
    - Solution: Add CORS middleware + `app.set('trust proxy', true)`
    - Learning: Railway requires trust proxy for proper request handling
 
-### Customer Journey Issues (Current)
+### Recent Major Improvements (July 27, 2025)
 
-**Problem**: Coffee tier purchasers still see tier selection after payment
-**Root Cause**: Missing URL preservation and tier detection in post-payment flow
-**Status**: Actively being fixed
+✅ **Customer Journey Fixed**: Coffee tier purchasers skip tier selection and proceed directly to analysis
+✅ **UX Improvements**: Added "Analyze Another Website" button, corrected button text, lowered quality thresholds
+✅ **Backend Stability**: Resolved timeout issues, infinite loops, and deployment problems
+✅ **End-to-End Testing**: Complete flow verified from analysis → payment → download
 
 ## Common Troubleshooting
 
@@ -154,6 +157,7 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 - Verify environment variables are set correctly
 - Ensure DATABASE_URL connects to Railway PostgreSQL
 - Test health endpoint: `curl https://llm-txt-mastery-production.up.railway.app/health`
+- Verify API routes return JSON (not HTML): `curl https://llm-txt-mastery-production.up.railway.app/api/health`
 
 ### Netlify Frontend Issues  
 - Check build logs in Netlify dashboard
