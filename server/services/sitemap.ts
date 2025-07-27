@@ -51,13 +51,13 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   try {
     const rootResponse = await fetchWithTimeout(`${rootDomain}/sitemap.xml`, {
       method: 'HEAD',
-      headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' }
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
     }, 5000);
     
     if (!rootResponse.ok) {
       // Try to detect redirect pattern by checking the homepage
       const homepageResponse = await fetchWithTimeout(rootDomain, {
-        headers: { 'User-Agent': 'LLM.txt Mastery Bot 1.0' }
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
       }, 5000);
       
       if (homepageResponse.ok) {
@@ -99,7 +99,7 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
       console.log(`Trying sitemap URL: ${sitemapUrl}`);
       const response = await fetchWithTimeout(sitemapUrl, {
         headers: {
-          'User-Agent': 'LLM.txt Mastery Bot 1.0'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
       }, 10000);
 
@@ -144,7 +144,7 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
         console.log(`Found sitemap in robots.txt: ${sitemapUrl}`);
         const response = await fetchWithTimeout(sitemapUrl, {
           headers: {
-            'User-Agent': 'LLM.txt Mastery Bot 1.0'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
           }
         }, 10000);
         if (response.ok) {
@@ -191,7 +191,7 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
   try {
     const response = await fetchWithTimeout(url, {
       headers: {
-        'User-Agent': 'LLM.txt Mastery Bot 1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     }, 10000);
 
@@ -333,7 +333,7 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
       const response = await fetchWithTimeout(url, {
         method: 'HEAD',
         headers: {
-          'User-Agent': 'LLM.txt Mastery Bot 1.0'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
       }, 5000);
 
@@ -374,7 +374,7 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
   try {
     const response = await fetchWithTimeout(url, {
       headers: {
-        'User-Agent': 'LLM.txt Mastery Bot 1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     }, 10000);
 

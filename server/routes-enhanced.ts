@@ -452,7 +452,28 @@ async function analyzeWebsiteEnhanced(
     const startTime = Date.now();
     
     // Fetch and parse sitemap
+    console.log(`Starting sitemap analysis for ${url}`);
     const sitemapResult = await fetchSitemap(url);
+    console.log(`Sitemap result: found=${sitemapResult.sitemapFound}, method=${sitemapResult.analysisMethod}, entries=${sitemapResult.entries.length}`);
+    
+    // Check if sitemap discovery failed completely
+    if (sitemapResult.entries.length === 0) {
+      console.error(`No pages discovered for ${url}. Marking analysis as failed.`);
+      await storage.updateAnalysis(analysisId, {
+        status: "failed",
+        discoveredPages: [],
+        analysisMetadata: {
+          siteType: "unknown",
+          sitemapFound: false,
+          analysisMethod: sitemapResult.analysisMethod,
+          message: sitemapResult.message || "No pages could be discovered for analysis",
+          totalPagesFound: 0,
+          userEmail,
+          tier
+        }
+      });
+      return; // Exit early to prevent infinite loop
+    }
     
     // Determine site type
     const siteType = determineSiteType(sitemapResult);
@@ -464,11 +485,13 @@ async function analyzeWebsiteEnhanced(
     });
 
     // Analyze pages with smart caching
+    console.log(`Starting page analysis for ${sitemapResult.entries.length} pages`);
     const { pages, metrics } = await analyzeDiscoveredPagesWithCache(
       sitemapResult.entries,
       userEmail,
       tier
     );
+    console.log(`Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`);
     
     // Track usage
     await trackUsage(
@@ -481,11 +504,10 @@ async function analyzeWebsiteEnhanced(
     );
     
     // Consume coffee credit if user is on coffee tier
-    if (tier === 'coffee' && req.user?.id) {
-      const creditConsumed = await consumeCoffeeCredit(req.user.id);
-      if (!creditConsumed) {
-        console.error(`Failed to consume coffee credit for user: ${req.user.id}`);
-      }
+    // Note: Coffee tier credit consumption is handled in the payment flow
+    // This is a placeholder for future credit-based analysis tracking
+    if (tier === 'coffee') {
+      console.log(`Coffee tier analysis completed for ${userEmail}`);
     }
     
     // Update analysis with results and metrics
