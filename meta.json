@@ -1,0 +1,697 @@
+{
+  "inputs": {
+    "shared/schema.ts": {
+      "bytes": 11592,
+      "imports": [
+        {
+          "path": "drizzle-orm/pg-core",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/services/openai.ts": {
+      "bytes": 10442,
+      "imports": [
+        {
+          "path": "openai",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cheerio",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/services/sitemap.ts": {
+      "bytes": 22004,
+      "imports": [
+        {
+          "path": "xml2js",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node-fetch",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cheerio",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@shared/schema",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/services/openai.ts",
+          "kind": "import-statement",
+          "original": "./openai"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/db.ts": {
+      "bytes": 505,
+      "imports": [
+        {
+          "path": "pg",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-orm/node-postgres",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "shared/schema.ts",
+          "kind": "import-statement",
+          "original": "@shared/schema"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/services/cache.ts": {
+      "bytes": 9166,
+      "imports": [
+        {
+          "path": "server/db.ts",
+          "kind": "import-statement",
+          "original": "../db"
+        },
+        {
+          "path": "crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node-fetch",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@shared/schema",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/services/sitemap-enhanced.ts": {
+      "bytes": 7725,
+      "imports": [
+        {
+          "path": "@shared/schema",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/services/sitemap.ts",
+          "kind": "import-statement",
+          "original": "./sitemap"
+        },
+        {
+          "path": "server/services/openai.ts",
+          "kind": "import-statement",
+          "original": "./openai"
+        },
+        {
+          "path": "server/services/cache.ts",
+          "kind": "import-statement",
+          "original": "./cache"
+        },
+        {
+          "path": "cheerio",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/db.ts",
+          "kind": "import-statement",
+          "original": "../db"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/storage.ts": {
+      "bytes": 24394,
+      "imports": [
+        {
+          "path": "shared/schema.ts",
+          "kind": "import-statement",
+          "original": "@shared/schema"
+        },
+        {
+          "path": "server/db.ts",
+          "kind": "import-statement",
+          "original": "./db"
+        },
+        {
+          "path": "drizzle-orm",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/services/usage.ts": {
+      "bytes": 10841,
+      "imports": [
+        {
+          "path": "server/storage.ts",
+          "kind": "import-statement",
+          "original": "../storage"
+        },
+        {
+          "path": "@shared/schema",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/services/cache.ts",
+          "kind": "import-statement",
+          "original": "./cache"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/middleware/rate-limit.ts": {
+      "bytes": 3349,
+      "imports": [
+        {
+          "path": "express-rate-limit",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/supabase.ts": {
+      "bytes": 4172,
+      "imports": [
+        {
+          "path": "@supabase/supabase-js",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/middleware/auth.ts": {
+      "bytes": 3428,
+      "imports": [
+        {
+          "path": "express",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/supabase.ts",
+          "kind": "import-statement",
+          "original": "../supabase"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/services/stripe.ts": {
+      "bytes": 7703,
+      "imports": [
+        {
+          "path": "stripe",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/routes/stripe.ts": {
+      "bytes": 13971,
+      "imports": [
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/services/stripe.ts",
+          "kind": "import-statement",
+          "original": "../services/stripe"
+        },
+        {
+          "path": "server/storage.ts",
+          "kind": "import-statement",
+          "original": "../storage"
+        },
+        {
+          "path": "server/middleware/auth.ts",
+          "kind": "import-statement",
+          "original": "../middleware/auth"
+        },
+        {
+          "path": "server/middleware/rate-limit.ts",
+          "kind": "import-statement",
+          "original": "../middleware/rate-limit"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/routes-enhanced.ts": {
+      "bytes": 20088,
+      "imports": [
+        {
+          "path": "http",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "shared/schema.ts",
+          "kind": "import-statement",
+          "original": "@shared/schema"
+        },
+        {
+          "path": "server/services/sitemap.ts",
+          "kind": "import-statement",
+          "original": "./services/sitemap"
+        },
+        {
+          "path": "server/services/sitemap-enhanced.ts",
+          "kind": "import-statement",
+          "original": "./services/sitemap-enhanced"
+        },
+        {
+          "path": "server/storage.ts",
+          "kind": "import-statement",
+          "original": "./storage"
+        },
+        {
+          "path": "server/services/usage.ts",
+          "kind": "import-statement",
+          "original": "./services/usage"
+        },
+        {
+          "path": "server/services/cache.ts",
+          "kind": "import-statement",
+          "original": "./services/cache"
+        },
+        {
+          "path": "server/middleware/rate-limit.ts",
+          "kind": "import-statement",
+          "original": "./middleware/rate-limit"
+        },
+        {
+          "path": "server/middleware/auth.ts",
+          "kind": "import-statement",
+          "original": "./middleware/auth"
+        },
+        {
+          "path": "server/routes/stripe.ts",
+          "kind": "import-statement",
+          "original": "./routes/stripe"
+        },
+        {
+          "path": "server/services/usage.ts",
+          "kind": "import-statement",
+          "original": "./services/usage"
+        }
+      ],
+      "format": "esm"
+    },
+    "vite.config.ts": {
+      "bytes": 971,
+      "imports": [
+        {
+          "path": "vite",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@vitejs/plugin-react",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@replit/vite-plugin-runtime-error-modal",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@replit/vite-plugin-cartographer",
+          "kind": "dynamic-import",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/vite.ts": {
+      "bytes": 2347,
+      "imports": [
+        {
+          "path": "express",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "vite",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "http",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "nanoid",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "vite.config.ts",
+          "kind": "dynamic-import",
+          "original": "../vite.config"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/middleware/security.ts": {
+      "bytes": 3603,
+      "imports": [
+        {
+          "path": "helmet",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/index.ts": {
+      "bytes": 2491,
+      "imports": [
+        {
+          "path": "dotenv",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "express",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cors",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/routes-enhanced.ts",
+          "kind": "import-statement",
+          "original": "./routes-enhanced"
+        },
+        {
+          "path": "server/vite.ts",
+          "kind": "import-statement",
+          "original": "./vite"
+        },
+        {
+          "path": "server/middleware/security.ts",
+          "kind": "import-statement",
+          "original": "./middleware/security"
+        }
+      ],
+      "format": "esm"
+    }
+  },
+  "outputs": {
+    "dist/index.js": {
+      "imports": [
+        {
+          "path": "vite",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@vitejs/plugin-react",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@replit/vite-plugin-runtime-error-modal",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@replit/vite-plugin-cartographer",
+          "kind": "dynamic-import",
+          "external": true
+        },
+        {
+          "path": "dotenv",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "express",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cors",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "http",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-orm/pg-core",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "xml2js",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node-fetch",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cheerio",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "openai",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cheerio",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "pg",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-orm/node-postgres",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node-fetch",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "cheerio",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-orm",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "express-rate-limit",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "@supabase/supabase-js",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "stripe",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "express",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "vite",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "nanoid",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "helmet",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "exports": [],
+      "entryPoint": "server/index.ts",
+      "inputs": {
+        "vite.config.ts": {
+          "bytesInOutput": 1262
+        },
+        "server/index.ts": {
+          "bytesInOutput": 1797
+        },
+        "server/routes-enhanced.ts": {
+          "bytesInOutput": 16677
+        },
+        "shared/schema.ts": {
+          "bytesInOutput": 8637
+        },
+        "server/services/sitemap.ts": {
+          "bytesInOutput": 16587
+        },
+        "server/services/openai.ts": {
+          "bytesInOutput": 7828
+        },
+        "server/db.ts": {
+          "bytesInOutput": 415
+        },
+        "server/services/cache.ts": {
+          "bytesInOutput": 6394
+        },
+        "server/services/sitemap-enhanced.ts": {
+          "bytesInOutput": 5132
+        },
+        "server/storage.ts": {
+          "bytesInOutput": 17279
+        },
+        "server/services/usage.ts": {
+          "bytesInOutput": 6568
+        },
+        "server/middleware/rate-limit.ts": {
+          "bytesInOutput": 2918
+        },
+        "server/supabase.ts": {
+          "bytesInOutput": 678
+        },
+        "server/middleware/auth.ts": {
+          "bytesInOutput": 1619
+        },
+        "server/routes/stripe.ts": {
+          "bytesInOutput": 11901
+        },
+        "server/services/stripe.ts": {
+          "bytesInOutput": 5035
+        },
+        "server/vite.ts": {
+          "bytesInOutput": 2049
+        },
+        "server/middleware/security.ts": {
+          "bytesInOutput": 3012
+        }
+      },
+      "bytes": 116723
+    }
+  }
+}
