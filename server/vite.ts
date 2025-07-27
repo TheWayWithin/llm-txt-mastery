@@ -25,8 +25,15 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
-  // Dynamically import vite config to avoid bundling import.meta.dirname
-  const { default: viteConfig } = await import("../vite.config");
+  // Use minimal config for development vite setup
+  const viteConfig = {
+    resolve: {
+      alias: {
+        "@": path.resolve(process.cwd(), "client/src"),
+        "@shared": path.resolve(process.cwd(), "shared"),
+      },
+    },
+  };
   
   const vite = await createViteServer({
     ...viteConfig,
