@@ -11,6 +11,15 @@ import { setupSecurityMiddleware, corsOptions } from "./middleware/security";
 
 const app = express();
 
+// Health check endpoint for debugging
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    message: 'Railway backend is running'
+  });
+});
+
 // Trust proxy for Railway deployment
 app.set('trust proxy', true);
 
