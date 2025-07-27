@@ -188,6 +188,7 @@ export default function Home() {
               analysisId={analysisId}
               discoveredPages={discoveredPages}
               onFileGenerated={handleFileGenerated}
+              onStartOver={resetWorkflow}
             />
           )}
 

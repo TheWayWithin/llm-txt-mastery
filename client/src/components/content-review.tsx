@@ -14,18 +14,32 @@ interface ContentReviewProps {
   analysisId: number;
   discoveredPages: DiscoveredPage[];
   onFileGenerated: (fileId: number) => void;
+  onStartOver?: () => void;
 }
 
 type FilterType = "all" | "high-quality" | "documentation" | "tutorials";
 
-export default function ContentReview({ analysisId, discoveredPages, onFileGenerated }: ContentReviewProps) {
+export default function ContentReview({ analysisId, discoveredPages, onFileGenerated, onStartOver }: ContentReviewProps) {
   const { toast } = useToast();
   const [selectedPages, setSelectedPages] = useState<Record<string, boolean>>(() => {
-    // Auto-select high quality pages (score >= 6)
+    // Auto-select high quality pages (score >= 5)
     const initial: Record<string, boolean> = {};
-    discoveredPages.forEach(page => {
-      initial[page.url] = page.qualityScore >= 6;
-    });
+    const highQualityPages = discoveredPages.filter(page => page.qualityScore >= 5);
+    
+    if (highQualityPages.length > 0) {
+      // Select pages that meet quality threshold
+      discoveredPages.forEach(page => {
+        initial[page.url] = page.qualityScore >= 5;
+      });
+    } else {
+      // Fallback: select top 3 highest-scoring pages if none meet threshold
+      const sortedPages = [...discoveredPages].sort((a, b) => b.qualityScore - a.qualityScore);
+      const topPages = sortedPages.slice(0, Math.min(3, sortedPages.length));
+      topPages.forEach(page => {
+        initial[page.url] = true;
+      });
+    }
+    
     return initial;
   });
 
@@ -97,7 +111,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
     if (checked) {
       const newSelection: Record<string, boolean> = {};
       discoveredPages.forEach(page => {
-        newSelection[page.url] = page.qualityScore >= 7;
+        newSelection[page.url] = page.qualityScore >= 5;
       });
       setSelectedPages(newSelection);
     }
@@ -173,8 +187,8 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
               </p>
               <div className="flex flex-wrap gap-2 text-xs mb-2">
                 <span className="px-2 py-1 bg-green-100 text-green-800 rounded">8-10: High Quality</span>
-                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">6-7: Medium Quality</span>
-                <span className="px-2 py-1 bg-red-100 text-red-800 rounded">1-5: Low Quality</span>
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">5-7: Medium Quality</span>
+                <span className="px-2 py-1 bg-red-100 text-red-800 rounded">1-4: Low Quality</span>
               </div>
               <p className="text-xs text-blue-700">
                 💡 <strong>Note:</strong> "Pages Analyzed" shows only pages that were successfully fetched and scored. 
@@ -183,6 +197,68 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
             </div>
           </div>
         </div>
+
+        {/* Low Quality Content Guidance */}
+        {discoveredPages.filter(p => p.qualityScore < 5).length > 0 && (
+          <div className="mb-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+            <div className="flex items-start space-x-2">
+              <div className="flex-shrink-0">
+                <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">!</span>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-amber-900 mb-2">Low Quality Content Detected</h4>
+                <p className="text-sm text-amber-800 mb-2">
+                  {discoveredPages.filter(p => p.qualityScore < 5).length} pages received low quality scores. 
+                  This typically occurs when pages have:
+                </p>
+                <ul className="text-xs text-amber-700 mb-2 pl-4 space-y-1">
+                  <li>• Minimal or outdated content that provides limited value to AI systems</li>
+                  <li>• Poor structure, missing headers, or inadequate information architecture</li>
+                  <li>• Historical or archived content not optimized for modern AI understanding</li>
+                  <li>• Marketing pages focused on promotion rather than informational content</li>
+                  <li>• Technical limitations preventing proper content analysis</li>
+                </ul>
+                <div className="bg-amber-100 border border-amber-300 rounded p-2 text-xs text-amber-800">
+                  <strong>💡 Manual Override Available:</strong> While we recommend focusing on higher-quality pages for optimal 
+                  LLM.txt effectiveness, you can manually select low-quality pages if they contain information 
+                  important to your specific use case. Consider the trade-off between file size and content value.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* No High Quality Content Warning */}
+        {discoveredPages.filter(p => p.qualityScore >= 5).length === 0 && (
+          <div className="mb-4 p-4 bg-red-50 rounded-lg border border-red-200">
+            <div className="flex items-start space-x-2">
+              <div className="flex-shrink-0">
+                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">⚠</span>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-red-900 mb-2">Fallback Selection Applied</h4>
+                <p className="text-sm text-red-800 mb-2">
+                  None of the analyzed pages met our quality threshold (score ≥5). We've automatically selected the 
+                  {Math.min(3, discoveredPages.length)} highest-scoring pages to prevent an empty LLM.txt file. This may indicate:
+                </p>
+                <ul className="text-xs text-red-700 mb-2 pl-4 space-y-1">
+                  <li>• The website has minimal content suitable for AI consumption</li>
+                  <li>• Pages are primarily visual/interactive rather than text-based</li>
+                  <li>• Content structure doesn't align with LLM.txt best practices</li>
+                  <li>• Technical access restrictions prevented proper analysis</li>
+                </ul>
+                <div className="bg-red-100 border border-red-300 rounded p-2 text-xs text-red-800">
+                  <strong>📋 Options:</strong> You can proceed with the selected pages, manually adjust selections, 
+                  or analyze a different website with more structured, informational content for better results.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Summary Stats */}
         <div className="mb-4 grid grid-cols-4 gap-4 text-center">
@@ -294,12 +370,21 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
             >
               Select All
             </Button>
+            {onStartOver && (
+              <Button
+                variant="outline"
+                onClick={onStartOver}
+                className="text-ai-silver hover:text-framework-black border-slate-300"
+              >
+                Analyze Another Website
+              </Button>
+            )}
             <Button
               onClick={handleGenerateFile}
               disabled={selectedCount === 0 || generateFileMutation.isPending}
               className="bg-innovation-teal hover:bg-innovation-teal/90 text-white"
             >
-              {generateFileMutation.isPending ? "Generating..." : `Generate LLM.txt File (${selectedCount} pages)`}
+              {generateFileMutation.isPending ? "Generating..." : `Generate llms.txt File (${selectedCount} pages)`}
             </Button>
           </div>
         </div>
