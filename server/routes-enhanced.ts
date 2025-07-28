@@ -10,8 +10,12 @@ import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
 import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
+import authRoutes from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Register authentication routes
+  app.use("/api/auth", authRoutes);
   
   // Debug tier lookup (temporary endpoint)
   app.post("/api/debug-tier", async (req, res) => {

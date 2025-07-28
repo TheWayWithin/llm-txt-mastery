@@ -2,10 +2,24 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizz
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Keep existing users table as-is for backward compatibility  
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+});
+
+// New authentication users table
+export const authUsers = pgTable("auth_users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  emailVerified: boolean("email_verified").default(false),
+  tier: text("tier").notNull().default("starter"), // "starter", "coffee", "growth", "scale"
+  creditsRemaining: integer("credits_remaining").default(0), // For coffee tier
+  stripeCustomerId: text("stripe_customer_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const emailCaptures = pgTable("email_captures", {
@@ -134,6 +148,20 @@ export const userProfiles = pgTable("user_profiles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User sessions for JWT token management
+export const userSessions = pgTable("user_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => authUsers.id),
+  tokenHash: text("token_hash").notNull().unique(),
+  refreshTokenHash: text("refresh_token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  refreshExpiresAt: timestamp("refresh_expires_at").notNull(),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastUsedAt: timestamp("last_used_at").defaultNow(),
+});
+
 export interface DiscoveredPage {
   url: string;
   title: string;
@@ -192,13 +220,6 @@ export type InsertSitemapAnalysis = z.infer<typeof insertSitemapAnalysisSchema>;
 export type InsertLlmTextFile = z.infer<typeof insertLlmTextFileSchema>;
 export type SitemapAnalysis = typeof sitemapAnalysis.$inferSelect;
 export type LlmTextFile = typeof llmTextFiles.$inferSelect;
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
 
 export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).pick({
   userId: true,
@@ -340,4 +361,68 @@ export interface UsageTracking {
   totalCost?: number;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+// Authentication schemas and types
+export const insertAuthUserSchema = createInsertSchema(authUsers).pick({
+  email: true,
+  passwordHash: true,
+  emailVerified: true,
+  tier: true,
+  creditsRemaining: true,
+  stripeCustomerId: true,
+});
+
+export const insertUserSessionSchema = createInsertSchema(userSessions).pick({
+  userId: true,
+  tokenHash: true,
+  refreshTokenHash: true,
+  expiresAt: true,
+  refreshExpiresAt: true,
+  userAgent: true,
+  ipAddress: true,
+});
+
+export const userRegistrationSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export const userLoginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type User = typeof users.$inferSelect;
+export type AuthUser = typeof authUsers.$inferSelect;
+export type InsertAuthUser = z.infer<typeof insertAuthUserSchema>;
+export type UserSession = typeof userSessions.$inferSelect;
+export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
+export type UserRegistration = z.infer<typeof userRegistrationSchema>;
+export type UserLogin = z.infer<typeof userLoginSchema>;
+
+// JWT payload interface
+export interface JWTPayload {
+  userId: number;
+  email: string;
+  tier: UserTier;
+  iat: number;
+  exp: number;
+}
+
+// Authentication response interface
+export interface AuthResponse {
+  user: {
+    id: number;
+    email: string;
+    tier: UserTier;
+    creditsRemaining: number;
+    emailVerified: boolean;
+  };
+  accessToken: string;
+  refreshToken: string;
 }
