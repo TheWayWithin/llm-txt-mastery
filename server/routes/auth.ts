@@ -1,294 +1,445 @@
-import { Router } from 'express'
-import { signUpWithEmail, signInWithEmail, signOut, createUserProfile, getUserProfile, updateUserTier, getUserByEmail, sendPasswordResetEmail, updatePassword, resendEmailVerification } from '../supabase'
-import { requireAuth } from '../middleware/auth'
-import { authLimiter, passwordResetLimiter } from '../middleware/rate-limit'
-import { subscribeToTier, updateSubscriberTier, triggerOnboardingSequence, isConvertKitConfigured } from '../services/convertkit'
-import { z } from 'zod'
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import { z } from 'zod';
+import { 
+  hashPassword, 
+  verifyPassword, 
+  generateAccessToken, 
+  generateRefreshToken,
+  verifyRefreshToken,
+  hashToken,
+  generateTokenExpiration,
+  generateRefreshTokenExpiration,
+  createAuthResponse,
+  validatePassword,
+  getSecurityHeaders
+} from '../services/auth';
+import { authStorage } from '../services/auth-storage';
+import { authenticate, optionalAuth } from '../middleware/auth';
+import { 
+  userRegistrationSchema, 
+  userLoginSchema, 
+  UserTier,
+  AuthResponse 
+} from '@shared/schema';
 
-const router = Router()
+const router = express.Router();
 
-// Validation schemas
-const signUpSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  tier: z.enum(['starter', 'coffee', 'growth', 'scale']).default('starter')
-})
+// Rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per window
+  message: {
+    error: 'Too many authentication attempts',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-const signInSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1)
-})
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // 3 registrations per hour per IP
+  message: {
+    error: 'Too many registration attempts',
+    code: 'REGISTRATION_RATE_LIMIT'
+  },
+});
 
-const updateTierSchema = z.object({
-  tier: z.enum(['starter', 'coffee', 'growth', 'scale'])
-})
-
-const passwordResetSchema = z.object({
-  email: z.string().email()
-})
-
-const passwordUpdateSchema = z.object({
-  password: z.string().min(6)
-})
-
-// Sign up endpoint
-router.post('/signup', authLimiter, async (req, res) => {
+// User Registration
+router.post('/register', registerLimiter, async (req, res) => {
   try {
-    const { email, password, tier } = signUpSchema.parse(req.body)
-    
-    // Check if user already exists in our system
-    const existingUser = await getUserByEmail(email)
+    // Apply security headers
+    Object.entries(getSecurityHeaders()).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+
+    // Validate request body
+    const validationResult = userRegistrationSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        details: validationResult.error.errors
+      });
+    }
+
+    const { email, password } = validationResult.data;
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({
+        error: 'Password does not meet requirements',
+        code: 'WEAK_PASSWORD',
+        details: passwordValidation.errors
+      });
+    }
+
+    // Check if email is already taken
+    const existingUser = await authStorage.getUserByEmail(email);
     if (existingUser) {
-      return res.status(400).json({
-        error: 'User already exists',
-        message: 'An account with this email already exists'
-      })
+      return res.status(409).json({
+        error: 'Email already registered',
+        code: 'EMAIL_EXISTS'
+      });
     }
-    
-    // Create user with Supabase Auth
-    const { user, session } = await signUpWithEmail(email, password)
-    
-    if (!user) {
-      return res.status(400).json({
-        error: 'Signup failed',
-        message: 'Failed to create user account'
-      })
-    }
-    
-    // Create user profile with tier information
-    await createUserProfile(user.id, email, tier)
-    
-    // Subscribe to ConvertKit if configured
-    if (isConvertKitConfigured()) {
-      try {
-        await subscribeToTier(email, tier)
-        await triggerOnboardingSequence(email, tier)
-      } catch (error) {
-        console.error('ConvertKit subscription failed:', error)
-        // Don't fail the signup if ConvertKit fails
-      }
-    }
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Create user
+    const user = await authStorage.createUser({
+      email,
+      passwordHash,
+      emailVerified: false,
+      tier: 'starter' as UserTier,
+      creditsRemaining: 0
+    });
+
+    // Generate tokens
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      tier: user.tier as UserTier
+    });
+    const refreshToken = generateRefreshToken(user.id);
+
+    // Create session
+    const session = await authStorage.createSession({
+      userId: user.id,
+      tokenHash: hashToken(accessToken),
+      refreshTokenHash: hashToken(refreshToken),
+      expiresAt: generateTokenExpiration(),
+      refreshExpiresAt: generateRefreshTokenExpiration(),
+      userAgent: req.headers['user-agent'],
+      ipAddress: req.ip
+    });
+
+    // Return auth response
+    const authResponse = createAuthResponse({
+      ...user,
+      tier: user.tier as UserTier
+    }, accessToken, refreshToken);
     
     res.status(201).json({
-      message: 'User created successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        tier,
-        emailVerified: user.email_confirmed_at !== null
-      },
-      session: session ? {
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-        expires_at: session.expires_at
-      } : null
-    })
-  } catch (error) {
-    console.error('Signup error:', error)
-    res.status(400).json({
-      error: 'Signup failed',
-      message: error instanceof Error ? error.message : 'Failed to create account'
-    })
-  }
-})
+      success: true,
+      message: 'User registered successfully',
+      ...authResponse
+    });
 
-// Sign in endpoint
-router.post('/signin', authLimiter, async (req, res) => {
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({
+      error: 'Registration failed',
+      code: 'REGISTRATION_ERROR'
+    });
+  }
+});
+
+// User Login
+router.post('/login', authLimiter, async (req, res) => {
   try {
-    const { email, password } = signInSchema.parse(req.body)
-    
-    // Sign in with Supabase Auth
-    const { user, session } = await signInWithEmail(email, password)
-    
-    if (!user || !session) {
+    // Apply security headers
+    Object.entries(getSecurityHeaders()).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+
+    // Validate request body
+    const validationResult = userLoginSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        details: validationResult.error.errors
+      });
+    }
+
+    const { email, password } = validationResult.data;
+
+    // Get user by email
+    const user = await authStorage.getUserByEmail(email);
+    if (!user) {
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: 'Invalid email or password'
-      })
+        code: 'INVALID_CREDENTIALS'
+      });
     }
-    
-    // Get user profile with tier information
-    const userProfile = await getUserProfile(user.id)
+
+    // Verify password
+    const isPasswordValid = await verifyPassword(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        error: 'Invalid credentials',
+        code: 'INVALID_CREDENTIALS'
+      });
+    }
+
+    // Generate tokens
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      tier: user.tier as UserTier
+    });
+    const refreshToken = generateRefreshToken(user.id);
+
+    // Create session
+    const session = await authStorage.createSession({
+      userId: user.id,
+      tokenHash: hashToken(accessToken),
+      refreshTokenHash: hashToken(refreshToken),
+      expiresAt: generateTokenExpiration(),
+      refreshExpiresAt: generateRefreshTokenExpiration(),
+      userAgent: req.headers['user-agent'],
+      ipAddress: req.ip
+    });
+
+    // Return auth response
+    const authResponse = createAuthResponse({
+      ...user,
+      tier: user.tier as UserTier
+    }, accessToken, refreshToken);
     
     res.json({
-      message: 'Signed in successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        tier: userProfile?.tier || 'starter',
-        emailVerified: user.email_confirmed_at !== null
-      },
-      session: {
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-        expires_at: session.expires_at
-      }
-    })
-  } catch (error) {
-    console.error('Signin error:', error)
-    res.status(401).json({
-      error: 'Signin failed',
-      message: error instanceof Error ? error.message : 'Invalid credentials'
-    })
-  }
-})
+      success: true,
+      message: 'Login successful',
+      ...authResponse
+    });
 
-// Sign out endpoint
-router.post('/signout', requireAuth, async (req, res) => {
-  try {
-    await signOut()
-    res.json({ message: 'Signed out successfully' })
   } catch (error) {
-    console.error('Signout error:', error)
+    console.error('Login error:', error);
     res.status(500).json({
-      error: 'Signout failed',
-      message: error instanceof Error ? error.message : 'Failed to sign out'
-    })
+      error: 'Login failed',
+      code: 'LOGIN_ERROR'
+    });
   }
-})
+});
+
+// Token Refresh
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        error: 'Refresh token required',
+        code: 'NO_REFRESH_TOKEN'
+      });
+    }
+
+    // Verify refresh token
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) {
+      return res.status(401).json({
+        error: 'Invalid refresh token',
+        code: 'INVALID_REFRESH_TOKEN'
+      });
+    }
+
+    // Generate new tokens
+    const user = await authStorage.getUserById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({
+        error: 'User not found',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    const newAccessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      tier: user.tier as UserTier
+    });
+    const newRefreshToken = generateRefreshToken(user.id);
+
+    // Update session
+    const updatedSession = await authStorage.refreshUserSession(
+      hashToken(refreshToken),
+      hashToken(newAccessToken),
+      hashToken(newRefreshToken),
+      generateTokenExpiration(),
+      generateRefreshTokenExpiration()
+    );
+
+    if (!updatedSession) {
+      return res.status(401).json({
+        error: 'Session refresh failed',
+        code: 'REFRESH_FAILED'
+      });
+    }
+
+    // Return new tokens
+    const authResponse = createAuthResponse({
+      ...user,
+      tier: user.tier as UserTier
+    }, newAccessToken, newRefreshToken);
+    
+    res.json({
+      success: true,
+      message: 'Tokens refreshed successfully',
+      ...authResponse
+    });
+
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({
+      error: 'Token refresh failed',
+      code: 'REFRESH_ERROR'
+    });
+  }
+});
+
+// Logout
+router.post('/logout', authenticate, async (req, res) => {
+  try {
+    if (req.session) {
+      await authStorage.deleteSession(req.session.id);
+    }
+
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      error: 'Logout failed',
+      code: 'LOGOUT_ERROR'
+    });
+  }
+});
+
+// Logout from all devices
+router.post('/logout-all', authenticate, async (req, res) => {
+  try {
+    if (req.user) {
+      const deletedCount = await authStorage.deleteAllUserSessions(req.user.id);
+      
+      res.json({
+        success: true,
+        message: `Logged out from ${deletedCount} devices`
+      });
+    } else {
+      res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+
+  } catch (error) {
+    console.error('Logout all error:', error);
+    res.status(500).json({
+      error: 'Logout failed',
+      code: 'LOGOUT_ALL_ERROR'
+    });
+  }
+});
 
 // Get current user profile
-router.get('/me', requireAuth, async (req, res) => {
+router.get('/me', authenticate, async (req, res) => {
   try {
-    const userProfile = await getUserProfile(req.user!.id)
-    
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+
+    // Get user stats
+    const stats = await authStorage.getUserStats(req.user.id);
+
     res.json({
+      success: true,
       user: {
-        id: req.user!.id,
-        email: req.user!.email,
-        tier: userProfile?.tier || 'starter',
-        createdAt: userProfile?.created_at,
-        updatedAt: userProfile?.updated_at
+        id: req.user.id,
+        email: req.user.email,
+        tier: req.user.tier,
+        creditsRemaining: req.user.creditsRemaining || 0,
+        emailVerified: req.user.emailVerified || false,
+        createdAt: req.user.createdAt,
+        stats
       }
-    })
+    });
+
   } catch (error) {
-    console.error('Get user profile error:', error)
+    console.error('Get profile error:', error);
     res.status(500).json({
       error: 'Failed to get user profile',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
+      code: 'PROFILE_ERROR'
+    });
   }
-})
+});
 
-// Update user tier
-router.patch('/me/tier', requireAuth, async (req, res) => {
+// Check if email is available
+router.post('/check-email', async (req, res) => {
   try {
-    const { tier } = updateTierSchema.parse(req.body)
-    
-    // Update user tier
-    const updatedProfile = await updateUserTier(req.user!.id, tier)
-    
-    // Update tier in ConvertKit if configured
-    if (isConvertKitConfigured()) {
-      try {
-        await updateSubscriberTier(req.user!.email, tier)
-      } catch (error) {
-        console.error('ConvertKit tier update failed:', error)
-        // Don't fail the tier update if ConvertKit fails
-      }
-    }
-    
-    res.json({
-      message: 'Tier updated successfully',
-      user: {
-        id: req.user!.id,
-        email: req.user!.email,
-        tier: updatedProfile.tier,
-        updatedAt: updatedProfile.updated_at
-      }
-    })
-  } catch (error) {
-    console.error('Update tier error:', error)
-    res.status(500).json({
-      error: 'Failed to update tier',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
-  }
-})
+    const { email } = req.body;
 
-// Password reset request endpoint
-router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({
+        error: 'Email is required',
+        code: 'EMAIL_REQUIRED'
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: 'Invalid email format',
+        code: 'INVALID_EMAIL'
+      });
+    }
+
+    const isEmailTaken = await authStorage.isEmailTaken(email);
+
+    res.json({
+      available: !isEmailTaken,
+      email
+    });
+
+  } catch (error) {
+    console.error('Check email error:', error);
+    res.status(500).json({
+      error: 'Failed to check email availability',
+      code: 'EMAIL_CHECK_ERROR'
+    });
+  }
+});
+
+// Password strength validation
+router.post('/validate-password', (req, res) => {
   try {
-    const { email } = passwordResetSchema.parse(req.body)
-    
-    // Check if user exists in our system
-    const existingUser = await getUserByEmail(email)
-    if (!existingUser) {
-      // Don't reveal whether the email exists or not for security
-      return res.json({
-        message: 'If an account with that email exists, we sent you a password reset link.',
-      })
-    }
-    
-    // Send password reset email
-    await sendPasswordResetEmail(email)
-    
-    res.json({
-      message: 'If an account with that email exists, we sent you a password reset link.',
-    })
-  } catch (error) {
-    console.error('Password reset error:', error)
-    res.status(500).json({
-      error: 'Failed to process password reset request',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
-  }
-})
+    const { password } = req.body;
 
-// Update password endpoint (requires authentication)
-router.post('/update-password', requireAuth, async (req, res) => {
-  try {
-    const { password } = passwordUpdateSchema.parse(req.body)
-    
-    // Get the user's access token from the request
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No access token provided' })
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({
+        error: 'Password is required',
+        code: 'PASSWORD_REQUIRED'
+      });
     }
-    
-    const accessToken = authHeader.substring(7)
-    
-    // Update password
-    await updatePassword(accessToken, password)
-    
-    res.json({
-      message: 'Password updated successfully'
-    })
-  } catch (error) {
-    console.error('Password update error:', error)
-    res.status(500).json({
-      error: 'Failed to update password',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
-  }
-})
 
-// Resend email verification
-router.post('/resend-verification', authLimiter, async (req, res) => {
-  try {
-    const { email } = passwordResetSchema.parse(req.body) // Reuse the same schema
-    
-    // Check if user exists
-    const existingUser = await getUserByEmail(email)
-    if (!existingUser) {
-      return res.status(404).json({
-        error: 'User not found'
-      })
-    }
-    
-    // Resend verification email
-    await resendEmailVerification(email)
-    
-    res.json({
-      message: 'Verification email sent successfully'
-    })
-  } catch (error) {
-    console.error('Resend verification error:', error)
-    res.status(500).json({
-      error: 'Failed to resend verification email',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
-  }
-})
+    const validation = validatePassword(password);
 
-export default router
+    res.json({
+      valid: validation.valid,
+      errors: validation.errors,
+      requirements: [
+        'At least 8 characters long',
+        'Contains at least one lowercase letter',
+        'Contains at least one uppercase letter',
+        'Contains at least one number',
+        'Contains at least one special character'
+      ]
+    });
+
+  } catch (error) {
+    console.error('Password validation error:', error);
+    res.status(500).json({
+      error: 'Password validation failed',
+      code: 'PASSWORD_VALIDATION_ERROR'
+    });
+  }
+});
+
+export default router;
