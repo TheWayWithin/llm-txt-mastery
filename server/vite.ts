@@ -93,15 +93,26 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Serve static files with error handling
-  app.use(express.static(distPath, {
+  // Serve static assets with specific route prefix to avoid conflicts
+  app.use("/assets", express.static(path.join(distPath, "assets"), {
     setHeaders: (res, filePath) => {
-      console.log(`[serveStatic] Serving file: ${filePath}`);
+      console.log(`[serveStatic] Serving asset file: ${filePath}`);
     }
   }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (req, res) => {
+  // Serve other static files from root
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      console.log(`[serveStatic] Serving static file: ${filePath}`);
+    }
+  }));
+
+  // fall through to index.html if the file doesn't exist (but not for API routes)
+  app.use((req, res, next) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
     console.log(`[serveStatic] Fallback route for: ${req.path}`);
     res.sendFile(path.resolve(distPath, "index.html"));
   });
