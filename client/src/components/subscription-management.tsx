@@ -18,7 +18,7 @@ interface SubscriptionManagementProps {
 }
 
 export default function SubscriptionManagement({ onUpgradeSuccess }: SubscriptionManagementProps) {
-  const { user, getToken } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
@@ -32,7 +32,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
 
   const loadSubscriptionStatus = async () => {
     try {
-      const token = await getToken();
+      const token = getAccessToken();
       if (!token) return;
 
       const status = await getSubscriptionStatus(token);
@@ -49,7 +49,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       setUpgrading(true);
       setSelectedTier(tier);
 
-      const token = await getToken();
+      const token = getAccessToken();
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -74,7 +74,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       setUpgrading(true);
       setSelectedTier('coffee');
 
-      const token = await getToken();
+      const token = getAccessToken();
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -98,7 +98,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
     try {
       setLoading(true);
 
-      const token = await getToken();
+      const token = getAccessToken();
       if (!token) {
         throw new Error('Authentication required');
       }

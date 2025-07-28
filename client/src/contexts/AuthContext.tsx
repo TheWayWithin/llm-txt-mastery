@@ -1,29 +1,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { supabase, getCurrentUser, onAuthStateChange } from '@/lib/supabase'
-import { User } from '@supabase/supabase-js'
-
-interface UserProfile {
-  id: string
-  email: string
-  tier: 'starter' | 'coffee' | 'growth' | 'scale'
-  creditsRemaining: number
-  stripeCustomerId?: string
-  subscriptionId?: string
-  subscriptionStatus?: string
-  created_at: string
-  updated_at: string
-}
+import { authApi, AuthUser, LoginRequest, RegisterRequest } from '@/lib/auth-api'
 
 interface AuthContextType {
-  user: User | null
+  user: AuthUser | null
   loading: boolean
-  signUp: (email: string, password: string, tier?: 'starter' | 'coffee' | 'growth' | 'scale') => Promise<void>
+  signUp: (email: string, password: string, confirmPassword: string, tier?: 'starter' | 'coffee' | 'growth' | 'scale') => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
-  userProfile: UserProfile | null
-  refreshProfile: () => Promise<void>
+  refreshUser: () => Promise<void>
+  getAccessToken: () => string | null
   hasCredits: boolean
   canAnalyze: boolean
+  isAuthenticated: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -41,114 +29,95 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null)
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
+    // Initialize auth state on mount
+    const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          setUser(session.user)
-          await fetchUserProfile(session.user.id)
+        // Check if user is already authenticated
+        if (authApi.isAuthenticated()) {
+          const storedUser = authApi.getStoredUser()
+          setUser(storedUser)
+          
+          // Try to refresh user data from server
+          try {
+            const currentUser = await authApi.getCurrentUser()
+            setUser(currentUser)
+          } catch (error) {
+            // If refresh fails, keep stored user data
+            console.warn('Failed to refresh user data:', error)
+          }
         }
       } catch (error) {
-        console.error('Error getting initial session:', error)
+        console.error('Error initializing auth:', error)
+        // Clear invalid tokens
+        await signOut()
       } finally {
         setLoading(false)
       }
     }
 
-    getInitialSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user)
-          await fetchUserProfile(session.user.id)
-        } else {
-          setUser(null)
-          setUserProfile(null)
-        }
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
+    initializeAuth()
   }, [])
 
-  const fetchUserProfile = async (userId: string) => {
+  const signUp = async (email: string, password: string, confirmPassword: string, tier: 'starter' | 'coffee' | 'growth' | 'scale' = 'starter') => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-      
-      if (!error) {
-        setUserProfile(data)
-      }
+      const response = await authApi.register({
+        email,
+        password,
+        confirmPassword,
+      })
+      setUser(response.user)
     } catch (error) {
-      console.error('Error fetching user profile:', error)
-    }
-  }
-
-  const signUp = async (email: string, password: string, tier: 'starter' | 'coffee' | 'growth' | 'scale' = 'starter') => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    
-    if (error) {
-      throw new Error(error.message)
-    }
-    
-    // Create user profile after successful signup
-    if (data.user) {
-      await supabase
-        .from('user_profiles')
-        .insert({
-          id: data.user.id,
-          email: data.user.email,
-          tier,
-          creditsRemaining: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+      throw error
     }
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    
-    if (error) {
-      throw new Error(error.message)
+    try {
+      const response = await authApi.login({
+        email,
+        password,
+      })
+      setUser(response.user)
+    } catch (error) {
+      throw error
     }
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    
-    if (error) {
-      throw new Error(error.message)
+    try {
+      await authApi.logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setUser(null)
     }
   }
 
-  const refreshProfile = async () => {
-    if (user) {
-      await fetchUserProfile(user.id)
+  const refreshUser = async () => {
+    if (!authApi.isAuthenticated()) return
+    
+    try {
+      const currentUser = await authApi.getCurrentUser()
+      setUser(currentUser)
+    } catch (error) {
+      console.error('Failed to refresh user:', error)
+      // If refresh fails, user might need to re-authenticate
+      await signOut()
     }
+  }
+
+  const getAccessToken = () => {
+    return localStorage.getItem('auth_access_token')
   }
 
   // Computed properties
-  const hasCredits = userProfile?.tier === 'coffee' && (userProfile?.creditsRemaining || 0) > 0
-  const canAnalyze = !user || userProfile?.tier === 'starter' || hasCredits || ['growth', 'scale'].includes(userProfile?.tier || '')
+  const hasCredits = user?.tier === 'coffee' && (user?.creditsRemaining || 0) > 0
+  const canAnalyze = !user || user?.tier === 'starter' || hasCredits || ['growth', 'scale'].includes(user?.tier || '')
+  const isAuthenticated = !!user && authApi.isAuthenticated()
 
   const value = {
     user,
@@ -156,10 +125,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signIn,
     signOut,
-    userProfile,
-    refreshProfile,
+    refreshUser,
+    getAccessToken,
     hasCredits,
-    canAnalyze
+    canAnalyze,
+    isAuthenticated
   }
 
   return (

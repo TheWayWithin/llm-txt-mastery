@@ -51,13 +51,21 @@ export async function createCheckoutSession(tier: 'growth' | 'scale', authToken:
   return response.json();
 }
 
-export async function createCoffeeCheckoutSession(authToken: string): Promise<CreateCheckoutSessionResponse> {
+export async function createCoffeeCheckoutSession(authToken: string, email?: string): Promise<CreateCheckoutSessionResponse> {
+  const body: any = {};
+  
+  // Include email for non-authenticated purchases
+  if (email) {
+    body.email = email;
+  }
+
   const response = await fetch('/api/stripe/create-coffee-checkout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${authToken}`
-    }
+    },
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {
