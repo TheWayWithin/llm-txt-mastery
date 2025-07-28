@@ -78,16 +78,31 @@ export async function setupVite(app: Express, server: Server) {
 export function serveStatic(app: Express) {
   const distPath = path.resolve(process.cwd(), "dist", "public");
 
+  console.log(`[serveStatic] Looking for build directory at: ${distPath}`);
+  console.log(`[serveStatic] Directory exists: ${fs.existsSync(distPath)}`);
+  
+  if (fs.existsSync(distPath)) {
+    const files = fs.readdirSync(distPath, { recursive: true });
+    console.log(`[serveStatic] Found files:`, files);
+  }
+
   if (!fs.existsSync(distPath)) {
+    console.error(`[serveStatic] Build directory not found: ${distPath}`);
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static files with error handling
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      console.log(`[serveStatic] Serving file: ${filePath}`);
+    }
+  }));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  app.use("*", (req, res) => {
+    console.log(`[serveStatic] Fallback route for: ${req.path}`);
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
