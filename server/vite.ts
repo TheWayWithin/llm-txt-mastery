@@ -82,8 +82,19 @@ export function serveStatic(app: Express) {
   console.log(`[serveStatic] Directory exists: ${fs.existsSync(distPath)}`);
   
   if (fs.existsSync(distPath)) {
-    const files = fs.readdirSync(distPath, { recursive: true });
-    console.log(`[serveStatic] Found files:`, files);
+    try {
+      const files = fs.readdirSync(distPath, { recursive: true });
+      console.log(`[serveStatic] Found files:`, files);
+      
+      // Also list assets directory specifically
+      const assetsPath = path.join(distPath, "assets");
+      if (fs.existsSync(assetsPath)) {
+        const assetFiles = fs.readdirSync(assetsPath);
+        console.log(`[serveStatic] Assets directory contains:`, assetFiles);
+      }
+    } catch (err) {
+      console.error(`[serveStatic] Error reading directory:`, err);
+    }
   }
 
   if (!fs.existsSync(distPath)) {
@@ -93,27 +104,36 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Serve static assets with specific route prefix to avoid conflicts
-  app.use("/assets", express.static(path.join(distPath, "assets"), {
-    setHeaders: (res, filePath) => {
-      console.log(`[serveStatic] Serving asset file: ${filePath}`);
-    }
-  }));
-
-  // Serve other static files from root
+  // Serve static files with better error handling
   app.use(express.static(distPath, {
-    setHeaders: (res, filePath) => {
-      console.log(`[serveStatic] Serving static file: ${filePath}`);
+    maxAge: '1d',
+    etag: true,
+    setHeaders: (res, filePath, stat) => {
+      console.log(`[serveStatic] Serving file: ${filePath}`);
+      // Set proper MIME types
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
     }
   }));
 
-  // fall through to index.html if the file doesn't exist (but not for API routes)
-  app.use((req, res, next) => {
+  // SPA fallback - serve index.html for non-API routes
+  app.get('*', (req, res, next) => {
     // Don't serve index.html for API routes
     if (req.path.startsWith('/api/')) {
       return next();
     }
-    console.log(`[serveStatic] Fallback route for: ${req.path}`);
-    res.sendFile(path.resolve(distPath, "index.html"));
+    
+    console.log(`[serveStatic] SPA fallback for: ${req.path}`);
+    const indexPath = path.resolve(distPath, "index.html");
+    
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.error(`[serveStatic] index.html not found at: ${indexPath}`);
+      res.status(404).send('index.html not found');
+    }
   });
 }
