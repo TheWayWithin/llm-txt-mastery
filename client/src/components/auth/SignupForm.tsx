@@ -1,11 +1,12 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
+import { authApi } from "@/lib/auth-api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, Check, X, Loader2 } from "lucide-react"
 
 interface SignupFormProps {
   onSwitchToLogin: () => void
@@ -23,11 +24,73 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [passwordValidation, setPasswordValidation] = useState<{
+    valid: boolean;
+    errors: string[];
+    requirements: string[];
+  } | null>(null)
+  const [emailChecking, setEmailChecking] = useState(false)
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null)
+
+  // Validate password strength as user types
+  useEffect(() => {
+    if (password.length > 0) {
+      authApi.validatePassword(password)
+        .then(setPasswordValidation)
+        .catch(() => {
+          // Fallback validation if API fails
+          setPasswordValidation({
+            valid: password.length >= 8,
+            errors: password.length < 8 ? ['Password must be at least 8 characters long'] : [],
+            requirements: [
+              'At least 8 characters long',
+              'Contains at least one lowercase letter',
+              'Contains at least one uppercase letter',
+              'Contains at least one number',
+              'Contains at least one special character'
+            ]
+          });
+        });
+    } else {
+      setPasswordValidation(null);
+    }
+  }, [password]);
+
+  // Check email availability as user types
+  useEffect(() => {
+    if (email.includes('@') && email.includes('.')) {
+      setEmailChecking(true);
+      const timeoutId = setTimeout(() => {
+        authApi.checkEmailAvailability(email)
+          .then(setEmailAvailable)
+          .catch(() => setEmailAvailable(null))
+          .finally(() => setEmailChecking(false));
+      }, 500); // Debounce for 500ms
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setEmailAvailable(null);
+      setEmailChecking(false);
+    }
+  }, [email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setLoading(true)
+
+    // Enhanced validation
+    if (emailAvailable === false) {
+      setError("Email address is already registered")
+      setLoading(false)
+      return
+    }
+
+    if (!passwordValidation?.valid) {
+      setError("Password does not meet requirements")
+      setLoading(false)
+      return
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match")
@@ -35,14 +98,8 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
       return
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      setLoading(false)
-      return
-    }
-
     try {
-      await signUp(email, password)
+      await signUp(email, password, confirmPassword, defaultTier)
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed")
@@ -107,10 +164,28 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="pl-10"
+                className={`pl-10 pr-10 ${
+                  emailAvailable === false ? 'border-red-500' : 
+                  emailAvailable === true ? 'border-green-500' : ''
+                }`}
                 required
               />
+              <div className="absolute right-3 top-3 h-4 w-4">
+                {emailChecking ? (
+                  <Loader2 className="animate-spin text-gray-400" />
+                ) : emailAvailable === true ? (
+                  <Check className="text-green-500" />
+                ) : emailAvailable === false ? (
+                  <X className="text-red-500" />
+                ) : null}
+              </div>
             </div>
+            {emailAvailable === false && (
+              <p className="text-sm text-red-600">This email is already registered</p>
+            )}
+            {emailAvailable === true && (
+              <p className="text-sm text-green-600">Email is available</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -123,7 +198,10 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
-                className="pl-10 pr-10"
+                className={`pl-10 pr-10 ${
+                  passwordValidation && !passwordValidation.valid ? 'border-red-500' : 
+                  passwordValidation?.valid ? 'border-green-500' : ''
+                }`}
                 required
               />
               <button
@@ -134,6 +212,16 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
                 {showPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
+            {passwordValidation && passwordValidation.errors.length > 0 && (
+              <div className="text-sm text-red-600 space-y-1">
+                {passwordValidation.errors.map((error, index) => (
+                  <p key={index}>• {error}</p>
+                ))}
+              </div>
+            )}
+            {passwordValidation?.valid && (
+              <p className="text-sm text-green-600">Password meets all requirements</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -146,7 +234,10 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm your password"
-                className="pl-10 pr-10"
+                className={`pl-10 pr-10 ${
+                  confirmPassword && password !== confirmPassword ? 'border-red-500' : 
+                  confirmPassword && password === confirmPassword && password.length > 0 ? 'border-green-500' : ''
+                }`}
                 required
               />
               <button
@@ -157,6 +248,12 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
                 {showConfirmPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
+            {confirmPassword && password !== confirmPassword && (
+              <p className="text-sm text-red-600">Passwords do not match</p>
+            )}
+            {confirmPassword && password === confirmPassword && password.length > 0 && (
+              <p className="text-sm text-green-600">Passwords match</p>
+            )}
           </div>
 
           <div className="text-xs text-gray-500">
@@ -166,7 +263,15 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
           <Button
             type="submit"
             className="w-full"
-            disabled={loading}
+            disabled={
+              loading ||
+              emailAvailable === false ||
+              (passwordValidation && !passwordValidation.valid) ||
+              password !== confirmPassword ||
+              !email ||
+              !password ||
+              !confirmPassword
+            }
           >
             {loading ? "Creating account..." : "Create Account"}
           </Button>

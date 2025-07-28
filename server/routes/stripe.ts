@@ -12,7 +12,8 @@ import {
   TIER_PRICES
 } from "../services/stripe";
 import { storage } from "../storage";
-import { requireAuth } from "../middleware/auth";
+import { authStorage } from "../services/auth-storage";
+import { requireAuth, optionalAuth } from "../middleware/auth";
 import { apiLimiter } from "../middleware/rate-limit";
 
 export function registerStripeRoutes(app: Express) {
@@ -24,43 +25,21 @@ export function registerStripeRoutes(app: Express) {
         tier: z.enum(['growth', 'scale'])
       }).parse(req.body);
 
-      const userId = req.user?.id;
-      const userEmail = req.user?.email;
-
-      if (!userId || !userEmail) {
+      const authUser = req.user;
+      if (!authUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      // Get or create user profile
-      let userProfile = await storage.getUserProfile(userId);
-      if (!userProfile) {
-        userProfile = await storage.createUserProfile({
-          id: userId,
-          email: userEmail,
-          tier: 'starter',
-          stripeCustomerId: null,
-          subscriptionId: null,
-          subscriptionStatus: null
-        });
-      }
-
-      // Get or create Stripe customer
-      let stripeCustomer;
-      if (userProfile.stripeCustomerId) {
-        stripeCustomer = await getStripeCustomer(userProfile.stripeCustomerId);
-      }
+      // Create Stripe customer for authenticated user
+      const stripeCustomer = await createStripeCustomer({
+        email: authUser.email,
+        userId: authUser.id.toString()
+      });
       
-      if (!stripeCustomer) {
-        stripeCustomer = await createStripeCustomer({
-          email: userEmail,
-          userId: userId
-        });
-        
-        // Update user profile with Stripe customer ID
-        await storage.updateUserProfile(userId, {
-          stripeCustomerId: stripeCustomer.id
-        });
-      }
+      // Update auth user with Stripe customer ID
+      await authStorage.updateUser(authUser.id, {
+        stripeCustomerId: stripeCustomer.id
+      });
 
       // Create checkout session
       const priceId = TIER_PRICES[tier].priceId;
@@ -69,7 +48,7 @@ export function registerStripeRoutes(app: Express) {
         priceId,
         successUrl: `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${req.headers.origin}/subscription-cancel`,
-        userId
+        userId: authUser.id.toString()
       });
 
       res.json({ 
@@ -86,15 +65,19 @@ export function registerStripeRoutes(app: Express) {
   });
 
   // Create one-time checkout session for coffee tier
-  app.post("/api/stripe/create-coffee-checkout", apiLimiter, async (req, res) => {
+  app.post("/api/stripe/create-coffee-checkout", optionalAuth, apiLimiter, async (req, res) => {
     try {
       const { email, websiteUrl } = z.object({
-        email: z.string().email(),
+        email: z.string().email().optional(),
         websiteUrl: z.string().url().optional()
       }).parse(req.body);
 
-      // For freemium flow, accept email from request body instead of auth
-      const userEmail = email;
+      // Support both authenticated and email-based purchases
+      const userEmail = req.user?.email || email;
+      
+      if (!userEmail) {
+        return res.status(400).json({ message: "Email is required" });
+      }
 
       // Get or create email capture record (for freemium users)
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -149,18 +132,17 @@ export function registerStripeRoutes(app: Express) {
   // Create customer portal session
   app.post("/api/stripe/create-portal", requireAuth, apiLimiter, async (req, res) => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
+      const authUser = req.user;
+      if (!authUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const userProfile = await storage.getUserProfile(userId);
-      if (!userProfile?.stripeCustomerId) {
+      if (!authUser.stripeCustomerId) {
         return res.status(400).json({ message: "No Stripe customer found" });
       }
 
       const session = await createPortalSession(
-        userProfile.stripeCustomerId,
+        authUser.stripeCustomerId,
         `${req.headers.origin}/dashboard`
       );
 
@@ -177,38 +159,18 @@ export function registerStripeRoutes(app: Express) {
   // Get subscription status
   app.get("/api/stripe/subscription-status", requireAuth, async (req, res) => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
+      const authUser = req.user;
+      if (!authUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const userProfile = await storage.getUserProfile(userId);
-      if (!userProfile) {
-        return res.json({ 
-          tier: 'starter', 
-          subscriptionStatus: null,
-          hasActiveSubscription: false 
-        });
-      }
-
-      let hasActiveSubscription = false;
-      let subscriptions = [];
-
-      if (userProfile.stripeCustomerId) {
-        subscriptions = await getCustomerSubscriptions(userProfile.stripeCustomerId);
-        hasActiveSubscription = subscriptions.length > 0;
-      }
-
+      // Return authenticated user's tier and credits directly from auth_users table
       res.json({
-        tier: userProfile.tier,
-        subscriptionStatus: userProfile.subscriptionStatus,
-        hasActiveSubscription,
-        subscriptions: subscriptions.map(sub => ({
-          id: sub.id,
-          status: sub.status,
-          currentPeriodEnd: sub.current_period_end,
-          priceId: sub.items.data[0]?.price.id
-        }))
+        tier: authUser.tier,
+        subscriptionStatus: null, // TODO: Add subscription status to auth_users if needed
+        hasActiveSubscription: ['growth', 'scale'].includes(authUser.tier),
+        creditsRemaining: authUser.creditsRemaining || 0,
+        subscriptions: [] // TODO: Link subscriptions to auth_users if needed
       });
 
     } catch (error) {
@@ -339,6 +301,23 @@ async function handleCheckoutCompleted(session: any) {
           }
         } catch (error) {
           console.error(`Failed to update email capture for ${customerEmail}:`, error);
+        }
+      }
+      
+      // NEW: Update auth_users table if user is authenticated
+      if (customerEmail) {
+        try {
+          const authUser = await authStorage.getUserByEmail(customerEmail);
+          if (authUser) {
+            // Update authenticated user's tier and credits
+            await authStorage.updateUser(authUser.id, {
+              tier: 'coffee',
+              creditsRemaining: (authUser.creditsRemaining || 0) + 1
+            });
+            console.log(`Updated authenticated user ${customerEmail} to Coffee tier with credits`);
+          }
+        } catch (error) {
+          console.error(`Failed to update authenticated user for ${customerEmail}:`, error);
         }
       }
       
