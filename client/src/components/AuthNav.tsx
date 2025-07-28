@@ -11,8 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { AuthModal } from '@/components/auth/AuthModal'
-import { UserDashboard } from '@/components/UserDashboard'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { 
   User, 
   Coffee, 
@@ -23,12 +21,13 @@ import {
   Settings,
   CreditCard
 } from 'lucide-react'
+import { useLocation } from 'wouter'
 
 export function AuthNav() {
-  const { user, userProfile, signOut, loading } = useAuth()
+  const { user, signOut, loading } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const [showDashboard, setShowDashboard] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
+  const [location, setLocation] = useLocation()
 
   if (loading) {
     return (
@@ -100,18 +99,18 @@ export function AuthNav() {
     <>
       <div className="flex items-center space-x-3">
         {/* Tier Badge */}
-        {userProfile && (
-          <Badge className={`${getTierColor(userProfile.tier)} flex items-center gap-1`}>
-            {getTierIcon(userProfile.tier)}
-            {userProfile.tier.charAt(0).toUpperCase() + userProfile.tier.slice(1)}
+        {user && (
+          <Badge className={`${getTierColor(user.tier)} flex items-center gap-1`}>
+            {getTierIcon(user.tier)}
+            {user.tier.charAt(0).toUpperCase() + user.tier.slice(1)}
           </Badge>
         )}
 
         {/* Credits Display for Coffee Tier */}
-        {userProfile?.tier === 'coffee' && (
+        {user?.tier === 'coffee' && (
           <div className="flex items-center space-x-1 text-sm text-orange-600">
             <Coffee className="h-4 w-4" />
-            <span className="font-medium">{userProfile.creditsRemaining}</span>
+            <span className="font-medium">{user.creditsRemaining}</span>
             <span className="text-gray-500">credits</span>
           </div>
         )}
@@ -132,7 +131,7 @@ export function AuthNav() {
               <div>
                 <div className="font-medium">{user.email}</div>
                 <div className="text-xs text-gray-500 capitalize">
-                  {userProfile?.tier || 'starter'} tier
+                  {user.tier} tier
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -140,19 +139,12 @@ export function AuthNav() {
             <DropdownMenuSeparator />
             
             <DropdownMenuItem 
-              onClick={() => setShowDashboard(true)}
+              onClick={() => setLocation('/dashboard')}
               className="cursor-pointer"
             >
               <Settings className="mr-2 h-4 w-4" />
               Dashboard
             </DropdownMenuItem>
-
-            {userProfile?.subscriptionStatus === 'active' && (
-              <DropdownMenuItem className="cursor-pointer">
-                <CreditCard className="mr-2 h-4 w-4" />
-                Manage Billing
-              </DropdownMenuItem>
-            )}
             
             <DropdownMenuSeparator />
             
@@ -166,13 +158,6 @@ export function AuthNav() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      {/* Dashboard Modal */}
-      <Dialog open={showDashboard} onOpenChange={setShowDashboard}>
-        <DialogContent className="sm:max-w-md">
-          <UserDashboard />
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
