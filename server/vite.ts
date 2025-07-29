@@ -119,6 +119,51 @@ export function serveStatic(app: Express) {
     }
   }));
 
+  // Handle missing assets by serving any file that matches the pattern
+  app.get('/assets/:filename', (req, res, next) => {
+    const requestedFile = req.params.filename;
+    const assetsPath = path.join(distPath, "assets");
+    
+    console.log(`[serveStatic] Looking for asset: ${requestedFile}`);
+    
+    if (!fs.existsSync(assetsPath)) {
+      console.error(`[serveStatic] Assets directory not found: ${assetsPath}`);
+      return res.status(404).send('Assets directory not found');
+    }
+    
+    try {
+      const files = fs.readdirSync(assetsPath);
+      console.log(`[serveStatic] Available assets:`, files);
+      
+      // Try to find a file that matches the type (js or css)
+      let matchingFile = null;
+      if (requestedFile.endsWith('.js')) {
+        matchingFile = files.find(f => f.endsWith('.js'));
+      } else if (requestedFile.endsWith('.css')) {
+        matchingFile = files.find(f => f.endsWith('.css'));
+      }
+      
+      if (matchingFile) {
+        console.log(`[serveStatic] Serving ${matchingFile} for ${requestedFile}`);
+        const filePath = path.join(assetsPath, matchingFile);
+        
+        // Set proper content type
+        if (matchingFile.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript');
+        } else if (matchingFile.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css');
+        }
+        
+        return res.sendFile(filePath);
+      }
+    } catch (err) {
+      console.error(`[serveStatic] Error reading assets directory:`, err);
+    }
+    
+    console.log(`[serveStatic] Asset not found: ${requestedFile}`);
+    next();
+  });
+
   // SPA fallback - serve index.html for non-API routes
   app.get('*', (req, res, next) => {
     // Don't serve index.html for API routes
