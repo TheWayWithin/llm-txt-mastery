@@ -78,47 +78,22 @@ export async function setupVite(app: Express, server: Server) {
 export function serveStatic(app: Express) {
   const distPath = path.resolve(process.cwd(), "dist", "public");
 
-  console.log(`[serveStatic] Looking for build directory at: ${distPath}`);
-  
   if (!fs.existsSync(distPath)) {
-    console.error(`[serveStatic] Build directory not found: ${distPath}`);
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
 
-  console.log(`[serveStatic] Directory exists: ${fs.existsSync(distPath)}`);
-  
-  try {
-    const files = fs.readdirSync(distPath, { recursive: true });
-    console.log(`[serveStatic] Found files:`, files);
-  } catch (err) {
-    console.error(`[serveStatic] Error reading directory:`, err);
-  }
+  // Simple static file serving - this is the original working logic
+  app.use(express.static(distPath));
 
-  // Simple static file serving - let express handle everything
-  app.use(express.static(distPath, {
-    index: false, // Don't serve index.html automatically
-    setHeaders: (res, path) => {
-      console.log(`[serveStatic] Serving: ${path}`);
-    }
-  }));
-
-  // Catch-all route for SPA - must be last
-  app.get('*', (req, res) => {
-    // Skip API routes
+  // SPA fallback - serve index.html for non-API routes
+  app.use("*", (req, res, next) => {
+    // Don't serve index.html for API routes - let them 404 properly
     if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' });
+      return next();
     }
     
-    const indexPath = path.resolve(distPath, "index.html");
-    console.log(`[serveStatic] SPA fallback for: ${req.path} -> ${indexPath}`);
-    
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      console.error(`[serveStatic] index.html not found at: ${indexPath}`);
-      res.status(500).send('Application not properly built');
-    }
+    res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
