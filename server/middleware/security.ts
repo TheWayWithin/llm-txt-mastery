@@ -97,14 +97,26 @@ export const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5000',
+      'http://localhost:8080',
       'https://www.llmtxtmastery.com',
       'https://llmtxtmastery.com',
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
+    // Allow Railway domains
+    if (origin.includes('railway.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow localhost with any port
+    if (origin.startsWith('http://localhost:')) {
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log(`[CORS] Blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
