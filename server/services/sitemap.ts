@@ -494,21 +494,82 @@ export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
 }
 
 export async function fetchPageContent(url: string): Promise<string> {
-  try {
-    const response = await fetchWithTimeout(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+  const userAgents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+  ];
+
+  const maxRetries = 3;
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Progressive delay between retries (exponential backoff)
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+        console.log(`Retry attempt ${attempt + 1} for ${url} after ${delay}ms delay`);
       }
-    }, 10000);
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      // Rotate user agents to appear more natural
+      const userAgent = userAgents[attempt % userAgents.length];
+      
+      const response = await fetchWithTimeout(url, {
+        headers: {
+          'User-Agent': userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Sec-Fetch-User': '?1',
+          'Upgrade-Insecure-Requests': '1',
+          'Connection': 'keep-alive'
+        }
+      }, 15000); // Increased timeout to 15 seconds
+
+      if (!response.ok) {
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('retry-after');
+          const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000;
+          console.log(`Rate limited (429) for ${url}, waiting ${waitTime}ms before retry`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          throw new Error(`Rate limited (HTTP ${response.status})`);
+        }
+        
+        // For other 4xx/5xx errors, still retry as they might be temporary
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const content = await response.text();
+      
+      // Success - log if this was a retry
+      if (attempt > 0) {
+        console.log(`Successfully fetched ${url} on attempt ${attempt + 1}`);
+      }
+      
+      return content;
+      
+    } catch (error) {
+      lastError = error as Error;
+      console.log(`Fetch attempt ${attempt + 1} failed for ${url}: ${error.message}`);
+      
+      // Don't retry on certain errors that won't be fixed by retrying
+      if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
+        break;
+      }
     }
-
-    return await response.text();
-  } catch (error) {
-    throw new Error(`Failed to fetch ${url}: ${error.message}`);
   }
+
+  // All retries failed
+  throw new Error(`Failed to fetch ${url} after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
 }
 
 export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
