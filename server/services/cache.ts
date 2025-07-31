@@ -223,7 +223,7 @@ export async function cacheAnalysis(
     const now = new Date();
     const expiresAt = new Date(now.getTime() + duration);
     
-    // Upsert cache entry
+    // Upsert cache entry - handle undefined values
     await db.execute(`
       INSERT INTO analysis_cache (
         url, url_hash, content_hash, last_modified, etag, 
@@ -239,8 +239,15 @@ export async function cacheAnalysis(
         expires_at = $9,
         hit_count = 0
     `, [
-      url, urlHash, contentHash, lastModified, etag,
-      JSON.stringify(result), tier, now, expiresAt
+      url, 
+      urlHash, 
+      contentHash, 
+      lastModified || null, 
+      etag || null,
+      JSON.stringify(result), 
+      tier, 
+      now, 
+      expiresAt
     ]);
     
     console.log(`Cached analysis for ${url} (tier: ${tier}, expires: ${expiresAt.toISOString()})`);
