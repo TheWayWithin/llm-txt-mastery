@@ -127,9 +127,18 @@ export async function checkUsageLimits(
     // Check daily analysis limit
     if (analysesToday >= limits.dailyAnalyses) {
       const suggestedUpgrade = tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
+      
+      // Create user-friendly messaging based on tier
+      let reason: string;
+      if (tier === 'starter') {
+        reason = `You've used your free analysis for today! Buy me a coffee ($4.95) for unlimited AI-powered analysis of up to 200 pages. Your free analysis resets tomorrow at midnight.`;
+      } else {
+        reason = `Daily limit reached. ${tier} tier allows ${limits.dailyAnalyses} analysis${limits.dailyAnalyses > 1 ? 'es' : ''} per day. Resets at midnight.`;
+      }
+      
       return {
         allowed: false,
-        reason: `Daily limit reached. ${tier} tier allows ${limits.dailyAnalyses} analysis${limits.dailyAnalyses > 1 ? 'es' : ''} per day.`,
+        reason,
         currentUsage: { analysesToday, pagesProcessedToday },
         limits: {
           dailyAnalyses: limits.dailyAnalyses,
