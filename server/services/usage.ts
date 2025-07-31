@@ -38,51 +38,59 @@ export async function getUserTier(userEmail: string): Promise<UserTier> {
   }
 }
 
-// Simple in-memory usage tracking for testing
-const usageTracking = new Map<string, UsageTracking>();
-
-// Get today's usage for a user
+// Get today's usage for a user from database
 export async function getTodayUsage(userEmail: string): Promise<UsageTracking | null> {
   try {
     const today = new Date().toISOString().split('T')[0];
-    const key = `${userEmail}:${today}`;
     
-    return usageTracking.get(key) || null;
+    // Get user ID from email first
+    const userResult = await db.execute<{ id: number }>(`
+      SELECT id FROM "emailCaptures" WHERE email = $1 LIMIT 1
+    `, [userEmail]);
+    
+    const userId = userResult.rows?.[0]?.id;
+    if (!userId) return null;
+    
+    // Get today's usage from database
+    const usageResult = await db.execute<{
+      id: number;
+      user_id: number;
+      date: string;
+      analyses_count: number;
+      pages_processed: number;
+      ai_calls_count: number;
+      html_extractions_count: number;
+      cache_hits: number;
+      total_cost: number;
+      created_at: string;
+      updated_at: string;
+    }>(`
+      SELECT * FROM usage_tracking 
+      WHERE user_id = $1 AND date = $2 
+      LIMIT 1
+    `, [userId, today]);
+    
+    const usage = usageResult.rows?.[0];
+    if (!usage) return null;
+    
+    // Convert database result to UsageTracking interface
+    return {
+      id: usage.id,
+      userId: usage.user_id,
+      date: usage.date,
+      analysesCount: usage.analyses_count,
+      pagesProcessed: usage.pages_processed,
+      cacheHits: usage.cache_hits,
+      cost: usage.total_cost,
+      createdAt: new Date(usage.created_at),
+      updatedAt: new Date(usage.updated_at)
+    };
   } catch (error) {
     console.error('Error getting today usage:', error);
     return null;
   }
 }
 
-// Update usage tracking
-export async function updateUsageTracking(
-  userEmail: string, 
-  analysesCount: number, 
-  pagesProcessed: number, 
-  cost: number
-): Promise<void> {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const key = `${userEmail}:${today}`;
-    
-    const existing = usageTracking.get(key);
-    const updated: UsageTracking = {
-      id: existing?.id || Date.now(),
-      userId: existing?.userId || 1,
-      date: today,
-      analysesCount: (existing?.analysesCount || 0) + analysesCount,
-      pagesProcessed: (existing?.pagesProcessed || 0) + pagesProcessed,
-      cacheHits: existing?.cacheHits || 0,
-      cost: (existing?.cost || 0) + cost,
-      createdAt: existing?.createdAt || new Date(),
-      updatedAt: new Date()
-    };
-    
-    usageTracking.set(key, updated);
-  } catch (error) {
-    console.error('Error updating usage tracking:', error);
-  }
-}
 
 // Check if user can perform analysis
 export async function checkUsageLimits(
