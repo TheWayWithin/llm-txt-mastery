@@ -41,6 +41,9 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   // Basic HTML parsing to extract title and create analysis
   const $ = cheerio.load(htmlContent);
   
+  // Extract text content for analysis first (needed by other functions)
+  const textContent = $('body').text().trim();
+  
   // Extract title
   let title = $('title').text().trim();
   if (!title) {
@@ -70,9 +73,6 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   
   // Calculate quality score based on content indicators
   let qualityScore = 3; // Lower base score for more realistic assessment
-  
-  // Extract text content for analysis
-  const textContent = $('body').text().trim();
   const wordCount = textContent.split(/\s+/).filter(word => word.length > 0).length;
   const paragraphCount = $('p').length;
   const listItemCount = $('li').length;

@@ -1,4 +1,5 @@
 import { storage } from "../storage";
+import { db } from "../db";
 import { UserTier, UsageTracking } from "@shared/schema";
 import { TIER_LIMITS } from "./cache";
 
