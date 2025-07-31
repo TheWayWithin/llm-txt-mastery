@@ -34,18 +34,34 @@ export async function analyzeDiscoveredPagesWithCache(
   const relevantPages = filterRelevantPages(entries);
   const tierLimits = TIER_LIMITS[tier];
   
+  // Enhanced logging for transparency
+  const totalDiscovered = entries.length;
+  const afterFiltering = relevantPages.length;
+  const filteredOut = totalDiscovered - afterFiltering;
+  
+  console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
+  console.log(`   • Found ${totalDiscovered} total pages`);
+  console.log(`   • Filtered out ${filteredOut} pages (duplicates, navigation, assets, etc.)`);
+  console.log(`   • ${afterFiltering} pages ready for analysis`);
+  
   // Apply tier-based page limit (bypass in development)
   let pagesToAnalyze: SitemapEntry[];
   
   if (process.env.NODE_ENV === 'development') {
     // Development mode: analyze all relevant pages (no tier limits)
     pagesToAnalyze = relevantPages;
-    console.log(`🚀 [DEV MODE] Analyzing ALL ${pagesToAnalyze.length} pages for ${userEmail} (tier: ${tier}) - bypassing tier limit of ${tierLimits.maxPagesPerAnalysis}`);
+    console.log(`🚀 [DEV MODE] Analyzing ALL ${pagesToAnalyze.length} pages - bypassing tier limit of ${tierLimits.maxPagesPerAnalysis}`);
   } else {
     // Production mode: respect tier limits
     const maxPages = Math.min(tierLimits.maxPagesPerAnalysis, relevantPages.length);
     pagesToAnalyze = relevantPages.slice(0, maxPages);
-    console.log(`Analyzing ${pagesToAnalyze.length} pages for ${userEmail} (tier: ${tier})`);
+    
+    if (afterFiltering > maxPages) {
+      const tierLimited = afterFiltering - maxPages;
+      console.log(`   • Tier limit applied: analyzing top ${maxPages} pages (${tierLimited} pages exceed ${tier} tier limit)`);
+    } else {
+      console.log(`   • Analyzing all ${maxPages} pages (within ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
+    }
   }
   
   const pages: DiscoveredPage[] = [];
@@ -126,7 +142,22 @@ export async function analyzeDiscoveredPagesWithCache(
     }
   );
   
-  console.log(`Removed ${duplicatesRemoved} duplicates, ${pages.length - uniquePages.length} total filtered`);
+  // Enhanced final analysis summary
+  const finalAnalyzed = uniquePages.length;
+  const totalAttempted = pagesToAnalyze.length;
+  const skippedPages = totalAttempted - pages.length;
+  const postFilteringRemoved = pages.length - finalAnalyzed;
+  
+  console.log(`📈 Analysis Complete for ${userEmail}:`);
+  console.log(`   • Successfully analyzed: ${finalAnalyzed} pages`);
+  if (skippedPages > 0) {
+    console.log(`   • Skipped during analysis: ${skippedPages} pages (bot protection, errors, timeouts)`);
+  }
+  if (postFilteringRemoved > 0) {
+    console.log(`   • Removed post-analysis: ${postFilteringRemoved} pages (duplicates, low-value content)`);
+  }
+  console.log(`   • Processing time: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+  console.log(`   • Cache hits: ${metrics.cachedPages}, AI calls: ${metrics.aiCallsUsed}, HTML extractions: ${metrics.htmlExtractionsUsed}`);
   
   // Sort by quality score
   uniquePages.sort((a, b) => b.qualityScore - a.qualityScore);
