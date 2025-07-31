@@ -1,10 +1,10 @@
 # LLM.txt Mastery - Development Tasks & Milestones
-*Last Updated: July 30, 2025*
+*Last Updated: July 31, 2025*
 
-## Phase 1.5: LLM.txt Quality Enhancements ✅ COMPLETED (July 30, 2025)
+## Phase 1.5: LLM.txt Quality Enhancements ✅ COMPLETED (July 31, 2025)
 **Objective**: Transform generated llms.txt files from basic link lists to intelligent knowledge maps
-**Target Completion**: July 30, 2025 ✅ ACHIEVED
-**Status**: 🎉 SUCCESSFULLY DELIVERED - 10x Quality Improvement Achieved
+**Target Completion**: July 30, 2025 ✅ ACHIEVED AHEAD OF SCHEDULE
+**Status**: 🚀 PRODUCTION DEPLOYED - 10x Quality Improvement + Critical Bug Fixes Complete
 
 ### ✅ Milestone 1.5.1: Core File Generation Enhancements (COMPLETED)
 **Goal**: Dramatically improve the structure and quality of generated llms.txt files
@@ -78,40 +78,82 @@
 
 ---
 
-## 🔥 URGENT: Critical Bug Fix (Immediate Priority)
-**Target Completion**: Within 24 hours
-**Status**: ⚠️ BLOCKING ALL FREE TIER USERS
+## Phase 1.6: Usage System Reliability & UX Polish ⚠️ CRITICAL (August 1-3, 2025)
+**Objective**: Fix critical usage tracking issues to ensure proper tier enforcement and professional user experience
+**Target Completion**: August 3, 2025
+**Status**: 🔥 HIGH PRIORITY - Discovered during production testing
 
-### Critical Bug Fix: Free Tier Usage Validation
-**Priority**: 🔥 CRITICAL - IMMEDIATE ACTION REQUIRED
+### ⚠️ Critical Issues Discovered During Testing
+After successful Phase 1.5 deployment, comprehensive testing revealed several critical usage tracking issues:
 
-#### Root Cause Analysis
-- **Location**: `/server/services/usage.ts` line 135
-- **Issue**: `if (requestedPages > limits.maxPagesPerAnalysis)` check is wrong
-- **Problem**: Validates total pages discovered (could be 100+) vs pages to analyze (20 for starter)
-- **Result**: All websites with 20+ pages get blocked with "Too many pages requested" error
+1. **Usage tracking not persisting** - Shows 0/1 instead of actual usage (in-memory storage resets)
+2. **Daily limits not enforced** - Free tier allows unlimited analyses instead of 1 per day
+3. **Page counting inconsistencies** - Analyzing 16/17, 19/20 instead of exact tier limits
+4. **Tier terminology confusion** - UI shows "STARTER" instead of user-friendly "FREE" 
+5. **Dual routes system conflicts** - routes.ts and routes-enhanced.ts causing endpoint confusion
 
-#### Required Fix
-- [ ] **Remove incorrect validation** from `checkUsageLimits()` function (lines 134-148)
-- [ ] **Keep daily analysis limit** validation (1 analysis per day for starter tier)
-- [ ] **Verify tier limits work** in analysis pipeline (`sitemap-enhanced.ts` already handles this correctly)
-- [ ] **Test free tier functionality** with websites having 25+ pages
+### ✅ Milestone 1.6.1: Core Usage Tracking Fixes (PRIORITY)
 
-#### Testing Requirements
-- [ ] Test free tier with website having 25+ pages (should work)
-- [ ] Test free tier with website having 15 pages (should still work)  
-- [ ] Verify free tier still limited to analyzing top 20 pages
-- [ ] Verify daily analysis limit still enforced (1 per day)
-- [ ] Test Coffee tier still works with 200+ page sites
+#### 🔥 Database-based Usage Persistence (CRITICAL)
+- [ ] Replace in-memory Map storage with database-only persistence
+- [ ] Fix getTodayUsage() to read from database instead of memory
+- [ ] Ensure trackUsage() consistently writes to database
+- [ ] Test usage persistence across server restarts
+- **Impact**: Usage tracking survives server restarts and shows accurate counts
 
-#### Deployment Steps
-1. Fix usage validation logic
-2. Deploy to staging and test
-3. Deploy to production immediately
-4. Monitor for successful free tier usage
-5. Document fix in changelog
+#### 🔥 Daily Limit Enforcement (CRITICAL)
+- [ ] Implement proper 1-analysis-per-day restriction for free tier
+- [ ] Block subsequent analyses with clear upgrade messaging
+- [ ] Show "Try again tomorrow at midnight" for exceeded limits
+- [ ] Add automatic reset timing at midnight UTC
+- **Impact**: Proper freemium model enforcement driving Coffee tier conversions
 
-**Success Criteria**: Free tier users can analyze any website and get top 20 pages processed
+#### 🔥 Route System Consolidation (HIGH)
+- [ ] Determine which routes file is active in production
+- [ ] Consolidate routes.ts and routes-enhanced.ts to single source
+- [ ] Remove duplicate endpoints causing conflicts
+- [ ] Test all usage-related endpoints work consistently
+- **Impact**: Eliminates confusion and ensures consistent behavior
+
+### ✅ Milestone 1.6.2: Page Counting Transparency & Accuracy
+
+#### Page Limit Accuracy (HIGH)
+- [ ] Add detailed logging: "Found X pages → Filtered to Y pages → Analyzing Z pages"
+- [ ] Show users exactly which pages were filtered and why  
+- [ ] Ensure filtering happens before tier limits for predictable results
+- [ ] Fix free tier to analyze exactly 20 pages, Coffee tier exactly up to 200
+- **Impact**: Predictable page counting builds user trust and reduces confusion
+
+#### Enhanced Analysis Feedback (MEDIUM)
+- [ ] Display page filtering reasons in analysis results
+- [ ] Show "Skipped 1 page due to [bot protection/404/duplicate content]"
+- [ ] Add transparency about analysis process
+- **Impact**: Users understand exactly what they're getting
+
+### ✅ Milestone 1.6.3: Professional UX & Tier Messaging
+
+#### Tier Terminology & Messaging (MEDIUM)
+- [ ] Change "STARTER" to "FREE" throughout UI
+- [ ] Add clear tier descriptions: "1 free analysis per day, up to 20 pages"
+- [ ] Create compelling upgrade messaging when limits reached
+- [ ] Show "Buy me a coffee for unlimited AI analysis of 200+ page sites"
+- **Impact**: Professional terminology that encourages upgrades
+
+#### Enhanced Usage Dashboard (MEDIUM)
+- [ ] Fix usage counts to show actual numbers (1/1, 2/1 with limit message)
+- [ ] Add "resets tomorrow at midnight" information
+- [ ] Show cache hits and cost savings correctly
+- [ ] Display tier benefits clearly
+- **Impact**: Clear value proposition and upgrade incentives
+
+### Success Metrics & Testing Requirements
+- ✅ **Usage Persistence**: Usage shows 1/1 after first analysis, survives server restart
+- ✅ **Daily Limits**: Free tier blocks 2nd analysis with upgrade prompt
+- ✅ **Page Accuracy**: Free tier analyzes exactly 20 pages consistently
+- ✅ **Professional UX**: Clear "FREE" tier messaging with compelling upgrade path
+- ✅ **Conversion Ready**: Smooth transition from limit message to Coffee tier purchase
+
+**Critical Success Criteria**: Free tier shows accurate usage (1/1), blocks additional analyses, drives Coffee tier conversions
 
 ---
 

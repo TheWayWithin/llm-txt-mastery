@@ -5,61 +5,69 @@ import { urlAnalysisSchema, insertSitemapAnalysisSchema, insertLlmTextFileSchema
 import { fetchSitemap } from "./services/sitemap";
 import { analyzeDiscoveredPagesWithCache } from "./services/sitemap-enhanced";
 import { storage } from "./storage";
-import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth } from "./services/usage";
+import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
-import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
-import { optionalAuth } from "./middleware/auth";
-import { registerStripeRoutes } from "./routes/stripe";
+import { requireAuth, optionalAuth } from "./middleware/auth";
 import authRoutes from "./routes/auth";
+import { trackAnalysisCompleted, triggerUpgradeSequence, isConvertKitConfigured, getConvertKitConfig } from "./services/convertkit";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Register authentication routes
-  app.use("/api/auth", authRoutes);
+  // Authentication routes
+  app.use('/api/auth', authRoutes);
   
-  // Debug tier lookup (temporary endpoint)
-  app.post("/api/debug-tier", async (req, res) => {
+  // ConvertKit configuration status endpoint
+  app.get("/api/convertkit/status", async (req, res) => {
     try {
-      const { email } = req.body;
+      const config = getConvertKitConfig();
+      res.json({
+        status: "success",
+        config
+      });
+    } catch (error) {
+      console.error("ConvertKit status error:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get ConvertKit configuration"
+      });
+    }
+  });
+  
+  // Email capture endpoint for freemium model
+  app.post("/api/email-capture", async (req, res) => {
+    try {
+      const emailData = emailCaptureSchema.parse(req.body);
       
-      if (!email) {
-        return res.status(400).json({ message: "Email required" });
+      // Check if email already exists
+      const existingCapture = await storage.getEmailCapture(emailData.email);
+      if (existingCapture) {
+        return res.json({ 
+          message: "Email already captured", 
+          capture: existingCapture,
+          tier: existingCapture.tier || 'starter'
+        });
       }
       
-      // Check what getUserTier returns
-      const detectedTier = await getUserTier(email);
-      
-      // Check email capture directly
-      const emailCapture = await storage.getEmailCapture(email);
-      
-      // Also check raw database query
-      const rawCheck = emailCapture ? emailCapture.tier : 'not found';
-      
-      res.json({
-        email,
-        detectedTier,
-        rawEmailCaptureTier: rawCheck,
-        emailCapture: emailCapture ? {
-          tier: emailCapture.tier,
-          email: emailCapture.email,
-          createdAt: emailCapture.createdAt,
-          updatedAt: emailCapture.updatedAt
-        } : null,
-        debug: {
-          timestamp: new Date().toISOString(),
-          storageType: typeof storage
-        }
+      // Create new email capture with selected tier
+      const capture = await storage.createEmailCapture({
+        ...emailData,
+        tier: emailData.tier as any // Use the selected tier
       });
       
+      res.json({ 
+        message: "Email captured successfully", 
+        capture,
+        tier: emailData.tier
+      });
     } catch (error) {
-      console.error("Debug tier error:", error);
-      res.status(500).json({ 
-        message: "Failed to debug tier", 
+      console.error("Email capture error:", error);
+      res.status(400).json({ 
+        message: "Failed to capture email", 
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
   });
-
+  
   // Manual Coffee tier fix for existing customers (temporary endpoint)
   app.post("/api/fix-coffee-tier", async (req, res) => {
     try {
@@ -103,41 +111,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Email capture endpoint for freemium model
-  app.post("/api/email-capture", apiLimiter, async (req, res) => {
-    try {
-      const emailData = emailCaptureSchema.parse(req.body);
-      
-      // Check if email already exists
-      const existingCapture = await storage.getEmailCapture(emailData.email);
-      if (existingCapture) {
-        return res.json({ 
-          message: "Email already captured", 
-          capture: existingCapture,
-          tier: existingCapture.tier || 'starter'
-        });
-      }
-      
-      // Create new email capture with default tier
-      const capture = await storage.createEmailCapture({
-        ...emailData,
-        tier: 'starter' as any // Default to starter tier
-      });
-      
-      res.json({ 
-        message: "Email captured successfully", 
-        capture,
-        tier: 'starter'
-      });
-    } catch (error) {
-      console.error("Email capture error:", error);
-      res.status(400).json({ 
-        message: "Failed to capture email", 
-        error: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
-  
   // Check usage limits before analysis
   app.post("/api/check-limits", async (req, res) => {
     try {
@@ -176,26 +149,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Enhanced analyze endpoint with caching and tier support
-  app.post("/api/analyze", analysisLimiter, optionalAuth, async (req, res) => {
+  app.post("/api/analyze", requireAuth, async (req, res) => {
     try {
-      const { url, force = false, email } = z.object({
+      const { url, force = false } = z.object({
         url: z.string(),
-        force: z.boolean().optional().default(false),
-        email: z.string().optional()
+        force: z.boolean().optional().default(false)
       }).parse(req.body);
       
-      // Get user information (authenticated or email-based)
-      const user = req.user;
-      const userEmail = user?.email || email;
-      
-      if (!userEmail) {
-        return res.status(400).json({ 
-          message: "Email required for analysis. Please sign up first." 
-        });
-      }
-      
-      // Get user tier (prioritize authenticated user data)
-      const tier = await getUserTierFromAuth(user, userEmail);
+      // Use authenticated user information
+      const userEmail = req.user!.email;
+      const tier = req.user!.tier;
       
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -204,28 +167,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sitemapResult = await fetchSitemap(normalizedUrl);
       const pageCount = sitemapResult.entries.length;
       
-      // Check usage limits (for non-authenticated users or non-coffee tier)
+      // Check usage limits
       const usageCheck = await checkUsageLimits(userEmail, pageCount);
       if (!usageCheck.allowed) {
+        // Trigger upgrade sequence in ConvertKit if configured
+        if (isConvertKitConfigured()) {
+          try {
+            let limitType: 'daily_analyses' | 'page_limit' | 'ai_limit' = 'page_limit';
+            if (usageCheck.reason.includes('daily')) limitType = 'daily_analyses';
+            if (usageCheck.reason.includes('AI')) limitType = 'ai_limit';
+            
+            await triggerUpgradeSequence(userEmail, tier, limitType);
+          } catch (error) {
+            console.error('ConvertKit upgrade sequence failed:', error);
+          }
+        }
+        
         return res.status(403).json({
           message: usageCheck.reason,
           currentUsage: usageCheck.currentUsage,
           limits: usageCheck.limits,
           suggestedUpgrade: usageCheck.suggestedUpgrade
         });
-      }
-      
-      // For coffee tier users, check credits instead of daily limits
-      if (tier === 'coffee' && user?.id) {
-        const creditCheck = await checkCoffeeCredits(user.id);
-        if (!creditCheck.hasCredits) {
-          return res.status(403).json({
-            message: "No coffee credits remaining. Purchase more credits or upgrade to Growth tier for unlimited analyses.",
-            currentCredits: creditCheck.creditsRemaining,
-            tier: 'coffee',
-            suggestedUpgrade: 'growth'
-          });
-        }
       }
       
       // Check if already analyzing (to prevent duplicate analysis)
@@ -240,9 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If force flag is not set and we have a completed analysis, return it
       if (!force && existingAnalysis && existingAnalysis.status === "completed") {
         // Check if it's recent enough based on tier cache duration
-        const analysisAge = existingAnalysis.createdAt ? 
-          Date.now() - new Date(existingAnalysis.createdAt).getTime() : 
-          Date.now();
+        const analysisAge = Date.now() - new Date(existingAnalysis.createdAt).getTime();
         const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
         
         if (analysisAge < maxAge) {
@@ -262,11 +223,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sitemapContent: null,
         discoveredPages: [],
         // Store user email for tracking
-        analysisMetadata: { userEmail: email } as any
+        analysisMetadata: { userEmail: userEmail } as any
       });
 
       // Start analysis process (async)
-      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, email, tier);
+      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, userEmail, tier);
 
       res.json({ 
         analysisId: analysis.id,
@@ -346,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keep existing endpoints
-  app.post("/api/generate-llm-file", fileGenerationLimiter, async (req, res) => {
+  app.post("/api/generate-llm-file", requireAuth, async (req, res) => {
     try {
       const { analysisId, selectedPages } = z.object({
         analysisId: z.number(),
@@ -354,7 +315,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           url: z.string(),
           title: z.string(),
           description: z.string(),
-          selected: z.boolean()
+          selected: z.boolean(),
+          category: z.string().optional(),
+          qualityScore: z.number().optional()
         }))
       }).parse(req.body);
 
@@ -365,16 +328,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Filter only selected pages
       const selectedOnly = selectedPages.filter(page => page.selected);
-      const excludedPages = selectedPages.filter(page => !page.selected);
       
-      // Generate LLM.txt content with analysis metadata
-      const llmContent = generateLlmTxtContent(
-        analysis.url, 
-        selectedOnly, 
-        excludedPages, 
-        analysis.discoveredPages || [], 
-        { ...analysis.analysisMetadata, analysisId }
-      );
+      // Generate LLM.txt content
+      const llmContent = generateLlmTxtContent(analysis.url, selectedOnly);
 
       // Save generated file
       const llmFile = await storage.createLlmFile({
@@ -398,7 +354,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get LLM file data
-  app.get("/api/llm-file/:id", async (req, res) => {
+  app.get("/api/llm-file/:id", requireAuth, async (req, res) => {
     try {
       const fileId = parseInt(req.params.id);
       const llmFile = await storage.getLlmFile(fileId);
@@ -420,7 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Download LLM.txt file
-  app.get("/api/download/:id", async (req, res) => {
+  app.get("/api/download/:id", requireAuth, async (req, res) => {
     try {
       const fileId = parseInt(req.params.id);
       const llmFile = await storage.getLlmFile(fileId);
@@ -438,9 +394,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Register Stripe payment routes
-  registerStripeRoutes(app);
-
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -456,28 +409,7 @@ async function analyzeWebsiteEnhanced(
     const startTime = Date.now();
     
     // Fetch and parse sitemap
-    console.log(`Starting sitemap analysis for ${url}`);
     const sitemapResult = await fetchSitemap(url);
-    console.log(`Sitemap result: found=${sitemapResult.sitemapFound}, method=${sitemapResult.analysisMethod}, entries=${sitemapResult.entries.length}`);
-    
-    // Check if sitemap discovery failed completely
-    if (sitemapResult.entries.length === 0) {
-      console.error(`No pages discovered for ${url}. Marking analysis as failed.`);
-      await storage.updateAnalysis(analysisId, {
-        status: "failed",
-        discoveredPages: [],
-        analysisMetadata: {
-          siteType: "unknown",
-          sitemapFound: false,
-          analysisMethod: sitemapResult.analysisMethod,
-          message: sitemapResult.message || "No pages could be discovered for analysis",
-          totalPagesFound: 0,
-          userEmail,
-          tier
-        }
-      });
-      return; // Exit early to prevent infinite loop
-    }
     
     // Determine site type
     const siteType = determineSiteType(sitemapResult);
@@ -489,13 +421,11 @@ async function analyzeWebsiteEnhanced(
     });
 
     // Analyze pages with smart caching
-    console.log(`Starting page analysis for ${sitemapResult.entries.length} pages`);
     const { pages, metrics } = await analyzeDiscoveredPagesWithCache(
       sitemapResult.entries,
       userEmail,
       tier
     );
-    console.log(`Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`);
     
     // Track usage
     await trackUsage(
@@ -507,11 +437,19 @@ async function analyzeWebsiteEnhanced(
       metrics.estimatedCost
     );
     
-    // Consume coffee credit if user is on coffee tier
-    // Note: Coffee tier credit consumption is handled in the payment flow
-    // This is a placeholder for future credit-based analysis tracking
-    if (tier === 'coffee') {
-      console.log(`Coffee tier analysis completed for ${userEmail}`);
+    // Track analysis completion in ConvertKit if configured
+    if (isConvertKitConfigured()) {
+      try {
+        await trackAnalysisCompleted(userEmail, {
+          url,
+          pageCount: metrics.totalPages,
+          tier,
+          cacheHits: metrics.cachedPages,
+          analysisTime: (Date.now() - startTime) / 1000
+        });
+      } catch (error) {
+        console.error('ConvertKit analysis tracking failed:', error);
+      }
     }
     
     // Update analysis with results and metrics
@@ -555,74 +493,152 @@ function determineSiteType(sitemapResult: any): "single-page" | "multi-page" | "
   return "unknown";
 }
 
-function generateLlmTxtContent(
-  baseUrl: string, 
-  selectedPages: SelectedPage[], 
-  excludedPages: SelectedPage[] = [], 
-  allDiscoveredPages: DiscoveredPage[] = [],
-  analysisMetadata: any = {}
-): string {
-  const createdDate = new Date().toISOString().split('T')[0];
-  const totalFound = analysisMetadata?.totalPagesFound || allDiscoveredPages.length;
-  const analyzed = allDiscoveredPages.length;
-  const excluded = excludedPages.length;
+function generateLlmTxtContent(baseUrl: string, selectedPages: SelectedPage[]): string {
+  // Extract domain name for summary
+  const domain = new URL(baseUrl).hostname;
+  const domainName = domain.replace('www.', '');
   
-  const header = `# LLM.txt File for ${baseUrl}
-# Generated by LLM.txt Mastery (https://llmtxt.com)
-# Created: ${createdDate}
-#
-# === ANALYSIS SUMMARY ===
-# Pages Found: ${totalFound} (discovered in sitemap and crawling)
-# Pages Analyzed: ${analyzed} (successfully fetched and scored)
-# Pages Included: ${selectedPages.length} (selected for LLM.txt file)
-# Pages Excluded: ${excluded} (filtered out during review)
-#
-# Note: ${totalFound - analyzed} pages were skipped due to access restrictions,
-# errors during fetching, or content filtering (file downloads, admin pages, etc.)
-#
-# === QUALITY SCORING REFERENCE ===
-# Quality scores range from 1-10 based on AI analysis of:
-# - Content relevance and depth (30%)
-# - Technical documentation quality (25%)
-# - SEO optimization and structure (20%)
-# - Information architecture (15%)
-# - User experience indicators (10%)
-#
-# Learn more about LLM.txt format: https://llmtxt.com/docs/format
-# Understanding quality scores: https://llmtxt.com/docs/quality-scoring
-#
-# === INCLUDED PAGES ===
-# The following pages were selected for inclusion based on quality scores
-# and content relevance for AI/LLM understanding:
+  // Generate enhanced header with metadata
+  const header = `# ${domainName}
+
+> AI-optimized website index with ${selectedPages.length} curated pages
+> Content Type: Multi-section documentation | Generated: ${new Date().toISOString().split('T')[0]}
+> Analysis: LLM.txt Mastery enhanced categorization
+
+## Quick Context
+- **Domain**: ${domain}
+- **Pages Analyzed**: ${selectedPages.length} selected from comprehensive analysis
+- **Organization**: Hierarchical sections for optimal AI navigation
 
 `;
 
-  const content = selectedPages
-    .map(page => `${page.url}: ${page.title} - ${page.description}`)
-    .join('\n\n');
+  // Group pages by category and sort by quality score
+  const pagesByCategory = groupPagesByCategory(selectedPages);
+  
+  // Generate content sections
+  const sections = [];
+  
+  // Define section order (high priority first)
+  const sectionOrder = [
+    'Essential', 'Documentation', 'API Reference', 'Tutorial', 'Getting Started',
+    'Guide', 'Blog', 'About', 'Product', 'Pricing', 'Support', 'General', 'Optional'
+  ];
 
-  let excludedSection = '';
-  if (excludedPages.length > 0) {
-    excludedSection = `
-
-# === EXCLUDED PAGES ===
-# The following ${excluded} pages were excluded due to lower quality scores,
-# content duplication, or limited relevance for AI understanding:
-#
-${excludedPages
-  .slice(0, 20) // Limit to first 20 excluded pages to keep file manageable
-  .map(page => `# ${page.url}: ${page.title}`)
-  .join('\n')}${excluded > 20 ? `\n# ... and ${excluded - 20} more pages` : ''}
-#
-# === ANALYSIS DETAILS ===
-# To review the complete analysis, quality scores, and make changes:
-# https://llmtxt.com/analysis/${analysisMetadata?.analysisId || 'view'}
-#
-# For support or questions about this analysis:
-# https://llmtxt.com/contact`;
+  // Process each category
+  for (const category of sectionOrder) {
+    if (pagesByCategory[category] && pagesByCategory[category].length > 0) {
+      sections.push(generateSection(category, pagesByCategory[category]));
+    }
+  }
+  
+  // Add any remaining categories not in the predefined order
+  for (const [category, pages] of Object.entries(pagesByCategory)) {
+    if (!sectionOrder.includes(category) && pages.length > 0) {
+      sections.push(generateSection(category, pages));
+    }
   }
 
-  return header + content + excludedSection;
+  return header + sections.join('\n\n');
+}
+
+function groupPagesByCategory(selectedPages: SelectedPage[]): Record<string, SelectedPage[]> {
+  const grouped: Record<string, SelectedPage[]> = {};
+  
+  for (const page of selectedPages) {
+    // Determine category - use existing category or infer from URL
+    let category = page.category || inferCategoryFromUrl(page.url);
+    
+    // Promote high-quality pages to "Essential" section
+    if (page.qualityScore && page.qualityScore >= 8) {
+      // Keep track of essential pages in their original category too
+      const originalCategory = category;
+      category = 'Essential';
+      
+      // Also add to original category if it's not Essential
+      if (originalCategory !== 'Essential') {
+        if (!grouped[originalCategory]) grouped[originalCategory] = [];
+        grouped[originalCategory].push(page);
+      }
+    }
+    
+    // Group navigation and low-quality content as Optional
+    if (page.qualityScore && page.qualityScore <= 3) {
+      category = 'Optional';
+    }
+    
+    if (!grouped[category]) {
+      grouped[category] = [];
+    }
+    grouped[category].push(page);
+  }
+  
+  // Sort pages within each category by quality score (highest first)
+  for (const category in grouped) {
+    grouped[category].sort((a, b) => (b.qualityScore || 5) - (a.qualityScore || 5));
+  }
+  
+  return grouped;
+}
+
+function inferCategoryFromUrl(url: string): string {
+  const urlLower = url.toLowerCase();
+  
+  if (urlLower.includes('/docs') || urlLower.includes('/documentation')) {
+    return 'Documentation';
+  } else if (urlLower.includes('/api')) {
+    return 'API Reference';
+  } else if (urlLower.includes('/guide') || urlLower.includes('/tutorial')) {
+    return 'Tutorial';
+  } else if (urlLower.includes('/getting-started') || urlLower.includes('/quickstart')) {
+    return 'Getting Started';
+  } else if (urlLower.includes('/blog')) {
+    return 'Blog';
+  } else if (urlLower.includes('/about')) {
+    return 'About';
+  } else if (urlLower.includes('/pricing') || urlLower.includes('/plans')) {
+    return 'Pricing';
+  } else if (urlLower.includes('/support') || urlLower.includes('/help')) {
+    return 'Support';
+  } else if (urlLower.includes('/product')) {
+    return 'Product';
+  }
+  
+  return 'General';
+}
+
+function generateSection(category: string, pages: SelectedPage[]): string {
+  // Don't create empty sections
+  if (pages.length === 0) return '';
+  
+  // Create section header
+  let section = `## ${category}`;
+  
+  // Add section description for context
+  const sectionDescriptions: Record<string, string> = {
+    'Essential': 'Core resources and highest-priority content',
+    'Documentation': 'Technical documentation and reference materials',
+    'API Reference': 'API endpoints, parameters, and technical specifications',
+    'Tutorial': 'Step-by-step guides and learning materials',
+    'Getting Started': 'Quick start guides and initial setup instructions',
+    'Blog': 'Articles, updates, and thought leadership content',
+    'About': 'Company information and project background',
+    'Support': 'Help resources and troubleshooting guides',
+    'Optional': 'Additional resources and supplementary content'
+  };
+  
+  if (sectionDescriptions[category]) {
+    section += `\n*${sectionDescriptions[category]}*`;
+  }
+  
+  section += '\n';
+  
+  // Add pages with enhanced formatting
+  for (const page of pages) {
+    const qualityIndicator = page.qualityScore && page.qualityScore >= 8 ? ' ⭐' : '';
+    section += `- [${page.title}](${page.url}):${qualityIndicator} ${page.description}\n`;
+  }
+  
+  return section;
 }
 
 // Helper function to get today's usage (imported from usage service)
