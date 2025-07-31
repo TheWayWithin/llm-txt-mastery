@@ -131,21 +131,9 @@ export async function checkUsageLimits(
       };
     }
     
-    // Check pages per analysis limit
-    if (requestedPages > limits.maxPagesPerAnalysis) {
-      const suggestedUpgrade = tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
-      return {
-        allowed: false,
-        reason: `Too many pages requested. ${tier} tier allows maximum ${limits.maxPagesPerAnalysis} pages per analysis.`,
-        currentUsage: { analysesToday, pagesProcessedToday },
-        limits: {
-          dailyAnalyses: limits.dailyAnalyses,
-          maxPagesPerAnalysis: limits.maxPagesPerAnalysis,
-          aiPagesLimit: limits.aiPagesLimit
-        },
-        suggestedUpgrade
-      };
-    }
+    // Note: Page limit per analysis is handled in the analysis pipeline (sitemap-enhanced.ts)
+    // The tier-based page limiting happens there, not in usage validation
+    // This allows free tier to analyze any website but only process the top N pages
     
     return {
       allowed: true,

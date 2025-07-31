@@ -116,8 +116,20 @@ export async function analyzeDiscoveredPagesWithCache(
     await trackCacheSavings(userEmail, metrics.cachedPages, tier);
   }
   
+  // Apply smart deduplication and filtering
+  const { uniquePages, duplicatesRemoved } = await import('./link-utils').then(
+    ({ deduplicateAndFilterPages, removeAffiliateAndLowValueLinks }) => {
+      // First remove affiliate and low-value links
+      const cleanedPages = removeAffiliateAndLowValueLinks(pages);
+      // Then deduplicate
+      return deduplicateAndFilterPages(cleanedPages);
+    }
+  );
+  
+  console.log(`Removed ${duplicatesRemoved} duplicates, ${pages.length - uniquePages.length} total filtered`);
+  
   // Sort by quality score
-  pages.sort((a, b) => b.qualityScore - a.qualityScore);
+  uniquePages.sort((a, b) => b.qualityScore - a.qualityScore);
   
   // Update final metrics
   metrics.processingTime = (Date.now() - startTime) / 1000;
@@ -125,7 +137,7 @@ export async function analyzeDiscoveredPagesWithCache(
   metrics.apiCalls = metrics.aiCallsUsed + metrics.htmlExtractionsUsed;
   metrics.costSaved = metrics.timeSaved * 0.01; // Rough estimate
   
-  return { pages, metrics };
+  return { pages: uniquePages, metrics };
 }
 
 async function processBatchWithCache(
