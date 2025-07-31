@@ -51,26 +51,21 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
     title = urlParts[urlParts.length - 1] || 'Page';
   }
   
-  // Extract description
+  // Extract enhanced description with smarter content analysis
   let description = $('meta[name="description"]').attr('content') || '';
+  
   if (!description) {
-    // Try to get meaningful content from paragraphs and lists
-    const firstParagraph = $('p').first().text().trim();
-    const listContent = $('ul li, ol li').map((_, el) => $(el).text().trim()).get().slice(0, 3).join(', ');
-    
-    if (firstParagraph && firstParagraph.length > 10) {
-      description = firstParagraph;
-      // If we have list items and the paragraph is just navigation text, include list info
-      if (firstParagraph.toLowerCase().includes('from here you can') && listContent) {
-        description = `${firstParagraph} ${listContent}`;
-      }
-    } else if (listContent) {
-      description = `Navigation page with links to: ${listContent}`;
-    } else {
-      // Look for any substantial text content
-      const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
-      description = bodyText.substring(0, 200) || 'Content page from ' + new URL(url).hostname;
-    }
+    // Enhanced content extraction strategy
+    description = extractSmartDescription($, url, textContent);
+  } else {
+    // Clean up existing meta description
+    description = cleanDescription(description);
+  }
+  
+  // Add content structure information for better context
+  const structureInfo = analyzeContentStructure($, textContent);
+  if (structureInfo) {
+    description = `${description} ${structureInfo}`;
   }
   
   // Calculate quality score based on content indicators
@@ -85,30 +80,16 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   const codeBlockCount = $('code, pre').length;
   const linkCount = $('a').length;
   
-  // Determine category based on URL patterns and content
-  let category = "General";
-  const urlLower = url.toLowerCase();
-  const contentLower = textContent.toLowerCase();
+  // Enhanced category detection using both URL patterns and content analysis
+  const category = detectContentCategory($, url, textContent, {
+    codeBlockCount,
+    listItemCount,
+    paragraphCount,
+    headingCount
+  });
   
-  if (urlLower.includes('/docs') || urlLower.includes('/documentation')) {
-    category = "Documentation";
-  } else if (urlLower.includes('/api')) {
-    category = "API Reference";
-  } else if (urlLower.includes('/guide') || urlLower.includes('/tutorial')) {
-    category = "Tutorial";
-  } else if (urlLower.includes('/blog')) {
-    category = "Blog";
-  } else if (urlLower.includes('/about')) {
-    category = "About";
-  } else if (urlLower.includes('cern.ch') && contentLower.includes('first website')) {
-    category = "Historical";
-    // Historical significance but should still be reasonable
-    qualityScore += 0.5;
-  } else if (contentLower.includes('navigation') || 
-            contentLower.includes('from here you can') ||
-            listItemCount > paragraphCount) {
-    category = "Navigation";
-  }
+  // Apply category-specific quality adjustments
+  qualityScore = applyCategoryQualityAdjustments(qualityScore, category, $, textContent);
   
   // Content depth scoring (more stringent)
   if (wordCount > 100) qualityScore += 1;
@@ -275,4 +256,341 @@ export async function batchAnalyzeContent(pages: { url: string; content: string 
       };
     }
   });
+}
+
+// Enhanced description extraction for free tier users
+function extractSmartDescription($: any, url: string, textContent: string): string {
+  // Strategy 1: Look for introduction/summary content
+  const introSelectors = [
+    '.intro, .introduction, .summary, .overview, .description',
+    'p:first-of-type', 
+    '.lead, .excerpt, .subtitle',
+    '[data-description], [data-summary]'
+  ];
+  
+  for (const selector of introSelectors) {
+    const introText = $(selector).first().text().trim();
+    if (introText && introText.length > 20 && introText.length < 400) {
+      return cleanDescription(introText);
+    }
+  }
+  
+  // Strategy 2: Extract from structured content
+  const structuredContent = extractStructuredContent($, url);
+  if (structuredContent) {
+    return structuredContent;
+  }
+  
+  // Strategy 3: Smart paragraph analysis
+  const paragraphs = $('p').map((_, el) => $(el).text().trim()).get()
+    .filter(p => p.length > 30 && p.length < 300)
+    .filter(p => !isNavigationText(p));
+  
+  if (paragraphs.length > 0) {
+    return cleanDescription(paragraphs[0]);
+  }
+  
+  // Strategy 4: Fallback to meaningful content extraction
+  const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
+  const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  
+  if (sentences.length > 0) {
+    return cleanDescription(sentences[0] + '.');
+  }
+  
+  return `Content from ${new URL(url).hostname}`;
+}
+
+function extractStructuredContent($: any, url: string): string | null {
+  const urlLower = url.toLowerCase();
+  
+  // API documentation pages
+  if (urlLower.includes('/api')) {
+    const endpoints = $('code, .endpoint, .method').map((_, el) => $(el).text().trim()).get().slice(0, 3);
+    if (endpoints.length > 0) {
+      return `API documentation covering ${endpoints.join(', ')} and related endpoints`;
+    }
+  }
+  
+  // Tutorial/guide pages
+  if (urlLower.includes('/tutorial') || urlLower.includes('/guide')) {
+    const steps = $('h2, h3, .step, li').map((_, el) => $(el).text().trim()).get()
+      .filter(step => step.length > 10 && step.length < 60)
+      .slice(0, 3);
+    if (steps.length > 0) {
+      return `Step-by-step guide covering: ${steps.join(', ')}`;
+    }
+  }
+  
+  // Documentation pages
+  if (urlLower.includes('/docs')) {
+    const sections = $('h2, h3').map((_, el) => $(el).text().trim()).get()
+      .filter(section => section.length > 5 && section.length < 50)
+      .slice(0, 3);
+    if (sections.length > 0) {
+      return `Documentation covering ${sections.join(', ')}`;
+    }
+  }
+  
+  // Blog posts
+  if (urlLower.includes('/blog')) {
+    const publishDate = $('time, .date, .published').first().text().trim();
+    const tags = $('.tag, .category, .label').map((_, el) => $(el).text().trim()).get().slice(0, 3);
+    let desc = 'Blog post';
+    if (tags.length > 0) desc += ` about ${tags.join(', ')}`;
+    if (publishDate) desc += ` (${publishDate})`;
+    return desc;
+  }
+  
+  return null;
+}
+
+function analyzeContentStructure($: any, textContent: string): string | null {
+  const codeBlockCount = $('code, pre').length;
+  const listItemCount = $('li').length;
+  const headingCount = $('h1, h2, h3, h4, h5, h6').length;
+  const tableCount = $('table').length;
+  const imageCount = $('img').length;
+  
+  const features = [];
+  
+  if (codeBlockCount >= 3) features.push(`${codeBlockCount} code examples`);
+  if (tableCount >= 2) features.push(`${tableCount} data tables`);
+  if (listItemCount >= 5) features.push(`${listItemCount} structured items`);
+  if (headingCount >= 4) features.push(`${headingCount} sections`);
+  if (imageCount >= 3) features.push(`${imageCount} images/diagrams`);
+  
+  if (features.length > 0) {
+    return `Includes ${features.slice(0, 2).join(' and ')}.`;
+  }
+  
+  return null;
+}
+
+function cleanDescription(description: string): string {
+  // Remove common boilerplate phrases
+  const boilerplatePatterns = [
+    /from here you can/gi,
+    /welcome to/gi,
+    /this page/gi,
+    /click here/gi,
+    /learn more/gi,
+    /home \| /gi,
+    / \| home/gi
+  ];
+  
+  let cleaned = description;
+  for (const pattern of boilerplatePatterns) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+  
+  // Clean up extra whitespace and punctuation
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  cleaned = cleaned.replace(/^[:\-\|\s]+/, '').replace(/[:\-\|\s]+$/, '');
+  
+  // Ensure proper sentence structure
+  if (cleaned && !cleaned.match(/[.!?]$/)) {
+    cleaned += '.';
+  }
+  
+  return cleaned || description; // Return original if cleaning made it empty
+}
+
+function isNavigationText(text: string): boolean {
+  const navPatterns = [
+    /from here you can/i,
+    /choose from/i,
+    /select from/i,
+    /navigate to/i,
+    /go to/i,
+    /click on/i
+  ];
+  
+  return navPatterns.some(pattern => pattern.test(text)) || 
+         (text.split(' ').length < 10 && text.includes('page'));
+}
+
+/**
+ * Enhanced content category detection using multiple signals
+ */
+function detectContentCategory(
+  $: any, 
+  url: string, 
+  textContent: string, 
+  metrics: {
+    codeBlockCount: number;
+    listItemCount: number;
+    paragraphCount: number;
+    headingCount: number;
+  }
+): string {
+  const urlLower = url.toLowerCase();
+  const contentLower = textContent.toLowerCase();
+  const title = $('title').text().toLowerCase();
+  
+  // URL-based detection (highest priority)
+  const urlPatterns = [
+    { pattern: ['/docs', '/documentation'], category: 'Documentation' },
+    { pattern: ['/api', '/reference'], category: 'API Reference' },
+    { pattern: ['/guide', '/tutorial', '/how-to'], category: 'Tutorial' },
+    { pattern: ['/getting-started', '/quickstart', '/setup'], category: 'Getting Started' },
+    { pattern: ['/blog', '/news', '/articles'], category: 'Blog' },
+    { pattern: ['/about', '/company', '/team'], category: 'About' },
+    { pattern: ['/pricing', '/plans', '/cost'], category: 'Pricing' },
+    { pattern: ['/support', '/help', '/faq'], category: 'Support' },
+    { pattern: ['/product', '/features'], category: 'Product' },
+    { pattern: ['/download', '/install'], category: 'Installation' },
+    { pattern: ['/example', '/demo', '/sample'], category: 'Examples' }
+  ];
+  
+  for (const { pattern, category } of urlPatterns) {
+    if (pattern.some(p => urlLower.includes(p))) {
+      return category;
+    }
+  }
+  
+  // Content-based detection
+  const contentPatterns = [
+    { 
+      keywords: ['api', 'endpoint', 'method', 'parameter', 'request', 'response'],
+      minCount: 3,
+      category: 'API Reference'
+    },
+    {
+      keywords: ['step', 'tutorial', 'guide', 'learn', 'how to', 'instruction'],
+      minCount: 2,
+      category: 'Tutorial'
+    },
+    {
+      keywords: ['install', 'setup', 'configure', 'getting started', 'quick start'],
+      minCount: 2,
+      category: 'Getting Started'
+    },
+    {
+      keywords: ['blog', 'post', 'article', 'published', 'author', 'tagged'],
+      minCount: 2,
+      category: 'Blog'
+    },
+    {
+      keywords: ['price', 'pricing', 'plan', 'subscription', 'cost', '$'],
+      minCount: 2,
+      category: 'Pricing'
+    },
+    {
+      keywords: ['support', 'help', 'faq', 'question', 'problem', 'issue'],
+      minCount: 2,
+      category: 'Support'
+    }
+  ];
+  
+  for (const { keywords, minCount, category } of contentPatterns) {
+    const matchCount = keywords.filter(keyword => contentLower.includes(keyword)).length;
+    if (matchCount >= minCount) {
+      return category;
+    }
+  }
+  
+  // Structure-based detection
+  if (metrics.codeBlockCount >= 3) {
+    return 'Documentation'; // Technical documentation with code examples
+  }
+  
+  if (metrics.listItemCount > metrics.paragraphCount * 2 && metrics.paragraphCount < 3) {
+    if (contentLower.includes('navigation') || contentLower.includes('from here you can')) {
+      return 'Navigation';
+    } else {
+      return 'Reference'; // Structured lists of information
+    }
+  }
+  
+  // HTML structure analysis
+  const hasForm = $('form, input[type="email"], input[type="password"]').length > 0;
+  const hasPricing = $('.price, .pricing, [class*="price"]').length > 0;
+  const hasTestimonial = $('.testimonial, .review, [class*="testimonial"]').length > 0;
+  
+  if (hasForm && !hasPricing) {
+    return 'Contact';
+  }
+  
+  if (hasPricing) {
+    return 'Pricing';
+  }
+  
+  if (hasTestimonial) {
+    return 'Testimonials';
+  }
+  
+  // Special cases
+  if (urlLower.includes('cern.ch') && contentLower.includes('first website')) {
+    return 'Historical';
+  }
+  
+  // Default fallback
+  return 'General';
+}
+
+/**
+ * Apply category-specific quality score adjustments
+ */
+function applyCategoryQualityAdjustments(
+  baseScore: number, 
+  category: string, 
+  $: any, 
+  textContent: string
+): number {
+  let adjustedScore = baseScore;
+  const contentLower = textContent.toLowerCase();
+  
+  switch (category) {
+    case 'API Reference':
+      // Boost for well-structured API docs
+      if ($('code, pre').length >= 3) adjustedScore += 1;
+      if (contentLower.includes('parameter') && contentLower.includes('response')) adjustedScore += 0.5;
+      break;
+      
+    case 'Tutorial':
+      // Boost for step-by-step content
+      if ($('h2, h3').length >= 3) adjustedScore += 0.5;
+      if (contentLower.includes('step') || contentLower.includes('example')) adjustedScore += 0.5;
+      break;
+      
+    case 'Getting Started':
+      // High value for onboarding content
+      adjustedScore += 1;
+      break;
+      
+    case 'Documentation':
+      // Boost for comprehensive docs
+      if ($('code, pre').length > 0) adjustedScore += 0.5;
+      if ($('h2, h3, h4').length >= 4) adjustedScore += 0.5;
+      break;
+      
+    case 'Blog':
+      // Moderate boost for fresh content
+      const hasDate = $('time, .date, .published').length > 0;
+      if (hasDate) adjustedScore += 0.3;
+      break;
+      
+    case 'Navigation':
+      // Penalize navigation pages
+      adjustedScore = Math.max(1, adjustedScore - 2);
+      break;
+      
+    case 'Historical':
+      // Moderate boost for historical significance
+      adjustedScore += 0.5;
+      break;
+      
+    case 'Pricing':
+      // High value for pricing information
+      adjustedScore += 0.8;
+      break;
+      
+    case 'About':
+      // Moderate value for company information
+      adjustedScore += 0.3;
+      break;
+  }
+  
+  return Math.max(1, Math.min(10, adjustedScore));
 }

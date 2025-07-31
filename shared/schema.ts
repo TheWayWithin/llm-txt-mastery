@@ -194,6 +194,8 @@ export interface SelectedPage {
   title: string;
   description: string;
   selected: boolean;
+  category?: string;
+  qualityScore?: number;
 }
 
 export const urlAnalysisSchema = z.object({
