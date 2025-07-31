@@ -21,6 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { getSubscriptionStatus, createPortalSession, TIER_PRICING, type SubscriptionStatus } from '@/lib/stripe';
+import { getTierDisplayName } from '@/lib/tier-utils';
 
 const getTierIcon = (tier: string) => {
   switch (tier) {
@@ -103,7 +104,7 @@ function AccountOverview() {
             <Badge className={getTierColor(user.tier)}>
               <div className="flex items-center space-x-1">
                 {getTierIcon(user.tier)}
-                <span className="capitalize">{user.tier}</span>
+                <span>{getTierDisplayName(user.tier)}</span>
               </div>
             </Badge>
           </CardTitle>
@@ -444,7 +445,7 @@ export default function Dashboard() {
                 <Badge className={getTierColor(user?.tier || 'starter')}>
                   <div className="flex items-center space-x-1">
                     {getTierIcon(user?.tier || 'starter')}
-                    <span className="capitalize">{user?.tier || 'starter'}</span>
+                    <span>{getTierDisplayName(user?.tier || 'starter')}</span>
                   </div>
                 </Badge>
                 <Button 

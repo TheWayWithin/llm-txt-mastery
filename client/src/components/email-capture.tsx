@@ -97,10 +97,10 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }:
               <div className="flex-1">
                 <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer">
                   <Check className="text-green-600 w-4 h-4" />
-                  <span className="font-medium">Starter (Free)</span>
+                  <span className="font-medium">Free</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-1">
-                  1 analysis/day • 50 pages max • HTML extraction • Basic categorization
+                  1 analysis per day • 20 pages max • HTML extraction • Smart categorization
                 </p>
               </div>
             </div>

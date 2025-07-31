@@ -3,6 +3,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Zap, TrendingUp, DollarSign, Clock, Coffee } from "lucide-react";
+import { getTierDisplayName, getTierColorClass } from "@/lib/tier-utils";
 
 interface UsageDisplayProps {
   userEmail: string;
@@ -38,7 +39,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               ? 'bg-orange-600 text-white' 
               : 'bg-mastery-blue text-white'
           }`}>
-            {usageData.tier.toUpperCase()}
+            {getTierDisplayName(usageData.tier)}
           </span>
         </div>
         
@@ -101,6 +102,11 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           <div className="pt-2 border-t border-slate-200">
             <p className="text-xs text-ai-silver mb-1">Your tier includes:</p>
             <div className="space-y-1">
+              {usageData.tier === 'starter' && (
+                <p className="text-xs text-framework-black">
+                  • 1 free analysis per day
+                </p>
+              )}
               <p className="text-xs text-framework-black">
                 • Max {usageData.limits.maxPagesPerAnalysis} pages per analysis
               </p>
