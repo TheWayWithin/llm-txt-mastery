@@ -4,6 +4,75 @@ import { UserTier, UsageTracking, emailCaptures, usageTracking, users } from "@s
 import { TIER_LIMITS } from "./cache";
 import { eq, and } from "drizzle-orm";
 
+// CRITICAL FIX: Shared user resolution logic to prevent race conditions
+// Both trackUsage() and getTodayUsage() use this to ensure consistent behavior
+export async function resolveUserFromEmail(userEmail: string): Promise<number | null> {
+  try {
+    console.log(`🔍 [USER RESOLUTION] Starting for: ${userEmail}`);
+    
+    // First, check if emailCapture exists and has a linked user
+    const emailCaptureResult = await db
+      .select({ id: emailCaptures.id, userId: emailCaptures.userId })
+      .from(emailCaptures)
+      .where(eq(emailCaptures.email, userEmail))
+      .limit(1);
+    
+    if (!emailCaptureResult[0]) {
+      console.log(`⚠️ [USER RESOLUTION] No emailCapture found for: ${userEmail}`);
+      return null;
+    }
+    
+    const emailCaptureId = emailCaptureResult[0].id;
+    let actualUserId = emailCaptureResult[0].userId;
+    
+    // If emailCapture already has a userId, return it
+    if (actualUserId) {
+      console.log(`✅ [USER RESOLUTION] Found existing user ID: ${actualUserId} for ${userEmail}`);
+      return actualUserId;
+    }
+    
+    // Otherwise, create a placeholder user and link it atomically
+    console.log(`🔧 [USER RESOLUTION] Creating placeholder user for: ${userEmail}`);
+    
+    // TRANSACTION SAFETY: Execute user creation and emailCaptures update atomically
+    const result = await db.transaction(async (tx) => {
+      // Create a placeholder user in users table for usage tracking
+      const newUser = await tx
+        .insert(users)
+        .values({
+          username: userEmail, // Use email as username for placeholder
+          password: 'placeholder' // This won't be used for login
+        })
+        .returning({ id: users.id });
+      
+      const userId = newUser[0].id;
+      
+      // Update emailCaptures to reference this user
+      await tx
+        .update(emailCaptures)
+        .set({ userId: userId })
+        .where(eq(emailCaptures.id, emailCaptureId));
+      
+      return userId;
+    });
+    
+    console.log(`✅ [USER RESOLUTION] Created and linked user ID: ${result} for ${userEmail}`);
+    return result;
+    
+  } catch (error) {
+    console.error(`🚨 [USER RESOLUTION] Error for ${userEmail}:`, error);
+    // Log additional details for debugging
+    if (error instanceof Error) {
+      console.error(`🚨 [USER RESOLUTION] Error details:`, {
+        message: error.message,
+        stack: error.stack,
+        email: userEmail
+      });
+    }
+    return null;
+  }
+}
+
 export interface UsageCheckResult {
   allowed: boolean;
   reason?: string;
@@ -45,25 +114,12 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     console.log(`🔍 [GET USAGE] Checking today's usage for: ${userEmail}`);
     const today = new Date().toISOString().split('T')[0];
     
-    // CRITICAL FIX: Get the actual user ID from users table via emailCaptures
-    const emailCaptureResult = await db
-      .select({ id: emailCaptures.id, userId: emailCaptures.userId })
-      .from(emailCaptures)
-      .where(eq(emailCaptures.email, userEmail))
-      .limit(1);
-    
-    if (!emailCaptureResult[0]) {
-      console.log(`⚠️ [GET USAGE] No emailCapture found for: ${userEmail}`);
-      return null;
-    }
-    
-    const actualUserId = emailCaptureResult[0].userId;
+    // CRITICAL FIX: Use shared user resolution to ensure consistency with trackUsage()
+    const actualUserId = await resolveUserFromEmail(userEmail);
     if (!actualUserId) {
-      console.log(`⚠️ [GET USAGE] No user ID linked to emailCapture for: ${userEmail}`);
+      console.log(`⚠️ [GET USAGE] Failed to resolve user for: ${userEmail}`);
       return null;
     }
-    
-    console.log(`✅ [GET USAGE] Found user ID: ${actualUserId} for ${userEmail}`);
     
     // Get today's usage from database using Drizzle ORM
     const usageResult = await db
@@ -179,46 +235,11 @@ export async function trackUsage(
     console.log(`🔍 [USAGE TRACKING] Starting for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
     const today = new Date().toISOString().split('T')[0];
     
-    // CRITICAL FIX: Get or create user in users table, not emailCaptures table
-    // The usageTracking table references users.id, not emailCaptures.id
-    
-    // First, check if user exists in users table
-    const existingUser = await db
-      .select({ id: emailCaptures.id, userId: emailCaptures.userId })
-      .from(emailCaptures)
-      .where(eq(emailCaptures.email, userEmail))
-      .limit(1);
-    
-    let actualUserId: number;
-    
-    if (!existingUser[0]) {
-      console.log(`⚠️ [USAGE TRACKING] No emailCapture found for: ${userEmail}`);
+    // CRITICAL FIX: Use shared user resolution to ensure consistency with getTodayUsage()
+    const actualUserId = await resolveUserFromEmail(userEmail);
+    if (!actualUserId) {
+      console.log(`⚠️ [USAGE TRACKING] Failed to resolve user for: ${userEmail}`);
       return;
-    }
-    
-    // If emailCaptures has a userId, use it; otherwise create a placeholder user
-    if (existingUser[0].userId) {
-      actualUserId = existingUser[0].userId;
-      console.log(`✅ [USAGE TRACKING] Found existing user ID: ${actualUserId} for ${userEmail}`);
-    } else {
-      // Create a placeholder user in users table for usage tracking
-      const newUser = await db
-        .insert(users)
-        .values({
-          username: userEmail, // Use email as username for placeholder
-          password: 'placeholder' // This won't be used for login
-        })
-        .returning({ id: users.id });
-      
-      actualUserId = newUser[0].id;
-      
-      // Update emailCaptures to reference this user
-      await db
-        .update(emailCaptures)
-        .set({ userId: actualUserId })
-        .where(eq(emailCaptures.id, existingUser[0].id));
-      
-      console.log(`✅ [USAGE TRACKING] Created placeholder user ID: ${actualUserId} for ${userEmail}`);
     }
     
     // Try to get existing usage record first
