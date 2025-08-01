@@ -212,7 +212,99 @@
 - ✅ File access and account dashboard for premium customers
 - ✅ Tier-based access control and upgrade prompts
 
-### Phase 3: Enhanced Analytics & Business Intelligence (CURRENT PHASE)
+### 🚨 Phase 0: Critical UX/UI Foundation (IMMEDIATE PRIORITY - August 2-16, 2025)
+**Objective**: Fix authentication friction, establish retention mechanisms, enable viral growth
+**Status**: 🟡 IN PROGRESS (60% Complete) - Authentication fixes implemented, customer journey optimization underway
+
+#### **Critical UX Issues Identified & Solutions**
+Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 overall usability) and emotional journey mapping:
+
+**Authentication Friction (30-50% User Drop-off)**:
+- ✅ FIXED: Authenticated users now skip email capture entirely
+- ✅ FIXED: Login option added to email capture with pre-fill
+- ✅ FIXED: Persistent user status display in header
+- ⏳ PENDING: Email verification before analysis access
+- ⏳ PENDING: "Remember Me" functionality with extended sessions
+
+**Missing Retention Mechanisms**:
+- ⏳ Analysis history dashboard for returning users
+- ⏳ Project management with notes and tagging
+- ⏳ Social sharing and viral growth features
+- ⏳ Referral program with credit incentives
+
+#### **Optimal Customer Journey Design**
+
+##### **New User Journey: Discovery → Trust → Value → Conversion**
+**Current Flow**: URL Input → Email Capture → Tier Selection → Analysis → Review → Generation
+**Optimal Flow**: Landing with Social Proof → URL Input → Analysis Preview → Email for Results → Instant Value → Natural Upgrade
+
+**Key Improvements**:
+- Social proof and testimonials on landing page
+- Real-time analysis preview before email capture
+- Immediate value demonstration after email verification
+- Contextual upgrade prompts during value realization moments
+- Trust signals throughout the conversion funnel
+
+##### **Returning Free User Journey: Recognition → Efficiency → Upgrade**
+**Current Experience**: Must re-enter email, no history, no personalization
+**Optimal Experience**: "Welcome back [Name]!" → Analysis Dashboard → One-Click Analysis → Smart Upgrade Prompts
+
+**Retention Features**:
+- Persistent JWT authentication (✅ partially implemented)
+- "My Analyses" dashboard with project history
+- Quick-start options for returning users
+- Usage-based upgrade nudging with value demonstration
+- Email marketing automation for re-engagement
+
+##### **Coffee/Premium User Journey: Efficiency → Premium Value → Retention**
+**Current Experience**: Same basic flow despite payment
+**Optimal Experience**: Premium Dashboard → Advanced Features → Project Management → Team Sharing
+
+**Premium Features**:
+- Enhanced dashboard with Coffee-specific tools
+- Project organization with tags and notes
+- Advanced sharing and collaboration options
+- Clear Growth tier upgrade path for expanding needs
+- Exclusive premium content and insights
+
+##### **Growth/Scale User Journey: Power Features → Team Management → Enterprise Value**
+**Current Experience**: Individual-focused basic interface
+**Optimal Experience**: Team Dashboard → API Management → Advanced Analytics → White-label Options
+
+**Enterprise Features**:
+- Team collaboration and role management
+- API access with comprehensive documentation
+- Usage analytics and performance reporting
+- Enterprise-grade features and support options
+- White-labeling and customization capabilities
+
+#### **Viral Growth Integration Strategy**
+
+**Natural Sharing Moments**:
+1. Post-analysis success with high quality scores (95%+ achievement sharing)
+2. Before/after comparison demonstrations for colleagues
+3. Milestone celebrations (10th analysis, perfect scores)
+4. Success story submissions for case studies
+
+**Referral Mechanics**:
+- Credit-based system: "Give $5, Get $5" for successful referrals
+- Social proof: Public leaderboard of quality scores (opt-in)
+- Community features: Analysis sharing and feedback system
+- Professional networking: LinkedIn integration for career advancement
+
+**Emotional Journey Targets**:
+- New Users: Curiosity (+3) → Trust (+4) → Excitement (+5) → Satisfaction (+5)
+- Returning Users: Recognition (+4) → Efficiency (+4) → Loyalty (+5)
+- Premium Users: Empowerment (+5) → Professional Pride (+5) → Advocacy (+4)
+
+#### **Phase 0 Success Metrics**
+- **Conversion Rate**: 20-30% increase in free-to-paid conversion
+- **User Retention**: 40% of users return within 30 days
+- **Viral Growth**: 15% of users generate at least one referral
+- **Support Reduction**: 40% decrease in support tickets
+- **Revenue Impact**: $1,500-2,000 MRR from improvements
+
+### Phase 3: Enhanced Analytics & Business Intelligence (Post-Phase 0)
 **Priority: Revenue Optimization & Growth Tier Activation**
 
 **Advanced Analytics**:

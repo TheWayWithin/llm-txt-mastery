@@ -127,6 +127,71 @@ Based on comprehensive UX analysis using Nielsen's heuristics and emotional jour
 - **Viral Growth**: Additional 50-100 users from sharing/referrals
 - **Support Cost Savings**: 10 hours/week reduced support burden
 
+#### **Optimal Customer Journey Design**
+
+Based on comprehensive UX analysis, Phase 0 will implement customer journey optimization for each user type:
+
+##### **New User Journey (Discovery → Trust → Value → Conversion)**
+**Current Flow**: URL Input → Email Capture → Tier Selection → Analysis → Review → Generation
+**Optimal Flow**: Landing with Social Proof → URL Input → Analysis Preview → Email for Full Results → Instant Value → Natural Upgrade
+
+**Key Improvements**:
+- Add testimonials and social proof on landing page
+- Show real-time analysis preview before email capture
+- Demonstrate immediate value after email verification
+- Present upgrade options during value realization moments
+- Contextual help throughout complex processes
+
+##### **Returning Free User Journey (Recognition → Efficiency → Upgrade)**
+**Current Experience**: Must re-enter email, no history, no personalization
+**Optimal Experience**: "Welcome back [Name]!" → Analysis Dashboard → One-Click New Analysis → Smart Upgrade Prompts
+
+**Key Features**:
+- Persistent login with JWT authentication (partially implemented)
+- "My Analyses" dashboard with project history
+- Quick-start options for returning users
+- Usage-based upgrade nudging with value demonstration
+
+##### **Coffee/Premium User Journey (Efficiency → Premium Value → Retention)**
+**Current Experience**: Same basic flow despite payment
+**Optimal Experience**: Premium Dashboard → Advanced Features → Project Management → Team Sharing
+
+**Premium Features**:
+- Enhanced dashboard with premium-specific tools
+- Project organization with tags and notes
+- Advanced sharing and collaboration options
+- Clear Growth tier upgrade path for expanding needs
+
+##### **Growth/Scale User Journey (Power Features → Team Management → Enterprise Value)**
+**Current Experience**: Individual-focused basic interface
+**Optimal Experience**: Team Dashboard → API Management → Advanced Analytics → White-label Options
+
+**Enterprise Features**:
+- Team collaboration and role management
+- API access with comprehensive documentation
+- Usage analytics and performance reporting
+- Enterprise-grade features and support options
+
+#### **Viral Growth Integration Strategy**
+
+**Natural Sharing Moments**:
+1. **Post-Analysis Success**: Share 95% quality LLM.txt achievements on LinkedIn/Twitter
+2. **Before/After Comparison**: Demonstrate AI analysis value to colleagues
+3. **Milestone Achievements**: Celebrate successful analysis milestones publicly
+
+**Referral Mechanics**:
+- Credit-based system: "Give $5, Get $5" for successful referrals
+- Social proof: Public leaderboard of quality scores (opt-in)
+- Success stories: Featured customer implementation case studies
+- Community features: Analysis sharing and feedback system
+
+**Emotional Journey Targets**:
+- **New Users**: Curiosity (+3) → Trust (+4) → Excitement (+5) → Satisfaction (+5)
+- **Returning Users**: Recognition (+4) → Efficiency (+4) → Loyalty (+5)
+- **Premium Users**: Empowerment (+5) → Professional Pride (+5) → Advocacy (+4)
+
+This customer journey optimization directly addresses the current 30-50% user drop-off while building sustainable competitive advantages through retention and viral growth mechanisms.
+
 ### ⚠️ Implementation Gaps vs Original PRD
 Based on analysis of the original Product Requirements Document, several key features remain unimplemented:
 

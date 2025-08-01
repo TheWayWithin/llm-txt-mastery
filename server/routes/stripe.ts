@@ -304,20 +304,40 @@ async function handleCheckoutCompleted(session: any) {
         }
       }
       
-      // NEW: Update auth_users table if user is authenticated
+      // NEW: Create or update auth_users table for auto-login functionality
       if (customerEmail) {
         try {
-          const authUser = await authStorage.getUserByEmail(customerEmail);
+          let authUser = await authStorage.getUserByEmail(customerEmail);
+          
           if (authUser) {
-            // Update authenticated user's tier and credits
+            // Update existing authenticated user's tier and credits
             await authStorage.updateUser(authUser.id, {
               tier: 'coffee',
               creditsRemaining: (authUser.creditsRemaining || 0) + 1
             });
             console.log(`Updated authenticated user ${customerEmail} to Coffee tier with credits`);
+          } else {
+            // Create new auth user account for auto-login
+            // Generate a temporary password - user will need to set one when they first login
+            const tempPassword = Math.random().toString(36).slice(-12);
+            const { hashPassword } = await import('../services/auth');
+            const passwordHash = await hashPassword(tempPassword);
+            
+            authUser = await authStorage.createUser({
+              email: customerEmail,
+              passwordHash,
+              emailVerified: false, // They'll need to verify later
+              tier: 'coffee',
+              creditsRemaining: 1
+            });
+            
+            console.log(`Created new auth user ${customerEmail} with Coffee tier for auto-login`);
+            
+            // TODO: Send welcome email with account setup instructions
+            // For now, the user can use auto-login from coffee-success page
           }
         } catch (error) {
-          console.error(`Failed to update authenticated user for ${customerEmail}:`, error);
+          console.error(`Failed to create/update authenticated user for ${customerEmail}:`, error);
         }
       }
       

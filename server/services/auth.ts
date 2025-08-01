@@ -21,12 +21,11 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 
 // JWT token generation
 export function generateAccessToken(user: { id: number; email: string; tier: UserTier }): string {
-  const payload: JWTPayload = {
+  const payload = {
     userId: user.id,
     email: user.email,
     tier: user.tier,
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (15 * 60), // 15 minutes
   };
   
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
@@ -37,7 +36,6 @@ export function generateRefreshToken(userId: number): string {
     userId,
     type: 'refresh',
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 7 days
   };
   
   return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });

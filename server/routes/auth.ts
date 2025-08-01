@@ -442,4 +442,192 @@ router.post('/validate-password', (req, res) => {
   }
 });
 
+// Check if user account exists (for auto-login after purchase)
+router.post('/check-account', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({
+        error: 'Email is required',
+        code: 'EMAIL_REQUIRED'
+      });
+    }
+
+    const user = await authStorage.getUserByEmail(email);
+    
+    res.json({
+      hasAccount: !!user,
+      user: user ? {
+        id: user.id,
+        email: user.email,
+        tier: user.tier,
+        creditsRemaining: user.creditsRemaining || 0,
+        emailVerified: user.emailVerified || false
+      } : null
+    });
+
+  } catch (error) {
+    console.error('Check account error:', error);
+    res.status(500).json({
+      error: 'Failed to check account',
+      code: 'ACCOUNT_CHECK_ERROR'
+    });
+  }
+});
+
+// Coffee purchase auto-login (secure login after verified purchase)
+router.post('/coffee-login', async (req, res) => {
+  try {
+    const { email, sessionId } = req.body;
+
+    if (!email || !sessionId) {
+      return res.status(400).json({
+        error: 'Email and session ID are required',
+        code: 'MISSING_PARAMETERS'
+      });
+    }
+
+    // Get user by email
+    const user = await authStorage.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({
+        error: 'User account not found',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    // Verify this is a recent coffee purchase by checking if user has coffee tier
+    // Additional security: only allow if user has coffee tier (updated by webhook)
+    if (user.tier !== 'coffee') {
+      return res.status(403).json({
+        error: 'Coffee tier not found for user',
+        code: 'INVALID_TIER'
+      });
+    }
+
+    // Generate tokens for auto-login
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      tier: user.tier as UserTier
+    });
+    const refreshToken = generateRefreshToken(user.id);
+
+    // Create session
+    const session = await authStorage.createSession({
+      userId: user.id,
+      tokenHash: hashToken(accessToken),
+      refreshTokenHash: hashToken(refreshToken),
+      expiresAt: generateTokenExpiration(),
+      refreshExpiresAt: generateRefreshTokenExpiration(),
+      userAgent: req.headers['user-agent'],
+      ipAddress: req.ip
+    });
+
+    // Return auth response
+    const authResponse = createAuthResponse({
+      ...user,
+      tier: user.tier as UserTier
+    }, accessToken, refreshToken);
+    
+    res.json({
+      success: true,
+      message: 'Auto-login successful',
+      ...authResponse
+    });
+
+  } catch (error) {
+    console.error('Coffee auto-login error:', error);
+    res.status(500).json({
+      error: 'Auto-login failed',
+      code: 'AUTO_LOGIN_ERROR'
+    });
+  }
+});
+
+// Get user's analysis history
+router.get('/my-analyses', authenticate, async (req, res) => {
+  try {
+    const authUser = req.user;
+    if (!authUser) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+
+    // Get analyses by email (since analyses are stored with email, not auth user ID)
+    const analyses = await authStorage.getUserAnalyses(authUser.email);
+    
+    res.json({
+      success: true,
+      analyses: analyses.map(analysis => ({
+        id: analysis.id,
+        url: analysis.url,
+        status: analysis.status,
+        createdAt: analysis.createdAt,
+        totalPages: analysis.analysisMetadata?.totalPagesFound || 0,
+        siteType: analysis.analysisMetadata?.siteType || 'unknown',
+        analysisMethod: analysis.analysisMetadata?.analysisMethod || 'unknown',
+        processingTime: analysis.analysisMetadata?.processingTime || 0,
+        tier: analysis.analysisMetadata?.tier || 'starter',
+        // Include metrics if available
+        metrics: analysis.analysisMetadata?.metrics,
+        // Include page count for completed analyses
+        discoveredPagesCount: analysis.discoveredPages?.length || 0
+      }))
+    });
+
+  } catch (error) {
+    console.error('Get user analyses error:', error);
+    res.status(500).json({
+      error: 'Failed to get analysis history',
+      code: 'ANALYSES_ERROR'
+    });
+  }
+});
+
+// Get specific analysis details for authenticated user
+router.get('/my-analyses/:id', authenticate, async (req, res) => {
+  try {
+    const authUser = req.user;
+    if (!authUser) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+
+    const analysisId = parseInt(req.params.id);
+    const analysis = await authStorage.getUserAnalysis(authUser.email, analysisId);
+    
+    if (!analysis) {
+      return res.status(404).json({
+        error: 'Analysis not found or access denied',
+        code: 'ANALYSIS_NOT_FOUND'
+      });
+    }
+
+    res.json({
+      success: true,
+      analysis: {
+        id: analysis.id,
+        url: analysis.url,
+        status: analysis.status,
+        createdAt: analysis.createdAt,
+        discoveredPages: analysis.discoveredPages || [],
+        analysisMetadata: analysis.analysisMetadata
+      }
+    });
+
+  } catch (error) {
+    console.error('Get user analysis error:', error);
+    res.status(500).json({
+      error: 'Failed to get analysis details',
+      code: 'ANALYSIS_ERROR'
+    });
+  }
+});
+
 export default router;

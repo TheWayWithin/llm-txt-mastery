@@ -146,6 +146,14 @@ export function AuthNav() {
               Dashboard
             </DropdownMenuItem>
             
+            <DropdownMenuItem 
+              onClick={() => setLocation('/dashboard?tab=analyses')}
+              className="cursor-pointer"
+            >
+              <CreditCard className="mr-2 h-4 w-4" />
+              My Analyses
+            </DropdownMenuItem>
+            
             <DropdownMenuSeparator />
             
             <DropdownMenuItem 
