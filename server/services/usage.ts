@@ -1,6 +1,6 @@
 import { storage } from "../storage";
 import { db } from "../db";
-import { UserTier, UsageTracking, emailCaptures, usageTracking } from "@shared/schema";
+import { UserTier, UsageTracking, emailCaptures, usageTracking, users } from "@shared/schema";
 import { TIER_LIMITS } from "./cache";
 import { eq, and } from "drizzle-orm";
 
@@ -45,41 +45,52 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     console.log(`🔍 [GET USAGE] Checking today's usage for: ${userEmail}`);
     const today = new Date().toISOString().split('T')[0];
     
-    // Get user ID from email first using Drizzle ORM
-    const userResult = await db
-      .select({ id: emailCaptures.id })
+    // CRITICAL FIX: Get the actual user ID from users table via emailCaptures
+    const emailCaptureResult = await db
+      .select({ id: emailCaptures.id, userId: emailCaptures.userId })
       .from(emailCaptures)
       .where(eq(emailCaptures.email, userEmail))
       .limit(1);
     
-    const userId = userResult[0]?.id;
-    if (!userId) {
-      console.log(`⚠️ [GET USAGE] No user found for email: ${userEmail}`);
+    if (!emailCaptureResult[0]) {
+      console.log(`⚠️ [GET USAGE] No emailCapture found for: ${userEmail}`);
       return null;
     }
-    console.log(`✅ [GET USAGE] Found user ID: ${userId} for ${userEmail}`);
+    
+    const actualUserId = emailCaptureResult[0].userId;
+    if (!actualUserId) {
+      console.log(`⚠️ [GET USAGE] No user ID linked to emailCapture for: ${userEmail}`);
+      return null;
+    }
+    
+    console.log(`✅ [GET USAGE] Found user ID: ${actualUserId} for ${userEmail}`);
     
     // Get today's usage from database using Drizzle ORM
     const usageResult = await db
       .select()
       .from(usageTracking)
       .where(and(
-        eq(usageTracking.userId, userId),
+        eq(usageTracking.userId, actualUserId),
         eq(usageTracking.date, today)
       ))
       .limit(1);
     
     const usage = usageResult[0];
     if (!usage) {
-      console.log(`ℹ️ [GET USAGE] No usage record found for user ${userId} on ${today}`);
+      console.log(`ℹ️ [GET USAGE] No usage record found for user ${actualUserId} on ${today}`);
       return null;
     }
-    console.log(`📊 [GET USAGE] Found usage: ${usage.analysesCount} analyses for user ${userId}`);
+    console.log(`📊 [GET USAGE] Found usage: ${usage.analysesCount} analyses for user ${actualUserId}`);
     
     // Return usage data (already in correct format from Drizzle)
     return usage;
   } catch (error) {
-    console.error('Error getting today usage:', error);
+    console.error('🚨 [GET USAGE] ERROR:', error);
+    console.error('🚨 [GET USAGE] Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail
+    });
     return null;
   }
 }
@@ -168,33 +179,61 @@ export async function trackUsage(
     console.log(`🔍 [USAGE TRACKING] Starting for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
     const today = new Date().toISOString().split('T')[0];
     
-    // Get user ID from email using Drizzle ORM
-    const userResult = await db
-      .select({ id: emailCaptures.id })
+    // CRITICAL FIX: Get or create user in users table, not emailCaptures table
+    // The usageTracking table references users.id, not emailCaptures.id
+    
+    // First, check if user exists in users table
+    const existingUser = await db
+      .select({ id: emailCaptures.id, userId: emailCaptures.userId })
       .from(emailCaptures)
       .where(eq(emailCaptures.email, userEmail))
       .limit(1);
     
-    const userId = userResult[0]?.id;
-    if (!userId) {
-      console.log(`⚠️ [USAGE TRACKING] No user found for email: ${userEmail}`);
+    let actualUserId: number;
+    
+    if (!existingUser[0]) {
+      console.log(`⚠️ [USAGE TRACKING] No emailCapture found for: ${userEmail}`);
       return;
     }
-    console.log(`✅ [USAGE TRACKING] Found user ID: ${userId} for ${userEmail}`);
+    
+    // If emailCaptures has a userId, use it; otherwise create a placeholder user
+    if (existingUser[0].userId) {
+      actualUserId = existingUser[0].userId;
+      console.log(`✅ [USAGE TRACKING] Found existing user ID: ${actualUserId} for ${userEmail}`);
+    } else {
+      // Create a placeholder user in users table for usage tracking
+      const newUser = await db
+        .insert(users)
+        .values({
+          username: userEmail, // Use email as username for placeholder
+          password: 'placeholder' // This won't be used for login
+        })
+        .returning({ id: users.id });
+      
+      actualUserId = newUser[0].id;
+      
+      // Update emailCaptures to reference this user
+      await db
+        .update(emailCaptures)
+        .set({ userId: actualUserId })
+        .where(eq(emailCaptures.id, existingUser[0].id));
+      
+      console.log(`✅ [USAGE TRACKING] Created placeholder user ID: ${actualUserId} for ${userEmail}`);
+    }
     
     // Try to get existing usage record first
     const existingUsage = await db
       .select()
       .from(usageTracking)
       .where(and(
-        eq(usageTracking.userId, userId),
+        eq(usageTracking.userId, actualUserId),
         eq(usageTracking.date, today)
       ))
       .limit(1);
 
     if (existingUsage.length > 0) {
       // Update existing record
-      await db
+      const updateResult = await db
         .update(usageTracking)
         .set({
           analysesCount: existingUsage[0].analysesCount + 1,
@@ -205,13 +244,16 @@ export async function trackUsage(
           totalCost: existingUsage[0].totalCost + Math.round(estimatedCost * 100), // Convert to cents
           updatedAt: new Date()
         })
-        .where(eq(usageTracking.id, existingUsage[0].id));
+        .where(eq(usageTracking.id, existingUsage[0].id))
+        .returning();
+        
+      console.log(`🔄 [USAGE TRACKING] UPDATED existing record for ${userEmail}:`, updateResult[0]);
     } else {
       // Insert new record
-      await db
+      const insertResult = await db
         .insert(usageTracking)
         .values({
-          userId: userId,
+          userId: actualUserId,
           date: today,
           analysesCount: 1,
           pagesProcessed: pagesProcessed,
@@ -219,14 +261,24 @@ export async function trackUsage(
           htmlExtractionsCount: htmlExtractionsCount,
           cacheHits: cacheHits,
           totalCost: Math.round(estimatedCost * 100) // Convert to cents
-        });
+        })
+        .returning();
+        
+      console.log(`➕ [USAGE TRACKING] INSERTED new record for ${userEmail}:`, insertResult[0]);
     }
     
     console.log(`🎉 [USAGE TRACKING] SUCCESS for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls, ${cacheHits} cache hits`);
     
   } catch (error) {
     console.error('🚨 [USAGE TRACKING] ERROR:', error);
-    console.error('🚨 [USAGE TRACKING] Full error details:', JSON.stringify(error, null, 2));
+    console.error('🚨 [USAGE TRACKING] Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      table: error.table,
+      column: error.column,
+      constraint: error.constraint
+    });
   }
 }
 
