@@ -473,6 +473,17 @@ async function analyzeWebsiteEnhanced(
     // Check if sitemap discovery failed completely
     if (sitemapResult.entries.length === 0) {
       console.error(`No pages discovered for ${url}. Marking analysis as failed.`);
+      
+      // CRITICAL FIX: Track usage even for failed analyses to prevent unlimited retries
+      await trackUsage(
+        userEmail,
+        0, // No pages processed
+        0, // No AI calls
+        0, // No HTML extractions
+        0, // No cache hits
+        0  // No cost
+      );
+      
       await storage.updateAnalysis(analysisId, {
         status: "failed",
         discoveredPages: [],
@@ -545,6 +556,17 @@ async function analyzeWebsiteEnhanced(
 
   } catch (error) {
     console.error("Website analysis failed:", error);
+    
+    // CRITICAL FIX: Track usage even for exception-based failures to prevent unlimited retries
+    await trackUsage(
+      userEmail,
+      0, // No pages processed
+      0, // No AI calls
+      0, // No HTML extractions
+      0, // No cache hits
+      0  // No cost
+    );
+    
     await storage.updateAnalysis(analysisId, {
       status: "failed",
       discoveredPages: []
