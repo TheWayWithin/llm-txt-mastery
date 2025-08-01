@@ -10,11 +10,12 @@ import ContentReview from "@/components/content-review";
 import FileGeneration from "@/components/file-generation";
 import TierLimitsDisplay from "@/components/tier-limits-display";
 import UsageDisplay from "@/components/usage-display";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { DiscoveredPage } from "@shared/schema";
 import { useLocation } from "wouter";
 
 export default function Home() {
-  const { user, userProfile } = useAuth();
+  const { user, loading } = useAuth();
   const [location] = useLocation();
   const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'limits' | 'analysis' | 'review' | 'generation'>('input');
   const [analysisId, setAnalysisId] = useState<number | null>(null);
@@ -23,6 +24,7 @@ export default function Home() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [userTier, setUserTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
   const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Check for URL parameters (from coffee success redirect)
   useEffect(() => {
@@ -43,9 +45,18 @@ export default function Home() {
     }
   }, [location]);
 
+  // Handle authentication loading completion
+  useEffect(() => {
+    // If we're on email step and auth loading completes, check if we should skip to limits
+    if (currentStep === 'email' && !loading && user && websiteUrl) {
+      setCurrentStep('limits');
+      setShowAuthModal(false); // Close modal if it was open
+    }
+  }, [loading, user, currentStep, websiteUrl]);
+
   // Use authenticated user data if available
   const effectiveEmail = user?.email || userEmail;
-  const effectiveTier = userProfile?.tier || userTier;
+  const effectiveTier = user?.tier || userTier;
 
   const handleAnalysisComplete = (id: number, pages: DiscoveredPage[]) => {
     setAnalysisId(id);
@@ -139,18 +150,33 @@ export default function Home() {
             onAnalysisStart={(url) => {
               setWebsiteUrl(url);
               // Skip email capture if user is authenticated
-              if (user) {
-                setCurrentStep('limits');
+              if (!loading) {
+                if (user) {
+                  setCurrentStep('limits');
+                } else {
+                  setCurrentStep('email');
+                }
               } else {
-                setCurrentStep('email');
+                // Will be handled by useEffect below when loading completes
+                setCurrentStep('email'); // Temporary, will be corrected by useEffect
               }
             }}
             isVisible={currentStep === 'input'}
             prefilledUrl={websiteUrl}
           />
 
+          {/* Loading state during auth check */}
+          {currentStep === 'email' && loading && (
+            <Card className="w-full max-w-2xl mx-auto">
+              <CardContent className="p-8 text-center">
+                <div className="animate-spin w-8 h-8 border-2 border-mastery-blue border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-ai-silver">Checking authentication status...</p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Step 2: Email Capture (only for non-authenticated users) */}
-          {currentStep === 'email' && !user && (
+          {currentStep === 'email' && !loading && !user && (
             <EmailCapture
               websiteUrl={websiteUrl}
               onEmailCaptured={(email, tier) => {
@@ -158,6 +184,10 @@ export default function Home() {
                 setUserTier(tier);
                 setCurrentStep('limits');
               }}
+              onLoginRequested={() => {
+                setShowAuthModal(true);
+              }}
+              prefilledEmail={user?.email || userEmail}
               isVisible={currentStep === 'email'}
             />
           )}
@@ -269,6 +299,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode="login"
+      />
     </div>
   );
 }

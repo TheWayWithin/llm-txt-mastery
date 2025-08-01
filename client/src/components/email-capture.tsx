@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,23 +17,32 @@ import { z } from "zod";
 interface EmailCaptureProps {
   websiteUrl: string;
   onEmailCaptured: (email: string, tier: "starter" | "coffee" | "growth" | "scale") => void;
+  onLoginRequested?: () => void;
+  prefilledEmail?: string;
   isVisible: boolean;
 }
 
 type FormData = z.infer<typeof emailCaptureSchema>;
 
-export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }: EmailCaptureProps) {
+export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginRequested, prefilledEmail, isVisible }: EmailCaptureProps) {
   const { toast } = useToast();
   const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
 
   const form = useForm<FormData>({
     resolver: zodResolver(emailCaptureSchema),
     defaultValues: {
-      email: "",
+      email: prefilledEmail || "",
       websiteUrl: websiteUrl,
       tier: "starter",
     },
   });
+
+  // Update form when prefilledEmail changes
+  useEffect(() => {
+    if (prefilledEmail && prefilledEmail !== form.getValues("email")) {
+      form.setValue("email", prefilledEmail);
+    }
+  }, [prefilledEmail, form]);
 
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -151,6 +160,23 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, isVisible }:
             </div>
           </RadioGroup>
         </div>
+
+        {/* Login Option */}
+        {onLoginRequested && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+            <p className="text-sm text-blue-700 mb-3">
+              Already have an account?
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onLoginRequested}
+              className="text-blue-700 border-blue-300 hover:bg-blue-100"
+            >
+              Login Instead
+            </Button>
+          </div>
+        )}
 
         {/* Email Form */}
         <Form {...form}>
