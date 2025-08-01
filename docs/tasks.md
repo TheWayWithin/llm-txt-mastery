@@ -180,12 +180,52 @@ After successful Phase 1.5 deployment, comprehensive testing revealed several cr
 
 ---
 
-## Phase 0: Critical UX/UI Foundation (14 Days) 🚨 IMMEDIATE PRIORITY
+## Phase 0: Critical UX/UI Foundation (14 Days) 🚨 PRODUCTION EMERGENCY
 **Objective**: Remove friction, increase retention, enable viral growth
 **Target Start**: August 2, 2025
-**Target Completion**: August 16, 2025
-**Status**: 🟢 70% COMPLETE - Major authentication and retention features delivered
-**Current Progress**: Milestones 0.1 and 0.2 completed with full testing
+**Target Completion**: August 16, 2025  
+**Status**: 🚨 **BLOCKED BY CRITICAL ISSUES** - Revenue systems non-functional
+**Current Progress**: Milestones 0.1 and 0.2 deployed but critical testing revealed system failures
+
+### 🚨 **URGENT: Milestone 0.0: Critical Issue Resolution (Days 1-3) - PRODUCTION EMERGENCY**
+**Goal**: Restore basic revenue generation and freemium model functionality
+**Status**: ⚠️ **IMMEDIATE PRIORITY** - All other work blocked until resolved
+
+#### 🚨 **Critical Issue Fixes (URGENT - Revenue Blocking)**
+- [ ] **Issue #1**: Fix Stripe integration network failures (`ERR_NETWORK_IO_SUSPENDED`)
+  - [ ] Debug CORS configuration for Stripe domains  
+  - [ ] Verify Stripe Elements loading and initialization
+  - [ ] Test payment form rendering in production environment
+  - [ ] Restore Coffee tier checkout functionality
+- [ ] **Issue #2**: Fix Coffee tier payment bypass (stop revenue leakage)
+  - [ ] Implement proper payment verification before analysis
+  - [ ] Block premium analysis until payment completion
+  - [ ] Fix flow logic to redirect Coffee tier to Stripe checkout
+  - [ ] Test end-to-end Coffee purchase → analysis flow
+- [ ] **Issue #3**: Remove development mode bypass in usage tracking
+  - [ ] Disable development bypass in `server/services/usage.ts:101-117`
+  - [ ] Test daily usage increments properly (1/1, 2/1, etc.)
+  - [ ] Verify free tier blocks after 1 analysis with upgrade prompts
+  - [ ] Restore freemium model enforcement
+- [ ] **Issue #4**: Complete authentication system with password collection
+  - [ ] Add password field to email capture form for new signups
+  - [ ] Implement proper signup vs login flow distinction  
+  - [ ] Fix auto-login functionality after Coffee purchase
+  - [ ] Enable "Login Instead" button functionality
+- [ ] **Issue #5**: Fix UX and page limit issues
+  - [ ] Remove unwanted "Email captured successfully" toast notification
+  - [ ] Fix Coffee tier page limits (should be 200 pages, not 19)
+  - [ ] Test all tier-based limits work correctly
+  - [ ] Verify premium users get full value proposition
+
+#### **Success Criteria for Emergency Resolution**:
+- ✅ Coffee tier purchases work end-to-end (Stripe → Payment → Analysis)
+- ✅ Free tier properly limited to 1 analysis per day with usage tracking
+- ✅ Users can create accounts with passwords and log in successfully  
+- ✅ All tier-based page limits function correctly
+- ✅ Zero revenue leakage - no free premium analysis
+
+**CRITICAL TIMELINE**: Must be resolved within 48 hours to restore revenue generation
 
 ### ✅ Milestone 0.1: Authentication Flow Improvements (Days 1-3) - COMPLETED
 **Goal**: Eliminate repeated email entry and authentication confusion
