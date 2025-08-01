@@ -1,11 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { urlAnalysisSchema, insertSitemapAnalysisSchema, insertLlmTextFileSchema, emailCaptureSchema, DiscoveredPage, SelectedPage, UserTier } from "@shared/schema";
+import { urlAnalysisSchema, insertSitemapAnalysisSchema, insertLlmTextFileSchema, emailCaptureSchema, DiscoveredPage, SelectedPage, UserTier, users, usageTracking } from "@shared/schema";
 import { fetchSitemap } from "./services/sitemap";
 import { analyzeDiscoveredPagesWithCache } from "./services/sitemap-enhanced";
 import { storage } from "./storage";
-import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth } from "./services/usage";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
+import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth, getTodayUsage, resolveUserFromEmail } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
 import { optionalAuth } from "./middleware/auth";
@@ -55,6 +57,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Debug tier error:", error);
       res.status(500).json({ 
         message: "Failed to debug tier", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Debug usage tracking - comprehensive database state check
+  app.post("/api/debug-usage-tracking", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email required" });
+      }
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Check emailCaptures table
+      const emailCapture = await storage.getEmailCapture(email);
+      
+      // Check if user exists in users table
+      let userInUsersTable = null;
+      if (emailCapture?.userId) {
+        const userResult = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, emailCapture.userId))
+          .limit(1);
+        userInUsersTable = userResult[0] || null;
+      }
+      
+      // Check usageTracking table
+      let usageRecord = null;
+      if (emailCapture?.userId) {
+        const usageResult = await db
+          .select()
+          .from(usageTracking)
+          .where(and(
+            eq(usageTracking.userId, emailCapture.userId),
+            eq(usageTracking.date, today)
+          ))
+          .limit(1);
+        usageRecord = usageResult[0] || null;
+      }
+      
+      // Test the shared resolver
+      const resolvedUserId = await resolveUserFromEmail(email);
+      
+      // Get usage via the API function
+      const todayUsage = await getTodayUsage(email);
+      
+      res.json({
+        email,
+        date: today,
+        debug: {
+          emailCapture: emailCapture ? {
+            id: emailCapture.id,
+            userId: emailCapture.userId,
+            tier: emailCapture.tier,
+            createdAt: emailCapture.createdAt
+          } : null,
+          userInUsersTable: userInUsersTable ? {
+            id: userInUsersTable.id,
+            username: userInUsersTable.username
+          } : null,
+          usageRecord: usageRecord ? {
+            id: usageRecord.id,
+            userId: usageRecord.userId,
+            date: usageRecord.date,
+            analysesCount: usageRecord.analysesCount,
+            pagesProcessed: usageRecord.pagesProcessed,
+            cacheHits: usageRecord.cacheHits
+          } : null,
+          resolvedUserId,
+          todayUsage: todayUsage ? {
+            analysesCount: todayUsage.analysesCount,
+            pagesProcessed: todayUsage.pagesProcessed,
+            cacheHits: todayUsage.cacheHits
+          } : null
+        }
+      });
+      
+    } catch (error) {
+      console.error("Debug usage tracking error:", error);
+      res.status(500).json({ 
+        message: "Failed to debug usage tracking", 
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
