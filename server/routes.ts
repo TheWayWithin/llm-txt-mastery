@@ -256,6 +256,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
         
         if (analysisAge < maxAge) {
+          // CRITICAL FIX: Track usage even for cached results to enforce limits
+          await trackUsage(
+            userEmail,
+            existingAnalysis.discoveredPages?.length || 0,
+            0, // No AI calls for cached results
+            0, // No HTML extractions for cached results
+            1, // This counts as a cache hit
+            0  // No cost for cached results
+          );
+          
           return res.json({ 
             analysisId: existingAnalysis.id,
             status: "completed",
@@ -275,8 +285,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         analysisMetadata: { userEmail: email } as any
       });
 
-      // Start analysis process (async)
-      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, email, tier);
+      // Start analysis process (async with proper error handling)
+      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, email, tier)
+        .catch(error => {
+          console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
+          // Ensure the analysis is marked as failed even on unhandled errors
+          storage.updateAnalysis(analysis.id, {
+            status: "failed",
+            discoveredPages: [],
+            analysisMetadata: {
+              siteType: "unknown",
+              sitemapFound: false,
+              analysisMethod: "error",
+              message: "Analysis failed due to unexpected error",
+              totalPagesFound: 0,
+              userEmail: email,
+              tier,
+              error: error.message
+            }
+          }).catch(updateError => {
+            console.error(`🚨 CRITICAL: Failed to update analysis status:`, updateError);
+          });
+          
+          // Track usage even for completely failed analyses
+          trackUsage(email, 0, 0, 0, 0, 0).catch(trackError => {
+            console.error(`🚨 CRITICAL: Failed to track usage for failed analysis:`, trackError);
+          });
+        });
 
       res.json({ 
         analysisId: analysis.id,
@@ -462,6 +497,57 @@ async function analyzeWebsiteEnhanced(
   userEmail: string,
   tier: UserTier
 ) {
+  // Add timeout protection to prevent infinite hanging
+  const ANALYSIS_TIMEOUT = 10 * 60 * 1000; // 10 minutes maximum
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Analysis timeout: exceeded ${ANALYSIS_TIMEOUT / 1000}s limit`));
+    }, ANALYSIS_TIMEOUT);
+  });
+
+  try {
+    // Race the analysis against the timeout
+    await Promise.race([
+      performAnalysisWithTimeout(analysisId, url, userEmail, tier),
+      timeoutPromise
+    ]);
+  } catch (error) {
+    console.error("Website analysis failed:", error);
+    
+    // CRITICAL FIX: Track usage even for exception-based failures to prevent unlimited retries
+    await trackUsage(
+      userEmail,
+      0, // No pages processed
+      0, // No AI calls
+      0, // No HTML extractions
+      0, // No cache hits
+      0  // No cost
+    );
+    
+    await storage.updateAnalysis(analysisId, {
+      status: "failed",
+      discoveredPages: [],
+      analysisMetadata: {
+        siteType: "unknown",
+        sitemapFound: false,
+        analysisMethod: "error",
+        message: error.message || "Analysis failed due to unexpected error",
+        totalPagesFound: 0,
+        userEmail,
+        tier,
+        error: error.message
+      }
+    });
+  }
+}
+
+// Separate function to perform the actual analysis
+async function performAnalysisWithTimeout(
+  analysisId: number, 
+  url: string, 
+  userEmail: string,
+  tier: UserTier
+) {
   try {
     const startTime = Date.now();
     
@@ -569,7 +655,17 @@ async function analyzeWebsiteEnhanced(
     
     await storage.updateAnalysis(analysisId, {
       status: "failed",
-      discoveredPages: []
+      discoveredPages: [],
+      analysisMetadata: {
+        siteType: "unknown",
+        sitemapFound: false,
+        analysisMethod: "error",
+        message: error.message || "Analysis failed due to unexpected error",
+        totalPagesFound: 0,
+        userEmail,
+        tier,
+        error: error.message
+      }
     });
   }
 }
