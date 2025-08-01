@@ -46,7 +46,7 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     
     // Get user ID from email first
     const userResult = await db.execute<{ id: number }>(`
-      SELECT id FROM "emailCaptures" WHERE email = $1 LIMIT 1
+      SELECT id FROM email_captures WHERE email = $1 LIMIT 1
     `, [userEmail]);
     
     const userId = userResult.rows?.[0]?.id;
@@ -186,7 +186,7 @@ export async function trackUsage(
     
     // Get user ID from email
     const userResult = await db.execute<{ id: number }>(`
-      SELECT id FROM "emailCaptures" WHERE email = $1 LIMIT 1
+      SELECT id FROM email_captures WHERE email = $1 LIMIT 1
     `, [userEmail]);
     
     const userId = userResult.rows?.[0]?.id;
@@ -285,7 +285,7 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
         AVG(analyses_count) as avg_analyses_per_day,
         AVG(pages_processed) as avg_pages_per_day
       FROM usage_tracking 
-      WHERE user_id = (SELECT id FROM "emailCaptures" WHERE email = $1 LIMIT 1)
+      WHERE user_id = (SELECT id FROM email_captures WHERE email = $1 LIMIT 1)
       AND date >= $2
     `, [userEmail, startDate.toISOString().split('T')[0]]);
     

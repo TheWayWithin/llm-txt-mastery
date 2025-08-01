@@ -319,7 +319,7 @@ export async function trackCacheSavings(
     
     await db.execute(`
       INSERT INTO cache_savings (user_id, date, cache_hits, api_calls_saved, cost_saved)
-      VALUES ((SELECT id FROM "emailCaptures" WHERE email = $1 LIMIT 1), $2, $3, $4, $5)
+      VALUES ((SELECT id FROM email_captures WHERE email = $1 LIMIT 1), $2, $3, $4, $5)
       ON CONFLICT (user_id, date) 
       DO UPDATE SET
         cache_hits = cache_savings.cache_hits + $3,
