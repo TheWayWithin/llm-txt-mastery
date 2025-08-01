@@ -41,6 +41,7 @@ export async function getUserTier(userEmail: string): Promise<UserTier> {
 // Get today's usage for a user from database
 export async function getTodayUsage(userEmail: string): Promise<UsageTracking | null> {
   try {
+    console.log(`🔍 [GET USAGE] Checking today's usage for: ${userEmail}`);
     const today = new Date().toISOString().split('T')[0];
     
     // Get user ID from email first
@@ -49,7 +50,11 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     `, [userEmail]);
     
     const userId = userResult.rows?.[0]?.id;
-    if (!userId) return null;
+    if (!userId) {
+      console.log(`⚠️ [GET USAGE] No user found for email: ${userEmail}`);
+      return null;
+    }
+    console.log(`✅ [GET USAGE] Found user ID: ${userId} for ${userEmail}`);
     
     // Get today's usage from database
     const usageResult = await db.execute<{
@@ -71,7 +76,11 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     `, [userId, today]);
     
     const usage = usageResult.rows?.[0];
-    if (!usage) return null;
+    if (!usage) {
+      console.log(`ℹ️ [GET USAGE] No usage record found for user ${userId} on ${today}`);
+      return null;
+    }
+    console.log(`📊 [GET USAGE] Found usage: ${usage.analyses_count} analyses for user ${userId}`);
     
     // Convert database result to UsageTracking interface
     return {
@@ -172,6 +181,7 @@ export async function trackUsage(
   estimatedCost: number
 ): Promise<void> {
   try {
+    console.log(`🔍 [USAGE TRACKING] Starting for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
     const today = new Date().toISOString().split('T')[0];
     
     // Get user ID from email
@@ -180,7 +190,11 @@ export async function trackUsage(
     `, [userEmail]);
     
     const userId = userResult.rows?.[0]?.id;
-    if (!userId) return;
+    if (!userId) {
+      console.log(`⚠️ [USAGE TRACKING] No user found for email: ${userEmail}`);
+      return;
+    }
+    console.log(`✅ [USAGE TRACKING] Found user ID: ${userId} for ${userEmail}`);
     
     await db.execute(`
       INSERT INTO usage_tracking (
@@ -197,10 +211,11 @@ export async function trackUsage(
         total_cost = usage_tracking.total_cost + $7
     `, [userId, today, pagesProcessed, aiCallsCount, htmlExtractionsCount, cacheHits, estimatedCost]);
     
-    console.log(`Tracked usage for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls, ${cacheHits} cache hits`);
+    console.log(`🎉 [USAGE TRACKING] SUCCESS for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls, ${cacheHits} cache hits`);
     
   } catch (error) {
-    console.error('Error tracking usage:', error);
+    console.error('🚨 [USAGE TRACKING] ERROR:', error);
+    console.error('🚨 [USAGE TRACKING] Full error details:', JSON.stringify(error, null, 2));
   }
 }
 
