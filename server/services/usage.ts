@@ -1,7 +1,8 @@
 import { storage } from "../storage";
 import { db } from "../db";
-import { UserTier, UsageTracking } from "@shared/schema";
+import { UserTier, UsageTracking, emailCaptures, usageTracking } from "@shared/schema";
 import { TIER_LIMITS } from "./cache";
+import { eq, and } from "drizzle-orm";
 
 export interface UsageCheckResult {
   allowed: boolean;
@@ -44,56 +45,39 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     console.log(`🔍 [GET USAGE] Checking today's usage for: ${userEmail}`);
     const today = new Date().toISOString().split('T')[0];
     
-    // Get user ID from email first
-    const userResult = await db.execute<{ id: number }>(`
-      SELECT id FROM email_captures WHERE email = $1 LIMIT 1
-    `, [userEmail]);
+    // Get user ID from email first using Drizzle ORM
+    const userResult = await db
+      .select({ id: emailCaptures.id })
+      .from(emailCaptures)
+      .where(eq(emailCaptures.email, userEmail))
+      .limit(1);
     
-    const userId = userResult.rows?.[0]?.id;
+    const userId = userResult[0]?.id;
     if (!userId) {
       console.log(`⚠️ [GET USAGE] No user found for email: ${userEmail}`);
       return null;
     }
     console.log(`✅ [GET USAGE] Found user ID: ${userId} for ${userEmail}`);
     
-    // Get today's usage from database
-    const usageResult = await db.execute<{
-      id: number;
-      user_id: number;
-      date: string;
-      analyses_count: number;
-      pages_processed: number;
-      ai_calls_count: number;
-      html_extractions_count: number;
-      cache_hits: number;
-      total_cost: number;
-      created_at: string;
-      updated_at: string;
-    }>(`
-      SELECT * FROM usage_tracking 
-      WHERE user_id = $1 AND date = $2 
-      LIMIT 1
-    `, [userId, today]);
+    // Get today's usage from database using Drizzle ORM
+    const usageResult = await db
+      .select()
+      .from(usageTracking)
+      .where(and(
+        eq(usageTracking.userId, userId),
+        eq(usageTracking.date, today)
+      ))
+      .limit(1);
     
-    const usage = usageResult.rows?.[0];
+    const usage = usageResult[0];
     if (!usage) {
       console.log(`ℹ️ [GET USAGE] No usage record found for user ${userId} on ${today}`);
       return null;
     }
-    console.log(`📊 [GET USAGE] Found usage: ${usage.analyses_count} analyses for user ${userId}`);
+    console.log(`📊 [GET USAGE] Found usage: ${usage.analysesCount} analyses for user ${userId}`);
     
-    // Convert database result to UsageTracking interface
-    return {
-      id: usage.id,
-      userId: usage.user_id,
-      date: usage.date,
-      analysesCount: usage.analyses_count,
-      pagesProcessed: usage.pages_processed,
-      cacheHits: usage.cache_hits,
-      cost: usage.total_cost,
-      createdAt: new Date(usage.created_at),
-      updatedAt: new Date(usage.updated_at)
-    };
+    // Return usage data (already in correct format from Drizzle)
+    return usage;
   } catch (error) {
     console.error('Error getting today usage:', error);
     return null;
@@ -184,32 +168,59 @@ export async function trackUsage(
     console.log(`🔍 [USAGE TRACKING] Starting for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
     const today = new Date().toISOString().split('T')[0];
     
-    // Get user ID from email
-    const userResult = await db.execute<{ id: number }>(`
-      SELECT id FROM email_captures WHERE email = $1 LIMIT 1
-    `, [userEmail]);
+    // Get user ID from email using Drizzle ORM
+    const userResult = await db
+      .select({ id: emailCaptures.id })
+      .from(emailCaptures)
+      .where(eq(emailCaptures.email, userEmail))
+      .limit(1);
     
-    const userId = userResult.rows?.[0]?.id;
+    const userId = userResult[0]?.id;
     if (!userId) {
       console.log(`⚠️ [USAGE TRACKING] No user found for email: ${userEmail}`);
       return;
     }
     console.log(`✅ [USAGE TRACKING] Found user ID: ${userId} for ${userEmail}`);
     
-    await db.execute(`
-      INSERT INTO usage_tracking (
-        user_id, date, analyses_count, pages_processed, 
-        ai_calls_count, html_extractions_count, cache_hits, total_cost
-      ) VALUES ($1, $2, 1, $3, $4, $5, $6, $7)
-      ON CONFLICT (user_id, date) 
-      DO UPDATE SET
-        analyses_count = usage_tracking.analyses_count + 1,
-        pages_processed = usage_tracking.pages_processed + $3,
-        ai_calls_count = usage_tracking.ai_calls_count + $4,
-        html_extractions_count = usage_tracking.html_extractions_count + $5,
-        cache_hits = usage_tracking.cache_hits + $6,
-        total_cost = usage_tracking.total_cost + $7
-    `, [userId, today, pagesProcessed, aiCallsCount, htmlExtractionsCount, cacheHits, estimatedCost]);
+    // Try to get existing usage record first
+    const existingUsage = await db
+      .select()
+      .from(usageTracking)
+      .where(and(
+        eq(usageTracking.userId, userId),
+        eq(usageTracking.date, today)
+      ))
+      .limit(1);
+
+    if (existingUsage.length > 0) {
+      // Update existing record
+      await db
+        .update(usageTracking)
+        .set({
+          analysesCount: existingUsage[0].analysesCount + 1,
+          pagesProcessed: existingUsage[0].pagesProcessed + pagesProcessed,
+          aiCallsCount: existingUsage[0].aiCallsCount + aiCallsCount,
+          htmlExtractionsCount: existingUsage[0].htmlExtractionsCount + htmlExtractionsCount,
+          cacheHits: existingUsage[0].cacheHits + cacheHits,
+          totalCost: existingUsage[0].totalCost + Math.round(estimatedCost * 100), // Convert to cents
+          updatedAt: new Date()
+        })
+        .where(eq(usageTracking.id, existingUsage[0].id));
+    } else {
+      // Insert new record
+      await db
+        .insert(usageTracking)
+        .values({
+          userId: userId,
+          date: today,
+          analysesCount: 1,
+          pagesProcessed: pagesProcessed,
+          aiCallsCount: aiCallsCount,
+          htmlExtractionsCount: htmlExtractionsCount,
+          cacheHits: cacheHits,
+          totalCost: Math.round(estimatedCost * 100) // Convert to cents
+        });
+    }
     
     console.log(`🎉 [USAGE TRACKING] SUCCESS for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls, ${cacheHits} cache hits`);
     
