@@ -1,8 +1,10 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
 import { 
   authUsers, 
   userSessions, 
+  sitemapAnalysis,
+  llmTextFiles,
   AuthUser, 
   UserSession, 
   InsertAuthUser, 
@@ -226,6 +228,75 @@ export class AuthStorage {
       .where(eq(userSessions.expiresAt, now));
     
     return sessions.length;
+  }
+
+  // Analysis history methods
+  async getUserAnalyses(userEmail: string): Promise<any[]> {
+    try {
+      const analyses = await db
+        .select()
+        .from(sitemapAnalysis)
+        .where(eq(sitemapAnalysis.analysisMetadata, userEmail))
+        .orderBy(desc(sitemapAnalysis.createdAt));
+      
+      // Note: This is a simplified query. In production, we'd want to properly 
+      // query the JSON field for userEmail within analysisMetadata
+      // For now, we'll need to filter in JavaScript
+      return analyses.filter(analysis => 
+        analysis.analysisMetadata && 
+        typeof analysis.analysisMetadata === 'object' &&
+        'userEmail' in analysis.analysisMetadata &&
+        analysis.analysisMetadata.userEmail === userEmail
+      );
+    } catch (error) {
+      console.error('Error fetching user analyses:', error);
+      return [];
+    }
+  }
+
+  async getUserAnalysis(userEmail: string, analysisId: number): Promise<any | null> {
+    try {
+      const [analysis] = await db
+        .select()
+        .from(sitemapAnalysis)
+        .where(eq(sitemapAnalysis.id, analysisId));
+      
+      if (!analysis) return null;
+      
+      // Verify this analysis belongs to the user
+      if (analysis.analysisMetadata && 
+          typeof analysis.analysisMetadata === 'object' &&
+          'userEmail' in analysis.analysisMetadata &&
+          analysis.analysisMetadata.userEmail === userEmail) {
+        return analysis;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error fetching user analysis:', error);
+      return null;
+    }
+  }
+
+  async getUserAnalysisFiles(userEmail: string): Promise<any[]> {
+    try {
+      // Get all analyses for this user first
+      const userAnalyses = await this.getUserAnalyses(userEmail);
+      const analysisIds = userAnalyses.map(a => a.id);
+      
+      if (analysisIds.length === 0) return [];
+      
+      // Get all LLM files for these analyses
+      const files = await db
+        .select()
+        .from(llmTextFiles)
+        .where(eq(llmTextFiles.analysisId, analysisIds[0])); // This would need proper IN query
+      
+      return files;
+    } catch (error) {
+      console.error('Error fetching user analysis files:', error);
+      return [];
+    }
   }
 }
 

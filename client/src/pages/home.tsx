@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Brain, User, Settings, Coffee } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthNav } from "@/components/AuthNav";
 import UrlInput from "@/components/url-input";
@@ -12,7 +13,7 @@ import TierLimitsDisplay from "@/components/tier-limits-display";
 import UsageDisplay from "@/components/usage-display";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { DiscoveredPage } from "@shared/schema";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -26,15 +27,21 @@ export default function Home() {
   const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Check for URL parameters (from coffee success redirect)
+  // Check for URL parameters (from coffee success redirect or rerun analysis)
   useEffect(() => {
     const urlParams = new URLSearchParams(location.split('?')[1] || '');
     const prefilledUrl = urlParams.get('url');
     const prefilledEmail = urlParams.get('email');
     const isCoffeeReturn = urlParams.get('coffee') === 'true';
+    const isRerun = urlParams.get('rerun') === 'true';
     
     if (prefilledUrl) {
       setWebsiteUrl(prefilledUrl);
+      
+      // If it's a rerun and user is authenticated, skip directly to limits
+      if (isRerun && user) {
+        setCurrentStep('limits');
+      }
     }
     
     // If returning from coffee purchase, set tier and skip to limits
@@ -43,7 +50,7 @@ export default function Home() {
       setUserEmail(prefilledEmail);
       setCurrentStep('limits');
     }
-  }, [location]);
+  }, [location, user]);
 
   // Handle authentication loading completion
   useEffect(() => {
@@ -137,6 +144,50 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Welcome Back Message for Authenticated Users */}
+        {user && (
+          <section className="mb-8">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                  <User className="h-4 w-4 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-green-800">
+                  Welcome back, {user.email.split('@')[0]}! 👋
+                </h3>
+              </div>
+              <p className="text-green-600 mb-4">
+                {user.tier === 'coffee' 
+                  ? `Your Coffee tier is active with ${user.creditsRemaining} credits remaining.`
+                  : user.tier === 'starter'
+                  ? 'Ready for your next analysis?'
+                  : `Your ${user.tier} tier gives you unlimited access to premium features.`
+                }
+              </p>
+              <div className="flex items-center justify-center space-x-4">
+                <Link href="/dashboard">
+                  <a>
+                    <Button variant="outline" size="sm" className="text-green-700 border-green-300 hover:bg-green-100">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Go to Dashboard
+                    </Button>
+                  </a>
+                </Link>
+                {user.tier === 'starter' && (
+                  <Button 
+                    size="sm" 
+                    className="bg-orange-600 hover:bg-orange-700"
+                    onClick={() => setCurrentStep('input')}
+                  >
+                    <Coffee className="h-4 w-4 mr-2" />
+                    Upgrade to Coffee
+                  </Button>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Progressive Steps */}
         <div className="space-y-8">

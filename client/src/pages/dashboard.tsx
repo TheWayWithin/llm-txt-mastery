@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { 
   User, 
   CreditCard, 
@@ -428,6 +429,13 @@ function SettingsSection() {
 export default function Dashboard() {
   const { user } = useAuth();
 
+  // Check for tab parameter in URL
+  const getDefaultTab = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    return ['overview', 'analyses', 'billing', 'settings'].includes(tab || '') ? (tab || 'overview') : 'overview';
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">
@@ -462,11 +470,15 @@ export default function Dashboard() {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue={getDefaultTab()} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview" className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
                 <span>Overview</span>
+              </TabsTrigger>
+              <TabsTrigger value="analyses" className="flex items-center space-x-2">
+                <Activity className="h-4 w-4" />
+                <span>My Analyses</span>
               </TabsTrigger>
               <TabsTrigger value="billing" className="flex items-center space-x-2">
                 <CreditCard className="h-4 w-4" />
@@ -480,6 +492,10 @@ export default function Dashboard() {
 
             <TabsContent value="overview">
               <AccountOverview />
+            </TabsContent>
+
+            <TabsContent value="analyses">
+              <AnalysisHistory />
             </TabsContent>
 
             <TabsContent value="billing">
