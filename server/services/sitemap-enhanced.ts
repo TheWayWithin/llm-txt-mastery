@@ -31,6 +31,46 @@ export async function analyzeDiscoveredPagesWithCache(
   userEmail: string,
   tier: UserTier
 ): Promise<{ pages: DiscoveredPage[], metrics: AnalysisMetrics }> {
+  // Add timeout protection to prevent infinite hanging during page analysis
+  const PAGE_ANALYSIS_TIMEOUT = 8 * 60 * 1000; // 8 minutes maximum for page analysis
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Page analysis timeout: exceeded ${PAGE_ANALYSIS_TIMEOUT / 1000}s limit`));
+    }, PAGE_ANALYSIS_TIMEOUT);
+  });
+
+  try {
+    return await Promise.race([
+      performPageAnalysisWithCache(entries, userEmail, tier),
+      timeoutPromise
+    ]);
+  } catch (error) {
+    console.error('Page analysis failed or timed out:', error);
+    // Return minimal results instead of throwing to prevent complete failure
+    return {
+      pages: [],
+      metrics: {
+        totalPages: entries.length,
+        cachedPages: 0,
+        analyzedPages: 0,
+        aiCallsUsed: 0,
+        htmlExtractionsUsed: 0,
+        estimatedCost: 0,
+        timeSaved: 0,
+        cacheHit: false,
+        processingTime: 0,
+        apiCalls: 0,
+        costSaved: 0
+      }
+    };
+  }
+}
+
+async function performPageAnalysisWithCache(
+  entries: SitemapEntry[],
+  userEmail: string,
+  tier: UserTier
+): Promise<{ pages: DiscoveredPage[], metrics: AnalysisMetrics }> {
   const relevantPages = filterRelevantPages(entries);
   const tierLimits = TIER_LIMITS[tier];
   

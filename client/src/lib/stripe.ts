@@ -1,13 +1,18 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Initialize Stripe
+// Initialize Stripe with better error handling
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 if (!stripePublishableKey) {
-  console.warn('VITE_STRIPE_PUBLISHABLE_KEY not found in environment variables');
+  console.error('🚨 CRITICAL: VITE_STRIPE_PUBLISHABLE_KEY not found in environment variables');
+  console.error('This will cause ERR_NETWORK_IO_SUSPENDED errors when trying to load Stripe');
+  console.error('Available env vars:', Object.keys(import.meta.env));
 }
 
-export const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+export const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey).catch(error => {
+  console.error('Failed to load Stripe:', error);
+  return null;
+}) : Promise.resolve(null);
 
 // Stripe-related types
 export interface SubscriptionStatus {

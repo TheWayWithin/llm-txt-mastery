@@ -49,10 +49,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
       await apiRequest("POST", "/api/email-capture", data);
     },
     onSuccess: () => {
-      toast({
-        title: "Email captured successfully",
-        description: `Starting ${selectedTier} analysis for ${websiteUrl}`,
-      });
+      // No toast notification - proceed directly to analysis
       onEmailCaptured(form.getValues("email"), selectedTier);
     },
     onError: (error: any) => {
@@ -64,8 +61,37 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    mutation.mutate({ ...data, tier: selectedTier });
+  const onSubmit = async (data: FormData) => {
+    // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
+    if (selectedTier === 'coffee') {
+      try {
+        // First capture the email
+        await apiRequest("POST", "/api/email-capture", { ...data, tier: 'starter' }); // Keep as starter until payment
+        
+        // Then redirect to Stripe checkout
+        const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+          email: data.email,
+          websiteUrl: data.websiteUrl
+        });
+        const checkoutData = await response.json();
+        
+        if (checkoutData.url) {
+          // Redirect to Stripe checkout
+          window.location.href = checkoutData.url;
+        } else {
+          throw new Error('Failed to create checkout session');
+        }
+      } catch (error) {
+        toast({
+          title: "Payment Error",
+          description: error instanceof Error ? error.message : "Failed to start Coffee tier checkout",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // For other tiers, proceed with normal flow
+      mutation.mutate({ ...data, tier: selectedTier });
+    }
   };
 
   if (!isVisible) return null;
@@ -204,6 +230,8 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               <div className="text-xs text-ai-silver">
                 {selectedTier === "starter" ? (
                   <span>✓ Instant access • No payment required</span>
+                ) : selectedTier === "coffee" ? (
+                  <span>✓ One-time payment • No subscription</span>
                 ) : selectedTier === "growth" ? (
                   <span>✓ Professional features • Smart caching</span>
                 ) : (
@@ -213,10 +241,15 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               <Button 
                 type="submit" 
                 disabled={mutation.isPending}
-                className="bg-mastery-blue hover:bg-mastery-blue/90"
+                className={selectedTier === 'coffee' ? "bg-orange-600 hover:bg-orange-700" : "bg-mastery-blue hover:bg-mastery-blue/90"}
               >
                 {mutation.isPending ? (
                   "Processing..."
+                ) : selectedTier === 'coffee' ? (
+                  <>
+                    Continue to Payment ($4.95)
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </>
                 ) : (
                   <>
                     Start Analysis
