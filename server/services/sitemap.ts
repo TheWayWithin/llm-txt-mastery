@@ -40,6 +40,32 @@ export interface SitemapResult {
 }
 
 export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
+  // Add timeout protection to prevent infinite hanging during sitemap discovery
+  const SITEMAP_TIMEOUT = 60 * 1000; // 60 seconds maximum for sitemap discovery
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Sitemap discovery timeout: exceeded ${SITEMAP_TIMEOUT / 1000}s limit`));
+    }, SITEMAP_TIMEOUT);
+  });
+
+  try {
+    return await Promise.race([
+      performSitemapDiscovery(baseUrl),
+      timeoutPromise
+    ]);
+  } catch (error) {
+    console.error('Sitemap discovery failed:', error);
+    // Return empty result instead of throwing to prevent analysis hanging
+    return {
+      entries: [],
+      sitemapFound: false,
+      analysisMethod: "fallback-crawl",
+      message: `Sitemap discovery failed: ${error.message}. Returning empty results.`
+    };
+  }
+}
+
+async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> {
   // Extract root domain for sitemap discovery
   const urlObj = new URL(baseUrl);
   const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
