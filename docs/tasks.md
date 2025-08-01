@@ -227,6 +227,36 @@ After successful Phase 1.5 deployment, comprehensive testing revealed several cr
 
 **CRITICAL TIMELINE**: Must be resolved within 48 hours to restore revenue generation
 
+## ✅ MILESTONE: Usage Tracking Race Condition Resolution (August 1, 2025) - COMPLETED
+
+**CRITICAL BREAKTHROUGH**: After intensive debugging, the core usage tracking issue has been resolved, restoring the freemium business model.
+
+### ✅ Root Cause Analysis & Resolution (COMPLETED)
+- [x] **Issue Identified**: Race condition between `trackUsage()` and `getTodayUsage()` functions
+- [x] **Technical Cause**: Different user resolution logic causing read functions to return null while write functions created users
+- [x] **Database Issue**: Foreign key mismatch - `usageTracking.userId` referenced `users.id` but code used `emailCaptures.id`
+- [x] **Impact**: Persistent 0/1 usage display despite successful analysis completion
+
+### ✅ Implementation Solution (COMPLETED)
+- [x] **Shared User Resolution**: Created `resolveUserFromEmail()` function with consistent logic
+- [x] **Transaction Safety**: Wrapped user creation and emailCaptures updates in atomic transactions  
+- [x] **Database Consistency**: Fixed foreign key relationships and parameter binding errors
+- [x] **Comprehensive Logging**: Added detailed debugging and error tracking throughout
+
+### ✅ Validation & Testing (COMPLETED)
+- [x] **Fresh Email Test**: 0→1 analysis tracking works correctly ✅
+- [x] **Daily Limits Test**: Second analysis blocked with Coffee upgrade prompt ✅
+- [x] **Database State**: All tables properly linked and consistent ✅
+- [x] **Cache Tracking**: Cached analyses count towards daily limits ✅
+
+### ✅ Business Impact (ACHIEVED)
+- [x] **Revenue Protection**: Unlimited free analyses prevented
+- [x] **Freemium Model**: Daily limits enforced with upgrade messaging
+- [x] **User Experience**: Clear upgrade prompts and limit explanations
+- [x] **Database Integrity**: All usage tracking data persists correctly
+
+**Status**: 🎉 **FREEMIUM MODEL OPERATIONAL** - Core business model restored and validated
+
 ### ✅ Milestone 0.1: Authentication Flow Improvements (Days 1-3) - COMPLETED
 **Goal**: Eliminate repeated email entry and authentication confusion
 **Status**: 🎉 FULLY TESTED & PRODUCTION READY
