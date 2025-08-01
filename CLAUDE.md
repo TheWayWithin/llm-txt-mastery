@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Backend**: Railway (llm-txt-mastery-production.up.railway.app) - Express.js API with PostgreSQL  
 **Integration**: Frontend calls Railway API via CORS-enabled endpoints
 
-**Status**: ✅ FULLY OPERATIONAL - Authentication complete, customer dashboard live
+**Status**: ✅ FREEMIUM MODEL OPERATIONAL - Usage tracking restored, daily limits enforced, revenue protection active
 
 **📊 Current Project Status**: See `/docs/progress.md` for comprehensive timeline, achievements, and next priorities
 
@@ -144,6 +144,33 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
    - Issue: Cross-origin requests blocked, rate limiting failed
    - Solution: Add CORS middleware + `app.set('trust proxy', true)`
    - Learning: Railway requires trust proxy for proper request handling
+
+6. **Usage Tracking Race Condition (August 1, 2025)**
+   - Issue: `getTodayUsage()` returned null for fresh emails while `trackUsage()` created users
+   - Root Cause: Race condition between read and write functions using different user resolution logic
+   - Solution: Shared `resolveUserFromEmail()` function with atomic transactions
+   - Learning: **CRITICAL** - Ensure read and write functions use identical data access patterns
+
+### Critical Database Architecture Lessons (August 1, 2025)
+
+**MOST IMPORTANT**: When implementing usage tracking or similar features:
+
+#### Foreign Key Relationship Consistency
+- **Issue**: `usageTracking.userId` referenced `users.id` but code used `emailCaptures.id`
+- **Impact**: Silent foreign key constraint violations, data never persisted
+- **Solution**: Always verify table relationships match application logic
+- **Prevention**: Use database transactions and comprehensive error logging
+
+#### Race Conditions in User Resolution
+- **Issue**: Read functions (`getTodayUsage`) and write functions (`trackUsage`) had different user creation logic
+- **Impact**: Read functions returned null while write functions created users, causing persistent 0 counts
+- **Solution**: Extract shared user resolution logic used by both read and write operations
+- **Prevention**: Always use identical data access patterns across related functions
+
+#### Transaction Safety for Related Operations
+- **Issue**: User creation and relationship updates could fail partially
+- **Solution**: Wrap related database operations in transactions
+- **Learning**: Any multi-table operation needs atomic transaction safety
 
 ### Recent Major Improvements (July 27, 2025)
 
