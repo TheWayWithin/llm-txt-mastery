@@ -111,23 +111,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if email already exists
       const existingCapture = await storage.getEmailCapture(emailData.email);
       if (existingCapture) {
+        // CRITICAL FIX: Update tier to honor user's current selection
+        const updatedCapture = await storage.updateEmailCapture(emailData.email, {
+          tier: emailData.tier || 'starter',
+          websiteUrl: emailData.websiteUrl
+        });
+        
+        console.log(`🔄 Updated existing email ${emailData.email} tier: ${existingCapture.tier} → ${emailData.tier}`);
+        
         return res.json({ 
-          message: "Email already captured", 
-          capture: existingCapture,
-          tier: existingCapture.tier || 'starter'
+          message: "Email tier updated", 
+          capture: updatedCapture,
+          tier: emailData.tier || 'starter'
         });
       }
       
-      // Create new email capture with default tier
+      // Create new email capture with submitted tier
       const capture = await storage.createEmailCapture({
         ...emailData,
-        tier: 'starter' as any // Default to starter tier
+        tier: emailData.tier || 'starter' as any
       });
+      
+      console.log(`✅ Created new email capture for ${emailData.email} with tier: ${emailData.tier || 'starter'}`);
       
       res.json({ 
         message: "Email captured successfully", 
         capture,
-        tier: 'starter'
+        tier: emailData.tier || 'starter'
       });
     } catch (error) {
       console.error("Email capture error:", error);
