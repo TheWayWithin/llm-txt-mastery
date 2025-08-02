@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { emailCaptureSchema } from "@shared/schema";
+import { emailCaptureSchema, userRegistrationSchema } from "@shared/schema";
 import { z } from "zod";
 
 interface EmailCaptureProps {
@@ -22,20 +22,48 @@ interface EmailCaptureProps {
   isVisible: boolean;
 }
 
-type FormData = z.infer<typeof emailCaptureSchema>;
+// Create combined schema for both modes
+const quickStartSchema = emailCaptureSchema;
+const createAccountSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+  websiteUrl: z.string().url("Please enter a valid URL"),
+  tier: z.enum(["starter", "coffee", "growth", "scale"]).default("starter"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type QuickFormData = z.infer<typeof quickStartSchema>;
+type CreateFormData = z.infer<typeof createAccountSchema>;
 
 export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginRequested, prefilledEmail, isVisible }: EmailCaptureProps) {
   const { toast } = useToast();
   const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
+  const [accountMode, setAccountMode] = useState<"quick" | "create">("quick");
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(emailCaptureSchema),
+  const quickForm = useForm<QuickFormData>({
+    resolver: zodResolver(quickStartSchema),
     defaultValues: {
       email: prefilledEmail || "",
       websiteUrl: websiteUrl,
       tier: "starter",
     },
   });
+
+  const createForm = useForm<CreateFormData>({
+    resolver: zodResolver(createAccountSchema),
+    defaultValues: {
+      email: prefilledEmail || "",
+      password: "",
+      confirmPassword: "",
+      websiteUrl: websiteUrl,
+      tier: "starter",
+    },
+  });
+
+  const form = accountMode === "quick" ? quickForm : createForm;
 
   // Update form when prefilledEmail changes
   useEffect(() => {
@@ -61,36 +89,74 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
-    if (selectedTier === 'coffee') {
+  const onSubmit = async (data: QuickFormData | CreateFormData) => {
+    if (accountMode === "create") {
+      // Create account mode - register user with password
       try {
-        // First capture the email
-        await apiRequest("POST", "/api/email-capture", { ...data, tier: 'starter' }); // Keep as starter until payment
-        
-        // Then redirect to Stripe checkout
-        const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
-          email: data.email,
-          websiteUrl: data.websiteUrl
+        const registrationData = data as CreateFormData;
+        const response = await apiRequest("POST", "/api/auth/register", {
+          email: registrationData.email,
+          password: registrationData.password,
+          confirmPassword: registrationData.confirmPassword
         });
-        const checkoutData = await response.json();
         
-        if (checkoutData.url) {
-          // Redirect to Stripe checkout
-          window.location.href = checkoutData.url;
-        } else {
-          throw new Error('Failed to create checkout session');
+        if (response.ok) {
+          const authData = await response.json();
+          
+          // Store authentication tokens
+          localStorage.setItem('auth_access_token', authData.accessToken);
+          localStorage.setItem('auth_refresh_token', authData.refreshToken);
+          localStorage.setItem('auth_user', JSON.stringify(authData.user));
+          
+          toast({
+            title: "Account Created!",
+            description: "Welcome! Your account is ready.",
+          });
+          
+          // Proceed with selected tier analysis
+          onEmailCaptured(registrationData.email, selectedTier);
         }
       } catch (error) {
         toast({
-          title: "Payment Error",
-          description: error instanceof Error ? error.message : "Failed to start Coffee tier checkout",
+          title: "Registration Error",
+          description: error instanceof Error ? error.message : "Failed to create account",
           variant: "destructive",
         });
       }
     } else {
-      // For other tiers, proceed with normal flow
-      mutation.mutate({ ...data, tier: selectedTier });
+      // Quick start mode - existing flow
+      const quickData = data as QuickFormData;
+      
+      // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
+      if (selectedTier === 'coffee') {
+        try {
+          // First capture the email
+          await apiRequest("POST", "/api/email-capture", { ...quickData, tier: 'starter' }); // Keep as starter until payment
+          
+          // Then redirect to Stripe checkout
+          const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+            email: quickData.email,
+            websiteUrl: quickData.websiteUrl
+          });
+          const checkoutData = await response.json();
+          
+          if (checkoutData.url) {
+            // Redirect to Stripe checkout
+            window.location.href = checkoutData.url;
+          } else {
+            throw new Error('Failed to create checkout session');
+          }
+        } catch (error) {
+          toast({
+            title: "Payment Error",
+            description: error instanceof Error ? error.message : "Failed to start Coffee tier checkout",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // For other tiers, proceed with normal flow
+        mutation.mutate({ ...quickData, tier: selectedTier });
+      }
     }
   };
 
@@ -187,6 +253,38 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
           </RadioGroup>
         </div>
 
+        {/* Account Mode Selection */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-center space-x-4">
+            <Button
+              type="button"
+              variant={accountMode === "quick" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setAccountMode("quick")}
+              className="flex-1"
+            >
+              Quick Start
+            </Button>
+            <Button
+              type="button"
+              variant={accountMode === "create" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setAccountMode("create")}
+              className="flex-1"
+            >
+              Create Account
+            </Button>
+          </div>
+          
+          <div className="text-center text-xs text-ai-silver">
+            {accountMode === "quick" ? (
+              <span>Email only • Account created automatically after payment</span>
+            ) : (
+              <span>Full account • Dashboard access • Password required</span>
+            )}
+          </div>
+        </div>
+
         {/* Login Option */}
         {onLoginRequested && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
@@ -226,6 +324,49 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               )}
             />
 
+            {/* Password Fields - Only show in Create Account mode */}
+            {accountMode === "create" && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field}
+                          type="password"
+                          placeholder="••••••••"
+                          className="w-full"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field}
+                          type="password"
+                          placeholder="••••••••"
+                          className="w-full"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
             <div className="flex items-center justify-between pt-4">
               <div className="text-xs text-ai-silver">
                 {selectedTier === "starter" ? (
@@ -245,6 +386,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               >
                 {mutation.isPending ? (
                   "Processing..."
+                ) : accountMode === "create" ? (
+                  <>
+                    Create Account & Continue
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </>
                 ) : selectedTier === 'coffee' ? (
                   <>
                     Continue to Payment ($4.95)
