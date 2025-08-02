@@ -98,6 +98,12 @@ class AuthApiClient {
     localStorage.setItem('auth_access_token', authResponse.accessToken);
     localStorage.setItem('auth_refresh_token', authResponse.refreshToken);
     localStorage.setItem('auth_user', JSON.stringify(authResponse.user));
+    
+    // Debug logging for Coffee users
+    console.log('🔐 Tokens stored for user:', authResponse.user.email, 'tier:', authResponse.user.tier);
+    if (authResponse.user.tier === 'coffee') {
+      console.log('☕ Coffee user authentication - credits:', authResponse.user.creditsRemaining);
+    }
   }
 
   private clearTokens() {
@@ -142,7 +148,16 @@ class AuthApiClient {
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return !!this.accessToken && !!this.getStoredUser();
+    const hasToken = !!this.accessToken;
+    const hasUser = !!this.getStoredUser();
+    const isAuth = hasToken && hasUser;
+    
+    // Debug logging for authentication checks
+    if (!isAuth) {
+      console.log('🔒 Authentication check failed - token:', hasToken, 'user:', hasUser);
+    }
+    
+    return isAuth;
   }
 
   // Register new user

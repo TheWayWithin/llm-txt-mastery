@@ -36,26 +36,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Initialize auth state on mount
     const initializeAuth = async () => {
       try {
+        console.log('🔐 Initializing auth state...')
+        
         // Check if user is already authenticated
         if (authApi.isAuthenticated()) {
           const storedUser = authApi.getStoredUser()
+          console.log('📱 Found stored user:', storedUser?.email, 'tier:', storedUser?.tier)
           setUser(storedUser)
           
-          // Try to refresh user data from server
+          // Try to refresh user data from server to ensure accuracy
           try {
+            console.log('🔄 Refreshing user data from server...')
             const currentUser = await authApi.getCurrentUser()
+            console.log('✅ Server user data refreshed:', currentUser?.email, 'tier:', currentUser?.tier, 'credits:', currentUser?.creditsRemaining)
             setUser(currentUser)
           } catch (error) {
-            // If refresh fails, keep stored user data
-            console.warn('Failed to refresh user data:', error)
+            // If refresh fails, keep stored user data (important for Coffee users)
+            console.warn('⚠️ Failed to refresh user data, keeping stored data:', error)
+            // For Coffee users, stored data is often sufficient
+            if (storedUser?.tier === 'coffee') {
+              console.log('☕ Coffee user detected, using stored credentials')
+            }
           }
+        } else {
+          console.log('❌ No valid authentication found')
         }
       } catch (error) {
-        console.error('Error initializing auth:', error)
-        // Clear invalid tokens
-        await signOut()
+        console.error('💥 Error initializing auth:', error)
+        // Only clear tokens if they're actually invalid, not just unreachable
+        if (error.message?.includes('invalid') || error.message?.includes('expired')) {
+          console.log('🧹 Clearing invalid tokens')
+          await signOut()
+        }
       } finally {
         setLoading(false)
+        console.log('🏁 Auth initialization complete')
       }
     }
 

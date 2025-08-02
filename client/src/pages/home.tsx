@@ -56,10 +56,19 @@ export default function Home() {
   useEffect(() => {
     // If we're on email step and auth loading completes, check if we should skip to limits
     if (currentStep === 'email' && !loading && user && websiteUrl) {
+      console.log('🚀 Authenticated user detected, skipping email capture:', user.email, 'tier:', user.tier);
       setCurrentStep('limits');
       setShowAuthModal(false); // Close modal if it was open
     }
   }, [loading, user, currentStep, websiteUrl]);
+
+  // Check for authenticated Coffee users on initial load
+  useEffect(() => {
+    if (!loading && user && websiteUrl && currentStep === 'input') {
+      console.log('☕ Coffee user returning with URL, skipping directly to limits:', user.email);
+      setCurrentStep('limits');
+    }
+  }, [loading, user, websiteUrl, currentStep]);
 
   // Use authenticated user data if available
   const effectiveEmail = user?.email || userEmail;
@@ -159,7 +168,9 @@ export default function Home() {
               </div>
               <p className="text-green-600 mb-4">
                 {user.tier === 'coffee' 
-                  ? `Your Coffee tier is active with ${user.creditsRemaining} credits remaining.`
+                  ? `Your Coffee tier is active! ${user.creditsRemaining > 0 
+                      ? `${user.creditsRemaining} premium analyses remaining.` 
+                      : 'Ready for unlimited premium analysis!'}`
                   : user.tier === 'starter'
                   ? 'Ready for your next analysis?'
                   : `Your ${user.tier} tier gives you unlimited access to premium features.`
@@ -174,6 +185,19 @@ export default function Home() {
                     </Button>
                   </a>
                 </Link>
+                {user.tier === 'coffee' && (
+                  <Button 
+                    size="sm" 
+                    className="bg-orange-600 hover:bg-orange-700"
+                    onClick={() => {
+                      console.log('☕ Coffee user starting new analysis');
+                      setCurrentStep('input');
+                    }}
+                  >
+                    <Coffee className="h-4 w-4 mr-2" />
+                    Start New Analysis
+                  </Button>
+                )}
                 {user.tier === 'starter' && (
                   <Button 
                     size="sm" 
@@ -200,14 +224,19 @@ export default function Home() {
           <UrlInput
             onAnalysisStart={(url) => {
               setWebsiteUrl(url);
+              console.log('🌐 Analysis started for URL:', url);
+              
               // Skip email capture if user is authenticated
               if (!loading) {
                 if (user) {
+                  console.log('✅ Authenticated user, skipping email capture:', user.email, 'tier:', user.tier);
                   setCurrentStep('limits');
                 } else {
+                  console.log('👤 Non-authenticated user, showing email capture');
                   setCurrentStep('email');
                 }
               } else {
+                console.log('⏳ Auth still loading, setting email step temporarily');
                 // Will be handled by useEffect below when loading completes
                 setCurrentStep('email'); // Temporary, will be corrected by useEffect
               }
