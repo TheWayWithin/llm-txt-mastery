@@ -480,6 +480,7 @@ router.post('/check-account', async (req, res) => {
 router.post('/coffee-login', async (req, res) => {
   try {
     const { email, sessionId } = req.body;
+    console.log('☕ Coffee login attempt for:', email, 'sessionId:', sessionId);
 
     if (!email || !sessionId) {
       return res.status(400).json({
@@ -490,7 +491,10 @@ router.post('/coffee-login', async (req, res) => {
 
     // Get user by email
     const user = await authStorage.getUserByEmail(email);
+    console.log('🔍 User lookup result:', user ? `Found user ${user.email} with tier ${user.tier}` : 'User not found');
+    
     if (!user) {
+      console.log('❌ Coffee login failed: User not found for', email);
       return res.status(404).json({
         error: 'User account not found',
         code: 'USER_NOT_FOUND'
@@ -500,11 +504,14 @@ router.post('/coffee-login', async (req, res) => {
     // Verify this is a recent coffee purchase by checking if user has coffee tier
     // Additional security: only allow if user has coffee tier (updated by webhook)
     if (user.tier !== 'coffee') {
+      console.log('❌ Coffee login failed: Invalid tier for', email, '- expected coffee, got:', user.tier);
       return res.status(403).json({
         error: 'Coffee tier not found for user',
         code: 'INVALID_TIER'
       });
     }
+    
+    console.log('✅ Coffee user verified, generating tokens for:', email);
 
     // Generate tokens for auto-login
     const accessToken = generateAccessToken({
