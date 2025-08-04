@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Copy, Download, FileText, BarChart3 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { EnhancedLoading, LOADING_STATES } from "@/components/ui/enhanced-loading";
 
 interface FileGenerationProps {
   fileId: number;
@@ -71,18 +72,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
   };
 
   if (isLoading) {
-    return (
-      <Card className="bg-white shadow-sm border border-slate-200">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-innovation-teal mx-auto mb-4"></div>
-              <p className="text-ai-silver">Loading generated file...</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <EnhancedLoading state={LOADING_STATES.FILE_GENERATION} />;
   }
 
   return (

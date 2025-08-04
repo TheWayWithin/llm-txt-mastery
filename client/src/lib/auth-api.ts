@@ -238,6 +238,12 @@ class AuthApiClient {
       body: JSON.stringify({ password }),
     });
   }
+
+  // Emergency method to clear tokens (for race condition recovery)
+  clearAuthTokens(): void {
+    console.log('🧹 Emergency token cleanup triggered')
+    this.clearTokens()
+  }
 }
 
 // Export singleton instance

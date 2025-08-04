@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, User, Settings, Coffee } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Brain, User, Settings, Coffee, HelpCircle } from "lucide-react";
 import { AuthNav } from "@/components/AuthNav";
 import UrlInput from "@/components/url-input";
 import EmailCapture from "@/components/email-capture";
@@ -12,118 +10,102 @@ import FileGeneration from "@/components/file-generation";
 import TierLimitsDisplay from "@/components/tier-limits-display";
 import UsageDisplay from "@/components/usage-display";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { ProgressBreadcrumb, FLOW_STEPS } from "@/components/ui/progress-breadcrumb";
+import { EnhancedLoading, LOADING_STATES } from "@/components/ui/enhanced-loading";
+import { useFlowStateMachine } from "@/hooks/useFlowStateMachine";
 import { DiscoveredPage } from "@shared/schema";
-import { useLocation, Link } from "wouter";
+import { Link } from "wouter";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorDisplay from "@/components/ErrorDisplay";
+import ResetButton from "@/components/ResetButton";
+import { QuickHelp } from "@/components/HelpSystem";
 
 export default function Home() {
-  const { user, loading } = useAuth();
-  const [location] = useLocation();
-  const [currentStep, setCurrentStep] = useState<'input' | 'email' | 'limits' | 'analysis' | 'review' | 'generation'>('input');
-  const [analysisId, setAnalysisId] = useState<number | null>(null);
-  const [discoveredPages, setDiscoveredPages] = useState<DiscoveredPage[]>([]);
-  const [websiteUrl, setWebsiteUrl] = useState<string>("");
-  const [userEmail, setUserEmail] = useState<string>("");
-  const [userTier, setUserTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
-  const [generatedFileId, setGeneratedFileId] = useState<number | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  // Check for URL parameters (from coffee success redirect or rerun analysis)
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1] || '');
-    const prefilledUrl = urlParams.get('url');
-    const prefilledEmail = urlParams.get('email');
-    const isCoffeeReturn = urlParams.get('coffee') === 'true';
-    const isRerun = urlParams.get('rerun') === 'true';
+  // Replace all complex state management with the state machine
+  const {
+    // State
+    currentState,
+    websiteUrl,
+    userEmail,
+    userTier,
+    analysisId,
+    discoveredPages,
+    generatedFileId,
+    user,
+    authLoading,
+    showAuthModal,
+    progress,
     
-    if (prefilledUrl) {
-      setWebsiteUrl(prefilledUrl);
-      
-      // If it's a rerun and user is authenticated, skip directly to limits
-      if (isRerun && user) {
-        setCurrentStep('limits');
-      }
-    }
+    // Computed properties
+    effectiveEmail,
+    effectiveTier,
     
-    // If returning from coffee purchase, set tier and skip to limits
-    if (isCoffeeReturn && prefilledEmail) {
-      setUserTier('coffee');
-      setUserEmail(prefilledEmail);
-      setCurrentStep('limits');
-    }
-  }, [location, user]);
-
-  // Handle authentication loading completion
-  useEffect(() => {
-    // If we're on email step and auth loading completes, check if we should skip to limits
-    if (currentStep === 'email' && !loading && user && websiteUrl) {
-      console.log('🚀 Authenticated user detected, skipping email capture:', user.email, 'tier:', user.tier);
-      setCurrentStep('limits');
-      setShowAuthModal(false); // Close modal if it was open
-    }
-  }, [loading, user, currentStep, websiteUrl]);
-
-  // Check for authenticated Coffee users on initial load
-  useEffect(() => {
-    if (!loading && user && websiteUrl && currentStep === 'input') {
-      console.log('☕ Coffee user returning with URL, skipping directly to limits:', user.email);
-      setCurrentStep('limits');
-    }
-  }, [loading, user, websiteUrl, currentStep]);
-
-  // Use authenticated user data if available
-  const effectiveEmail = user?.email || userEmail;
-  const effectiveTier = user?.tier || userTier;
+    // Component visibility
+    visibility,
+    
+    // Actions
+    actions
+  } = useFlowStateMachine();
 
   const handleAnalysisComplete = (id: number, pages: DiscoveredPage[]) => {
-    setAnalysisId(id);
-    setDiscoveredPages(pages);
-    setCurrentStep('review');
+    actions.completeAnalysis(id, pages);
   };
 
   const handleFileGenerated = (fileId: number) => {
-    setGeneratedFileId(fileId);
-    setCurrentStep('generation');
+    actions.generateFile(fileId);
   };
 
   const resetWorkflow = () => {
-    setCurrentStep('input');
-    setAnalysisId(null);
-    setDiscoveredPages([]);
-    setWebsiteUrl("");
-    setUserEmail("");
-    setUserTier("starter");
-    setGeneratedFileId(null);
+    actions.resetWorkflow();
   };
 
   const handleViewAnalysisDetails = () => {
-    setCurrentStep('review');
+    actions.viewAnalysisDetails();
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-mastery-blue rounded-lg flex items-center justify-center">
-                <Brain className="text-white text-lg" />
+    <ErrorBoundary onReset={resetWorkflow}>
+      <div className="min-h-screen bg-slate-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-mastery-blue rounded-lg flex items-center justify-center">
+                  <Brain className="text-white text-lg" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-mastery-blue">LLM.txt Mastery</h1>
+                  <p className="text-sm text-ai-silver">Expert-Crafted AI Content Accessibility</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-mastery-blue">LLM.txt Mastery</h1>
-                <p className="text-sm text-ai-silver">Expert-Crafted AI Content Accessibility</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-6">
-              <AuthNav />
-              <div className="text-right hidden md:block">
-                <p className="text-sm text-ai-silver">Created by AI Search Mastery</p>
-                <p className="text-xs text-ai-silver">MASTERY-AI Framework Developer</p>
+              <div className="flex items-center space-x-4">
+                {/* Help & Reset Actions */}
+                {(currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING') && (
+                  <div className="flex items-center space-x-2">
+                    <QuickHelp context={
+                      currentState === 'EMAIL_CAPTURE' ? 'email-capture' :
+                      currentState === 'ANALYSIS' ? 'analysis' :
+                      currentState === 'REVIEW' ? 'review' :
+                      currentState === 'GENERATION' ? 'generation' :
+                      currentState === 'ERROR' ? 'error' : 'url-input'
+                    } />
+                    <ResetButton
+                      onReset={resetWorkflow}
+                      variant="header"
+                      showConfirmation={true}
+                    />
+                  </div>
+                )}
+                <AuthNav />
+                <div className="text-right hidden md:block">
+                  <p className="text-sm text-ai-silver">Created by AI Search Mastery</p>
+                  <p className="text-xs text-ai-silver">MASTERY-AI Framework Developer</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -190,8 +172,8 @@ export default function Home() {
                     size="sm" 
                     className="bg-orange-600 hover:bg-orange-700"
                     onClick={() => {
-                      console.log('☕ Coffee user starting new analysis');
-                      setCurrentStep('input');
+                      console.log('☕ Coffee user starting new analysis - should bypass tier limits');
+                      actions.resetWorkflow();
                     }}
                   >
                     <Coffee className="h-4 w-4 mr-2" />
@@ -202,7 +184,7 @@ export default function Home() {
                   <Button 
                     size="sm" 
                     className="bg-orange-600 hover:bg-orange-700"
-                    onClick={() => setCurrentStep('input')}
+                    onClick={() => actions.resetWorkflow()}
                   >
                     <Coffee className="h-4 w-4 mr-2" />
                     Upgrade to Coffee
@@ -213,89 +195,96 @@ export default function Home() {
           </section>
         )}
 
+        {/* Progress Breadcrumb - Show when user has started the flow */}
+        {currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING' && (
+          <ProgressBreadcrumb
+            steps={FLOW_STEPS}
+            currentStep={progress.currentStep}
+            completedSteps={progress.completedSteps}
+            className="mb-8"
+          />
+        )}
+
         {/* Progressive Steps */}
         <div className="space-y-8">
+          {/* Error State Display */}
+          {visibility.error && error && (
+            <ErrorDisplay
+              error={error}
+              onRetry={() => actions.retryCurrentOperation()}
+              onRecover={(targetState) => actions.recoverFromError(targetState)}
+              onReset={resetWorkflow}
+              retryCount={retryCount}
+              maxRetries={3}
+            />
+          )}
+
           {/* Usage Display for logged in users */}
-          {effectiveEmail && (
+          {effectiveEmail && !visibility.error && (
             <UsageDisplay userEmail={effectiveEmail} />
           )}
           
           {/* Step 1: URL Input */}
           <UrlInput
             onAnalysisStart={(url) => {
-              setWebsiteUrl(url);
               console.log('🌐 Analysis started for URL:', url);
-              
-              // Skip email capture if user is authenticated
-              if (!loading) {
-                if (user) {
-                  console.log('✅ Authenticated user, skipping email capture:', user.email, 'tier:', user.tier);
-                  setCurrentStep('limits');
-                } else {
-                  console.log('👤 Non-authenticated user, showing email capture');
-                  setCurrentStep('email');
-                }
-              } else {
-                console.log('⏳ Auth still loading, setting email step temporarily');
-                // Will be handled by useEffect below when loading completes
-                setCurrentStep('email'); // Temporary, will be corrected by useEffect
-              }
+              actions.submitUrl(url);
             }}
-            isVisible={currentStep === 'input'}
+            isVisible={visibility.urlInput}
             prefilledUrl={websiteUrl}
           />
 
           {/* Loading state during auth check */}
-          {currentStep === 'email' && loading && (
-            <Card className="w-full max-w-2xl mx-auto">
-              <CardContent className="p-8 text-center">
-                <div className="animate-spin w-8 h-8 border-2 border-mastery-blue border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-ai-silver">Checking authentication status...</p>
-              </CardContent>
-            </Card>
+          {visibility.authLoading && (
+            <EnhancedLoading 
+              state={LOADING_STATES.AUTH_CHECK}
+            />
           )}
 
           {/* Step 2: Email Capture (only for non-authenticated users) */}
-          {currentStep === 'email' && !loading && !user && (
+          {visibility.emailCapture && (
             <EmailCapture
               websiteUrl={websiteUrl}
               onEmailCaptured={(email, tier) => {
-                setUserEmail(email);
-                setUserTier(tier);
-                setCurrentStep('limits');
+                actions.captureEmail(email, tier);
               }}
               onLoginRequested={() => {
-                setShowAuthModal(true);
+                actions.openAuthModal();
               }}
+              onReset={resetWorkflow}
               prefilledEmail={user?.email || userEmail}
-              isVisible={currentStep === 'email'}
+              isVisible={visibility.emailCapture}
             />
           )}
 
           {/* Step 3: Tier Limits Check */}
-          {currentStep === 'limits' && (
+          {visibility.tierLimits && (
             <TierLimitsDisplay
               url={websiteUrl}
               email={effectiveEmail}
-              onProceed={() => setCurrentStep('analysis')}
-              isVisible={currentStep === 'limits'}
+              onProceed={() => actions.proceedToAnalysis()}
+              isVisible={visibility.tierLimits}
             />
           )}
 
           {/* Step 4: Content Analysis */}
-          {currentStep === 'analysis' && (
+          {visibility.analysis && (
             <ContentAnalysis
               websiteUrl={websiteUrl}
               userEmail={effectiveEmail}
               onAnalysisComplete={handleAnalysisComplete}
+              onReset={resetWorkflow}
               useAI={effectiveTier !== 'starter'}
+              onProgressUpdate={(stage, totalPages, processedPages) => {
+                actions.updateAnalysisProgress(stage, totalPages, processedPages);
+              }}
             />
           )}
 
           {/* Step 5: Content Review */}
-          {currentStep === 'review' && analysisId && (
+          {visibility.review && (
             <ContentReview
-              analysisId={analysisId}
+              analysisId={analysisId!}
               discoveredPages={discoveredPages}
               onFileGenerated={handleFileGenerated}
               onStartOver={resetWorkflow}
@@ -303,9 +292,9 @@ export default function Home() {
           )}
 
           {/* Step 6: File Generation */}
-          {currentStep === 'generation' && generatedFileId && (
+          {visibility.generation && (
             <FileGeneration
-              fileId={generatedFileId}
+              fileId={generatedFileId!}
               analysisId={analysisId || undefined}
               onStartOver={resetWorkflow}
               onViewAnalysis={handleViewAnalysisDetails}
@@ -343,49 +332,50 @@ export default function Home() {
             </CardContent>
           </Card>
         </section>
-      </main>
+        </main>
 
-      {/* Footer */}
-      <footer className="bg-framework-black text-white py-12 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
-              <p className="text-sm text-slate-300">
-                Expert-crafted AI content accessibility tools built by the creator of the MASTERY-AI Framework.
-              </p>
+        {/* Footer */}
+        <footer className="bg-framework-black text-white py-12 mt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
+                <p className="text-sm text-slate-300">
+                  Expert-crafted AI content accessibility tools built by the creator of the MASTERY-AI Framework.
+                </p>
+              </div>
+              <div>
+                <h5 className="font-semibold mb-4">Resources</h5>
+                <ul className="text-sm text-slate-300 space-y-2">
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Documentation</a></li>
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Best Practices</a></li>
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">API Reference</a></li>
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Support</a></li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-semibold mb-4">AI Search Mastery</h5>
+                <ul className="text-sm text-slate-300 space-y-2">
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Main Website</a></li>
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">MASTERY-AI Framework</a></li>
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Blog</a></li>
+                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Contact</a></li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <h5 className="font-semibold mb-4">Resources</h5>
-              <ul className="text-sm text-slate-300 space-y-2">
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">Best Practices</a></li>
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">AI Search Mastery</h5>
-              <ul className="text-sm text-slate-300 space-y-2">
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">Main Website</a></li>
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">MASTERY-AI Framework</a></li>
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-innovation-teal transition-colors">Contact</a></li>
-              </ul>
+            <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
+              <p>&copy; 2024 AI Search Mastery. All rights reserved. Built with systematic precision.</p>
             </div>
           </div>
-          <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
-            <p>&copy; 2024 AI Search Mastery. All rights reserved. Built with systematic precision.</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
 
-      {/* Authentication Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        defaultMode="login"
-      />
-    </div>
+        {/* Authentication Modal */}
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => actions.closeAuthModal()}
+          defaultMode="login"
+        />
+      </div>
+    </ErrorBoundary>
   );
 }

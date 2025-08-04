@@ -28,7 +28,7 @@ async function fetchWithTimeout(url: string, options: any = {}, timeoutMs: numbe
 // Tier configurations
 export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
   starter: {
-    dailyAnalyses: 1,
+    dailyAnalyses: 3,
     maxPagesPerAnalysis: 20, // Reduced from 50 to encourage upgrades
     aiPagesLimit: 0,
     cacheDurationDays: 30,

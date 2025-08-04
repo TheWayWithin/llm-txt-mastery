@@ -11,6 +11,13 @@
 - **Database**: Railway PostgreSQL (managed)
 - **Status**: ✅ **FREEMIUM MODEL OPERATIONAL** - Usage tracking restored, revenue systems functional
 
+## 📋 Documentation Structure
+- **project-plan.md**: Single source of truth for current sprint coordination and active priorities
+- **docs/progress.md**: Comprehensive historical timeline, achievements, and technical reference  
+- **docs/tasks-archive.md**: Archived detailed technical specifications from development phases (historical reference)
+
+*For current work coordination, see project-plan.md. This document provides the complete historical context and technical implementation details.*
+
 ## Major Milestones Timeline
 
 ### July 17, 2025: Technical Foundation Complete

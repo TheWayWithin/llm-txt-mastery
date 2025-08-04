@@ -128,7 +128,8 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
             <Button
               onClick={onSwitchToLogin}
               variant="outline"
-              className="w-full"
+              className="w-full min-h-[48px] px-6 py-3"
+              size="default"
             >
               Back to Sign In
             </Button>
@@ -207,9 +208,9 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
-                {showPassword ? <EyeOff /> : <Eye />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {passwordValidation && passwordValidation.errors.length > 0 && (
@@ -243,9 +244,9 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
-                {showConfirmPassword ? <EyeOff /> : <Eye />}
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {confirmPassword && password !== confirmPassword && (
@@ -262,7 +263,8 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full min-h-[48px] px-6 py-3"
+            size="default"
             disabled={
               loading ||
               emailAvailable === false ||
@@ -282,7 +284,7 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
             Already have an account?{" "}
             <button
               onClick={onSwitchToLogin}
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-blue-600 hover:text-blue-800 font-medium min-h-[44px] px-2 py-2"
             >
               Sign in
             </button>

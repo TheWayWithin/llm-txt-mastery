@@ -82,9 +82,9 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword }: LoginF
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
-                {showPassword ? <EyeOff /> : <Eye />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -93,7 +93,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword }: LoginF
             <button
               type="button"
               onClick={onSwitchToForgotPassword}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-blue-600 hover:text-blue-800 min-h-[44px] px-2 py-2"
               disabled={loading}
             >
               Forgot password?
@@ -102,7 +102,8 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword }: LoginF
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full min-h-[48px] px-6 py-3"
+            size="default"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign In"}
@@ -114,7 +115,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword }: LoginF
             Don't have an account?{" "}
             <button
               onClick={onSwitchToSignup}
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-blue-600 hover:text-blue-800 font-medium min-h-[44px] px-2 py-2"
             >
               Sign up
             </button>
