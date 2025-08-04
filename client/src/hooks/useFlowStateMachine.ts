@@ -99,14 +99,17 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       const { user } = event;
       const newContext = { ...context, user, authLoading: false };
 
+      console.log(`🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}, hasUrl=${!!context.websiteUrl}, url=${context.websiteUrl}`);
+
       // Smart routing based on auth state and URL
       if (context.currentState === 'INITIALIZING' || context.currentState === 'AUTH_CHECK') {
         if (context.websiteUrl) {
-          // URL already set, decide next step based on user
+          // URL already set, decide next step based on user authentication
           if (user) {
+            console.log(`✅ AUTH_RESOLVED: Authenticated user found with tier ${user.tier}`);
             // Coffee tier users skip TIER_LIMITS and go directly to ANALYSIS for optimal experience
             if (user.tier === 'coffee') {
-              console.log('☕ Coffee tier user detected - bypassing limits check, proceeding directly to analysis');
+              console.log('☕ AUTH_RESOLVED: Coffee tier user detected - bypassing limits check, proceeding directly to analysis');
               const nextState = 'ANALYSIS';
               return { 
                 ...newContext, 
@@ -114,7 +117,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
                 progress: updateProgressForState(nextState, newContext.progress)
               };
             } else {
-              console.log('✅ Auth resolved with user, proceeding to limits');
+              console.log('✅ AUTH_RESOLVED: Regular authenticated user, proceeding to limits display');
               const nextState = 'TIER_LIMITS';
               return { 
                 ...newContext, 
@@ -123,7 +126,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
               };
             }
           } else {
-            console.log('👤 Auth resolved without user, proceeding to email capture');
+            console.log('👤 AUTH_RESOLVED: No authenticated user found, proceeding to email capture');
             const nextState = 'EMAIL_CAPTURE';
             return { 
               ...newContext, 
@@ -132,7 +135,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
             };
           }
         } else {
-          console.log('🌐 Auth resolved, ready for URL input');
+          console.log('🌐 AUTH_RESOLVED: No URL provided, ready for URL input');
           const nextState = 'URL_INPUT';
           return { 
             ...newContext, 
@@ -144,8 +147,9 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
 
       // If we're waiting for auth during email capture, resolve appropriately
       if (context.currentState === 'EMAIL_CAPTURE' && user && context.websiteUrl) {
+        console.log(`🔄 AUTH_RESOLVED: User authenticated while in EMAIL_CAPTURE state, tier=${user.tier}`);
         if (user.tier === 'coffee') {
-          console.log('☕ Coffee tier auth resolved during email capture - proceeding directly to analysis');
+          console.log('☕ AUTH_RESOLVED: Coffee tier auth resolved during email capture - proceeding directly to analysis');
           const nextState = 'ANALYSIS';
           return { 
             ...newContext, 
@@ -154,7 +158,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
             progress: updateProgressForState(nextState, newContext.progress)
           };
         } else {
-          console.log('🚀 Auth resolved during email capture, skipping to limits');
+          console.log('🚀 AUTH_RESOLVED: Regular user auth resolved during email capture, skipping to limits');
           const nextState = 'TIER_LIMITS';
           return { 
             ...newContext, 
@@ -165,27 +169,31 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         }
       }
 
+      console.log('🔄 AUTH_RESOLVED: No state change needed, returning updated context');
       return newContext;
     }
 
     case 'URL_SUBMITTED': {
       const newContext = { ...context, websiteUrl: event.url };
 
+      console.log(`🌐 URL_SUBMITTED: url=${event.url}, authLoading=${context.authLoading}, hasUser=${!!context.user}, userTier=${context.user?.tier || 'none'}`);
+
       // Determine next state based on auth status
       if (context.authLoading) {
-        console.log('⏳ URL submitted while auth loading, checking auth first');
+        console.log('⏳ URL_SUBMITTED: Auth is still loading, transitioning to AUTH_CHECK to wait');
         return { ...newContext, currentState: 'AUTH_CHECK' };
       } else if (context.user) {
+        console.log(`✅ URL_SUBMITTED: User is authenticated with tier ${context.user.tier}`);
         // Coffee tier users skip TIER_LIMITS for optimal experience
         if (context.user.tier === 'coffee') {
-          console.log('☕ URL submitted with Coffee tier user - proceeding directly to analysis');
+          console.log('☕ URL_SUBMITTED: Coffee tier user - proceeding directly to analysis');
           return { ...newContext, currentState: 'ANALYSIS' };
         } else {
-          console.log('✅ URL submitted with authenticated user, proceeding to limits');
+          console.log('✅ URL_SUBMITTED: Regular authenticated user, proceeding to limits display');
           return { ...newContext, currentState: 'TIER_LIMITS' };
         }
       } else {
-        console.log('👤 URL submitted without auth, proceeding to email capture');
+        console.log('👤 URL_SUBMITTED: No authenticated user, proceeding to email capture');
         return { ...newContext, currentState: 'EMAIL_CAPTURE' };
       }
     }
@@ -476,24 +484,26 @@ export function useFlowStateMachine() {
   // Handle URL parameter changes
   useEffect(() => {
     if (urlParams.url && urlParams.url !== context.websiteUrl) {
-      console.log('🌐 URL parameter detected:', urlParams.url);
+      console.log(`🌐 URL parameter detected: ${urlParams.url}, currentState: ${context.currentState}, authLoading: ${authLoading}, hasUser: ${!!user}`);
       dispatch({ type: 'URL_SUBMITTED', url: urlParams.url });
     }
 
     if (urlParams.email && urlParams.email !== context.userEmail) {
-      console.log('📧 Email parameter detected:', urlParams.email);
+      console.log(`📧 Email parameter detected: ${urlParams.email}, isCoffeeReturn: ${urlParams.isCoffeeReturn}`);
       const tier = urlParams.isCoffeeReturn ? 'coffee' : 'starter';
       dispatch({ type: 'EMAIL_CAPTURED', email: urlParams.email, tier });
     }
-  }, [urlParams, context.websiteUrl, context.userEmail]);
+  }, [urlParams, context.websiteUrl, context.userEmail, context.currentState, authLoading, user]);
 
   // Handle auth state changes
   useEffect(() => {
     if (!authLoading) {
-      console.log('🔐 Auth loading completed, user:', user?.email || 'none');
+      console.log(`🔐 Auth loading completed, user: ${user?.email || 'none'}, tier: ${user?.tier || 'none'}, currentState: ${context.currentState}`);
       dispatch({ type: 'AUTH_RESOLVED', user });
+    } else {
+      console.log(`⏳ Auth still loading, currentState: ${context.currentState}`);
     }
-  }, [authLoading, user]);
+  }, [authLoading, user, context.currentState]);
 
   // Computed properties for convenience
   const effectiveEmail = user?.email || context.userEmail;
@@ -510,6 +520,9 @@ export function useFlowStateMachine() {
     generation: context.currentState === 'GENERATION' && context.generatedFileId !== null,
     error: context.currentState === 'ERROR'
   };
+
+  // Debug visibility logic for troubleshooting
+  console.log(`👁️ VISIBILITY: state=${context.currentState}, authLoading=${authLoading}, hasUser=${!!user}, emailCapture=${visibility.emailCapture}, tierLimits=${visibility.tierLimits}, analysis=${visibility.analysis}`);
 
   // Action creators
   const actions = {
