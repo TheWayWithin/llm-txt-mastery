@@ -35,6 +35,8 @@ export default function Home() {
     authLoading,
     showAuthModal,
     progress,
+    error,
+    retryCount,
     
     // Computed properties
     effectiveEmail,
