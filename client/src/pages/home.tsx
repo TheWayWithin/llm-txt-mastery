@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, User, Settings, Coffee, HelpCircle } from "lucide-react";
@@ -49,13 +50,16 @@ export default function Home() {
     actions
   } = useFlowStateMachine();
 
-  const handleAnalysisComplete = (id: number, pages: DiscoveredPage[]) => {
+  // Stable function reference to prevent infinite loops
+  // Uses stable dispatch pattern to avoid dependency on actions object
+  const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
+    console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
     actions.completeAnalysis(id, pages);
-  };
+  }, [actions.completeAnalysis]);
 
-  const handleFileGenerated = (fileId: number) => {
+  const handleFileGenerated = useCallback((fileId: number) => {
     actions.generateFile(fileId);
-  };
+  }, [actions.generateFile]);
 
   const resetWorkflow = () => {
     actions.resetWorkflow();

@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useMemo } from 'react';
+import { useReducer, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { DiscoveredPage } from '@shared/schema';
@@ -80,6 +80,8 @@ export interface FlowContext {
   progress: ProgressContext;
   error: ErrorContext | null;
   retryCount: number;
+  lastProcessedAnalysisId: number | null; // Track last processed analysis to prevent duplicates
+  eventCounter: Map<string, number>; // Circuit breaker for runaway events
 }
 
 // URL parameters extracted from location
@@ -92,12 +94,36 @@ interface URLParams {
 
 // State machine reducer
 function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
-  console.log(`🔄 State transition: ${context.currentState} + ${event.type}`);
+  // Circuit breaker: Track event frequency to prevent runaway loops
+  const eventKey = `${context.currentState}:${event.type}`;
+  const currentCount = context.eventCounter.get(eventKey) || 0;
+  
+  // Special handling for ANALYSIS_COMPLETE - should only happen once per analysis
+  const maxEventCount = event.type === 'ANALYSIS_COMPLETE' ? 3 : 10;
+
+  if (currentCount >= maxEventCount) {
+    console.error(`🚨 CIRCUIT BREAKER: Event ${eventKey} exceeded ${maxEventCount} occurrences - ignoring`);
+    return context;
+  }
+
+  // Update event counter
+  const newEventCounter = new Map(context.eventCounter);
+  newEventCounter.set(eventKey, currentCount + 1);
+
+  // Reset counter every minute for most events, 30 seconds for critical events
+  const resetTime = event.type === 'ANALYSIS_COMPLETE' ? 30000 : 60000;
+  setTimeout(() => {
+    newEventCounter.delete(eventKey);
+  }, resetTime);
+
+  const updatedContext = { ...context, eventCounter: newEventCounter };
+
+  console.log(`🔄 State transition: ${context.currentState} + ${event.type} (count: ${currentCount + 1}/${maxEventCount})`);
 
   switch (event.type) {
     case 'AUTH_RESOLVED': {
       const { user } = event;
-      const newContext = { ...context, user, authLoading: false };
+      const newContext = { ...updatedContext, user, authLoading: false };
 
       console.log(`🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}, hasUrl=${!!context.websiteUrl}, url=${context.websiteUrl}`);
 
@@ -174,7 +200,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     }
 
     case 'URL_SUBMITTED': {
-      const newContext = { ...context, websiteUrl: event.url };
+      const newContext = { ...updatedContext, websiteUrl: event.url };
 
       console.log(`🌐 URL_SUBMITTED: url=${event.url}, authLoading=${context.authLoading}, hasUser=${!!context.user}, userTier=${context.user?.tier || 'none'}`);
 
@@ -241,11 +267,31 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     }
 
     case 'ANALYSIS_COMPLETE': {
+      // Event deduplication: Ignore if we've already processed this analysis
+      if (context.lastProcessedAnalysisId === event.analysisId) {
+        console.log(`🚫 ANALYSIS_COMPLETE ignored: Already processed analysisId=${event.analysisId}`);
+        return context;
+      }
+
+      // Additional safety: Only allow transition to REVIEW from ANALYSIS state
+      if (context.currentState !== 'ANALYSIS') {
+        console.log(`🚫 ANALYSIS_COMPLETE ignored: Invalid state transition from ${context.currentState}`);
+        return context;
+      }
+
+      // Extra safety: Check if we're already in REVIEW with the same analysisId
+      if (context.currentState === 'REVIEW' && context.analysisId === event.analysisId) {
+        console.log(`🚫 ANALYSIS_COMPLETE ignored: Already in REVIEW state with same analysisId=${event.analysisId}`);
+        return context;
+      }
+
+      console.log(`✅ ANALYSIS_COMPLETE processed: analysisId=${event.analysisId}, pages=${event.pages.length}`);
       const nextState = 'REVIEW';
       return {
-        ...context,
+        ...updatedContext,
         analysisId: event.analysisId,
         discoveredPages: event.pages,
+        lastProcessedAnalysisId: event.analysisId,
         currentState: nextState,
         progress: updateProgressForState(nextState, context.progress)
       };
@@ -281,6 +327,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         generatedFileId: null,
         error: null,
         retryCount: 0,
+        lastProcessedAnalysisId: null,
+        eventCounter: new Map(),
         progress: createInitialProgress()
       };
     }
@@ -463,7 +511,9 @@ function createInitialState(urlParams: URLParams, authLoading: boolean): FlowCon
     showAuthModal: false,
     progress: createInitialProgress(),
     error: null,
-    retryCount: 0
+    retryCount: 0,
+    lastProcessedAnalysisId: null,
+    eventCounter: new Map()
   };
 }
 
@@ -524,8 +574,8 @@ export function useFlowStateMachine() {
   // Debug visibility logic for troubleshooting
   console.log(`👁️ VISIBILITY: state=${context.currentState}, authLoading=${authLoading}, hasUser=${!!user}, emailCapture=${visibility.emailCapture}, tierLimits=${visibility.tierLimits}, analysis=${visibility.analysis}`);
 
-  // Action creators
-  const actions = {
+  // Stable action creators with useCallback to prevent unnecessary re-renders
+  const actions = useMemo(() => ({
     submitUrl: (url: string) => dispatch({ type: 'URL_SUBMITTED', url }),
     captureEmail: (email: string, tier: UserTier) => dispatch({ type: 'EMAIL_CAPTURED', email, tier }),
     proceedToAnalysis: () => dispatch({ type: 'PROCEED_TO_ANALYSIS' }),
@@ -543,7 +593,7 @@ export function useFlowStateMachine() {
     reportError: (error: ErrorContext) => dispatch({ type: 'ERROR_OCCURRED', error }),
     recoverFromError: (targetState?: FlowState) => dispatch({ type: 'RECOVER_FROM_ERROR', targetState }),
     retryCurrentOperation: () => dispatch({ type: 'RETRY_CURRENT_OPERATION' })
-  };
+  }), []);
 
   return {
     // State
