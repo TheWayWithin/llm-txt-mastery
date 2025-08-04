@@ -11,6 +11,12 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "test:auth": "playwright test auth-persistence",
+    "test:auth:debug": "playwright test auth-persistence --debug --headed",
     "db:push": "drizzle-kit push",
     "migrate": "node scripts/migrate.js run postgres",
     "migrate:supabase": "node scripts/migrate.js run supabase",
@@ -113,6 +119,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@replit/vite-plugin-cartographer": "^0.2.7",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
