@@ -112,13 +112,17 @@ export default function ContentAnalysis({
       // Stop polling when analysis is complete
       const data = query?.state?.data;
       return data?.status === "completed" || data?.status === "failed" ? false : 2000;
-    },
-    onError: (error) => {
+    }
+  });
+
+  // Handle query errors
+  useEffect(() => {
+    if (error) {
       console.error("Analysis polling failed:", error);
       const errorMessage = getDetailedAnalysisError(error);
       setLastError(errorMessage);
     }
-  });
+  }, [error]);
 
   useEffect(() => {
     if (websiteUrl && userEmail) {
@@ -126,70 +130,75 @@ export default function ContentAnalysis({
     }
   }, [websiteUrl, userEmail]);
 
-  useEffect(() => {
-    if (analysisData) {
-      if (analysisData.status === "completed") {
-        setProgress(100);
-        setCurrentStepIndex(analysisSteps.length - 1);
-        setCurrentStage('finalization');
-        setCompletedStages(['discovery', 'content-fetch', 'ai-analysis']);
-        setTotalPages(analysisData.totalPagesFound);
-        setProcessedPages(analysisData.discoveredPages.length);
-        
-        // Notify parent of progress completion
-        onProgressUpdate?.('finalization', analysisData.totalPagesFound, analysisData.discoveredPages.length);
-        
-        setTimeout(() => {
-          onAnalysisComplete(analysisData.id, analysisData.discoveredPages);
-        }, 1000);
-      } else if (analysisData.status === "processing") {
-        // Enhanced progress tracking with stage updates
-        const stageMapping = [
-          { stage: 'discovery', stepIndex: 0 },
-          { stage: 'content-fetch', stepIndex: 1 },
-          { stage: 'ai-analysis', stepIndex: 2 },
-          { stage: 'finalization', stepIndex: 3 }
-        ];
-        
-        let stageIndex = 0;
-        const timer = setInterval(() => {
-          setCurrentStepIndex((prev) => {
-            if (prev < analysisSteps.length - 1) {
-              const newIndex = prev + 1;
-              setProgress(analysisSteps[newIndex].progress);
-              
-              // Update stage tracking
-              if (stageIndex < stageMapping.length) {
-                const currentStageData = stageMapping[stageIndex];
-                if (newIndex >= currentStageData.stepIndex) {
-                  setCurrentStage(currentStageData.stage);
-                  setCompletedStages(prev => {
-                    const newCompleted = [...prev];
-                    if (stageIndex > 0) {
-                      const prevStage = stageMapping[stageIndex - 1].stage;
-                      if (!newCompleted.includes(prevStage)) {
-                        newCompleted.push(prevStage);
-                      }
-                    }
-                    return newCompleted;
-                  });
-                  
-                  // Notify parent of progress
-                  onProgressUpdate?.(currentStageData.stage, totalPages, processedPages);
-                  stageIndex++;
-                }
-              }
-              
-              return newIndex;
-            }
-            return prev;
-          });
-        }, 2000);
+  // Track completion to prevent duplicate calls - using analysisId for better tracking
+  const [completedAnalysisIds, setCompletedAnalysisIds] = useState<Set<number>>(new Set());
 
-        return () => clearInterval(timer);
-      }
+  useEffect(() => {
+    if (analysisData && analysisData.status === "completed" && !completedAnalysisIds.has(analysisData.id)) {
+      console.log(`📊 Analysis completed: id=${analysisData.id}, pages=${analysisData.discoveredPages.length}`);
+      setProgress(100);
+      setCurrentStepIndex(analysisSteps.length - 1);
+      setCurrentStage('finalization');
+      setCompletedStages(['discovery', 'content-fetch', 'ai-analysis']);
+      setTotalPages(analysisData.totalPagesFound);
+      setProcessedPages(analysisData.discoveredPages.length);
+      
+      // Notify parent of progress completion
+      onProgressUpdate?.('finalization', analysisData.totalPagesFound, analysisData.discoveredPages.length);
+      
+      // Mark this specific analysis ID as completed
+      setCompletedAnalysisIds(prev => new Set([...prev, analysisData.id]));
+      
+      // Call completion callback immediately - no need for timeout
+      console.log(`🚀 Calling onAnalysisComplete: id=${analysisData.id}`);
+      onAnalysisComplete(analysisData.id, analysisData.discoveredPages);
+    } else if (analysisData && analysisData.status === "processing") {
+      // Enhanced progress tracking with stage updates
+      const stageMapping = [
+        { stage: 'discovery', stepIndex: 0 },
+        { stage: 'content-fetch', stepIndex: 1 },
+        { stage: 'ai-analysis', stepIndex: 2 },
+        { stage: 'finalization', stepIndex: 3 }
+      ];
+      
+      let stageIndex = 0;
+      const timer = setInterval(() => {
+        setCurrentStepIndex((prev) => {
+          if (prev < analysisSteps.length - 1) {
+            const newIndex = prev + 1;
+            setProgress(analysisSteps[newIndex].progress);
+            
+            // Update stage tracking
+            if (stageIndex < stageMapping.length) {
+              const currentStageData = stageMapping[stageIndex];
+              if (newIndex >= currentStageData.stepIndex) {
+                setCurrentStage(currentStageData.stage);
+                setCompletedStages(prev => {
+                  const newCompleted = [...prev];
+                  if (stageIndex > 0) {
+                    const prevStage = stageMapping[stageIndex - 1].stage;
+                    if (!newCompleted.includes(prevStage)) {
+                      newCompleted.push(prevStage);
+                    }
+                  }
+                  return newCompleted;
+                });
+                
+                // Notify parent of progress (using current state values)
+                onProgressUpdate?.(currentStageData.stage, totalPages, processedPages);
+                stageIndex++;
+              }
+            }
+            
+            return newIndex;
+          }
+          return prev;
+        });
+      }, 2000);
+
+      return () => clearInterval(timer);
     }
-  }, [analysisData, onAnalysisComplete, onProgressUpdate, totalPages, processedPages]);
+  }, [analysisData?.status, analysisData?.id, completedAnalysisIds, onAnalysisComplete, onProgressUpdate]);
 
   const getStepIcon = (stepIndex: number) => {
     if (stepIndex < currentStepIndex) {
