@@ -26,7 +26,7 @@ export const getTierDisplayName = (tier: string): string => {
 export const getTierDescription = (tier: string): string => {
   switch (tier) {
     case 'starter':
-      return '1 free analysis per day, up to 20 pages';
+      return '3 free analyses per day, up to 20 pages';
     case 'coffee':
       return 'Unlimited AI analysis, up to 200 pages';
     case 'growth':

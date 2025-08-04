@@ -119,7 +119,7 @@ describe('EmailCapture Component', () => {
     expect(screen.getByText('Scale ($99/mo)')).toBeInTheDocument()
     
     // Check tier descriptions
-    expect(screen.getByText(/1 analysis per day.*20 pages max.*HTML extraction.*Smart categorization/)).toBeInTheDocument()
+    expect(screen.getByText(/3 analyses per day.*20 pages max.*HTML extraction.*Smart categorization/)).toBeInTheDocument()
     expect(screen.getByText(/1 premium analysis.*200 pages.*Full AI-enhanced.*No subscription/)).toBeInTheDocument()
   })
 

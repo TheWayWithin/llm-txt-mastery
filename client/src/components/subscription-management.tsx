@@ -190,11 +190,12 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               <Button 
                 onClick={handleManageSubscription}
                 variant="outline"
-                className="w-full"
+                className="w-full min-h-[48px] px-6 py-3"
+                size="default"
               >
-                <CreditCard className="h-4 w-4 mr-2" />
+                <CreditCard className="h-5 w-5 mr-2" />
                 Manage Billing
-                <ExternalLink className="h-4 w-4 ml-2" />
+                <ExternalLink className="h-5 w-5 ml-2" />
               </Button>
             </div>
           ) : (
@@ -209,56 +210,56 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               {currentTier === 'starter' && (
                 <div className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-orange-800">☕ Try Coffee Analysis</h4>
+                    <h4 className="font-medium text-orange-800">☕ Unlock Premium Analysis</h4>
                     <span className="text-lg font-bold text-orange-600">$4.95</span>
                   </div>
                   <p className="text-sm text-orange-700 mb-3">
-                    Get 1 premium analysis with AI enhancement (200 pages) • No subscription required
+                    Get professional-grade AI analysis • 200 pages • No subscription, just one coffee!
                   </p>
                   <Button 
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                    size="sm"
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white min-h-[48px] px-6 py-3"
+                    size="default"
                   >
                     {upgrading && selectedTier === 'coffee' ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
                         Processing...
                       </>
                     ) : (
-                      'Buy Coffee Analysis'
+                      '☕ Buy Me Coffee'
                     )}
                   </Button>
                 </div>
               )}
               {currentTier === 'coffee' && creditsRemaining === 0 && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <h4 className="font-medium text-orange-800 mb-2">Out of Credits?</h4>
+                  <h4 className="font-medium text-orange-800 mb-2">☕ Want Another Analysis?</h4>
                   <p className="text-sm text-orange-700 mb-3">
-                    Buy another coffee analysis or upgrade to unlimited access
+                    Each coffee gets you one premium analysis, or go unlimited for continuous access
                   </p>
                   <Button 
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
                     variant="outline"
-                    className="w-full border-orange-200 text-orange-600 hover:bg-orange-50"
-                    size="sm"
+                    className="w-full border-orange-200 text-orange-600 hover:bg-orange-50 min-h-[48px] px-6 py-3"
+                    size="default"
                   >
                     {upgrading && selectedTier === 'coffee' ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
                         Processing...
                       </>
                     ) : (
-                      'Buy Another Coffee Analysis ($4.95)'
+                      '☕ Another Coffee Please ($4.95)'
                     )}
                   </Button>
                 </div>
               )}
               {currentTier !== 'scale' && currentTier !== 'coffee' && (
                 <p className="text-sm text-slate-500">
-                  Upgrade to unlock unlimited analyses and advanced features.
+                  🚀 Upgrade to unlock unlimited analyses and advanced AI features.
                 </p>
               )}
             </div>
@@ -283,20 +284,21 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               <CardContent>
                 <ul className="space-y-2 mb-4">
                   {TIER_PRICING.growth.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                      {feature}
+                    <li key={index} className="flex items-start text-sm py-1">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <Button 
                   onClick={() => handleUpgrade('growth')}
                   disabled={upgrading}
-                  className="w-full"
+                  className="w-full min-h-[48px] px-6 py-3"
+                  size="default"
                 >
                   {upgrading && selectedTier === 'growth' ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
                       Processing...
                     </>
                   ) : (
@@ -321,20 +323,21 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               <CardContent>
                 <ul className="space-y-2 mb-4">
                   {TIER_PRICING.scale.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                      {feature}
+                    <li key={index} className="flex items-start text-sm py-1">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <Button 
                   onClick={() => handleUpgrade('scale')}
                   disabled={upgrading}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full bg-purple-600 hover:bg-purple-700 min-h-[48px] px-6 py-3"
+                  size="default"
                 >
                   {upgrading && selectedTier === 'scale' ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
                       Processing...
                     </>
                   ) : (

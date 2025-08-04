@@ -175,7 +175,7 @@ export async function checkUsageLimits(
       // Create user-friendly messaging based on tier
       let reason: string;
       if (tier === 'starter') {
-        reason = `You've used your free analysis for today! Buy me a coffee ($4.95) for unlimited AI-powered analysis of up to 200 pages. Your free analysis resets tomorrow at midnight.`;
+        reason = `You've used your 3 free analyses for today! Buy me a coffee ($4.95) for unlimited AI-powered analysis of up to 200 pages. Your free analyses reset tomorrow at midnight.`;
       } else {
         reason = `Daily limit reached. ${tier} tier allows ${limits.dailyAnalyses} analysis${limits.dailyAnalyses > 1 ? 'es' : ''} per day. Resets at midnight.`;
       }
@@ -214,8 +214,8 @@ export async function checkUsageLimits(
       allowed: true,
       currentUsage: { analysesToday: 0, pagesProcessedToday: 0 },
       limits: {
-        dailyAnalyses: 1,
-        maxPagesPerAnalysis: 50,
+        dailyAnalyses: 3,
+        maxPagesPerAnalysis: 20,
         aiPagesLimit: 0
       }
     };

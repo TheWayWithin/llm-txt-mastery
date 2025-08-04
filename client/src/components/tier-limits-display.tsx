@@ -23,11 +23,23 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
     onSuccess: (data) => {
       setLimitsData(data);
       if (data.allowed) {
-        // Coffee+ tier users proceed immediately, starter tier waits 2 seconds
-        const delay = data.tier === 'coffee' || data.tier === 'growth' || data.tier === 'scale' ? 500 : 2000;
-        setTimeout(() => {
-          onProceed();
-        }, delay);
+        // Coffee+ tier users proceed faster for premium experience
+        if (data.tier === 'coffee') {
+          console.log('☕ Coffee tier detected - proceeding with premium experience (250ms delay)');
+          setTimeout(() => {
+            onProceed();
+          }, 250);
+        } else if (data.tier === 'growth' || data.tier === 'scale') {
+          console.log('🚀 Premium tier detected - proceeding quickly (500ms delay)');
+          setTimeout(() => {
+            onProceed();
+          }, 500);
+        } else {
+          console.log('📊 Starter tier - showing limits info (2s delay)');
+          setTimeout(() => {
+            onProceed();
+          }, 2000);
+        }
       }
     },
   });
@@ -52,34 +64,36 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
         )}
         <div className="flex-1">
           <AlertTitle className={allowed ? "text-green-900" : "text-red-900"}>
-            {allowed ? "Analysis Ready" : "Limit Reached"}
+            {allowed ? "🎯 Ready to Analyze" : "⏰ Daily Limit Reached"}
           </AlertTitle>
           <AlertDescription className="mt-2 space-y-2">
             {allowed ? (
               <>
                 <p>Found {pageCount} pages to analyze.</p>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Your tier:</span>
                     <span className="ml-1 font-medium">{tier.toUpperCase()}</span>
                   </div>
-                  <div>
+                  <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Pages to analyze:</span>
                     <span className="ml-1 font-medium">{Math.min(pageCount, limits.maxPagesPerAnalysis)}</span>
                   </div>
-                  <div>
+                  <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Analyses today:</span>
                     <span className="ml-1 font-medium">{currentUsage.analysesToday} / {limits.dailyAnalyses}</span>
                   </div>
-                  <div>
+                  <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Est. cost:</span>
                     <span className="ml-1 font-medium">${estimatedCost.toFixed(3)}</span>
                   </div>
                 </div>
                 <p className="text-sm text-green-700 pt-1">
-                  {tier === 'coffee' || tier === 'growth' || tier === 'scale' 
-                    ? 'Starting premium analysis...' 
-                    : 'Starting analysis in 2 seconds...'}
+                  {tier === 'coffee' 
+                    ? '☕ Premium AI analysis launching - your investment at work!' 
+                    : tier === 'growth' || tier === 'scale'
+                    ? '🚀 Unlimited power engaged - full speed ahead!'
+                    : '✨ Free analysis starting - experience our quality!'}
                 </p>
               </>
             ) : (
@@ -98,9 +112,9 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                 {suggestedUpgrade && (
                   <div className="pt-2">
                     <Button 
-                      size="sm" 
+                      size="default" 
                       variant="outline" 
-                      className="text-mastery-blue border-mastery-blue"
+                      className="text-mastery-blue border-mastery-blue min-h-[48px] px-6 py-3 w-full sm:w-auto"
                       onClick={async () => {
                         if (suggestedUpgrade === 'coffee') {
                           // Trigger coffee tier purchase via API
@@ -122,7 +136,7 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                         }
                       }}
                     >
-                      {suggestedUpgrade === 'coffee' ? 'Get Coffee Analysis ($4.95)' : `Upgrade to ${suggestedUpgrade.toUpperCase()}`}
+                      {suggestedUpgrade === 'coffee' ? '☕ Buy Me Coffee ($4.95)' : `🚀 Upgrade to ${suggestedUpgrade.charAt(0).toUpperCase() + suggestedUpgrade.slice(1)}`}
                     </Button>
                   </div>
                 )}

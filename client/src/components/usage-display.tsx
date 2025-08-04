@@ -32,7 +32,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-semibold text-framework-black">
-            {isCoffeeTier ? 'Coffee Credits' : 'Your Usage Today'}
+            {isCoffeeTier ? '☕ Premium Credits' : 'Today\'s Progress'}
           </h4>
           <span className={`text-xs px-2 py-1 rounded ${
             isCoffeeTier 
@@ -50,14 +50,14 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-ai-silver">Analysis Credits</span>
                 <span className="text-framework-black font-medium">
-                  {creditsRemaining} remaining
+                  {creditsRemaining} {creditsRemaining === 1 ? 'credit' : 'credits'} left
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Coffee className="w-4 h-4 text-orange-600" />
-                <div className="flex-1 bg-orange-100 rounded-full h-2">
+              <div className="flex items-center space-x-3">
+                <Coffee className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                <div className="flex-1 bg-orange-100 rounded-full h-3">
                   <div 
-                    className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-orange-600 h-3 rounded-full transition-all duration-300"
                     style={{ width: creditsRemaining > 0 ? '100%' : '0%' }}
                   />
                 </div>
@@ -76,9 +76,9 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           )}
 
           {/* Statistics Grid */}
-          <div className="grid grid-cols-2 gap-2 pt-2">
-            <div className="flex items-center space-x-2">
-              <Zap className="w-4 h-4 text-innovation-teal" />
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="flex items-center space-x-3">
+              <Zap className="w-5 h-5 text-innovation-teal flex-shrink-0" />
               <div>
                 <p className="text-xs text-ai-silver">Cache Hits</p>
                 <p className="text-sm font-semibold text-framework-black">
@@ -87,8 +87,8 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <DollarSign className="w-4 h-4 text-green-600" />
+            <div className="flex items-center space-x-3">
+              <DollarSign className="w-5 h-5 text-green-600 flex-shrink-0" />
               <div>
                 <p className="text-xs text-ai-silver">Saved Today</p>
                 <p className="text-sm font-semibold text-framework-black">
@@ -104,7 +104,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
             <div className="space-y-1">
               {usageData.tier === 'starter' && (
                 <p className="text-xs text-framework-black">
-                  • 1 free analysis per day
+                  • 3 free analyses per day
                 </p>
               )}
               <p className="text-xs text-framework-black">
@@ -127,14 +127,14 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           {usageData.tier === 'starter' && analysisPercentage >= 80 && (
             <div className="pt-2 border-t border-slate-200">
               <p className="text-xs text-ai-silver mb-2">
-                Running low on analyses? 
+                ⚡ Almost at your daily limit! Keep the momentum going?
               </p>
-              <div className="flex space-x-2">
-                <a href="/pricing" className="text-xs bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700 transition-colors">
-                  Try Coffee ($4.95)
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                <a href="/pricing" className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center">
+                  ☕ Buy me a coffee ($4.95)
                 </a>
-                <a href="/pricing" className="text-xs text-mastery-blue hover:underline">
-                  View all plans
+                <a href="/pricing" className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center">
+                  See all options
                 </a>
               </div>
             </div>
@@ -143,14 +143,14 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           {isCoffeeTier && creditsRemaining === 0 && (
             <div className="pt-2 border-t border-slate-200">
               <p className="text-xs text-ai-silver mb-2">
-                Out of credits? Get more premium analyses:
+                ☕ Ready for another premium analysis? Perfect timing!
               </p>
-              <div className="flex space-x-2">
-                <a href="/pricing" className="text-xs bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700 transition-colors">
-                  Buy More ($4.95)
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                <a href="/pricing" className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center">
+                  Another Coffee ($4.95)
                 </a>
-                <a href="/pricing" className="text-xs text-mastery-blue hover:underline">
-                  Unlimited plans
+                <a href="/pricing" className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center">
+                  Go unlimited
                 </a>
               </div>
             </div>
@@ -159,9 +159,9 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           {usageData.tier === 'growth' && analysisPercentage >= 80 && (
             <div className="pt-2 border-t border-slate-200">
               <p className="text-xs text-ai-silver">
-                Need more AI pages? 
+                🚀 Ready for unlimited AI analysis? 
                 <a href="/pricing" className="text-mastery-blue ml-1 hover:underline">
-                  Upgrade to Scale
+                  Scale up now
                 </a>
               </p>
             </div>
