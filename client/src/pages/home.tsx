@@ -14,6 +14,7 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { ProgressBreadcrumb, FLOW_STEPS } from "@/components/ui/progress-breadcrumb";
 import { EnhancedLoading, LOADING_STATES } from "@/components/ui/enhanced-loading";
 import { useFlowStateMachine } from "@/hooks/useFlowStateMachine";
+import { useAuth } from "@/contexts/AuthContext";
 import { DiscoveredPage } from "@shared/schema";
 import { Link } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
