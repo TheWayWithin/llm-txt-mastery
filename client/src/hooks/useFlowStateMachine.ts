@@ -28,6 +28,7 @@ export type FlowEvent =
   | { type: 'ANALYSIS_COMPLETE'; analysisId: number; pages: DiscoveredPage[] }
   | { type: 'FILE_GENERATED'; fileId: number }
   | { type: 'RESET_WORKFLOW' }
+  | { type: 'START_NEW_ANALYSIS' }
   | { type: 'BYPASS_EMAIL_CAPTURE' }
   | { type: 'PROCEED_TO_ANALYSIS' }
   | { type: 'COFFEE_PROCEED_TO_ANALYSIS' }
@@ -333,7 +334,43 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       };
     }
 
+    case 'START_NEW_ANALYSIS': {
+      // Smart reset: preserve user context but clear analysis data
+      console.log('🔄 START_NEW_ANALYSIS: Preserving user context, clearing analysis data');
+      
+      // Preserve user-related state from both AuthContext and previous email-based state
+      const preservedUser = context.user;
+      const preservedEmail = preservedUser?.email || context.userEmail;
+      const preservedTier = preservedUser?.tier || context.userTier;
+      
+      console.log(`📋 Preserved context: email=${preservedEmail}, tier=${preservedTier}, hasUser=${!!preservedUser}`);
+      
+      return {
+        ...context,
+        currentState: 'URL_INPUT',
+        previousState: null,
+        // Clear analysis-specific data
+        websiteUrl: '',
+        analysisId: null,
+        discoveredPages: [],
+        generatedFileId: null,
+        error: null,
+        retryCount: 0,
+        lastProcessedAnalysisId: null,
+        eventCounter: new Map(),
+        // Preserve user context
+        userEmail: preservedEmail,
+        userTier: preservedTier,
+        user: preservedUser,
+        // Keep auth loading state but close modal
+        showAuthModal: false,
+        progress: createInitialProgress()
+      };
+    }
+
     case 'RESET_WORKFLOW': {
+      // Full reset: clear everything including user context
+      console.log('🔄 RESET_WORKFLOW: Full reset, clearing all data including user context');
       return {
         ...context,
         currentState: 'URL_INPUT',
@@ -344,6 +381,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         analysisId: null,
         discoveredPages: [],
         generatedFileId: null,
+        user: null,
+        showAuthModal: false,
         error: null,
         retryCount: 0,
         lastProcessedAnalysisId: null,
@@ -604,6 +643,7 @@ export function useFlowStateMachine() {
       dispatch({ type: 'ANALYSIS_COMPLETE', analysisId, pages }),
     generateFile: (fileId: number) => dispatch({ type: 'FILE_GENERATED', fileId }),
     resetWorkflow: () => dispatch({ type: 'RESET_WORKFLOW' }),
+    startNewAnalysis: () => dispatch({ type: 'START_NEW_ANALYSIS' }),
     viewAnalysisDetails: () => dispatch({ type: 'VIEW_ANALYSIS_DETAILS' }),
     openAuthModal: () => dispatch({ type: 'OPEN_AUTH_MODAL' }),
     closeAuthModal: () => dispatch({ type: 'CLOSE_AUTH_MODAL' }),

@@ -15,11 +15,12 @@ interface ContentReviewProps {
   discoveredPages: DiscoveredPage[];
   onFileGenerated: (fileId: number) => void;
   onStartOver?: () => void;
+  onStartNewAnalysis?: () => void;
 }
 
 type FilterType = "all" | "high-quality" | "documentation" | "tutorials";
 
-export default function ContentReview({ analysisId, discoveredPages, onFileGenerated, onStartOver }: ContentReviewProps) {
+export default function ContentReview({ analysisId, discoveredPages, onFileGenerated, onStartOver, onStartNewAnalysis }: ContentReviewProps) {
   const { toast } = useToast();
   const [selectedPages, setSelectedPages] = useState<Record<string, boolean>>(() => {
     // Auto-select high quality pages (score >= 5)
@@ -370,10 +371,10 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
             >
               Select All
             </Button>
-            {onStartOver && (
+            {(onStartNewAnalysis || onStartOver) && (
               <Button
                 variant="outline"
-                onClick={onStartOver}
+                onClick={onStartNewAnalysis || onStartOver}
                 className="text-ai-silver hover:text-framework-black border-slate-300"
               >
                 Analyze Another Website
