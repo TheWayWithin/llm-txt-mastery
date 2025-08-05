@@ -13,6 +13,8 @@ interface AuthContextType {
   hasCredits: boolean
   canAnalyze: boolean
   isAuthenticated: boolean
+  recognizeEmailUser: (email: string) => Promise<AuthUser | null>
+  emailBasedUser: AuthUser | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,6 +35,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [authResolved, setAuthResolved] = useState(false)
+  const [emailBasedUser, setEmailBasedUser] = useState<AuthUser | null>(null)
 
   useEffect(() => {
     // Initialize auth state on mount - single source of truth for auth resolution
@@ -206,13 +209,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return localStorage.getItem('auth_access_token')
   }
 
-  // Computed properties
-  const hasCredits = user?.tier === 'coffee' && (user?.creditsRemaining || 0) > 0
-  const canAnalyze = !user || user?.tier === 'starter' || hasCredits || ['growth', 'scale'].includes(user?.tier || '')
+  // Email-based user recognition for returning users
+  const recognizeEmailUser = async (email: string): Promise<AuthUser | null> => {
+    try {
+      console.log(`🔍 Attempting to recognize email-based user: ${email}`)
+      
+      // Check usage API to see if this email has a tier/history
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usage/${encodeURIComponent(email)}`)
+      
+      if (response.ok) {
+        const usageData = await response.json()
+        
+        // If user has a tier other than starter or has usage history, create email-based user object
+        if (usageData.tier !== 'starter' || usageData.usage.analysesToday > 0) {
+          const emailUser: AuthUser = {
+            id: `email-${email}`, // Temporary ID for email-based users
+            email: email,
+            tier: usageData.tier as any,
+            creditsRemaining: usageData.usage.creditsRemaining || 0,
+            username: email.split('@')[0]
+          }
+          
+          console.log(`✅ Email user recognized: ${email} with tier ${usageData.tier}`)
+          setEmailBasedUser(emailUser)
+          return emailUser
+        }
+      }
+      
+      console.log(`ℹ️ Email user not recognized or no history: ${email}`)
+      setEmailBasedUser(null)
+      return null
+    } catch (error) {
+      console.error(`❌ Error recognizing email user ${email}:`, error)
+      setEmailBasedUser(null)
+      return null
+    }
+  }
+
+  // Computed properties - merge authenticated user with email-based user
+  const effectiveUser = user || emailBasedUser
+  const hasCredits = effectiveUser?.tier === 'coffee' && (effectiveUser?.creditsRemaining || 0) > 0
+  const canAnalyze = !effectiveUser || effectiveUser?.tier === 'starter' || hasCredits || ['growth', 'scale'].includes(effectiveUser?.tier || '')
   const isAuthenticated = !!user && authApi.isAuthenticated()
 
   const value = {
-    user,
+    user: effectiveUser, // Return effective user (authenticated or email-based)
     loading,
     authResolved,
     signUp,
@@ -222,7 +263,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     getAccessToken,
     hasCredits,
     canAnalyze,
-    isAuthenticated
+    isAuthenticated,
+    recognizeEmailUser,
+    emailBasedUser
   }
 
   return (
