@@ -69,6 +69,10 @@ export default function Home() {
     actions.resetWorkflow();
   };
 
+  const startNewAnalysis = () => {
+    actions.startNewAnalysis();
+  };
+
   const handleViewAnalysisDetails = () => {
     actions.viewAnalysisDetails();
   };
@@ -182,8 +186,8 @@ export default function Home() {
                     size="sm" 
                     className="bg-orange-600 hover:bg-orange-700"
                     onClick={() => {
-                      console.log('☕ Coffee user starting new analysis - should bypass tier limits');
-                      actions.resetWorkflow();
+                      console.log('☕ Coffee user starting new analysis - using smart reset to preserve context');
+                      startNewAnalysis();
                     }}
                   >
                     <Coffee className="h-4 w-4 mr-2" />
@@ -194,10 +198,10 @@ export default function Home() {
                   <Button 
                     size="sm" 
                     className="bg-orange-600 hover:bg-orange-700"
-                    onClick={() => actions.resetWorkflow()}
+                    onClick={() => startNewAnalysis()}
                   >
                     <Coffee className="h-4 w-4 mr-2" />
-                    Upgrade to Coffee
+                    Start New Analysis
                   </Button>
                 )}
               </div>
@@ -313,6 +317,7 @@ export default function Home() {
               discoveredPages={discoveredPages}
               onFileGenerated={handleFileGenerated}
               onStartOver={resetWorkflow}
+              onStartNewAnalysis={startNewAnalysis}
             />
           )}
 
@@ -322,6 +327,7 @@ export default function Home() {
               fileId={generatedFileId!}
               analysisId={analysisId || undefined}
               onStartOver={resetWorkflow}
+              onStartNewAnalysis={startNewAnalysis}
               onViewAnalysis={handleViewAnalysisDetails}
             />
           )}

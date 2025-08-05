@@ -269,20 +269,125 @@ export async function assertNoCriticalErrors(page: Page): Promise<void> {
 }
 
 /**
- * Create a test context with authentication monitoring
+ * Wait for smart reset to complete by monitoring URL input visibility
+ */
+export async function waitForSmartResetCompletion(page: Page, timeout = 10000): Promise<void> {
+  await expect(page.locator('input[placeholder*="https://"]')).toBeVisible({ timeout });
+  await expect(page.locator('input[placeholder*="https://"]')).toHaveValue('');
+  console.log('✅ Smart reset completion detected');
+}
+
+/**
+ * Perform a smart reset and validate user context preservation
+ */
+export async function performValidatedSmartReset(page: Page): Promise<{
+  beforeUsage: string | null;
+  afterUsage: string | null;
+  beforeTier: string | null;
+  afterTier: string | null;
+}> {
+  // Capture state before reset
+  const beforeUsage = await page.locator('text=/\\d+ \\/ \\d+/').textContent().catch(() => null);
+  const beforeTier = await page.locator('span:has-text("Starter"), span:has-text("Coffee")').textContent().catch(() => null);
+  
+  // Perform smart reset
+  await expect(page.locator('button:has-text("Analyze Another Website")')).toBeVisible();
+  await page.click('button:has-text("Analyze Another Website")');
+  await waitForSmartResetCompletion(page);
+  
+  // Capture state after reset
+  const afterUsage = await page.locator('text=/\\d+ \\/ \\d+/').textContent().catch(() => null);
+  const afterTier = await page.locator('span:has-text("Starter"), span:has-text("Coffee")').textContent().catch(() => null);
+  
+  // Validate preservation
+  expect(afterUsage).toBe(beforeUsage);
+  expect(afterTier).toBe(beforeTier);
+  
+  console.log(`✅ Smart reset validated - Usage: ${beforeUsage} → ${afterUsage}, Tier: ${beforeTier} → ${afterTier}`);
+  
+  return { beforeUsage, afterUsage, beforeTier, afterTier };
+}
+
+/**
+ * Complete full analysis flow optimized for smart reset testing
+ */
+export async function completeAnalysisForSmartReset(
+  page: Page, 
+  url = 'https://example.com',
+  requiresEmail = false,
+  generateFile = true
+): Promise<void> {
+  console.log(`🧪 Completing analysis flow for smart reset testing: ${url}`);
+  
+  // URL input
+  await page.fill('input[placeholder*="https://"]', url);
+  await page.click('button:has-text("Start Analysis")');
+  
+  // Email capture if required
+  if (requiresEmail) {
+    await expect(page.locator('form:has(input[type="email"])')).toBeVisible({ timeout: 10000 });
+    await page.fill('input[type="email"]', 'test-smart-reset@example.com');
+    await page.click('button[type="submit"]');
+  }
+  
+  // Proceed through tier limits
+  await expect(page.locator('button:has-text("Proceed with Analysis")')).toBeVisible({ timeout: 15000 });
+  await page.click('button:has-text("Proceed with Analysis")');
+  
+  // Wait for analysis completion
+  await expect(page.locator('[class*="card"]:has-text("Content Review")')).toBeVisible({ timeout: 60000 });
+  
+  // Generate file if requested
+  if (generateFile) {
+    await page.click('button[class*="bg-innovation-teal"]:has-text("Generate llms.txt File")');
+    await expect(page.locator('[class*="card"]:has-text("File Generated Successfully")')).toBeVisible({ timeout: 30000 });
+  }
+  
+  console.log('✅ Analysis flow completed for smart reset testing');
+}
+
+/**
+ * Validate that smart reset preserves authentication while clearing analysis data
+ */
+export async function validateSmartResetBehavior(page: Page): Promise<void> {
+  // Should preserve user indicators
+  const hasUsageDisplay = await page.locator('text=/\\d+ \\/ \\d+/').isVisible().catch(() => false);
+  const hasTierBadge = await page.locator('span:has-text("Starter"), span:has-text("Coffee")').isVisible().catch(() => false);
+  
+  expect(hasUsageDisplay || hasTierBadge).toBe(true);
+  console.log('✅ User context preserved after smart reset');
+  
+  // Should clear analysis data
+  const urlInputValue = await page.locator('input[placeholder*="https://"]').inputValue();
+  expect(urlInputValue).toBe('');
+  console.log('✅ Analysis data cleared after smart reset');
+  
+  // Should not show email capture
+  const emailCaptureVisible = await page.locator('form:has(input[type="email"])').isVisible().catch(() => false);
+  expect(emailCaptureVisible).toBe(false);
+  console.log('✅ Email capture correctly hidden after smart reset');
+}
+
+/**
+ * Create a test context with authentication and smart reset monitoring
  */
 export async function createAuthTestContext(page: Page): Promise<{
   consoleMessages: string[];
   errors: string[];
+  smartResetEvents: string[];
   cleanup: () => void;
 }> {
   const consoleMessages: string[] = [];
   const errors: string[] = [];
+  const smartResetEvents: string[] = [];
 
   const consoleHandler = (msg: any) => {
     const text = msg.text();
     if (text.includes('AUTH') || text.includes('auth') || text.includes('🔐') || text.includes('✅') || text.includes('☕')) {
       consoleMessages.push(text);
+    }
+    if (text.includes('START_NEW_ANALYSIS') || text.includes('Smart reset') || text.includes('🔄')) {
+      smartResetEvents.push(text);
     }
   };
 
@@ -303,6 +408,7 @@ export async function createAuthTestContext(page: Page): Promise<{
   return {
     consoleMessages,
     errors,
+    smartResetEvents,
     cleanup: () => {
       page.off('console', consoleHandler);
       page.off('pageerror', errorHandler);

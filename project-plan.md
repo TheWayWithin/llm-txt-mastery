@@ -1,7 +1,57 @@
 # LLM.txt Mastery - Project Plan & Coordination
 *Single Source of Truth for Current Priorities*
 
-## 🎯 Current Sprint (August 3-16, 2025)
+## 🚨 ACTIVE MISSION: Fix "Analyze Another Website" User Flow Issue
+
+### SITUATION ANALYSIS
+- **Critical UX Issue**: Users completing an analysis and clicking "Analyze Another Website" are incorrectly routed back to "Choose Your Analysis Type" screen
+- **Root Cause Identified**: `resetWorkflow()` completely wipes user context (email, tier) via `RESET_WORKFLOW` action
+- **User Impact**: Forces unnecessary re-authentication for returning users with remaining analysis credits
+- **Test Email Available**: "idaltddlpaxgqjrecs@enotj.com" for free tier testing
+
+### MISSION OBJECTIVES
+1. **Implement Smart Reset**: Create `START_NEW_ANALYSIS` action that preserves user context while clearing analysis data
+2. **Update Components**: Fix "Analyze Another Website" buttons in file-generation.tsx and content-review.tsx
+3. **Enhance State Machine**: Improve URL_SUBMITTED logic to recognize existing users and route appropriately
+4. **Comprehensive Testing**: Use Playwright to create automated tests covering the complete user journey
+5. **Validate Fix**: Ensure returning users can seamlessly start new analyses without re-entering information
+
+### SUCCESS CRITERIA
+- ✅ User completes analysis → clicks "Analyze Another Website" → goes directly to URL input (preserving context)
+- ✅ Free tier users see consistent "X/3" usage display throughout
+- ✅ Coffee tier users bypass tier selection on subsequent analyses
+- ✅ Complete test coverage with Playwright automation
+- ✅ No regressions in existing user flows
+
+### TASK EXECUTION
+
+#### Phase 1: Requirements Analysis
+- [ ] Define detailed user stories and acceptance criteria - **Waiting for @strategist**
+- [ ] Map current vs desired user journey flows - **Waiting for @strategist**  
+- [ ] Identify all components that trigger workflow reset - **Waiting for @strategist**
+
+#### Phase 2: Technical Implementation
+- [ ] Create `START_NEW_ANALYSIS` action preserving user context - **Pending @developer**
+- [ ] Update state machine URL_SUBMITTED logic for existing users - **Pending @developer**
+- [ ] Fix "Analyze Another Website" buttons in components - **Pending @developer**
+- [ ] Update usage tracking to maintain consistent display - **Pending @developer**
+
+#### Phase 3: Testing & Validation
+- [ ] Create Playwright test suite for complete user journey - **Pending @tester**
+- [ ] Test with provided email "idaltddlpaxgqjrecs@enotj.com" - **Pending @tester**
+- [ ] Verify no regressions in existing flows - **Pending @tester**
+
+#### Phase 4: Architecture Review
+- [ ] Review implementation for maintainability - **Pending @architect**
+- [ ] Validate state machine design patterns - **Pending @architect**
+
+#### Phase 5: Metrics & Validation
+- [ ] Monitor user journey completion rates - **Pending @analyst**
+- [ ] Validate fix effectiveness with real users - **Pending @analyst**
+
+---
+
+## 🎯 Previous Sprint Status (August 3-16, 2025)
 ### Phase 0: Critical UX/UI Foundation - 60% Complete
 
 **Status**: 🚨 **BLOCKED BY CRITICAL ISSUES** - Revenue systems non-functional  

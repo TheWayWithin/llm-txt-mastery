@@ -10,10 +10,11 @@ interface FileGenerationProps {
   fileId: number;
   analysisId?: number;
   onStartOver: () => void;
+  onStartNewAnalysis?: () => void;
   onViewAnalysis?: () => void;
 }
 
-export default function FileGeneration({ fileId, analysisId, onStartOver, onViewAnalysis }: FileGenerationProps) {
+export default function FileGeneration({ fileId, analysisId, onStartOver, onStartNewAnalysis, onViewAnalysis }: FileGenerationProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -190,7 +191,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onView
         <div className="mt-6 pt-4 border-t border-slate-200 text-center">
           <Button
             variant="outline"
-            onClick={onStartOver}
+            onClick={onStartNewAnalysis || onStartOver}
             className="text-ai-silver hover:text-framework-black"
           >
             Analyze Another Website
