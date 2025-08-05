@@ -13,11 +13,25 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
   const { data: usageData } = useQuery({
     queryKey: ["/api/usage", userEmail],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(userEmail)}`);
-      return response.json();
+      console.log(`🔍 Fetching usage data for: ${userEmail}`);
+      
+      // Add cache-busting parameter to ensure fresh data
+      const timestamp = Date.now();
+      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(userEmail)}?t=${timestamp}`);
+      const data = await response.json();
+      
+      console.log(`📊 Usage data received for ${userEmail}:`, {
+        tier: data.tier,
+        dailyAnalyses: data.limits?.dailyAnalyses,
+        currentUsage: data.usage?.analysesToday
+      });
+      
+      return data;
     },
     enabled: !!userEmail,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 15000, // Refresh every 15 seconds for more responsive updates
+    staleTime: 0, // Always refetch
+    cacheTime: 0, // Don't cache
   });
 
   if (!usageData) return null;

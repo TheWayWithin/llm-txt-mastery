@@ -24,6 +24,7 @@ export type FlowEvent =
   | { type: 'AUTH_RESOLVED'; user: AuthUser | null }
   | { type: 'URL_SUBMITTED'; url: string }
   | { type: 'EMAIL_CAPTURED'; email: string; tier: UserTier }
+  | { type: 'EMAIL_RECOGNIZED'; user: AuthUser }
   | { type: 'ANALYSIS_COMPLETE'; analysisId: number; pages: DiscoveredPage[] }
   | { type: 'FILE_GENERATED'; fileId: number }
   | { type: 'RESET_WORKFLOW' }
@@ -225,23 +226,41 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     }
 
     case 'EMAIL_CAPTURED': {
+      console.log(`📧 EMAIL_CAPTURED: ${event.email} with tier ${event.tier}`);
+      
       // Coffee tier users (from payment return) can bypass TIER_LIMITS
       if (event.tier === 'coffee') {
         console.log('☕ Coffee tier email captured - proceeding directly to analysis');
         return {
-          ...context,
+          ...updatedContext,
           userEmail: event.email,
           userTier: event.tier,
           currentState: 'ANALYSIS'
         };
       } else {
         return {
-          ...context,
+          ...updatedContext,
           userEmail: event.email,
           userTier: event.tier,
           currentState: 'TIER_LIMITS'
         };
       }
+    }
+
+    case 'EMAIL_RECOGNIZED': {
+      console.log(`🔍 EMAIL_RECOGNIZED: ${event.user.email} with tier ${event.user.tier}`);
+      
+      // User was recognized by email - set user and proceed based on tier
+      const nextState = event.user.tier === 'coffee' ? 'ANALYSIS' : 'TIER_LIMITS';
+      
+      return {
+        ...updatedContext,
+        user: event.user,
+        userEmail: event.user.email,
+        userTier: event.user.tier,
+        currentState: nextState,
+        progress: updateProgressForState(nextState, context.progress)
+      };
     }
 
     case 'BYPASS_EMAIL_CAPTURE': {
@@ -519,7 +538,7 @@ function createInitialState(urlParams: URLParams, authLoading: boolean): FlowCon
 
 // Main hook
 export function useFlowStateMachine() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, recognizeEmailUser } = useAuth();
   const [location] = useLocation();
 
   // Parse URL parameters
@@ -578,6 +597,7 @@ export function useFlowStateMachine() {
   const actions = useMemo(() => ({
     submitUrl: (url: string) => dispatch({ type: 'URL_SUBMITTED', url }),
     captureEmail: (email: string, tier: UserTier) => dispatch({ type: 'EMAIL_CAPTURED', email, tier }),
+    recognizeEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_RECOGNIZED', user }),
     proceedToAnalysis: () => dispatch({ type: 'PROCEED_TO_ANALYSIS' }),
     coffeeProceedToAnalysis: () => dispatch({ type: 'COFFEE_PROCEED_TO_ANALYSIS' }),
     completeAnalysis: (analysisId: number, pages: DiscoveredPage[]) => 

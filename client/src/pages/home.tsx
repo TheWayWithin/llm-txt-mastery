@@ -22,6 +22,9 @@ import ResetButton from "@/components/ResetButton";
 import { QuickHelp } from "@/components/HelpSystem";
 
 export default function Home() {
+  // Import auth hook to get email recognition capability
+  const { recognizeEmailUser } = useAuth();
+
   // Replace all complex state management with the state machine
   const {
     // State
@@ -251,7 +254,22 @@ export default function Home() {
           {visibility.emailCapture && (
             <EmailCapture
               websiteUrl={websiteUrl}
-              onEmailCaptured={(email, tier) => {
+              onEmailCaptured={async (email, tier) => {
+                console.log(`📧 Email captured: ${email} with tier ${tier}`);
+                
+                // First, try to recognize if this is a returning user
+                try {
+                  const recognizedUser = await recognizeEmailUser(email);
+                  if (recognizedUser) {
+                    console.log(`🔍 Recognized returning user: ${email} with tier ${recognizedUser.tier}`);
+                    actions.recognizeEmail(recognizedUser);
+                    return;
+                  }
+                } catch (error) {
+                  console.warn(`⚠️ Email recognition failed for ${email}:`, error);
+                }
+                
+                // Fallback to normal email capture flow
                 actions.captureEmail(email, tier);
               }}
               onLoginRequested={() => {

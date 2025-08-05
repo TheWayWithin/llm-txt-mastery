@@ -24,29 +24,16 @@ interface EmailCaptureProps {
   isVisible: boolean;
 }
 
-// Create combined schema for both modes
+// Quick Start schema for simplified flow
 const quickStartSchema = emailCaptureSchema;
-const createAccountSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-  websiteUrl: z.string().url("Please enter a valid URL"),
-  tier: z.enum(["starter", "coffee", "growth", "scale"]).default("starter"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
 type QuickFormData = z.infer<typeof quickStartSchema>;
-type CreateFormData = z.infer<typeof createAccountSchema>;
 
 export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginRequested, onReset, prefilledEmail, isVisible }: EmailCaptureProps) {
   const { toast } = useToast();
   const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
-  const [accountMode, setAccountMode] = useState<"quick" | "create">("quick");
   const [lastError, setLastError] = useState<string | null>(null);
 
-  const quickForm = useForm<QuickFormData>({
+  const form = useForm<QuickFormData>({
     resolver: zodResolver(quickStartSchema),
     defaultValues: {
       email: prefilledEmail || "",
@@ -54,19 +41,6 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
       tier: "starter",
     },
   });
-
-  const createForm = useForm<CreateFormData>({
-    resolver: zodResolver(createAccountSchema),
-    defaultValues: {
-      email: prefilledEmail || "",
-      password: "",
-      confirmPassword: "",
-      websiteUrl: websiteUrl,
-      tier: "starter",
-    },
-  });
-
-  const form = accountMode === "quick" ? quickForm : createForm;
 
   // Update form when prefilledEmail changes
   useEffect(() => {
@@ -113,80 +87,42 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     return error.message || "Something went wrong. Please try again or contact support if the problem persists.";
   }
 
-  const onSubmit = async (data: QuickFormData | CreateFormData) => {
-    if (accountMode === "create") {
-      // Create account mode - register user with password
+  const onSubmit = async (data: QuickFormData) => {
+    // Quick start mode - simplified flow
+    const quickData = data;
+    
+    // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
+    if (selectedTier === 'coffee') {
       try {
-        const registrationData = data as CreateFormData;
-        const response = await apiRequest("POST", "/api/auth/register", {
-          email: registrationData.email,
-          password: registrationData.password,
-          confirmPassword: registrationData.confirmPassword
-        });
+        // First capture the email
+        await apiRequest("POST", "/api/email-capture", { ...quickData, tier: 'starter' }); // Keep as starter until payment
         
-        if (response.ok) {
-          const authData = await response.json();
-          
-          // Store authentication tokens
-          localStorage.setItem('auth_access_token', authData.accessToken);
-          localStorage.setItem('auth_refresh_token', authData.refreshToken);
-          localStorage.setItem('auth_user', JSON.stringify(authData.user));
-          
-          toast({
-            title: "Account Created!",
-            description: "Welcome! Your account is ready.",
-          });
-          
-          // Proceed with selected tier analysis
-          onEmailCaptured(registrationData.email, selectedTier);
+        // Then redirect to Stripe checkout
+        const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+          email: quickData.email,
+          websiteUrl: quickData.websiteUrl
+        });
+        const checkoutData = await response.json();
+        
+        if (checkoutData.url) {
+          // Redirect to Stripe checkout
+          window.location.href = checkoutData.url;
+        } else {
+          throw new Error('Failed to create checkout session');
         }
       } catch (error) {
         const errorMessage = getDetailedErrorMessage(error);
         setLastError(errorMessage);
         
         toast({
-          title: "Account Creation Failed",
+          title: "Payment Setup Failed",
           description: errorMessage,
           variant: "destructive",
         });
       }
     } else {
-      // Quick start mode - existing flow
-      const quickData = data as QuickFormData;
-      
-      // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
-      if (selectedTier === 'coffee') {
-        try {
-          // First capture the email
-          await apiRequest("POST", "/api/email-capture", { ...quickData, tier: 'starter' }); // Keep as starter until payment
-          
-          // Then redirect to Stripe checkout
-          const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
-            email: quickData.email,
-            websiteUrl: quickData.websiteUrl
-          });
-          const checkoutData = await response.json();
-          
-          if (checkoutData.url) {
-            // Redirect to Stripe checkout
-            window.location.href = checkoutData.url;
-          } else {
-            throw new Error('Failed to create checkout session');
-          }
-        } catch (error) {
-          const errorMessage = getDetailedErrorMessage(error);
-          setLastError(errorMessage);
-          
-          toast({
-            title: "Payment Setup Failed",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        }
-      } else {
-        // For other tiers, proceed with normal flow
-        mutation.mutate({ ...quickData, tier: selectedTier });
-      }
+      // For other tiers, proceed with normal flow
+      mutation.mutate({ ...quickData, tier: selectedTier });
     }
   };
 
@@ -323,37 +259,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
           </RadioGroup>
         </div>
 
-        {/* Account Mode Selection */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-center space-x-3">
-            <Button
-              type="button"
-              variant={accountMode === "quick" ? "default" : "outline"}
-              size="default"
-              onClick={() => setAccountMode("quick")}
-              className="flex-1 min-h-[48px] px-4 py-3"
-            >
-              Quick Start
-            </Button>
-            <Button
-              type="button"
-              variant={accountMode === "create" ? "default" : "outline"}
-              size="default"
-              onClick={() => setAccountMode("create")}
-              className="flex-1 min-h-[48px] px-4 py-3"
-            >
-              Create Account
-            </Button>
-          </div>
-          
-          <div className="text-center text-xs text-ai-silver">
-            {accountMode === "quick" ? (
-              <span>Fast start • Account created automatically after payment</span>
-            ) : (
-              <span>Complete account • Dashboard access • Manage all analyses</span>
-            )}
-          </div>
-        </div>
+        {/* Simplified flow - Quick Start is the default mode */}
 
         {/* Login Option */}
         {onLoginRequested && (
@@ -403,48 +309,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               )}
             />
 
-            {/* Password Fields - Only show in Create Account mode */}
-            {accountMode === "create" && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field}
-                          type="password"
-                          placeholder="••••••••"
-                          className="w-full"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field}
-                          type="password"
-                          placeholder="••••••••"
-                          className="w-full"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
+            {/* Simplified - no password fields needed for Quick Start */}
 
             <div className="flex flex-col space-y-4 pt-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
               <div className="text-xs text-ai-silver text-center sm:text-left">
@@ -466,12 +331,6 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               >
                 {mutation.isPending ? (
                   "Processing..."
-                ) : accountMode === "create" ? (
-                  <>
-                    <span className="hidden sm:inline">Create Account & Continue</span>
-                    <span className="sm:hidden">Create Account</span>
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </>
                 ) : selectedTier === 'coffee' ? (
                   <>
                     <span className="hidden sm:inline">Continue to Payment ($4.95)</span>
