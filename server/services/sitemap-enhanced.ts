@@ -71,7 +71,7 @@ async function performPageAnalysisWithCache(
   userEmail: string,
   tier: UserTier
 ): Promise<{ pages: DiscoveredPage[], metrics: AnalysisMetrics }> {
-  const relevantPages = filterRelevantPages(entries);
+  const relevantPages = filterRelevantPages(entries, tier);
   const tierLimits = TIER_LIMITS[tier];
   
   // Enhanced logging for transparency
@@ -81,7 +81,7 @@ async function performPageAnalysisWithCache(
   
   console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
   console.log(`   • Found ${totalDiscovered} total pages`);
-  console.log(`   • Filtered out ${filteredOut} pages (duplicates, navigation, assets, etc.)`);
+  console.log(`   • Filtered out ${filteredOut} pages (${tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`);
   console.log(`   • ${afterFiltering} pages ready for analysis`);
   
   // Apply tier-based page limit (bypass in development)
@@ -98,7 +98,7 @@ async function performPageAnalysisWithCache(
     
     if (afterFiltering > maxPages) {
       const tierLimited = afterFiltering - maxPages;
-      console.log(`   • Tier limit applied: analyzing top ${maxPages} pages (${tierLimited} pages exceed ${tier} tier limit)`);
+      console.log(`   • Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages exceed ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
     } else {
       console.log(`   • Analyzing all ${maxPages} pages (within ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
     }
