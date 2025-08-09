@@ -1,21 +1,27 @@
 import rateLimit from 'express-rate-limit';
 import type { Request, Response } from 'express';
 
-// General API rate limiting
+// General API rate limiting - TIGHTENED FOR SECURITY
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // Limit each IP to 20 requests per minute (REDUCED from 100/15min)
   message: {
     error: 'Too many requests from this IP, please try again later.',
-    retryAfter: '15 minutes'
+    retryAfter: '1 minute'
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   trustProxy: true, // Trust Railway proxy
   handler: (req: Request, res: Response) => {
+    // Log rate limit violations for security monitoring
+    console.warn(`🚨 Rate limit exceeded: ${req.ip} - ${req.method} ${req.path}`, {
+      userAgent: req.get('User-Agent'),
+      fingerprint: (req as any).fingerprint
+    });
+    
     res.status(429).json({
       error: 'Too many requests from this IP, please try again later.',
-      retryAfter: '15 minutes'
+      retryAfter: '1 minute'
     });
   }
 });
@@ -59,21 +65,29 @@ export const passwordResetLimiter = rateLimit({
   }
 });
 
-// Rate limiting for analysis endpoints (more generous for legitimate usage)
+// Rate limiting for analysis endpoints - HEAVILY RESTRICTED FOR SECURITY
 export const analysisLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 50, // Limit each IP to 50 analysis requests per hour
+  windowMs: 60 * 1000, // 1 minute
+  max: 3, // Limit each IP to 3 analysis requests per minute (REDUCED from 50/hour)
   message: {
     error: 'Too many analysis requests from this IP, please try again later.',
-    retryAfter: '1 hour'
+    retryAfter: '1 minute'
   },
   standardHeaders: true,
   legacyHeaders: false,
   trustProxy: true, // Trust Railway proxy
   handler: (req: Request, res: Response) => {
+    // Log analysis rate limit violations - this is critical
+    console.error(`🚨 ANALYSIS RATE LIMIT EXCEEDED: ${req.ip} - ${req.method} ${req.path}`, {
+      userAgent: req.get('User-Agent'),
+      fingerprint: (req as any).fingerprint,
+      body: req.body,
+      severity: 'HIGH'
+    });
+    
     res.status(429).json({
       error: 'Too many analysis requests from this IP, please try again later.',
-      retryAfter: '1 hour'
+      retryAfter: '1 minute'
     });
   }
 });

@@ -10,17 +10,27 @@ import { eq, and } from "drizzle-orm";
 import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth, getTodayUsage, resolveUserFromEmail } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
+import { fingerprintMiddleware } from "./middleware/fingerprint";
 import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
 import authRoutes from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Apply fingerprint middleware to all routes for bot detection
+  app.use(fingerprintMiddleware);
+  
   // Register authentication routes
   app.use("/api/auth", authRoutes);
   
-  // Debug tier lookup (temporary endpoint)
+  // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
   app.post("/api/debug-tier", async (req, res) => {
+    // CRITICAL SECURITY: Block debug endpoints in production
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`🚨 SECURITY: Blocked debug endpoint access in production from ${req.ip}`);
+      return res.status(404).json({ message: 'Not found' });
+    }
+    
     try {
       const { email } = req.body;
       
@@ -62,8 +72,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Debug usage tracking - comprehensive database state check
+  // Debug usage tracking - comprehensive database state check - PRODUCTION PROTECTED
   app.post("/api/debug-usage-tracking", async (req, res) => {
+    // CRITICAL SECURITY: Block debug endpoints in production
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`🚨 SECURITY: Blocked debug endpoint access in production from ${req.ip}`);
+      return res.status(404).json({ message: 'Not found' });
+    }
+    
     try {
       const { email } = req.body;
       
@@ -147,8 +163,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Manual Coffee tier fix for existing customers (temporary endpoint)
+  // Manual Coffee tier fix for existing customers (temporary endpoint) - PRODUCTION PROTECTED
   app.post("/api/fix-coffee-tier", async (req, res) => {
+    // CRITICAL SECURITY: Block debug endpoints in production
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`🚨 SECURITY: Blocked debug endpoint access in production from ${req.ip}`);
+      return res.status(404).json({ message: 'Not found' });
+    }
+    
     try {
       const { email } = req.body;
       
@@ -283,7 +305,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get user information (authenticated or email-based)
       const user = req.user;
-      const userEmail = user?.email || email;
+      
+      // CRITICAL SECURITY FIX: Prevent email impersonation
+      let userEmail: string;
+      if (user?.email) {
+        // User is authenticated - use their verified email
+        userEmail = user.email;
+      } else if (email) {
+        // Unauthenticated request - verify email ownership
+        const emailCapture = await storage.getEmailCapture(email);
+        if (!emailCapture) {
+          console.warn(`🚨 SECURITY: Attempt to analyze as unverified email ${email} from ${req.ip}`);
+          return res.status(403).json({ 
+            message: "Email not found. Please sign up first or log in to analyze websites." 
+          });
+        }
+        
+        // Check if email capture is recent (within 24 hours) to prevent old email abuse
+        const emailAge = emailCapture.createdAt ? 
+          Date.now() - new Date(emailCapture.createdAt).getTime() : 
+          Date.now();
+        const maxEmailAge = 24 * 60 * 60 * 1000; // 24 hours
+        
+        if (emailAge > maxEmailAge) {
+          console.warn(`🚨 SECURITY: Attempt to use stale email capture ${email} (${Math.floor(emailAge / 1000 / 60 / 60)}h old) from ${req.ip}`);
+          return res.status(403).json({ 
+            message: "Email verification expired. Please sign up again to analyze websites." 
+          });
+        }
+        
+        userEmail = email;
+      } else {
+        userEmail = '';
+      }
       
       if (!userEmail) {
         return res.status(400).json({ 
@@ -369,11 +423,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sitemapContent: null,
         discoveredPages: [],
         // Store user email for tracking
-        analysisMetadata: { userEmail: email } as any
+        analysisMetadata: { userEmail: userEmail } as any
       });
 
       // Start analysis process (async with proper error handling)
-      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, email, tier)
+      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, userEmail, tier)
         .catch(error => {
           console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
           // Ensure the analysis is marked as failed even on unhandled errors
@@ -386,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               analysisMethod: "error",
               message: "Analysis failed due to unexpected error",
               totalPagesFound: 0,
-              userEmail: email,
+              userEmail: userEmail,
               tier,
               error: error.message
             }
@@ -395,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
           
           // Track usage even for completely failed analyses
-          trackUsage(email, 0, 0, 0, 0, 0).catch(trackError => {
+          trackUsage(userEmail, 0, 0, 0, 0, 0).catch(trackError => {
             console.error(`🚨 CRITICAL: Failed to track usage for failed analysis:`, trackError);
           });
         });
