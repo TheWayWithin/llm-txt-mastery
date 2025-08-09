@@ -353,8 +353,9 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   
   console.log(`Total URLs to check: ${discoveredUrls.size}`);
   
-  // Step 4: Validate discovered URLs
-  const validationPromises = Array.from(discoveredUrls).slice(0, 50).map(async (url) => {
+  // Step 4: Validate discovered URLs (increased limit for better coverage)
+  const maxUrlsToValidate = 200; // Increased from 50
+  const validationPromises = Array.from(discoveredUrls).slice(0, maxUrlsToValidate).map(async (url) => {
     try {
       const response = await fetchWithTimeout(url, {
         method: 'HEAD',
@@ -363,7 +364,8 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
         }
       }, 5000);
 
-      if (response.ok) {
+      // Accept both 200 (OK) and 206 (Partial Content) as valid responses
+      if (response.ok || response.status === 206) {
         return {
           url: url,
           lastmod: response.headers.get('last-modified') || undefined,
@@ -384,6 +386,7 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   console.log(`Enhanced crawling found ${pages.length} valid pages`);
 
   if (pages.length === 0) {
+    console.log('WARNING: No pages found through crawling - using homepage as fallback');
     // At minimum, include the original URL
     pages.push({
       url: baseUrl,
@@ -391,6 +394,8 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
       changefreq: 'weekly',
       priority: '1.0'
     });
+  } else if (pages.length < 5) {
+    console.log(`WARNING: Only found ${pages.length} pages - site may have JavaScript-rendered content or access restrictions`);
   }
 
   return pages;
@@ -412,8 +417,8 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
     const $ = cheerio.load(html);
     const links: string[] = [];
 
-    // Extract all internal links
-    $('a[href]').each((_, element) => {
+    // Extract all internal links (be more aggressive for calculator/tool sites)
+    $('a[href], link[href][rel="canonical"], area[href]').each((_, element) => {
       const href = $(element).attr('href');
       if (href) {
         try {
@@ -430,7 +435,7 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
           } else if (href.startsWith('/')) {
             // Relative to root
             fullUrl = `${rootDomain}${href}`;
-          } else if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+          } else if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:') || href.startsWith('data:')) {
             // Skip anchors and non-HTTP links
             return;
           } else {
@@ -458,7 +463,9 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
       }
     });
 
-    return [...new Set(links)]; // Remove duplicates
+    // Return unique links, sorted by URL length (shorter = likely more important)
+    const uniqueLinks = [...new Set(links)];
+    return uniqueLinks.sort((a, b) => a.length - b.length); // Remove duplicates
   } catch (error) {
     console.log(`Failed to crawl ${url} for links: ${error.message}`);
     return [];
