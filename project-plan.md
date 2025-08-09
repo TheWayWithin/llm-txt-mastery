@@ -50,11 +50,17 @@
 - ✅ Strengthen rate limiting to 20 req/min (300-1000% stricter)
 - ✅ Add request fingerprinting with bot detection
 
-#### [ ] Phase 2: Bot Protection (THIS WEEK) - **@developer** + **@architect**
+#### [ ] Phase 2: Smart Bot Protection (FUTURE) - **@developer** + **@architect**
+- [ ] Re-implement fingerprint blocking with intelligent detection
+  - Whitelist legitimate temporary email services
+  - Allow rapid requests during expected flows (analysis polling)
+  - Progressive penalties (throttle → challenge → block)
+  - Bypass for authenticated users
 - [ ] Integrate reCAPTCHA v3 for analysis endpoint
 - [ ] Implement progressive rate limiting
 - [ ] Add cost-based throttling ($1/day limit)
 - [ ] Deploy circuit breakers
+- [ ] Add user recovery mechanisms (CAPTCHA challenges, email verification)
 
 #### [ ] Phase 3: Monitoring (NEXT WEEK) - **@analyst** + **@operator**
 - [ ] Security event logging system
