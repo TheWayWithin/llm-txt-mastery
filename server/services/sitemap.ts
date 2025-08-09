@@ -598,7 +598,10 @@ export async function fetchPageContent(url: string): Promise<string> {
   throw new Error(`Failed to fetch ${url} after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
 }
 
-export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
+export function filterRelevantPages(entries: SitemapEntry[], tier?: string): SitemapEntry[] {
+  // For paid tiers, use less aggressive filtering
+  const isPaidTier = tier && ['coffee', 'growth', 'scale'].includes(tier);
+  
   const excludePatterns = [
     /\.(jpg|jpeg|png|gif|pdf|zip|xml|json|css|js|woff|woff2|ttf|eot|ico|svg)$/i,
     /\/wp-admin\//i,
@@ -609,7 +612,6 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
     /\/checkout/i,
     /\/account/i,
     /\/dashboard/i,
-    /\/search/i,
     /\/tag\//i,
     /\/category\//i,
     /\/page\/\d+/i,
@@ -626,6 +628,11 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
     /\/fonts\//i,
     /\/media\//i
   ];
+  
+  // Only apply /search/ filter for free tier
+  if (!isPaidTier) {
+    excludePatterns.push(/\/search/i);
+  }
 
   const highPriorityPatterns = [
     /\/docs?\//i,
@@ -707,6 +714,12 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
 
     return true;
   });
+  
+  // For paid tiers, return all filtered pages without prioritization
+  if (isPaidTier) {
+    console.log(`🎯 Paid tier (${tier}): returning all ${filtered.length} filtered pages`);
+    return filtered;
+  }
 
   // Sort by priority: high priority first, then medium, then others
   const prioritized = filtered.sort((a, b) => {
@@ -738,9 +751,10 @@ export function filterRelevantPages(entries: SitemapEntry[]): SitemapEntry[] {
 export async function analyzeDiscoveredPages(
   entries: SitemapEntry[], 
   useAI: boolean = false,
-  maxPagesLimit: number = 200
+  maxPagesLimit: number = 200,
+  tier?: string
 ): Promise<DiscoveredPage[]> {
-  const relevantPages = filterRelevantPages(entries);
+  const relevantPages = filterRelevantPages(entries, tier);
   const pages: DiscoveredPage[] = [];
 
   // Use tier-based limit instead of hardcoded 200
