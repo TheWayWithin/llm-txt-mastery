@@ -4,12 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Zap, TrendingUp, DollarSign, Clock, Coffee } from "lucide-react";
 import { getTierDisplayName, getTierColorClass } from "@/lib/tier-utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface UsageDisplayProps {
   userEmail: string;
 }
 
 export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
+  const { toast } = useToast();
   const { data: usageData } = useQuery({
     queryKey: ["/api/usage", userEmail],
     queryFn: async () => {
@@ -154,13 +156,32 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <button 
-                  onClick={() => window.location.href = '/api/stripe/create-coffee-checkout?email=' + encodeURIComponent(userEmail)}
+                  onClick={async () => {
+                    try {
+                      const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+                        email: userEmail
+                      });
+                      const data = await response.json();
+                      if (data.url) {
+                        window.location.href = data.url;
+                      } else {
+                        throw new Error('Failed to create checkout session');
+                      }
+                    } catch (error) {
+                      console.error('Coffee checkout error:', error);
+                      toast({
+                        title: "Payment Setup Failed",
+                        description: "Unable to create checkout session. Please try again.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
                   className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
                   ☕ Buy me a coffee ($4.95)
                 </button>
                 <button 
-                  onClick={() => window.location.href = '/#pricing'}
+                  onClick={() => window.location.href = '/pricing'}
                   className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
                   See all options
@@ -176,13 +197,32 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <button 
-                  onClick={() => window.location.href = '/api/stripe/create-coffee-checkout?email=' + encodeURIComponent(userEmail)}
+                  onClick={async () => {
+                    try {
+                      const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+                        email: userEmail
+                      });
+                      const data = await response.json();
+                      if (data.url) {
+                        window.location.href = data.url;
+                      } else {
+                        throw new Error('Failed to create checkout session');
+                      }
+                    } catch (error) {
+                      console.error('Coffee checkout error:', error);
+                      toast({
+                        title: "Payment Setup Failed",
+                        description: "Unable to create checkout session. Please try again.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
                   className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
                   ☕ Buy me a coffee ($4.95)
                 </button>
                 <button 
-                  onClick={() => window.location.href = '/#pricing'}
+                  onClick={() => window.location.href = '/pricing'}
                   className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
                   See all options

@@ -4,29 +4,6 @@
 
 This library contains standardized mission protocols for common development scenarios. Each mission provides a proven execution pattern for multi-agent collaboration.
 
-### Project Setup Missions
-
-#### 🚀 DEV-SETUP - Greenfield Project Initialization
-**File**: `dev-setup.md`  
-**Purpose**: Initialize new projects with ideation analysis and tracking  
-**Duration**: 30-45 minutes  
-**Required**: Ideation document (PRD, vision, architecture)  
-**Squad**: Coordinator, Strategist, Documenter
-
-#### 🎯 DEV-ALIGNMENT - Existing Project Understanding
-**File**: `dev-alignment.md`  
-**Purpose**: Align AGENT-11 with existing codebases and establish tracking  
-**Duration**: 45-60 minutes  
-**Required**: Existing codebase, ideation docs (optional)  
-**Squad**: Coordinator, Architect, Developer, Strategist
-
-#### 🔌 CONNECT-MCP - MCP Discovery & Connection
-**File**: `connect-mcp.md`  
-**Purpose**: Identify, install, and configure required MCP servers based on project needs  
-**Duration**: 45-90 minutes  
-**Required**: Project requirements, API keys for services  
-**Squad**: Coordinator, Strategist, Developer, Tester, Documenter
-
 ### Core Development Missions
 
 #### 🏗️ BUILD - New Feature Development
