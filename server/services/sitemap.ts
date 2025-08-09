@@ -41,7 +41,7 @@ export interface SitemapResult {
 
 export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   // Add timeout protection to prevent infinite hanging during sitemap discovery
-  const SITEMAP_TIMEOUT = 60 * 1000; // 60 seconds maximum for sitemap discovery
+  const SITEMAP_TIMEOUT = 90 * 1000; // 90 seconds maximum for sitemap discovery (increased for slow sites)
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`Sitemap discovery timeout: exceeded ${SITEMAP_TIMEOUT / 1000}s limit`));
@@ -55,12 +55,38 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
     ]);
   } catch (error) {
     console.error('Sitemap discovery failed:', error);
-    // Return empty result instead of throwing to prevent analysis hanging
+    
+    // CRITICAL FIX: Instead of returning empty results on error/timeout,
+    // attempt basic crawling as a fallback to discover pages
+    console.log('Attempting fallback crawling due to sitemap discovery failure...');
+    
+    try {
+      // Extract root domain for crawling
+      const urlObj = new URL(baseUrl);
+      const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
+      
+      // Use basic crawling as ultimate fallback
+      const fallbackEntries = await basicCrawlFallback(rootDomain);
+      
+      if (fallbackEntries.length > 0) {
+        console.log(`Fallback crawling discovered ${fallbackEntries.length} pages after sitemap failure`);
+        return {
+          entries: fallbackEntries,
+          sitemapFound: false,
+          analysisMethod: "fallback-crawl",
+          message: `Sitemap discovery failed (${error.message}). Found ${fallbackEntries.length} pages through fallback crawling.`
+        };
+      }
+    } catch (crawlError) {
+      console.error('Fallback crawling also failed:', crawlError);
+    }
+    
+    // Only return empty if both sitemap discovery AND fallback crawling fail
     return {
       entries: [],
       sitemapFound: false,
       analysisMethod: "fallback-crawl",
-      message: `Sitemap discovery failed: ${error.message}. Returning empty results.`
+      message: `Sitemap discovery failed: ${error.message}. Fallback crawling also failed. No pages could be discovered.`
     };
   }
 }
@@ -127,7 +153,7 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-      }, 10000);
+      }, 15000); // Increased timeout to 15 seconds for slow sites
 
       if (response.ok) {
         console.log(`Successfully fetched sitemap from: ${sitemapUrl}`);
