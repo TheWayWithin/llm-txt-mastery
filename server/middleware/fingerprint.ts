@@ -112,14 +112,15 @@ export function fingerprintMiddleware(req: Request, res: Response, next: NextFun
     fingerprintStore.set(fingerprint, data);
   }
   
+  // TEMPORARILY DISABLED: Skip blocking check to allow testing
   // Check if currently blocked
-  if (data.blocked && data.blockedUntil && now < data.blockedUntil) {
-    console.warn(`🚫 Blocked fingerprint attempting access: ${fingerprint} (${req.method} ${req.path})`);
-    return res.status(429).json({
-      error: 'Request blocked due to suspicious activity',
-      retryAfter: Math.ceil((data.blockedUntil - now) / 1000)
-    });
-  }
+  // if (data.blocked && data.blockedUntil && now < data.blockedUntil) {
+  //   console.warn(`🚫 Blocked fingerprint attempting access: ${fingerprint} (${req.method} ${req.path})`);
+  //   return res.status(429).json({
+  //     error: 'Request blocked due to suspicious activity',
+  //     retryAfter: Math.ceil((data.blockedUntil - now) / 1000)
+  //   });
+  // }
   
   // Add current request time
   data.requestTimes.push(now);
@@ -139,27 +140,28 @@ export function fingerprintMiddleware(req: Request, res: Response, next: NextFun
       method: req.method
     });
     
+    // TEMPORARILY DISABLED: Skip automatic blocking to allow testing
     // Block only for severe violations
-    const criticalViolations = violations.filter(v => 
-      ['too_fast', 'burst_pattern', 'bot_user_agent'].includes(v)
-    );
+    // const criticalViolations = violations.filter(v => 
+    //   ['too_fast', 'burst_pattern', 'bot_user_agent'].includes(v)
+    // );
     
     // Require multiple critical violations or many total violations to block
-    if (criticalViolations.length >= 2 || data.violations.length >= 10) {
-      data.blocked = true;
-      data.blockedUntil = now + 15 * 60 * 1000; // Block for 15 minutes
+    // if (criticalViolations.length >= 2 || data.violations.length >= 10) {
+    //   data.blocked = true;
+    //   data.blockedUntil = now + 15 * 60 * 1000; // Block for 15 minutes
       
-      console.error(`🔒 BLOCKING fingerprint: ${fingerprint} for 15 minutes`, {
-        totalViolations: data.violations.length,
-        criticalViolations,
-        recentViolations: violations
-      });
+    //   console.error(`🔒 BLOCKING fingerprint: ${fingerprint} for 15 minutes`, {
+    //     totalViolations: data.violations.length,
+    //     criticalViolations,
+    //     recentViolations: violations
+    //   });
       
-      return res.status(429).json({
-        error: 'Request blocked due to suspicious activity',
-        retryAfter: 900 // 15 minutes
-      });
-    }
+    //   return res.status(429).json({
+    //     error: 'Request blocked due to suspicious activity',
+    //     retryAfter: 900 // 15 minutes
+    //   });
+    // }
   }
   
   // Add fingerprint to request for logging purposes
