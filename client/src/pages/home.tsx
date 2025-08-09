@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, User, Settings, Coffee, HelpCircle } from "lucide-react";
@@ -21,10 +21,14 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import ErrorDisplay from "@/components/ErrorDisplay";
 import ResetButton from "@/components/ResetButton";
 import { QuickHelp } from "@/components/HelpSystem";
+import DailyLimitModal from "@/components/DailyLimitModal";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Home() {
   // Import auth hook to get email recognition capability
   const { recognizeEmailUser } = useAuth();
+  const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
 
   // Replace all complex state management with the state machine
   const {
@@ -54,6 +58,18 @@ export default function Home() {
     actions
   } = useFlowStateMachine();
 
+  // Fetch usage data to check limits
+  const { data: usageData } = useQuery({
+    queryKey: ["/api/usage", effectiveEmail],
+    queryFn: async () => {
+      if (!effectiveEmail) return null;
+      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(effectiveEmail)}`);
+      return response.json();
+    },
+    enabled: !!effectiveEmail,
+    refetchInterval: 10000,
+  });
+
   // Stable function reference to prevent infinite loops
   // Uses stable dispatch pattern to avoid dependency on actions object
   const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
@@ -70,7 +86,13 @@ export default function Home() {
   };
 
   const startNewAnalysis = () => {
-    actions.startNewAnalysis();
+    // Check if user has reached daily limit
+    if (usageData && user?.tier === 'starter' && 
+        usageData.usage?.analysesToday >= usageData.limits?.dailyAnalyses) {
+      setShowDailyLimitModal(true);
+    } else {
+      actions.startNewAnalysis();
+    }
   };
 
   const handleViewAnalysisDetails = () => {
@@ -198,7 +220,7 @@ export default function Home() {
                   <Button 
                     size="sm" 
                     className="bg-orange-600 hover:bg-orange-700"
-                    onClick={() => startNewAnalysis()}
+                    onClick={startNewAnalysis}
                   >
                     <Coffee className="h-4 w-4 mr-2" />
                     Start New Analysis
@@ -236,6 +258,17 @@ export default function Home() {
           {/* Usage Display for logged in users */}
           {effectiveEmail && !visibility.error && (
             <UsageDisplay userEmail={effectiveEmail} />
+          )}
+          
+          {/* Daily Limit Modal */}
+          {showDailyLimitModal && usageData && (
+            <DailyLimitModal
+              isOpen={showDailyLimitModal}
+              onClose={() => setShowDailyLimitModal(false)}
+              userEmail={effectiveEmail}
+              currentUsage={usageData.usage?.analysesToday || 0}
+              dailyLimit={usageData.limits?.dailyAnalyses || 3}
+            />
           )}
           
           {/* Step 1: URL Input */}

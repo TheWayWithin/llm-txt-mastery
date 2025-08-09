@@ -180,79 +180,78 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
             </div>
           </div>
         )}
-        {/* Returning Customer Notice */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-blue-800 mb-2">
-            ☕ Already purchased Coffee tier?
-          </h4>
-          <p className="text-xs text-blue-700 mb-3">
-            If you purchased Coffee tier, just enter your email and select "Coffee" - 
-            we'll automatically recognize your purchase and give you premium analysis.
-          </p>
-        </div>
 
-        {/* Tier Selection */}
+        {/* Tier Selection - Grid Layout */}
         <div className="space-y-4">
           <RadioGroup 
             value={selectedTier} 
             onValueChange={(value: any) => setSelectedTier(value)}
-            className="space-y-3"
+            className="grid grid-cols-1 md:grid-cols-2 gap-3"
           >
             {/* Starter Tier */}
-            <div className="flex items-center space-x-3 p-5 border rounded-lg hover:bg-slate-50 transition-colors min-h-[60px] cursor-pointer" onClick={() => setSelectedTier('starter')}>
-              <RadioGroupItem value="starter" id="starter" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer leading-6">
+            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('starter')}>
+              <RadioGroupItem value="starter" id="starter" className="absolute top-4 right-4" />
+              <div className="pr-8">
+                <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer">
                   <Check className="text-green-600 w-5 h-5" />
-                  <span className="font-medium text-base">Free</span>
+                  <span className="font-medium text-lg">Free</span>
                 </Label>
-                <p className="text-sm text-ai-silver mt-2 leading-relaxed">
-                  Perfect for testing • 3 daily analyses • 20 pages • Smart categorization
+                <p className="text-sm text-ai-silver mt-2">
+                  • 3 analyses per day<br/>
+                  • 20 pages per analysis<br/>
+                  • Smart categorization
                 </p>
               </div>
             </div>
 
             {/* Coffee Tier */}
-            <div className="flex items-center space-x-3 p-5 border rounded-lg hover:bg-slate-50 transition-colors border-orange-200 bg-orange-50 min-h-[60px] cursor-pointer" onClick={() => setSelectedTier('coffee')}>
-              <RadioGroupItem value="coffee" id="coffee" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="coffee" className="flex items-center space-x-2 cursor-pointer leading-6 flex-wrap sm:flex-nowrap">
-                  <span className="text-orange-600 text-lg">☕</span>
-                  <span className="font-medium text-base">Coffee Analysis ($4.95)</span>
-                  <span className="text-xs bg-orange-600 text-white px-2 py-1 rounded mt-1 sm:mt-0">ONE-TIME</span>
+            <div className="relative border-2 border-orange-400 rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('coffee')}>
+              <RadioGroupItem value="coffee" id="coffee" className="absolute top-4 right-4" />
+              <div className="absolute -top-3 left-4 bg-orange-600 text-white text-xs px-2 py-1 rounded">MOST POPULAR</div>
+              <div className="pr-8">
+                <Label htmlFor="coffee" className="flex items-center space-x-2 cursor-pointer mt-2">
+                  <span className="text-orange-600 text-xl">☕</span>
+                  <span className="font-medium text-lg">Coffee ($4.95)</span>
                 </Label>
-                <p className="text-sm text-orange-700 mt-2 leading-relaxed">
-                  🏆 Most popular • 200 pages • AI-enhanced quality • One-time payment
+                <p className="text-sm text-orange-700 mt-2">
+                  • Unlimited daily analyses<br/>
+                  • 200 pages per analysis<br/>
+                  • AI-enhanced quality<br/>
+                  • One-time payment
                 </p>
               </div>
             </div>
 
             {/* Growth Tier */}
-            <div className="flex items-center space-x-3 p-5 border rounded-lg hover:bg-slate-50 transition-colors min-h-[60px] cursor-pointer" onClick={() => setSelectedTier('growth')}>
-              <RadioGroupItem value="growth" id="growth" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="growth" className="flex items-center space-x-2 cursor-pointer leading-6 flex-wrap sm:flex-nowrap">
+            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('growth')}>
+              <RadioGroupItem value="growth" id="growth" className="absolute top-4 right-4" />
+              <div className="pr-8">
+                <Label htmlFor="growth" className="flex items-center space-x-2 cursor-pointer">
                   <Zap className="text-innovation-teal w-5 h-5" />
-                  <span className="font-medium text-base">Growth ($25/mo)</span>
-                  <span className="text-xs bg-innovation-teal text-white px-2 py-1 rounded mt-1 sm:mt-0">POPULAR</span>
+                  <span className="font-medium text-lg">Growth ($25/mo)</span>
                 </Label>
-                <p className="text-sm text-ai-silver mt-2 leading-relaxed">
-                  Professional power • Unlimited analyses • 1,000 pages • Smart caching
+                <p className="text-sm text-ai-silver mt-2">
+                  • Unlimited analyses<br/>
+                  • 1,000 pages per analysis<br/>
+                  • Smart caching<br/>
+                  • Priority support
                 </p>
               </div>
             </div>
 
             {/* Scale Tier */}
-            <div className="flex items-center space-x-3 p-5 border rounded-lg hover:bg-slate-50 transition-colors min-h-[60px] cursor-pointer" onClick={() => setSelectedTier('scale')}>
-              <RadioGroupItem value="scale" id="scale" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="scale" className="flex items-center space-x-2 cursor-pointer leading-6 flex-wrap sm:flex-nowrap">
+            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('scale')}>
+              <RadioGroupItem value="scale" id="scale" className="absolute top-4 right-4" />
+              <div className="pr-8">
+                <Label htmlFor="scale" className="flex items-center space-x-2 cursor-pointer">
                   <Crown className="text-mastery-blue w-5 h-5" />
-                  <span className="font-medium text-base">Scale ($99/mo)</span>
-                  <span className="text-xs bg-mastery-blue text-white px-2 py-1 rounded mt-1 sm:mt-0">ENTERPRISE</span>
+                  <span className="font-medium text-lg">Scale ($99/mo)</span>
                 </Label>
-                <p className="text-sm text-ai-silver mt-2 leading-relaxed">
-                  Enterprise ready • Unlimited everything • API access • White-label support
+                <p className="text-sm text-ai-silver mt-2">
+                  • Unlimited everything<br/>
+                  • API access<br/>
+                  • White-label support<br/>
+                  • Dedicated account
                 </p>
               </div>
             </div>

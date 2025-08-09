@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Home from "@/pages/home";
 import CoffeeSuccess from "@/pages/coffee-success";
 import Dashboard from "@/pages/dashboard";
+import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/pricing" component={Pricing} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
       <Route component={NotFound} />
     </Switch>

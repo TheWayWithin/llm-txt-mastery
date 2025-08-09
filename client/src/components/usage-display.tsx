@@ -29,9 +29,11 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
       return data;
     },
     enabled: !!userEmail,
-    refetchInterval: 15000, // Refresh every 15 seconds for more responsive updates
+    refetchInterval: 5000, // Refresh every 5 seconds for immediate updates
     staleTime: 0, // Always refetch
     cacheTime: 0, // Don't cache
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: 'always', // Always refetch on mount
   });
 
   if (!usageData) return null;
@@ -48,10 +50,14 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           <h4 className="text-sm font-semibold text-framework-black">
             {isCoffeeTier ? '☕ Premium Credits' : 'Today\'s Progress'}
           </h4>
-          <span className={`text-xs px-2 py-1 rounded ${
+          <span className={`text-xs px-2 py-1 rounded font-medium ${
             isCoffeeTier 
-              ? 'bg-orange-600 text-white' 
-              : 'bg-mastery-blue text-white'
+              ? 'bg-orange-100 text-orange-800 border border-orange-300' 
+              : usageData.tier === 'starter'
+              ? 'bg-green-100 text-green-800 border border-green-300'
+              : usageData.tier === 'growth'
+              ? 'bg-teal-100 text-teal-800 border border-teal-300'
+              : 'bg-blue-100 text-blue-800 border border-blue-300'
           }`}>
             {getTierDisplayName(usageData.tier)}
           </span>
@@ -138,18 +144,49 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
           </div>
 
           {/* Upgrade Prompts */}
-          {usageData.tier === 'starter' && analysisPercentage >= 80 && (
+          {usageData.tier === 'starter' && analysisPercentage >= 100 && (
             <div className="pt-2 border-t border-slate-200">
-              <p className="text-xs text-ai-silver mb-2">
+              <p className="text-xs text-red-600 font-medium mb-2">
+                🚫 Daily limit reached! Upgrade to continue analyzing.
+              </p>
+              <p className="text-xs text-ai-silver mb-3">
+                Get unlimited daily analyses with AI-enhanced results for just $4.95
+              </p>
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                <button 
+                  onClick={() => window.location.href = '/api/stripe/create-coffee-checkout?email=' + encodeURIComponent(userEmail)}
+                  className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
+                >
+                  ☕ Buy me a coffee ($4.95)
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/#pricing'}
+                  className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center cursor-pointer"
+                >
+                  See all options
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {usageData.tier === 'starter' && analysisPercentage >= 67 && analysisPercentage < 100 && (
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-xs text-amber-600 font-medium mb-2">
                 ⚡ Almost at your daily limit! Keep the momentum going?
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-                <a href="/pricing" className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center">
+                <button 
+                  onClick={() => window.location.href = '/api/stripe/create-coffee-checkout?email=' + encodeURIComponent(userEmail)}
+                  className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
+                >
                   ☕ Buy me a coffee ($4.95)
-                </a>
-                <a href="/pricing" className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center">
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/#pricing'}
+                  className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center cursor-pointer"
+                >
                   See all options
-                </a>
+                </button>
               </div>
             </div>
           )}
