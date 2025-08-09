@@ -1,6 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Coffee, Zap, Crown, AlertCircle } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface DailyLimitModalProps {
   isOpen: boolean;
@@ -11,14 +14,43 @@ interface DailyLimitModalProps {
 }
 
 export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsage, dailyLimit }: DailyLimitModalProps) {
-  const handleCoffeeCheckout = () => {
-    if (userEmail) {
-      window.location.href = `/api/stripe/create-coffee-checkout?email=${encodeURIComponent(userEmail)}`;
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCoffeeCheckout = async () => {
+    if (!userEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please provide your email to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
+        email: userEmail
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Coffee checkout error:', error);
+      toast({
+        title: "Payment Setup Failed",
+        description: "Unable to create checkout session. Please try again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
     }
   };
 
   const handleViewAllOptions = () => {
-    window.location.href = '/#pricing';
+    window.location.href = '/pricing';
   };
 
   return (
@@ -59,8 +91,9 @@ export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsa
                     <Button 
                       onClick={handleCoffeeCheckout}
                       className="bg-orange-600 hover:bg-orange-700 text-white mt-3 w-full"
+                      disabled={isLoading}
                     >
-                      ☕ Buy me a coffee ($4.95)
+                      {isLoading ? "Processing..." : "☕ Buy me a coffee ($4.95)"}
                     </Button>
                   </div>
                 </div>
