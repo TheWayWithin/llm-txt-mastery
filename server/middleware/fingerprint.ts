@@ -5,12 +5,13 @@ import crypto from 'crypto';
 const SUSPICIOUS_PATTERNS = {
   // Missing or suspicious user agents
   NO_USER_AGENT: /^$/,
-  BOT_USER_AGENTS: /bot|crawler|spider|scraper|wget|curl|python|postman|insomnia/i,
-  GENERIC_USER_AGENTS: /^(Mozilla\/5\.0|User-Agent)$/i,
+  // Only block obvious malicious bots, not testing tools
+  BOT_USER_AGENTS: /bot|crawler|spider|scraper|wget|curl|python/i,
+  GENERIC_USER_AGENTS: /^(User-Agent)$/i, // Don't block Mozilla/5.0
   
   // Suspicious request patterns
-  TOO_FAST: 5, // More than 5 requests per second
-  BURST_THRESHOLD: 10, // More than 10 requests in 10 seconds
+  TOO_FAST: 10, // More than 10 requests per second (allow normal browsing)
+  BURST_THRESHOLD: 30, // More than 30 requests in 10 seconds (allow page loads)
   
   // Suspicious headers
   MISSING_ACCEPT: /^$/,
@@ -138,12 +139,13 @@ export function fingerprintMiddleware(req: Request, res: Response, next: NextFun
       method: req.method
     });
     
-    // Block if too many violations or critical violations
+    // Block only for severe violations
     const criticalViolations = violations.filter(v => 
       ['too_fast', 'burst_pattern', 'bot_user_agent'].includes(v)
     );
     
-    if (criticalViolations.length > 0 || data.violations.length >= 5) {
+    // Require multiple critical violations or many total violations to block
+    if (criticalViolations.length >= 2 || data.violations.length >= 10) {
       data.blocked = true;
       data.blockedUntil = now + 15 * 60 * 1000; // Block for 15 minutes
       

@@ -9,7 +9,7 @@ import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth, getTodayUsage, resolveUserFromEmail } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
-import { apiLimiter, analysisLimiter, fileGenerationLimiter } from "./middleware/rate-limit";
+import { apiLimiter, analysisLimiter, fileGenerationLimiter, emailCaptureLimiter } from "./middleware/rate-limit";
 import { fingerprintMiddleware } from "./middleware/fingerprint";
 import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
@@ -213,7 +213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Email capture endpoint for freemium model
-  app.post("/api/email-capture", apiLimiter, async (req, res) => {
+  app.post("/api/email-capture", emailCaptureLimiter, async (req, res) => {
     try {
       const emailData = emailCaptureSchema.parse(req.body);
       
