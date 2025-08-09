@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowRight, Coffee, UserCheck } from 'lucide-react';
+import { ArrowRight, Coffee, UserCheck } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/auth-api';
@@ -114,9 +114,12 @@ export default function CoffeeSuccess() {
             </>
           ) : (
             <>
-              <div className="relative">
-                <CheckCircle className="h-16 w-16 mx-auto mb-6 text-green-500" />
-                <Coffee className="h-8 w-8 absolute -top-2 -right-2 text-orange-500" />
+              <div className="flex justify-center mb-6">
+                <img 
+                  src="/images/success-celebration.png" 
+                  alt="Success! Coffee tier activated" 
+                  className="max-w-xs h-auto max-h-32"
+                />
               </div>
               <h1 className="text-2xl font-bold text-green-800 mb-2">
                 ☕ Coffee Analysis Ready!

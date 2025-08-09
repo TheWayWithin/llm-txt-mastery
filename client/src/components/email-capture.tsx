@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Mail, ArrowRight, Check, Zap, Crown, RotateCcw, Home } from "lucide-react";
+import { Mail, ArrowRight, RotateCcw, Home } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -193,7 +193,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               <RadioGroupItem value="starter" id="starter" className="absolute top-4 right-4" />
               <div className="pr-8">
                 <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer">
-                  <Check className="text-green-600 w-5 h-5" />
+                  <img 
+                    src="/images/tier-free.png" 
+                    alt="Free Tier" 
+                    className="w-6 h-6" 
+                  />
                   <span className="font-medium text-lg">Free</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
@@ -210,7 +214,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               <div className="absolute -top-3 left-4 bg-orange-600 text-white text-xs px-2 py-1 rounded">MOST POPULAR</div>
               <div className="pr-8">
                 <Label htmlFor="coffee" className="flex items-center space-x-2 cursor-pointer mt-2">
-                  <span className="text-orange-600 text-xl">☕</span>
+                  <img 
+                    src="/images/tier-coffee.png" 
+                    alt="Coffee Tier" 
+                    className="w-6 h-6" 
+                  />
                   <span className="font-medium text-lg">Coffee ($4.95)</span>
                 </Label>
                 <p className="text-sm text-orange-700 mt-2">
@@ -227,7 +235,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               <RadioGroupItem value="growth" id="growth" className="absolute top-4 right-4" />
               <div className="pr-8">
                 <Label htmlFor="growth" className="flex items-center space-x-2 cursor-pointer">
-                  <Zap className="text-innovation-teal w-5 h-5" />
+                  <img 
+                    src="/images/tier-growth.png" 
+                    alt="Growth Tier" 
+                    className="w-6 h-6" 
+                  />
                   <span className="font-medium text-lg">Growth ($25/mo)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
@@ -244,7 +256,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               <RadioGroupItem value="scale" id="scale" className="absolute top-4 right-4" />
               <div className="pr-8">
                 <Label htmlFor="scale" className="flex items-center space-x-2 cursor-pointer">
-                  <Crown className="text-mastery-blue w-5 h-5" />
+                  <img 
+                    src="/images/tier-scale.png" 
+                    alt="Scale Tier" 
+                    className="w-6 h-6" 
+                  />
                   <span className="font-medium text-lg">Scale ($99/mo)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">

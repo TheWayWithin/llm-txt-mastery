@@ -231,20 +231,26 @@ export function AnalysisHistory() {
       {filteredAndSortedAnalyses.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
-            <Globe className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/images/empty-state-no-analysis.png" 
+                alt="No analyses yet - friendly robot ready to help" 
+                className="max-w-xs h-auto max-h-48"
+              />
+            </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm || statusFilter !== 'all' ? 'No matching analyses found' : 'No analyses yet'}
+              {searchTerm || statusFilter !== 'all' ? 'No matching analyses found' : 'Ready to analyze your first website!'}
             </h3>
             <p className="text-gray-600 mb-6">
               {searchTerm || statusFilter !== 'all' 
                 ? 'Try adjusting your search or filter criteria' 
-                : 'Start your first website analysis to see it here'
+                : 'Transform your website content into AI-ready format with our expert analysis tools'
               }
             </p>
             {!searchTerm && statusFilter === 'all' && (
               <Link href="/">
                 <a>
-                  <Button>
+                  <Button className="bg-innovation-teal hover:bg-innovation-teal/90">
                     <Globe className="h-4 w-4 mr-2" />
                     Start New Analysis
                   </Button>

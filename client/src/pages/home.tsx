@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, User, Settings, Coffee, HelpCircle } from "lucide-react";
+import { User, Settings, Coffee, HelpCircle } from "lucide-react";
 import { AuthNav } from "@/components/AuthNav";
 import UrlInput from "@/components/url-input";
 import EmailCapture from "@/components/email-capture";
@@ -107,13 +107,11 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-mastery-blue rounded-lg flex items-center justify-center">
-                  <Brain className="text-white text-lg" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-mastery-blue">LLM.txt Mastery</h1>
-                  <p className="text-sm text-ai-silver">Expert-Crafted AI Content Accessibility</p>
-                </div>
+                <img 
+                  src="/images/logo-primary.png" 
+                  alt="LLM.txt Mastery" 
+                  className="h-10 w-auto"
+                />
               </div>
               <div className="flex items-center space-x-4">
                 {/* Help & Reset Actions */}
@@ -154,6 +152,16 @@ export default function Home() {
             Apply the systematic precision of the MASTERY-AI Framework to create professional-grade 
             LLM.txt files that optimize your content for AI systems.
           </p>
+          
+          {/* Hero Illustration */}
+          <div className="my-8 flex justify-center">
+            <img 
+              src="/images/hero-illustration.png" 
+              alt="Website transformation into AI-ready content" 
+              className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
+            />
+          </div>
+          
           <div className="flex items-center justify-center space-x-2 text-sm text-ai-silver">
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
@@ -168,6 +176,60 @@ export default function Home() {
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
               <span>Quality Assured</span>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="mb-16">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold text-framework-black mb-4">
+              How It Works
+            </h3>
+            <p className="text-lg text-ai-silver max-w-2xl mx-auto">
+              Our AI-powered system analyzes your website and creates a professional-grade LLM.txt file in three simple steps.
+            </p>
+          </div>
+          
+          {/* Process Diagram */}
+          <div className="flex justify-center mb-8">
+            <img 
+              src="/images/how-it-works.png" 
+              alt="Three-step process: Enter URL, AI Analysis, Download File" 
+              className="max-w-full h-auto max-h-80 rounded-lg shadow-lg"
+            />
+          </div>
+          
+          {/* Step Details */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-innovation-teal text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                1
+              </div>
+              <h4 className="text-xl font-semibold text-framework-black mb-2">Enter Your URL</h4>
+              <p className="text-ai-silver">
+                Simply paste your website URL and we'll begin the intelligent discovery process using advanced sitemap analysis.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-innovation-teal text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                2
+              </div>
+              <h4 className="text-xl font-semibold text-framework-black mb-2">AI Analysis</h4>
+              <p className="text-ai-silver">
+                Our AI system evaluates your content quality, relevance, and structure to identify the most valuable pages for inclusion.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-innovation-teal text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                3
+              </div>
+              <h4 className="text-xl font-semibold text-framework-black mb-2">Download Your File</h4>
+              <p className="text-ai-silver">
+                Get your professionally formatted, specification-compliant LLM.txt file ready for immediate deployment.
+              </p>
             </div>
           </div>
         </section>

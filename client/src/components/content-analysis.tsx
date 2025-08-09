@@ -295,6 +295,25 @@ export default function ContentAnalysis({
 
   return (
     <div className="space-y-6">
+      {/* Analysis In Progress Illustration */}
+      <Card className="bg-gradient-to-r from-blue-50 to-teal-50 border-blue-200">
+        <CardContent className="p-6 text-center">
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/images/analysis-in-progress.png" 
+              alt="AI analysis in progress - scanning your website" 
+              className="max-w-md h-auto max-h-40 rounded-lg"
+            />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Analyzing Your Website
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Our AI system is carefully examining your content structure and optimizing it for machine readability
+          </p>
+        </CardContent>
+      </Card>
+      
       <AnalysisProgress
         currentStage={currentStage}
         completedStages={completedStages}

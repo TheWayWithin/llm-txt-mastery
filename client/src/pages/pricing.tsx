@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Check, Brain, Coffee, Zap, Crown, ArrowLeft } from "lucide-react";
+import { Check, Coffee, Zap, Crown, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import SubscriptionManagement from '@/components/subscription-management';
@@ -13,13 +13,11 @@ export default function Pricing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-mastery-blue rounded-lg flex items-center justify-center">
-                <Brain className="text-white text-lg" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-mastery-blue">LLM.txt Mastery</h1>
-                <p className="text-sm text-ai-silver">Choose Your Plan</p>
-              </div>
+              <img 
+                src="/images/logo-primary.png" 
+                alt="LLM.txt Mastery" 
+                className="h-10 w-auto"
+              />
             </div>
             <Link href="/">
               <a>
