@@ -1,10 +1,10 @@
 import rateLimit from 'express-rate-limit';
 import type { Request, Response } from 'express';
 
-// General API rate limiting - TIGHTENED FOR SECURITY
+// General API rate limiting - Balanced for security and usability
 export const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 20, // Limit each IP to 20 requests per minute (REDUCED from 100/15min)
+  max: 60, // Limit each IP to 60 requests per minute (balanced for normal usage)
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: '1 minute'
@@ -29,7 +29,7 @@ export const apiLimiter = rateLimit({
 // Strict rate limiting for authentication endpoints
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 auth requests per windowMs
+  max: 10, // Limit each IP to 10 auth requests per windowMs (allow for password mistakes)
   message: {
     error: 'Too many authentication attempts from this IP, please try again later.',
     retryAfter: '15 minutes'
@@ -65,10 +65,10 @@ export const passwordResetLimiter = rateLimit({
   }
 });
 
-// Rate limiting for analysis endpoints - HEAVILY RESTRICTED FOR SECURITY
+// Rate limiting for analysis endpoints - Balanced for legitimate use
 export const analysisLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 3, // Limit each IP to 3 analysis requests per minute (REDUCED from 50/hour)
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // Limit each IP to 20 analysis requests per hour (reasonable for testing)
   message: {
     error: 'Too many analysis requests from this IP, please try again later.',
     retryAfter: '1 minute'
@@ -88,6 +88,25 @@ export const analysisLimiter = rateLimit({
     res.status(429).json({
       error: 'Too many analysis requests from this IP, please try again later.',
       retryAfter: '1 minute'
+    });
+  }
+});
+
+// Rate limiting for email capture - more lenient for testing
+export const emailCaptureLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 10, // Allow 10 email capture attempts per 5 minutes
+  message: {
+    error: 'Too many email capture attempts from this IP, please try again later.',
+    retryAfter: '5 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: true,
+  handler: (req: Request, res: Response) => {
+    res.status(429).json({
+      error: 'Too many email capture attempts from this IP, please try again later.',
+      retryAfter: '5 minutes'
     });
   }
 });
