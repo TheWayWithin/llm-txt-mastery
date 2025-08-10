@@ -132,12 +132,15 @@ router.post('/register', registerLimiter, async (req, res) => {
     console.error('Registration error:', error);
     console.error('Registration error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
+      databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+      nodeEnv: process.env.NODE_ENV
     });
     res.status(500).json({
-      error: 'Registration failed',
+      error: 'Registration failed', 
       code: 'REGISTRATION_ERROR',
-      debug: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
+      debug: error instanceof Error ? error.message : 'Unknown error',
+      dbStatus: process.env.DATABASE_URL ? 'configured' : 'missing'
     });
   }
 });
