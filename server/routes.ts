@@ -10,15 +10,15 @@ import { eq, and } from "drizzle-orm";
 import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth, getTodayUsage, resolveUserFromEmail } from "./services/usage";
 import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter, emailCaptureLimiter } from "./middleware/rate-limit";
-import { fingerprintMiddleware } from "./middleware/fingerprint";
+import { smartBotProtection } from "./middleware/smart-bot-protection";
 import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
 import authRoutes from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Apply fingerprint middleware to all routes for bot detection
-  app.use(fingerprintMiddleware);
+  // Apply smart bot protection to all routes for intelligent bot detection
+  app.use(smartBotProtection);
   
   // Register authentication routes
   app.use("/api/auth", authRoutes);
