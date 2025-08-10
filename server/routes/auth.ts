@@ -130,9 +130,14 @@ router.post('/register', registerLimiter, async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
+    console.error('Registration error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     res.status(500).json({
       error: 'Registration failed',
-      code: 'REGISTRATION_ERROR'
+      code: 'REGISTRATION_ERROR',
+      debug: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
     });
   }
 });
@@ -400,9 +405,14 @@ router.post('/check-email', async (req, res) => {
 
   } catch (error) {
     console.error('Check email error:', error);
+    console.error('Check email error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     res.status(500).json({
       error: 'Failed to check email availability',
-      code: 'EMAIL_CHECK_ERROR'
+      code: 'EMAIL_CHECK_ERROR',
+      debug: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
     });
   }
 });
