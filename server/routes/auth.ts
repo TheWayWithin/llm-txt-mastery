@@ -49,6 +49,8 @@ const registerLimiter = rateLimit({
 // User Registration
 router.post('/register', registerLimiter, async (req, res) => {
   try {
+    console.log('🔍 Registration attempt - DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+    
     // Apply security headers
     Object.entries(getSecurityHeaders()).forEach(([key, value]) => {
       res.setHeader(key, value);
