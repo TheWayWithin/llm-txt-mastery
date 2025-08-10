@@ -16,8 +16,30 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    message: 'Railway backend is running'
+    message: 'Railway backend is running',
+    database: process.env.DATABASE_URL ? 'configured' : 'missing'
   });
+});
+
+// Migration endpoint (temporary - for setting up auth tables)
+app.post('/migrate-auth-tables', async (req, res) => {
+  try {
+    // Only allow with secret key
+    const secretKey = req.headers['x-migration-key'];
+    if (secretKey !== 'migrate-2025-auth') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    const { migrateAuthTables } = await import('./migrate-auth-tables');
+    await migrateAuthTables();
+    res.json({ success: true, message: 'Auth tables migrated' });
+  } catch (error) {
+    console.error('Migration endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Migration failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 // Trust proxy for Railway deployment
