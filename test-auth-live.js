@@ -71,6 +71,20 @@ import { chromium } from 'playwright';
   
   console.log(`📧 Attempting registration with email: ${testEmail}`);
   
+  // Listen for console messages
+  page.on('console', msg => {
+    if (msg.type() === 'error') {
+      console.log('🔴 Console error:', msg.text());
+    }
+  });
+  
+  // Listen for network responses
+  page.on('response', response => {
+    if (response.url().includes('/api/auth/') && response.status() >= 400) {
+      console.log(`🔴 API error: ${response.url()} - Status: ${response.status()}`);
+    }
+  });
+  
   // Click Create Account
   await page.click('button:has-text("Create Account")');
   
@@ -81,15 +95,33 @@ import { chromium } from 'playwright';
   const errorText = await page.textContent('.text-red-600, [role="alert"]').catch(() => null);
   if (errorText) {
     console.log('❌ Registration error:', errorText);
+  } else {
+    console.log('✅ No error message displayed');
   }
+  
+  // Check if modal is still open
+  const modalStillOpen = await page.isVisible('[role="dialog"]');
+  console.log('📝 Modal still open:', modalStillOpen);
   
   // Check if we're logged in
   const profileButton = await page.isVisible('button:has-text("Profile")').catch(() => false);
-  console.log('✅ Logged in successfully:', profileButton);
+  console.log('👤 Profile button visible:', profileButton);
+  
+  // Check for any success message
+  const successMessage = await page.textContent('.text-green-600').catch(() => null);
+  if (successMessage) {
+    console.log('✅ Success message:', successMessage);
+  }
   
   // Check current URL
   const currentUrl = page.url();
   console.log('📍 Current URL:', currentUrl);
+  
+  // Check localStorage for auth tokens
+  const hasToken = await page.evaluate(() => {
+    return localStorage.getItem('accessToken') !== null;
+  });
+  console.log('🔑 Has auth token:', hasToken);
   
   await browser.close();
 })();
