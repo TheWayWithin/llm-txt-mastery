@@ -10,9 +10,10 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 interface LoginFormProps {
   onSwitchToSignup: () => void
   onSwitchToForgotPassword: () => void
+  onSuccess?: () => void
 }
 
-export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword }: LoginFormProps) {
+export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword, onSuccess }: LoginFormProps) {
   const { signIn } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -27,6 +28,10 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword }: LoginF
 
     try {
       await signIn(email, password)
+      // Successfully logged in
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
     } finally {

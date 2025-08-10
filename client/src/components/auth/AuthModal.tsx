@@ -46,10 +46,12 @@ export function AuthModal({
           <LoginForm 
             onSwitchToSignup={handleSwitchToSignup} 
             onSwitchToForgotPassword={handleSwitchToForgotPassword}
+            onSuccess={onClose}
           />
         ) : mode === 'signup' ? (
           <SignupForm 
             onSwitchToLogin={handleSwitchToLogin}
+            onSuccess={onClose}
             defaultEmail={defaultEmail}
             defaultTier={defaultTier}
           />
