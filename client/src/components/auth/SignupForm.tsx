@@ -10,11 +10,12 @@ import { Eye, EyeOff, Mail, Lock, User, Check, X, Loader2 } from "lucide-react"
 
 interface SignupFormProps {
   onSwitchToLogin: () => void
+  onSuccess?: () => void
   defaultEmail?: string
   defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale'
 }
 
-export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = 'starter' }: SignupFormProps) {
+export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defaultTier = 'starter' }: SignupFormProps) {
   const { signUp } = useAuth()
   const [email, setEmail] = useState(defaultEmail)
   const [password, setPassword] = useState("")
@@ -23,7 +24,6 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [passwordValidation, setPasswordValidation] = useState<{
     valid: boolean;
     errors: string[];
@@ -100,43 +100,15 @@ export function SignupForm({ onSwitchToLogin, defaultEmail = "", defaultTier = '
 
     try {
       await signUp(email, password, confirmPassword, defaultTier)
-      setSuccess(true)
+      // Successfully registered and logged in
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed")
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center text-green-600">Check Your Email!</CardTitle>
-          <CardDescription className="text-center">
-            We've sent you a confirmation link at <strong>{email}</strong>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <Alert>
-              <AlertDescription>
-                Please check your email and click the confirmation link to activate your account.
-              </AlertDescription>
-            </Alert>
-            
-            <Button
-              onClick={onSwitchToLogin}
-              variant="outline"
-              className="w-full min-h-[48px] px-6 py-3"
-              size="default"
-            >
-              Back to Sign In
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    )
   }
 
   return (

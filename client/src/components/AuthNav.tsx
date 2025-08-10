@@ -68,15 +68,6 @@ export function AuthNav() {
       <>
         <div className="flex items-center space-x-2">
           <Button 
-            variant="ghost" 
-            onClick={() => {
-              setAuthMode('login')
-              setShowAuthModal(true)
-            }}
-          >
-            Sign In
-          </Button>
-          <Button 
             onClick={() => {
               setAuthMode('signup')
               setShowAuthModal(true)
