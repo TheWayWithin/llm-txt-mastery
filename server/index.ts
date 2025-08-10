@@ -31,8 +31,8 @@ app.post('/migrate-auth-tables', async (req, res) => {
     }
     
     const { migrateAuthTables } = await import('./migrate-auth-tables');
-    await migrateAuthTables();
-    res.json({ success: true, message: 'Auth tables migrated' });
+    const result = await migrateAuthTables();
+    res.json({ success: true, message: 'Auth tables migrated', result });
   } catch (error) {
     console.error('Migration endpoint error:', error);
     res.status(500).json({ 

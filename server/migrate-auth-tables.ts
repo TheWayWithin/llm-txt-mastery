@@ -67,7 +67,7 @@ async function migrateAuthTables() {
     }
     
     console.log('✅ Auth tables migration completed successfully');
-    process.exit(0);
+    return { success: true, tablesCreated: tablesCheck.rows.length };
   } catch (error) {
     console.error('❌ Migration failed:', error);
     if (error instanceof Error) {
@@ -76,7 +76,7 @@ async function migrateAuthTables() {
         stack: error.stack
       });
     }
-    process.exit(1);
+    throw error;
   }
 }
 
