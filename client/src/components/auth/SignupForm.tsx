@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { authApi } from "@/lib/auth-api"
+import { validatePasswordClient } from "@/lib/auth-utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,21 +36,21 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
   // Validate password strength as user types
   useEffect(() => {
     if (password.length > 0) {
+      // Use client-side validation immediately for instant feedback
+      const clientValidation = validatePasswordClient(password);
+      setPasswordValidation(clientValidation);
+      
+      // Also try API validation for consistency, but don't rely on it
       authApi.validatePassword(password)
-        .then(setPasswordValidation)
+        .then(apiValidation => {
+          // Only update if API returns a different result
+          if (apiValidation.valid !== clientValidation.valid) {
+            setPasswordValidation(apiValidation);
+          }
+        })
         .catch(() => {
-          // Fallback validation if API fails
-          setPasswordValidation({
-            valid: password.length >= 8,
-            errors: password.length < 8 ? ['Password must be at least 8 characters long'] : [],
-            requirements: [
-              'At least 8 characters long',
-              'Contains at least one lowercase letter',
-              'Contains at least one uppercase letter',
-              'Contains at least one number',
-              'Contains at least one special character'
-            ]
-          });
+          // If API fails, we already have client-side validation
+          // No need to do anything
         });
     } else {
       setPasswordValidation(null);
@@ -86,7 +87,9 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
       return
     }
 
-    if (!passwordValidation?.valid) {
+    // Use client-side validation as fallback if passwordValidation is not set
+    const validation = passwordValidation || validatePasswordClient(password);
+    if (!validation.valid) {
       setError("Password does not meet requirements")
       setLoading(false)
       return
