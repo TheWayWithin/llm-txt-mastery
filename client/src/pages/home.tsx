@@ -110,7 +110,7 @@ export default function Home() {
                 <img 
                   src="/images/logo-primary.png" 
                   alt="LLM.txt Mastery" 
-                  className="h-10 w-auto"
+                  className="h-12 md:h-14 w-auto"
                 />
               </div>
               <div className="flex items-center space-x-4">
@@ -159,6 +159,8 @@ export default function Home() {
               src="/images/hero-illustration.png" 
               alt="Website transformation into AI-ready content" 
               className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
+              loading="eager"
+              fetchPriority="high"
             />
           </div>
           
@@ -192,11 +194,12 @@ export default function Home() {
           </div>
           
           {/* Process Diagram */}
-          <div className="flex justify-center mb-8">
+          <div className="my-8 flex justify-center">
             <img 
               src="/images/how-it-works.png" 
               alt="Three-step process: Enter URL, AI Analysis, Download File" 
-              className="max-w-full h-auto max-h-80 rounded-lg shadow-lg"
+              className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
+              loading="lazy"
             />
           </div>
           
