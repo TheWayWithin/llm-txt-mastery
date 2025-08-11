@@ -295,7 +295,7 @@ export const insertUserProfileSchema = createInsertSchema(userProfiles).pick({
 
 export const emailCaptureSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  websiteUrl: z.string().url("Please enter a valid URL"),
+  websiteUrl: z.string().url("Please enter a valid URL").optional().nullable(),
   tier: z.enum(["starter", "coffee", "growth", "scale"]).default("starter"),
 });
 
