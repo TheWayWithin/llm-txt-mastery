@@ -40,8 +40,8 @@ const authLimiter = rateLimit({
 });
 
 const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 registrations per hour per IP
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 registrations per 15 minutes per IP
   message: {
     error: 'Too many registration attempts',
     code: 'REGISTRATION_RATE_LIMIT'
