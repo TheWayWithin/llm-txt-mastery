@@ -127,7 +127,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         confirmPassword,
       })
       setUser(response.user)
-      console.log('✅ User signed up successfully:', response.user.email, 'tier:', response.user.tier)
+      console.log('✅ User signed up successfully:', response.user.email, 'tier:', response.user.tier, 'emailVerified:', response.user.emailVerified)
     } catch (error) {
       console.error('❌ Sign up failed:', error)
       throw error
