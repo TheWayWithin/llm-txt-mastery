@@ -142,6 +142,22 @@ export default function Home() {
           </div>
         </header>
 
+      {/* Email Verification Banner - Show immediately after header */}
+      {user && console.log('🔍 User verification check:', { 
+        hasUser: !!user, 
+        email: user?.email, 
+        emailVerified: user?.emailVerified,
+        typeOfEmailVerified: typeof user?.emailVerified,
+        isExactlyFalse: user?.emailVerified === false,
+        shouldShowBanner: user?.emailVerified === false,
+        fullUserObject: user
+      })}
+      {user && user.emailVerified === false && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
@@ -295,20 +311,6 @@ export default function Home() {
               </div>
             </div>
           </section>
-        )}
-
-        {/* Email Verification Banner */}
-        {user && console.log('🔍 User verification check:', { 
-          hasUser: !!user, 
-          email: user?.email, 
-          emailVerified: user?.emailVerified,
-          typeOfEmailVerified: typeof user?.emailVerified,
-          isExactlyFalse: user?.emailVerified === false,
-          shouldShowBanner: user?.emailVerified === false,
-          fullUserObject: user
-        })}
-        {user && user.emailVerified === false && (
-          <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
         )}
 
         {/* Progress Breadcrumb - Show when user has started the flow */}
