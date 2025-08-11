@@ -22,6 +22,7 @@ import ErrorDisplay from "@/components/ErrorDisplay";
 import ResetButton from "@/components/ResetButton";
 import { QuickHelp } from "@/components/HelpSystem";
 import DailyLimitModal from "@/components/DailyLimitModal";
+import EmailVerificationBanner from "@/components/email-verification-banner";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -294,6 +295,11 @@ export default function Home() {
               </div>
             </div>
           </section>
+        )}
+
+        {/* Email Verification Banner */}
+        {user && !user.emailVerified && (
+          <EmailVerificationBanner userEmail={user.email} />
         )}
 
         {/* Progress Breadcrumb - Show when user has started the flow */}
