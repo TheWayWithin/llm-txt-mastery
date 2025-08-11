@@ -37,8 +37,8 @@ const IMAGE_CONFIG = {
   }
 };
 
-const SOURCE_DIR = path.join(__dirname, '../dist/public/images');
-const OUTPUT_DIR = path.join(__dirname, '../dist/public/images/optimized');
+const SOURCE_DIR = path.join(__dirname, '../client/public/images');
+const OUTPUT_DIR = path.join(__dirname, '../client/public/images/optimized');
 
 async function ensureDirectory(dir) {
   try {
