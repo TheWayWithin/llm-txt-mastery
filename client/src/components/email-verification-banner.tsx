@@ -2,16 +2,22 @@ import React, { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Mail, Loader2, CheckCircle2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export default function EmailVerificationBanner() {
-  const { user } = useAuth();
+interface EmailVerificationBannerProps {
+  userEmail: string;
+  emailVerified?: boolean;
+}
+
+export default function EmailVerificationBanner({ userEmail, emailVerified }: EmailVerificationBannerProps) {
   const [isResending, setIsResending] = useState(false);
   const [resent, setResent] = useState(false);
 
-  // Don't show if no user or email is already verified
-  if (!user || user.emailVerified) {
+  // Log for debugging and prevent tree-shaking
+  console.log('📧 EmailVerificationBanner rendered:', { userEmail, emailVerified });
+
+  // Don't show if email is already verified
+  if (emailVerified !== false) {
     return null;
   }
 
