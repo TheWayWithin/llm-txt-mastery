@@ -173,12 +173,11 @@ export default function Home() {
           
           {/* Hero Illustration */}
           <div className="my-8 flex justify-center">
-            <OptimizedImage
+            <img
               src="/images/hero-illustration.png" 
               alt="Website transformation into AI-ready content" 
               className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
               loading="eager"
-              sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
             />
           </div>
           
@@ -213,12 +212,11 @@ export default function Home() {
           
           {/* Process Diagram */}
           <div className="my-8 flex justify-center">
-            <OptimizedImage
+            <img
               src="/images/how-it-works.png" 
               alt="Three-step process: Enter URL, AI Analysis, Download File" 
               className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
               loading="lazy"
-              sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
             />
           </div>
           
