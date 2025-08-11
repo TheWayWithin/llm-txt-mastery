@@ -108,7 +108,17 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
         onSuccess()
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Signup failed")
+      console.error('SignupForm: Registration error:', err);
+      const errorMessage = err instanceof Error ? err.message : "Signup failed";
+      
+      // Handle rate limiting specifically
+      if (errorMessage.includes('Too many registration attempts')) {
+        setError("Too many registration attempts. Please wait a few minutes and try again.");
+      } else if (errorMessage.includes('429')) {
+        setError("Registration temporarily limited. Please try again in a few minutes.");
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false)
     }
