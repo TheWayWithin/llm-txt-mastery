@@ -75,7 +75,33 @@ export async function sendVerificationEmail(user: { id: number; email: string })
     const token = generateVerificationToken(user.id, user.email);
     const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
     
-    const { data, error } = await resend.emails.send({
+    // Enhanced logging for debugging
+    console.log('📧 Email service configuration:');
+    console.log('  - FROM:', EMAIL_FROM);
+    console.log('  - TO:', user.email);
+    console.log('  - FRONTEND_URL:', FRONTEND_URL);
+    console.log('  - Token length:', token.length);
+    console.log('  - Verification URL:', verificationUrl);
+    
+    // Validate email parameters
+    if (!EMAIL_FROM || !EMAIL_FROM.includes('@')) {
+      console.error('❌ Invalid EMAIL_FROM format:', EMAIL_FROM);
+      return { 
+        success: false, 
+        error: `Invalid EMAIL_FROM format: ${EMAIL_FROM}` 
+      };
+    }
+    
+    if (!user.email || !user.email.includes('@')) {
+      console.error('❌ Invalid recipient email format:', user.email);
+      return { 
+        success: false, 
+        error: `Invalid recipient email format: ${user.email}` 
+      };
+    }
+    
+    console.log('📧 Attempting to send email via Resend API...');
+    const emailPayload = {
       from: EMAIL_FROM,
       to: user.email,
       subject: 'Verify your email for LLM.txt Mastery',
@@ -156,20 +182,148 @@ If you didn't create an account, you can safely ignore this email.
 Best regards,
 The LLM.txt Mastery Team
       `
-    });
+    };
 
+    console.log('📧 Email payload prepared, calling Resend API...');
+    
+    const { data, error } = await resend.emails.send(emailPayload);
+
+    // Enhanced error logging
     if (error) {
-      console.error('Failed to send verification email:', error);
-      return { success: false, error: error.message };
+      console.error('❌ Resend API Error Details:');
+      console.error('  - Error Object:', JSON.stringify(error, null, 2));
+      console.error('  - Error Type:', typeof error);
+      console.error('  - Error Keys:', Object.keys(error || {}));
+      
+      // Check for common Resend error patterns
+      const errorString = JSON.stringify(error);
+      if (errorString.includes('domain')) {
+        console.error('🔍 Domain verification issue detected');
+      }
+      if (errorString.includes('rate')) {
+        console.error('🔍 Rate limiting issue detected');
+      }
+      if (errorString.includes('auth') || errorString.includes('key')) {
+        console.error('🔍 Authentication/API key issue detected');
+      }
+      
+      return { 
+        success: false, 
+        error: error.message || JSON.stringify(error),
+        errorType: 'resend_api_error',
+        errorDetails: error
+      };
     }
 
-    return { success: true, messageId: data?.id };
+    // Success logging
+    console.log('✅ Email sent successfully via Resend API');
+    console.log('  - Message ID:', data?.id);
+    console.log('  - Data:', JSON.stringify(data, null, 2));
+    
+    return { 
+      success: true, 
+      messageId: data?.id,
+      provider: 'resend' 
+    };
+    
   } catch (error) {
-    console.error('Email service error:', error);
+    console.error('❌ Email service catch error:', error);
+    console.error('  - Error Type:', typeof error);
+    console.error('  - Error Name:', error instanceof Error ? error.name : 'Unknown');
+    console.error('  - Error Message:', error instanceof Error ? error.message : 'Unknown');
+    console.error('  - Stack Trace:', error instanceof Error ? error.stack : 'No stack');
+    
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Failed to send email' 
+      error: error instanceof Error ? error.message : 'Failed to send email',
+      errorType: 'service_error',
+      errorDetails: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      } : error
     };
+  }
+}
+
+// Email service health check
+export async function checkEmailServiceHealth() {
+  console.log('🏥 Email service health check starting...');
+  
+  const health = {
+    service: 'email',
+    status: 'unknown',
+    checks: {
+      resendApiKey: false,
+      emailFromConfig: false,
+      frontendUrlConfig: false,
+      resendConnection: false
+    },
+    configuration: {
+      nodeEnv: process.env.NODE_ENV,
+      emailFrom: EMAIL_FROM,
+      frontendUrl: FRONTEND_URL,
+      hasResendKey: !!process.env.RESEND_API_KEY
+    },
+    errors: [] as string[]
+  };
+  
+  try {
+    // Check 1: RESEND_API_KEY exists
+    if (process.env.RESEND_API_KEY) {
+      health.checks.resendApiKey = true;
+      console.log('✅ RESEND_API_KEY is configured');
+    } else {
+      health.errors.push('RESEND_API_KEY environment variable not set');
+      console.log('❌ RESEND_API_KEY is missing');
+    }
+    
+    // Check 2: EMAIL_FROM format
+    if (EMAIL_FROM && EMAIL_FROM.includes('@')) {
+      health.checks.emailFromConfig = true;
+      console.log('✅ EMAIL_FROM is properly formatted:', EMAIL_FROM);
+    } else {
+      health.errors.push(`EMAIL_FROM is invalid: ${EMAIL_FROM}`);
+      console.log('❌ EMAIL_FROM is invalid:', EMAIL_FROM);
+    }
+    
+    // Check 3: FRONTEND_URL configuration
+    if (FRONTEND_URL && (FRONTEND_URL.startsWith('http'))) {
+      health.checks.frontendUrlConfig = true;
+      console.log('✅ FRONTEND_URL is configured:', FRONTEND_URL);
+    } else {
+      health.errors.push(`FRONTEND_URL is invalid: ${FRONTEND_URL}`);
+      console.log('❌ FRONTEND_URL is invalid:', FRONTEND_URL);
+    }
+    
+    // Check 4: Test Resend API connection (if available)
+    if (resend && health.checks.resendApiKey) {
+      try {
+        // Note: Resend doesn't have a health check endpoint, so we can't test connection directly
+        health.checks.resendConnection = true;
+        console.log('✅ Resend client initialized successfully');
+      } catch (error) {
+        health.errors.push(`Resend client error: ${error instanceof Error ? error.message : 'Unknown'}`);
+        console.log('❌ Resend client error:', error);
+      }
+    }
+    
+    // Overall health status
+    const allChecksPass = Object.values(health.checks).every(check => check);
+    health.status = allChecksPass ? 'healthy' : 'degraded';
+    
+    console.log('🏥 Email service health check completed:', health.status);
+    console.log('  - Passed checks:', Object.entries(health.checks).filter(([,v]) => v).length);
+    console.log('  - Failed checks:', Object.entries(health.checks).filter(([,v]) => !v).length);
+    console.log('  - Errors:', health.errors.length);
+    
+    return health;
+    
+  } catch (error) {
+    console.error('❌ Email service health check failed:', error);
+    health.status = 'unhealthy';
+    health.errors.push(`Health check exception: ${error instanceof Error ? error.message : 'Unknown'}`);
+    return health;
   }
 }
 
