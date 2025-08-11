@@ -298,8 +298,14 @@ export default function Home() {
         )}
 
         {/* Email Verification Banner */}
-        {user && !user.emailVerified && (
-          <EmailVerificationBanner userEmail={user.email} />
+        {user && console.log('🔍 User verification check:', { 
+          hasUser: !!user, 
+          email: user?.email, 
+          emailVerified: user?.emailVerified,
+          shouldShowBanner: user?.emailVerified === false 
+        })}
+        {user && user.emailVerified === false && (
+          <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
         )}
 
         {/* Progress Breadcrumb - Show when user has started the flow */}
