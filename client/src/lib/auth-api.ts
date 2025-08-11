@@ -84,6 +84,13 @@ class AuthApiClient {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('API Error:', {
+        status: response.status,
+        endpoint,
+        error: data.error,
+        code: data.code,
+        details: data.details || data
+      });
       throw new Error(data.error || `HTTP ${response.status}`);
     }
 
