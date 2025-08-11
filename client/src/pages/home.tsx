@@ -23,6 +23,7 @@ import ResetButton from "@/components/ResetButton";
 import { QuickHelp } from "@/components/HelpSystem";
 import DailyLimitModal from "@/components/DailyLimitModal";
 import EmailVerificationBanner from "@/components/email-verification-banner";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -172,12 +173,12 @@ export default function Home() {
           
           {/* Hero Illustration */}
           <div className="my-8 flex justify-center">
-            <img 
+            <OptimizedImage
               src="/images/hero-illustration.png" 
               alt="Website transformation into AI-ready content" 
               className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
               loading="eager"
-              fetchPriority="high"
+              sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
             />
           </div>
           
@@ -212,11 +213,12 @@ export default function Home() {
           
           {/* Process Diagram */}
           <div className="my-8 flex justify-center">
-            <img 
+            <OptimizedImage
               src="/images/how-it-works.png" 
               alt="Three-step process: Enter URL, AI Analysis, Download File" 
               className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
               loading="lazy"
+              sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
             />
           </div>
           
