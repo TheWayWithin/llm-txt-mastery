@@ -743,9 +743,11 @@ router.post('/resend-verification', authenticate, async (req, res) => {
     });
     
     if (!result.success) {
+      console.error('❌ Resend verification failed:', result.error);
       return res.status(500).json({
-        error: 'Failed to send verification email',
-        code: 'EMAIL_SEND_FAILED'
+        error: result.error || 'Failed to send verification email',
+        code: 'EMAIL_SEND_FAILED',
+        details: result.error
       });
     }
     

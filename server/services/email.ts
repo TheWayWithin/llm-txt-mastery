@@ -47,13 +47,27 @@ export function verifyEmailToken(token: string): { userId: number; email: string
 
 // Send verification email
 export async function sendVerificationEmail(user: { id: number; email: string }) {
+  console.log('📧 sendVerificationEmail called for:', user.email);
+  console.log('📧 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+  console.log('📧 NODE_ENV:', process.env.NODE_ENV);
+  
   // In development without Resend key, log the link
   if (!resend) {
     const token = generateVerificationToken(user.id, user.email);
     const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
-    console.log('📧 Verification Email (Dev Mode):');
+    console.log('📧 Verification Email (No Resend API Key):');
     console.log(`To: ${user.email}`);
     console.log(`Verification URL: ${verificationUrl}`);
+    
+    // In production, this is an error
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❌ RESEND_API_KEY not set in production! Email cannot be sent.');
+      return { 
+        success: false, 
+        error: 'RESEND_API_KEY not configured in production environment' 
+      };
+    }
+    
     return { success: true, message: 'Email logged to console (dev mode)' };
   }
 
