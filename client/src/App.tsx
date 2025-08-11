@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import CoffeeSuccess from "@/pages/coffee-success";
 import Dashboard from "@/pages/dashboard";
 import Pricing from "@/pages/pricing";
+import VerifyEmail from "@/pages/verify-email";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
+      <Route path="/verify-email" component={VerifyEmail} />
       <Route component={NotFound} />
     </Switch>
   );

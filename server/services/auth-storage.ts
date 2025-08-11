@@ -49,6 +49,16 @@ export class AuthStorage {
     return result.length > 0;
   }
 
+  async updateUserPassword(userId: number, passwordHash: string): Promise<boolean> {
+    const result = await db
+      .update(authUsers)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(authUsers.id, userId))
+      .returning({ id: authUsers.id });
+    
+    return result.length > 0;
+  }
+
   async updateUserTier(id: number, tier: UserTier, creditsRemaining?: number): Promise<boolean> {
     const updates: any = { tier, updatedAt: new Date() };
     if (creditsRemaining !== undefined) {
