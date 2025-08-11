@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function VerifyEmailPage() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'already-verified'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
     
     if (!token) {
       setVerificationState('error');
@@ -23,11 +23,11 @@ export default function VerifyEmailPage() {
 
     // Verify the email
     verifyEmail(token);
-  }, [searchParams]);
+  }, []);
 
   const verifyEmail = async (token: string) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/verify-email?token=${token}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/verify-email?token=${token}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -55,11 +55,11 @@ export default function VerifyEmailPage() {
   };
 
   const handleContinue = () => {
-    navigate('/');
+    setLocation('/');
   };
 
   const handleLogin = () => {
-    navigate('/auth?mode=login');
+    setLocation('/');
   };
 
   return (
