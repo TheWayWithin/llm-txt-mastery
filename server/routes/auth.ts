@@ -1,6 +1,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
+import jwt from 'jsonwebtoken';
 import { 
   hashPassword, 
   verifyPassword, 
@@ -16,6 +17,7 @@ import {
 } from '../services/auth';
 import { authStorage } from '../services/auth-storage';
 import { authenticate, optionalAuth } from '../middleware/auth';
+import { sendVerificationEmail, sendPasswordResetEmail, verifyEmailToken } from '../services/email';
 import { 
   userRegistrationSchema, 
   userLoginSchema, 
@@ -118,6 +120,11 @@ router.post('/register', registerLimiter, async (req, res) => {
       ipAddress: req.ip
     });
 
+    // Send verification email (non-blocking)
+    sendVerificationEmail(user).catch(error => {
+      console.error('Failed to send verification email:', error);
+    });
+
     // Return auth response
     const authResponse = createAuthResponse({
       ...user,
@@ -126,7 +133,7 @@ router.post('/register', registerLimiter, async (req, res) => {
     
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully. Please check your email to verify your account.',
       ...authResponse
     });
 
@@ -648,6 +655,217 @@ router.get('/my-analyses/:id', authenticate, async (req, res) => {
     res.status(500).json({
       error: 'Failed to get analysis details',
       code: 'ANALYSIS_ERROR'
+    });
+  }
+});
+
+// Email verification endpoint
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+    
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({
+        error: 'Verification token is required',
+        code: 'TOKEN_REQUIRED'
+      });
+    }
+    
+    // Verify the token
+    const tokenData = verifyEmailToken(token);
+    if (!tokenData) {
+      return res.status(400).json({
+        error: 'Invalid or expired verification token',
+        code: 'INVALID_TOKEN'
+      });
+    }
+    
+    // Get user and verify email matches
+    const user = await authStorage.getUserById(tokenData.userId);
+    if (!user || user.email !== tokenData.email) {
+      return res.status(400).json({
+        error: 'Token validation failed',
+        code: 'TOKEN_VALIDATION_FAILED'
+      });
+    }
+    
+    // Check if already verified
+    if (user.emailVerified) {
+      return res.json({
+        success: true,
+        message: 'Email already verified',
+        alreadyVerified: true
+      });
+    }
+    
+    // Mark email as verified
+    await authStorage.verifyUserEmail(user.id);
+    
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
+      email: user.email
+    });
+    
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({
+      error: 'Email verification failed',
+      code: 'VERIFICATION_ERROR'
+    });
+  }
+});
+
+// Resend verification email
+router.post('/resend-verification', authenticate, async (req, res) => {
+  try {
+    const authUser = req.user;
+    if (!authUser) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+    
+    // Check if already verified
+    if (authUser.emailVerified) {
+      return res.json({
+        success: true,
+        message: 'Email already verified',
+        alreadyVerified: true
+      });
+    }
+    
+    // Send verification email
+    const result = await sendVerificationEmail({
+      id: authUser.id,
+      email: authUser.email
+    });
+    
+    if (!result.success) {
+      return res.status(500).json({
+        error: 'Failed to send verification email',
+        code: 'EMAIL_SEND_FAILED'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Verification email sent successfully'
+    });
+    
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({
+      error: 'Failed to resend verification email',
+      code: 'RESEND_ERROR'
+    });
+  }
+});
+
+// Request password reset
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({
+        error: 'Email is required',
+        code: 'EMAIL_REQUIRED'
+      });
+    }
+    
+    // Get user by email
+    const user = await authStorage.getUserByEmail(email);
+    
+    // Always return success to prevent email enumeration
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent'
+      });
+    }
+    
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(400).json({
+        error: 'Please verify your email address first',
+        code: 'EMAIL_NOT_VERIFIED'
+      });
+    }
+    
+    // Send password reset email
+    const result = await sendPasswordResetEmail({
+      id: user.id,
+      email: user.email
+    });
+    
+    res.json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent'
+    });
+    
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    res.status(500).json({
+      error: 'Failed to process password reset request',
+      code: 'RESET_REQUEST_ERROR'
+    });
+  }
+});
+
+// Reset password with token
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        error: 'Token and new password are required',
+        code: 'MISSING_PARAMETERS'
+      });
+    }
+    
+    // Validate new password
+    const validation = validatePassword(newPassword);
+    if (!validation.valid) {
+      return res.status(400).json({
+        error: 'Password does not meet requirements',
+        code: 'WEAK_PASSWORD',
+        details: validation.errors
+      });
+    }
+    
+    // Verify token (reusing email verification token logic for simplicity)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    if (decoded.type !== 'password-reset') {
+      return res.status(400).json({
+        error: 'Invalid reset token',
+        code: 'INVALID_TOKEN'
+      });
+    }
+    
+    // Update password
+    const passwordHash = await hashPassword(newPassword);
+    await authStorage.updateUserPassword(decoded.userId, passwordHash);
+    
+    res.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+    
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        error: 'Invalid or expired reset token',
+        code: 'INVALID_TOKEN'
+      });
+    }
+    
+    console.error('Password reset error:', error);
+    res.status(500).json({
+      error: 'Failed to reset password',
+      code: 'RESET_ERROR'
     });
   }
 });
