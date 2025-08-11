@@ -14,12 +14,22 @@ export default function EmailVerificationBanner({ userEmail, emailVerified }: Em
   const [resent, setResent] = useState(false);
 
   // Log for debugging and prevent tree-shaking
-  console.log('📧 EmailVerificationBanner rendered:', { userEmail, emailVerified });
+  console.log('📧 EmailVerificationBanner rendered:', { 
+    userEmail, 
+    emailVerified,
+    typeOfEmailVerified: typeof emailVerified,
+    isExactlyFalse: emailVerified === false,
+    isNotFalse: emailVerified !== false,
+    willReturn: emailVerified !== false ? 'null' : 'banner'
+  });
 
   // Don't show if email is already verified
   if (emailVerified !== false) {
+    console.log('❌ Banner hidden: emailVerified is not exactly false:', emailVerified);
     return null;
   }
+  
+  console.log('✅ Banner will show: emailVerified is false');
 
   const handleResendVerification = async () => {
     setIsResending(true);

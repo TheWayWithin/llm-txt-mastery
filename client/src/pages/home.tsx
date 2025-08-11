@@ -302,7 +302,10 @@ export default function Home() {
           hasUser: !!user, 
           email: user?.email, 
           emailVerified: user?.emailVerified,
-          shouldShowBanner: user?.emailVerified === false 
+          typeOfEmailVerified: typeof user?.emailVerified,
+          isExactlyFalse: user?.emailVerified === false,
+          shouldShowBanner: user?.emailVerified === false,
+          fullUserObject: user
         })}
         {user && user.emailVerified === false && (
           <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
