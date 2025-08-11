@@ -17,7 +17,7 @@ import {
 } from '../services/auth';
 import { authStorage } from '../services/auth-storage';
 import { authenticate, optionalAuth } from '../middleware/auth';
-import { sendVerificationEmail, sendPasswordResetEmail, verifyEmailToken } from '../services/email';
+import { sendVerificationEmail, sendPasswordResetEmail, verifyEmailToken, checkEmailServiceHealth } from '../services/email';
 import { 
   userRegistrationSchema, 
   userLoginSchema, 
@@ -744,10 +744,27 @@ router.post('/resend-verification', authenticate, async (req, res) => {
     
     if (!result.success) {
       console.error('❌ Resend verification failed:', result.error);
+      console.error('  - Error Type:', result.errorType);
+      console.error('  - Error Details:', result.errorDetails);
+      
+      // Provide user-friendly error messages based on error type
+      let userMessage = result.error || 'Failed to send verification email';
+      if (result.errorType === 'resend_api_error') {
+        const errorStr = JSON.stringify(result.errorDetails || {});
+        if (errorStr.includes('domain')) {
+          userMessage = 'Email service configuration issue. Please contact support.';
+        } else if (errorStr.includes('rate')) {
+          userMessage = 'Too many email requests. Please try again in a few minutes.';
+        } else if (errorStr.includes('auth') || errorStr.includes('key')) {
+          userMessage = 'Email service authentication issue. Please contact support.';
+        }
+      }
+      
       return res.status(500).json({
-        error: result.error || 'Failed to send verification email',
+        error: userMessage,
         code: 'EMAIL_SEND_FAILED',
-        details: result.error
+        errorType: result.errorType,
+        technicalError: result.error
       });
     }
     
@@ -868,6 +885,34 @@ router.post('/reset-password', async (req, res) => {
     res.status(500).json({
       error: 'Failed to reset password',
       code: 'RESET_ERROR'
+    });
+  }
+});
+
+// Email service health check endpoint
+router.get('/email-health', async (req, res) => {
+  try {
+    console.log('🏥 Email health check requested');
+    const health = await checkEmailServiceHealth();
+    
+    // Return appropriate HTTP status based on health
+    const statusCode = health.status === 'healthy' ? 200 : 
+                      health.status === 'degraded' ? 207 : 503;
+    
+    res.status(statusCode).json({
+      success: health.status === 'healthy',
+      ...health,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Email health check endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      service: 'email',
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
     });
   }
 });
