@@ -3,9 +3,9 @@
 ```yaml
 - region "Notifications (F8)":
   - list
+- region "Notifications alt+T"
 - banner:
   - img "LLM.txt Mastery"
-  - button "Sign In"
   - button "Get Started"
   - paragraph: Created by AI Search Mastery
   - paragraph: MASTERY-AI Framework Developer

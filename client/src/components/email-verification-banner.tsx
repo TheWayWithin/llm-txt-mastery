@@ -30,6 +30,9 @@ export default function EmailVerificationBanner({ userEmail, emailVerified }: Em
   }
   
   console.log('✅ Banner will show: emailVerified is false');
+  
+  // Test if we can render anything at all
+  console.log('🎨 About to render Alert component');
 
   const handleResendVerification = async () => {
     setIsResending(true);
@@ -63,6 +66,29 @@ export default function EmailVerificationBanner({ userEmail, emailVerified }: Em
     }
   };
 
+  // Try rendering a simple div first to isolate the issue
+  const USE_SIMPLE_DIV = false; // Set to true to debug
+  
+  if (USE_SIMPLE_DIV) {
+    return (
+      <div className="border-2 border-amber-200 bg-amber-50 mb-4 p-4 rounded-lg" role="alert">
+        <div className="flex items-center justify-between">
+          <div className="text-amber-800">
+            <span className="font-medium">🔔 Verify your email address</span>
+            <span className="ml-2">to unlock all features including password reset and tier upgrades.</span>
+          </div>
+          <button
+            onClick={handleResendVerification}
+            disabled={isResending || resent}
+            className="ml-4 px-3 py-1 border border-amber-300 rounded hover:bg-amber-100"
+          >
+            {resent ? 'Email Sent' : 'Resend Email'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <Alert className="border-amber-200 bg-amber-50 mb-4">
       <Mail className="h-4 w-4 text-amber-600" />
