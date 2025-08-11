@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Mail, Loader2, CheckCircle2 } from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export function EmailVerificationBanner() {
+export default function EmailVerificationBanner() {
   const { user } = useAuth();
   const [isResending, setIsResending] = useState(false);
   const [resent, setResent] = useState(false);
@@ -18,8 +18,9 @@ export function EmailVerificationBanner() {
   const handleResendVerification = async () => {
     setIsResending(true);
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/resend-verification`, {
+      const token = localStorage.getItem('auth_access_token');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+      const response = await fetch(`${apiUrl}/api/auth/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
