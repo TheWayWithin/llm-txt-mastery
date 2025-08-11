@@ -23,9 +23,9 @@ export default function EmailVerificationBanner({ userEmail, emailVerified }: Em
     willReturn: emailVerified !== false ? 'null' : 'banner'
   });
 
-  // Don't show if email is already verified
-  if (emailVerified !== false) {
-    console.log('❌ Banner hidden: emailVerified is not exactly false:', emailVerified);
+  // Don't show if there's no user email or email is already verified
+  if (!userEmail || emailVerified !== false) {
+    console.log('❌ Banner hidden: no userEmail or emailVerified is not exactly false:', { userEmail, emailVerified });
     return null;
   }
   
