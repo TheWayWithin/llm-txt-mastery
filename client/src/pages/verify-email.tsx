@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Loader2, Mail } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function VerifyEmailPage() {
   const [, setLocation] = useLocation();
+  const { refreshUser } = useAuth();
   const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'already-verified'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -43,6 +45,15 @@ export default function VerifyEmailPage() {
           setVerificationState('success');
         }
         setEmail(data.email || '');
+        
+        // Refresh the user data in the auth context to update emailVerified status
+        try {
+          await refreshUser();
+          console.log('✅ User data refreshed after email verification');
+        } catch (error) {
+          console.error('Failed to refresh user data after verification:', error);
+          // Don't fail the verification, just log the error
+        }
       } else {
         setVerificationState('error');
         setErrorMessage(data.error || 'Verification failed');
