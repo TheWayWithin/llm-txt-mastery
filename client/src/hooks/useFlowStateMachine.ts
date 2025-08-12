@@ -338,10 +338,23 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       // Smart reset: preserve user context but clear analysis data
       console.log('🔄 START_NEW_ANALYSIS: Preserving user context, clearing analysis data');
       
-      // Scroll to top when starting new analysis
+      // Scroll to URL input field when starting new analysis
       if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        console.log('📍 Scrolled to top for new analysis');
+        // Small delay to ensure the component has rendered
+        setTimeout(() => {
+          const urlInput = document.getElementById('website-url');
+          if (urlInput) {
+            // Scroll the input into view, centered in the viewport
+            urlInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus the input for better UX
+            urlInput.focus();
+            console.log('📍 Scrolled to URL input field for new analysis');
+          } else {
+            // Fallback to top if element not found
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            console.log('📍 Scrolled to top for new analysis (URL input not found)');
+          }
+        }, 100);
       }
       
       // Preserve user-related state from both AuthContext and previous email-based state

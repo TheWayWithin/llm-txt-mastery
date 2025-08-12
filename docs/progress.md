@@ -1,9 +1,9 @@
 # LLM.txt Mastery - Project Progress & Status
-*Last Updated: August 11, 2025 - Email Verification System Operational*
+*Last Updated: August 12, 2025 - Usage Tracking & Daily Limits Fixed*
 
-## 🎉 Current Status: EMAIL VERIFICATION SYSTEM FULLY OPERATIONAL
+## 🎉 Current Status: USAGE TRACKING & DAILY LIMITS FULLY OPERATIONAL
 
-**LATEST UPDATE**: Major milestone achieved! Email verification system is now fully operational with end-to-end testing completed. Professional email delivery working, comprehensive Playwright test suite created, and production validation successful. Domain verification resolved, rate limiting optimized, and complete user authentication flow functional on live site.
+**LATEST UPDATE**: Critical freemium model issues resolved! Usage tracking now accurately counts analyses (1/3, 2/3, 3/3), daily limits properly enforced (blocks 4th analysis), UI scroll-to-top fixed for "Analyze Another Website", and page limits correctly applied (15-20 pages for starter tier). All fixes validated in production with comprehensive testing.
 
 ### Live Production URLs
 - **Frontend**: `https://www.llmtxtmastery.com` (Netlify)
@@ -19,6 +19,30 @@
 *For current work coordination, see project-plan.md. This document provides the complete historical context and technical implementation details.*
 
 ## Major Milestones Timeline
+
+### August 12, 2025: Usage Tracking & Daily Limits Fixed
+- ✅ **USAGE TRACKING FULLY OPERATIONAL**
+  - Fixed race condition between getTodayUsage() and trackUsage() functions
+  - Shared resolveUserFromEmail() function ensures consistent user resolution
+  - Usage counter now accurately shows 1/3, 2/3, 3/3 after each analysis
+  - Production validation: tracktest and fixtest emails confirmed working
+- ✅ **DAILY LIMIT ENFORCEMENT WORKING**
+  - Changed checkUsageLimits to "fail-closed" for starter tier (prevent abuse)
+  - 4th analysis attempt now properly blocked with error message
+  - Enhanced error handling with fallback logic for edge cases
+  - Tested with multiple email addresses - consistently blocks at 3 analyses
+- ✅ **UI IMPROVEMENTS DEPLOYED**
+  - Fixed "Analyze Another Website" scroll issue - now scrolls to top
+  - Added window.scrollTo({ top: 0, behavior: 'smooth' }) in useFlowStateMachine
+  - Improved user experience for consecutive analyses
+- ✅ **PAGE LIMIT VERIFICATION**
+  - freecalchub.com now analyzing 15 pages (within 20-page starter limit)
+  - Enhanced logging shows: discovered → filtered → analyzed page counts
+  - Tier limits properly applied: 20 for starter, 200 for coffee tier
+- 📊 **TESTING VALIDATION**
+  - Created comprehensive Playwright test suites (test-fixes-simple.js, test-fixes-playwright.js)
+  - API endpoint testing confirms usage tracking increments correctly
+  - Daily limit enforcement verified with multiple test scenarios
 
 ### July 17, 2025: Technical Foundation Complete
 - ✅ Core functionality with AI-powered analysis (70% production-ready)

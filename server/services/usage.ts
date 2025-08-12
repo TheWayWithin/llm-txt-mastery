@@ -31,6 +31,25 @@ export async function resolveUserFromEmail(userEmail: string): Promise<number | 
       return actualUserId;
     }
     
+    // Check if a user with this email as username already exists (from previous attempts)
+    const existingUser = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.username, userEmail))
+      .limit(1);
+    
+    if (existingUser[0]) {
+      // User exists but wasn't linked to emailCapture - link it now
+      console.log(`🔗 [USER RESOLUTION] Found existing user ${existingUser[0].id}, linking to emailCapture`);
+      
+      await db
+        .update(emailCaptures)
+        .set({ userId: existingUser[0].id })
+        .where(eq(emailCaptures.id, emailCaptureId));
+      
+      return existingUser[0].id;
+    }
+    
     // Otherwise, create a placeholder user and link it atomically
     console.log(`🔧 [USER RESOLUTION] Creating placeholder user for: ${userEmail}`);
     
