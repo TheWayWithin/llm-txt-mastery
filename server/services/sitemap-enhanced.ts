@@ -80,9 +80,19 @@ async function performPageAnalysisWithCache(
   const filteredOut = totalDiscovered - afterFiltering;
   
   console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
-  console.log(`   • Found ${totalDiscovered} total pages`);
+  console.log(`   • Found ${totalDiscovered} total pages from sitemap/crawl`);
   console.log(`   • Filtered out ${filteredOut} pages (${tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`);
-  console.log(`   • ${afterFiltering} pages ready for analysis`);
+  console.log(`   • ${afterFiltering} pages passed filter`);
+  console.log(`   • Tier limit: ${tierLimits.maxPagesPerAnalysis} pages max`);
+  
+  // Log sample of filtered URLs for debugging
+  if (filteredOut > 0 && entries.length <= 50) {
+    const filteredUrls = entries
+      .filter(e => !relevantPages.includes(e))
+      .slice(0, 5)
+      .map(e => e.url);
+    console.log(`   • Sample filtered URLs:`, filteredUrls);
+  }
   
   // Apply tier-based page limit (bypass in development)
   let pagesToAnalyze: SitemapEntry[];
@@ -96,11 +106,13 @@ async function performPageAnalysisWithCache(
     const maxPages = Math.min(tierLimits.maxPagesPerAnalysis, relevantPages.length);
     pagesToAnalyze = relevantPages.slice(0, maxPages);
     
+    console.log(`   • 🎯 FINAL: Will analyze ${pagesToAnalyze.length} pages`);
+    
     if (afterFiltering > maxPages) {
       const tierLimited = afterFiltering - maxPages;
-      console.log(`   • Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages exceed ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
+      console.log(`   • ⚠️ Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages exceed ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
     } else {
-      console.log(`   • Analyzing all ${maxPages} pages (within ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
+      console.log(`   • ✅ Within limit: analyzing all ${maxPages} pages (${tier} tier allows ${tierLimits.maxPagesPerAnalysis})`);
     }
   }
   
@@ -157,7 +169,9 @@ async function performPageAnalysisWithCache(
     
     // Early exit if bot protection detected
     if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-      console.log(`Detected potential bot protection (${consecutiveFailures} consecutive failures). Stopping analysis.`);
+      console.log(`⚠️ Bot protection detected (${consecutiveFailures} consecutive failures). Stopping analysis early.`);
+      console.log(`   • Analyzed ${pages.length} pages before stopping`);
+      console.log(`   • Had ${pagesToAnalyze.length - (i + BATCH_SIZE * CONCURRENT_BATCHES)} pages remaining`);
       break;
     }
     

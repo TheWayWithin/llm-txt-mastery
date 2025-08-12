@@ -208,8 +208,31 @@ export async function checkUsageLimits(
     };
     
   } catch (error) {
-    console.error('Error checking usage limits:', error);
-    // Default to allowing on error to not block users
+    console.error(`❌ [USAGE LIMITS] ERROR checking limits for ${userEmail}:`, error);
+    console.error(`   Error details:`, error instanceof Error ? error.message : 'Unknown error');
+    
+    // CRITICAL FIX: Default to DENYING on error for starter tier to prevent abuse
+    // Only allow if we can't determine the tier (network issues, etc)
+    try {
+      const tier = await getUserTier(userEmail);
+      if (tier === 'starter') {
+        return {
+          allowed: false,
+          reason: 'Unable to verify usage limits. Please try again or contact support if the issue persists.',
+          currentUsage: { analysesToday: 0, pagesProcessedToday: 0 },
+          limits: {
+            dailyAnalyses: 3,
+            maxPagesPerAnalysis: 20,
+            aiPagesLimit: 0
+          }
+        };
+      }
+    } catch (tierError) {
+      console.error(`❌ [USAGE LIMITS] Cannot determine tier:`, tierError);
+    }
+    
+    // For paid tiers or unknown cases, allow but log the issue
+    console.warn(`⚠️ [USAGE LIMITS] Allowing analysis for ${userEmail} despite error (fail-open for non-starter)`);
     return {
       allowed: true,
       currentUsage: { analysesToday: 0, pagesProcessedToday: 0 },
@@ -232,13 +255,36 @@ export async function trackUsage(
   estimatedCost: number
 ): Promise<void> {
   try {
-    console.log(`🔍 [USAGE TRACKING] Starting for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
+    console.log(`✅ [USAGE TRACKING] Called successfully for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
     const today = new Date().toISOString().split('T')[0];
     
     // CRITICAL FIX: Use shared user resolution to ensure consistency with getTodayUsage()
     const actualUserId = await resolveUserFromEmail(userEmail);
     if (!actualUserId) {
-      console.log(`⚠️ [USAGE TRACKING] Failed to resolve user for: ${userEmail}`);
+      console.error(`❌ [USAGE TRACKING] CRITICAL: Cannot resolve user for ${userEmail} - usage will not be tracked!`);
+      // Try to create a minimal tracking record using email
+      try {
+        const emailCapture = await storage.getEmailCapture(userEmail);
+        if (emailCapture?.userId) {
+          console.log(`🔧 [USAGE TRACKING] Found userId from email capture: ${emailCapture.userId}`);
+          // Continue with the found userId
+          const foundUserId = emailCapture.userId;
+          await storage.createUsageTracking({
+            userId: foundUserId,
+            date: today,
+            analysesCount: 1,
+            pagesProcessed: pagesProcessed,
+            aiCallsCount: aiCallsCount,
+            htmlExtractionsCount: htmlExtractionsCount,
+            cacheHits: cacheHits,
+            totalCost: Math.round(estimatedCost * 100)
+          });
+          console.log(`✅ [USAGE TRACKING] Successfully tracked via email capture fallback`);
+          return;
+        }
+      } catch (fallbackError) {
+        console.error(`❌ [USAGE TRACKING] Fallback also failed:`, fallbackError);
+      }
       return;
     }
     
