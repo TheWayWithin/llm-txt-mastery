@@ -680,6 +680,86 @@ export class DatabaseStorage implements IStorage {
       .set({ hitCount: sql`${analysisCache.hitCount} + 1` })
       .where(eq(analysisCache.id, id));
   }
+
+  // User profile methods (placeholder - using users table instead of separate profiles)
+  async getUserProfile(id: string): Promise<UserProfile | undefined> {
+    const userId = parseInt(id);
+    if (isNaN(userId)) return undefined;
+    
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) return undefined;
+    
+    // Map user to UserProfile format
+    const emailCapture = await this.getEmailCaptureByUserId(userId);
+    return {
+      id: user.id.toString(),
+      username: user.username,
+      email: emailCapture?.email || '',
+      tier: emailCapture?.tier || 'starter',
+      creditsRemaining: emailCapture?.creditsRemaining || 0,
+      createdAt: user.createdAt || new Date(),
+      updatedAt: user.updatedAt || new Date()
+    };
+  }
+
+  async getUserProfileByEmail(email: string): Promise<UserProfile | undefined> {
+    const emailCapture = await this.getEmailCapture(email);
+    if (!emailCapture || !emailCapture.userId) return undefined;
+    
+    const [user] = await db.select().from(users).where(eq(users.id, emailCapture.userId));
+    if (!user) return undefined;
+    
+    return {
+      id: user.id.toString(),
+      username: user.username,
+      email: emailCapture.email,
+      tier: emailCapture.tier || 'starter',
+      creditsRemaining: emailCapture.creditsRemaining || 0,
+      createdAt: user.createdAt || new Date(),
+      updatedAt: user.updatedAt || new Date()
+    };
+  }
+
+  async updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined> {
+    const userId = parseInt(id);
+    if (isNaN(userId)) return undefined;
+    
+    // Update email capture if tier or credits changed
+    if (updates.tier || updates.creditsRemaining !== undefined) {
+      const emailCapture = await this.getEmailCaptureByUserId(userId);
+      if (emailCapture) {
+        await this.updateEmailCapture(emailCapture.email, {
+          tier: updates.tier,
+          creditsRemaining: updates.creditsRemaining
+        });
+      }
+    }
+    
+    return this.getUserProfile(id);
+  }
+
+  // Helper method to get email capture by userId
+  private async getEmailCaptureByUserId(userId: number): Promise<EmailCapture | undefined> {
+    const [emailCapture] = await db
+      .select()
+      .from(emailCaptures)
+      .where(eq(emailCaptures.userId, userId))
+      .limit(1);
+    return emailCapture || undefined;
+  }
+
+  // Placeholder one-time credit methods
+  async createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit> {
+    throw new Error("One-time credits not implemented in DatabaseStorage");
+  }
+
+  async getUserCredits(userId: number): Promise<OneTimeCredit[]> {
+    return [];
+  }
+
+  async consumeCredit(userId: number, amount?: number): Promise<boolean> {
+    return false;
+  }
 }
 
 // Use in-memory storage if DATABASE_URL is not properly configured

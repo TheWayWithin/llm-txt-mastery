@@ -18,6 +18,7 @@ import {
 import { authStorage } from '../services/auth-storage';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { sendVerificationEmail, sendPasswordResetEmail, verifyEmailToken, checkEmailServiceHealth } from '../services/email';
+import { storage } from '../storage';
 import { 
   userRegistrationSchema, 
   userLoginSchema, 
@@ -100,6 +101,29 @@ router.post('/register', registerLimiter, async (req, res) => {
       tier: 'starter' as UserTier,
       creditsRemaining: 0
     });
+
+    // Create email capture for the user (so analyze endpoint can find them)
+    try {
+      const existingCapture = await storage.getEmailCapture(email);
+      if (!existingCapture) {
+        await storage.createEmailCapture({
+          email,
+          tier: 'starter',
+          websiteUrl: null,
+          userId: user.id
+        });
+        console.log(`✅ Created email capture for new user: ${email}`);
+      } else if (!existingCapture.userId) {
+        // Update existing email capture with userId
+        await storage.updateEmailCapture(email, {
+          userId: user.id
+        });
+        console.log(`✅ Linked existing email capture to user: ${email}`);
+      }
+    } catch (error) {
+      console.error('Failed to create/update email capture for user:', error);
+      // Don't fail registration if email capture fails
+    }
 
     // Generate tokens
     const accessToken = generateAccessToken({

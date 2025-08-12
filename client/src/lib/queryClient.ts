@@ -16,9 +16,15 @@ export async function apiRequest(
   const baseUrl = import.meta.env.VITE_API_URL || '';
   const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
   
+  // Get JWT token from localStorage for authenticated requests
+  const token = localStorage.getItem('auth_access_token');
+  
   const res = await fetch(fullUrl, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: {
+      ...(data ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -37,7 +43,11 @@ export const getQueryFn: <T>(options: {
     const url = queryKey.join("/") as string;
     const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
     
+    // Get JWT token from localStorage for authenticated requests
+    const token = localStorage.getItem('auth_access_token');
+    
     const res = await fetch(fullUrl, {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {},
       credentials: "include",
     });
 

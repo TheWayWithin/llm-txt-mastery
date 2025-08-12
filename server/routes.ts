@@ -306,11 +306,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user information (authenticated or email-based)
       const user = req.user;
       
-      // CRITICAL SECURITY FIX: Prevent email impersonation
+      // CRITICAL FIX: Properly handle authenticated users
       let userEmail: string;
       if (user?.email) {
-        // User is authenticated - use their verified email
+        // User is authenticated via JWT - use their verified email
         userEmail = user.email;
+        console.log(`🔐 Authenticated user analyzing: ${userEmail} (tier: ${user.tier})`);
       } else if (email) {
         // Unauthenticated request - verify email ownership
         const emailCapture = await storage.getEmailCapture(email);
@@ -322,19 +323,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Check if email capture is recent (within 24 hours) to prevent old email abuse
-        const emailAge = emailCapture.createdAt ? 
-          Date.now() - new Date(emailCapture.createdAt).getTime() : 
-          Date.now();
-        const maxEmailAge = 24 * 60 * 60 * 1000; // 24 hours
-        
-        if (emailAge > maxEmailAge) {
-          console.warn(`🚨 SECURITY: Attempt to use stale email capture ${email} (${Math.floor(emailAge / 1000 / 60 / 60)}h old) from ${req.ip}`);
-          return res.status(403).json({ 
-            message: "Email verification expired. Please sign up again to analyze websites." 
-          });
+        // Skip this check for users who have created accounts (userId exists)
+        if (!emailCapture.userId) {
+          const emailAge = emailCapture.createdAt ? 
+            Date.now() - new Date(emailCapture.createdAt).getTime() : 
+            Date.now();
+          const maxEmailAge = 24 * 60 * 60 * 1000; // 24 hours
+          
+          if (emailAge > maxEmailAge) {
+            console.warn(`🚨 SECURITY: Attempt to use stale email capture ${email} (${Math.floor(emailAge / 1000 / 60 / 60)}h old) from ${req.ip}`);
+            return res.status(403).json({ 
+              message: "Email verification expired. Please sign up again to analyze websites." 
+            });
+          }
         }
         
         userEmail = email;
+        console.log(`📧 Email-based user analyzing: ${userEmail} (tier: ${emailCapture.tier})`);
       } else {
         userEmail = '';
       }
