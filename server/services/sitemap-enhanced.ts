@@ -103,16 +103,21 @@ async function performPageAnalysisWithCache(
     console.log(`🚀 [DEV MODE] Analyzing ALL ${pagesToAnalyze.length} pages - bypassing tier limit of ${tierLimits.maxPagesPerAnalysis}`);
   } else {
     // Production mode: respect tier limits
-    const maxPages = Math.min(tierLimits.maxPagesPerAnalysis, relevantPages.length);
+    // IMPORTANT: Analyze 25% extra pages to account for post-analysis filtering
+    // This ensures we get close to the tier limit after deduplication
+    const bufferMultiplier = 1.25; // Add 25% buffer
+    const pagesWithBuffer = Math.ceil(tierLimits.maxPagesPerAnalysis * bufferMultiplier);
+    const maxPages = Math.min(pagesWithBuffer, relevantPages.length);
     pagesToAnalyze = relevantPages.slice(0, maxPages);
     
-    console.log(`   • 🎯 FINAL: Will analyze ${pagesToAnalyze.length} pages`);
+    console.log(`   • 🎯 ANALYZING: ${pagesToAnalyze.length} pages (includes buffer for post-filtering)`);
+    console.log(`   • 📋 TARGET: ${tierLimits.maxPagesPerAnalysis} pages after deduplication`);
     
     if (afterFiltering > maxPages) {
       const tierLimited = afterFiltering - maxPages;
-      console.log(`   • ⚠️ Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages exceed ${tier} tier limit of ${tierLimits.maxPagesPerAnalysis})`);
+      console.log(`   • ⚠️ Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages available beyond buffer)`);
     } else {
-      console.log(`   • ✅ Within limit: analyzing all ${maxPages} pages (${tier} tier allows ${tierLimits.maxPagesPerAnalysis})`);
+      console.log(`   • ✅ Within limit: analyzing all ${pagesToAnalyze.length} pages`);
     }
   }
   
@@ -216,13 +221,22 @@ async function performPageAnalysisWithCache(
   // Sort by quality score
   uniquePages.sort((a, b) => b.qualityScore - a.qualityScore);
   
+  // IMPORTANT: Enforce the exact tier limit on final output
+  // We analyzed extra pages with buffer, now trim to exact limit
+  const finalPages = uniquePages.slice(0, tierLimits.maxPagesPerAnalysis);
+  
+  if (uniquePages.length > finalPages.length) {
+    const trimmedCount = uniquePages.length - finalPages.length;
+    console.log(`   • 🎯 Final trim: Keeping top ${finalPages.length} pages (removed ${trimmedCount} lowest quality)`);
+  }
+  
   // Update final metrics
   metrics.processingTime = (Date.now() - startTime) / 1000;
   metrics.cacheHit = metrics.cachedPages > 0;
   metrics.apiCalls = metrics.aiCallsUsed + metrics.htmlExtractionsUsed;
   metrics.costSaved = metrics.timeSaved * 0.01; // Rough estimate
   
-  return { pages: uniquePages, metrics };
+  return { pages: finalPages, metrics };
 }
 
 async function processBatchWithCache(
