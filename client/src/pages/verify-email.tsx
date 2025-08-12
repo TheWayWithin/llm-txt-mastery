@@ -50,6 +50,15 @@ export default function VerifyEmailPage() {
         try {
           await refreshUser();
           console.log('✅ User data refreshed after email verification');
+          
+          // Force update the stored user data to ensure emailVerified is true
+          const storedUser = localStorage.getItem('auth_user');
+          if (storedUser) {
+            const userData = JSON.parse(storedUser);
+            userData.emailVerified = true;
+            localStorage.setItem('auth_user', JSON.stringify(userData));
+            console.log('✅ Updated stored user emailVerified status');
+          }
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
           // Don't fail the verification, just log the error
@@ -66,6 +75,8 @@ export default function VerifyEmailPage() {
   };
 
   const handleContinue = () => {
+    // After successful verification and user data refresh, 
+    // navigate back to home where user should be logged in
     setLocation('/');
   };
 
