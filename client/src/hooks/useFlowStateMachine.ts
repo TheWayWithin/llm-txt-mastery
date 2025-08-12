@@ -338,6 +338,12 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       // Smart reset: preserve user context but clear analysis data
       console.log('🔄 START_NEW_ANALYSIS: Preserving user context, clearing analysis data');
       
+      // Scroll to top when starting new analysis
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        console.log('📍 Scrolled to top for new analysis');
+      }
+      
       // Preserve user-related state from both AuthContext and previous email-based state
       const preservedUser = context.user;
       const preservedEmail = preservedUser?.email || context.userEmail;
