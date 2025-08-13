@@ -19,6 +19,7 @@ import { authStorage } from '../services/auth-storage';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { sendVerificationEmail, sendPasswordResetEmail, verifyEmailToken, checkEmailServiceHealth } from '../services/email';
 import { storage } from '../storage';
+import { ensureDemoData } from '../services/demo-data';
 import { 
   userRegistrationSchema, 
   userLoginSchema, 
@@ -197,6 +198,45 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 
     const { email, password } = validationResult.data;
+
+    // Check for demo credentials
+    if (email === 'demo@llmtxtmastery.com' && password === 'DemoAccess2025!') {
+      console.log('🎭 Demo login detected for:', email);
+      
+      // Ensure demo data exists (non-blocking)
+      ensureDemoData().catch(error => {
+        console.error('Failed to ensure demo data:', error);
+      });
+      
+      // Create demo user object
+      const demoUser = {
+        id: -1,
+        email: 'demo@llmtxtmastery.com',
+        tier: 'coffee' as UserTier,
+        emailVerified: true,
+        creditsRemaining: 100,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Generate tokens for demo user
+      const accessToken = generateAccessToken({
+        id: demoUser.id,
+        email: demoUser.email,
+        tier: demoUser.tier
+      });
+      const refreshToken = generateRefreshToken(demoUser.id);
+
+      // Create auth response with demo flag
+      const authResponse = createAuthResponse(demoUser, accessToken, refreshToken);
+      
+      return res.json({
+        success: true,
+        message: 'Demo login successful',
+        isDemo: true,
+        ...authResponse
+      });
+    }
 
     // Get user by email
     const user = await authStorage.getUserByEmail(email);
@@ -937,6 +977,44 @@ router.get('/email-health', async (req, res) => {
       status: 'error',
       error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Demo data reset endpoint
+router.post('/demo/reset', async (req, res) => {
+  try {
+    console.log('🔄 Demo data reset requested');
+
+    // Demo user constants
+    const DEMO_USER_ID = -1;
+    const DEMO_USER_EMAIL = 'demo@llmtxtmastery.com';
+    
+    // Delete existing demo data
+    const deletedAnalyses = await storage.deleteAnalysesForUser(DEMO_USER_ID);
+    const deletedLlmFiles = await storage.deleteLlmFilesForUser(DEMO_USER_ID);
+    const deletedUsage = await storage.deleteUsageForUser(DEMO_USER_ID);
+    
+    console.log(`🗑️ Deleted: ${deletedAnalyses} analyses, ${deletedLlmFiles} LLM files, ${deletedUsage} usage records`);
+    
+    // Recreate fresh demo data
+    await ensureDemoData();
+    
+    res.json({ 
+      success: true, 
+      message: 'Demo data reset successfully',
+      deleted: {
+        analyses: deletedAnalyses,
+        llmFiles: deletedLlmFiles,
+        usage: deletedUsage
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Demo reset failed:', error);
+    res.status(500).json({ 
+      error: 'Demo reset failed',
+      code: 'DEMO_RESET_ERROR'
     });
   }
 });

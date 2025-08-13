@@ -8,6 +8,7 @@ export interface AuthUser {
   creditsRemaining: number;
   emailVerified: boolean;
   createdAt: string;
+  isDemo?: boolean;
 }
 
 export interface AuthResponse {
@@ -184,6 +185,11 @@ class AuthApiClient {
       method: 'POST',
       body: JSON.stringify(data),
     });
+
+    // Handle demo login - preserve isDemo flag in user object
+    if (response.isDemo && response.user) {
+      response.user.isDemo = true;
+    }
 
     this.setTokens(response);
     return response;
