@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Loader2, ArrowRight } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SubscriptionSuccess() {
-  const [searchParams] = useSearchParams();
+  const [location] = useLocation();
+  const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const { user, refreshUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const sessionId = searchParams.get('session_id');
