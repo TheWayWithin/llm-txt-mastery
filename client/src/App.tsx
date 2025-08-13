@@ -10,6 +10,12 @@ import CoffeeSuccess from "@/pages/coffee-success";
 import Dashboard from "@/pages/dashboard";
 import Pricing from "@/pages/pricing";
 import VerifyEmail from "@/pages/verify-email";
+import { AboutPage } from "@/pages/about";
+import { DocsPage } from "@/pages/docs";
+import { ContactPage } from "@/pages/contact";
+import { PrivacyPage } from "@/pages/privacy";
+import { TermsPage } from "@/pages/terms";
+import { BlogPage } from "@/pages/blog";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +24,12 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/docs" component={DocsPage} />
+      <Route path="/contact" component={ContactPage} />
+      <Route path="/privacy" component={PrivacyPage} />
+      <Route path="/terms" component={TermsPage} />
+      <Route path="/blog" component={BlogPage} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
       <Route path="/verify-email" component={VerifyEmail} />
       <Route component={NotFound} />
