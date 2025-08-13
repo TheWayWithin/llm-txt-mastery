@@ -163,8 +163,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
             };
           }
         } else {
-          console.log('🌐 AUTH_RESOLVED: No URL provided, ready for URL input');
-          const nextState = 'URL_INPUT';
+          console.log('👤 AUTH_RESOLVED: No URL provided and no user, start with email capture for freemium funnel');
+          const nextState = 'EMAIL_CAPTURE';
           return { 
             ...newContext, 
             currentState: nextState,
@@ -229,30 +229,23 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     case 'EMAIL_CAPTURED': {
       console.log(`📧 EMAIL_CAPTURED: ${event.email} with tier ${event.tier}`);
       
-      // Coffee tier users (from payment return) can bypass TIER_LIMITS
-      if (event.tier === 'coffee') {
-        console.log('☕ Coffee tier email captured - proceeding directly to analysis');
-        return {
-          ...updatedContext,
-          userEmail: event.email,
-          userTier: event.tier,
-          currentState: 'ANALYSIS'
-        };
-      } else {
-        return {
-          ...updatedContext,
-          userEmail: event.email,
-          userTier: event.tier,
-          currentState: 'TIER_LIMITS'
-        };
-      }
+      // After email capture, always go to URL input first (freemium funnel: Email → URL → Analysis)
+      // Coffee tier users will skip TIER_LIMITS later, but still need to enter URL
+      return {
+        ...updatedContext,
+        userEmail: event.email,
+        userTier: event.tier,
+        currentState: 'URL_INPUT',
+        progress: updateProgressForState('URL_INPUT', updatedContext.progress)
+      };
     }
 
     case 'EMAIL_RECOGNIZED': {
       console.log(`🔍 EMAIL_RECOGNIZED: ${event.user.email} with tier ${event.user.tier}`);
       
-      // User was recognized by email - set user and proceed based on tier
-      const nextState = event.user.tier === 'coffee' ? 'ANALYSIS' : 'TIER_LIMITS';
+      // User was recognized by email - set user and proceed to URL input
+      // (they still need to enter the URL they want to analyze)
+      const nextState = 'URL_INPUT';
       
       return {
         ...updatedContext,
@@ -364,9 +357,13 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       
       console.log(`📋 Preserved context: email=${preservedEmail}, tier=${preservedTier}, hasUser=${!!preservedUser}`);
       
+      // If no user is preserved, start with email capture for freemium funnel
+      const startState = preservedUser ? 'URL_INPUT' : 'EMAIL_CAPTURE';
+      console.log(`🚀 START_NEW_ANALYSIS: Starting with ${startState} (hasUser: ${!!preservedUser})`);
+      
       return {
         ...context,
-        currentState: 'URL_INPUT',
+        currentState: startState,
         previousState: null,
         // Clear analysis-specific data
         websiteUrl: '',
@@ -389,10 +386,10 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
 
     case 'RESET_WORKFLOW': {
       // Full reset: clear everything including user context
-      console.log('🔄 RESET_WORKFLOW: Full reset, clearing all data including user context');
+      console.log('🔄 RESET_WORKFLOW: Full reset, clearing all data including user context, starting with email capture');
       return {
         ...context,
-        currentState: 'URL_INPUT',
+        currentState: 'EMAIL_CAPTURE',
         previousState: null,
         websiteUrl: '',
         userEmail: '',
@@ -504,7 +501,7 @@ function parseURLParams(location: string): URLParams {
 // Helper function to create initial progress state
 function createInitialProgress(): ProgressContext {
   return {
-    currentStep: 'url-input',
+    currentStep: 'email-capture',
     completedSteps: [],
     progress: 0,
     analysisStage: undefined,
@@ -521,32 +518,33 @@ function updateProgressForState(state: FlowState, progress: ProgressContext): Pr
   const newProgress = { ...progress };
   
   switch (state) {
-    case 'URL_INPUT':
-      newProgress.currentStep = 'url-input';
-      newProgress.progress = 0;
-      break;
     case 'EMAIL_CAPTURE':
       newProgress.currentStep = 'email-capture';
-      newProgress.completedSteps = ['url-input'];
+      newProgress.completedSteps = [];
+      newProgress.progress = 0;
+      break;
+    case 'URL_INPUT':
+      newProgress.currentStep = 'url-input';
+      newProgress.completedSteps = ['email-capture'];
       newProgress.progress = 20;
       break;
     case 'ANALYSIS':
       newProgress.currentStep = 'analysis';
-      newProgress.completedSteps = ['url-input', 'email-capture'];
+      newProgress.completedSteps = ['email-capture', 'url-input'];
       newProgress.progress = 40;
       newProgress.analysisStage = 'discovery';
       newProgress.completedAnalysisStages = [];
       break;
     case 'REVIEW':
       newProgress.currentStep = 'review';
-      newProgress.completedSteps = ['url-input', 'email-capture', 'analysis'];
+      newProgress.completedSteps = ['email-capture', 'url-input', 'analysis'];
       newProgress.progress = 70;
       newProgress.analysisStage = undefined;
       newProgress.completedAnalysisStages = ['discovery', 'content-fetch', 'ai-analysis', 'finalization'];
       break;
     case 'GENERATION':
       newProgress.currentStep = 'generation';
-      newProgress.completedSteps = ['url-input', 'email-capture', 'analysis', 'review'];
+      newProgress.completedSteps = ['email-capture', 'url-input', 'analysis', 'review'];
       newProgress.progress = 100;
       break;
   }

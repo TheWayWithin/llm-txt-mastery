@@ -380,7 +380,7 @@ export default function Home() {
             />
           )}
           
-          {/* Step 1: URL Input */}
+          {/* Step 2: URL Input (after email capture) */}
           <UrlInput
             onAnalysisStart={(url) => {
               console.log('🌐 Analysis started for URL:', url);
@@ -397,10 +397,10 @@ export default function Home() {
             />
           )}
 
-          {/* Step 2: Email Capture (only for non-authenticated users) */}
+          {/* Step 1: Email Capture (first step for unauthenticated users) */}
           {visibility.emailCapture && (
             <EmailCapture
-              websiteUrl={websiteUrl}
+              websiteUrl={websiteUrl || undefined}
               onEmailCaptured={async (email, tier) => {
                 console.log(`📧 Email captured: ${email} with tier ${tier}`);
                 
