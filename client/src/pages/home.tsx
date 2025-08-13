@@ -136,8 +136,8 @@ export default function Home() {
                 )}
                 <AuthNav />
                 <div className="text-right hidden md:block">
-                  <p className="text-sm text-ai-silver">Created by AI Search Mastery</p>
-                  <p className="text-xs text-ai-silver">MASTERY-AI Framework Developer</p>
+                  <p className="text-sm text-ai-silver">Built by Jamie Watters</p>
+                  <p className="text-xs text-ai-silver">Solopreneur & Tool Builder</p>
                 </div>
               </div>
             </div>
@@ -170,11 +170,11 @@ export default function Home() {
         {/* Hero Section */}
         <section className="text-center mb-12">
           <h2 className="text-4xl font-bold text-framework-black mb-4">
-            Transform Your Website's AI Accessibility
+            Get Found by ChatGPT, Claude & Perplexity
           </h2>
           <p className="text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
-            Apply the systematic precision of the MASTERY-AI Framework to create professional-grade 
-            LLM.txt files that optimize your content for AI systems.
+            I escaped corporate to build this because I was tired of my content being invisible to AI. 
+            Join early adopters making their businesses AI-discoverable.
           </p>
           
           {/* Hero Illustration */}
@@ -190,17 +190,38 @@ export default function Home() {
           <div className="flex items-center justify-center space-x-2 text-sm text-ai-silver">
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-              <span>Specification Compliant</span>
+              <span>Official llms.txt Spec</span>
             </div>
             <span className="text-slate-300">•</span>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-              <span>Expert Methodology</span>
+              <span>Built by a Solopreneur</span>
             </div>
             <span className="text-slate-300">•</span>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-              <span>Quality Assured</span>
+              <span>No VC BS</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Trust Section */}
+        <section className="mb-16">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-8">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-framework-black mb-6">
+                Trusted & Standards-Compliant
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-ai-silver">Following the official llms.txt specification</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-ai-silver">Compliant with Google's structured data best practices</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -212,7 +233,7 @@ export default function Home() {
               How It Works
             </h3>
             <p className="text-lg text-ai-silver max-w-2xl mx-auto">
-              Our AI-powered system analyzes your website and creates a professional-grade LLM.txt file in three simple steps.
+              I built this tool to analyze websites and create llms.txt files that actually work. Three simple steps, no corporate complexity.
             </p>
           </div>
           
@@ -234,7 +255,7 @@ export default function Home() {
               </div>
               <h4 className="text-xl font-semibold text-framework-black mb-2">Enter Your URL</h4>
               <p className="text-ai-silver">
-                Simply paste your website URL and we'll begin the intelligent discovery process using advanced sitemap analysis.
+                Simply paste your website URL and we'll begin the systematic discovery process using comprehensive sitemap discovery.
               </p>
             </div>
             
@@ -244,7 +265,7 @@ export default function Home() {
               </div>
               <h4 className="text-xl font-semibold text-framework-black mb-2">AI Analysis</h4>
               <p className="text-ai-silver">
-                Our AI system evaluates your content quality, relevance, and structure to identify the most valuable pages for inclusion.
+                Our AI system evaluates your content quality, relevance, and structure to identify the highest-quality, most relevant pages for inclusion.
               </p>
             </div>
             
@@ -254,7 +275,7 @@ export default function Home() {
               </div>
               <h4 className="text-xl font-semibold text-framework-black mb-2">Download Your File</h4>
               <p className="text-ai-silver">
-                Get your professionally formatted, specification-compliant LLM.txt file ready for immediate deployment.
+                Get your specification-compliant LLM.txt file ready for immediate deployment.
               </p>
             </div>
           </div>
@@ -454,32 +475,55 @@ export default function Home() {
           )}
         </div>
 
-        {/* Implementation Guide */}
+        {/* Why This Matters */}
         <section className="mt-16">
           <Card className="bg-slate-50 border-slate-200">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-framework-black mb-4">
-                Implementation Guide
+                Why This Matters (I Built This Because I Needed It Myself)
               </h3>
+              <div className="mb-6">
+                <p className="text-sm text-ai-silver mb-3">
+                  I escaped corporate because I was tired of building tools I wouldn't use myself. ChatGPT, Claude, and Perplexity 
+                  are already crawling websites - but most businesses are invisible to them. I built this tool because my own content 
+                  wasn't getting found by AI search engines.
+                </p>
+                <p className="text-sm text-ai-silver mb-4">
+                  Built by someone who actually uses these tools daily. No unnecessary complexity, no hidden fees. 
+                  If I wouldn't use it myself, it doesn't belong on this site.
+                </p>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium text-framework-black mb-2">Installation</h4>
-                  <ol className="text-sm text-ai-silver space-y-1">
-                    <li>1. Download the generated llms.txt file</li>
-                    <li>2. Upload to your website's root directory</li>
-                    <li>3. Ensure the file is accessible at yourdomain.com/llms.txt</li>
-                    <li>4. Test accessibility and validate format</li>
-                  </ol>
-                </div>
-                <div>
-                  <h4 className="font-medium text-framework-black mb-2">Best Practices</h4>
-                  <ul className="text-sm text-ai-silver space-y-1">
-                    <li>• Update regularly when adding new content</li>
-                    <li>• Keep descriptions concise and accurate</li>
-                    <li>• Include only high-quality, relevant pages</li>
-                    <li>• Monitor AI system crawling behavior</li>
+                  <h4 className="font-medium text-framework-black mb-2">What You'll Get</h4>
+                  <ul className="text-sm text-ai-silver space-y-2">
+                    <li>✓ Get indexed by AI search engines like ChatGPT, Claude, and Perplexity</li>
+                    <li>✓ Your content becomes AI-friendly and properly attributed</li>
+                    <li>✓ Early adopter advantage - be discoverable before competitors</li>
+                    <li>✓ Built following the official <a href="https://llmstxt.org/" target="_blank" rel="noopener noreferrer" className="text-innovation-teal hover:underline">llms.txt spec</a></li>
                   </ul>
                 </div>
+                <div>
+                  <h4 className="font-medium text-framework-black mb-2">Here's How to Set It Up (It's Stupid Simple)</h4>
+                  <p className="text-sm text-ai-silver mb-3">No complex setup - I've made this dead simple:</p>
+                  <ol className="text-sm text-ai-silver space-y-1">
+                    <li>1. Download your llms.txt file</li>
+                    <li>2. Upload it to your site's root</li>
+                    <li>3. That's it - you're now AI-discoverable</li>
+                  </ol>
+                  <p className="text-xs text-ai-silver mt-3">
+                    Make sure it's live at yourdomain.com/llms.txt and AI systems will find it automatically.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <p className="text-xs text-ai-silver">
+                  <strong>Pro tip from a fellow solopreneur:</strong> Update your llms.txt when you publish new content. 
+                  I usually do this monthly. Learn more at the 
+                  <a href="https://llmstxt.org/" target="_blank" rel="noopener noreferrer" className="text-innovation-teal hover:underline ml-1">official llms.txt specification</a>.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -493,30 +537,30 @@ export default function Home() {
               <div>
                 <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
                 <p className="text-sm text-slate-300">
-                  Expert-crafted AI content accessibility tools built by the creator of the MASTERY-AI Framework.
+                  Simple, effective AI visibility tools. Built by a solopreneur who got tired of corporate complexity.
                 </p>
               </div>
               <div>
                 <h5 className="font-semibold mb-4">Resources</h5>
                 <ul className="text-sm text-slate-300 space-y-2">
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Documentation</a></li>
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Best Practices</a></li>
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">API Reference</a></li>
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Support</a></li>
+                  <li><a href="/docs" className="hover:text-innovation-teal transition-colors">Documentation</a></li>
+                  <li><a href="/docs#best-practices" className="hover:text-innovation-teal transition-colors">Best Practices</a></li>
+                  <li><a href="/docs#api" className="hover:text-innovation-teal transition-colors">API Reference</a></li>
+                  <li><a href="/contact" className="hover:text-innovation-teal transition-colors">Support</a></li>
                 </ul>
               </div>
               <div>
-                <h5 className="font-semibold mb-4">AI Search Mastery</h5>
+                <h5 className="font-semibold mb-4">Connect</h5>
                 <ul className="text-sm text-slate-300 space-y-2">
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Main Website</a></li>
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">MASTERY-AI Framework</a></li>
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Blog</a></li>
-                  <li><a href="#" className="hover:text-innovation-teal transition-colors">Contact</a></li>
+                  <li><a href="https://aisearchmastery.com" target="_blank" rel="noopener noreferrer" className="hover:text-innovation-teal transition-colors">Main Website</a></li>
+                  <li><a href="https://github.com/TheWayWithin" target="_blank" rel="noopener noreferrer" className="hover:text-innovation-teal transition-colors">Other Projects</a></li>
+                  <li><a href="/blog" className="hover:text-innovation-teal transition-colors">Blog</a></li>
+                  <li><a href="/contact" className="hover:text-innovation-teal transition-colors">Contact</a></li>
                 </ul>
               </div>
             </div>
             <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
-              <p>&copy; 2024 AI Search Mastery. All rights reserved. Built with systematic precision.</p>
+              <p>&copy; 2025 Jamie Watters. No corporate BS. Just tools that work.</p>
             </div>
           </div>
         </footer>

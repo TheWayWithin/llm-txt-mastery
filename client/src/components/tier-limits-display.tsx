@@ -17,10 +17,12 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
 
   const checkLimitsMutation = useMutation({
     mutationFn: async () => {
+      console.log('🔍 TierLimitsDisplay: Checking limits for', { email, url });
       const response = await apiRequest("POST", "/api/check-limits", { email, url });
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('✅ TierLimitsDisplay: Limits check successful', data);
       setLimitsData(data);
       if (data.allowed) {
         // Coffee+ tier users proceed faster for premium experience
@@ -42,15 +44,52 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
         }
       }
     },
+    onError: (error) => {
+      console.error('❌ TierLimitsDisplay: API call failed, auto-proceeding to prevent user getting stuck', error);
+      // CRITICAL FIX: Auto-proceed after API failure to prevent blocking users
+      setTimeout(() => {
+        console.log('🚨 TierLimitsDisplay: Auto-proceeding after error (1s delay)');
+        onProceed();
+      }, 1000);
+    },
   });
 
   useEffect(() => {
     if (isVisible && url && email) {
+      console.log('🎯 TierLimitsDisplay: Starting limits check...');
       checkLimitsMutation.mutate();
+      
+      // CRITICAL FALLBACK: If component stays null for too long, auto-proceed
+      const fallbackTimeout = setTimeout(() => {
+        if (!limitsData && isVisible) {
+          console.warn('🚨 TierLimitsDisplay: Fallback timeout triggered - auto-proceeding after 5s');
+          onProceed();
+        }
+      }, 5000);
+      
+      return () => clearTimeout(fallbackTimeout);
     }
-  }, [isVisible, url, email]);
+  }, [isVisible, url, email, limitsData]);
 
-  if (!isVisible || !limitsData) return null;
+  // CRITICAL: Show loading state instead of null to avoid blocking users
+  if (!isVisible) return null;
+  
+  if (!limitsData) {
+    // Show minimal loading UI while API call is in progress
+    return (
+      <Alert className="border-blue-200">
+        <div className="flex items-center space-x-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          <div>
+            <AlertTitle className="text-blue-900">Checking Usage Limits...</AlertTitle>
+            <AlertDescription className="text-sm text-blue-700">
+              Verifying your tier and daily usage limits
+            </AlertDescription>
+          </div>
+        </div>
+      </Alert>
+    );
+  }
 
   const { allowed, reason, pageCount, tier, limits, currentUsage, estimatedCost, suggestedUpgrade } = limitsData;
 

@@ -30,11 +30,11 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
   starter: {
     dailyAnalyses: 3,
     maxPagesPerAnalysis: 20, // Reduced from 50 to encourage upgrades
-    aiPagesLimit: 0,
+    aiPagesLimit: 20, // AI analysis enabled for free tier
     cacheDurationDays: 30,
     features: {
       htmlExtraction: true,
-      aiAnalysis: false,
+      aiAnalysis: true, // AI analysis enabled for free tier - full experience!
       fileHistory: false,
       prioritySupport: false,
       smartCaching: true
