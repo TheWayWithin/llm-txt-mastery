@@ -23,6 +23,7 @@ import ResetButton from "@/components/ResetButton";
 import { QuickHelp } from "@/components/HelpSystem";
 import DailyLimitModal from "@/components/DailyLimitModal";
 import EmailVerificationBanner from "@/components/email-verification-banner";
+import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -142,6 +143,11 @@ export default function Home() {
             </div>
           </div>
         </header>
+
+      {/* Demo Mode Banner - Show when user is in demo mode */}
+      {user?.isDemo && (
+        <DemoModeBanner onLogin={() => actions.openAuthModal()} />
+      )}
 
       {/* Email Verification Banner - Show immediately after header */}
       {user && console.log('🔍 User verification check:', { 

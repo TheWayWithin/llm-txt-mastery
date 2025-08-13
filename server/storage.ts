@@ -62,6 +62,11 @@ export interface IStorage {
   createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit>;
   getUserCredits(userId: number): Promise<OneTimeCredit[]>;
   consumeCredit(userId: number, amount?: number): Promise<boolean>;
+  
+  // Demo data cleanup methods
+  deleteAnalysesForUser(userId: number): Promise<number>;
+  deleteLlmFilesForUser(userId: number): Promise<number>;
+  deleteUsageForUser(userId: number): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -434,6 +439,40 @@ export class MemStorage implements IStorage {
     }
     return false;
   }
+  
+  // Demo data cleanup methods
+  async deleteAnalysesForUser(userId: number): Promise<number> {
+    let deleted = 0;
+    for (const [id, analysis] of this.analyses.entries()) {
+      if (analysis.userId === userId) {
+        this.analyses.delete(id);
+        deleted++;
+      }
+    }
+    return deleted;
+  }
+
+  async deleteLlmFilesForUser(userId: number): Promise<number> {
+    let deleted = 0;
+    for (const [id, file] of this.llmFiles.entries()) {
+      if (file.userId === userId) {
+        this.llmFiles.delete(id);
+        deleted++;
+      }
+    }
+    return deleted;
+  }
+
+  async deleteUsageForUser(userId: number): Promise<number> {
+    let deleted = 0;
+    for (const [key, usage] of this.usageTracking.entries()) {
+      if (usage.userId === userId) {
+        this.usageTracking.delete(key);
+        deleted++;
+      }
+    }
+    return deleted;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -759,6 +798,28 @@ export class DatabaseStorage implements IStorage {
 
   async consumeCredit(userId: number, amount?: number): Promise<boolean> {
     return false;
+  }
+  
+  // Demo data cleanup methods
+  async deleteAnalysesForUser(userId: number): Promise<number> {
+    const result = await db
+      .delete(sitemapAnalysis)
+      .where(eq(sitemapAnalysis.userId, userId));
+    return result.rowCount || 0;
+  }
+
+  async deleteLlmFilesForUser(userId: number): Promise<number> {
+    const result = await db
+      .delete(llmTextFiles)
+      .where(eq(llmTextFiles.userId, userId));
+    return result.rowCount || 0;
+  }
+
+  async deleteUsageForUser(userId: number): Promise<number> {
+    const result = await db
+      .delete(usageTracking)
+      .where(eq(usageTracking.userId, userId));
+    return result.rowCount || 0;
   }
 }
 
