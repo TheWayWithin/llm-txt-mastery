@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useLocation } from 'wouter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,8 +8,11 @@ import { Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react'
 import { apiRequest } from '@/lib/queryClient'
 
 export default function ResetPasswordForm() {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
+  const [location, setLocation] = useLocation()
+  
+  // Parse search params from current location
+  const searchParams = new URLSearchParams(location.split('?')[1] || '')
+  const navigate = (path: string) => setLocation(path)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
