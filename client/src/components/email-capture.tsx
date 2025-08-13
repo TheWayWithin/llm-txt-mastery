@@ -16,7 +16,7 @@ import { z } from "zod";
 import { QuickHelp, InlineHelp } from "./HelpSystem";
 
 interface EmailCaptureProps {
-  websiteUrl: string;
+  websiteUrl?: string;
   onEmailCaptured: (email: string, tier: "starter" | "coffee" | "growth" | "scale") => void;
   onLoginRequested?: () => void;
   onReset?: () => void;
@@ -37,7 +37,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     resolver: zodResolver(quickStartSchema),
     defaultValues: {
       email: prefilledEmail || "",
-      websiteUrl: websiteUrl,
+      websiteUrl: websiteUrl || "",
       tier: "starter",
     },
   });
@@ -50,7 +50,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
   }, [prefilledEmail, form]);
 
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
+    mutationFn: async (data: any) => {
       setLastError(null);
       await apiRequest("POST", "/api/email-capture", data);
     },
@@ -100,7 +100,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
         // Then redirect to Stripe checkout
         const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
           email: quickData.email,
-          websiteUrl: quickData.websiteUrl
+          websiteUrl: quickData.websiteUrl || ""
         });
         const checkoutData = await response.json();
         
@@ -136,7 +136,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
           <span>Choose Your Analysis Type</span>
         </CardTitle>
         <p className="text-sm text-ai-silver">
-          Generate professional LLM.txt files for <strong>{websiteUrl}</strong> in seconds
+          {websiteUrl ? (
+            <>Generate professional LLM.txt files for <strong>{websiteUrl}</strong> in seconds</>
+          ) : (
+            <>Select your tier, enter your email, and we'll help you create a professional LLM.txt file</>
+          )}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
