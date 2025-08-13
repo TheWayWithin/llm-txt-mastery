@@ -198,12 +198,13 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Free Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Free</span>
+                  <span className="font-medium text-lg">Test Drive</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
                   • 3 analyses per day<br/>
-                  • 20 pages per analysis<br/>
-                  • Smart categorization
+                  • 20 pages with AI analysis<br/>
+                  • Smart categorization<br/>
+                  • Full feature preview
                 </p>
               </div>
             </div>
@@ -219,13 +220,13 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Coffee Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Coffee ($4.95)</span>
+                  <span className="font-medium text-lg">Solopreneur Special ($4.95)</span>
                 </Label>
                 <p className="text-sm text-orange-700 mt-2">
+                  • Buy once, use forever<br/>
                   • Unlimited daily analyses<br/>
                   • 200 pages per analysis<br/>
-                  • AI-enhanced quality<br/>
-                  • One-time payment
+                  • AI-enhanced quality
                 </p>
               </div>
             </div>
@@ -240,12 +241,12 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Growth Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Growth ($25/mo)</span>
+                  <span className="font-medium text-lg">Growing Business ($25/mo)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
                   • Unlimited analyses<br/>
                   • 1,000 pages per analysis<br/>
-                  • Smart caching<br/>
+                  • Team collaboration<br/>
                   • Priority support
                 </p>
               </div>
@@ -261,12 +262,12 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Scale Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Scale ($99/mo)</span>
+                  <span className="font-medium text-lg">Agency & API ($99/mo)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
+                  • Full API access<br/>
                   • Unlimited everything<br/>
-                  • API access<br/>
-                  • White-label support<br/>
+                  • White-label options<br/>
                   • Dedicated account
                 </p>
               </div>
