@@ -49,6 +49,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     }
   }, [prefilledEmail, form]);
 
+  // Update form tier when selectedTier changes
+  useEffect(() => {
+    form.setValue("tier", selectedTier);
+  }, [selectedTier, form]);
+
   const mutation = useMutation({
     mutationFn: async (data: any) => {
       setLastError(null);
@@ -56,6 +61,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     },
     onSuccess: () => {
       setLastError(null);
+      console.log(`${selectedTier} tier: Email captured successfully, firing EMAIL_CAPTURED event`);
       // No toast notification - proceed directly to analysis
       onEmailCaptured(form.getValues("email"), selectedTier);
     },
@@ -94,8 +100,17 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
     // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
     if (selectedTier === 'coffee') {
       try {
-        // First capture the email
-        await apiRequest("POST", "/api/email-capture", { ...quickData, tier: 'starter' }); // Keep as starter until payment
+        console.log('Coffee tier: Capturing email before payment redirect');
+        
+        // First capture the email with correct tier
+        await apiRequest("POST", "/api/email-capture", { ...quickData, tier: 'coffee' });
+        
+        console.log('Coffee tier: Email captured successfully, firing EMAIL_CAPTURED event');
+        
+        // Fire the EMAIL_CAPTURED event BEFORE redirect
+        onEmailCaptured(quickData.email, 'coffee');
+        
+        console.log('Coffee tier: Creating Stripe checkout session');
         
         // Then redirect to Stripe checkout
         const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
@@ -105,12 +120,14 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
         const checkoutData = await response.json();
         
         if (checkoutData.url) {
+          console.log('Coffee tier: Redirecting to Stripe checkout:', checkoutData.url);
           // Redirect to Stripe checkout
           window.location.href = checkoutData.url;
         } else {
           throw new Error('Failed to create checkout session');
         }
       } catch (error) {
+        console.error('Coffee tier: Error during email capture or checkout setup:', error);
         const errorMessage = getDetailedErrorMessage(error);
         setLastError(errorMessage);
         
@@ -325,6 +342,32 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Hidden field for websiteUrl */}
+            <FormField
+              control={form.control}
+              name="websiteUrl"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input {...field} type="hidden" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {/* Hidden field for tier */}
+            <FormField
+              control={form.control}
+              name="tier"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input {...field} type="hidden" />
+                  </FormControl>
                 </FormItem>
               )}
             />

@@ -23,9 +23,27 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
     }
   }, [prefilledUrl]);
 
+  const normalizeUrl = (value: string) => {
+    // Return empty if no value
+    if (!value.trim()) return value;
+    
+    // If already has protocol, return as-is
+    if (/^https?:\/\//.test(value)) {
+      return value;
+    }
+    
+    // Auto-prepend https:// for URLs without protocol
+    return `https://${value}`;
+  };
+
   const validateUrl = (value: string) => {
+    // Normalize the URL first
+    const normalizedUrl = normalizeUrl(value);
+    
+    // Updated pattern to accept URLs with or without protocol
+    // Accepts: https://example.com, http://example.com, www.example.com, example.com
     const urlPattern = /^https?:\/\/.+\..+/;
-    const valid = urlPattern.test(value);
+    const valid = urlPattern.test(normalizedUrl);
     setIsValid(valid);
     return valid;
   };
@@ -39,7 +57,9 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid && url) {
-      onAnalysisStart(url);
+      // Use normalized URL for analysis
+      const normalizedUrl = normalizeUrl(url);
+      onAnalysisStart(normalizedUrl);
     }
   };
 
@@ -65,7 +85,7 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
                 <Input
                   id="website-url"
                   type="url"
-                  placeholder="https://example.com"
+                  placeholder="www.example.com or https://example.com"
                   value={url}
                   onChange={handleInputChange}
                   className="pr-12 border-slate-300 focus:ring-innovation-teal focus:border-innovation-teal"
@@ -77,7 +97,7 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
                 )}
               </div>
               <p className="mt-2 text-sm text-ai-silver">
-                Enter your website's main URL. We'll automatically discover and analyze your content.
+                Enter your website's main URL. Protocol (https://) is optional - we'll add it automatically.
               </p>
             </div>
 

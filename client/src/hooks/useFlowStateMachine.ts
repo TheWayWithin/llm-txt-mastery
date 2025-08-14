@@ -25,6 +25,7 @@ export type FlowEvent =
   | { type: 'URL_SUBMITTED'; url: string }
   | { type: 'EMAIL_CAPTURED'; email: string; tier: UserTier }
   | { type: 'EMAIL_RECOGNIZED'; user: AuthUser }
+  | { type: 'EMAIL_VERIFIED'; user: AuthUser }
   | { type: 'ANALYSIS_COMPLETE'; analysisId: number; pages: DiscoveredPage[] }
   | { type: 'FILE_GENERATED'; fileId: number }
   | { type: 'RESET_WORKFLOW' }
@@ -163,13 +164,24 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
             };
           }
         } else {
-          console.log('👤 AUTH_RESOLVED: No URL provided and no user, start with email capture for freemium funnel');
-          const nextState = 'EMAIL_CAPTURE';
-          return { 
-            ...newContext, 
-            currentState: nextState,
-            progress: updateProgressForState(nextState, newContext.progress)
-          };
+          // For authenticated users, show URL input directly; for unauthenticated users, show email capture
+          if (user) {
+            console.log('✅ AUTH_RESOLVED: Authenticated user without URL, proceeding to URL input');
+            const nextState = 'URL_INPUT';
+            return { 
+              ...newContext, 
+              currentState: nextState,
+              progress: updateProgressForState(nextState, newContext.progress)
+            };
+          } else {
+            console.log('👤 AUTH_RESOLVED: No URL provided and no user, start with email capture for freemium funnel');
+            const nextState = 'EMAIL_CAPTURE';
+            return { 
+              ...newContext, 
+              currentState: nextState,
+              progress: updateProgressForState(nextState, newContext.progress)
+            };
+          }
         }
       }
 
@@ -245,6 +257,23 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       
       // User was recognized by email - set user and proceed to URL input
       // (they still need to enter the URL they want to analyze)
+      const nextState = 'URL_INPUT';
+      
+      return {
+        ...updatedContext,
+        user: event.user,
+        userEmail: event.user.email,
+        userTier: event.user.tier,
+        currentState: nextState,
+        progress: updateProgressForState(nextState, context.progress)
+      };
+    }
+
+    case 'EMAIL_VERIFIED': {
+      console.log(`✅ EMAIL_VERIFIED: ${event.user.email} with tier ${event.user.tier}`);
+      
+      // After email verification, user should go directly to URL input
+      // This provides smooth post-verification experience
       const nextState = 'URL_INPUT';
       
       return {
@@ -654,6 +683,7 @@ export function useFlowStateMachine() {
     submitUrl: (url: string) => dispatch({ type: 'URL_SUBMITTED', url }),
     captureEmail: (email: string, tier: UserTier) => dispatch({ type: 'EMAIL_CAPTURED', email, tier }),
     recognizeEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_RECOGNIZED', user }),
+    verifyEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_VERIFIED', user }),
     proceedToAnalysis: () => dispatch({ type: 'PROCEED_TO_ANALYSIS' }),
     coffeeProceedToAnalysis: () => dispatch({ type: 'COFFEE_PROCEED_TO_ANALYSIS' }),
     completeAnalysis: (analysisId: number, pages: DiscoveredPage[]) => 

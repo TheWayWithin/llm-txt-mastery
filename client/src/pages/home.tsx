@@ -25,12 +25,13 @@ import DailyLimitModal from "@/components/DailyLimitModal";
 import EmailVerificationBanner from "@/components/email-verification-banner";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Home() {
   // Import auth hook to get email recognition capability
   const { recognizeEmailUser } = useAuth();
+  const queryClient = useQueryClient();
   const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
 
   // Replace all complex state management with the state machine
@@ -77,8 +78,17 @@ export default function Home() {
   // Uses stable dispatch pattern to avoid dependency on actions object
   const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
     console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
+    
+    // CRITICAL FIX: Invalidate usage queries to refresh counter immediately
+    console.log(`🔄 Invalidating usage queries for user: ${effectiveEmail}`);
+    if (effectiveEmail) {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/usage", effectiveEmail]
+      });
+    }
+    
     actions.completeAnalysis(id, pages);
-  }, [actions.completeAnalysis]);
+  }, [actions.completeAnalysis, effectiveEmail, queryClient]);
 
   const handleFileGenerated = useCallback((fileId: number) => {
     actions.generateFile(fileId);
@@ -282,7 +292,7 @@ export default function Home() {
         </section>
 
         {/* Welcome Back Message for Authenticated Users */}
-        {user && (
+        {user && currentState !== 'URL_INPUT' && (
           <section className="mb-8">
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
               <div className="flex items-center justify-center mb-2">
@@ -336,6 +346,17 @@ export default function Home() {
                   </Button>
                 )}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* Simple Message for Authenticated Users When URL Input is Visible */}
+        {user && currentState === 'URL_INPUT' && (
+          <section className="mb-6">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+              <p className="text-green-700">
+                <span className="font-medium">Welcome back, {user.email.split('@')[0]}!</span> Enter a URL below to start your analysis.
+              </p>
             </div>
           </section>
         )}

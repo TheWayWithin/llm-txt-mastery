@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, Circle, Loader2, FileText, Brain, Globe, AlertTriangle, RotateCcw, Home } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { DiscoveredPage, SiteAnalysisResult } from "@shared/schema";
 import { AnalysisProgress, ANALYSIS_STAGES } from "@/components/ui/analysis-progress";
@@ -40,6 +40,7 @@ export default function ContentAnalysis({
   useAI = false,
   onProgressUpdate 
 }: ContentAnalysisProps) {
+  const queryClient = useQueryClient();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [analysisId, setAnalysisId] = useState<number | null>(null);
@@ -148,6 +149,12 @@ export default function ContentAnalysis({
       
       // Mark this specific analysis ID as completed
       setCompletedAnalysisIds(prev => new Set([...prev, analysisData.id]));
+      
+      // CRITICAL FIX: Invalidate usage queries to refresh counter immediately
+      console.log(`🔄 Invalidating usage queries for user: ${userEmail}`);
+      queryClient.invalidateQueries({
+        queryKey: ["/api/usage", userEmail]
+      });
       
       // Call completion callback immediately - no need for timeout
       console.log(`🚀 Calling onAnalysisComplete: id=${analysisData.id}`);
