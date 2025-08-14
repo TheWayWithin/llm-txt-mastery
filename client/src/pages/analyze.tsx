@@ -1,0 +1,470 @@
+import { useState, useEffect, useCallback } from "react";
+import { useLocation, useRoute } from "wouter";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Search, CheckCircle, Info, User, Calendar, Settings, Zap, BarChart3, Clock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthNav } from "@/components/AuthNav";
+import { AuthModal } from "@/components/auth/AuthModal";
+import UsageDisplay from "@/components/usage-display";
+import ContentAnalysis from "@/components/content-analysis";
+import ContentReview from "@/components/content-review";
+import FileGeneration from "@/components/file-generation";
+import TierLimitsDisplay from "@/components/tier-limits-display";
+import { ProgressBreadcrumb, FLOW_STEPS } from "@/components/ui/progress-breadcrumb";
+import { EnhancedLoading, LOADING_STATES } from "@/components/ui/enhanced-loading";
+import { useFlowStateMachine } from "@/hooks/useFlowStateMachine";
+import { DiscoveredPage } from "@shared/schema";
+import { Link } from "wouter";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorDisplay from "@/components/ErrorDisplay";
+import DailyLimitModal from "@/components/DailyLimitModal";
+import EmailVerificationBanner from "@/components/email-verification-banner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+
+export default function AnalyzePage() {
+  const [, navigate] = useLocation();
+  const { user, isAuthenticated, authResolved, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // URL parameter handling
+  const urlParams = new URLSearchParams(window.location.search);
+  const websiteUrlParam = urlParams.get('websiteUrl') || urlParams.get('url') || '';
+  
+  // URL input state
+  const [url, setUrl] = useState(websiteUrlParam);
+  const [isValid, setIsValid] = useState(false);
+
+  // State machine for analysis flow (authenticated version)
+  const {
+    currentState,
+    websiteUrl,
+    analysisId,
+    discoveredPages,
+    generatedFileId,
+    progress,
+    error,
+    retryCount,
+    visibility,
+    actions
+  } = useFlowStateMachine();
+
+  // Set pre-filled URL if provided
+  useEffect(() => {
+    if (websiteUrlParam) {
+      setUrl(websiteUrlParam);
+      validateUrl(websiteUrlParam);
+    }
+  }, [websiteUrlParam]);
+
+  // Authentication check - redirect to login if not authenticated
+  useEffect(() => {
+    if (authResolved && !authLoading && !isAuthenticated) {
+      console.log('🔒 User not authenticated, redirecting to login');
+      const loginUrl = url ? `/login?websiteUrl=${encodeURIComponent(url)}` : '/login';
+      navigate(loginUrl);
+    }
+  }, [authResolved, authLoading, isAuthenticated, navigate, url]);
+
+  // Fetch usage data for the authenticated user
+  const { data: usageData } = useQuery({
+    queryKey: ["/api/usage", user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(user.email)}`);
+      return response.json();
+    },
+    enabled: !!user?.email,
+    refetchInterval: 10000,
+  });
+
+  // TODO: Add recent analyses when API endpoint is implemented
+  // const { data: recentAnalyses } = useQuery({
+  //   queryKey: ["/api/recent-analyses", user?.email],
+  //   queryFn: async () => {
+  //     if (!user?.email) return [];
+  //     const response = await apiRequest("GET", `/api/recent-analyses/${encodeURIComponent(user.email)}`);
+  //     return response.json();
+  //   },
+  //   enabled: !!user?.email,
+  // });
+  const recentAnalyses: any[] = []; // Temporary until API is implemented
+
+  const normalizeUrl = (value: string) => {
+    if (!value.trim()) return value;
+    if (/^https?:\/\//.test(value)) {
+      return value;
+    }
+    return `https://${value}`;
+  };
+
+  const validateUrl = (value: string) => {
+    const normalizedUrl = normalizeUrl(value);
+    const urlPattern = /^https?:\/\/.+\..+/;
+    const valid = urlPattern.test(normalizedUrl);
+    setIsValid(valid);
+    return valid;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUrl(value);
+    validateUrl(value);
+  };
+
+  const handleAnalysisStart = () => {
+    if (!isValid || !url) return;
+    
+    // Check if user has reached daily limit
+    if (usageData && user?.tier === 'starter' && 
+        usageData.usage?.analysesToday >= usageData.limits?.dailyAnalyses) {
+      setShowDailyLimitModal(true);
+      return;
+    }
+    
+    const normalizedUrl = normalizeUrl(url);
+    console.log('🌐 Starting analysis for URL:', normalizedUrl);
+    actions.submitUrl(normalizedUrl);
+  };
+
+  const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
+    console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
+    
+    // Invalidate usage queries to refresh counter immediately
+    console.log(`🔄 Invalidating usage queries for user: ${user?.email}`);
+    if (user?.email) {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/usage", user.email]
+      });
+      // TODO: Add recent analyses invalidation when API is implemented
+      // queryClient.invalidateQueries({
+      //   queryKey: ["/api/recent-analyses", user.email]
+      // });
+    }
+    
+    actions.completeAnalysis(id, pages);
+  }, [actions.completeAnalysis, user?.email, queryClient]);
+
+  const handleFileGenerated = useCallback((fileId: number) => {
+    actions.generateFile(fileId);
+  }, [actions.generateFile]);
+
+  const resetWorkflow = () => {
+    actions.resetWorkflow();
+    setUrl('');
+    setIsValid(false);
+  };
+
+  const startNewAnalysis = () => {
+    resetWorkflow();
+  };
+
+  // Show loading while auth is resolving
+  if (!authResolved || authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <EnhancedLoading state={LOADING_STATES.AUTH_CHECK} />
+      </div>
+    );
+  }
+
+  // If not authenticated after auth resolves, the useEffect above will redirect
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
+  return (
+    <ErrorBoundary onReset={resetWorkflow}>
+      <div className="min-h-screen bg-slate-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/">
+                <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                  <img 
+                    src="/images/logo-primary.png" 
+                    alt="LLM.txt Mastery" 
+                    className="h-12 md:h-14 w-auto"
+                  />
+                </a>
+              </Link>
+              <div className="flex items-center space-x-4">
+                <AuthNav />
+                <div className="text-right hidden md:block">
+                  <p className="text-sm text-ai-silver">Built by Jamie Watters</p>
+                  <p className="text-xs text-ai-silver">Solopreneur & Tool Builder</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Email Verification Banner */}
+        {user?.emailVerified === false && (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
+          </div>
+        )}
+
+        {/* Main Content */}
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* User Welcome & Status */}
+          <section className="mb-8">
+            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-innovation-teal rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-semibold text-framework-black">
+                      Welcome back, {user.email.split('@')[0]}!
+                    </h1>
+                    <p className="text-sm text-ai-silver">
+                      Ready to analyze your website and generate an optimized llms.txt file?
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Link href="/dashboard">
+                    <a>
+                      <Button variant="outline" size="sm">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </a>
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
+                  <Zap className="h-5 w-5 text-innovation-teal" />
+                  <div>
+                    <p className="text-sm font-medium text-framework-black">Current Tier</p>
+                    <p className="text-xs text-ai-silver capitalize">{user.tier}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
+                  <BarChart3 className="h-5 w-5 text-innovation-teal" />
+                  <div>
+                    <p className="text-sm font-medium text-framework-black">Today's Usage</p>
+                    <p className="text-xs text-ai-silver">
+                      {usageData?.usage?.analysesToday || 0} / {usageData?.limits?.dailyAnalyses || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
+                  <Clock className="h-5 w-5 text-innovation-teal" />
+                  <div>
+                    <p className="text-sm font-medium text-framework-black">
+                      {user.tier === 'coffee' ? 'Credits' : 'AI Analysis'}
+                    </p>
+                    <p className="text-xs text-ai-silver">
+                      {user.tier === 'coffee' 
+                        ? `${user.creditsRemaining || 0} remaining`
+                        : user.tier === 'starter' ? 'First 5 pages' : 'Unlimited'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Progress Breadcrumb - Show when user has started analysis */}
+          {currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING' && (
+            <ProgressBreadcrumb
+              steps={FLOW_STEPS}
+              currentStep={progress.currentStep}
+              completedSteps={progress.completedSteps}
+              className="mb-8"
+            />
+          )}
+
+          {/* Error State Display */}
+          {visibility.error && error && (
+            <ErrorDisplay
+              error={error}
+              onRetry={() => actions.retryCurrentOperation()}
+              onRecover={(targetState) => actions.recoverFromError(targetState)}
+              onReset={resetWorkflow}
+              retryCount={retryCount}
+              maxRetries={3}
+            />
+          )}
+
+          {/* Usage Display */}
+          {user.email && !visibility.error && (
+            <UsageDisplay userEmail={user.email} />
+          )}
+
+          {/* Daily Limit Modal */}
+          {showDailyLimitModal && usageData && (
+            <DailyLimitModal
+              isOpen={showDailyLimitModal}
+              onClose={() => setShowDailyLimitModal(false)}
+              userEmail={user.email}
+              currentUsage={usageData.usage?.analysesToday || 0}
+              dailyLimit={usageData.limits?.dailyAnalyses || 3}
+            />
+          )}
+
+          {/* URL Input - Primary Interface */}
+          {(currentState === 'URL_INPUT' || currentState === 'INITIALIZING') && (
+            <section className="mb-8">
+              <Card className="bg-white shadow-sm border border-slate-200">
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-framework-black mb-2">
+                      Analyze Your Website
+                    </h2>
+                    <p className="text-ai-silver">
+                      Enter your website URL to discover pages and generate an optimized llms.txt file
+                    </p>
+                  </div>
+                  
+                  <form onSubmit={(e) => { e.preventDefault(); handleAnalysisStart(); }} className="space-y-4">
+                    <div>
+                      <Label htmlFor="website-url" className="text-sm font-medium text-framework-black">
+                        Website URL
+                      </Label>
+                      <div className="relative mt-2">
+                        <Input
+                          id="website-url"
+                          type="url"
+                          placeholder="www.example.com or https://example.com"
+                          value={url}
+                          onChange={handleInputChange}
+                          className="pr-12 border-slate-300 focus:ring-innovation-teal focus:border-innovation-teal text-lg py-3"
+                        />
+                        {isValid && (
+                          <div className="absolute right-3 top-3">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="mt-2 text-sm text-ai-silver">
+                        Protocol (https://) is optional - we'll add it automatically
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4">
+                      <div className="flex items-center space-x-2 text-sm text-ai-silver">
+                        <Info className="h-4 w-4 text-innovation-teal" />
+                        <span>
+                          {user.tier === 'starter' 
+                            ? 'AI analysis for first 5 pages'
+                            : user.tier === 'coffee'
+                            ? `${user.creditsRemaining || 0} premium analyses remaining`
+                            : 'Unlimited AI-enhanced analysis'
+                          }
+                        </span>
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={!isValid}
+                        className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3 text-lg"
+                      >
+                        <Search className="h-5 w-5 mr-2" />
+                        Analyze Website
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </section>
+          )}
+
+          {/* Analysis Components */}
+          {visibility.analysis && (
+            <ContentAnalysis
+              websiteUrl={websiteUrl}
+              userEmail={user.email}
+              onAnalysisComplete={handleAnalysisComplete}
+              onReset={resetWorkflow}
+              useAI={user.tier !== 'starter'}
+              onProgressUpdate={(stage, totalPages, processedPages) => {
+                actions.updateAnalysisProgress(stage, totalPages, processedPages);
+              }}
+            />
+          )}
+
+          {visibility.review && (
+            <ContentReview
+              analysisId={analysisId!}
+              discoveredPages={discoveredPages}
+              onFileGenerated={handleFileGenerated}
+              onStartOver={resetWorkflow}
+              onStartNewAnalysis={startNewAnalysis}
+            />
+          )}
+
+          {visibility.generation && (
+            <FileGeneration
+              fileId={generatedFileId!}
+              analysisId={analysisId || undefined}
+              onStartOver={resetWorkflow}
+              onStartNewAnalysis={startNewAnalysis}
+              onViewAnalysis={() => actions.viewAnalysisDetails()}
+            />
+          )}
+
+          {/* Recent Analyses - Show only when in URL input state */}
+          {(currentState === 'URL_INPUT' || currentState === 'INITIALIZING') && recentAnalyses && recentAnalyses.length > 0 && (
+            <section className="mt-8">
+              <Card className="bg-white shadow-sm border border-slate-200">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-framework-black mb-4">
+                    Recent Analyses
+                  </h3>
+                  <div className="space-y-3">
+                    {recentAnalyses.slice(0, 5).map((analysis: any) => (
+                      <div 
+                        key={analysis.id} 
+                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium text-framework-black truncate">
+                            {analysis.websiteUrl}
+                          </p>
+                          <p className="text-sm text-ai-silver">
+                            {analysis.discoveredPages} pages • {new Date(analysis.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setUrl(analysis.websiteUrl);
+                            validateUrl(analysis.websiteUrl);
+                          }}
+                        >
+                          Re-analyze
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          )}
+        </main>
+
+        {/* Authentication Modal */}
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          defaultMode="login"
+        />
+      </div>
+    </ErrorBoundary>
+  );
+}

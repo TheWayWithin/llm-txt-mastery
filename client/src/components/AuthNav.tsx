@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { 
@@ -10,7 +9,6 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
-import { AuthModal } from '@/components/auth/AuthModal'
 import { 
   User, 
   Coffee, 
@@ -19,14 +17,13 @@ import {
   Star, 
   LogOut, 
   Settings,
-  CreditCard
+  CreditCard,
+  Search
 } from 'lucide-react'
 import { useLocation } from 'wouter'
 
 export function AuthNav() {
   const { user, signOut, loading } = useAuth()
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [location, setLocation] = useLocation()
 
   if (loading) {
@@ -65,24 +62,19 @@ export function AuthNav() {
 
   if (!user) {
     return (
-      <>
-        <div className="flex items-center space-x-2">
-          <Button 
-            onClick={() => {
-              setAuthMode('signup')
-              setShowAuthModal(true)
-            }}
-          >
-            Get Started
-          </Button>
-        </div>
-
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          defaultMode={authMode}
-        />
-      </>
+      <div className="flex items-center space-x-2">
+        <Button 
+          variant="outline"
+          onClick={() => setLocation('/login')}
+        >
+          Sign In
+        </Button>
+        <Button 
+          onClick={() => setLocation('/signup')}
+        >
+          Get Started
+        </Button>
+      </div>
     )
   }
 
@@ -128,6 +120,14 @@ export function AuthNav() {
             </DropdownMenuLabel>
             
             <DropdownMenuSeparator />
+            
+            <DropdownMenuItem 
+              onClick={() => setLocation('/analyze')}
+              className="cursor-pointer"
+            >
+              <Search className="mr-2 h-4 w-4" />
+              New Analysis
+            </DropdownMenuItem>
             
             <DropdownMenuItem 
               onClick={() => setLocation('/dashboard')}

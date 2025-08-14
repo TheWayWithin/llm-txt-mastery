@@ -7,6 +7,9 @@ import { AuthUser } from '@/lib/auth-api';
 // Flow states representing the user journey
 export type FlowState = 
   | 'INITIALIZING'
+  | 'LANDING'
+  | 'TIER_SELECTION'
+  | 'AUTH_CHOICE'
   | 'URL_INPUT' 
   | 'AUTH_CHECK'
   | 'EMAIL_CAPTURE'
@@ -23,6 +26,8 @@ export type UserTier = 'starter' | 'coffee' | 'growth' | 'scale';
 export type FlowEvent = 
   | { type: 'AUTH_RESOLVED'; user: AuthUser | null }
   | { type: 'URL_SUBMITTED'; url: string }
+  | { type: 'TIER_SELECTED'; tier: UserTier }
+  | { type: 'AUTH_METHOD_CHOSEN'; method: 'login' | 'signup' }
   | { type: 'EMAIL_CAPTURED'; email: string; tier: UserTier }
   | { type: 'EMAIL_RECOGNIZED'; user: AuthUser }
   | { type: 'EMAIL_VERIFIED'; user: AuthUser }
@@ -30,6 +35,7 @@ export type FlowEvent =
   | { type: 'FILE_GENERATED'; fileId: number }
   | { type: 'RESET_WORKFLOW' }
   | { type: 'START_NEW_ANALYSIS' }
+  | { type: 'NAVIGATE_TO_TIER_SELECTION' }
   | { type: 'BYPASS_EMAIL_CAPTURE' }
   | { type: 'PROCEED_TO_ANALYSIS' }
   | { type: 'COFFEE_PROCEED_TO_ANALYSIS' }
@@ -128,77 +134,86 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       const { user } = event;
       const newContext = { ...updatedContext, user, authLoading: false };
 
-      console.log(`🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}, hasUrl=${!!context.websiteUrl}, url=${context.websiteUrl}`);
+      console.log(`🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}`);
 
-      // SIMPLIFIED LOGIC: Authenticated users ALWAYS go to URL_INPUT
-      // This prevents landing page loops and provides consistent UX
+      // Handle authenticated users
       if (context.currentState === 'INITIALIZING' || context.currentState === 'AUTH_CHECK') {
         if (user) {
-          console.log('✅ AUTH_RESOLVED: Authenticated user detected - always go to URL_INPUT for simplified UX');
-          const nextState = 'URL_INPUT';
+          console.log('✅ AUTH_RESOLVED: Authenticated user - going to /analyze (URL_INPUT)');
           return { 
             ...newContext, 
-            currentState: nextState,
-            progress: updateProgressForState(nextState, newContext.progress)
+            currentState: 'URL_INPUT',
+            progress: updateProgressForState('URL_INPUT', newContext.progress)
           };
         } else {
-          console.log('👤 AUTH_RESOLVED: No authenticated user found, proceeding to email capture');
-          const nextState = 'EMAIL_CAPTURE';
+          console.log('👤 AUTH_RESOLVED: Unauthenticated user - showing landing page');
           return { 
             ...newContext, 
-            currentState: nextState,
-            progress: updateProgressForState(nextState, newContext.progress)
+            currentState: 'LANDING',
+            progress: updateProgressForState('LANDING', newContext.progress)
           };
         }
       }
 
-      // If we're waiting for auth during email capture and user is authenticated, go to URL_INPUT
-      if (context.currentState === 'EMAIL_CAPTURE' && user) {
-        console.log(`🔄 AUTH_RESOLVED: User authenticated while in EMAIL_CAPTURE - going to URL_INPUT`);
-        const nextState = 'URL_INPUT';
-        return { 
-          ...newContext, 
-          currentState: nextState, 
-          showAuthModal: false,
-          progress: updateProgressForState(nextState, newContext.progress)
-        };
-      }
-
-      console.log('🔄 AUTH_RESOLVED: No state change needed, returning updated context');
+      // If auth resolves during other states, preserve user context but don't change state
+      console.log('🔄 AUTH_RESOLVED: Preserving current state, updating user context');
       return newContext;
+    }
+
+    case 'NAVIGATE_TO_TIER_SELECTION': {
+      console.log('🎯 NAVIGATE_TO_TIER_SELECTION: Moving from landing to tier selection');
+      return {
+        ...updatedContext,
+        currentState: 'TIER_SELECTION',
+        progress: updateProgressForState('TIER_SELECTION', updatedContext.progress)
+      };
+    }
+
+    case 'TIER_SELECTED': {
+      console.log(`🎯 TIER_SELECTED: tier=${event.tier}`);
+      return {
+        ...updatedContext,
+        userTier: event.tier,
+        currentState: 'AUTH_CHOICE',
+        progress: updateProgressForState('AUTH_CHOICE', updatedContext.progress)
+      };
+    }
+
+    case 'AUTH_METHOD_CHOSEN': {
+      console.log(`🔐 AUTH_METHOD_CHOSEN: method=${event.method}`);
+      // This would typically trigger navigation to /login or /signup
+      // The actual navigation should be handled by the component
+      return updatedContext;
     }
 
     case 'URL_SUBMITTED': {
       const newContext = { ...updatedContext, websiteUrl: event.url };
 
-      console.log(`🌐 URL_SUBMITTED: url=${event.url}, authLoading=${context.authLoading}, hasUser=${!!context.user}, userTier=${context.user?.tier || 'none'}`);
+      console.log(`🌐 URL_SUBMITTED: url=${event.url}, hasUser=${!!context.user}, userTier=${context.user?.tier || 'none'}`);
 
-      // SIMPLIFIED LOGIC: If auth is loading, wait. If user exists, proceed based on tier.
-      // Otherwise, go to email capture
-      if (context.authLoading) {
-        console.log('⏳ URL_SUBMITTED: Auth is still loading, transitioning to AUTH_CHECK to wait');
-        return { ...newContext, currentState: 'AUTH_CHECK' };
-      } else if (context.user) {
+      // For authenticated users, proceed based on tier
+      if (context.user) {
         console.log(`✅ URL_SUBMITTED: User is authenticated with tier ${context.user.tier}`);
-        // Coffee tier users skip TIER_LIMITS for optimal experience
+        // Coffee tier users proceed directly to analysis for optimal UX
         if (context.user.tier === 'coffee') {
           console.log('☕ URL_SUBMITTED: Coffee tier user - proceeding directly to analysis');
           return { ...newContext, currentState: 'ANALYSIS' };
         } else {
-          console.log('✅ URL_SUBMITTED: Regular authenticated user, proceeding to limits display');
+          console.log('✅ URL_SUBMITTED: Regular authenticated user, showing tier limits');
           return { ...newContext, currentState: 'TIER_LIMITS' };
         }
       } else {
-        console.log('👤 URL_SUBMITTED: No authenticated user, proceeding to email capture');
-        return { ...newContext, currentState: 'EMAIL_CAPTURE' };
+        console.log('👤 URL_SUBMITTED: No authenticated user - this should not happen on /analyze page');
+        // This case should not happen on the /analyze page since it requires auth
+        return { ...newContext, currentState: 'TIER_SELECTION' };
       }
     }
 
     case 'EMAIL_CAPTURED': {
       console.log(`📧 EMAIL_CAPTURED: ${event.email} with tier ${event.tier}`);
       
-      // After email capture, always go to URL input first (freemium funnel: Email → URL → Analysis)
-      // Coffee tier users will skip TIER_LIMITS later, but still need to enter URL
+      // This is for the legacy email capture flow (should be rare now)
+      // In the new flow, users authenticate first, then go to /analyze
       return {
         ...updatedContext,
         userEmail: event.email,
@@ -211,36 +226,30 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     case 'EMAIL_RECOGNIZED': {
       console.log(`🔍 EMAIL_RECOGNIZED: ${event.user.email} with tier ${event.user.tier}`);
       
-      // User was recognized by email - ALWAYS go to URL_INPUT
-      // This ensures recognized users get straight to the input screen
-      const nextState = 'URL_INPUT';
-      
+      // User was recognized - go to URL_INPUT (authenticated analysis page)
       return {
         ...updatedContext,
         user: event.user,
         userEmail: event.user.email,
         userTier: event.user.tier,
-        currentState: nextState,
-        showAuthModal: false, // Close any auth modals
-        progress: updateProgressForState(nextState, context.progress)
+        currentState: 'URL_INPUT',
+        showAuthModal: false,
+        progress: updateProgressForState('URL_INPUT', context.progress)
       };
     }
 
     case 'EMAIL_VERIFIED': {
       console.log(`✅ EMAIL_VERIFIED: ${event.user.email} with tier ${event.user.tier}`);
       
-      // CRITICAL: After email verification, ALWAYS go to URL_INPUT
-      // This ensures verified users don't get stuck in landing page loops
-      const nextState = 'URL_INPUT';
-      
+      // After email verification, go to URL_INPUT (authenticated analysis page)
       return {
         ...updatedContext,
         user: event.user,
         userEmail: event.user.email,
         userTier: event.user.tier,
-        currentState: nextState,
-        showAuthModal: false, // Close any auth modals
-        progress: updateProgressForState(nextState, context.progress)
+        currentState: 'URL_INPUT',
+        showAuthModal: false,
+        progress: updateProgressForState('URL_INPUT', context.progress)
       };
     }
 
@@ -279,12 +288,6 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         return context;
       }
 
-      // Extra safety: Check if we're already in REVIEW with the same analysisId
-      if (context.currentState === 'REVIEW' && context.analysisId === event.analysisId) {
-        console.log(`🚫 ANALYSIS_COMPLETE ignored: Already in REVIEW state with same analysisId=${event.analysisId}`);
-        return context;
-      }
-
       console.log(`✅ ANALYSIS_COMPLETE processed: analysisId=${event.analysisId}, pages=${event.pages.length}`);
       const nextState = 'REVIEW';
       return {
@@ -320,33 +323,29 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       
       // Scroll to URL input field when starting new analysis
       if (typeof window !== 'undefined') {
-        // Small delay to ensure the component has rendered
         setTimeout(() => {
           const urlInput = document.getElementById('website-url');
           if (urlInput) {
-            // Scroll the input into view, centered in the viewport
             urlInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Focus the input for better UX
             urlInput.focus();
             console.log('📍 Scrolled to URL input field for new analysis');
           } else {
-            // Fallback to top if element not found
             window.scrollTo({ top: 0, behavior: 'smooth' });
             console.log('📍 Scrolled to top for new analysis (URL input not found)');
           }
         }, 100);
       }
       
-      // Preserve user-related state from both AuthContext and previous email-based state
+      // Preserve user-related state
       const preservedUser = context.user;
       const preservedEmail = preservedUser?.email || context.userEmail;
       const preservedTier = preservedUser?.tier || context.userTier;
       
       console.log(`📋 Preserved context: email=${preservedEmail}, tier=${preservedTier}, hasUser=${!!preservedUser}`);
       
-      // SIMPLIFIED: Always start with URL_INPUT for authenticated users
-      // For unauthenticated users, start with EMAIL_CAPTURE
-      const startState = preservedUser ? 'URL_INPUT' : 'EMAIL_CAPTURE';
+      // For authenticated users, always go to URL_INPUT
+      // For unauthenticated users, go to LANDING or EMAIL_CAPTURE for legacy support
+      const startState = preservedUser ? 'URL_INPUT' : 'LANDING';
       console.log(`🚀 START_NEW_ANALYSIS: Starting with ${startState} (hasUser: ${!!preservedUser})`);
       
       return {
@@ -366,18 +365,17 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         userEmail: preservedEmail,
         userTier: preservedTier,
         user: preservedUser,
-        // Keep auth loading state but close modal
         showAuthModal: false,
         progress: createInitialProgress()
       };
     }
 
     case 'RESET_WORKFLOW': {
-      // Full reset: clear everything including user context
-      console.log('🔄 RESET_WORKFLOW: Full reset, clearing all data including user context, starting with email capture');
+      // Full reset: clear everything including user context, start with landing page
+      console.log('🔄 RESET_WORKFLOW: Full reset, clearing all data including user context');
       return {
         ...context,
-        currentState: 'EMAIL_CAPTURE',
+        currentState: 'LANDING',
         previousState: null,
         websiteUrl: '',
         userEmail: '',
@@ -489,7 +487,7 @@ function parseURLParams(location: string): URLParams {
 // Helper function to create initial progress state
 function createInitialProgress(): ProgressContext {
   return {
-    currentStep: 'email-capture',
+    currentStep: 'getting-started',
     completedSteps: [],
     progress: 0,
     analysisStage: undefined,
@@ -506,33 +504,45 @@ function updateProgressForState(state: FlowState, progress: ProgressContext): Pr
   const newProgress = { ...progress };
   
   switch (state) {
-    case 'EMAIL_CAPTURE':
-      newProgress.currentStep = 'email-capture';
+    case 'LANDING':
+    case 'TIER_SELECTION':
+    case 'AUTH_CHOICE':
+      newProgress.currentStep = 'getting-started';
       newProgress.completedSteps = [];
       newProgress.progress = 0;
       break;
+    case 'EMAIL_CAPTURE':
+      newProgress.currentStep = 'email-capture';
+      newProgress.completedSteps = [];
+      newProgress.progress = 10;
+      break;
     case 'URL_INPUT':
       newProgress.currentStep = 'url-input';
-      newProgress.completedSteps = ['email-capture'];
+      newProgress.completedSteps = ['getting-started'];
       newProgress.progress = 20;
+      break;
+    case 'TIER_LIMITS':
+      newProgress.currentStep = 'tier-setup';
+      newProgress.completedSteps = ['getting-started', 'url-input'];
+      newProgress.progress = 30;
       break;
     case 'ANALYSIS':
       newProgress.currentStep = 'analysis';
-      newProgress.completedSteps = ['email-capture', 'url-input'];
+      newProgress.completedSteps = ['getting-started', 'url-input', 'tier-setup'];
       newProgress.progress = 40;
       newProgress.analysisStage = 'discovery';
       newProgress.completedAnalysisStages = [];
       break;
     case 'REVIEW':
       newProgress.currentStep = 'review';
-      newProgress.completedSteps = ['email-capture', 'url-input', 'analysis'];
+      newProgress.completedSteps = ['getting-started', 'url-input', 'tier-setup', 'analysis'];
       newProgress.progress = 70;
       newProgress.analysisStage = undefined;
       newProgress.completedAnalysisStages = ['discovery', 'content-fetch', 'ai-analysis', 'finalization'];
       break;
     case 'GENERATION':
       newProgress.currentStep = 'generation';
-      newProgress.completedSteps = ['email-capture', 'url-input', 'analysis', 'review'];
+      newProgress.completedSteps = ['getting-started', 'url-input', 'tier-setup', 'analysis', 'review'];
       newProgress.progress = 100;
       break;
   }
@@ -623,8 +633,10 @@ export function useFlowStateMachine() {
   const effectiveTier = user?.tier || context.userTier;
   
   // Determine component visibility based on state
-  // SIMPLIFIED: URL input is visible when state is URL_INPUT
   const visibility = {
+    landing: context.currentState === 'LANDING',
+    tierSelection: context.currentState === 'TIER_SELECTION',
+    authChoice: context.currentState === 'AUTH_CHOICE',
     urlInput: context.currentState === 'URL_INPUT',
     authLoading: context.currentState === 'AUTH_CHECK' && authLoading,
     emailCapture: context.currentState === 'EMAIL_CAPTURE' && !authLoading && !user,
@@ -640,6 +652,12 @@ export function useFlowStateMachine() {
 
   // Stable action creators with useCallback to prevent unnecessary re-renders
   const actions = useMemo(() => ({
+    // Navigation actions
+    navigateToTierSelection: () => dispatch({ type: 'NAVIGATE_TO_TIER_SELECTION' }),
+    selectTier: (tier: UserTier) => dispatch({ type: 'TIER_SELECTED', tier }),
+    chooseAuthMethod: (method: 'login' | 'signup') => dispatch({ type: 'AUTH_METHOD_CHOSEN', method }),
+    
+    // Analysis flow actions
     submitUrl: (url: string) => dispatch({ type: 'URL_SUBMITTED', url }),
     captureEmail: (email: string, tier: UserTier) => dispatch({ type: 'EMAIL_CAPTURED', email, tier }),
     recognizeEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_RECOGNIZED', user }),
@@ -649,14 +667,20 @@ export function useFlowStateMachine() {
     completeAnalysis: (analysisId: number, pages: DiscoveredPage[]) => 
       dispatch({ type: 'ANALYSIS_COMPLETE', analysisId, pages }),
     generateFile: (fileId: number) => dispatch({ type: 'FILE_GENERATED', fileId }),
+    
+    // Workflow control actions
     resetWorkflow: () => dispatch({ type: 'RESET_WORKFLOW' }),
     startNewAnalysis: () => dispatch({ type: 'START_NEW_ANALYSIS' }),
     viewAnalysisDetails: () => dispatch({ type: 'VIEW_ANALYSIS_DETAILS' }),
+    
+    // UI state actions
     openAuthModal: () => dispatch({ type: 'OPEN_AUTH_MODAL' }),
     closeAuthModal: () => dispatch({ type: 'CLOSE_AUTH_MODAL' }),
     updateProgress: (progress: Partial<ProgressContext>) => dispatch({ type: 'UPDATE_PROGRESS', progress }),
     updateAnalysisProgress: (stage: string, totalPages?: number, processedPages?: number) => 
       dispatch({ type: 'UPDATE_ANALYSIS_PROGRESS', stage, totalPages, processedPages }),
+    
+    // Error handling actions
     reportError: (error: ErrorContext) => dispatch({ type: 'ERROR_OCCURRED', error }),
     recoverFromError: (targetState?: FlowState) => dispatch({ type: 'RECOVER_FROM_ERROR', targetState }),
     retryCurrentOperation: () => dispatch({ type: 'RETRY_CURRENT_OPERATION' })

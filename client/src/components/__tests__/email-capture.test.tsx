@@ -82,31 +82,23 @@ describe('EmailCapture Component', () => {
     expect(onLoginRequested).toHaveBeenCalledTimes(1)
   })
 
-  it('pre-fills email when prefilledEmail prop is provided', () => {
+  it('defaults to coffee tier selection', () => {
     renderWithQueryClient(
-      <EmailCapture {...mockProps} prefilledEmail="test@example.com" />
+      <EmailCapture {...mockProps} />
     )
     
-    const emailInput = screen.getByLabelText('Email Address') as HTMLInputElement
-    expect(emailInput.value).toBe('test@example.com')
+    const coffeeRadio = screen.getByLabelText(/Solopreneur Special/i) as HTMLInputElement
+    expect(coffeeRadio.checked).toBe(true)
   })
 
-  it('updates email field when prefilledEmail prop changes', () => {
-    const { rerender } = renderWithQueryClient(
-      <EmailCapture {...mockProps} prefilledEmail="initial@example.com" />
+  it('shows authentication options when tier is selected', () => {
+    renderWithQueryClient(
+      <EmailCapture {...mockProps} />
     )
     
-    let emailInput = screen.getByLabelText('Email Address') as HTMLInputElement
-    expect(emailInput.value).toBe('initial@example.com')
-    
-    rerender(
-      <QueryClientProvider client={new QueryClient()}>
-        <EmailCapture {...mockProps} prefilledEmail="updated@example.com" />
-      </QueryClientProvider>
-    )
-    
-    emailInput = screen.getByLabelText('Email Address') as HTMLInputElement
-    expect(emailInput.value).toBe('updated@example.com')
+    // Since coffee is default, auth buttons should be visible
+    expect(screen.getByText('Sign In')).toBeInTheDocument()
+    expect(screen.getByText('Sign Up')).toBeInTheDocument()
   })
 
   it('renders all tier options correctly', () => {

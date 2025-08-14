@@ -1,0 +1,347 @@
+{
+  "config": {
+    "configFile": "/Users/jamiewatters/DevProjects/llm-txt-mastery/playwright.config.ts",
+    "rootDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 1,
+    "webServer": {
+      "command": "PORT=3001 npm run dev",
+      "url": "http://localhost:3001",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "e2e/basic-functionality-test.spec.ts",
+      "file": "e2e/basic-functionality-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Basic Application Tests",
+          "file": "e2e/basic-functionality-test.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load the homepage successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 175,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:12:16",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                          "column": 16,
+                          "line": 12
+                        },
+                        "snippet": "  10 |     console.log('🏠 Testing homepage load...');\n  11 |     \n> 12 |     await page.goto('/');\n     |                ^\n  13 |     \n  14 |     // Wait for the page to load\n  15 |     await page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                            "column": 16,
+                            "line": 12
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n\n  10 |     console.log('🏠 Testing homepage load...');\n  11 |     \n> 12 |     await page.goto('/');\n     |                ^\n  13 |     \n  14 |     // Wait for the page to load\n  15 |     await page.waitForLoadState('networkidle');\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:12:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🏠 Testing homepage load...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-14T05:39:28.268Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-1723a-d-the-homepage-successfully-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-1723a-d-the-homepage-successfully-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                        "column": 16,
+                        "line": 12
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e6baa707bd49e3f243aa-3268521c01c70d99a5f8",
+              "file": "e2e/basic-functionality-test.spec.ts",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should be able to navigate to different pages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 122,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:50:16",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                          "column": 16,
+                          "line": 50
+                        },
+                        "snippet": "  48 |     console.log('🧭 Testing navigation...');\n  49 |     \n> 50 |     await page.goto('/');\n     |                ^\n  51 |     await page.waitForLoadState('networkidle');\n  52 |     \n  53 |     // Test navigation to signup"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                            "column": 16,
+                            "line": 50
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n\n  48 |     console.log('🧭 Testing navigation...');\n  49 |     \n> 50 |     await page.goto('/');\n     |                ^\n  51 |     await page.waitForLoadState('networkidle');\n  52 |     \n  53 |     // Test navigation to signup\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:50:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🧭 Testing navigation...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-14T05:39:28.877Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-7776d-navigate-to-different-pages-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-7776d-navigate-to-different-pages-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                        "column": 16,
+                        "line": 50
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e6baa707bd49e3f243aa-403ef34ab83e814589c8",
+              "file": "e2e/basic-functionality-test.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "should identify tier selection elements",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 117,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:87:16",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                          "column": 16,
+                          "line": 87
+                        },
+                        "snippet": "  85 |     console.log('🎯 Looking for tier selection elements...');\n  86 |     \n> 87 |     await page.goto('/');\n     |                ^\n  88 |     await page.waitForLoadState('networkidle');\n  89 |     \n  90 |     // Look for various possible tier selection indicators"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                            "column": 16,
+                            "line": 87
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n\n  85 |     console.log('🎯 Looking for tier selection elements...');\n  86 |     \n> 87 |     await page.goto('/');\n     |                ^\n  88 |     await page.waitForLoadState('networkidle');\n  89 |     \n  90 |     // Look for various possible tier selection indicators\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:87:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🎯 Looking for tier selection elements...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-14T05:39:29.327Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-d72d9-ify-tier-selection-elements-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-d72d9-ify-tier-selection-elements-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
+                        "column": 16,
+                        "line": 87
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e6baa707bd49e3f243aa-052b3214ea445c9a837e",
+              "file": "e2e/basic-functionality-test.spec.ts",
+              "line": 84,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-14T05:39:26.331Z",
+    "duration": 3205.389,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

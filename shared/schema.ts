@@ -301,7 +301,7 @@ export const emailCaptureSchema = z.object({
     z.null(),
     z.undefined()
   ]).optional().nullable(),
-  tier: z.enum(["starter", "coffee", "growth", "scale"]).default("starter"),
+  tier: z.enum(["starter", "coffee", "growth", "scale"]).default("coffee"),
 });
 
 export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;

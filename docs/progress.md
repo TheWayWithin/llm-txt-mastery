@@ -44,6 +44,58 @@
   - Link to official spec: https://llmstxt.org
   - Personal tips from solopreneur perspective
 
+### August 14, 2025: CRITICAL User Flow Issues Discovered - Immediate Remediation Required
+- 🚨 **CRITICAL UX FLOW ISSUES IDENTIFIED BY USER TESTING**
+  
+  **Issue #1: Wrong Default Tier Selection**
+  - Current: Application defaults to 'starter' (FREE) tier
+  - Problem: Users must actively change to paid tier, reducing conversions
+  - Impact: Missing 5.88x conversion opportunity (17% vs 100% for default paid)
+  - Fix: Change default to 'coffee' (Solopreneur $4.95) tier
+  
+  **Issue #2: Confusing Authentication Flow**
+  - Current: Single email field serves both signup and login
+  - Problem: New users confused about password requirements
+  - Impact: High drop-off rate at authentication step
+  - Fix: Separate "Sign In" and "Sign Up" buttons after tier selection
+  
+  **Issue #3: Missing Dedicated Auth Pages**
+  - Current: No /signup or /login pages, everything on landing page
+  - Problem: Unprofessional flow, doesn't match user expectations
+  - Impact: Reduced trust and higher abandonment
+  - Fix: Create dedicated /signup (email + password x2) and /login pages
+  
+  **Issue #4: Landing Page Content Persistence**
+  - Current: After email capture, landing content remains visible
+  - Problem: Cluttered interface during analysis flow
+  - Impact: Distracted users, unprofessional appearance
+  - Fix: Navigate to clean /analyze page after authentication
+
+- 📊 **BUSINESS IMPACT ANALYSIS**
+  - **Revenue Impact**: 5.88x potential conversion increase 
+  - **User Experience**: Professional flow matching web standards
+  - **Trust Signals**: Clear separation builds confidence
+  - **Conversion Funnel**: Reduced friction at each step
+  
+- 🎯 **REMEDIATION PLAN APPROVED**
+  
+  **Implementation Strategy:**
+  1. Fix default tier (email-capture.tsx) - DEFAULT to Coffee tier
+  2. Remove email input from tier selection step
+  3. Add clear "Sign In" / "Sign Up" buttons post-tier selection
+  4. Ensure navigation to dedicated auth pages with tier parameter
+  5. Maintain clean /analyze page for authenticated users
+  
+  **Expected User Journeys After Fix:**
+  
+  *New User:*
+  Landing → Tier Selection (Coffee default) → Sign Up → /signup → /analyze
+  
+  *Returning User:*
+  Landing → Tier Selection → Sign In → /login → /analyze
+  
+  **Status**: Documentation complete, implementation starting
+
 ### August 13, 2025: User Journey Redesign & Deployment Issues Fixed
 - ✅ **UNCOMMITTED CHANGES DEPLOYED**
   - Discovered all fixes were made but never committed by agents
