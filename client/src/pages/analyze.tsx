@@ -383,6 +383,16 @@ export default function AnalyzePage() {
             </section>
           )}
 
+          {/* Tier Limits Check */}
+          {visibility.tierLimits && (
+            <TierLimitsDisplay
+              url={websiteUrl}
+              email={user.email}
+              onProceed={() => actions.proceedToAnalysis()}
+              isVisible={visibility.tierLimits}
+            />
+          )}
+
           {/* Analysis Components */}
           {visibility.analysis && (
             <ContentAnalysis

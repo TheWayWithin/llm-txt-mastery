@@ -19,7 +19,7 @@ export default function LoginPage() {
   // URL parameters
   const urlParams = new URLSearchParams(window.location.search)
   const emailParam = urlParams.get('email') || ''
-  const tierParam = urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale' || 'coffee'
+  const tierParam = urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale' | null
   const websiteUrlParam = urlParams.get('websiteUrl') || ''
   
   // Form state
