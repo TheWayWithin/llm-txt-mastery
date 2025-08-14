@@ -99,21 +99,21 @@
   },
   "suites": [
     {
-      "title": "e2e/test-complete-flow.spec.ts",
-      "file": "e2e/test-complete-flow.spec.ts",
+      "title": "e2e/test-redirect-fixes.spec.ts",
+      "file": "e2e/test-redirect-fixes.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Complete User Flow Test",
-          "file": "e2e/test-complete-flow.spec.ts",
+          "title": "Redirect Fixes Test",
+          "file": "e2e/test-redirect-fixes.spec.ts",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should test the complete user journey from landing to analysis",
-              "ok": true,
+              "title": "should redirect to /analyze after signup, login, and verification",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -126,77 +126,84 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3189,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 3366,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"/analyze\"\u001b[39m\nReceived string:    \u001b[31m\"http://localhost:8080/\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"/analyze\"\u001b[39m\nReceived string:    \u001b[31m\"http://localhost:8080/\"\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts:55:22",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                          "column": 22,
+                          "line": 55
+                        },
+                        "snippet": "  53 |     const loginUrl = page.url();\n  54 |     console.log(`After login, URL is: ${loginUrl}`);\n> 55 |     expect(loginUrl).toContain('/analyze');\n     |                      ^\n  56 |     \n  57 |     console.log('✅ All redirect tests passed!');\n  58 |     console.log('Summary:');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                            "column": 22,
+                            "line": 55
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"/analyze\"\u001b[39m\nReceived string:    \u001b[31m\"http://localhost:8080/\"\u001b[39m\n\n  53 |     const loginUrl = page.url();\n  54 |     console.log(`After login, URL is: ${loginUrl}`);\n> 55 |     expect(loginUrl).toContain('/analyze');\n     |                      ^\n  56 |     \n  57 |     console.log('✅ All redirect tests passed!');\n  58 |     console.log('Summary:');\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts:55:22"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "📍 Step 1: Landing page loaded\n"
+                          "text": "🧪 Testing signup redirect to /analyze...\n"
                         },
                         {
-                          "text": "Found 3 Get Started buttons on landing page\n"
+                          "text": "After signup, URL is: http://localhost:8080/analyze\n"
                         },
                         {
-                          "text": "📍 Step 2: Navigated to signup page\n"
+                          "text": "Email verification banner visible: false\n"
                         },
                         {
-                          "text": "Default tier: coffee\n"
+                          "text": "🧪 Testing login redirect to /analyze...\n"
                         },
                         {
-                          "text": "📍 Step 3: Selected free tier\n"
-                        },
-                        {
-                          "text": "📍 Step 4: Filled signup form\n"
-                        },
-                        {
-                          "text": "📍 Step 5: Successfully redirected to /analyze page\n"
-                        },
-                        {
-                          "text": "📍 Step 6: URL input field is visible on analyze page\n"
-                        },
-                        {
-                          "text": "✅ Complete user flow test passed!\n"
-                        },
-                        {
-                          "text": "Summary:\n"
-                        },
-                        {
-                          "text": "- Multiple Get Started buttons found\n"
-                        },
-                        {
-                          "text": "- Tier selection dropdown working\n"
-                        },
-                        {
-                          "text": "- Default tier is Coffee\n"
-                        },
-                        {
-                          "text": "- Can change to other tiers\n"
-                        },
-                        {
-                          "text": "- After signup, redirects to /analyze (not landing page)\n"
-                        },
-                        {
-                          "text": "- Clean analyze page with URL input ready\n"
+                          "text": "After login, URL is: http://localhost:8080/\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-14T08:03:59.785Z",
+                      "startTime": "2025-08-14T12:16:51.429Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                        "column": 22,
+                        "line": 55
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "0aa8e5edab3f462cd495-6a6f68e3b3513f2723be",
-              "file": "e2e/test-complete-flow.spec.ts",
+              "id": "f72c4eae61253c229291-5d1d599fa0287ab371db",
+              "file": "e2e/test-redirect-fixes.spec.ts",
               "line": 4,
               "column": 3
             },
             {
-              "title": "should test the complete user journey from landing to analysis",
-              "ok": true,
+              "title": "should redirect to /analyze after signup, login, and verification",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -209,77 +216,81 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3064,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 2336,
+                      "error": {
+                        "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation",
+                        "stack": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts:36:16",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                          "column": 16,
+                          "line": 36
+                        },
+                        "snippet": "  34 |     \n  35 |     // Clear session to simulate logout\n> 36 |     await page.evaluate(() => {\n     |                ^\n  37 |       sessionStorage.clear();\n  38 |       localStorage.clear();\n  39 |     });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                            "column": 16,
+                            "line": 36
+                          },
+                          "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation\n\n  34 |     \n  35 |     // Clear session to simulate logout\n> 36 |     await page.evaluate(() => {\n     |                ^\n  37 |       sessionStorage.clear();\n  38 |       localStorage.clear();\n  39 |     });\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts:36:16"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "📍 Step 1: Landing page loaded\n"
+                          "text": "🧪 Testing signup redirect to /analyze...\n"
                         },
                         {
-                          "text": "Found 3 Get Started buttons on landing page\n"
+                          "text": "After signup, URL is: http://localhost:8080/analyze\n"
                         },
                         {
-                          "text": "📍 Step 2: Navigated to signup page\n"
+                          "text": "Email verification banner visible: true\n"
                         },
                         {
-                          "text": "Default tier: coffee\n"
-                        },
-                        {
-                          "text": "📍 Step 3: Selected free tier\n"
-                        },
-                        {
-                          "text": "📍 Step 4: Filled signup form\n"
-                        },
-                        {
-                          "text": "📍 Step 5: Successfully redirected to /analyze page\n"
-                        },
-                        {
-                          "text": "📍 Step 6: URL input field is visible on analyze page\n"
-                        },
-                        {
-                          "text": "✅ Complete user flow test passed!\n"
-                        },
-                        {
-                          "text": "Summary:\n"
-                        },
-                        {
-                          "text": "- Multiple Get Started buttons found\n"
-                        },
-                        {
-                          "text": "- Tier selection dropdown working\n"
-                        },
-                        {
-                          "text": "- Default tier is Coffee\n"
-                        },
-                        {
-                          "text": "- Can change to other tiers\n"
-                        },
-                        {
-                          "text": "- After signup, redirects to /analyze (not landing page)\n"
-                        },
-                        {
-                          "text": "- Clean analyze page with URL input ready\n"
+                          "text": "🧪 Testing login redirect to /analyze...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-14T08:04:05.030Z",
+                      "startTime": "2025-08-14T12:16:55.721Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                        "column": 16,
+                        "line": 36
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "0aa8e5edab3f462cd495-35513a4e7702dd15db70",
-              "file": "e2e/test-complete-flow.spec.ts",
+              "id": "f72c4eae61253c229291-2c198da69ed3a64ecb8b",
+              "file": "e2e/test-redirect-fixes.spec.ts",
               "line": 4,
               "column": 3
             },
             {
-              "title": "should test the complete user journey from landing to analysis",
-              "ok": true,
+              "title": "should redirect to /analyze after signup, login, and verification",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -292,71 +303,75 @@
                     {
                       "workerIndex": 2,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2744,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 2327,
+                      "error": {
+                        "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation",
+                        "stack": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts:36:16",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                          "column": 16,
+                          "line": 36
+                        },
+                        "snippet": "  34 |     \n  35 |     // Clear session to simulate logout\n> 36 |     await page.evaluate(() => {\n     |                ^\n  37 |       sessionStorage.clear();\n  38 |       localStorage.clear();\n  39 |     });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                            "column": 16,
+                            "line": 36
+                          },
+                          "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation\n\n  34 |     \n  35 |     // Clear session to simulate logout\n> 36 |     await page.evaluate(() => {\n     |                ^\n  37 |       sessionStorage.clear();\n  38 |       localStorage.clear();\n  39 |     });\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts:36:16"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "📍 Step 1: Landing page loaded\n"
+                          "text": "🧪 Testing signup redirect to /analyze...\n"
                         },
                         {
-                          "text": "Found 3 Get Started buttons on landing page\n"
+                          "text": "After signup, URL is: http://localhost:8080/analyze\n"
                         },
                         {
-                          "text": "📍 Step 2: Navigated to signup page\n"
+                          "text": "Email verification banner visible: true\n"
                         },
                         {
-                          "text": "Default tier: coffee\n"
-                        },
-                        {
-                          "text": "📍 Step 3: Selected free tier\n"
-                        },
-                        {
-                          "text": "📍 Step 4: Filled signup form\n"
-                        },
-                        {
-                          "text": "📍 Step 5: Successfully redirected to /analyze page\n"
-                        },
-                        {
-                          "text": "📍 Step 6: URL input field is visible on analyze page\n"
-                        },
-                        {
-                          "text": "✅ Complete user flow test passed!\n"
-                        },
-                        {
-                          "text": "Summary:\n"
-                        },
-                        {
-                          "text": "- Multiple Get Started buttons found\n"
-                        },
-                        {
-                          "text": "- Tier selection dropdown working\n"
-                        },
-                        {
-                          "text": "- Default tier is Coffee\n"
-                        },
-                        {
-                          "text": "- Can change to other tiers\n"
-                        },
-                        {
-                          "text": "- After signup, redirects to /analyze (not landing page)\n"
-                        },
-                        {
-                          "text": "- Clean analyze page with URL input ready\n"
+                          "text": "🧪 Testing login redirect to /analyze...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-14T08:04:09.110Z",
+                      "startTime": "2025-08-14T12:16:59.326Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-test-redirect-fixes-Re-0a9f0-gnup-login-and-verification-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/test-redirect-fixes.spec.ts",
+                        "column": 16,
+                        "line": 36
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "0aa8e5edab3f462cd495-e15a25dd8f1bfe15317b",
-              "file": "e2e/test-complete-flow.spec.ts",
+              "id": "f72c4eae61253c229291-a570b6d6ab3634cbbb81",
+              "file": "e2e/test-redirect-fixes.spec.ts",
               "line": 4,
               "column": 3
             }
@@ -367,11 +382,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-14T08:03:59.127Z",
-    "duration": 12907.804,
-    "expected": 3,
+    "startTime": "2025-08-14T12:16:50.768Z",
+    "duration": 11202.89,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 3,
     "flaky": 0
   }
 }
