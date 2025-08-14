@@ -16,12 +16,16 @@ import { ContactPage } from "@/pages/contact";
 import { PrivacyPage } from "@/pages/privacy";
 import { TermsPage } from "@/pages/terms";
 import { BlogPage } from "@/pages/blog";
+import SignupPage from "@/pages/signup";
+import LoginPage from "@/pages/login";
+import AnalyzePage from "@/pages/analyze";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/analyze" component={AnalyzePage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/about" component={AboutPage} />
@@ -30,6 +34,8 @@ function Router() {
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/blog" component={BlogPage} />
+      <Route path="/signup" component={SignupPage} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
       <Route path="/verify-email" component={VerifyEmail} />
       <Route component={NotFound} />

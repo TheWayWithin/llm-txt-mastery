@@ -1,147 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// Input import removed - no longer using email input
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Mail, ArrowRight, RotateCcw, Home } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { emailCaptureSchema, userRegistrationSchema } from "@shared/schema";
-import { z } from "zod";
-import { QuickHelp, InlineHelp } from "./HelpSystem";
+import { Mail, RotateCcw, Home, LogIn, UserPlus } from "lucide-react";
+// Form-related imports removed - using direct tier selection now
+// useToast import removed - no longer using toast notifications
+import { QuickHelp } from "./HelpSystem";
+import { useLocation } from "wouter";
 
 interface EmailCaptureProps {
   websiteUrl?: string;
   onEmailCaptured: (email: string, tier: "starter" | "coffee" | "growth" | "scale") => void;
   onLoginRequested?: () => void;
   onReset?: () => void;
-  prefilledEmail?: string;
   isVisible: boolean;
 }
 
-// Quick Start schema for simplified flow
-const quickStartSchema = emailCaptureSchema;
-type QuickFormData = z.infer<typeof quickStartSchema>;
+// Quick Start schema removed - using direct tier selection now
 
-export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginRequested, onReset, prefilledEmail, isVisible }: EmailCaptureProps) {
-  const { toast } = useToast();
-  const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale">("starter");
+export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginRequested, onReset, isVisible }: EmailCaptureProps) {
+  // useToast hook removed - no longer using toast notifications
+  const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale" | null>("coffee");
   const [lastError, setLastError] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
 
-  const form = useForm<QuickFormData>({
-    resolver: zodResolver(quickStartSchema),
-    defaultValues: {
-      email: prefilledEmail || "",
-      websiteUrl: websiteUrl || "",
-      tier: "starter",
-    },
-  });
-
-  // Update form when prefilledEmail changes
-  useEffect(() => {
-    if (prefilledEmail && prefilledEmail !== form.getValues("email")) {
-      form.setValue("email", prefilledEmail);
-    }
-  }, [prefilledEmail, form]);
-
-  // Update form tier when selectedTier changes
-  useEffect(() => {
-    form.setValue("tier", selectedTier);
-  }, [selectedTier, form]);
-
-  const mutation = useMutation({
-    mutationFn: async (data: any) => {
-      setLastError(null);
-      await apiRequest("POST", "/api/email-capture", data);
-    },
-    onSuccess: () => {
-      setLastError(null);
-      console.log(`${selectedTier} tier: Email captured successfully, firing EMAIL_CAPTURED event`);
-      // No toast notification - proceed directly to analysis
-      onEmailCaptured(form.getValues("email"), selectedTier);
-    },
-    onError: (error: any) => {
-      const errorMessage = getDetailedErrorMessage(error);
-      setLastError(errorMessage);
-      
-      toast({
-        title: "Unable to Continue",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    },
-  });
-
-  function getDetailedErrorMessage(error: any): string {
-    if (error.message?.includes('email already exists')) {
-      return "This email is already registered. Please use the Login button or try a different email address.";
-    }
-    if (error.message?.includes('validation')) {
-      return "Please check your email format and try again. Make sure to use a valid email address.";
-    }
-    if (error.message?.includes('network') || error.message?.includes('fetch')) {
-      return "Connection problem detected. Please check your internet connection and try again.";
-    }
-    if (error.message?.includes('rate limit')) {
-      return "Too many attempts. Please wait a moment before trying again.";
-    }
-    return error.message || "Something went wrong. Please try again or contact support if the problem persists.";
-  }
-
-  const onSubmit = async (data: QuickFormData) => {
-    // Quick start mode - simplified flow
-    const quickData = data;
-    
-    // For Coffee tier, redirect to Stripe checkout instead of proceeding to analysis
-    if (selectedTier === 'coffee') {
-      try {
-        console.log('Coffee tier: Capturing email before payment redirect');
-        
-        // First capture the email with correct tier
-        await apiRequest("POST", "/api/email-capture", { ...quickData, tier: 'coffee' });
-        
-        console.log('Coffee tier: Email captured successfully, firing EMAIL_CAPTURED event');
-        
-        // Fire the EMAIL_CAPTURED event BEFORE redirect
-        onEmailCaptured(quickData.email, 'coffee');
-        
-        console.log('Coffee tier: Creating Stripe checkout session');
-        
-        // Then redirect to Stripe checkout
-        const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
-          email: quickData.email,
-          websiteUrl: quickData.websiteUrl || ""
-        });
-        const checkoutData = await response.json();
-        
-        if (checkoutData.url) {
-          console.log('Coffee tier: Redirecting to Stripe checkout:', checkoutData.url);
-          // Redirect to Stripe checkout
-          window.location.href = checkoutData.url;
-        } else {
-          throw new Error('Failed to create checkout session');
-        }
-      } catch (error) {
-        console.error('Coffee tier: Error during email capture or checkout setup:', error);
-        const errorMessage = getDetailedErrorMessage(error);
-        setLastError(errorMessage);
-        
-        toast({
-          title: "Payment Setup Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
-    } else {
-      // For other tiers, proceed with normal flow
-      mutation.mutate({ ...quickData, tier: selectedTier });
+  // Navigation functions
+  const handleSignIn = () => {
+    if (selectedTier) {
+      setLocation(`/login?tier=${selectedTier}&website=${encodeURIComponent(websiteUrl || '')}`);
     }
   };
+
+  const handleSignUp = () => {
+    if (selectedTier) {
+      setLocation(`/signup?tier=${selectedTier}&website=${encodeURIComponent(websiteUrl || '')}`);
+    }
+  };
+
+  // Form logic removed - using direct tier selection now
+
+  // Form update effects removed - using direct tier selection now
+
+  // Mutation logic removed - using direct navigation to auth pages now
+
+  // Error handling function removed - using direct navigation to auth pages now
+
+  // onSubmit logic removed - using direct navigation to auth pages now
 
   if (!isVisible) return null;
 
@@ -205,7 +111,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
         {/* Tier Selection - Grid Layout */}
         <div className="space-y-4">
           <RadioGroup 
-            value={selectedTier} 
+            value={selectedTier || ""} 
             onValueChange={(value: any) => setSelectedTier(value)}
             className="grid grid-cols-1 md:grid-cols-2 gap-3"
           >
@@ -296,86 +202,70 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
           </RadioGroup>
         </div>
 
-        {/* Simplified flow - Quick Start is the default mode */}
+        {/* Authentication Buttons - Show after tier selection */}
+        {selectedTier && (
+          <div className="space-y-6">
+            {/* Help Section */}
+            <div className="flex items-center justify-between border-t pt-4">
+              <div className="text-sm text-slate-600">
+                Need help choosing? <span className="font-medium">Coffee tier</span> is perfect for most users.
+              </div>
+              <QuickHelp context="email-capture" />
+            </div>
 
-        {/* Login Option */}
-        {onLoginRequested && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-            <p className="text-sm text-blue-700 mb-3">
-              Already have an account?
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onLoginRequested}
-              className="text-blue-700 border-blue-300 hover:bg-blue-100 min-h-[48px] px-6 py-3"
-              size="default"
-            >
-              Login Instead
-            </Button>
-          </div>
-        )}
+            {/* Authentication Options */}
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  Ready to get started?
+                </h3>
+                <p className="text-sm text-slate-600 mb-6">
+                  Choose how you'd like to continue with your{" "}
+                  <span className="font-medium capitalize">{selectedTier}</span> tier analysis.
+                </p>
+              </div>
 
-        {/* Help Section */}
-        <div className="flex items-center justify-between border-t pt-4">
-          <div className="text-sm text-slate-600">
-            Need help choosing? <span className="font-medium">Coffee tier</span> is perfect for most users.
-          </div>
-          <QuickHelp context="email-capture" />
-        </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Sign In Button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSignIn}
+                  className="min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 text-slate-700 border-slate-300 hover:bg-slate-50"
+                  size="default"
+                >
+                  <LogIn className="w-5 h-5" />
+                  <span>Sign In</span>
+                </Button>
 
-        {/* Email Form */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input 
-                      {...field}
-                      type="email"
-                      placeholder="your@email.com"
-                      className="w-full"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Sign Up Button */}
+                <Button
+                  type="button"
+                  onClick={handleSignUp}
+                  className={`min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 ${
+                    selectedTier === 'coffee' 
+                      ? "bg-orange-600 hover:bg-orange-700" 
+                      : "bg-mastery-blue hover:bg-mastery-blue/90"
+                  }`}
+                  size="default"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  <span>Sign Up</span>
+                </Button>
+              </div>
 
-            {/* Hidden field for websiteUrl */}
-            <FormField
-              control={form.control}
-              name="websiteUrl"
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormControl>
-                    <Input {...field} type="hidden" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+              {/* Already have account notice */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <p className="text-sm text-blue-700 mb-2">
+                  <strong>Returning user?</strong> Click "Sign In" above.
+                </p>
+                <p className="text-xs text-blue-600">
+                  <strong>New to LLM.txt Mastery?</strong> Click "Sign Up" to create your account.
+                </p>
+              </div>
 
-            {/* Hidden field for tier */}
-            <FormField
-              control={form.control}
-              name="tier"
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormControl>
-                    <Input {...field} type="hidden" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            {/* Simplified - no password fields needed for Quick Start */}
-
-            <div className="flex flex-col space-y-4 pt-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <div className="text-xs text-ai-silver text-center sm:text-left">
+              {/* Tier benefits reminder */}
+              <div className="text-center text-xs text-ai-silver border-t pt-4">
                 {selectedTier === "starter" ? (
                   <span>✓ Instant access • No payment required</span>
                 ) : selectedTier === "coffee" ? (
@@ -386,30 +276,21 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                   <span>✓ Enterprise features • Priority support</span>
                 )}
               </div>
-              <Button 
-                type="submit" 
-                disabled={mutation.isPending}
-                className={`min-h-[48px] px-6 py-3 w-full sm:w-auto ${selectedTier === 'coffee' ? "bg-orange-600 hover:bg-orange-700" : "bg-mastery-blue hover:bg-mastery-blue/90"}`}
-                size="default"
-              >
-                {mutation.isPending ? (
-                  "Processing..."
-                ) : selectedTier === 'coffee' ? (
-                  <>
-                    <span className="hidden sm:inline">Continue to Payment ($4.95)</span>
-                    <span className="sm:hidden">Pay $4.95</span>
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </>
-                ) : (
-                  <>
-                    Start Analysis
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </>
-                )}
-              </Button>
             </div>
-          </form>
-        </Form>
+          </div>
+        )}
+
+        {/* Show tier selection prompt when no tier is selected */}
+        {!selectedTier && (
+          <div className="text-center py-8">
+            <p className="text-slate-600 text-lg">
+              Please select a tier above to continue
+            </p>
+            <p className="text-sm text-slate-500 mt-2">
+              Choose the analysis type that best fits your needs
+            </p>
+          </div>
+        )}
 
         {/* Trust Indicators */}
         <div className="border-t pt-4">
