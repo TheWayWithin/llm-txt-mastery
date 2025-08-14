@@ -58,13 +58,14 @@ export default function LoginPage() {
       // Sign in the user
       await signIn(email, password)
       
-      console.log('✅ Login successful, redirecting to home page')
+      console.log('✅ Login successful, redirecting to analyze page')
       
-      // Navigate to home page with website URL if provided
+      // Navigate to analyze page with website URL if provided
       const targetUrl = websiteUrlParam 
-        ? `/?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/'
-      navigate(targetUrl)
+        ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
+        : '/analyze'
+      // Use window.location for full page refresh to reset auth state
+      window.location.href = targetUrl
       
     } catch (err) {
       console.error('Login error:', err)

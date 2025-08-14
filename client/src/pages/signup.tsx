@@ -153,7 +153,8 @@ export default function SignupPage() {
       const targetUrl = websiteUrlParam 
         ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
         : '/analyze'
-      navigate(targetUrl)
+      // Use window.location for full page refresh to reset auth state
+      window.location.href = targetUrl
       
     } catch (err) {
       console.error('Signup error:', err)

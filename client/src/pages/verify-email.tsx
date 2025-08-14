@@ -85,7 +85,8 @@ export default function VerifyEmailPage() {
   const handleContinue = () => {
     // After successful verification, navigate to analyze page for clean URL input
     console.log('🚀 Continuing to /analyze page for URL input');
-    setLocation('/analyze');
+    // Use window.location for full page refresh to ensure proper routing
+    window.location.href = '/analyze';
   };
 
   const handleLogin = () => {
