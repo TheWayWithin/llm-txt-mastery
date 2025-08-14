@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFlowStateMachine } from '@/hooks/useFlowStateMachine';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Loader2, Mail } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 export default function VerifyEmailPage() {
   const [, setLocation] = useLocation();
   const { refreshUser } = useAuth();
+  const { actions } = useFlowStateMachine();
   const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'already-verified'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -48,7 +50,7 @@ export default function VerifyEmailPage() {
         
         // Refresh the user data in the auth context to update emailVerified status
         try {
-          await refreshUser();
+          const updatedUser = await refreshUser();
           console.log('✅ User data refreshed after email verification');
           
           // Force update the stored user data to ensure emailVerified is true
@@ -58,6 +60,12 @@ export default function VerifyEmailPage() {
             userData.emailVerified = true;
             localStorage.setItem('auth_user', JSON.stringify(userData));
             console.log('✅ Updated stored user emailVerified status');
+          }
+          
+          // Trigger EMAIL_VERIFIED event to update flow state machine
+          if (updatedUser) {
+            console.log('🔄 Triggering EMAIL_VERIFIED event for smooth transition to URL input');
+            actions.verifyEmail(updatedUser);
           }
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
@@ -75,8 +83,9 @@ export default function VerifyEmailPage() {
   };
 
   const handleContinue = () => {
-    // After successful verification and user data refresh, 
-    // navigate back to home where user should be logged in
+    // After successful verification and EMAIL_VERIFIED event has been triggered,
+    // navigate back to home where the flow state machine will show URL input
+    console.log('🚀 Continuing to home - flow state machine will handle URL input display');
     setLocation('/');
   };
 
