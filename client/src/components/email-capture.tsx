@@ -269,7 +269,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                 {selectedTier === "starter" ? (
                   <span>✓ Instant access • No payment required</span>
                 ) : selectedTier === "coffee" ? (
-                  <span>✓ One-time payment • No subscription</span>
+                  <span>✓ Monthly subscription • Cancel anytime</span>
                 ) : selectedTier === "growth" ? (
                   <span>✓ Professional features • Smart caching</span>
                 ) : (

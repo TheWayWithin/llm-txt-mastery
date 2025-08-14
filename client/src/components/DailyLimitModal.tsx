@@ -86,7 +86,7 @@ export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsa
                       • Unlimited daily analyses<br/>
                       • 200 pages per analysis<br/>
                       • AI-enhanced quality scoring<br/>
-                      • One-time payment, no subscription
+                      • Monthly subscription, cancel anytime
                     </p>
                     <Button 
                       onClick={handleCoffeeCheckout}

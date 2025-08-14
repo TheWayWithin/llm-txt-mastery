@@ -203,7 +203,7 @@ export default function SignupPage() {
           "Up to 200 pages per analysis",
           "Advanced content scoring",
           "Priority support",
-          "One-time payment"
+          "Monthly subscription"
         ]
       case 'growth':
         return [
@@ -280,7 +280,7 @@ export default function SignupPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
                       <option value="starter">Free - Test Drive (3 analyses/day)</option>
-                      <option value="coffee">Coffee - Solopreneur Special ($4.95 one-time)</option>
+                      <option value="coffee">Coffee - Solopreneur Special ($4.95/month)</option>
                       <option value="growth">Growth - Growing Business ($25/month)</option>
                       <option value="scale">Scale - Agency & API ($99/month)</option>
                     </select>
@@ -299,7 +299,7 @@ export default function SignupPage() {
                       {selectedTier === 'coffee' && (
                         <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded">
                           <p className="text-xs text-orange-700">
-                            ℹ️ After signup, you'll be redirected to Stripe for one-time payment ($4.95)
+                            ℹ️ After signup, you'll be redirected to Stripe for payment ($4.95/month)
                           </p>
                         </div>
                       )}
