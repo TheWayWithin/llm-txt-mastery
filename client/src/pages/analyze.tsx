@@ -161,7 +161,9 @@ export default function AnalyzePage() {
   };
 
   const startNewAnalysis = () => {
-    resetWorkflow();
+    actions.startNewAnalysis();
+    setUrl('');
+    setIsValid(false);
   };
 
   // Show loading while auth is resolving
