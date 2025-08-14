@@ -29,7 +29,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [selectedTier] = useState(tierParam)
+  const [selectedTier, setSelectedTier] = useState(tierParam)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   
@@ -45,10 +45,10 @@ export default function SignupPage() {
   // Redirect authenticated users
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('✅ User already authenticated, redirecting to home page')
+      console.log('✅ User already authenticated, redirecting to analyze page')
       const targetUrl = websiteUrlParam 
-        ? `/?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/'
+        ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
+        : '/analyze'
       navigate(targetUrl)
     }
   }, [isAuthenticated, user, navigate, websiteUrlParam])
@@ -119,12 +119,40 @@ export default function SignupPage() {
       // Register the user
       await signUp(email, password, confirmPassword, selectedTier)
       
-      console.log('✅ Registration successful, redirecting to home page')
+      console.log('✅ Registration successful')
       
-      // Navigate to home page with website URL if provided
+      // If Coffee tier, redirect to Stripe checkout
+      if (selectedTier === 'coffee') {
+        console.log('☕ Coffee tier selected, redirecting to Stripe checkout')
+        
+        // Create Stripe checkout session
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/stripe/create-coffee-checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            websiteUrl: websiteUrlParam || ''
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.url;
+          return;
+        } else {
+          throw new Error('Failed to create checkout session');
+        }
+      }
+      
+      // For other tiers, navigate to analyze page
+      console.log('Redirecting to analyze page')
       const targetUrl = websiteUrlParam 
-        ? `/?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/'
+        ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
+        : '/analyze'
       navigate(targetUrl)
       
     } catch (err) {
@@ -241,19 +269,41 @@ export default function SignupPage() {
                     </Alert>
                   )}
                   
-                  {/* Selected Tier Display */}
-                  {selectedTier && (
-                    <div className="bg-slate-50 rounded-lg p-4 border">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-slate-700">Selected Plan:</span>
+                  {/* Tier Selection Dropdown */}
+                  <div className="space-y-2">
+                    <Label htmlFor="tier">Select Your Plan</Label>
+                    <select
+                      id="tier"
+                      value={selectedTier}
+                      onChange={(e) => setSelectedTier(e.target.value as typeof selectedTier)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
+                    >
+                      <option value="starter">Free - Test Drive (3 analyses/day)</option>
+                      <option value="coffee">Coffee - Solopreneur Special ($4.95 one-time)</option>
+                      <option value="growth">Growth - Growing Business ($25/month)</option>
+                      <option value="scale">Scale - Agency & API ($99/month)</option>
+                    </select>
+                    
+                    {/* Selected Tier Details */}
+                    <div className="bg-slate-50 rounded-lg p-3 border mt-2">
+                      <div className="flex items-center justify-between">
                         <Badge className={getTierColorClass(selectedTier)}>
                           {getTierIcon(selectedTier)}
                           <span className="ml-1">{getTierDisplayName(selectedTier)}</span>
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-600">{getTierDescription(selectedTier)}</p>
+                      <p className="text-xs text-slate-600 mt-2">{getTierDescription(selectedTier)}</p>
+                      
+                      {/* Payment Warning for Coffee Tier */}
+                      {selectedTier === 'coffee' && (
+                        <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded">
+                          <p className="text-xs text-orange-700">
+                            ℹ️ After signup, you'll be redirected to Stripe for one-time payment ($4.95)
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                   
                   {/* Email Field */}
                   <div className="space-y-2">
