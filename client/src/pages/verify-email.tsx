@@ -54,11 +54,11 @@ export default function VerifyEmailPage() {
           console.log('✅ User data refreshed after email verification');
           
           // Force update the stored user data to ensure emailVerified is true
-          const storedUser = localStorage.getItem('auth_user');
+          const storedUser = sessionStorage.getItem('auth_user');
           if (storedUser) {
             const userData = JSON.parse(storedUser);
             userData.emailVerified = true;
-            localStorage.setItem('auth_user', JSON.stringify(userData));
+            sessionStorage.setItem('auth_user', JSON.stringify(userData));
             console.log('✅ Updated stored user emailVerified status');
           }
           

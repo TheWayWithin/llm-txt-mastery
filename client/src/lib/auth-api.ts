@@ -39,9 +39,9 @@ class AuthApiClient {
   private refreshToken: string | null = null;
 
   constructor() {
-    // Load tokens from localStorage on initialization
-    this.accessToken = localStorage.getItem('auth_access_token');
-    this.refreshToken = localStorage.getItem('auth_refresh_token');
+    // Load tokens from sessionStorage for proper incognito isolation
+    this.accessToken = sessionStorage.getItem('auth_access_token');
+    this.refreshToken = sessionStorage.getItem('auth_refresh_token');
   }
 
   private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
@@ -102,10 +102,10 @@ class AuthApiClient {
     this.accessToken = authResponse.accessToken;
     this.refreshToken = authResponse.refreshToken;
     
-    // Store in localStorage
-    localStorage.setItem('auth_access_token', authResponse.accessToken);
-    localStorage.setItem('auth_refresh_token', authResponse.refreshToken);
-    localStorage.setItem('auth_user', JSON.stringify(authResponse.user));
+    // Store in sessionStorage for proper incognito isolation
+    sessionStorage.setItem('auth_access_token', authResponse.accessToken);
+    sessionStorage.setItem('auth_refresh_token', authResponse.refreshToken);
+    sessionStorage.setItem('auth_user', JSON.stringify(authResponse.user));
     
     // Debug logging for Coffee users
     console.log('🔐 Tokens stored for user:', authResponse.user.email, 'tier:', authResponse.user.tier);
@@ -118,9 +118,9 @@ class AuthApiClient {
     this.accessToken = null;
     this.refreshToken = null;
     
-    localStorage.removeItem('auth_access_token');
-    localStorage.removeItem('auth_refresh_token');
-    localStorage.removeItem('auth_user');
+    sessionStorage.removeItem('auth_access_token');
+    sessionStorage.removeItem('auth_refresh_token');
+    sessionStorage.removeItem('auth_user');
   }
 
   private async refreshTokens(): Promise<boolean> {
@@ -148,9 +148,9 @@ class AuthApiClient {
     }
   }
 
-  // Get stored user from localStorage
+  // Get stored user from sessionStorage
   getStoredUser(): AuthUser | null {
-    const userData = localStorage.getItem('auth_user');
+    const userData = sessionStorage.getItem('auth_user');
     return userData ? JSON.parse(userData) : null;
   }
 
@@ -227,7 +227,7 @@ class AuthApiClient {
     const response = await this.makeRequest('/api/auth/me');
     
     // Update stored user data
-    localStorage.setItem('auth_user', JSON.stringify(response.user));
+    sessionStorage.setItem('auth_user', JSON.stringify(response.user));
     return response.user;
   }
 

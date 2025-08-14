@@ -206,7 +206,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const getAccessToken = () => {
-    return localStorage.getItem('auth_access_token')
+    return sessionStorage.getItem('auth_access_token')
   }
 
   // Email-based user recognition for returning users
