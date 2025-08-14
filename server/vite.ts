@@ -25,19 +25,9 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
-  // Use minimal config for development vite setup
-  const viteConfig = {
-    resolve: {
-      alias: {
-        "@": path.resolve(process.cwd(), "client/src"),
-        "@shared": path.resolve(process.cwd(), "shared"),
-      },
-    },
-  };
-  
+  // Use the main vite.config.ts with proper root directory
   const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
+    configFile: path.resolve(process.cwd(), "vite.config.ts"),
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {

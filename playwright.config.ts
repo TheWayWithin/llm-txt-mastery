@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -35,9 +35,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'PORT=3001 npm run dev',
-    url: 'http://localhost:3001',
-    reuseExistingServer: !process.env.CI,
+    command: 'npm run dev',
+    url: 'http://localhost:8080',
+    reuseExistingServer: true, // Always reuse existing server
     timeout: 120 * 1000,
   },
 });
