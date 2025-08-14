@@ -152,7 +152,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
                 🚫 Daily limit reached! Upgrade to continue analyzing.
               </p>
               <p className="text-xs text-ai-silver mb-3">
-                Get unlimited daily analyses with AI-enhanced results for just $4.95
+                Get unlimited daily analyses with AI-enhanced results for just $5
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <button 
@@ -178,7 +178,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
                   }}
                   className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
-                  ☕ Buy me a coffee ($4.95)
+                  ☕ Buy me a coffee ($5)
                 </button>
                 <button 
                   onClick={() => window.location.href = '/pricing'}
@@ -219,7 +219,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
                   }}
                   className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
-                  ☕ Buy me a coffee ($4.95)
+                  ☕ Buy me a coffee ($5)
                 </button>
                 <button 
                   onClick={() => window.location.href = '/pricing'}
@@ -238,7 +238,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <a href="/pricing" className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center">
-                  Another Coffee ($4.95)
+                  Another Coffee ($5)
                 </a>
                 <a href="/pricing" className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center">
                   Go unlimited

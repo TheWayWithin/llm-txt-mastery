@@ -147,7 +147,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Coffee Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Solopreneur Special ($4.95)</span>
+                  <span className="font-medium text-lg">Solopreneur Special ($5)</span>
                 </Label>
                 <p className="text-sm text-orange-700 mt-2">
                   • Buy once, use forever<br/>
