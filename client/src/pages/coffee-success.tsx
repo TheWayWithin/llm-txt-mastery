@@ -61,9 +61,9 @@ export default function CoffeeSuccess() {
             if (tempLoginResponse.ok) {
               const authData = await tempLoginResponse.json();
               // Store tokens and refresh auth context
-              localStorage.setItem('auth_access_token', authData.accessToken);
-              localStorage.setItem('auth_refresh_token', authData.refreshToken);
-              localStorage.setItem('auth_user', JSON.stringify(authData.user));
+              sessionStorage.setItem('auth_access_token', authData.accessToken);
+              sessionStorage.setItem('auth_refresh_token', authData.refreshToken);
+              sessionStorage.setItem('auth_user', JSON.stringify(authData.user));
               
               await refreshUser();
               setAutoLoginStatus('success');

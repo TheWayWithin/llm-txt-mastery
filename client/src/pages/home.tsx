@@ -291,7 +291,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Welcome Back Message for Authenticated Users */}
+        {/* Welcome Back Message for Authenticated Users - Only show when NOT in URL_INPUT state */}
         {user && currentState !== 'URL_INPUT' && (
           <section className="mb-8">
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">

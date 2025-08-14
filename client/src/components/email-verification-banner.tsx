@@ -64,7 +64,7 @@ export default function EmailVerificationBanner({ userEmail, emailVerified }: Em
   const handleResendVerification = async () => {
     setIsResending(true);
     try {
-      const token = localStorage.getItem('auth_access_token');
+      const token = sessionStorage.getItem('auth_access_token');
       const apiUrl = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
       const response = await fetch(`${apiUrl}/api/auth/resend-verification`, {
         method: 'POST',
