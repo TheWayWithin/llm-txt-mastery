@@ -83,10 +83,9 @@ export default function VerifyEmailPage() {
   };
 
   const handleContinue = () => {
-    // After successful verification and EMAIL_VERIFIED event has been triggered,
-    // navigate back to home where the flow state machine will show URL input
-    console.log('🚀 Continuing to home - flow state machine will handle URL input display');
-    setLocation('/');
+    // After successful verification, navigate to analyze page for clean URL input
+    console.log('🚀 Continuing to /analyze page for URL input');
+    setLocation('/analyze');
   };
 
   const handleLogin = () => {

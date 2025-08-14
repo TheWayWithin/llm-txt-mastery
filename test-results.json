@@ -99,21 +99,21 @@
   },
   "suites": [
     {
-      "title": "e2e/diagnostic-conversion-test.spec.ts",
-      "file": "e2e/diagnostic-conversion-test.spec.ts",
+      "title": "e2e/test-complete-flow.spec.ts",
+      "file": "e2e/test-complete-flow.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Diagnostic Conversion Test",
-          "file": "e2e/diagnostic-conversion-test.spec.ts",
-          "line": 10,
+          "title": "Complete User Flow Test",
+          "file": "e2e/test-complete-flow.spec.ts",
+          "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should diagnose Coffee tier selection and auth buttons",
-              "ok": false,
+              "title": "should test the complete user journey from landing to analysis",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -126,81 +126,238 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 172,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:16:18\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:14:16",
-                        "location": {
-                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
-                          "column": 18,
-                          "line": 16
-                        },
-                        "snippet": "  14 |     await test.step('Navigate to homepage', async () => {\n  15 |       console.log('📍 Navigating to homepage...');\n> 16 |       await page.goto('/');\n     |                  ^\n  17 |       await page.waitForLoadState('networkidle');\n  18 |       console.log('✅ Page loaded successfully');\n  19 |     });"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
-                            "column": 18,
-                            "line": 16
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n\n\n  14 |     await test.step('Navigate to homepage', async () => {\n  15 |       console.log('📍 Navigating to homepage...');\n> 16 |       await page.goto('/');\n     |                  ^\n  17 |       await page.waitForLoadState('networkidle');\n  18 |       console.log('✅ Page loaded successfully');\n  19 |     });\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:16:18\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:14:16"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 3189,
+                      "errors": [],
                       "stdout": [
                         {
-                          "text": "🔍 Starting diagnostic conversion test...\n"
+                          "text": "📍 Step 1: Landing page loaded\n"
                         },
                         {
-                          "text": "📍 Navigating to homepage...\n"
+                          "text": "Found 3 Get Started buttons on landing page\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Navigated to signup page\n"
+                        },
+                        {
+                          "text": "Default tier: coffee\n"
+                        },
+                        {
+                          "text": "📍 Step 3: Selected free tier\n"
+                        },
+                        {
+                          "text": "📍 Step 4: Filled signup form\n"
+                        },
+                        {
+                          "text": "📍 Step 5: Successfully redirected to /analyze page\n"
+                        },
+                        {
+                          "text": "📍 Step 6: URL input field is visible on analyze page\n"
+                        },
+                        {
+                          "text": "✅ Complete user flow test passed!\n"
+                        },
+                        {
+                          "text": "Summary:\n"
+                        },
+                        {
+                          "text": "- Multiple Get Started buttons found\n"
+                        },
+                        {
+                          "text": "- Tier selection dropdown working\n"
+                        },
+                        {
+                          "text": "- Default tier is Coffee\n"
+                        },
+                        {
+                          "text": "- Can change to other tiers\n"
+                        },
+                        {
+                          "text": "- After signup, redirects to /analyze (not landing page)\n"
+                        },
+                        {
+                          "text": "- Clean analyze page with URL input ready\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "steps": [
-                        {
-                          "title": "Navigate to homepage",
-                          "duration": 7,
-                          "error": {
-                            "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n",
-                            "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:16:18\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:14:16",
-                            "location": {
-                              "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
-                              "column": 18,
-                              "line": 16
-                            },
-                            "snippet": "  14 |     await test.step('Navigate to homepage', async () => {\n  15 |       console.log('📍 Navigating to homepage...');\n> 16 |       await page.goto('/');\n     |                  ^\n  17 |       await page.waitForLoadState('networkidle');\n  18 |       console.log('✅ Page loaded successfully');\n  19 |     });"
-                          }
-                        }
-                      ],
-                      "startTime": "2025-08-14T06:16:24.973Z",
+                      "startTime": "2025-08-14T08:03:59.785Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-diagnostic-conversion--17010--selection-and-auth-buttons-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-diagnostic-conversion--17010--selection-and-auth-buttons-chromium/video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
-                        "column": 18,
-                        "line": 16
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "bcfa2d14d9d114bad96f-471a452d89fcb9e48c7e",
-              "file": "e2e/diagnostic-conversion-test.spec.ts",
-              "line": 11,
+              "id": "0aa8e5edab3f462cd495-6a6f68e3b3513f2723be",
+              "file": "e2e/test-complete-flow.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should test the complete user journey from landing to analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3064,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📍 Step 1: Landing page loaded\n"
+                        },
+                        {
+                          "text": "Found 3 Get Started buttons on landing page\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Navigated to signup page\n"
+                        },
+                        {
+                          "text": "Default tier: coffee\n"
+                        },
+                        {
+                          "text": "📍 Step 3: Selected free tier\n"
+                        },
+                        {
+                          "text": "📍 Step 4: Filled signup form\n"
+                        },
+                        {
+                          "text": "📍 Step 5: Successfully redirected to /analyze page\n"
+                        },
+                        {
+                          "text": "📍 Step 6: URL input field is visible on analyze page\n"
+                        },
+                        {
+                          "text": "✅ Complete user flow test passed!\n"
+                        },
+                        {
+                          "text": "Summary:\n"
+                        },
+                        {
+                          "text": "- Multiple Get Started buttons found\n"
+                        },
+                        {
+                          "text": "- Tier selection dropdown working\n"
+                        },
+                        {
+                          "text": "- Default tier is Coffee\n"
+                        },
+                        {
+                          "text": "- Can change to other tiers\n"
+                        },
+                        {
+                          "text": "- After signup, redirects to /analyze (not landing page)\n"
+                        },
+                        {
+                          "text": "- Clean analyze page with URL input ready\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-14T08:04:05.030Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0aa8e5edab3f462cd495-35513a4e7702dd15db70",
+              "file": "e2e/test-complete-flow.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should test the complete user journey from landing to analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2744,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📍 Step 1: Landing page loaded\n"
+                        },
+                        {
+                          "text": "Found 3 Get Started buttons on landing page\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Navigated to signup page\n"
+                        },
+                        {
+                          "text": "Default tier: coffee\n"
+                        },
+                        {
+                          "text": "📍 Step 3: Selected free tier\n"
+                        },
+                        {
+                          "text": "📍 Step 4: Filled signup form\n"
+                        },
+                        {
+                          "text": "📍 Step 5: Successfully redirected to /analyze page\n"
+                        },
+                        {
+                          "text": "📍 Step 6: URL input field is visible on analyze page\n"
+                        },
+                        {
+                          "text": "✅ Complete user flow test passed!\n"
+                        },
+                        {
+                          "text": "Summary:\n"
+                        },
+                        {
+                          "text": "- Multiple Get Started buttons found\n"
+                        },
+                        {
+                          "text": "- Tier selection dropdown working\n"
+                        },
+                        {
+                          "text": "- Default tier is Coffee\n"
+                        },
+                        {
+                          "text": "- Can change to other tiers\n"
+                        },
+                        {
+                          "text": "- After signup, redirects to /analyze (not landing page)\n"
+                        },
+                        {
+                          "text": "- Clean analyze page with URL input ready\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-14T08:04:09.110Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0aa8e5edab3f462cd495-e15a25dd8f1bfe15317b",
+              "file": "e2e/test-complete-flow.spec.ts",
+              "line": 4,
               "column": 3
             }
           ]
@@ -210,11 +367,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-14T06:16:23.118Z",
-    "duration": 2225.057,
-    "expected": 0,
+    "startTime": "2025-08-14T08:03:59.127Z",
+    "duration": 12907.804,
+    "expected": 3,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

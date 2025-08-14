@@ -197,6 +197,25 @@ export default function Home() {
             />
           </div>
           
+          {/* Hero CTA Button */}
+          <div className="mt-6 flex justify-center">
+            <Button
+              size="lg"
+              className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3"
+              onClick={() => {
+                if (user) {
+                  // Authenticated users go directly to analyze
+                  window.location.href = '/analyze';
+                } else {
+                  // New users go to signup
+                  window.location.href = '/signup';
+                }
+              }}
+            >
+              Get Started Now →
+            </Button>
+          </div>
+          
           <div className="flex items-center justify-center space-x-2 text-sm text-ai-silver">
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
@@ -288,6 +307,23 @@ export default function Home() {
                 Get your specification-compliant LLM.txt file ready for immediate deployment.
               </p>
             </div>
+          </div>
+          
+          {/* CTA Button after How It Works */}
+          <div className="mt-8 flex justify-center">
+            <Button
+              size="lg"
+              className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3"
+              onClick={() => {
+                if (user) {
+                  window.location.href = '/analyze';
+                } else {
+                  window.location.href = '/signup';
+                }
+              }}
+            >
+              Start Analyzing Now →
+            </Button>
           </div>
         </section>
 
@@ -548,6 +584,23 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+          
+          {/* Final CTA Button */}
+          <div className="mt-8 flex justify-center">
+            <Button
+              size="lg"
+              className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3"
+              onClick={() => {
+                if (user) {
+                  window.location.href = '/analyze';
+                } else {
+                  window.location.href = '/signup';
+                }
+              }}
+            >
+              Get Started Today →
+            </Button>
+          </div>
         </section>
         </main>
 
