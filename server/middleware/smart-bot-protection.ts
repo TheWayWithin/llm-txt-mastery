@@ -262,6 +262,12 @@ function determineThreatResponse(threatLevel: ThreatLevel, data: FingerprintData
 }
 
 export function smartBotProtection(req: Request, res: Response, next: NextFunction) {
+  // Skip bot protection in development mode
+  if (process.env.NODE_ENV === 'development') {
+    (req as any).botProtection = { developmentMode: true };
+    return next();
+  }
+  
   const fingerprint = generateFingerprint(req);
   const now = Date.now();
   

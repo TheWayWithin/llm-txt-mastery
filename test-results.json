@@ -91,28 +91,28 @@
     "version": "1.54.2",
     "workers": 1,
     "webServer": {
-      "command": "PORT=3001 npm run dev",
-      "url": "http://localhost:3001",
+      "command": "npm run dev",
+      "url": "http://localhost:8080",
       "reuseExistingServer": true,
       "timeout": 120000
     }
   },
   "suites": [
     {
-      "title": "e2e/basic-functionality-test.spec.ts",
-      "file": "e2e/basic-functionality-test.spec.ts",
+      "title": "e2e/diagnostic-conversion-test.spec.ts",
+      "file": "e2e/diagnostic-conversion-test.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Basic Application Tests",
-          "file": "e2e/basic-functionality-test.spec.ts",
-          "line": 8,
+          "title": "Diagnostic Conversion Test",
+          "file": "e2e/diagnostic-conversion-test.spec.ts",
+          "line": 10,
           "column": 6,
           "specs": [
             {
-              "title": "should load the homepage successfully",
+              "title": "should diagnose Coffee tier selection and auth buttons",
               "ok": false,
               "tags": [],
               "tests": [
@@ -127,207 +127,80 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 175,
+                      "duration": 172,
                       "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:12:16",
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:16:18\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:14:16",
                         "location": {
-                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                          "column": 16,
-                          "line": 12
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
+                          "column": 18,
+                          "line": 16
                         },
-                        "snippet": "  10 |     console.log('🏠 Testing homepage load...');\n  11 |     \n> 12 |     await page.goto('/');\n     |                ^\n  13 |     \n  14 |     // Wait for the page to load\n  15 |     await page.waitForLoadState('networkidle');"
+                        "snippet": "  14 |     await test.step('Navigate to homepage', async () => {\n  15 |       console.log('📍 Navigating to homepage...');\n> 16 |       await page.goto('/');\n     |                  ^\n  17 |       await page.waitForLoadState('networkidle');\n  18 |       console.log('✅ Page loaded successfully');\n  19 |     });"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                            "column": 16,
-                            "line": 12
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
+                            "column": 18,
+                            "line": 16
                           },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n\n  10 |     console.log('🏠 Testing homepage load...');\n  11 |     \n> 12 |     await page.goto('/');\n     |                ^\n  13 |     \n  14 |     // Wait for the page to load\n  15 |     await page.waitForLoadState('networkidle');\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:12:16"
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n\n\n  14 |     await test.step('Navigate to homepage', async () => {\n  15 |       console.log('📍 Navigating to homepage...');\n> 16 |       await page.goto('/');\n     |                  ^\n  17 |       await page.waitForLoadState('networkidle');\n  18 |       console.log('✅ Page loaded successfully');\n  19 |     });\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:16:18\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:14:16"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "🏠 Testing homepage load...\n"
+                          "text": "🔍 Starting diagnostic conversion test...\n"
+                        },
+                        {
+                          "text": "📍 Navigating to homepage...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-14T05:39:28.268Z",
+                      "steps": [
+                        {
+                          "title": "Navigate to homepage",
+                          "duration": 7,
+                          "error": {
+                            "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8080/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8080/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:16:18\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts:14:16",
+                            "location": {
+                              "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
+                              "column": 18,
+                              "line": 16
+                            },
+                            "snippet": "  14 |     await test.step('Navigate to homepage', async () => {\n  15 |       console.log('📍 Navigating to homepage...');\n> 16 |       await page.goto('/');\n     |                  ^\n  17 |       await page.waitForLoadState('networkidle');\n  18 |       console.log('✅ Page loaded successfully');\n  19 |     });"
+                          }
+                        }
+                      ],
+                      "startTime": "2025-08-14T06:16:24.973Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-1723a-d-the-homepage-successfully-chromium/test-failed-1.png"
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-diagnostic-conversion--17010--selection-and-auth-buttons-chromium/test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-1723a-d-the-homepage-successfully-chromium/video.webm"
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-diagnostic-conversion--17010--selection-and-auth-buttons-chromium/video.webm"
                         }
                       ],
                       "errorLocation": {
-                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                        "column": 16,
-                        "line": 12
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/diagnostic-conversion-test.spec.ts",
+                        "column": 18,
+                        "line": 16
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "e6baa707bd49e3f243aa-3268521c01c70d99a5f8",
-              "file": "e2e/basic-functionality-test.spec.ts",
-              "line": 9,
-              "column": 3
-            },
-            {
-              "title": "should be able to navigate to different pages",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 122,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:50:16",
-                        "location": {
-                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                          "column": 16,
-                          "line": 50
-                        },
-                        "snippet": "  48 |     console.log('🧭 Testing navigation...');\n  49 |     \n> 50 |     await page.goto('/');\n     |                ^\n  51 |     await page.waitForLoadState('networkidle');\n  52 |     \n  53 |     // Test navigation to signup"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                            "column": 16,
-                            "line": 50
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n\n  48 |     console.log('🧭 Testing navigation...');\n  49 |     \n> 50 |     await page.goto('/');\n     |                ^\n  51 |     await page.waitForLoadState('networkidle');\n  52 |     \n  53 |     // Test navigation to signup\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:50:16"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🧭 Testing navigation...\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-14T05:39:28.877Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-7776d-navigate-to-different-pages-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-7776d-navigate-to-different-pages-chromium/video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                        "column": 16,
-                        "line": 50
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "e6baa707bd49e3f243aa-403ef34ab83e814589c8",
-              "file": "e2e/basic-functionality-test.spec.ts",
-              "line": 47,
-              "column": 3
-            },
-            {
-              "title": "should identify tier selection elements",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 117,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:87:16",
-                        "location": {
-                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                          "column": 16,
-                          "line": 87
-                        },
-                        "snippet": "  85 |     console.log('🎯 Looking for tier selection elements...');\n  86 |     \n> 87 |     await page.goto('/');\n     |                ^\n  88 |     await page.waitForLoadState('networkidle');\n  89 |     \n  90 |     // Look for various possible tier selection indicators"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                            "column": 16,
-                            "line": 87
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"load\"\u001b[22m\n\n\n  85 |     console.log('🎯 Looking for tier selection elements...');\n  86 |     \n> 87 |     await page.goto('/');\n     |                ^\n  88 |     await page.waitForLoadState('networkidle');\n  89 |     \n  90 |     // Look for various possible tier selection indicators\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts:87:16"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🎯 Looking for tier selection elements...\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-14T05:39:29.327Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-d72d9-ify-tier-selection-elements-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/e2e-basic-functionality-te-d72d9-ify-tier-selection-elements-chromium/video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/basic-functionality-test.spec.ts",
-                        "column": 16,
-                        "line": 87
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "e6baa707bd49e3f243aa-052b3214ea445c9a837e",
-              "file": "e2e/basic-functionality-test.spec.ts",
-              "line": 84,
+              "id": "bcfa2d14d9d114bad96f-471a452d89fcb9e48c7e",
+              "file": "e2e/diagnostic-conversion-test.spec.ts",
+              "line": 11,
               "column": 3
             }
           ]
@@ -337,11 +210,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-14T05:39:26.331Z",
-    "duration": 3205.389,
+    "startTime": "2025-08-14T06:16:23.118Z",
+    "duration": 2225.057,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 3,
+    "unexpected": 1,
     "flaky": 0
   }
 }

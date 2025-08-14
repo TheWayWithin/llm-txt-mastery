@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TemporaryEmailService, createTemporaryEmailService } from './temp-email-service';
 
 /**
  * Authentication Test Helpers
@@ -45,6 +46,307 @@ export function createCoffeeUser(overrides: Partial<MockUser> = {}): MockUser {
     creditsRemaining: 10,
     ...overrides
   });
+}
+
+/**
+ * AuthTestHelper - Enhanced authentication testing with temporary emails
+ */
+export class AuthTestHelper {
+  private page: Page;
+  private emailService: TemporaryEmailService;
+  private createdUsers: Map<string, { email: string; password: string; tier?: string }> = new Map();
+  
+  constructor(page: Page) {
+    this.page = page;
+    this.emailService = createTemporaryEmailService();
+  }
+
+  /**
+   * Create a temporary email for testing
+   */
+  async createTemporaryEmail(): Promise<string> {
+    return await this.emailService.createTemporaryEmail();
+  }
+
+  /**
+   * Create a test user account (signup and store credentials)
+   */
+  async createTestUser(email: string, password: string, tier: string = 'coffee'): Promise<void> {
+    try {
+      await this.signup(email, password, tier);
+      this.createdUsers.set(email, { email, password, tier });
+      console.log(`Created test user: ${email} (${tier} tier)`);
+    } catch (error) {
+      console.warn(`Failed to create test user ${email}:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Perform user signup with given credentials
+   */
+  async signup(email: string, password: string, tier?: string): Promise<void> {
+    const signupUrl = tier ? `/signup?tier=${tier}` : '/signup';
+    await this.page.goto(signupUrl);
+    await this.page.waitForLoadState('networkidle');
+    
+    // Fill the signup form
+    await this.fillSignupForm(email, password);
+    
+    // Submit the form
+    await this.submitSignupForm();
+    
+    // Wait for successful signup (redirect to analyze page)
+    await this.waitForAuthCompletion('/analyze');
+  }
+
+  /**
+   * Perform user login with given credentials
+   */
+  async login(email: string, password: string, tier?: string): Promise<void> {
+    const loginUrl = tier ? `/login?tier=${tier}` : '/login';
+    await this.page.goto(loginUrl);
+    await this.page.waitForLoadState('networkidle');
+    
+    // Fill the login form
+    await this.fillLoginForm(email, password);
+    
+    // Submit the form
+    await this.submitLoginForm();
+    
+    // Wait for successful login (redirect to analyze page)
+    await this.waitForAuthCompletion('/analyze');
+  }
+
+  /**
+   * Check if user is currently logged in
+   */
+  async isLoggedIn(): Promise<boolean> {
+    try {
+      // Look for user menu, user avatar, or user-specific elements
+      const userMenuSelectors = [
+        '[data-testid="user-menu"]',
+        '.user-menu',
+        'button:has-text("@")', // Email in button
+        '.dropdown-trigger:has(.user)', // User dropdown
+        '.tier-badge', // Tier badge indicates logged in user
+        'button:has-text("Sign Out")',
+        'button:has-text("Logout")'
+      ];
+      
+      for (const selector of userMenuSelectors) {
+        try {
+          const element = this.page.locator(selector);
+          if (await element.isVisible()) {
+            return true;
+          }
+        } catch {
+          continue;
+        }
+      }
+      
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Fill signup form but don't submit
+   */
+  async fillSignupForm(email: string, password: string): Promise<void> {
+    // Wait for form to be ready
+    await this.page.waitForSelector('input[type="email"]', { timeout: 5000 });
+    
+    await this.page.fill('input[type="email"]', email);
+    await this.page.fill('input[type="password"]', password);
+    
+    // Fill confirm password if present
+    const confirmPasswordField = this.page.locator('input[name="confirmPassword"], input[name="confirm-password"], input[type="password"]:nth-of-type(2)');
+    if (await confirmPasswordField.isVisible()) {
+      await confirmPasswordField.fill(password);
+    }
+  }
+
+  /**
+   * Submit signup form
+   */
+  async submitSignupForm(): Promise<void> {
+    const submitSelectors = [
+      'button[type="submit"]',
+      'button:has-text("Sign Up")',
+      'button:has-text("Create Account")',
+      'button:has-text("Get Started")'
+    ];
+    
+    for (const selector of submitSelectors) {
+      try {
+        const button = this.page.locator(selector);
+        if (await button.isVisible() && await button.isEnabled()) {
+          await button.click();
+          return;
+        }
+      } catch {
+        continue;
+      }
+    }
+    
+    throw new Error('Could not find or click signup submit button');
+  }
+
+  /**
+   * Fill login form but don't submit
+   */
+  async fillLoginForm(email: string, password: string): Promise<void> {
+    // Wait for form to be ready
+    await this.page.waitForSelector('input[type="email"]', { timeout: 5000 });
+    
+    await this.page.fill('input[type="email"]', email);
+    await this.page.fill('input[type="password"]', password);
+  }
+
+  /**
+   * Submit login form
+   */
+  async submitLoginForm(): Promise<void> {
+    const submitSelectors = [
+      'button[type="submit"]',
+      'button:has-text("Sign In")',
+      'button:has-text("Login")',
+      'button:has-text("Continue")'
+    ];
+    
+    for (const selector of submitSelectors) {
+      try {
+        const button = this.page.locator(selector);
+        if (await button.isVisible() && await button.isEnabled()) {
+          await button.click();
+          return;
+        }
+      } catch {
+        continue;
+      }
+    }
+    
+    throw new Error('Could not find or click login submit button');
+  }
+
+  /**
+   * Wait for authentication to complete
+   */
+  async waitForAuthCompletion(expectedUrl: string = '/analyze'): Promise<void> {
+    try {
+      await this.page.waitForURL(expectedUrl, { timeout: 15000 });
+    } catch (error) {
+      // Check if we're on a different success page
+      const currentUrl = this.page.url();
+      console.log(`Expected URL: ${expectedUrl}, Current URL: ${currentUrl}`);
+      
+      // Accept if we're on dashboard or any authenticated page
+      if (currentUrl.includes('/dashboard') || currentUrl.includes('/analyze')) {
+        return;
+      }
+      
+      throw new Error(`Authentication did not complete successfully. Expected: ${expectedUrl}, Got: ${currentUrl}`);
+    }
+  }
+
+  /**
+   * Check for authentication errors
+   */
+  async getAuthErrors(): Promise<string[]> {
+    const errorSelectors = [
+      '.error-message',
+      '.auth-error',
+      '[role="alert"]',
+      '.text-red-500',
+      '.text-red-600',
+      '.text-red-700',
+      '.bg-red-50',
+      '.border-red-200',
+      '.alert-error'
+    ];
+    
+    const errors: string[] = [];
+    
+    for (const selector of errorSelectors) {
+      try {
+        const elements = this.page.locator(selector);
+        const count = await elements.count();
+        
+        for (let i = 0; i < count; i++) {
+          const text = await elements.nth(i).textContent();
+          if (text && text.trim()) {
+            errors.push(text.trim());
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+    
+    return errors;
+  }
+
+  /**
+   * Clean up test data
+   */
+  cleanup(): void {
+    this.createdUsers.clear();
+    this.emailService.cleanup();
+  }
+
+  /**
+   * Quick signup flow for testing (creates email automatically)
+   */
+  async quickSignup(tier: string = 'coffee'): Promise<{ email: string; password: string }> {
+    const email = await this.createTemporaryEmail();
+    const password = 'TestPassword123!';
+    
+    await this.signup(email, password, tier);
+    
+    return { email, password };
+  }
+
+  /**
+   * Verify user is on the expected post-auth page
+   */
+  async verifyPostAuthPage(): Promise<boolean> {
+    const currentUrl = this.page.url();
+    const validPostAuthUrls = ['/analyze', '/dashboard'];
+    
+    return validPostAuthUrls.some(url => currentUrl.includes(url));
+  }
+
+  /**
+   * Check if Coffee tier is properly displayed for user
+   */
+  async verifyCoffeeTierUser(): Promise<boolean> {
+    try {
+      // Look for Coffee tier indicators
+      const coffeeIndicators = [
+        '.tier-badge:has-text("Coffee")',
+        '[data-testid="tier-badge"]:has-text("Coffee")',
+        '.badge:has-text("Coffee")',
+        'text="Coffee"'
+      ];
+      
+      for (const selector of coffeeIndicators) {
+        try {
+          const element = this.page.locator(selector);
+          if (await element.isVisible()) {
+            return true;
+          }
+        } catch {
+          continue;
+        }
+      }
+      
+      return false;
+    } catch {
+      return false;
+    }
+  }
 }
 
 /**
