@@ -22,13 +22,13 @@ export const authUsers = pgTable("auth_users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const emailCaptures = pgTable("email_captures", {
+export const emailCaptures = pgTable("emailCaptures", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   email: text("email").notNull().unique(),
-  websiteUrl: text("website_url").notNull(),
+  websiteUrl: text("websiteUrl").notNull(),
   tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
 export const subscriptions = pgTable("subscriptions", {
@@ -56,14 +56,14 @@ export const paymentHistory = pgTable("payment_history", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sitemapAnalysis = pgTable("sitemap_analysis", {
+export const sitemapAnalysis = pgTable("sitemapAnalysis", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   url: text("url").notNull(),
-  sitemapContent: jsonb("sitemap_content"),
-  discoveredPages: jsonb("discovered_pages").$type<DiscoveredPage[]>(),
+  sitemapContent: jsonb("sitemapContent"),
+  discoveredPages: jsonb("discoveredPages").$type<DiscoveredPage[]>(),
   status: text("status").notNull().default("pending"),
-  analysisMetadata: jsonb("analysis_metadata").$type<{
+  analysisMetadata: jsonb("analysisMetadata").$type<{
     siteType: "single-page" | "multi-page" | "unknown";
     sitemapFound: boolean;
     analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
@@ -83,10 +83,10 @@ export const sitemapAnalysis = pgTable("sitemap_analysis", {
     };
     processingTime?: number;
   }>(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
-export const llmTextFiles = pgTable("llm_text_files", {
+export const llmTextFiles = pgTable("llmTextFiles", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   analysisId: integer("analysis_id").references(() => sitemapAnalysis.id),
@@ -105,8 +105,6 @@ export const usageTracking = pgTable("usage_tracking", {
   htmlExtractionsCount: integer("html_extractions_count").notNull().default(0),
   cacheHits: integer("cache_hits").notNull().default(0),
   totalCost: integer("total_cost").notNull().default(0), // Cost in cents
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const analysisCache = pgTable("analysis_cache", {
