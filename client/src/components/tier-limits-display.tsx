@@ -55,7 +55,7 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
   });
 
   useEffect(() => {
-    if (isVisible && url && email) {
+    if (isVisible && url && email && !checkLimitsMutation.isSuccess) {
       console.log('🎯 TierLimitsDisplay: Starting limits check...');
       checkLimitsMutation.mutate();
       
@@ -69,7 +69,7 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
       
       return () => clearTimeout(fallbackTimeout);
     }
-  }, [isVisible, url, email, limitsData]);
+  }, [isVisible, url, email]);
 
   // CRITICAL: Show loading state instead of null to avoid blocking users
   if (!isVisible) return null;
