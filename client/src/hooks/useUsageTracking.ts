@@ -127,9 +127,9 @@ export function useUsageTracking(email: string | undefined) {
       }
     },
     enabled: !!email,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 60000, // Refresh every 60 seconds (less aggressive)
     retry: 1, // Only retry once to avoid delays
-    staleTime: 10000,
+    staleTime: 30000, // Data is fresh for 30 seconds (prevents flashing)
   });
   
   // Track usage mutation
