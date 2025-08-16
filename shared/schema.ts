@@ -22,13 +22,13 @@ export const authUsers = pgTable("auth_users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const emailCaptures = pgTable("emailCaptures", {
+export const emailCaptures = pgTable("email_captures", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   email: text("email").notNull().unique(),
-  websiteUrl: text("websiteUrl").notNull(),
+  websiteUrl: text("website_url").notNull(),
   tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
-  createdAt: timestamp("createdAt").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const subscriptions = pgTable("subscriptions", {
@@ -56,14 +56,14 @@ export const paymentHistory = pgTable("payment_history", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sitemapAnalysis = pgTable("sitemapAnalysis", {
+export const sitemapAnalysis = pgTable("sitemap_analysis", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   url: text("url").notNull(),
-  sitemapContent: jsonb("sitemapContent"),
-  discoveredPages: jsonb("discoveredPages").$type<DiscoveredPage[]>(),
+  sitemapContent: jsonb("sitemap_content"),
+  discoveredPages: jsonb("discovered_pages").$type<DiscoveredPage[]>(),
   status: text("status").notNull().default("pending"),
-  analysisMetadata: jsonb("analysisMetadata").$type<{
+  analysisMetadata: jsonb("analysis_metadata").$type<{
     siteType: "single-page" | "multi-page" | "unknown";
     sitemapFound: boolean;
     analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
@@ -83,10 +83,10 @@ export const sitemapAnalysis = pgTable("sitemapAnalysis", {
     };
     processingTime?: number;
   }>(),
-  createdAt: timestamp("createdAt").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const llmTextFiles = pgTable("llmTextFiles", {
+export const llmTextFiles = pgTable("llm_text_files", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   analysisId: integer("analysis_id").references(() => sitemapAnalysis.id),
