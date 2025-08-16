@@ -447,7 +447,7 @@ export default function Dashboard() {
                 <img 
                   src="/images/logo-primary.png" 
                   alt="LLM.txt Mastery" 
-                  className="h-10 w-auto"
+                  className="h-16 md:h-20 w-auto"
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>

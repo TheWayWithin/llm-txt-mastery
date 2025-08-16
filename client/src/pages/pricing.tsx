@@ -16,7 +16,7 @@ export default function Pricing() {
               <img 
                 src="/images/logo-primary.png" 
                 alt="LLM.txt Mastery" 
-                className="h-10 w-auto"
+                className="h-16 md:h-20 w-auto"
               />
             </div>
             <Link href="/">
