@@ -309,9 +309,24 @@ export default function AnalyzePage() {
             />
           )}
 
-          {/* Usage Display */}
+          {/* Usage Display - Pass usageData to avoid duplicate fetching */}
           {user.email && !visibility.error && (
-            <UsageDisplay userEmail={user.email} />
+            <UsageDisplay 
+              userEmail={user.email} 
+              usageData={{
+                tier: usageData?.tier || 'starter',
+                usage: {
+                  analysesToday: usageData?.currentUsage || 0,
+                  pagesProcessedToday: 0,
+                  cacheHitsToday: 0
+                },
+                limits: {
+                  dailyAnalyses: usageData?.dailyAnalyses || 3,
+                  maxPagesPerAnalysis: 20,
+                  aiPagesLimit: 0
+                }
+              }}
+            />
           )}
 
           {/* Daily Limit Modal */}

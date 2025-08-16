@@ -8,18 +8,19 @@ import { useToast } from "@/hooks/use-toast";
 
 interface UsageDisplayProps {
   userEmail: string;
+  usageData?: any; // Optional: accept usage data as prop to avoid duplicate fetching
 }
 
-export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
+export default function UsageDisplay({ userEmail, usageData: propUsageData }: UsageDisplayProps) {
   const { toast } = useToast();
-  const { data: usageData } = useQuery({
+  
+  // Only fetch if usageData not provided as prop (backwards compatibility)
+  const { data: fetchedUsageData } = useQuery({
     queryKey: ["/api/usage", userEmail],
     queryFn: async () => {
       console.log(`🔍 Fetching usage data for: ${userEmail}`);
       
-      // Add cache-busting parameter to ensure fresh data
-      const timestamp = Date.now();
-      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(userEmail)}?t=${timestamp}`);
+      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(userEmail)}`);
       const data = await response.json();
       
       console.log(`📊 Usage data received for ${userEmail}:`, {
@@ -30,13 +31,16 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
       
       return data;
     },
-    enabled: !!userEmail,
-    refetchInterval: 5000, // Refresh every 5 seconds for immediate updates
-    staleTime: 0, // Always refetch
-    gcTime: 0, // Don't cache
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: 'always', // Always refetch on mount
+    enabled: !!userEmail && !propUsageData, // Don't fetch if data provided as prop
+    refetchInterval: 60000, // Less aggressive - 60 seconds
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch on focus (analyze.tsx handles this)
+    refetchOnMount: false, // Don't always refetch
   });
+  
+  // Use prop data if provided, otherwise use fetched data
+  const usageData = propUsageData || fetchedUsageData;
 
   if (!usageData) return null;
 
