@@ -44,8 +44,15 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
 
   if (!usageData) return null;
 
-  const analysisPercentage = ((usageData?.currentUsage || 0) / (usageData?.dailyAnalyses || 3)) * 100;
-  const costSaved = usageData?.cacheHitsToday ? (usageData.cacheHitsToday * 0.03 * 0.7).toFixed(2) : "0.00";
+  // Handle both data structures - from props (nested) and from API (flat)
+  const currentUsage = usageData?.currentUsage ?? usageData?.usage?.analysesToday ?? 0;
+  const dailyAnalyses = usageData?.dailyAnalyses ?? usageData?.limits?.dailyAnalyses ?? 3;
+  const maxPagesPerAnalysis = usageData?.maxPagesPerAnalysis ?? usageData?.limits?.maxPagesPerAnalysis ?? 20;
+  const aiPagesLimit = usageData?.aiPagesLimit ?? usageData?.limits?.aiPagesLimit ?? 0;
+  const cacheHitsToday = usageData?.cacheHitsToday ?? usageData?.usage?.cacheHitsToday ?? 0;
+
+  const analysisPercentage = (currentUsage / dailyAnalyses) * 100;
+  const costSaved = cacheHitsToday ? (cacheHitsToday * 0.03 * 0.7).toFixed(2) : "0.00";
   const isCoffeeTier = usageData.tier === 'coffee';
   const creditsRemaining = usageData?.creditsRemaining || 0;
 
@@ -94,7 +101,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-ai-silver">Daily Analyses</span>
                 <span className="text-framework-black font-medium">
-                  {usageData?.currentUsage || 0} / {usageData?.dailyAnalyses || 3}
+                  {currentUsage} / {dailyAnalyses}
                 </span>
               </div>
               <Progress value={analysisPercentage} className="h-1.5" />
@@ -108,7 +115,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
               <div>
                 <p className="text-xs text-ai-silver">Cache Hits</p>
                 <p className="text-sm font-semibold text-framework-black">
-                  {usageData?.cacheHitsToday || 0}
+                  {cacheHitsToday}
                 </p>
               </div>
             </div>
@@ -134,11 +141,11 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                 </p>
               )}
               <p className="text-xs text-framework-black">
-                • Max {usageData?.maxPagesPerAnalysis || 200} pages per analysis
+                • Max {maxPagesPerAnalysis} pages per analysis
               </p>
-              {(usageData?.aiPagesLimit || 0) > 0 && (
+              {aiPagesLimit > 0 && (
                 <p className="text-xs text-framework-black">
-                  • AI analysis for first {usageData?.aiPagesLimit || 0} pages
+                  • AI analysis for first {aiPagesLimit} pages
                 </p>
               )}
               {usageData?.smartCaching && (
