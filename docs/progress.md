@@ -1,9 +1,9 @@
 # LLM.txt Mastery - Project Progress & Status
-*Last Updated: August 17, 2025 - Permanent Usage Tracking Fix Deployed*
+*Last Updated: August 17, 2025 - Authenticated User Tracking Fixed*
 
-## 🎉 Current Status: PRODUCTION FULLY OPERATIONAL - USAGE TRACKING PERMANENTLY FIXED
+## 🎉 Current Status: PRODUCTION FULLY OPERATIONAL - ALL USER TYPES TRACKING CORRECTLY
 
-**LATEST UPDATE**: Permanent fix for recurring usage tracking issues deployed! Ultra-simple tracking system with zero dependencies ensures usage counter ALWAYS works. No more whack-a-mole with tracking bugs.
+**LATEST UPDATE**: Fixed usage tracking for authenticated/logged-in users! The ultra-simple tracking system now properly handles user tiers, ensuring the counter works for both email-only and authenticated users.
 
 ### Live Production URLs
 - **Frontend**: `https://www.llmtxtmastery.com` (Netlify)
@@ -20,8 +20,8 @@
 
 ## Major Milestones Timeline
 
-### August 17, 2025: PERMANENT Usage Tracking Fix - The Final Solution
-- ✅ **RECURRING USAGE TRACKING BUG PERMANENTLY FIXED**
+### August 17, 2025: Complete Usage Tracking Solutions
+- ✅ **RECURRING USAGE TRACKING BUG PERMANENTLY FIXED (Morning)**
   - **Problem**: Usage counter repeatedly showing 0/3 after analyses completed
   - **Pattern**: Every "fix" broke something else - classic whack-a-mole situation
   - **Root Cause Analysis**:
@@ -46,6 +46,23 @@
     - Works even if database partially fails
     - Single source of truth eliminates race conditions
   - **Deployment**: Commit 3e8bfb8 - Ultra-simple tracking system
+
+- ✅ **AUTHENTICATED USER TRACKING FIXED (Afternoon)**
+  - **Problem**: Logged-in users always saw 0/3 usage even after completing analyses
+  - **Root Cause**: Simple tracker was always using 'starter' tier regardless of user's actual tier
+  - **Solution**:
+    - Modified `incrementSimpleUsage()` to accept tier parameter
+    - Updated all server calls to pass user's actual tier
+    - Client now sends tier when tracking usage
+    - UPSERT query updates both count AND tier
+  - **Impact**: All user types (email-only, authenticated, coffee tier) now track correctly
+  - **Deployment**: Commit f1c8c9b - Tier-aware usage tracking
+
+- ✅ **UI IMPROVEMENTS DEPLOYED**
+  - **Logo Size**: Increased by 80% (h-20 md:h-24) for better brand visibility
+  - **Start Over Button**: Now intelligently hidden on landing page (only shows during workflow)
+  - **Consistency**: Logo size standardized across all pages
+  - **Deployment**: Commit ddf7ede - UI improvements
 
 - ✅ **URL INPUT VALIDATION FIXED**
   - **Problem**: Browser rejecting URLs without protocol (e.g., "www.freecalchub.com")
