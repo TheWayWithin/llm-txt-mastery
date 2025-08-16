@@ -75,7 +75,7 @@ export default function AnalyzePage() {
   // Use the robust usage tracking hook
   const { 
     usage: usageData, 
-    trackUsage, 
+    // trackUsage removed - server handles incrementing
     isLimitReached,
     serverUsage,
     clientUsage 
@@ -132,23 +132,29 @@ export default function AnalyzePage() {
   const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
     console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
     
-    // Track usage in both client and server
-    trackUsage();
+    // DON'T track usage here - server already increments when analysis completes
+    // This was causing double incrementing!
+    // trackUsage(); // REMOVED - server handles this
     
-    // Invalidate usage queries to refresh counter immediately
-    console.log(`🔄 Invalidating usage queries for user: ${user?.email}`);
-    if (user?.email) {
-      queryClient.invalidateQueries({
-        queryKey: ["/api/usage", user.email]
-      });
-      // TODO: Add recent analyses invalidation when API is implemented
-      // queryClient.invalidateQueries({
-      //   queryKey: ["/api/recent-analyses", user.email]
-      // });
-    }
+    // Wait a bit for server to update, then invalidate queries
+    setTimeout(() => {
+      console.log(`🔄 Invalidating usage queries for user: ${user?.email}`);
+      if (user?.email) {
+        queryClient.invalidateQueries({
+          queryKey: ["/api/usage", user.email]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["/api/simple-usage", user.email]
+        });
+        // TODO: Add recent analyses invalidation when API is implemented
+        // queryClient.invalidateQueries({
+        //   queryKey: ["/api/recent-analyses", user.email]
+        // });
+      }
+    }, 1000); // Give server 1 second to update
     
     actions.completeAnalysis(id, pages);
-  }, [actions.completeAnalysis, user?.email, queryClient, trackUsage]);
+  }, [actions.completeAnalysis, user?.email, queryClient]);
 
   const handleFileGenerated = useCallback((fileId: number) => {
     actions.generateFile(fileId);
