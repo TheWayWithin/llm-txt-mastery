@@ -33,17 +33,17 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
     enabled: !!userEmail,
     refetchInterval: 5000, // Refresh every 5 seconds for immediate updates
     staleTime: 0, // Always refetch
-    cacheTime: 0, // Don't cache
+    gcTime: 0, // Don't cache
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: 'always', // Always refetch on mount
   });
 
   if (!usageData) return null;
 
-  const analysisPercentage = (usageData.usage.analysesToday / usageData.limits.dailyAnalyses) * 100;
-  const costSaved = usageData.usage.costToday ? (usageData.usage.cacheHitsToday * 0.03 * 0.7).toFixed(2) : "0.00";
+  const analysisPercentage = ((usageData?.currentUsage || 0) / (usageData?.dailyAnalyses || 3)) * 100;
+  const costSaved = usageData?.cacheHitsToday ? (usageData.cacheHitsToday * 0.03 * 0.7).toFixed(2) : "0.00";
   const isCoffeeTier = usageData.tier === 'coffee';
-  const creditsRemaining = usageData.usage.creditsRemaining || 0;
+  const creditsRemaining = usageData?.creditsRemaining || 0;
 
   return (
     <Card className="bg-slate-50 border-slate-200">
@@ -90,7 +90,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-ai-silver">Daily Analyses</span>
                 <span className="text-framework-black font-medium">
-                  {usageData.usage.analysesToday} / {usageData.limits.dailyAnalyses}
+                  {usageData?.currentUsage || 0} / {usageData?.dailyAnalyses || 3}
                 </span>
               </div>
               <Progress value={analysisPercentage} className="h-1.5" />
@@ -104,7 +104,7 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
               <div>
                 <p className="text-xs text-ai-silver">Cache Hits</p>
                 <p className="text-sm font-semibold text-framework-black">
-                  {usageData.usage.cacheHitsToday}
+                  {usageData?.cacheHitsToday || 0}
                 </p>
               </div>
             </div>
@@ -130,14 +130,14 @@ export default function UsageDisplay({ userEmail }: UsageDisplayProps) {
                 </p>
               )}
               <p className="text-xs text-framework-black">
-                • Max {usageData.limits.maxPagesPerAnalysis} pages per analysis
+                • Max {usageData?.maxPagesPerAnalysis || 200} pages per analysis
               </p>
-              {usageData.limits.aiPagesLimit > 0 && (
+              {(usageData?.aiPagesLimit || 0) > 0 && (
                 <p className="text-xs text-framework-black">
-                  • AI analysis for first {usageData.limits.aiPagesLimit} pages
+                  • AI analysis for first {usageData?.aiPagesLimit || 0} pages
                 </p>
               )}
-              {usageData.features.smartCaching && (
+              {usageData?.smartCaching && (
                 <p className="text-xs text-framework-black">
                   • Smart caching with change detection
                 </p>

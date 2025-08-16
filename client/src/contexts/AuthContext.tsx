@@ -221,12 +221,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const usageData = await response.json()
         
         // If user has a tier other than starter or has usage history, create email-based user object
-        if (usageData.tier !== 'starter' || usageData.usage.analysesToday > 0) {
+        if (usageData.tier !== 'starter' || (usageData.usage?.analysesToday || 0) > 0) {
           const emailUser: AuthUser = {
             id: `email-${email}`, // Temporary ID for email-based users
             email: email,
             tier: usageData.tier as any,
-            creditsRemaining: usageData.usage.creditsRemaining || 0,
+            creditsRemaining: usageData.usage?.creditsRemaining || 0,
             username: email.split('@')[0]
           }
           
