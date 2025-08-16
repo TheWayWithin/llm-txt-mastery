@@ -84,7 +84,7 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
               <div className="relative mt-2">
                 <Input
                   id="website-url"
-                  type="url"
+                  type="text"
                   placeholder="www.example.com or https://example.com"
                   value={url}
                   onChange={handleInputChange}
