@@ -192,7 +192,7 @@ export default function AnalyzePage() {
                   <img 
                     src="/images/logo-primary.png" 
                     alt="LLM.txt Mastery" 
-                    className="h-12 md:h-14 w-auto"
+                    className="h-20 md:h-24 w-auto"
                   />
                 </a>
               </Link>

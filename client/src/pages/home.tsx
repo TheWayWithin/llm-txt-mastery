@@ -123,12 +123,12 @@ export default function Home() {
                 <img 
                   src="/images/logo-primary.png" 
                   alt="LLM.txt Mastery" 
-                  className="h-12 md:h-14 w-auto"
+                  className="h-20 md:h-24 w-auto"
                 />
               </div>
               <div className="flex items-center space-x-4">
-                {/* Help & Reset Actions */}
-                {(currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING') && (
+                {/* Help & Reset Actions - Only show during workflow, not on landing */}
+                {(currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING' && currentState !== 'LANDING') && (
                   <div className="flex items-center space-x-2">
                     <QuickHelp context={
                       currentState === 'EMAIL_CAPTURE' ? 'email-capture' :
