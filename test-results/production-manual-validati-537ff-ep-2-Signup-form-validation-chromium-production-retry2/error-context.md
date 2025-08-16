@@ -1,0 +1,83 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list
+- region "Notifications alt+T"
+- banner:
+  - link "LLM.txt Mastery":
+    - /url: /
+    - img "LLM.txt Mastery"
+  - paragraph: Built by Jamie Watters
+  - paragraph: Solopreneur & Tool Builder
+- main:
+  - text: Create Your Account Join early adopters making their businesses AI-discoverable Select Your Plan
+  - combobox "Select Your Plan":
+    - option "Free - Test Drive (3 analyses/day)"
+    - option "Coffee - Solopreneur Special ($5/month)" [selected]
+    - option "Growth - Growing Business ($25/month)"
+    - option "Scale - Agency & API ($99/month)"
+  - img
+  - text: COFFEE
+  - paragraph: Unlimited AI analysis, up to 200 pages
+  - paragraph: ℹ️ After signup, you'll be redirected to Stripe for payment ($5/month)
+  - text: Email Address
+  - img
+  - textbox "Email Address"
+  - text: Password
+  - img
+  - textbox "Password"
+  - button "Show password":
+    - img
+  - text: Confirm Password
+  - img
+  - textbox "Confirm Password"
+  - button "Show password":
+    - img
+  - text: By creating an account, you agree to our
+  - link "Terms of Service":
+    - /url: /terms
+  - text: and
+  - link "Privacy Policy":
+    - /url: /privacy
+  - button "Create Account" [disabled]:
+    - text: Create Account
+    - img
+  - paragraph:
+    - text: Already have an account?
+    - link "Sign in":
+      - /url: /login
+  - img
+  - text: COFFEE Plan Benefits
+  - list:
+    - listitem:
+      - img
+      - text: Unlimited AI-powered analysis
+    - listitem:
+      - img
+      - text: Up to 200 pages per analysis
+    - listitem:
+      - img
+      - text: Advanced content scoring
+    - listitem:
+      - img
+      - text: Priority support
+    - listitem:
+      - img
+      - text: Monthly subscription
+  - text: Why Choose LLM.txt Mastery?
+  - img
+  - heading "Standards Compliant" [level=4]
+  - paragraph: Built following the official llms.txt specification
+  - img
+  - heading "Built by a Solopreneur" [level=4]
+  - paragraph: No VC BS, just tools that work for real businesses
+  - img
+  - heading "AI-Powered Analysis" [level=4]
+  - paragraph: Smart content scoring and page selection
+  - img
+  - heading "Secure & Private" [level=4]
+  - paragraph: Your data is encrypted and never shared. We only analyze public content and generate files you control.
+- contentinfo:
+  - paragraph: © 2025 Jamie Watters. No corporate BS. Just tools that work.
+```
