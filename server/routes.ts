@@ -422,7 +422,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (analysisAge < maxAge) {
           // ULTRA-SIMPLE: Just increment for cached results too
-          const newCount = await incrementSimpleUsage(userEmail);
+          const newCount = await incrementSimpleUsage(userEmail, tier);
           console.log(`📊 [USAGE] Cached result for ${userEmail}. Daily count: ${newCount}`);
           
           return res.json({ 
@@ -780,7 +780,7 @@ async function performAnalysisWithTimeout(
     console.log(`Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`);
     
     // ULTRA-SIMPLE TRACKING: Just increment the counter
-    const newCount = await incrementSimpleUsage(userEmail);
+    const newCount = await incrementSimpleUsage(userEmail, tier);
     console.log(`📊 [USAGE] Analysis ${analysisId} completed for ${userEmail}. Daily count: ${newCount}`);
     
     // Keep the complex tracking for backwards compatibility but don't rely on it
