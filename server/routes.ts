@@ -14,6 +14,7 @@ import { smartBotProtection } from "./middleware/smart-bot-protection";
 import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
 import authRoutes from "./routes/auth";
+import simpleUsageRoutes from "./routes/simple-usage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -22,6 +23,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register authentication routes
   app.use("/api/auth", authRoutes);
+  
+  // Register simple usage tracking routes (robust fallback)
+  app.use(simpleUsageRoutes);
   
   // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
   app.post("/api/debug-tier", async (req, res) => {
@@ -412,6 +416,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             0  // No cost for cached results
           );
           
+          // Also track in simple system
+          try {
+            await fetch(`http://localhost:${process.env.PORT || 5000}/api/simple-usage/track`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: userEmail })
+            });
+          } catch (error) {
+            console.warn(`⚠️ [SIMPLE-USAGE] Failed to track cached result:`, error);
+          }
+          
           return res.json({ 
             analysisId: existingAnalysis.id,
             status: "completed",
@@ -750,7 +765,7 @@ async function performAnalysisWithTimeout(
     );
     console.log(`Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`);
     
-    // Track usage
+    // Track usage with both systems for robustness
     await trackUsage(
       userEmail,
       metrics.analyzedPages + metrics.cachedPages,
@@ -759,6 +774,21 @@ async function performAnalysisWithTimeout(
       metrics.cachedPages,
       metrics.estimatedCost
     );
+    
+    // CRITICAL: Also track in simple usage system as fallback
+    try {
+      const simpleResponse = await fetch(`http://localhost:${process.env.PORT || 5000}/api/simple-usage/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail })
+      });
+      if (simpleResponse.ok) {
+        const result = await simpleResponse.json();
+        console.log(`✅ [SIMPLE-USAGE] Tracked analysis ${analysisId} for ${userEmail}: count=${result.count}`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ [SIMPLE-USAGE] Failed to track in simple system:`, error);
+    }
     
     // Consume coffee credit if user is on coffee tier
     // Note: Coffee tier credit consumption is handled in the payment flow
