@@ -318,8 +318,10 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
     
     console.log(`Homepage analysis for ${url}: score=${singlePageScore}, indicators=[${indicators.join(', ')}]`);
     
+    // Be more conservative - only mark as single-page if strong indicators present
+    // Require score of 4+ to avoid false positives on content-rich sites
     return {
-      isSinglePage: singlePageScore >= 3,
+      isSinglePage: singlePageScore >= 4,
       indicators
     };
     
@@ -380,7 +382,7 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   console.log(`Total URLs to check: ${discoveredUrls.size}`);
   
   // Step 4: Validate discovered URLs (increased limit for better coverage)
-  const maxUrlsToValidate = 200; // Increased from 50
+  const maxUrlsToValidate = 500; // Increased to handle sites with many pages like calculator sites
   const validationPromises = Array.from(discoveredUrls).slice(0, maxUrlsToValidate).map(async (url) => {
     try {
       const response = await fetchWithTimeout(url, {
