@@ -24,6 +24,7 @@ import DailyLimitModal from "@/components/DailyLimitModal";
 import EmailVerificationBanner from "@/components/email-verification-banner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useUsageTracking } from "@/hooks/useUsageTracking";
 
 export default function AnalyzePage() {
   const [, navigate] = useLocation();
@@ -71,17 +72,14 @@ export default function AnalyzePage() {
     }
   }, [authResolved, authLoading, isAuthenticated, navigate, url]);
 
-  // Fetch usage data for the authenticated user
-  const { data: usageData } = useQuery({
-    queryKey: ["/api/usage", user?.email],
-    queryFn: async () => {
-      if (!user?.email) return null;
-      const response = await apiRequest("GET", `/api/usage/${encodeURIComponent(user.email)}`);
-      return response.json();
-    },
-    enabled: !!user?.email,
-    refetchInterval: 10000,
-  });
+  // Use the robust usage tracking hook
+  const { 
+    usage: usageData, 
+    trackUsage, 
+    isLimitReached,
+    serverUsage,
+    clientUsage 
+  } = useUsageTracking(user?.email);
 
   // TODO: Add recent analyses when API endpoint is implemented
   // const { data: recentAnalyses } = useQuery({
@@ -121,8 +119,7 @@ export default function AnalyzePage() {
     if (!isValid || !url) return;
     
     // Check if user has reached daily limit
-    if (usageData && user?.tier === 'starter' && 
-        usageData.usage?.analysesToday >= usageData.limits?.dailyAnalyses) {
+    if (isLimitReached && user?.tier === 'starter') {
       setShowDailyLimitModal(true);
       return;
     }
@@ -134,6 +131,9 @@ export default function AnalyzePage() {
 
   const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
     console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
+    
+    // Track usage in both client and server
+    trackUsage();
     
     // Invalidate usage queries to refresh counter immediately
     console.log(`🔄 Invalidating usage queries for user: ${user?.email}`);
@@ -148,7 +148,7 @@ export default function AnalyzePage() {
     }
     
     actions.completeAnalysis(id, pages);
-  }, [actions.completeAnalysis, user?.email, queryClient]);
+  }, [actions.completeAnalysis, user?.email, queryClient, trackUsage]);
 
   const handleFileGenerated = useCallback((fileId: number) => {
     actions.generateFile(fileId);
@@ -259,7 +259,7 @@ export default function AnalyzePage() {
                   <div>
                     <p className="text-sm font-medium text-framework-black">Today's Usage</p>
                     <p className="text-xs text-ai-silver">
-                      {usageData?.usage?.analysesToday || 0} / {usageData?.limits?.dailyAnalyses || 0}
+                      {usageData?.currentUsage || 0} / {usageData?.dailyAnalyses || 3}
                     </p>
                   </div>
                 </div>
@@ -314,8 +314,8 @@ export default function AnalyzePage() {
               isOpen={showDailyLimitModal}
               onClose={() => setShowDailyLimitModal(false)}
               userEmail={user.email}
-              currentUsage={usageData.usage?.analysesToday || 0}
-              dailyLimit={usageData.limits?.dailyAnalyses || 3}
+              currentUsage={usageData.currentUsage || 0}
+              dailyLimit={usageData.dailyAnalyses || 3}
             />
           )}
 
