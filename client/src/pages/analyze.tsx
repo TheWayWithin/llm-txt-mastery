@@ -181,7 +181,7 @@ export default function AnalyzePage() {
   }
 
   return (
-    <ErrorBoundary onReset={resetWorkflow}>
+    <ErrorBoundary onReset={startNewAnalysis}>
       <div className="min-h-screen bg-slate-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
@@ -297,7 +297,7 @@ export default function AnalyzePage() {
               error={error}
               onRetry={() => actions.retryCurrentOperation()}
               onRecover={(targetState) => actions.recoverFromError(targetState)}
-              onReset={resetWorkflow}
+              onReset={startNewAnalysis}
               retryCount={retryCount}
               maxRetries={3}
             />
@@ -401,7 +401,7 @@ export default function AnalyzePage() {
               websiteUrl={websiteUrl}
               userEmail={user.email}
               onAnalysisComplete={handleAnalysisComplete}
-              onReset={resetWorkflow}
+              onReset={startNewAnalysis}
               useAI={user.tier !== 'starter'}
               onProgressUpdate={(stage, totalPages, processedPages) => {
                 actions.updateAnalysisProgress(stage, totalPages, processedPages);
