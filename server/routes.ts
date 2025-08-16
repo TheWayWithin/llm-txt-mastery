@@ -15,6 +15,7 @@ import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
 import authRoutes from "./routes/auth";
 import simpleUsageRoutes from "./routes/simple-usage";
+import { incrementSimpleUsage, getSimpleUsage } from "./services/simple-tracker";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -261,7 +262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Check usage limits before analysis
+  // Check usage limits before analysis - SIMPLIFIED
   app.post("/api/check-limits", async (req, res) => {
     try {
       const { email, url } = req.body;
@@ -270,27 +271,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email required" });
       }
       
-      // Fetch sitemap to count pages
-      const sitemapResult = await fetchSitemap(url);
-      const pageCount = Math.min(sitemapResult.entries.length, 1000);
+      // Get simple usage
+      const simpleUsage = await getSimpleUsage(email);
       
-      // Check usage limits
-      const usageCheck = await checkUsageLimits(email, pageCount);
-      const tier = await getUserTier(email);
+      // Get tier
+      let tier = 'starter';
+      try {
+        tier = await getUserTier(email);
+      } catch (e) {
+        console.debug('Using default tier for limits check');
+      }
+      
       const tierLimits = TIER_LIMITS[tier];
       
-      // Estimate cost
-      const estimatedCost = estimateAnalysisCost(pageCount, tier);
+      // Simple check: have we hit the daily limit?
+      const allowed = simpleUsage.count < tierLimits.dailyAnalyses;
+      
+      // Fetch sitemap to count pages
+      const sitemapResult = await fetchSitemap(url);
+      const pageCount = Math.min(sitemapResult.entries.length, tierLimits.maxPagesPerAnalysis);
       
       res.json({
-        allowed: usageCheck.allowed,
-        reason: usageCheck.reason,
+        allowed,
+        reason: allowed ? null : `Daily limit reached (${simpleUsage.count}/${tierLimits.dailyAnalyses} analyses)`,
         pageCount,
         tier,
-        limits: usageCheck.limits,
-        currentUsage: usageCheck.currentUsage,
-        estimatedCost,
-        suggestedUpgrade: usageCheck.suggestedUpgrade
+        limits: {
+          dailyAnalyses: tierLimits.dailyAnalyses,
+          maxPagesPerAnalysis: tierLimits.maxPagesPerAnalysis,
+          aiPagesLimit: tierLimits.aiPagesLimit
+        },
+        currentUsage: {
+          analysesToday: simpleUsage.count
+        },
+        estimatedCost: 0,
+        suggestedUpgrade: allowed ? null : 'coffee'
       });
     } catch (error) {
       console.error("Limit check error:", error);
@@ -406,26 +421,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
         
         if (analysisAge < maxAge) {
-          // CRITICAL FIX: Track usage even for cached results to enforce limits
-          await trackUsage(
-            userEmail,
-            existingAnalysis.discoveredPages?.length || 0,
-            0, // No AI calls for cached results
-            0, // No HTML extractions for cached results
-            1, // This counts as a cache hit
-            0  // No cost for cached results
-          );
-          
-          // Also track in simple system
-          try {
-            await fetch(`http://localhost:${process.env.PORT || 5000}/api/simple-usage/track`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: userEmail })
-            });
-          } catch (error) {
-            console.warn(`⚠️ [SIMPLE-USAGE] Failed to track cached result:`, error);
-          }
+          // ULTRA-SIMPLE: Just increment for cached results too
+          const newCount = await incrementSimpleUsage(userEmail);
+          console.log(`📊 [USAGE] Cached result for ${userEmail}. Daily count: ${newCount}`);
           
           return res.json({ 
             analysisId: existingAnalysis.id,
@@ -522,21 +520,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Usage statistics endpoint
+  // Usage statistics endpoint - SIMPLIFIED
   app.get("/api/usage/:email", async (req, res) => {
     try {
       const email = req.params.email;
-      const tier = await getUserTier(email);
-      const todayUsage = await getTodayUsage(email);
+      
+      // Get simple usage (ALWAYS works)
+      const simpleUsage = await getSimpleUsage(email);
+      
+      // Get tier (with fallback)
+      let tier = 'starter';
+      try {
+        tier = await getUserTier(email);
+      } catch (e) {
+        console.debug('Using default tier:', e);
+      }
+      
       const limits = TIER_LIMITS[tier];
       
       res.json({
         tier,
         usage: {
-          analysesToday: todayUsage?.analysesCount || 0,
-          pagesProcessedToday: todayUsage?.pagesProcessed || 0,
-          cacheHitsToday: todayUsage?.cacheHits || 0,
-          costToday: todayUsage?.totalCost || 0
+          analysesToday: simpleUsage.count,
+          pagesProcessedToday: 0, // Deprecated
+          cacheHitsToday: 0, // Deprecated
+          costToday: 0 // Deprecated
         },
         limits: {
           dailyAnalyses: limits.dailyAnalyses,
@@ -547,7 +555,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Get usage error:", error);
-      res.status(500).json({ message: "Failed to get usage data" });
+      // ALWAYS return something valid
+      res.json({
+        tier: 'starter',
+        usage: { analysesToday: 0 },
+        limits: { dailyAnalyses: 3, maxPagesPerAnalysis: 20, aiPagesLimit: 20 },
+        features: {}
+      });
     }
   });
 
@@ -765,30 +779,22 @@ async function performAnalysisWithTimeout(
     );
     console.log(`Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`);
     
-    // Track usage with both systems for robustness
-    await trackUsage(
+    // ULTRA-SIMPLE TRACKING: Just increment the counter
+    const newCount = await incrementSimpleUsage(userEmail);
+    console.log(`📊 [USAGE] Analysis ${analysisId} completed for ${userEmail}. Daily count: ${newCount}`);
+    
+    // Keep the complex tracking for backwards compatibility but don't rely on it
+    trackUsage(
       userEmail,
       metrics.analyzedPages + metrics.cachedPages,
       metrics.aiCallsUsed,
       metrics.htmlExtractionsUsed,
       metrics.cachedPages,
       metrics.estimatedCost
-    );
-    
-    // CRITICAL: Also track in simple usage system as fallback
-    try {
-      const simpleResponse = await fetch(`http://localhost:${process.env.PORT || 5000}/api/simple-usage/track`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail })
-      });
-      if (simpleResponse.ok) {
-        const result = await simpleResponse.json();
-        console.log(`✅ [SIMPLE-USAGE] Tracked analysis ${analysisId} for ${userEmail}: count=${result.count}`);
-      }
-    } catch (error) {
-      console.warn(`⚠️ [SIMPLE-USAGE] Failed to track in simple system:`, error);
-    }
+    ).catch(error => {
+      // Silently fail - we don't care if complex tracking fails
+      console.debug(`[USAGE] Complex tracking failed (ignored):`, error.message);
+    });
     
     // Consume coffee credit if user is on coffee tier
     // Note: Coffee tier credit consumption is handled in the payment flow
