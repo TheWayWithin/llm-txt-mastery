@@ -79,7 +79,7 @@ router.get('/api/simple-usage/:email', async (req, res) => {
 // Track usage (increment counter)
 router.post('/api/simple-usage/track', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, tier = 'starter' } = req.body;
     if (!email) {
       return res.status(400).json({ error: 'Email required' });
     }
@@ -87,23 +87,26 @@ router.post('/api/simple-usage/track', async (req, res) => {
     const normalizedEmail = email.toLowerCase();
     const today = new Date().toISOString().split('T')[0];
     
-    console.log(`📈 [SIMPLE-USAGE] Incrementing usage for ${normalizedEmail}`);
+    console.log(`📈 [SIMPLE-USAGE] Incrementing usage for ${normalizedEmail} (tier: ${tier})`);
     
-    // Increment the counter
+    // Increment the counter and update tier
     const result = await db.execute(sql`
       INSERT INTO simple_usage (email, date, count, tier)
-      VALUES (${normalizedEmail}, ${today}, 1, 'starter')
+      VALUES (${normalizedEmail}, ${today}, 1, ${tier})
       ON CONFLICT (email, date) 
-      DO UPDATE SET count = simple_usage.count + 1
+      DO UPDATE SET 
+        count = simple_usage.count + 1,
+        tier = ${tier}
       RETURNING *
     `);
     
     const usage = result.rows[0];
-    console.log(`✅ [SIMPLE-USAGE] ${normalizedEmail} now at ${usage.count} analyses today`);
+    console.log(`✅ [SIMPLE-USAGE] ${normalizedEmail} now at ${usage.count} analyses today (tier: ${usage.tier})`);
     
     res.json({
       success: true,
-      count: usage.count
+      count: usage.count,
+      tier: usage.tier
     });
   } catch (error) {
     console.error('[SIMPLE-USAGE] Track error:', error);

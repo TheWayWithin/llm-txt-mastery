@@ -141,13 +141,17 @@ export function useUsageTracking(email: string | undefined) {
       const newClientUsage = ClientUsageTracker.incrementUsage(email);
       setClientUsage(newClientUsage);
       
+      // Get the current tier from server usage or client usage
+      const currentTier = serverUsage?.tier || clientUsage.tier || 'starter';
+      
       // Try to update server using simple tracking endpoint
       try {
         const response = await apiRequest('POST', '/api/simple-usage/track', { 
-          email
+          email,
+          tier: currentTier
         });
         const data = await response.json();
-        console.log(`✅ [SIMPLE-SERVER] Usage tracked for ${email}: count=${data.count}`);
+        console.log(`✅ [SIMPLE-SERVER] Usage tracked for ${email}: count=${data.count}, tier=${data.tier}`);
         return newClientUsage; // Return client usage to maintain consistency
       } catch (error) {
         console.warn(`⚠️ [SIMPLE-SERVER] Failed to track usage, client-side updated:`, error);
