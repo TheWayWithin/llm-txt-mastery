@@ -67,6 +67,22 @@ export default function VerifyEmailPage() {
             console.log('🔄 Triggering EMAIL_VERIFIED event for smooth transition to URL input');
             actions.verifyEmail(updatedUser);
           }
+          
+          // Auto-redirect to analyze page after successful verification
+          setTimeout(() => {
+            // Check if there's a pending analysis URL
+            const pendingUrl = localStorage.getItem('pendingAnalysisUrl');
+            const targetUrl = pendingUrl 
+              ? `/analyze?url=${encodeURIComponent(pendingUrl)}`
+              : '/analyze';
+            
+            // Clean up localStorage
+            localStorage.removeItem('pendingVerificationEmail');
+            localStorage.removeItem('pendingAnalysisUrl');
+            
+            console.log('✅ Auto-redirecting to:', targetUrl);
+            window.location.href = targetUrl;
+          }, 2000); // Wait 2 seconds to show success message
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
           // Don't fail the verification, just log the error

@@ -148,13 +148,15 @@ export default function SignupPage() {
         }
       }
       
-      // For other tiers, navigate to analyze page
-      console.log('Redirecting to analyze page')
-      const targetUrl = websiteUrlParam 
-        ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/analyze'
-      // Use window.location for full page refresh to reset auth state
-      window.location.href = targetUrl
+      // Store email and website URL for after verification
+      localStorage.setItem('pendingVerificationEmail', email)
+      if (websiteUrlParam) {
+        localStorage.setItem('pendingAnalysisUrl', websiteUrlParam)
+      }
+      
+      // Redirect to check-email page instead of analyze
+      console.log('Redirecting to check-email page')
+      window.location.href = '/check-email'
       
     } catch (err) {
       console.error('Signup error:', err)

@@ -1,9 +1,9 @@
 # LLM.txt Mastery - Project Progress & Status
-*Last Updated: August 17, 2025 - Authenticated User Tracking Fixed*
+*Last Updated: August 18, 2025 - Double Increment Fixed & Email Flow Improved*
 
-## 🎉 Current Status: PRODUCTION FULLY OPERATIONAL - ALL USER TYPES TRACKING CORRECTLY
+## 🎉 Current Status: PRODUCTION FULLY OPERATIONAL - USAGE TRACKING STABLE
 
-**LATEST UPDATE**: Fixed usage tracking for authenticated/logged-in users! The ultra-simple tracking system now properly handles user tiers, ensuring the counter works for both email-only and authenticated users.
+**LATEST UPDATE**: Fixed double-incrementing bug and improved email verification flow! Counter now increments correctly (1→2→3 instead of 1→2→4) and new users get better email verification UX.
 
 ### Live Production URLs
 - **Frontend**: `https://www.llmtxtmastery.com` (Netlify)
@@ -19,6 +19,36 @@
 *For current work coordination, see project-plan.md. This document provides the complete historical context and technical implementation details.*
 
 ## Major Milestones Timeline
+
+### August 18, 2025: Double Increment Fix & Email Verification Flow Improvements
+- ✅ **DOUBLE INCREMENT BUG FIXED**
+  - **Problem**: Counter was jumping from 2→4 instead of 2→3, showing 4/3 temporarily
+  - **Root Cause**: Both client and server were incrementing usage on analysis complete
+  - **Solution**:
+    - Removed client-side `trackUsage()` call in analyze.tsx
+    - Kept only server-side increment when analysis completes
+    - Added 1-second delay before query invalidation to let server update
+  - **Impact**: Counter now increments correctly: 1/3 → 2/3 → 3/3
+  - **Technical Details**:
+    - analyze.tsx: Removed trackUsage() call on handleAnalysisComplete
+    - usage-display.tsx: Accept usage data as prop to avoid duplicate fetching
+    - Increased staleTime to 30 seconds to reduce query churn
+  
+- ✅ **EMAIL VERIFICATION FLOW IMPROVED**
+  - **Problem**: New users got duplicate tabs when verifying email
+  - **User Feedback**: "Can we improve the flow, I don't think it is good to fork the analysis pages"
+  - **Solution**:
+    - Created `/client/src/pages/check-email.tsx` - dedicated email verification page
+    - Shows clear instructions: "Check your email inbox" with resend option
+    - Modified signup.tsx to redirect to check-email instead of analyze
+    - Auto-redirect to analyze after successful email verification
+  - **Impact**: Cleaner flow without duplicate pages, better user experience
+  - **Implementation**: Complete new page with proper routing and localStorage handling
+
+- ✅ **UI CONSISTENCY IMPROVEMENTS**
+  - **Logo Size**: Increased by 80% as requested (h-20 md:h-24)
+  - **Start Over Button**: Now intelligently hidden on landing page
+  - **Consistency**: Logo size standardized across all pages
 
 ### August 17, 2025: Complete Usage Tracking Solutions
 - ✅ **RECURRING USAGE TRACKING BUG PERMANENTLY FIXED (Morning)**

@@ -19,6 +19,7 @@ import { BlogPage } from "@/pages/blog";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
 import AnalyzePage from "@/pages/analyze";
+import CheckEmailPage from "@/pages/check-email";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/blog" component={BlogPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/check-email" component={CheckEmailPage} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
       <Route path="/verify-email" component={VerifyEmail} />
       <Route component={NotFound} />
