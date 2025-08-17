@@ -116,44 +116,53 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
             className="grid grid-cols-1 md:grid-cols-2 gap-3"
           >
             {/* Starter Tier */}
-            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('starter')}>
+            <div className="relative border-2 border-red-300 rounded-lg bg-red-50 hover:bg-red-100 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('starter')}>
               <RadioGroupItem value="starter" id="starter" className="absolute top-4 right-4" />
+              <div className="absolute -top-3 left-4 bg-red-600 text-white text-xs px-2 py-1 rounded">⚠️ SEVERELY LIMITED</div>
               <div className="pr-8">
-                <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer">
+                <Label htmlFor="starter" className="flex items-center space-x-2 cursor-pointer mt-2">
                   <img 
                     src="/images/tier-free.png" 
                     alt="Free Tier" 
-                    className="w-6 h-6" 
+                    className="w-6 h-6 opacity-60" 
                   />
-                  <span className="font-medium text-lg">Test Drive</span>
+                  <span className="font-medium text-lg text-red-700">Free (But Crippled)</span>
                 </Label>
-                <p className="text-sm text-ai-silver mt-2">
-                  • 3 analyses per day<br/>
-                  • 20 pages with AI analysis<br/>
-                  • Smart categorization<br/>
-                  • Full feature preview
+                <p className="text-sm text-red-600 mt-2">
+                  ❌ Only 3 analyses per day (then locked out)<br/>
+                  ❌ Severely limited to 20 pages only<br/>
+                  ❌ No AI quality scoring<br/>
+                  ❌ Basic features only<br/>
+                  <span className="text-xs font-medium text-red-700 mt-1 block">
+                    ⚠️ WARNING: Your competitors will find 10x more pages
+                  </span>
                 </p>
               </div>
             </div>
 
             {/* Coffee Tier */}
-            <div className="relative border-2 border-orange-400 rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('coffee')}>
+            <div className="relative border-4 border-green-500 rounded-lg bg-gradient-to-br from-green-50 to-orange-50 hover:from-green-100 hover:to-orange-100 transition-colors p-4 cursor-pointer shadow-lg" onClick={() => setSelectedTier('coffee')}>
               <RadioGroupItem value="coffee" id="coffee" className="absolute top-4 right-4" />
-              <div className="absolute -top-3 left-4 bg-orange-600 text-white text-xs px-2 py-1 rounded">MOST POPULAR</div>
+              <div className="absolute -top-3 left-4 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-bold">🏆 CRUSH YOUR COMPETITION</div>
               <div className="pr-8">
                 <Label htmlFor="coffee" className="flex items-center space-x-2 cursor-pointer mt-2">
                   <img 
                     src="/images/tier-coffee.png" 
                     alt="Coffee Tier" 
-                    className="w-6 h-6" 
+                    className="w-8 h-8" 
                   />
-                  <span className="font-medium text-lg">Solopreneur Special ($5)</span>
+                  <span className="font-bold text-xl text-green-800">Coffee Power ($5/mo)</span>
                 </Label>
-                <p className="text-sm text-orange-700 mt-2">
-                  • Buy once, use forever<br/>
-                  • Unlimited daily analyses<br/>
-                  • 200 pages per analysis<br/>
-                  • AI-enhanced quality
+                <p className="text-sm font-medium text-green-700 mt-2">
+                  ✅ UNLIMITED daily analyses (destroy daily limits)<br/>
+                  ✅ 200 pages per analysis (10x more than free)<br/>
+                  ✅ AI-powered content scoring (find hidden gems)<br/>
+                  ✅ Beat competitors who use broken tools<br/>
+                  <span className="text-xs font-bold text-green-800 mt-2 block bg-green-100 p-2 rounded">
+                    🛡️ 30-DAY MONEY BACK GUARANTEE<br/>
+                    ⚡ CANCEL INSTANTLY ANYTIME<br/>
+                    🎯 RESULTS IN 24 HOURS OR REFUND
+                  </span>
                 </p>
               </div>
             </div>
@@ -265,15 +274,19 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
               </div>
 
               {/* Tier benefits reminder */}
-              <div className="text-center text-xs text-ai-silver border-t pt-4">
+              <div className="text-center text-sm border-t pt-4">
                 {selectedTier === "starter" ? (
-                  <span>✓ Instant access • No payment required</span>
+                  <div className="bg-red-50 border border-red-200 p-3 rounded">
+                    <span className="text-red-700 font-medium">⚠️ WARNING: Severely limited • Will miss critical pages • Competitors will outrank you</span>
+                  </div>
                 ) : selectedTier === "coffee" ? (
-                  <span>✓ Monthly subscription • Cancel anytime</span>
+                  <div className="bg-green-50 border border-green-200 p-3 rounded">
+                    <span className="text-green-700 font-bold">🚀 SMART CHOICE: Full power • 30-day guarantee • Cancel instantly • Risk-FREE</span>
+                  </div>
                 ) : selectedTier === "growth" ? (
-                  <span>✓ Professional features • Smart caching</span>
+                  <span className="text-teal-700">✓ Professional power • Advanced features • Team collaboration</span>
                 ) : (
-                  <span>✓ Enterprise features • Priority support</span>
+                  <span className="text-blue-700">✓ Enterprise control • White-label options • Dedicated support</span>
                 )}
               </div>
             </div>
@@ -292,20 +305,32 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
           </div>
         )}
 
-        {/* Trust Indicators */}
-        <div className="border-t pt-4">
-          <div className="flex items-center justify-center space-x-6 text-xs text-ai-silver">
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Secure & Private</span>
+        {/* Dramatic Risk Reversal Section */}
+        <div className="border-t pt-6">
+          <div className="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200 rounded-lg p-6">
+            <h3 className="text-lg font-bold text-center text-blue-900 mb-4">
+              🛡️ ZERO RISK GUARANTEE - We Remove ALL Your Fears
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="bg-white p-3 rounded border">
+                <div className="font-bold text-green-700 mb-2">💰 30-Day Money Back Guarantee</div>
+                <div className="text-gray-700">Don't like the results? Get every penny back. No questions asked. No hoops to jump through.</div>
+              </div>
+              <div className="bg-white p-3 rounded border">
+                <div className="font-bold text-blue-700 mb-2">⚡ Cancel Instantly Anytime</div>
+                <div className="text-gray-700">One click cancellation. No phone calls. No retention tactics. Cancel in 10 seconds.</div>
+              </div>
+              <div className="bg-white p-3 rounded border">
+                <div className="font-bold text-purple-700 mb-2">🏆 Results in 24 Hours or Refund</div>
+                <div className="text-gray-700">See dramatic improvements within 24 hours or get a full refund immediately.</div>
+              </div>
+              <div className="bg-white p-3 rounded border">
+                <div className="font-bold text-orange-700 mb-2">🚀 Outperform Competitors or Refund</div>
+                <div className="text-gray-700">We find 3x more pages than competitors or you get your money back.</div>
+              </div>
             </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>No Spam</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span>Expert Quality</span>
+            <div className="text-center mt-4 text-xs text-blue-600 font-medium">
+              ✅ Secure & Private • ✅ No Spam Ever • ✅ Built by Expert Solopreneur • ✅ Not VC-Funded BS
             </div>
           </div>
         </div>

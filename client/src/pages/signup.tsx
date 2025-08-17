@@ -194,34 +194,39 @@ export default function SignupPage() {
     switch (tier) {
       case 'starter':
         return [
-          "3 free analyses per day",
-          "Up to 20 pages per analysis",
-          "Basic HTML extraction",
-          "Standard support"
+          "❌ Only 3 analyses per day (then locked out)",
+          "❌ Severely limited to 20 pages only",
+          "❌ No AI quality scoring",
+          "❌ Basic features only",
+          "⚠️ WARNING: Your competitors will find 10x more pages"
         ]
       case 'coffee':
         return [
-          "Unlimited AI-powered analysis",
-          "Up to 200 pages per analysis",
-          "Advanced content scoring",
-          "Priority support",
-          "Monthly subscription"
+          "✅ UNLIMITED daily analyses (destroy daily limits)",
+          "✅ 200 pages per analysis (10x more than free)",
+          "✅ AI-powered content scoring (find hidden gems)",
+          "✅ Beat competitors who use broken tools",
+          "🛡️ 30-DAY MONEY BACK GUARANTEE",
+          "⚡ CANCEL INSTANTLY ANYTIME",
+          "🎯 RESULTS IN 24 HOURS OR REFUND"
         ]
       case 'growth':
         return [
-          "Unlimited AI analysis",
-          "Up to 500 pages per analysis",
-          "Premium features",
-          "Advanced analytics",
-          "Priority support"
+          "✅ Unlimited AI analysis",
+          "✅ Up to 500 pages per analysis",
+          "✅ Team collaboration features",
+          "✅ Advanced analytics dashboard",
+          "✅ Priority support",
+          "🛡️ All Coffee tier guarantees included"
         ]
       case 'scale':
         return [
-          "Unlimited everything",
-          "Enterprise features",
-          "White-label options",
-          "Custom integrations",
-          "Dedicated support"
+          "✅ Unlimited everything",
+          "✅ Enterprise white-label options",
+          "✅ Custom API integrations",
+          "✅ Dedicated account manager",
+          "✅ Custom SLA agreements",
+          "🛡️ All guarantees + enterprise protection"
         ]
       default:
         return []
@@ -281,27 +286,53 @@ export default function SignupPage() {
                       onChange={(e) => setSelectedTier(e.target.value as typeof selectedTier)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
-                      <option value="starter">Free - Test Drive (3 analyses/day)</option>
-                      <option value="coffee">Coffee - Solopreneur Special ($5/month)</option>
-                      <option value="growth">Growth - Growing Business ($25/month)</option>
-                      <option value="scale">Scale - Agency & API ($99/month)</option>
+                      <option value="starter">⚠️ FREE (Severely Limited - Miss Critical Pages)</option>
+                      <option value="coffee">🏆 COFFEE - Crush Competition ($5/month + Guarantees)</option>
+                      <option value="growth">💼 GROWTH - Professional Power ($25/month)</option>
+                      <option value="scale">🚀 SCALE - Enterprise Domination ($99/month)</option>
                     </select>
                     
                     {/* Selected Tier Details */}
-                    <div className="bg-slate-50 rounded-lg p-3 border mt-2">
+                    <div className={`rounded-lg p-4 border-2 mt-2 ${
+                      selectedTier === 'starter' ? 'bg-red-50 border-red-300' :
+                      selectedTier === 'coffee' ? 'bg-green-50 border-green-400' :
+                      'bg-blue-50 border-blue-300'
+                    }`}>
                       <div className="flex items-center justify-between">
                         <Badge className={getTierColorClass(selectedTier)}>
                           {getTierIcon(selectedTier)}
                           <span className="ml-1">{getTierDisplayName(selectedTier)}</span>
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-600 mt-2">{getTierDescription(selectedTier)}</p>
+                      <p className={`text-sm font-medium mt-2 ${
+                        selectedTier === 'starter' ? 'text-red-700' :
+                        selectedTier === 'coffee' ? 'text-green-700' :
+                        'text-blue-700'
+                      }`}>
+                        {getTierDescription(selectedTier)}
+                      </p>
                       
-                      {/* Payment Warning for Coffee Tier */}
+                      {/* Dramatic messaging for each tier */}
+                      {selectedTier === 'starter' && (
+                        <div className="mt-3 p-3 bg-red-100 border border-red-300 rounded">
+                          <p className="text-xs font-bold text-red-800">
+                            ⚠️ WARNING: You'll miss critical pages and your competitors will outrank you with better LLM.txt files!
+                          </p>
+                        </div>
+                      )}
+                      
                       {selectedTier === 'coffee' && (
-                        <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded">
-                          <p className="text-xs text-orange-700">
-                            ℹ️ After signup, you'll be redirected to Stripe for payment ($5/month)
+                        <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded">
+                          <p className="text-xs font-bold text-green-800">
+                            🚀 SMART CHOICE! Full power + 30-day guarantee + cancel instantly. After signup, secure Stripe payment ($5/month)
+                          </p>
+                        </div>
+                      )}
+                      
+                      {(selectedTier === 'growth' || selectedTier === 'scale') && (
+                        <div className="mt-3 p-3 bg-blue-100 border border-blue-300 rounded">
+                          <p className="text-xs font-bold text-blue-800">
+                            💼 PROFESSIONAL CHOICE: All guarantees included + advanced features for serious businesses
                           </p>
                         </div>
                       )}
@@ -505,8 +536,17 @@ export default function SignupPage() {
                   <ul className="space-y-3">
                     {getTierBenefits(selectedTier).map((benefit, index) => (
                       <li key={index} className="flex items-start">
-                        <Check className="h-4 w-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                        <span className="text-sm text-gray-700">{benefit}</span>
+                        {selectedTier === 'starter' ? (
+                          <X className="h-4 w-4 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                        ) : (
+                          <Check className="h-4 w-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                        )}
+                        <span className={`text-sm font-medium ${
+                          selectedTier === 'starter' ? 'text-red-700' : 
+                          selectedTier === 'coffee' ? 'text-green-700' : 'text-gray-700'
+                        }`}>
+                          {benefit}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -514,34 +554,48 @@ export default function SignupPage() {
               </Card>
             )}
 
-            {/* Trust Signals */}
-            <Card>
+            {/* Dramatic Trust Signals */}
+            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
               <CardHeader>
-                <CardTitle>Why Choose LLM.txt Mastery?</CardTitle>
+                <CardTitle className="text-green-800">🛡️ ZERO RISK - We Remove ALL Your Fears</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <Shield className="h-5 w-5 text-green-500 mt-0.5" />
+                  <Shield className="h-6 w-6 text-green-600 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-gray-900">Standards Compliant</h4>
-                    <p className="text-sm text-gray-600">Built following the official llms.txt specification</p>
+                    <h4 className="font-bold text-green-800">💰 30-Day Money Back Guarantee</h4>
+                    <p className="text-sm text-green-700">Don't like the results? Get every penny back. No questions asked. No hoops to jump through.</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <User className="h-5 w-5 text-blue-500 mt-0.5" />
+                  <Zap className="h-6 w-6 text-blue-600 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-gray-900">Built by a Solopreneur</h4>
-                    <p className="text-sm text-gray-600">No VC BS, just tools that work for real businesses</p>
+                    <h4 className="font-bold text-blue-800">⚡ Cancel Instantly Anytime</h4>
+                    <p className="text-sm text-blue-700">One click cancellation. No phone calls. No retention tactics. Cancel in 10 seconds flat.</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <Zap className="h-5 w-5 text-orange-500 mt-0.5" />
+                  <User className="h-6 w-6 text-purple-600 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-gray-900">AI-Powered Analysis</h4>
-                    <p className="text-sm text-gray-600">Smart content scoring and page selection</p>
+                    <h4 className="font-bold text-purple-800">🏆 Results in 24 Hours or Refund</h4>
+                    <p className="text-sm text-purple-700">See dramatic improvements within 24 hours or get a full refund immediately.</p>
                   </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Coffee className="h-6 w-6 text-orange-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-orange-800">🚀 Outperform Competitors or Refund</h4>
+                    <p className="text-sm text-orange-700">We find 3x more pages than competitors or you get your money back. Guaranteed.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
+                  <p className="text-center text-sm font-bold text-green-800">
+                    ✅ Built by Expert Solopreneur • ✅ Not VC-Funded BS • ✅ Real Results for Real Businesses
+                  </p>
                 </div>
               </CardContent>
             </Card>

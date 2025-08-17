@@ -22,13 +22,13 @@ export const authUsers = pgTable("auth_users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const emailCaptures = pgTable("email_captures", {
+export const emailCaptures = pgTable("emailCaptures", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   email: text("email").notNull().unique(),
-  websiteUrl: text("website_url").notNull(),
+  websiteUrl: text("websiteUrl").notNull(),
   tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
 export const subscriptions = pgTable("subscriptions", {
@@ -56,7 +56,7 @@ export const paymentHistory = pgTable("payment_history", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sitemapAnalysis = pgTable("sitemap_analysis", {
+export const sitemapAnalysis = pgTable("sitemapAnalysis", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   url: text("url").notNull(),
@@ -86,7 +86,7 @@ export const sitemapAnalysis = pgTable("sitemap_analysis", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const llmTextFiles = pgTable("llm_text_files", {
+export const llmTextFiles = pgTable("llmTextFiles", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   analysisId: integer("analysis_id").references(() => sitemapAnalysis.id),

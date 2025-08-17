@@ -11,9 +11,10 @@ interface DailyLimitModalProps {
   userEmail?: string;
   currentUsage: number;
   dailyLimit: number;
+  websiteUrl?: string;
 }
 
-export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsage, dailyLimit }: DailyLimitModalProps) {
+export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsage, dailyLimit, websiteUrl }: DailyLimitModalProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,7 +31,8 @@ export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsa
     setIsLoading(true);
     try {
       const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
-        email: userEmail
+        email: userEmail,
+        websiteUrl: websiteUrl || "https://example.com" // Fallback URL if none provided
       });
       const data = await response.json();
       if (data.url) {
@@ -83,6 +85,7 @@ export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsa
                   <div className="flex-1">
                     <h4 className="font-semibold text-orange-800">Coffee Tier - $5</h4>
                     <p className="text-sm text-orange-700 mt-1">
+                      Get unlimited daily analyses with AI-enhanced results for the cost of buying me a coffee.<br/><br/>
                       • Unlimited daily analyses<br/>
                       • 200 pages per analysis<br/>
                       • AI-enhanced quality scoring<br/>
