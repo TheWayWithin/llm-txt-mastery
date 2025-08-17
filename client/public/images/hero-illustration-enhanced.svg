@@ -38,24 +38,24 @@
       </g>
     </g>
     
-    <!-- "INVISIBLE TO AI" text (larger) -->
-    <text x="190" y="80" text-anchor="middle" font-size="28" font-weight="bold" fill="#64748b">INVISIBLE</text>
-    <text x="190" y="115" text-anchor="middle" font-size="28" font-weight="bold" fill="#64748b">TO AI</text>
+    <!-- "INVISIBLE TO AI" text (moved down to avoid banner overlap) -->
+    <text x="190" y="95" text-anchor="middle" font-size="28" font-weight="bold" fill="#64748b">INVISIBLE</text>
+    <text x="190" y="130" text-anchor="middle" font-size="28" font-weight="bold" fill="#64748b">TO AI</text>
   </g>
   
-  <!-- Center Bridge - LLM.txt connector (enhanced) -->
+  <!-- Center Bridge - LLM.txt connector (enhanced and properly positioned) -->
   <g id="center-bridge">
     <!-- Divider line -->
     <line x1="400" y1="0" x2="400" y2="400" stroke="#d1d5db" stroke-width="3"/>
     
     <!-- LLM.txt file bridge (larger and more prominent) -->
-    <rect x="340" y="170" width="120" height="60" rx="8" fill="#f97316" stroke="#ea580c" stroke-width="3"/>
+    <rect x="330" y="170" width="140" height="60" rx="8" fill="#f97316" stroke="#ea580c" stroke-width="3"/>
     <text x="400" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">LLM.txt</text>
     <text x="400" y="210" text-anchor="middle" font-size="14" font-weight="bold" fill="white">BRIDGE</text>
     
     <!-- Larger transformation arrows -->
-    <path d="M 320 200 L 360 200" stroke="#f97316" stroke-width="4" marker-end="url(#arrowhead)"/>
-    <path d="M 440 200 L 480 200" stroke="#f97316" stroke-width="4" marker-end="url(#arrowhead)"/>
+    <path d="M 310 200 L 350 200" stroke="#f97316" stroke-width="4" marker-end="url(#arrowhead)"/>
+    <path d="M 450 200 L 490 200" stroke="#f97316" stroke-width="4" marker-end="url(#arrowhead)"/>
   </g>
   
   <!-- Right Side - AFTER (Discovered) -->
@@ -109,9 +109,9 @@
       </g>
     </g>
     
-    <!-- "DISCOVERED BY AI" text (larger) -->
-    <text x="610" y="80" text-anchor="middle" font-size="28" font-weight="bold" fill="#047857">DISCOVERED</text>
-    <text x="610" y="115" text-anchor="middle" font-size="28" font-weight="bold" fill="#047857">BY AI</text>
+    <!-- "DISCOVERED BY AI" text (moved down to avoid banner overlap) -->
+    <text x="610" y="95" text-anchor="middle" font-size="28" font-weight="bold" fill="#047857">DISCOVERED</text>
+    <text x="610" y="130" text-anchor="middle" font-size="28" font-weight="bold" fill="#047857">BY AI</text>
   </g>
   
   <!-- Top banner with statistics (larger and more prominent) -->
