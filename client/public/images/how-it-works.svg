@@ -1,0 +1,122 @@
+<svg width="800" height="300" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="300" fill="#f8fafc"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f2937">PROCESS COMPARISON</text>
+  
+  <!-- Competitors Section (Top) -->
+  <g id="competitors-section">
+    <!-- Background -->
+    <rect x="50" y="60" width="700" height="80" rx="8" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="2"/>
+    
+    <!-- Label -->
+    <text x="70" y="85" font-size="14" font-weight="bold" fill="#64748b">Other Generators:</text>
+    
+    <!-- Step 1: Basic Scraping -->
+    <g id="basic-scraping">
+      <rect x="150" y="95" width="60" height="40" rx="4" fill="#9ca3af" stroke="#6b7280" stroke-width="1"/>
+      <text x="180" y="110" text-anchor="middle" font-size="10" fill="white">Basic</text>
+      <text x="180" y="122" text-anchor="middle" font-size="10" fill="white">Scraping</text>
+      <text x="180" y="150" text-anchor="middle" font-size="12" fill="#6b7280">Simple Crawl</text>
+    </g>
+    
+    <!-- Arrow 1 -->
+    <path d="M 220 115 L 260 115" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrow-gray)"/>
+    
+    <!-- Step 2: Limited Pages -->
+    <g id="limited-pages">
+      <rect x="270" y="95" width="60" height="40" rx="4" fill="#9ca3af" stroke="#6b7280" stroke-width="1"/>
+      <text x="300" y="110" text-anchor="middle" font-size="14" font-weight="bold" fill="white">20</text>
+      <text x="300" y="122" text-anchor="middle" font-size="10" fill="white">pages</text>
+      <text x="300" y="150" text-anchor="middle" font-size="12" fill="#6b7280">Limited Discovery</text>
+    </g>
+    
+    <!-- Arrow 2 -->
+    <path d="M 340 115 L 380 115" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrow-gray)"/>
+    
+    <!-- Step 3: Basic Output -->
+    <g id="basic-output">
+      <rect x="390" y="95" width="60" height="40" rx="4" fill="#9ca3af" stroke="#6b7280" stroke-width="1"/>
+      <text x="420" y="110" text-anchor="middle" font-size="10" fill="white">Basic</text>
+      <text x="420" y="122" text-anchor="middle" font-size="10" fill="white">LLM.txt</text>
+      <text x="420" y="150" text-anchor="middle" font-size="12" fill="#6b7280">Generic Output</text>
+    </g>
+    
+    <!-- Problems indicators -->
+    <text x="500" y="110" font-size="12" fill="#ef4444">❌ Misses content</text>
+    <text x="500" y="125" font-size="12" fill="#ef4444">❌ No AI scoring</text>
+  </g>
+  
+  <!-- LLM.txt Mastery Section (Bottom) -->
+  <g id="mastery-section">
+    <!-- Background -->
+    <rect x="50" y="170" width="700" height="80" rx="8" fill="#dcfce7" stroke="#10b981" stroke-width="2"/>
+    
+    <!-- Label -->
+    <text x="70" y="195" font-size="14" font-weight="bold" fill="#047857">LLM.txt Mastery:</text>
+    
+    <!-- Step 1: AI Analysis -->
+    <g id="ai-analysis">
+      <rect x="150" y="205" width="60" height="40" rx="4" fill="#10b981" stroke="#059669" stroke-width="2"/>
+      <text x="180" y="215" text-anchor="middle" font-size="10" fill="white">🧠 AI</text>
+      <text x="180" y="227" text-anchor="middle" font-size="10" fill="white">Analysis</text>
+      <text x="180" y="232" text-anchor="middle" font-size="10" fill="white">⭐⭐⭐</text>
+      <text x="180" y="260" text-anchor="middle" font-size="12" fill="#047857">Smart Discovery</text>
+    </g>
+    
+    <!-- Arrow 1 -->
+    <path d="M 220 225 L 260 225" stroke="#10b981" stroke-width="3" marker-end="url(#arrow-green)"/>
+    
+    <!-- Step 2: Comprehensive Pages -->
+    <g id="comprehensive-pages">
+      <rect x="270" y="205" width="60" height="40" rx="4" fill="#10b981" stroke="#059669" stroke-width="2"/>
+      <text x="300" y="215" text-anchor="middle" font-size="14" font-weight="bold" fill="white">200+</text>
+      <text x="300" y="227" text-anchor="middle" font-size="10" fill="white">pages</text>
+      <text x="300" y="232" text-anchor="middle" font-size="10" fill="white">✨ Quality</text>
+      <text x="300" y="260" text-anchor="middle" font-size="12" fill="#047857">10x More Content</text>
+    </g>
+    
+    <!-- Arrow 2 -->
+    <path d="M 340 225 L 380 225" stroke="#10b981" stroke-width="3" marker-end="url(#arrow-green)"/>
+    
+    <!-- Step 3: Optimized Output -->
+    <g id="optimized-output">
+      <rect x="390" y="205" width="60" height="40" rx="4" fill="#10b981" stroke="#059669" stroke-width="2"/>
+      <text x="420" y="215" text-anchor="middle" font-size="10" fill="white">🚀 Optimized</text>
+      <text x="420" y="227" text-anchor="middle" font-size="10" fill="white">LLM.txt</text>
+      <text x="420" y="232" text-anchor="middle" font-size="10" fill="white">✅ Verified</text>
+      <text x="420" y="260" text-anchor="middle" font-size="12" fill="#047857">AI-Enhanced</text>
+    </g>
+    
+    <!-- Benefits indicators -->
+    <text x="500" y="215" font-size="12" fill="#10b981">✅ Finds hidden gems</text>
+    <text x="500" y="230" font-size="12" fill="#10b981">✅ Quality scoring</text>
+    <text x="500" y="245" font-size="12" fill="#10b981">✅ 73% more citations</text>
+  </g>
+  
+  <!-- Statistics comparison in center -->
+  <g id="stats-comparison">
+    <!-- Competitors stats -->
+    <rect x="580" y="90" width="120" height="50" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="640" y="105" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">Competitors</text>
+    <text x="640" y="120" text-anchor="middle" font-size="11" fill="#dc2626">20 pages found</text>
+    <text x="640" y="132" text-anchor="middle" font-size="11" fill="#dc2626">Basic quality</text>
+    
+    <!-- Our stats -->
+    <rect x="580" y="200" width="120" height="50" rx="4" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/>
+    <text x="640" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="#16a34a">LLM.txt Mastery</text>
+    <text x="640" y="230" text-anchor="middle" font-size="11" fill="#16a34a">200+ pages found</text>
+    <text x="640" y="242" text-anchor="middle" font-size="11" fill="#16a34a">AI-optimized quality</text>
+  </g>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrow-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#9ca3af"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+    </marker>
+  </defs>
+</svg>
