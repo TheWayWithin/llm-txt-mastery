@@ -202,13 +202,11 @@ export default function SignupPage() {
         ]
       case 'coffee':
         return [
+          "✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly",
           "✅ UNLIMITED daily analyses (destroy daily limits)",
           "✅ 200 pages per analysis (10x more than free)",
           "✅ AI-powered content scoring (find hidden gems)",
-          "✅ Beat competitors who use broken tools",
-          "🛡️ 30-DAY MONEY BACK GUARANTEE",
-          "⚡ CANCEL INSTANTLY ANYTIME",
-          "🎯 RESULTS IN 24 HOURS OR REFUND"
+          "✅ Beat competitors who use broken tools"
         ]
       case 'growth':
         return [

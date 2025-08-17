@@ -154,14 +154,13 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                   <span className="font-bold text-xl text-green-800">Coffee Power ($5/mo)</span>
                 </Label>
                 <p className="text-sm font-medium text-green-700 mt-2">
+                  ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly<br/>
                   ✅ UNLIMITED daily analyses (destroy daily limits)<br/>
                   ✅ 200 pages per analysis (10x more than free)<br/>
                   ✅ AI-powered content scoring (find hidden gems)<br/>
                   ✅ Beat competitors who use broken tools<br/>
                   <span className="text-xs font-bold text-green-800 mt-2 block bg-green-100 p-2 rounded">
-                    🛡️ 30-DAY MONEY BACK GUARANTEE<br/>
-                    ⚡ CANCEL INSTANTLY ANYTIME<br/>
-                    🎯 RESULTS IN 24 HOURS OR REFUND
+                    🚀 All guarantees included - see below for details
                   </span>
                 </p>
               </div>
