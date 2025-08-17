@@ -337,6 +337,7 @@ export default function AnalyzePage() {
               userEmail={user.email}
               currentUsage={usageData.currentUsage || 0}
               dailyLimit={usageData.dailyAnalyses || 3}
+              websiteUrl={url || undefined}
             />
           )}
 

@@ -883,6 +883,7 @@ export default function Home() {
               userEmail={effectiveEmail}
               currentUsage={usageData.usage?.analysesToday || 0}
               dailyLimit={usageData.limits?.dailyAnalyses || 3}
+              websiteUrl={websiteUrl}
             />
           )}
           
