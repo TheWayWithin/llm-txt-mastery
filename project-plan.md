@@ -1,8 +1,51 @@
 # LLM.txt Mastery - Project Plan & Coordination
 *Single Source of Truth for Current Priorities*
-*Last Updated: August 17, 2025 - Stripe Coffee Tier Fixed & Analytics/GDPR Planning*
+*Last Updated: August 18, 2025 - CRITICAL: Database Configuration Broken*
 
-## 🚀 LATEST UPDATE: Coffee Tier Fixed & Analytics/GDPR Ready
+## 🚨 CRITICAL ISSUE: Railway Database Configuration Broken
+*Status: BROKEN - August 18, 2025*
+
+### Problem Summary
+- **Issue**: Analysis fails with `"relation \"sitemapAnalysis\" does not exist"`
+- **Root Cause**: Railway backend database connection disrupted during deployment fixes
+- **Impact**: All user analyses failing, core functionality broken
+- **Working Before**: System was functional with Neon database connection
+
+### Current Database Architecture (NEEDS RESTORATION)
+- **Frontend**: Netlify (www.llmtxtmastery.com)
+- **Backend**: Railway (llm-txt-mastery-production.up.railway.app) 
+- **Database**: Should be Neon PostgreSQL - but connection broken
+- **Neon DATABASE_URL**: `postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+
+### What Broke The System
+1. Railway was serving frontend files instead of backend API
+2. Made changes to fix Railway deployment (successfully fixed API serving)
+3. But Railway now connects to wrong database (not Neon)
+4. Database schema changes were made to Neon, but Railway uses different DB
+
+### Root Cause Identified ✅
+**What broke the system:**
+1. Railway redeploy (triggered by adding comment to server/index.ts) fixed API serving
+2. But Railway redeploy reset/changed the DATABASE_URL environment variable  
+3. Railway now connects to its own empty PostgreSQL instead of Neon
+4. Neon database has correct schema, but Railway can't reach it
+
+### Immediate Fix Required
+**RESTORE RAILWAY DATABASE_URL:**
+1. Go to Railway dashboard → LLM.txt Mastery project
+2. Environment Variables section
+3. Set `DATABASE_URL` = `postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+4. Save and redeploy
+
+### Verification Steps  
+- [ ] Railway DATABASE_URL restored to Neon
+- [ ] Analysis endpoint works: `curl -X POST .../api/analyze`
+- [ ] No more `"relation does not exist"` errors
+- [ ] Document final configuration in CLAUDE.md
+
+---
+
+## 🚀 PREVIOUS UPDATE: Coffee Tier Fixed & Analytics/GDPR Ready
 *Completed: August 17, 2025 (Evening)*
 
 ### Coffee Tier Stripe Integration Complete ✅
