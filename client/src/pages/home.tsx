@@ -218,12 +218,18 @@ export default function Home() {
           
           {/* Hero Illustration */}
           <div className="my-8 flex justify-center">
-            <img
-              src="/images/hero-illustration-enhanced.svg" 
-              alt="Website transformation into AI-ready content" 
-              className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
-              loading="eager"
-            />
+            <picture>
+              <source 
+                type="image/webp" 
+                srcSet="/images/optimized/hero-illustration-professional.webp" 
+              />
+              <img
+                src="/images/hero-illustration-professional.png" 
+                alt="Website transformation into AI-ready content" 
+                className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
+                loading="eager"
+              />
+            </picture>
           </div>
           
           {/* Hero CTA Button */}
@@ -345,12 +351,18 @@ export default function Home() {
           
           {/* Process Diagram */}
           <div className="my-8 flex justify-center">
-            <img
-              src="/images/how-it-works-enhanced.svg" 
-              alt="Three-step process: Enter URL, AI Analysis, Download File" 
-              className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
-              loading="lazy"
-            />
+            <picture>
+              <source 
+                type="image/webp" 
+                srcSet="/images/optimized/how-it-works-professional.webp" 
+              />
+              <img
+                src="/images/how-it-works-professional.png" 
+                alt="Process comparison showing LLM.txt Mastery finding 200+ pages vs competitors finding 20 pages" 
+                className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
+                loading="lazy"
+              />
+            </picture>
           </div>
           
           {/* Step Details */}
