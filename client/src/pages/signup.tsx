@@ -314,7 +314,7 @@ export default function SignupPage() {
                       {selectedTier === 'starter' && (
                         <div className="mt-3 p-3 bg-red-100 border border-red-300 rounded">
                           <p className="text-xs font-bold text-red-800">
-                            ⚠️ WARNING: You'll miss critical pages and your competitors will outrank you with better LLM.txt files!
+                            ⚠️ WARNING: You'll miss critical pages and your competitors will outrank you with better llms.txt files!
                           </p>
                         </div>
                       )}

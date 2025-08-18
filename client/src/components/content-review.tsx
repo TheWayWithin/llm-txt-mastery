@@ -59,7 +59,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
       console.log("File generated successfully:", data);
       toast({
         title: "Success", 
-        description: `Generated LLM.txt file with ${data.pageCount} pages`,
+        description: `Generated llms.txt file with ${data.pageCount} pages`,
       });
       onFileGenerated(data.id);
     },
@@ -67,7 +67,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
       console.error("File generation failed:", error);
       toast({
         title: "Error",
-        description: "Failed to generate LLM.txt file",
+        description: "Failed to generate llms.txt file",
         variant: "destructive",
       });
     }
@@ -244,7 +244,7 @@ export default function ContentReview({ analysisId, discoveredPages, onFileGener
                 <h4 className="text-sm font-semibold text-red-900 mb-2">Fallback Selection Applied</h4>
                 <p className="text-sm text-red-800 mb-2">
                   None of the analyzed pages met our quality threshold (score ≥5). We've automatically selected the 
-                  {Math.min(3, discoveredPages.length)} highest-scoring pages to prevent an empty LLM.txt file. This may indicate:
+                  {Math.min(3, discoveredPages.length)} highest-scoring pages to prevent an empty llms.txt file. This may indicate:
                 </p>
                 <ul className="text-xs text-red-700 mb-2 pl-4 space-y-1">
                   <li>• The website has minimal content suitable for AI consumption</li>

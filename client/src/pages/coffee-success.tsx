@@ -148,7 +148,7 @@ export default function CoffeeSuccess() {
                 <ul className="text-sm text-orange-700 space-y-1 text-left">
                   <li>• Up to 200 pages per analysis (10x free tier)</li>
                   <li>• Full AI-enhanced quality scoring</li>
-                  <li>• Professional LLM.txt file generation</li>
+                  <li>• Professional llms.txt file generation</li>
                   <li>• Credits never expire</li>
                 </ul>
               </div>

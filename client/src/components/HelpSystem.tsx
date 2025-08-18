@@ -24,7 +24,7 @@ interface HelpContent {
 const HELP_CONTENT: Record<string, HelpContent> = {
   'url-input': {
     title: 'Website URL Input',
-    description: 'Enter the URL of the website you want to analyze for LLM.txt file generation.',
+    description: 'Enter the URL of the website you want to analyze for llms.txt file generation.',
     steps: [
       'Enter a complete URL including https:// (e.g., https://example.com)',
       'Make sure the website is publicly accessible',
@@ -102,7 +102,7 @@ const HELP_CONTENT: Record<string, HelpContent> = {
   },
   'review': {
     title: 'Content Review & Selection',
-    description: 'Review discovered pages and select which ones to include in your LLM.txt file.',
+    description: 'Review discovered pages and select which ones to include in your llms.txt file.',
     steps: [
       'Review the list of discovered pages',
       'Check quality scores (higher is better)',
@@ -129,9 +129,9 @@ const HELP_CONTENT: Record<string, HelpContent> = {
   },
   'generation': {
     title: 'File Generation & Download',
-    description: 'Your LLM.txt file has been generated and is ready for download.',
+    description: 'Your llms.txt file has been generated and is ready for download.',
     steps: [
-      'Download the generated LLM.txt file',
+      'Download the generated llms.txt file',
       'Upload it to your website\'s root directory',
       'Test accessibility at yourdomain.com/llms.txt',
       'Monitor AI system interactions'

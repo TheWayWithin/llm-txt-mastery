@@ -241,7 +241,7 @@ export default function Home() {
                 }
               }}
             >
-              Start Free Analysis → Unlimited Uses (Not 3/Day)
+              Get Found by AI Today → Unlimited Analysis (Not 3/Day)
             </Button>
           </div>
           
@@ -381,7 +381,7 @@ export default function Home() {
               </div>
               <h4 className="text-xl font-semibold text-framework-black mb-2">Download Your File</h4>
               <p className="text-ai-silver">
-                Get your specification-compliant LLM.txt file ready for immediate deployment.
+                Get your specification-compliant llms.txt file ready for immediate deployment.
               </p>
             </div>
           </div>
@@ -647,7 +647,7 @@ export default function Home() {
                 "We were invisible to AI search before. Now ChatGPT and Claude regularly cite our calculators. 
                 The ROI was immediate – we saw results within 24 hours of implementing the llms.txt file."
               </blockquote>
-              <p className="text-sm text-gray-600">— Alex Chen, Founder of FreecalcHub</p>
+              <p className="text-sm text-gray-600">— Jamie Watters, builder of FreeCalcHub</p>
             </div>
             
             {/* Success Metrics Grid */}
@@ -741,27 +741,27 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="bg-white rounded-lg border-2 border-purple-400 p-6 text-center">
+            <div className="bg-white rounded-lg border-2 border-green-400 p-6 text-center">
               <h4 className="text-xl font-bold text-framework-black mb-3">
-                🚀 Migration Special for Frustrated Users
+                🛡️ Reliability You Can Trust
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="p-3 bg-orange-50 rounded">
-                  <p className="font-semibold text-orange-800">Writesonic Refugees</p>
-                  <p className="text-gray-600">Tired of 3/day limits? First month free</p>
+                <div className="p-3 bg-green-50 rounded">
+                  <p className="font-semibold text-green-800">Always Works</p>
+                  <p className="text-gray-600">100% uptime guarantee - never broken like competitors</p>
                 </div>
-                <div className="p-3 bg-red-50 rounded">
-                  <p className="font-semibold text-red-800">LiveChatAI Survivors</p>
-                  <p className="text-gray-600">Tool broken? 50% off your first 3 months</p>
+                <div className="p-3 bg-blue-50 rounded">
+                  <p className="font-semibold text-blue-800">No Limits</p>
+                  <p className="text-gray-600">Unlimited analyses, not 3/day restrictions</p>
                 </div>
-                <div className="p-3 bg-yellow-50 rounded">
-                  <p className="font-semibold text-yellow-800">SiteSpeakAI Upgraders</p>
-                  <p className="text-gray-600">Want AI analysis? Free comparison report</p>
+                <div className="p-3 bg-purple-50 rounded">
+                  <p className="font-semibold text-purple-800">Direct Support</p>
+                  <p className="text-gray-600">Founder access - problems fixed in 24 hours</p>
                 </div>
               </div>
               <Button
                 size="lg"
-                className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
+                className="mt-4 bg-green-600 hover:bg-green-700 text-white"
                 onClick={() => {
                   if (user) {
                     window.location.href = '/analyze';
@@ -770,7 +770,7 @@ export default function Home() {
                   }
                 }}
               >
-                Switch to Reliability → Claim Your Offer
+                Get Guaranteed Reliability →
               </Button>
             </div>
           </div>
