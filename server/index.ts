@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 // Load environment variables first
 dotenv.config();
 
+// Force Railway deployment: 2025-01-18
+
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { registerRoutes } from "./routes";
