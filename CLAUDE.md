@@ -12,6 +12,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **📊 Current Project Status**: See `/docs/progress.md` for comprehensive timeline, achievements, and next priorities
 
+## 🗄️ Database Architecture (CRITICAL)
+
+### Production Database Configuration
+**PRIMARY DATABASE**: Neon PostgreSQL (Managed)
+- **Provider**: Neon (neon.tech)
+- **Connection**: `postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+- **Usage**: All production data, user accounts, analyses, usage tracking
+- **Schema**: Managed via Drizzle ORM with snake_case columns
+
+### Railway Environment Configuration
+**CRITICAL**: Railway backend MUST use Neon database via DATABASE_URL environment variable
+
+**Railway Settings Required:**
+```
+DATABASE_URL=postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+```
+
+### Common Database Issues & Solutions
+
+**Issue**: `"relation \"sitemapAnalysis\" does not exist"`
+- **Cause**: Railway DATABASE_URL not pointing to Neon
+- **Fix**: Set DATABASE_URL in Railway dashboard to Neon connection string
+- **Verification**: `curl https://llm-txt-mastery-production.up.railway.app/api/analyze` should work
+
+**Issue**: `column "sitemap_content" does not exist` 
+- **Cause**: Database schema out of sync
+- **Fix**: Run `DATABASE_URL="..." npm run db:push` to sync schema
+
+### Database Schema Management
+- **ORM**: Drizzle with PostgreSQL adapter
+- **Schema File**: `shared/schema.ts` 
+- **Migration Strategy**: Schema-first with `drizzle-kit push`
+- **Column Naming**: snake_case (discovered_pages, sitemap_content, etc.)
+
 ## Common Development Commands
 
 ### Local Development
