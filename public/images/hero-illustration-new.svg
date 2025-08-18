@@ -1,0 +1,126 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="400" fill="#f8fafc"/>
+  
+  <!-- Left Side - BEFORE (Invisible) -->
+  <g id="before-section">
+    <!-- Background -->
+    <rect x="0" y="0" width="380" height="400" fill="#e2e8f0"/>
+    
+    <!-- Website Icon (grayed out) -->
+    <rect x="80" y="120" width="80" height="60" rx="8" fill="#94a3b8" stroke="#64748b" stroke-width="2"/>
+    <rect x="90" y="130" width="60" height="8" fill="#64748b"/>
+    <rect x="90" y="145" width="40" height="6" fill="#64748b"/>
+    <rect x="90" y="155" width="50" height="6" fill="#64748b"/>
+    
+    <!-- AI Logos looking away -->
+    <g id="ai-logos-away">
+      <!-- ChatGPT -->
+      <circle cx="60" cy="220" r="20" fill="#6b7280"/>
+      <text x="60" y="226" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GPT</text>
+      <text x="35" y="250" font-size="12" fill="#6b7280">ChatGPT</text>
+      
+      <!-- Claude -->
+      <circle cx="120" cy="280" r="20" fill="#6b7280"/>
+      <text x="120" y="286" text-anchor="middle" fill="white" font-size="10" font-weight="bold">C</text>
+      <text x="100" y="310" font-size="12" fill="#6b7280">Claude</text>
+      
+      <!-- Perplexity -->
+      <circle cx="200" cy="250" r="20" fill="#6b7280"/>
+      <text x="200" y="256" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P</text>
+      <text x="175" y="280" font-size="12" fill="#6b7280">Perplexity</text>
+      
+      <!-- X marks showing they don't see the website -->
+      <path d="M 170 180 L 180 190 M 180 180 L 170 190" stroke="#ef4444" stroke-width="3"/>
+      <path d="M 220 200 L 230 210 M 230 200 L 220 210" stroke="#ef4444" stroke-width="3"/>
+      <path d="M 270 230 L 280 240 M 280 230 L 270 240" stroke="#ef4444" stroke-width="3"/>
+    </g>
+    
+    <!-- "INVISIBLE TO AI" text -->
+    <text x="190" y="80" text-anchor="middle" font-size="20" font-weight="bold" fill="#64748b">INVISIBLE</text>
+    <text x="190" y="105" text-anchor="middle" font-size="20" font-weight="bold" fill="#64748b">TO AI</text>
+  </g>
+  
+  <!-- Center Bridge - LLM.txt connector -->
+  <g id="center-bridge">
+    <!-- Divider line -->
+    <line x1="400" y1="0" x2="400" y2="400" stroke="#d1d5db" stroke-width="2"/>
+    
+    <!-- LLM.txt file bridge -->
+    <rect x="360" y="180" width="80" height="40" rx="4" fill="#f97316" stroke="#ea580c" stroke-width="2"/>
+    <text x="400" y="195" text-anchor="middle" font-size="10" font-weight="bold" fill="white">LLM.txt</text>
+    <text x="400" y="208" text-anchor="middle" font-size="10" font-weight="bold" fill="white">BRIDGE</text>
+    
+    <!-- Arrow showing transformation -->
+    <path d="M 340 200 L 380 200" stroke="#f97316" stroke-width="3" marker-end="url(#arrowhead)"/>
+    <path d="M 420 200 L 460 200" stroke="#f97316" stroke-width="3" marker-end="url(#arrowhead)"/>
+  </g>
+  
+  <!-- Right Side - AFTER (Discovered) -->
+  <g id="after-section">
+    <!-- Background gradient -->
+    <defs>
+      <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#dcfce7"/>
+        <stop offset="100%" style="stop-color:#bbf7d0"/>
+      </linearGradient>
+    </defs>
+    <rect x="420" y="0" width="380" height="400" fill="url(#greenGradient)"/>
+    
+    <!-- Website Icon (highlighted) -->
+    <rect x="640" y="120" width="80" height="60" rx="8" fill="#10b981" stroke="#059669" stroke-width="3"/>
+    <rect x="650" y="130" width="60" height="8" fill="#047857"/>
+    <rect x="650" y="145" width="40" height="6" fill="#047857"/>
+    <rect x="650" y="155" width="50" height="6" fill="#047857"/>
+    
+    <!-- Glow effect around website -->
+    <circle cx="680" cy="150" r="60" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+    
+    <!-- AI Logos pointing toward website -->
+    <g id="ai-logos-pointing">
+      <!-- ChatGPT -->
+      <circle cx="540" cy="220" r="20" fill="#10b981"/>
+      <text x="540" y="226" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GPT</text>
+      <text x="515" y="250" font-size="12" fill="#047857">ChatGPT</text>
+      
+      <!-- Claude -->
+      <circle cx="600" cy="280" r="20" fill="#10b981"/>
+      <text x="600" y="286" text-anchor="middle" fill="white" font-size="10" font-weight="bold">C</text>
+      <text x="580" y="310" font-size="12" fill="#047857">Claude</text>
+      
+      <!-- Perplexity -->
+      <circle cx="720" cy="250" r="20" fill="#10b981"/>
+      <text x="720" y="256" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P</text>
+      <text x="695" y="280" font-size="12" fill="#047857">Perplexity</text>
+      
+      <!-- Arrows pointing to website -->
+      <path d="M 560 210 L 620 140" stroke="#10b981" stroke-width="3" marker-end="url(#arrowhead-green)"/>
+      <path d="M 620 270 L 650 160" stroke="#10b981" stroke-width="3" marker-end="url(#arrowhead-green)"/>
+      <path d="M 700 240 L 670 170" stroke="#10b981" stroke-width="3" marker-end="url(#arrowhead-green)"/>
+      
+      <!-- Checkmarks showing discovery -->
+      <path d="M 560 180 L 565 185 L 575 175" stroke="#10b981" stroke-width="3" fill="none"/>
+      <path d="M 620 200 L 625 205 L 635 195" stroke="#10b981" stroke-width="3" fill="none"/>
+      <path d="M 700 210 L 705 215 L 715 205" stroke="#10b981" stroke-width="3" fill="none"/>
+    </g>
+    
+    <!-- "DISCOVERED BY AI" text -->
+    <text x="610" y="80" text-anchor="middle" font-size="20" font-weight="bold" fill="#047857">DISCOVERED</text>
+    <text x="610" y="105" text-anchor="middle" font-size="20" font-weight="bold" fill="#047857">BY AI</text>
+  </g>
+  
+  <!-- Top banner with statistics -->
+  <rect x="250" y="20" width="300" height="40" rx="20" fill="#f97316"/>
+  <text x="400" y="35" text-anchor="middle" font-size="14" font-weight="bold" fill="white">🚀 73% MORE AI CITATIONS</text>
+  <text x="400" y="50" text-anchor="middle" font-size="12" fill="white">Get Found in 24 Hours, Not 24 Months</text>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f97316"/>
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+    </marker>
+  </defs>
+</svg>

@@ -1,4 +1,4 @@
-// Optimized image component with responsive images and modern formats
+// Auto-generated image optimization helper
 import React from 'react';
 
 interface OptimizedImageProps {
@@ -16,28 +16,8 @@ export function OptimizedImage({
   loading = 'lazy',
   sizes = '100vw' 
 }: OptimizedImageProps) {
-  // Extract filename from the original path
-  const filename = src.split('/').pop()?.replace('.png', '') || '';
-  const basePath = '/images/optimized/' + filename;
-  
-  // Check if this image has optimized versions
-  const hasOptimized = ['hero-illustration', 'how-it-works', 'logo-primary'].includes(filename);
-  
-  if (!hasOptimized) {
-    // For non-optimized images, use the original
-    return <img src={src} alt={alt} className={className} loading={loading} />;
-  }
-  
-  // Special handling for logo (only one size)
-  if (filename === 'logo-primary') {
-    return (
-      <picture>
-        <source type="image/avif" srcSet={`${basePath}.avif`} />
-        <source type="image/webp" srcSet={`${basePath}.webp`} />
-        <img src={src} alt={alt} className={className} loading={loading} />
-      </picture>
-    );
-  }
+  // Extract base name and extension
+  const basename = src.replace(/\.png$/, '').replace('/images/', '/images/optimized/');
   
   return (
     <picture>
@@ -45,9 +25,9 @@ export function OptimizedImage({
       <source
         type="image/avif"
         srcSet={`
-          ${basePath}-sm.avif 400w,
-          ${basePath}-md.avif 800w,
-          ${basePath}.avif 1200w
+          ${basename}-sm.avif 400w,
+          ${basename}-md.avif 800w,
+          ${basename}.avif 1200w
         `}
         sizes={sizes}
       />
@@ -56,20 +36,20 @@ export function OptimizedImage({
       <source
         type="image/webp"
         srcSet={`
-          ${basePath}-sm.webp 400w,
-          ${basePath}-md.webp 800w,
-          ${basePath}.webp 1200w
+          ${basename}-sm.webp 400w,
+          ${basename}-md.webp 800w,
+          ${basename}.webp 1200w
         `}
         sizes={sizes}
       />
       
-      {/* PNG fallback - use optimized versions */}
+      {/* PNG fallback */}
       <img
-        src={src} // Original path as ultimate fallback
+        src={src}
         srcSet={`
-          ${basePath}-sm.png 400w,
-          ${basePath}-md.png 800w,
-          ${basePath}.png 1200w
+          ${basename}-sm.png 400w,
+          ${basename}-md.png 800w,
+          ${basename}.png 1200w
         `}
         sizes={sizes}
         alt={alt}
