@@ -177,8 +177,8 @@ export const LOADING_STATES = {
 
   FILE_GENERATION: {
     type: 'loading' as const,
-    title: 'Generating LLM.txt File',
-    message: 'Creating your optimized, standards-compliant LLM.txt file...',
+    title: 'Generating llms.txt File',
+    message: 'Creating your optimized, standards-compliant llms.txt file...',
     timeEstimate: 'Almost done - just a few seconds',
     details: [
       'Formatting selected pages',

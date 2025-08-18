@@ -60,9 +60,9 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
         </CardTitle>
         <p className="text-sm text-ai-silver">
           {websiteUrl ? (
-            <>Generate professional LLM.txt files for <strong>{websiteUrl}</strong> in seconds</>
+            <>Generate professional llms.txt files for <strong>{websiteUrl}</strong> in seconds</>
           ) : (
-            <>Select your tier, enter your email, and we'll help you create a professional LLM.txt file</>
+            <>Select your tier, enter your email, and we'll help you create a professional llms.txt file</>
           )}
         </p>
       </CardHeader>

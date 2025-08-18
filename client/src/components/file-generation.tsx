@@ -118,7 +118,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
                 📋 Preview Limitation Notice
               </div>
               <div className="text-xs text-blue-700">
-                This preview shows only the first portion of your LLM.txt file due to display constraints. 
+                This preview shows only the first portion of your llms.txt file due to display constraints. 
                 The complete file contains <span className="font-bold">{fileData?.pageCount || 0} pages</span> and 
                 is <span className="font-bold">{fileData?.fileSize ? formatFileSize(fileData.fileSize) : "N/A"}</span>. 
                 Use the download button below to get the full file.
