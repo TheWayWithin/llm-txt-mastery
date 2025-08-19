@@ -141,7 +141,7 @@ export const TIER_PRICING = {
   },
   scale: {
     name: 'Scale',
-    price: '$99',
+    price: '$19.95',
     interval: 'month',
     features: [
       'Everything in Growth',

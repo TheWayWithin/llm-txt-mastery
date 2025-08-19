@@ -314,9 +314,9 @@ export default function SignupPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
                       <option value="starter">⚠️ FREE (Severely Limited - Miss Critical Pages)</option>
-                      <option value="coffee">🏆 COFFEE - Crush Competition ($5/month + Guarantees)</option>
+                      <option value="coffee">🏆 COFFEE - Crush Competition ($4.95 one-time + Guarantees)</option>
                       <option value="growth">💼 GROWTH - Professional Power ($9.95/month)</option>
-                      <option value="scale">🚀 SCALE - Enterprise Domination ($99/month)</option>
+                      <option value="scale">🚀 SCALE - Enterprise Domination ($19.95/month)</option>
                     </select>
                     
                     {/* Selected Tier Details */}

@@ -20,7 +20,7 @@ export const stripe = getStripe;
 export const TIER_PRICES = {
   coffee: {
     priceId: process.env.STRIPE_LLM_TXT_COFFEE_PRICE_ID || 'price_llm_txt_coffee_onetime',
-    amount: 500, // $5.00 in cents
+    amount: 495, // $4.95 in cents
     currency: 'usd',
     interval: 'one_time' // One-time payment
   },
@@ -32,7 +32,7 @@ export const TIER_PRICES = {
   },
   scale: {
     priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_llm_txt_scale_monthly', 
-    amount: 9900, // $99.00 in cents
+    amount: 1995, // $19.95 in cents
     currency: 'usd',
     interval: 'month'
   }

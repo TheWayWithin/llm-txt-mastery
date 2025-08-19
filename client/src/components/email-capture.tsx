@@ -218,7 +218,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Scale Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Agency & API ($99/mo)</span>
+                  <span className="font-medium text-lg">Agency & API ($19.95/mo)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
                   • Full API access<br/>
