@@ -139,7 +139,10 @@ async function performPageAnalysisWithCache(
   
   // Track consecutive failures for bot protection
   let consecutiveFailures = 0;
-  const MAX_CONSECUTIVE_FAILURES = 10;
+  let totalAttempts = 0;
+  const MAX_CONSECUTIVE_FAILURES = Math.max(25, Math.floor(pagesToAnalyze.length * 0.3)); // At least 25, or 30% of total pages
+  
+  console.log(`🛡️ Bot protection threshold: ${MAX_CONSECUTIVE_FAILURES} consecutive failures (${pagesToAnalyze.length} total pages to analyze)`);
   
   // Process pages in batches
   const BATCH_SIZE = 20;
@@ -163,6 +166,7 @@ async function performPageAnalysisWithCache(
     // Collect results and check for failures
     for (const batchResult of batchResults) {
       for (const result of batchResult) {
+        totalAttempts++;
         if (result.success) {
           pages.push(result.page);
           consecutiveFailures = 0;
@@ -172,11 +176,27 @@ async function performPageAnalysisWithCache(
       }
     }
     
-    // Early exit if bot protection detected
-    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-      console.log(`⚠️ Bot protection detected (${consecutiveFailures} consecutive failures). Stopping analysis early.`);
-      console.log(`   • Analyzed ${pages.length} pages before stopping`);
-      console.log(`   • Had ${pagesToAnalyze.length - (i + BATCH_SIZE * CONCURRENT_BATCHES)} pages remaining`);
+    // Enhanced bot protection detection with success rate analysis
+    const successRate = totalAttempts > 0 ? (pages.length / totalAttempts) * 100 : 0;
+    const shouldStopDueToConsecutiveFailures = consecutiveFailures >= MAX_CONSECUTIVE_FAILURES;
+    const shouldStopDueToLowSuccessRate = totalAttempts >= 50 && successRate < 5; // Less than 5% success after 50 attempts
+    
+    if (shouldStopDueToConsecutiveFailures || shouldStopDueToLowSuccessRate) {
+      const reason = shouldStopDueToConsecutiveFailures ? 'consecutive failures' : 'low success rate';
+      console.log(`⚠️ Bot protection detected (${reason}). Stopping analysis early.`);
+      console.log(`   • Successfully analyzed: ${pages.length} pages`);
+      console.log(`   • Total attempts: ${totalAttempts}`);
+      console.log(`   • Success rate: ${successRate.toFixed(1)}%`);
+      console.log(`   • Consecutive failures: ${consecutiveFailures}/${MAX_CONSECUTIVE_FAILURES}`);
+      console.log(`   • Progress: ${i + BATCH_SIZE * CONCURRENT_BATCHES}/${pagesToAnalyze.length} pages attempted`);
+      console.log(`   • Remaining: ${pagesToAnalyze.length - (i + BATCH_SIZE * CONCURRENT_BATCHES)} pages`);
+      
+      // If we have some successful pages, continue with what we have
+      if (pages.length > 0) {
+        console.log(`   • ✅ Proceeding with ${pages.length} successfully analyzed pages`);
+      } else {
+        console.log(`   • ❌ No pages successfully analyzed - likely site has bot protection or connectivity issues`);
+      }
       break;
     }
     
