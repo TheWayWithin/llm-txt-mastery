@@ -261,15 +261,41 @@ function BillingSection() {
                     </Badge>
                   </div>
                   
-                  <Button 
-                    onClick={handleManageBilling}
-                    disabled={portalLoading}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    {portalLoading ? 'Opening...' : 'Manage Billing & Subscription'}
-                  </Button>
+                  <div className="space-y-3">
+                    <Button 
+                      onClick={handleManageBilling}
+                      disabled={portalLoading}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      {portalLoading ? 'Opening...' : 'View Billing Details & Invoices'}
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleManageBilling}
+                      disabled={portalLoading}
+                      variant="outline"
+                      className="w-full border-orange-300 text-orange-600 hover:bg-orange-50"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Update Payment Method
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleManageBilling}
+                      disabled={portalLoading}
+                      variant="outline"
+                      className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Cancel Subscription (Instant)
+                    </Button>
+                    
+                    <div className="text-xs text-gray-500 text-center mt-2">
+                      All billing changes are processed securely through Stripe.
+                      <br />Cancellations take effect immediately - no hoops to jump through.
+                    </div>
+                  </div>
                 </div>
               ) : user.tier === 'coffee' ? (
                 <div className="space-y-4">
@@ -294,56 +320,215 @@ function BillingSection() {
         </CardContent>
       </Card>
 
-      {/* Upgrade Options */}
-      {user.tier === 'starter' || user.tier === 'coffee' ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Upgrade Your Plan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium">Growth Plan</h4>
-                  <div className="text-right">
-                    <div className="text-lg font-bold">$9.95</div>
-                    <div className="text-xs text-gray-500">per month</div>
-                  </div>
+      {/* Dramatic Upgrade Options - Show ALL tiers for comparison */}
+      <Card data-upgrade-section>
+        <CardHeader>
+          <CardTitle className="text-xl">🚀 Unlock Your Website's Full Potential</CardTitle>
+          <p className="text-gray-600">Choose the plan that matches your ambition. Compare what you're missing:</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-6 md:grid-cols-3">
+            
+            {/* Coffee Tier */}
+            <div className={`relative border-2 rounded-lg p-5 ${user.tier === 'coffee' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}>
+              {user.tier === 'coffee' && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                  YOUR CURRENT PLAN
                 </div>
-                <ul className="text-sm space-y-1 text-gray-600 mb-4">
-                  <li>• Unlimited daily analyses</li>
-                  <li>• Up to 1,000 pages per analysis</li>
-                  <li>• AI-enhanced analysis</li>
-                  <li>• Priority support</li>
-                </ul>
-                <Button className="w-full" size="sm">
-                  Upgrade to Growth
-                </Button>
-              </div>
-
-              <div className="border border-purple-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium">Scale Plan</h4>
-                  <div className="text-right">
-                    <div className="text-lg font-bold">$19.95</div>
-                    <div className="text-xs text-gray-500">per month</div>
-                  </div>
+              )}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <Coffee className="h-6 w-6 text-orange-600" />
+                  <h3 className="font-bold text-lg">Coffee</h3>
                 </div>
-                <ul className="text-sm space-y-1 text-gray-600 mb-4">
-                  <li>• Everything in Growth</li>
-                  <li>• Unlimited pages per analysis</li>
-                  <li>• Full AI analysis for all pages</li>
-                  <li>• API access</li>
-                  <li>• Custom integrations</li>
-                </ul>
-                <Button className="w-full bg-purple-600 hover:bg-purple-700" size="sm">
-                  Upgrade to Scale
-                </Button>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-orange-600">$4.95</div>
+                  <div className="text-xs text-gray-500">one-time</div>
+                </div>
               </div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="bg-white border border-orange-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-orange-800 mb-1">✅ UNLIMITED Daily Analyses</div>
+                  <div className="text-xs text-orange-600">vs FREE: Only 3 per day (then locked out)</div>
+                </div>
+                
+                <div className="bg-white border border-orange-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-orange-800 mb-1">📄 200 Pages per Analysis</div>
+                  <div className="text-xs text-orange-600">vs FREE: Only 20 pages (miss critical content)</div>
+                </div>
+                
+                <div className="bg-white border border-orange-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-orange-800 mb-1">🤖 AI Quality Scoring</div>
+                  <div className="text-xs text-orange-600">vs FREE: No AI analysis (basic HTML only)</div>
+                </div>
+                
+                <div className="bg-white border border-orange-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-orange-800 mb-1">💰 Credits Never Expire</div>
+                  <div className="text-xs text-orange-600">One-time purchase, lifetime access</div>
+                </div>
+              </div>
+              
+              {user.tier === 'starter' ? (
+                <Button className="w-full bg-orange-600 hover:bg-orange-700 font-bold">
+                  🚀 UPGRADE TO COFFEE - Beat Competitors Now
+                </Button>
+              ) : user.tier === 'coffee' ? (
+                <div className="text-center py-2 text-orange-600 font-medium">
+                  ✅ You're Using Coffee Plan
+                </div>
+              ) : (
+                <div className="text-center py-2 text-gray-400 text-sm">
+                  You've upgraded past this plan
+                </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      ) : null}
+
+            {/* Growth Tier */}
+            <div className={`relative border-2 rounded-lg p-5 ${user.tier === 'growth' ? 'border-blue-400 bg-blue-50' : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50'} transition-all transform hover:scale-105`}>
+              {user.tier === 'growth' && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                  YOUR CURRENT PLAN
+                </div>
+              )}
+              {user.tier !== 'growth' && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                  🔥 POPULAR CHOICE
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <Zap className="h-6 w-6 text-blue-600" />
+                  <h3 className="font-bold text-lg">Growth</h3>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-blue-600">$9.95</div>
+                  <div className="text-xs text-gray-500">per month</div>
+                </div>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="bg-white border border-blue-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-blue-800 mb-1">🚀 EVERYTHING in Coffee +</div>
+                  <div className="text-xs text-blue-600">All Coffee benefits included</div>
+                </div>
+                
+                <div className="bg-white border border-blue-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-blue-800 mb-1">📄 500 Pages per Analysis</div>
+                  <div className="text-xs text-blue-600">vs Coffee: 2.5x more content discovery</div>
+                </div>
+                
+                <div className="bg-white border border-blue-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-blue-800 mb-1">⚡ Priority Processing</div>
+                  <div className="text-xs text-blue-600">Skip the queue, get results faster</div>
+                </div>
+                
+                <div className="bg-white border border-blue-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-blue-800 mb-1">🎯 Advanced Analytics</div>
+                  <div className="text-xs text-blue-600">Content quality insights & optimization tips</div>
+                </div>
+                
+                <div className="bg-white border border-blue-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-blue-800 mb-1">📂 Analysis History</div>
+                  <div className="text-xs text-blue-600">Track your progress over time</div>
+                </div>
+              </div>
+              
+              {user.tier === 'growth' ? (
+                <div className="text-center py-2 text-blue-600 font-medium">
+                  ✅ You're Using Growth Plan
+                </div>
+              ) : (
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 font-bold">
+                  {user.tier === 'starter' ? '🚀 SKIP AHEAD TO GROWTH' : '⬆️ UPGRADE TO GROWTH'}
+                </Button>
+              )}
+            </div>
+
+            {/* Scale Tier */}
+            <div className={`relative border-2 rounded-lg p-5 ${user.tier === 'scale' ? 'border-purple-400 bg-purple-50' : 'border-purple-300 hover:border-purple-400 hover:bg-purple-50'} transition-all transform hover:scale-105`}>
+              {user.tier === 'scale' && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                  YOUR CURRENT PLAN
+                </div>
+              )}
+              {user.tier !== 'scale' && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                  👑 ULTIMATE POWER
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <Crown className="h-6 w-6 text-purple-600" />
+                  <h3 className="font-bold text-lg">Scale</h3>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-purple-600">$19.95</div>
+                  <div className="text-xs text-gray-500">per month</div>
+                </div>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="bg-white border border-purple-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-purple-800 mb-1">🚀 EVERYTHING in Growth +</div>
+                  <div className="text-xs text-purple-600">All Growth benefits included</div>
+                </div>
+                
+                <div className="bg-white border border-purple-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-purple-800 mb-1">♾️ UNLIMITED Pages</div>
+                  <div className="text-xs text-purple-600">Analyze massive sites (capped at $19.95 AI cost)</div>
+                </div>
+                
+                <div className="bg-white border border-purple-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-purple-800 mb-1">🤖 Full AI Analysis</div>
+                  <div className="text-xs text-purple-600">AI processes ALL pages (not just samples)</div>
+                </div>
+                
+                <div className="bg-white border border-purple-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-purple-800 mb-1">🔗 API Access</div>
+                  <div className="text-xs text-purple-600">Integrate with your tools & workflows</div>
+                </div>
+                
+                <div className="bg-white border border-purple-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-purple-800 mb-1">🏢 Multi-Site Management</div>
+                  <div className="text-xs text-purple-600">Perfect for agencies & enterprises</div>
+                </div>
+                
+                <div className="bg-white border border-purple-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-purple-800 mb-1">📞 Direct Support Line</div>
+                  <div className="text-xs text-purple-600">Email jamie@llmtxtmastery.com for priority help</div>
+                </div>
+              </div>
+              
+              {user.tier === 'scale' ? (
+                <div className="text-center py-2 text-purple-600 font-medium">
+                  ✅ You're Using Scale Plan
+                </div>
+              ) : (
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 font-bold">
+                  {user.tier === 'starter' ? '🚀 GO ENTERPRISE WITH SCALE' : user.tier === 'coffee' ? '⬆️ UPGRADE TO SCALE' : '⬆️ UPGRADE TO SCALE'}
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          {/* Guarantee Section */}
+          <div className="mt-8 bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
+            <h4 className="font-bold text-green-800 text-lg mb-2">🛡️ ZERO RISK GUARANTEE</h4>
+            <p className="text-green-700 text-sm mb-3">
+              Try any plan for 30 days. Not satisfied? Get every penny back, no questions asked.
+            </p>
+            <div className="flex justify-center space-x-6 text-xs text-green-600">
+              <span>✅ 30-Day Money Back</span>
+              <span>✅ Cancel Anytime</span>
+              <span>✅ No Contracts</span>
+              <span>✅ Instant Activation</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

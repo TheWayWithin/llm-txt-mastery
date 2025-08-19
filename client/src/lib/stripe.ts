@@ -133,10 +133,11 @@ export const TIER_PRICING = {
     interval: 'month',
     features: [
       'Unlimited analyses per day',
-      'Up to 1,000 pages per analysis',
-      'AI-enhanced analysis (200 pages)',
+      'Up to 500 pages per analysis',
+      'AI-enhanced analysis on all pages',
       'Priority support',
-      'Advanced quality scoring'
+      'Advanced quality scoring',
+      'Analysis history & tracking'
     ]
   },
   scale: {
@@ -146,10 +147,10 @@ export const TIER_PRICING = {
     features: [
       'Everything in Growth',
       'Unlimited pages per analysis',
-      'Full AI analysis for all pages',
-      'API access',
-      'Custom integrations',
-      'Dedicated support'
+      'Full AI analysis (capped at $19.95 cost)',
+      'API access for integrations',
+      'Multi-site management',
+      'Direct email support line'
     ]
   }
 } as const;
