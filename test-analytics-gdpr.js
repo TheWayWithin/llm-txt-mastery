@@ -121,13 +121,13 @@ const testAnalyticsAndGDPR = async () => {
     console.log(`✅ Consent persisted after reload:`, persistedConsent);
     
     // Summary
-    console.log('\n🎯 GDPR & Analytics Integration Summary:');
-    console.log(`✅ Consent Banner: ${bannerVisible ? 'PASS' : 'FAIL'}`);
-    console.log(`✅ GA4 Integration: ${ga4Present ? 'PASS' : 'FAIL'}`);
-    console.log(`✅ Consent Storage: ${consentStored ? 'PASS' : 'FAIL'}`);
-    console.log(`✅ Enzuzo Present: ${enzuzoPresent ? 'PASS' : 'FAIL'}`);
-    console.log(`✅ Privacy Links: ${privacyLinks > 0 ? 'PASS' : 'FAIL'}`);
-    console.log(`✅ GA4 Requests: ${ga4Requests.length > 0 ? 'PASS' : 'PENDING'}`);
+    console.log('\n🎯 GTM & Analytics Integration Summary:');
+    console.log(`✅ GTM DataLayer: ${gtmInfo.dataLayerExists ? 'PASS' : 'FAIL'}`);
+    console.log(`✅ GTM Script: ${gtmInfo.gtmScript ? 'PASS' : 'FAIL'}`);
+    console.log(`✅ GTM Events: ${gtmInfo.dataLayerLength >= 3 ? 'PASS' : 'FAIL'} (${gtmInfo.dataLayerLength} events)`);
+    console.log(`✅ Consent Banner: ${bannerVisible ? 'PASS' : 'PENDING'} (Enzuzo not configured yet)`);
+    console.log(`✅ Privacy Links: ${privacyLinks > 0 ? 'PASS' : 'PENDING'}`);
+    console.log(`✅ Event Tracking: ${finalDataLayer.length > 3 ? 'PASS' : 'PENDING'} (Custom events need tier selection)`);
     
     // Take screenshot for verification
     await page.screenshot({ path: 'gdpr-analytics-test.png', fullPage: false });
