@@ -170,11 +170,23 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
           console.log(`Warning: Sitemap returned 0 entries, likely HTML redirect or invalid XML`);
           // Continue to try other sitemap locations
         } else {
+          // Ensure homepage is always included in the entries
+          const homepageUrl = rootDomain.endsWith('/') ? rootDomain : rootDomain + '/';
+          const hasHomepage = entries.some(entry => {
+            const entryUrl = entry.url.endsWith('/') ? entry.url : entry.url + '/';
+            return entryUrl === homepageUrl;
+          });
+          
+          if (!hasHomepage) {
+            console.log(`Adding missing homepage to sitemap entries: ${homepageUrl}`);
+            entries.unshift({ url: homepageUrl, lastmod: new Date().toISOString() });
+          }
+          
           return {
             entries,
             sitemapFound: true,
             analysisMethod: "sitemap",
-            message: `Found sitemap with ${entries.length} pages`
+            message: `Found sitemap with ${entries.length} pages (including homepage)`
           };
         }
       } else {
@@ -756,10 +768,25 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     return filtered;
   }
 
-  // Sort by priority: high priority first, then medium, then others
+  // Helper function to identify homepage URLs
+  const isHomepage = (url: string): boolean => {
+    const urlLower = url.toLowerCase();
+    // Root domain or root domain with trailing slash
+    return urlLower === urlLower.match(/^https?:\/\/[^\/]+/)?.[0] || 
+           urlLower === urlLower.match(/^https?:\/\/[^\/]+/)?.[0] + '/';
+  };
+  
+  // Sort by priority: homepage first, then high priority, then medium, then others
   const prioritized = filtered.sort((a, b) => {
     const urlA = a.url.toLowerCase();
     const urlB = b.url.toLowerCase();
+    
+    // Homepage always comes first (highest priority)
+    const isHomepageA = isHomepage(a.url);
+    const isHomepageB = isHomepage(b.url);
+    
+    if (isHomepageA && !isHomepageB) return -1;
+    if (!isHomepageA && isHomepageB) return 1;
     
     const isHighPriorityA = highPriorityPatterns.some(pattern => pattern.test(urlA));
     const isHighPriorityB = highPriorityPatterns.some(pattern => pattern.test(urlB));
@@ -772,10 +799,6 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     
     if (isMediumPriorityA && !isMediumPriorityB) return -1;
     if (!isMediumPriorityA && isMediumPriorityB) return 1;
-    
-    // Homepage always comes first
-    if (urlA.endsWith('/') && urlA.split('/').length <= 4) return -1;
-    if (urlB.endsWith('/') && urlB.split('/').length <= 4) return 1;
     
     return 0;
   });
