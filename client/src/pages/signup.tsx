@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { authApi } from "@/lib/auth-api"
 import { validatePasswordClient, isValidEmail } from "@/lib/auth-utils"
 import { getTierDisplayName, getTierDescription, getTierColorClass } from "@/lib/tier-utils"
+import { trackEvent } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -97,6 +98,13 @@ export default function SignupPage() {
     setError("")
     setLoading(true)
 
+    // Track signup attempt
+    trackEvent('signup_attempt', {
+      tier_selected: selectedTier,
+      website_url: websiteUrlParam,
+      event_category: 'auth'
+    });
+
     try {
       // Enhanced validation
       if (!isValidEmail(email)) {
@@ -120,6 +128,13 @@ export default function SignupPage() {
       await signUp(email, password, confirmPassword, selectedTier)
       
       console.log('✅ Registration successful')
+      
+      // Track successful signup
+      trackEvent('signup_complete', {
+        tier_selected: selectedTier,
+        website_url: websiteUrlParam,
+        event_category: 'auth'
+      });
       
       // If Coffee tier, redirect to Stripe checkout
       if (selectedTier === 'coffee') {
@@ -281,7 +296,21 @@ export default function SignupPage() {
                     <select
                       id="tier"
                       value={selectedTier}
-                      onChange={(e) => setSelectedTier(e.target.value as typeof selectedTier)}
+                      onChange={(e) => {
+                        const newTier = e.target.value as typeof selectedTier;
+                        const previousTier = selectedTier;
+                        
+                        // Track tier selection event
+                        trackEvent('tier_selected', {
+                          tier_selected: newTier,
+                          previous_tier: previousTier,
+                          page: 'signup',
+                          website_url: websiteUrlParam,
+                          event_category: 'engagement'
+                        });
+                        
+                        setSelectedTier(newTier);
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
                       <option value="starter">⚠️ FREE (Severely Limited - Miss Critical Pages)</option>
