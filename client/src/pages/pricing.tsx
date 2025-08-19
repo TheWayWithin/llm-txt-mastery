@@ -150,7 +150,7 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Crown className="h-6 w-6 text-mastery-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$99</span>
+                  <span className="text-2xl font-bold">$19.95</span>
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>

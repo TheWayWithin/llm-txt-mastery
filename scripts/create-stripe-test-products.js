@@ -127,7 +127,7 @@ async function createStripeTestProducts() {
     const scaleProductData = await scaleProduct.json();
     console.log('✅ Scale product created:', scaleProductData.id);
     
-    // Scale Price ($99/month)
+    // Scale Price ($19.95/month)
     const scalePrice = await fetch('https://api.stripe.com/v1/prices', {
       method: 'POST',
       headers: {
@@ -136,7 +136,7 @@ async function createStripeTestProducts() {
       },
       body: new URLSearchParams({
         product: scaleProductData.id,
-        unit_amount: '9900', // $99 in cents
+        unit_amount: '1995', // $19.95 in cents
         currency: 'usd',
 'recurring[interval]': 'month',
         nickname: 'Scale Monthly'
