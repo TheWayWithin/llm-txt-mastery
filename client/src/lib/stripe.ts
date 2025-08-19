@@ -129,7 +129,7 @@ export const TIER_PRICING = {
   },
   growth: {
     name: 'Growth',
-    price: '$25',
+    price: '$9.95',
     interval: 'month',
     features: [
       'Unlimited analyses per day',

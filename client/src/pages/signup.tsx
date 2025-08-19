@@ -315,7 +315,7 @@ export default function SignupPage() {
                     >
                       <option value="starter">⚠️ FREE (Severely Limited - Miss Critical Pages)</option>
                       <option value="coffee">🏆 COFFEE - Crush Competition ($5/month + Guarantees)</option>
-                      <option value="growth">💼 GROWTH - Professional Power ($25/month)</option>
+                      <option value="growth">💼 GROWTH - Professional Power ($9.95/month)</option>
                       <option value="scale">🚀 SCALE - Enterprise Domination ($99/month)</option>
                     </select>
                     

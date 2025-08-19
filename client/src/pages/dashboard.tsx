@@ -306,7 +306,7 @@ function BillingSection() {
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-medium">Growth Plan</h4>
                   <div className="text-right">
-                    <div className="text-lg font-bold">$25</div>
+                    <div className="text-lg font-bold">$9.95</div>
                     <div className="text-xs text-gray-500">per month</div>
                   </div>
                 </div>
