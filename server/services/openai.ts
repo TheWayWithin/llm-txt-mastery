@@ -15,6 +15,15 @@ export interface ContentAnalysisResult {
 }
 
 export async function analyzePageContent(url: string, htmlContent: string, useAI: boolean = false): Promise<ContentAnalysisResult> {
+  // Validate inputs first
+  if (!htmlContent || htmlContent.trim().length === 0) {
+    throw new Error(`Empty HTML content received for ${url}`);
+  }
+  
+  if (!url || !url.startsWith('http')) {
+    throw new Error(`Invalid URL provided: ${url}`);
+  }
+  
   try {
     if (useAI && process.env.OPENAI_API_KEY) {
       console.log("Using AI analysis for:", url);
@@ -25,21 +34,28 @@ export async function analyzePageContent(url: string, htmlContent: string, useAI
     }
   } catch (error) {
     console.error("Analysis failed for:", url, error);
-    
-    // Simple fallback when analysis fails
-    return {
-      title: new URL(url).pathname.split('/').pop() || 'Page',
-      description: `Content from ${new URL(url).hostname}`,
-      qualityScore: 5,
-      category: 'General',
-      relevance: 5
-    };
+    // Re-throw the error instead of masking it with fake data
+    throw error;
   }
 }
 
 function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysisResult {
+  // Validate HTML content
+  if (!htmlContent || typeof htmlContent !== 'string') {
+    throw new Error(`Invalid HTML content type for ${url}: ${typeof htmlContent}`);
+  }
+  
+  if (htmlContent.trim().length === 0) {
+    throw new Error(`Empty HTML content for ${url}`);
+  }
+  
   // Basic HTML parsing to extract title and create analysis
-  const $ = cheerio.load(htmlContent);
+  let $: any;
+  try {
+    $ = cheerio.load(htmlContent);
+  } catch (cheerioError) {
+    throw new Error(`Failed to parse HTML for ${url}: ${cheerioError.message}`);
+  }
   
   // Extract text content for analysis first (needed by other functions)
   const textContent = $('body').text().trim();

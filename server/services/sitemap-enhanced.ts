@@ -354,36 +354,31 @@ async function processBatchWithCache(
         tier
       });
       
-      // CRITICAL FIX: Instead of marking as failed, create a basic successful page
-      // This prevents bot protection from triggering when all pages fail due to systematic issues
-      const urlPath = new URL(entry.url).pathname;
-      const pathParts = urlPath.split('/').filter(part => part.length > 0);
-      const lastPart = pathParts[pathParts.length - 1] || 'home';
-      
-      // Generate a reasonable title from URL structure
-      const title = lastPart
-        .replace(/-/g, ' ')
-        .replace(/calculator/i, 'Calculator')
-        .replace(/\b\w/g, l => l.toUpperCase());
-      
-      // Generate basic description from URL
-      const description = `${title} - Content from ${new URL(entry.url).hostname}`;
-      
-      results.push({
-        page: {
+      // Try one more time with basic HTML extraction only (no AI analysis)
+      try {
+        console.log(`🔄 Attempting fallback HTML extraction for ${entry.url}`);
+        const content = await fetchPageContent(entry.url);
+        const analysis = await analyzePageContent(entry.url, content, false); // Force HTML analysis only
+        
+        const page: DiscoveredPage = {
           url: entry.url,
-          title: title || "Page Content",
-          description: description,
-          qualityScore: 3, // Reasonable default instead of 1
-          category: "General",
+          title: analysis.title,
+          description: analysis.description,
+          qualityScore: analysis.qualityScore,
+          category: analysis.category,
           lastModified: entry.lastmod
-        },
-        success: true // CRITICAL: Mark as success to prevent bot protection
-      });
-      
-      // Track that we used fallback analysis
-      metrics.htmlExtractionsUsed++;
-      metrics.analyzedPages++; // Count fallback as analyzed
+        };
+        
+        results.push({ page, success: true });
+        metrics.htmlExtractionsUsed++;
+        metrics.analyzedPages++;
+        
+        console.log(`✅ Fallback HTML extraction succeeded for ${entry.url}`);
+      } catch (fallbackError) {
+        console.error(`❌ Even fallback HTML extraction failed for ${entry.url}:`, fallbackError.message);
+        // Only now mark as failure - this allows real bot protection detection
+        results.push({ page: null as any, success: false });
+      }
     }
   }
   
