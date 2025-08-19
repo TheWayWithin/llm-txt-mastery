@@ -197,7 +197,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Growth Tier" 
                     className="w-6 h-6" 
                   />
-                  <span className="font-medium text-lg">Growing Business ($25/mo)</span>
+                  <span className="font-medium text-lg">Professional Power ($9.95/mo)</span>
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
                   • Unlimited analyses<br/>

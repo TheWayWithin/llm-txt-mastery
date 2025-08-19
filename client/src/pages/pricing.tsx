@@ -119,7 +119,7 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Zap className="h-6 w-6 text-innovation-teal" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$25</span>
+                  <span className="text-2xl font-bold">$9.95</span>
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>

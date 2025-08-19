@@ -30,7 +30,7 @@ export const getTierDescription = (tier: string): string => {
     case 'coffee':
       return 'Unlimited AI analysis, up to 200 pages';
     case 'growth':
-      return 'Unlimited analysis, premium features';
+      return 'Professional power at $9.95/month - unlimited analyses';
     case 'scale':
       return 'Enterprise features, unlimited everything';
     default:

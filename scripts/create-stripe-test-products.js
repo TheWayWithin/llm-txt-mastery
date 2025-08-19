@@ -82,7 +82,7 @@ async function createStripeTestProducts() {
     const growthProductData = await growthProduct.json();
     console.log('✅ Growth product created:', growthProductData.id);
     
-    // Growth Price ($25/month)
+    // Growth Price ($9.95/month)
     const growthPrice = await fetch('https://api.stripe.com/v1/prices', {
       method: 'POST',
       headers: {
@@ -91,7 +91,7 @@ async function createStripeTestProducts() {
       },
       body: new URLSearchParams({
         product: growthProductData.id,
-        unit_amount: '2500', // $25 in cents
+        unit_amount: '995', // $9.95 in cents
         currency: 'usd',
 'recurring[interval]': 'month',
         nickname: 'Growth Monthly'

@@ -26,7 +26,7 @@ export const TIER_PRICES = {
   },
   growth: {
     priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_llm_txt_growth_monthly',
-    amount: 2500, // $25.00 in cents
+    amount: 995, // $9.95 in cents
     currency: 'usd',
     interval: 'month'
   },
