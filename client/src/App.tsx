@@ -5,6 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { useEffect } from "react";
+import { initAnalytics } from "@/lib/analytics";
+import { initializeEnzuzo } from "@/lib/enzuzo";
 import Home from "@/pages/home";
 import CoffeeSuccess from "@/pages/coffee-success";
 import Dashboard from "@/pages/dashboard";
@@ -46,6 +49,13 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // Initialize Analytics (GTM preferred, GA4 fallback)
+    initAnalytics();
+    // Initialize Enzuzo GDPR solution (will handle consent)
+    initializeEnzuzo();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

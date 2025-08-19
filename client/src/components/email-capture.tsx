@@ -9,6 +9,7 @@ import { Mail, RotateCcw, Home, LogIn, UserPlus } from "lucide-react";
 // useToast import removed - no longer using toast notifications
 import { QuickHelp } from "./HelpSystem";
 import { useLocation } from "wouter";
+import { trackEvent } from "@/lib/analytics";
 
 interface EmailCaptureProps {
   websiteUrl?: string;
@@ -23,18 +24,38 @@ interface EmailCaptureProps {
 export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginRequested, onReset, isVisible }: EmailCaptureProps) {
   // useToast hook removed - no longer using toast notifications
   const [selectedTier, setSelectedTier] = useState<"starter" | "coffee" | "growth" | "scale" | null>("coffee");
+
+  const handleTierSelection = (tier: "starter" | "coffee" | "growth" | "scale") => {
+    trackEvent('tier_selected', {
+      tier_selected: tier,
+      previous_tier: selectedTier,
+      website_url: websiteUrl,
+      event_category: 'engagement'
+    });
+    setSelectedTier(tier);
+  };
   const [lastError, setLastError] = useState<string | null>(null);
   const [, setLocation] = useLocation();
 
   // Navigation functions
   const handleSignIn = () => {
     if (selectedTier) {
+      trackEvent('login_click', {
+        tier_selected: selectedTier,
+        website_url: websiteUrl,
+        event_category: 'auth'
+      });
       setLocation(`/login?tier=${selectedTier}&website=${encodeURIComponent(websiteUrl || '')}`);
     }
   };
 
   const handleSignUp = () => {
     if (selectedTier) {
+      trackEvent('signup_click', {
+        tier_selected: selectedTier,
+        website_url: websiteUrl,
+        event_category: 'auth'
+      });
       setLocation(`/signup?tier=${selectedTier}&website=${encodeURIComponent(websiteUrl || '')}`);
     }
   };
@@ -112,11 +133,11 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
         <div className="space-y-4">
           <RadioGroup 
             value={selectedTier || ""} 
-            onValueChange={(value: any) => setSelectedTier(value)}
+            onValueChange={(value: any) => handleTierSelection(value)}
             className="grid grid-cols-1 md:grid-cols-2 gap-3"
           >
             {/* Starter Tier */}
-            <div className="relative border-2 border-red-300 rounded-lg bg-red-50 hover:bg-red-100 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('starter')}>
+            <div className="relative border-2 border-red-300 rounded-lg bg-red-50 hover:bg-red-100 transition-colors p-4 cursor-pointer" onClick={() => handleTierSelection('starter')}>
               <RadioGroupItem value="starter" id="starter" className="absolute top-4 right-4" />
               <div className="absolute -top-3 left-4 bg-red-600 text-white text-xs px-2 py-1 rounded">⚠️ SEVERELY LIMITED</div>
               <div className="pr-8">
@@ -141,7 +162,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
             </div>
 
             {/* Coffee Tier */}
-            <div className="relative border-4 border-green-500 rounded-lg bg-gradient-to-br from-green-50 to-orange-50 hover:from-green-100 hover:to-orange-100 transition-colors p-4 cursor-pointer shadow-lg" onClick={() => setSelectedTier('coffee')}>
+            <div className="relative border-4 border-green-500 rounded-lg bg-gradient-to-br from-green-50 to-orange-50 hover:from-green-100 hover:to-orange-100 transition-colors p-4 cursor-pointer shadow-lg" onClick={() => handleTierSelection('coffee')}>
               <RadioGroupItem value="coffee" id="coffee" className="absolute top-4 right-4" />
               <div className="absolute -top-3 left-4 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-bold">🏆 CRUSH YOUR COMPETITION</div>
               <div className="pr-8">
@@ -167,7 +188,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
             </div>
 
             {/* Growth Tier */}
-            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('growth')}>
+            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => handleTierSelection('growth')}>
               <RadioGroupItem value="growth" id="growth" className="absolute top-4 right-4" />
               <div className="pr-8">
                 <Label htmlFor="growth" className="flex items-center space-x-2 cursor-pointer">
@@ -188,7 +209,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
             </div>
 
             {/* Scale Tier */}
-            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => setSelectedTier('scale')}>
+            <div className="relative border rounded-lg hover:bg-slate-50 transition-colors p-4 cursor-pointer" onClick={() => handleTierSelection('scale')}>
               <RadioGroupItem value="scale" id="scale" className="absolute top-4 right-4" />
               <div className="pr-8">
                 <Label htmlFor="scale" className="flex items-center space-x-2 cursor-pointer">
