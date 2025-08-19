@@ -26,7 +26,7 @@ export const emailCaptures = pgTable("emailCaptures", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   email: text("email").notNull().unique(),
-  websiteUrl: text("websiteUrl").notNull(),
+  websiteUrl: text("websiteUrl"), // Made optional to fix email capture
   tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
   createdAt: timestamp("createdAt").defaultNow(),
 });
