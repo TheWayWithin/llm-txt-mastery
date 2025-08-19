@@ -13,7 +13,7 @@ export const PrivacyPage: React.FC = () => {
             Your privacy matters. Here's exactly what we do (and don't do) with your data.
           </p>
           <p className="text-sm text-gray-500 mt-4">
-            Last updated: January 13, 2025
+            Last updated: August 19, 2025 • GDPR Compliant
           </p>
         </div>
 
@@ -82,14 +82,57 @@ export const PrivacyPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Cookies and Analytics */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4">Cookies and Analytics</h2>
+              <p className="text-gray-700 mb-4">We use cookies and similar technologies to improve your experience:</p>
+              <ul className="space-y-3 text-gray-700">
+                <li><strong>Essential Cookies:</strong> Required for the website to function (login, preferences)</li>
+                <li><strong>Analytics Cookies (Google Analytics 4):</strong> Help us understand how you use our service to improve it</li>
+                <li><strong>Consent Management (Enzuzo):</strong> Manages your privacy preferences and cookie consent</li>
+              </ul>
+              <p className="text-gray-700 mt-4">
+                You can control cookie preferences through our consent banner. Essential cookies cannot be disabled 
+                as they're necessary for the service to function properly.
+              </p>
+            </div>
+
+            {/* Legal Basis for Processing (GDPR) */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4">Legal Basis for Processing (GDPR)</h2>
+              <p className="text-gray-700 mb-4">We process your personal data based on:</p>
+              <ul className="space-y-2 text-gray-700">
+                <li><strong>Contract Performance:</strong> To provide the llms.txt analysis service you requested</li>
+                <li><strong>Legitimate Interest:</strong> To improve our service and prevent fraud</li>
+                <li><strong>Consent:</strong> For analytics and optional communications (you can withdraw anytime)</li>
+                <li><strong>Legal Obligation:</strong> To comply with tax and business regulations</li>
+              </ul>
+            </div>
+
+            {/* Data Controller Information */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4">Data Controller Information</h2>
+              <div className="bg-gray-50 p-4 rounded">
+                <p className="text-gray-700">
+                  <strong>Data Controller:</strong> Jamie Watters<br/>
+                  <strong>Business:</strong> LLM.txt Mastery<br/>
+                  <strong>Email:</strong> jamie@llmtxtmastery.com<br/>
+                  <strong>Website:</strong> www.llmtxtmastery.com
+                </p>
+              </div>
+            </div>
+
             {/* Third Party Services */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Third-Party Services</h2>
-              <p className="text-gray-700 mb-4">We use a few trusted services to operate:</p>
+              <p className="text-gray-700 mb-4">We use trusted services to operate (all GDPR compliant):</p>
               <ul className="space-y-2 text-gray-700">
-                <li><strong>Stripe:</strong> Payment processing (PCI compliant)</li>
-                <li><strong>Railway:</strong> Secure hosting infrastructure</li>
-                <li><strong>OpenAI:</strong> AI analysis (content processed, not stored)</li>
+                <li><strong>Stripe:</strong> Payment processing (PCI compliant, EU-approved)</li>
+                <li><strong>Railway:</strong> Secure hosting infrastructure (EU data centers available)</li>
+                <li><strong>OpenAI:</strong> AI analysis (content processed, not stored permanently)</li>
+                <li><strong>Google Analytics 4:</strong> Website analytics (IP anonymization enabled)</li>
+                <li><strong>Google Tag Manager:</strong> Analytics and consent management</li>
+                <li><strong>Enzuzo:</strong> GDPR consent management and privacy compliance</li>
               </ul>
             </div>
 
@@ -103,20 +146,40 @@ export const PrivacyPage: React.FC = () => {
               </p>
             </div>
 
+            {/* International Data Transfers */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4">International Data Transfers</h2>
+              <p className="text-gray-700 mb-4">
+                Some of our service providers are located outside the EU. When we transfer data internationally, 
+                we ensure adequate protection through:
+              </p>
+              <ul className="space-y-2 text-gray-700">
+                <li>✓ <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission</li>
+                <li>✓ <strong>Adequacy Decisions</strong> for countries with equivalent data protection</li>
+                <li>✓ <strong>Additional safeguards</strong> like encryption and access controls</li>
+              </ul>
+            </div>
+
             {/* Your Rights */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
                 <UserCheck className="mr-3 text-indigo-600" />
-                Your Rights
+                Your Rights (GDPR)
               </h2>
-              <p className="text-gray-700 mb-4">You have the right to:</p>
+              <p className="text-gray-700 mb-4">Under GDPR, you have the right to:</p>
               <ul className="space-y-2 text-gray-700">
-                <li>✓ Access any personal data we hold about you</li>
-                <li>✓ Request correction of inaccurate data</li>
-                <li>✓ Request deletion of your data</li>
-                <li>✓ Opt-out of any communications</li>
-                <li>✓ Export your data in a portable format</li>
+                <li>✓ <strong>Access:</strong> Get a copy of your personal data</li>
+                <li>✓ <strong>Rectification:</strong> Correct inaccurate data</li>
+                <li>✓ <strong>Erasure:</strong> Delete your data ("right to be forgotten")</li>
+                <li>✓ <strong>Portability:</strong> Export your data in a portable format</li>
+                <li>✓ <strong>Restriction:</strong> Limit how we process your data</li>
+                <li>✓ <strong>Object:</strong> Opt-out of processing based on legitimate interest</li>
+                <li>✓ <strong>Withdraw consent:</strong> For analytics and communications</li>
+                <li>✓ <strong>Complain:</strong> Contact your local data protection authority</li>
               </ul>
+              <p className="text-gray-700 mt-4">
+                To exercise these rights, contact jamie@llmtxtmastery.com. We'll respond within 30 days.
+              </p>
             </div>
 
             {/* No Corporate BS */}
