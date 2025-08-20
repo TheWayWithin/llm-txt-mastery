@@ -354,6 +354,11 @@ function BillingSection() {
                 </div>
                 
                 <div className="bg-white border border-orange-200 rounded-md p-3">
+                  <div className="text-sm font-semibold text-orange-800 mb-1">🔄 Keep Your LLM.txt Current</div>
+                  <div className="text-xs text-orange-600">Update your file as your site changes - new pages, fresh content</div>
+                </div>
+                
+                <div className="bg-white border border-orange-200 rounded-md p-3">
                   <div className="text-sm font-semibold text-orange-800 mb-1">📄 200 Pages per Analysis</div>
                   <div className="text-xs text-orange-600">vs FREE: Only 20 pages (miss critical content)</div>
                 </div>
