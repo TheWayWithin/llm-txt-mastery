@@ -31,7 +31,7 @@ const blogPosts: BlogPost[] = [
   {
     id: 3,
     title: "From Corporate to Solopreneur: My Journey",
-    excerpt: "How I escaped the corporate world to build tools that actually solve problems, and what I learned along the way.",
+    excerpt: "Why I learned AI to stay relevant, and how corporate risk aversion led me to build for those who actually need it.",
     date: "January 5, 2025",
     readTime: "6 min read",
     category: "Personal"
