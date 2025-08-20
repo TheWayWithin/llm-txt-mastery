@@ -313,19 +313,8 @@ export default function AnalyzePage() {
           {user.email && !visibility.error && (
             <UsageDisplay 
               userEmail={user.email} 
-              usageData={{
-                tier: usageData?.tier || 'starter',
-                usage: {
-                  analysesToday: usageData?.currentUsage || 0,
-                  pagesProcessedToday: 0,
-                  cacheHitsToday: 0
-                },
-                limits: {
-                  dailyAnalyses: usageData?.dailyAnalyses || 3,
-                  maxPagesPerAnalysis: 20,
-                  aiPagesLimit: 0
-                }
-              }}
+              // Let UsageDisplay fetch its own data to get cache hits
+              // Don't pass usageData prop so it fetches fresh data
             />
           )}
 
