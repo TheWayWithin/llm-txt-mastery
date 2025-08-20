@@ -91,5 +91,13 @@ app.use((req, res, next) => {
   const host = process.env.HOST || "0.0.0.0";
   server.listen(port, host, () => {
     log(`serving on port ${port} (host: ${host})`);
+    
+    // Log important configuration status
+    if (!process.env.OPENAI_API_KEY) {
+      console.log("⚠️ WARNING: OPENAI_API_KEY not set - AI analysis disabled, using HTML extraction only");
+      console.log("  To enable AI analysis, set OPENAI_API_KEY in Railway environment variables");
+    } else {
+      console.log("✅ OPENAI_API_KEY configured - AI analysis enabled");
+    }
   });
 })();

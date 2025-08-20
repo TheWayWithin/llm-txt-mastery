@@ -25,9 +25,14 @@ export async function analyzePageContent(url: string, htmlContent: string, useAI
   }
   
   try {
-    if (useAI && process.env.OPENAI_API_KEY) {
-      console.log("Using AI analysis for:", url);
-      return await generateAIAnalysis(url, htmlContent);
+    if (useAI) {
+      if (process.env.OPENAI_API_KEY) {
+        console.log("Using AI analysis for:", url);
+        return await generateAIAnalysis(url, htmlContent);
+      } else {
+        console.log("⚠️ OPENAI_API_KEY not set - falling back to HTML extraction for:", url);
+        return generateHTMLAnalysis(url, htmlContent);
+      }
     } else {
       console.log("Using HTML extraction for:", url);
       return generateHTMLAnalysis(url, htmlContent);

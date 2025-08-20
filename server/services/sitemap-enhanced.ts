@@ -280,11 +280,13 @@ async function processBatchWithCache(
         const changed = await hasPageChanged(entry.url, cached);
         
         if (!changed) {
-          // Use cached result
-          const analysisResult = JSON.parse(cached.analysisResult as any);
+          // Use cached result - it's already parsed from jsonb
+          const analysisResult = cached.analysisResult;
+          // Handle both array and single object formats
+          const pageData = Array.isArray(analysisResult) ? analysisResult[0] : analysisResult;
           results.push({
             page: {
-              ...analysisResult,
+              ...pageData,
               url: entry.url,
               lastModified: entry.lastmod,
               cached: true
