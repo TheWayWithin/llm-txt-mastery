@@ -8,8 +8,8 @@ const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
 // Log OpenAI initialization status at module load
 console.log('🔑 OpenAI Service Initialization:');
-console.log(`  - OPENAI_API_KEY: ${apiKey ? `${apiKey.substring(0, 10)}...` : 'NOT SET'}`);
-console.log(`  - OpenAI client: ${openai ? 'initialized' : 'not initialized (no API key)')`);
+console.log('  - OPENAI_API_KEY: ' + (apiKey ? apiKey.substring(0, 10) + '...' : 'NOT SET'));
+console.log('  - OpenAI client: ' + (openai ? 'initialized' : 'not initialized (no API key)'));
 
 export interface ContentAnalysisResult {
   title: string;
