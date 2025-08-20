@@ -1104,13 +1104,14 @@ export default function Home() {
               </h3>
               <div className="mb-6">
                 <p className="text-sm text-ai-silver mb-3">
-                  I escaped corporate because I was tired of building tools I wouldn't use myself. ChatGPT, Claude, and Perplexity 
-                  are already crawling websites - but most businesses are invisible to them. I built this tool because my own content 
-                  wasn't getting found by AI search engines.
+                  ChatGPT, Claude, and Perplexity are already crawling websites - but most businesses are invisible to them. 
+                  I built this tool because my own content wasn't getting found by AI search engines. Having the need, skills, 
+                  and experience to fix this problem, I created the solution.
                 </p>
                 <p className="text-sm text-ai-silver mb-4">
-                  Built by someone who actually uses these tools daily. No unnecessary complexity, no hidden fees. 
-                  If I wouldn't use it myself, it doesn't belong on this site.
+                  Now I'm sharing it with other creators, solopreneurs, founders, and small businesses so they can leverage AI 
+                  to connect directly with the people who need their services. Built by someone who actually uses these tools daily. 
+                  No unnecessary complexity, no hidden fees. If I wouldn't use it myself, it doesn't belong on this site.
                 </p>
               </div>
               
