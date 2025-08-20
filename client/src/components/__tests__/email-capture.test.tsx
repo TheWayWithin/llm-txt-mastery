@@ -46,10 +46,11 @@ describe('EmailCapture Component', () => {
     renderWithQueryClient(<EmailCapture {...mockProps} />)
     
     expect(screen.getByText('Choose Your Analysis Type')).toBeInTheDocument()
-    expect(screen.getByText(/Get instant access to your LLM\.txt analysis for/)).toBeInTheDocument()
+    expect(screen.getByText(/Generate professional llms.txt files for/)).toBeInTheDocument()
     expect(screen.getByText('https://example.com')).toBeInTheDocument()
-    expect(screen.getByLabelText('Email Address')).toBeInTheDocument()
-    expect(screen.getByText('Start Analysis')).toBeInTheDocument()
+    // Note: Email input was removed in favor of direct auth navigation
+    expect(screen.getByText('Sign In')).toBeInTheDocument()
+    expect(screen.getByText('Sign Up')).toBeInTheDocument()
   })
 
   it('does not render when not visible', () => {
