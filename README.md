@@ -2,164 +2,163 @@
 
 An intelligent web application that automates the creation of optimized `llms.txt` files through advanced sitemap analysis and AI-powered content curation.
 
-## 🚀 Features
+**Live at**: [llmtxtmastery.com](https://llmtxtmastery.com)
+
+## 🎯 What It Does
+
+LLM.txt Mastery helps website owners create standards-compliant `llms.txt` files that tell AI systems which pages to prioritize for training and understanding. It analyzes your website, scores content quality, and generates optimized files that improve how AI interprets your site.
+
+## 🚀 Key Features
 
 - **Smart Website Analysis**: Processes up to 200 pages with 7+ fallback strategies for sitemap discovery
-- **AI-Powered Content Scoring**: Evaluates content quality and relevance for AI systems
-- **Intelligent Auto-Selection**: Automatically selects high-quality pages (score ≥7) for optimal LLM.txt files
-- **Freemium Model**: HTML extraction for free users, AI-enhanced descriptions for premium users
-- **Professional Output**: Standards-compliant LLM.txt files with proper formatting
-- **Email Capture**: Lead generation system for conversion tracking
-- **Real-time Processing**: Fast analysis with comprehensive progress feedback
+- **AI-Powered Content Scoring**: Uses GPT-4o-mini to evaluate content quality and relevance (93% cheaper than GPT-4o)
+- **Intelligent Caching**: 30-day cache reduces API costs by 70-90%
+- **Freemium Model**: 
+  - **Free Tier**: 3 analyses/day with AI scoring for first 20 pages
+  - **Coffee Tier**: $5 one-time for premium analysis credits
+  - **Growth/Scale**: Monthly subscriptions for unlimited access
+- **Professional Output**: Standards-compliant LLM.txt files with quality scoring documentation
+
+## 🏗️ Production Architecture
+
+```
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────────┐
+│   Netlify CDN   │◄────────│   Railway API    │◄────────│   Neon DB      │
+│   (Frontend)    │  CORS   │   (Backend)      │   SQL   │   (PostgreSQL)  │
+│                 │         │                  │         │                 │
+└─────────────────┘         └──────────────────┘         └─────────────────┘
+        │                            │                            │
+        ▼                            ▼                            ▼
+   llmtxtmastery.com    llm-txt-mastery-         ep-dark-fire-ae795ogn
+                        production.up.            -pooler.c-2.us-east-2
+                        railway.app               .aws.neon.tech
+```
+
+### Infrastructure Details
+
+- **Frontend**: React SPA on Netlify (auto-deploys from GitHub)
+- **Backend**: Express.js API on Railway (auto-deploys from GitHub)
+- **Database**: Neon PostgreSQL with connection pooling
+- **AI Model**: OpenAI GPT-4o-mini (configurable via environment)
+- **Payments**: Stripe integration for freemium model
+- **Caching**: In-database with tier-specific TTL
 
 ## 🛠️ Technology Stack
 
 ### Frontend
 - **React 18** with TypeScript
-- **Tailwind CSS** with custom brand styling
+- **Tailwind CSS** with custom design system
 - **shadcn/ui** component library
 - **TanStack Query** for server state management
-- **Wouter** for client-side routing
+- **Wouter** for routing
 
 ### Backend
 - **Express.js** with TypeScript
 - **PostgreSQL** with Drizzle ORM
-- **OpenAI GPT-4o** for content analysis
+- **OpenAI GPT-4o-mini** for content analysis
 - **Cheerio** for HTML parsing
-- **xml2js** for sitemap parsing
+- **Stripe** for payments
 
-### Infrastructure
-- **Vite** for build system
-- **ESBuild** for backend compilation
-- **Neon** for PostgreSQL hosting
-- **Replit** for development and deployment
+## 📚 Documentation
 
-## 🏗️ Architecture
+### For Operators & Maintainers
+See **[OPERATIONS.md](./OPERATIONS.md)** for:
+- Complete environment variables reference
+- Deployment procedures
+- Monitoring and maintenance
+- Cost optimization strategies
+- Troubleshooting guide
+- Emergency procedures
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Services      │
-│   (React)       │◄──►│   (Express)     │◄──►│   (OpenAI)      │
-│                 │    │                 │    │                 │
-│ • URL Input     │    │ • Sitemap       │    │ • Content       │
-│ • Content       │    │   Analysis      │    │   Analysis      │
-│   Review        │    │ • AI Integration│    │ • Quality       │
-│ • File Preview  │    │ • File Gen      │    │   Scoring       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                       ┌─────────────────┐
-                       │   Database      │
-                       │   (PostgreSQL)  │
-                       │                 │
-                       │ • User Data     │
-                       │ • Analysis      │
-                       │ • Generated     │
-                       │   Files         │
-                       └─────────────────┘
-```
+### For Developers
+See **[CLAUDE.md](./CLAUDE.md)** for:
+- AI assistant integration notes
+- Development workflow
+- Code architecture decisions
 
-## 🚀 Getting Started
+## 🚀 Quick Start (Development)
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL database
-- OpenAI API key (for AI-enhanced analysis)
+- PostgreSQL database (or use Neon cloud)
+- OpenAI API key
+- Stripe account (for payments)
 
-### Installation
+### Local Development
 
-1. **Clone the repository:**
+1. **Clone and install:**
    ```bash
    git clone https://github.com/TheWayWithin/llm-txt-mastery.git
    cd llm-txt-mastery
-   ```
-
-2. **Install dependencies:**
-   ```bash
    npm install
    ```
 
-3. **Set up environment variables:**
+2. **Configure environment:**
    ```bash
    cp .env.example .env
-   ```
-   
-   Configure the following variables:
-   ```env
-   DATABASE_URL=your_postgresql_connection_string
-   OPENAI_API_KEY=your_openai_api_key
+   # Edit .env with your keys
    ```
 
-4. **Set up the database:**
+3. **Set up database:**
    ```bash
    npm run db:push
    ```
 
-5. **Start the development server:**
+4. **Start development server:**
    ```bash
    npm run dev
+   # Opens at http://localhost:5000
    ```
 
-The application will be available at `http://localhost:5000`
+## 🚢 Deployment
 
-## 📊 Usage
+The application uses a split deployment architecture:
 
-### 1. Website Analysis
-- Enter a website URL
-- System discovers pages using sitemap.xml with intelligent fallbacks
-- Analyzes up to 200 pages for content quality
+### Automatic Deployment (Current Setup)
+- **Push to main** → Railway auto-deploys backend
+- **Push to main** → Netlify auto-deploys frontend
+- No manual intervention needed!
 
-### 2. Content Review
-- Review discovered pages with AI-powered quality scores
-- Auto-selection of high-quality content (score ≥7)
-- Manual selection and filtering options
+### Manual Deployment
+See [OPERATIONS.md](./OPERATIONS.md#deployment-guide) for detailed deployment procedures.
 
-### 3. File Generation
-- Generate standards-compliant LLM.txt files
-- Download complete files with all selected pages
-- Professional formatting optimized for AI systems
+## 💰 Cost Optimization
 
-### 4. Email Capture
-- Freemium model with email capture
-- Free: HTML extraction analysis
-- Premium: AI-enhanced content descriptions
+### Current Optimizations
+- **AI Model**: Using GPT-4o-mini (93% cheaper than GPT-4o)
+- **Caching**: 30-day cache reduces API calls by 70-90%
+- **Smart Batching**: Processes pages in optimized batches
+- **Tier Limits**: Prevents runaway costs with daily limits
 
-## 🔧 Development
+### Typical Costs
+- **OpenAI API**: ~$0.11 per 1000 pages (with GPT-4o-mini)
+- **Database**: Free tier (up to 0.5GB)
+- **Hosting**: ~$5/month Railway, Free Netlify tier
 
-### Project Structure
-```
-├── client/              # Frontend React application
-│   ├── src/
-│   │   ├── components/  # UI components
-│   │   ├── pages/       # Page components
-│   │   ├── hooks/       # Custom React hooks
-│   │   └── lib/         # Utility functions
-├── server/              # Backend Express application
-│   ├── services/        # Business logic services
-│   ├── routes.ts        # API route definitions
-│   └── storage.ts       # Database operations
-├── shared/              # Shared TypeScript types
-└── database/            # Database schemas and migrations
-```
-
-### Key Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run db:push` - Push schema changes to database
-- `npm run db:studio` - Open database management studio
-
-## 📈 Performance
+## 📊 Performance Metrics
 
 - **Analysis Speed**: ~4.8 seconds for 200 pages
+- **Cache Hit Rate**: 70-90% for popular sites
 - **Success Rate**: 98%+ sitemap discovery
-- **Quality Filter**: 95%+ high-quality page selection
-- **File Generation**: <1 second for complete LLM.txt files
+- **Quality Filter**: 95%+ accurate page selection
+- **Cost Savings**: 93% reduction with GPT-4o-mini
 
-## 🔒 Security
+## 🔧 Key Scripts
 
-- Environment variable protection for API keys
-- Input validation and sanitization
-- Rate limiting on analysis endpoints
-- Secure database connections
+```bash
+# Development
+npm run dev          # Start local development server
+npm run build        # Build for production
+npm run check        # TypeScript type checking
+
+# Database
+npm run db:push      # Push schema changes
+npm run migrate      # Run migrations
+
+# Testing
+npm test             # Run test suite
+npx tsx server/test-model-comparison.ts  # Compare AI models
+```
 
 ## 🤝 Contributing
 
@@ -169,17 +168,44 @@ The application will be available at `http://localhost:5000`
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## 📈 Monitoring
+
+### Health Checks
+- Backend: `https://llm-txt-mastery-production.up.railway.app/health`
+- Frontend: `https://llmtxtmastery.com`
+
+### Dashboards
+- [Railway Dashboard](https://railway.app) - Backend metrics
+- [Netlify Dashboard](https://app.netlify.com) - Frontend deploys
+- [Stripe Dashboard](https://dashboard.stripe.com) - Payment analytics
+
+## 🔒 Security
+
+- Environment variables for sensitive data
+- Input validation and sanitization
+- Rate limiting on all API endpoints
+- CORS protection for API access
+- Secure PostgreSQL connections with SSL
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- OpenAI for GPT-4o API
-- Replit for development platform
-- shadcn/ui for component library
-- The open-source community for inspiration
+- **OpenAI** for GPT-4o-mini API
+- **Railway** for backend hosting
+- **Netlify** for frontend CDN
+- **Neon** for managed PostgreSQL
+- **shadcn/ui** for beautiful components
+- The open-source community
+
+## 👨‍💻 Author
+
+Built by **Jamie Watters** - Solopreneur & Tool Builder
 
 ---
 
 **Built with ❤️ for the AI community**
+
+For detailed operational procedures, troubleshooting, and configuration management, see [OPERATIONS.md](./OPERATIONS.md).
