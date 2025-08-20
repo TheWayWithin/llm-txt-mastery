@@ -1083,11 +1083,13 @@ export default function Home() {
             
             <div className="mt-6 text-center">
               <p className="text-lg font-semibold text-innovation-teal mb-4">
-                Built by a solopreneur who got tired of corporate complexity
+                Built by someone facing the same AI adoption challenges you are
               </p>
               <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-                I escaped the corporate world to build tools that actually work. Direct founder access means 
-                your feedback gets implemented in hours, not months. No committees, no bureaucracy, just results.
+                I learned AI to stay relevant, but hit a wall - corporate risk aversion. Sound familiar? 
+                That's why I build for solopreneurs, founders, and small businesses who need these tools today, 
+                not after 6 months of committee meetings. Direct access to someone who codes at night because 
+                the corporate world moves too slowly during the day.
               </p>
             </div>
           </div>
@@ -1172,7 +1174,7 @@ export default function Home() {
               <div>
                 <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
                 <p className="text-sm text-slate-300">
-                  Simple, effective AI visibility tools. Built by a solopreneur who got tired of corporate complexity.
+                  Simple, effective AI visibility tools. Built for builders by someone who refuses to let corporate slowness hold back innovation.
                 </p>
               </div>
               <div>
