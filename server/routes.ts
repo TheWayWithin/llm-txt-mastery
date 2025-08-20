@@ -536,15 +536,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.debug('Using default tier:', e);
       }
       
+      // Get today's usage for cache hits (with fallback)
+      let cacheHits = 0;
+      let pagesProcessed = 0;
+      try {
+        const todayUsage = await getTodayUsage(email);
+        if (todayUsage) {
+          cacheHits = todayUsage.cacheHits || 0;
+          pagesProcessed = todayUsage.pagesProcessed || 0;
+        }
+      } catch (e) {
+        console.debug('Could not fetch cache hits:', e);
+      }
+      
       const limits = TIER_LIMITS[tier];
       
       res.json({
         tier,
         usage: {
           analysesToday: simpleUsage.count,
-          pagesProcessedToday: 0, // Deprecated
-          cacheHitsToday: 0, // Deprecated
-          costToday: 0 // Deprecated
+          pagesProcessedToday: pagesProcessed,
+          cacheHitsToday: cacheHits,
+          costToday: cacheHits * 0.001 // Estimated cost saved
         },
         limits: {
           dailyAnalyses: limits.dailyAnalyses,
