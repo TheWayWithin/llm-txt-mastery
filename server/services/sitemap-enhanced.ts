@@ -313,6 +313,13 @@ async function processBatchWithCache(
       // Free tier (starter) now has AI analysis enabled for better user experience
       const shouldUseAI = metrics.aiCallsUsed < aiPagesLimit;
       
+      // Debug logging for AI usage
+      console.log(`[AI DECISION] For ${entry.url}:`);
+      console.log(`  - Tier: ${tier}`);
+      console.log(`  - aiPagesLimit: ${aiPagesLimit}`);
+      console.log(`  - metrics.aiCallsUsed: ${metrics.aiCallsUsed}`);
+      console.log(`  - shouldUseAI: ${shouldUseAI}`);
+      
       // Analyze the page
       const analysis = await analyzePageContent(entry.url, content, shouldUseAI);
       

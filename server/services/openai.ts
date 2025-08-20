@@ -24,17 +24,23 @@ export async function analyzePageContent(url: string, htmlContent: string, useAI
     throw new Error(`Invalid URL provided: ${url}`);
   }
   
+  // Debug logging
+  console.log(`[OPENAI DEBUG] analyzePageContent called for ${url}:`);
+  console.log(`  - useAI parameter: ${useAI}`);
+  console.log(`  - OPENAI_API_KEY exists: ${!!process.env.OPENAI_API_KEY}`);
+  console.log(`  - API key first 10 chars: ${process.env.OPENAI_API_KEY?.substring(0, 10)}...`);
+  
   try {
     if (useAI) {
       if (process.env.OPENAI_API_KEY) {
-        console.log("Using AI analysis for:", url);
+        console.log("✅ Using AI analysis for:", url);
         return await generateAIAnalysis(url, htmlContent);
       } else {
         console.log("⚠️ OPENAI_API_KEY not set - falling back to HTML extraction for:", url);
         return generateHTMLAnalysis(url, htmlContent);
       }
     } else {
-      console.log("Using HTML extraction for:", url);
+      console.log("📝 Using HTML extraction for:", url, "(useAI=false)");
       return generateHTMLAnalysis(url, htmlContent);
     }
   } catch (error) {
@@ -188,6 +194,9 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
 }
 
 async function generateAIAnalysis(url: string, htmlContent: string): Promise<ContentAnalysisResult> {
+  console.log(`[AI ANALYSIS] Starting AI analysis for ${url}`);
+  console.log(`[AI ANALYSIS] OpenAI client initialized with key: ${!!openai.apiKey}`);
+  
   // First extract basic info using HTML parsing
   const htmlResult = generateHTMLAnalysis(url, htmlContent);
   
