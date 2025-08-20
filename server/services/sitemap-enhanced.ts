@@ -311,11 +311,13 @@ async function processBatchWithCache(
       
       // Determine if we should use AI based on tier and current usage
       // Free tier (starter) now has AI analysis enabled for better user experience
-      const shouldUseAI = metrics.aiCallsUsed < aiPagesLimit;
+      // BUT only if the API key is actually configured
+      const shouldUseAI = !!process.env.OPENAI_API_KEY && metrics.aiCallsUsed < aiPagesLimit;
       
       // Debug logging for AI usage
       console.log(`[AI DECISION] For ${entry.url}:`);
       console.log(`  - Tier: ${tier}`);
+      console.log(`  - OPENAI_API_KEY exists: ${!!process.env.OPENAI_API_KEY}`);
       console.log(`  - aiPagesLimit: ${aiPagesLimit}`);
       console.log(`  - metrics.aiCallsUsed: ${metrics.aiCallsUsed}`);
       console.log(`  - shouldUseAI: ${shouldUseAI}`);
