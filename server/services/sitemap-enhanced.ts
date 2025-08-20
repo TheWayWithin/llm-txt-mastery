@@ -308,7 +308,8 @@ async function processBatchWithCache(
       const etag = $('meta[name="etag"]').attr('content');
       
       // Determine if we should use AI based on tier and current usage
-      const shouldUseAI = tier !== 'starter' && metrics.aiCallsUsed < aiPagesLimit;
+      // Free tier (starter) now has AI analysis enabled for better user experience
+      const shouldUseAI = metrics.aiCallsUsed < aiPagesLimit;
       
       // Analyze the page
       const analysis = await analyzePageContent(entry.url, content, shouldUseAI);

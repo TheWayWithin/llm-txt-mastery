@@ -110,7 +110,7 @@ router.post('/register', registerLimiter, async (req, res) => {
         await storage.createEmailCapture({
           email,
           tier: 'starter',
-          websiteUrl: null,
+          websiteUrl: '', // Use empty string instead of null to satisfy database constraint
           userId: user.id
         });
         console.log(`✅ Created email capture for new user: ${email}`);
