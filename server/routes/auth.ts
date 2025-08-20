@@ -110,16 +110,13 @@ router.post('/register', registerLimiter, async (req, res) => {
         await storage.createEmailCapture({
           email,
           tier: 'starter',
-          websiteUrl: '', // Use empty string instead of null to satisfy database constraint
-          userId: user.id
+          websiteUrl: '' // Use empty string instead of null to satisfy database constraint
+          // Note: userId references the old users table, not authUsers, so we skip it
         });
         console.log(`✅ Created email capture for new user: ${email}`);
       } else if (!existingCapture.userId) {
-        // Update existing email capture with userId
-        await storage.updateEmailCapture(email, {
-          userId: user.id
-        });
-        console.log(`✅ Linked existing email capture to user: ${email}`);
+        // Skip updating userId since it references the old users table
+        console.log(`✅ Email capture already exists for: ${email}`);
       }
     } catch (error) {
       console.error('Failed to create/update email capture for user:', error);
