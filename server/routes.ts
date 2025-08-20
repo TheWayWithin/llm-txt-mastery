@@ -672,6 +672,12 @@ async function analyzeWebsiteEnhanced(
   userEmail: string,
   tier: UserTier
 ) {
+  console.log(`\n🚀 [ANALYSIS START] Beginning analysis for ${url}`);
+  console.log(`  - User: ${userEmail}`);
+  console.log(`  - Tier: ${tier}`);
+  console.log(`  - Analysis ID: ${analysisId}`);
+  console.log(`  - OPENAI_API_KEY available: ${!!process.env.OPENAI_API_KEY}`);
+  
   // Add timeout protection to prevent infinite hanging
   const ANALYSIS_TIMEOUT = 10 * 60 * 1000; // 10 minutes maximum
   const timeoutPromise = new Promise<never>((_, reject) => {
