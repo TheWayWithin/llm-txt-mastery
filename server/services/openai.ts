@@ -1,10 +1,15 @@
 import OpenAI from "openai";
 import * as cheerio from "cheerio";
 
+// Initialize OpenAI client - only if API key is available
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
-});
+const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR;
+const openai = apiKey ? new OpenAI({ apiKey }) : null;
+
+// Log OpenAI initialization status at module load
+console.log('🔑 OpenAI Service Initialization:');
+console.log(`  - OPENAI_API_KEY: ${apiKey ? `${apiKey.substring(0, 10)}...` : 'NOT SET'}`);
+console.log(`  - OpenAI client: ${openai ? 'initialized' : 'not initialized (no API key)')`);
 
 export interface ContentAnalysisResult {
   title: string;
@@ -195,10 +200,16 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
 
 async function generateAIAnalysis(url: string, htmlContent: string): Promise<ContentAnalysisResult> {
   console.log(`[AI ANALYSIS] Starting AI analysis for ${url}`);
-  console.log(`[AI ANALYSIS] OpenAI client initialized with key: ${!!openai.apiKey}`);
+  console.log(`[AI ANALYSIS] OpenAI client: ${openai ? 'available' : 'not available'}`);
   
   // First extract basic info using HTML parsing
   const htmlResult = generateHTMLAnalysis(url, htmlContent);
+  
+  // If OpenAI client is not initialized, fall back to HTML analysis
+  if (!openai) {
+    console.log(`[AI ANALYSIS] OpenAI client not initialized, falling back to HTML analysis`);
+    return htmlResult;
+  }
   
   try {
     // Extract main content for AI analysis
@@ -226,6 +237,7 @@ Provide a JSON response with:
 
 Focus on technical accuracy, information density, and AI utility.`;
 
+    console.log(`[AI ANALYSIS] Calling OpenAI API for ${url}`);
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       messages: [
@@ -242,6 +254,7 @@ Focus on technical accuracy, information density, and AI utility.`;
       max_tokens: 500,
       temperature: 0.3
     });
+    console.log(`[AI ANALYSIS] OpenAI API call successful for ${url}`);
 
     const aiResult = JSON.parse(response.choices[0].message.content || "{}");
     
@@ -263,7 +276,15 @@ Focus on technical accuracy, information density, and AI utility.`;
     };
     
   } catch (error) {
-    console.error("AI analysis failed, falling back to HTML analysis:", error);
+    console.error(`[AI ANALYSIS ERROR] Failed for ${url}:`, error);
+    if (error.response) {
+      console.error(`[AI ANALYSIS ERROR] Response status: ${error.response.status}`);
+      console.error(`[AI ANALYSIS ERROR] Response data:`, error.response.data);
+    }
+    if (error.message?.includes('401')) {
+      console.error(`[AI ANALYSIS ERROR] Authentication failed - check if OPENAI_API_KEY is valid`);
+    }
+    console.log(`[AI ANALYSIS] Falling back to HTML analysis for ${url}`);
     return htmlResult;
   }
 }
