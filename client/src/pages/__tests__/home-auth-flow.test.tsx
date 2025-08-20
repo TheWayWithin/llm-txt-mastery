@@ -60,9 +60,17 @@ vi.mock('@/components/auth/AuthModal', () => ({
 }))
 
 // Mock wouter
-vi.mock('wouter', () => ({
-  useLocation: () => ['/']
-}))
+vi.mock('wouter', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('wouter')>();
+  return {
+    ...actual,
+    useLocation: () => ['/', vi.fn()],
+    useRoute: () => [false, {}],
+    Link: ({ children, to, ...props }: any) => <a href={to} {...props}>{children}</a>,
+    Switch: ({ children }: any) => <div data-testid="wouter-switch">{children}</div>,
+    Route: ({ children }: any) => <div data-testid="wouter-route">{children}</div>
+  };
+});
 
 const renderWithQueryClient = (ui: React.ReactElement) => {
   const queryClient = new QueryClient({
