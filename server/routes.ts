@@ -16,6 +16,7 @@ import { registerStripeRoutes } from "./routes/stripe";
 import authRoutes from "./routes/auth";
 import simpleUsageRoutes from "./routes/simple-usage";
 import { incrementSimpleUsage, getSimpleUsage } from "./services/simple-tracker";
+import { connectionPool } from "./services/connection-pool";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -668,6 +669,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Download error:", error);
       res.status(500).json({ message: "Failed to download file" });
+    }
+  });
+
+  // Connection pool monitoring endpoint
+  app.get("/api/admin/connection-pool-stats", async (req, res) => {
+    try {
+      // Simple security check for production
+      if (process.env.NODE_ENV === 'production') {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_API_KEY}`) {
+          return res.status(403).json({ message: "Unauthorized" });
+        }
+      }
+      
+      const stats = connectionPool.getStats();
+      res.json({
+        connectionPool: stats,
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+      });
+    } catch (error) {
+      console.error("Connection pool stats error:", error);
+      res.status(500).json({ message: "Failed to get connection pool stats" });
     }
   });
 
