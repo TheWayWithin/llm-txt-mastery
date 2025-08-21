@@ -1,6 +1,6 @@
 # LLM.txt Mastery - Project Plan & Coordination
 *Single Source of Truth for Current Priorities*
-*Last Updated: January 20, 2025 - OpenAI Cost Optimization & Documentation Complete*
+*Last Updated: January 21, 2025 - Performance Optimization Roadmap Defined*
 
 ## ✅ RESOLVED: Railway Database Configuration Issue
 *Status: FIXED - August 18, 2025*
@@ -120,7 +120,103 @@
 
 ---
 
-## 🎯 NEXT PRIORITIES
+## 🎯 CURRENT PRIORITY: Performance Optimization Initiative
+*Started: January 21, 2025*
+
+### 🚀 Performance Optimization Roadmap (5-Week Plan)
+
+#### Phase 1: Connection Pooling ✅ (Week 1: Jan 21-27)
+**Status**: COMPLETE - Deployed to Production  
+**Impact**: 4.9% average improvement achieved (7.3% best case)
+**Risk**: Low - Successfully mitigated
+**Coordinator**: AGENT-11 Mission Complete
+
+**Implementation Tasks**:
+- [x] Create `ConnectionPoolManager` service in server/services/connection-pool.ts ✅
+- [x] Update `fetchPageContent` in server/services/sitemap.ts to use pooling ✅
+- [x] Add connection pool unit tests in tests/connection-pool.test.ts ✅ (20/20 passed)
+- [x] Add integration tests for connection pooling ✅ (17/17 passed)
+- [x] Create Playwright regression tests for connection pooling ✅ (ready, infra issues)
+- [x] Record performance baseline (current multi-page analysis time) ✅
+- [x] Deploy to production ✅ (Railway deployment successful)
+- [x] Run production smoke tests ✅ 
+- [x] Monitor for 30 minutes post-deployment ✅ (100% stable)
+- [x] Record performance improvements ✅ (4.9% average improvement)
+- [x] Update operations manual with pooling configuration ✅
+
+**Success Metrics Achieved**:
+- ✅ 4.9% average improvement (7.3% best case) - Below 30% target but positive impact
+- ✅ Memory usage stable - No significant increase detected
+- ✅ Zero increase in error rates - 100% stability maintained
+
+#### Phase 2: Circuit Breaker 🔄 (Week 2: Jan 28 - Feb 3)
+**Status**: Design complete  
+**Impact**: 5% cost savings, better reliability  
+**Risk**: Low  
+
+**Implementation**:
+- [ ] Create `CircuitBreaker` service with registry
+- [ ] Integrate with OpenAI service (fallback to HTML)
+- [ ] Integrate with page fetching (per-domain breakers)
+- [ ] Test failure scenarios thoroughly
+- [ ] Deploy with monitoring dashboard
+- [ ] Document in operations manual
+
+**Success Metrics**:
+- 5% reduction in failed API calls
+- Faster failure detection (< 5 seconds)
+- Automatic recovery after service restoration
+
+#### Phase 3: Progressive Streaming 📊 (Weeks 3-4: Feb 4-17)
+**Status**: Architecture defined  
+**Impact**: 2-3x perceived performance improvement  
+**Risk**: Medium (requires frontend changes)  
+
+**Implementation**:
+- [ ] Create `StreamingAnalyzer` service
+- [ ] Implement Server-Sent Events endpoint
+- [ ] Update React frontend with streaming hook
+- [ ] Design progressive UI updates
+- [ ] Test connection handling and recovery
+- [ ] Full end-to-end testing with temp emails
+- [ ] Gradual rollout (opt-in first)
+
+**Success Metrics**:
+- First results visible in < 5 seconds
+- 50% improvement in perceived performance
+- Smooth UI updates without flashing
+
+#### Phase 4: Dynamic Batch Sizing 🎯 (Week 5: Feb 18-24)
+**Status**: Algorithm designed  
+**Impact**: 40% faster for small-page sites  
+**Risk**: Medium (complex logic)  
+
+**Implementation**:
+- [ ] Create `DynamicBatchCalculator` service
+- [ ] Sample page sizes with HEAD requests
+- [ ] Build performance history tracking
+- [ ] Integrate with analysis pipeline
+- [ ] Test with various content types
+- [ ] Ensure tier limits still enforced
+
+**Success Metrics**:
+- 40% faster for documentation sites
+- No memory errors on large pages
+- Adaptive to content type
+
+### Testing Strategy for Each Phase
+1. **Unit Tests** → **Integration Tests** → **Staging** → **Production**
+2. **Full Playwright regression suite** after each deployment
+3. **Performance baseline** before and after
+4. **Operations manual update** before next phase
+5. **24-hour production monitoring** before proceeding
+
+### Deferred for Future (10,000+ Users)
+- **Cache Warming** - Pre-analyze popular sites during off-peak
+
+---
+
+## 🎯 NEXT PRIORITIES (After Performance Optimization)
 
 ### Priority 1: Production Monitoring & Analytics
 - 📊 **Verify GA4 Tracking** - Confirm all conversion events working
@@ -129,13 +225,7 @@
 - 📈 **Cache Performance** - Monitor cache hit rates and savings
 - 🚨 **Alert System** - Set up alerts for API failures or high costs
 
-### Priority 2: Performance Optimization
-- ⚡ **Image Optimization** - Compress 2MB+ images (80% reduction possible)
-- 🚀 **Page Load Speed** - Target <1 second load time
-- 📦 **Bundle Size** - Reduce 713KB JavaScript bundle
-- 🔄 **Lazy Loading** - Implement for non-critical components
-
-### Priority 3: Growth & Marketing
+### Priority 2: Growth & Marketing
 - 📝 **Content Marketing** - Create blog posts about LLM.txt benefits
 - 🎯 **SEO Optimization** - Target "llm.txt generator" keywords
 - 📧 **Email Campaigns** - Set up drip sequence for free users

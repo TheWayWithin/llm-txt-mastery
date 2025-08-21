@@ -1,4 +1,18 @@
 /**
+ * Simple utility function for generating temporary emails in tests
+ * Exports a generateTempEmail function for backwards compatibility
+ */
+
+/**
+ * Generate a unique temporary email for testing
+ */
+export function generateTempEmail(): string {
+  const timestamp = Date.now();
+  const randomId = Math.random().toString(36).substring(2, 8);
+  return `playwright-test-${timestamp}-${randomId}@example.com`;
+}
+
+/**
  * TemporaryEmailService
  * 
  * Provides integration with multiple temporary email services for Playwright testing.
@@ -29,7 +43,7 @@ export class TemporaryEmailService {
           return email;
         }
       } catch (error) {
-        console.warn(`Email strategy failed, trying next:`, error.message);
+        console.warn(`Email strategy failed, trying next:`, (error as Error).message);
       }
     }
     
@@ -111,140 +125,9 @@ export class TemporaryEmailService {
 }
 
 /**
- * Enhanced TemporaryEmailService with MailSlurp integration
- * 
- * If you have a MailSlurp API key, uncomment and configure this class
- */
-export class MailSlurpEmailService extends TemporaryEmailService {
-  private apiKey: string | null;
-  private baseUrl = 'https://api.mailslurp.com';
-  
-  constructor(apiKey?: string) {
-    super();
-    this.apiKey = apiKey || process.env.MAILSLURP_API_KEY || null;
-  }
-
-  /**
-   * Create a real temporary email using MailSlurp API
-   */
-  async createMailSlurpEmail(): Promise<string> {
-    if (!this.apiKey) {
-      throw new Error('MailSlurp API key not configured');
-    }
-
-    const response = await fetch(`${this.baseUrl}/inboxes`, {
-      method: 'POST',
-      headers: {
-        'x-api-key': this.apiKey,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: `playwright-test-${Date.now()}`,
-        description: 'Temporary inbox for Playwright testing'
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`MailSlurp API error: ${response.status}`);
-    }
-
-    const inbox = await response.json();
-    return inbox.emailAddress;
-  }
-
-  /**
-   * Wait for email in MailSlurp inbox
-   */
-  async waitForMailSlurpEmail(inboxId: string, timeout: number = 30000): Promise<any> {
-    if (!this.apiKey) {
-      throw new Error('MailSlurp API key not configured');
-    }
-
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < timeout) {
-      const response = await fetch(`${this.baseUrl}/inboxes/${inboxId}/emails`, {
-        headers: {
-          'x-api-key': this.apiKey
-        }
-      });
-
-      if (response.ok) {
-        const emails = await response.json();
-        if (emails.length > 0) {
-          return emails[0];
-        }
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    throw new Error('Timeout waiting for email');
-  }
-}
-
-/**
- * Guerrilla Mail service integration
- * Uses their public API for temporary emails
- */
-export class GuerrillaMailService extends TemporaryEmailService {
-  private sessionId: string | null = null;
-  private currentEmail: string | null = null;
-
-  async createGuerrillaEmail(): Promise<string> {
-    try {
-      // Get a session and random email
-      const response = await fetch('https://api.guerrillamail.com/ajax.php?f=get_email_address', {
-        method: 'GET'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Guerrilla Mail API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      this.sessionId = data.sid_token;
-      this.currentEmail = data.email_addr;
-
-      return this.currentEmail;
-    } catch (error) {
-      throw new Error(`Failed to create Guerrilla Mail email: ${error.message}`);
-    }
-  }
-
-  async checkGuerrillaEmails(): Promise<any[]> {
-    if (!this.sessionId) {
-      throw new Error('No active Guerrilla Mail session');
-    }
-
-    try {
-      const response = await fetch(`https://api.guerrillamail.com/ajax.php?f=check_email&sid_token=${this.sessionId}`, {
-        method: 'GET'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Guerrilla Mail check error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.list || [];
-    } catch (error) {
-      throw new Error(`Failed to check Guerrilla Mail: ${error.message}`);
-    }
-  }
-}
-
-/**
  * Factory function to create the best available email service
  */
 export function createTemporaryEmailService(): TemporaryEmailService {
-  // Check if MailSlurp API key is available
-  if (process.env.MAILSLURP_API_KEY) {
-    console.log('Using MailSlurp email service');
-    return new MailSlurpEmailService(process.env.MAILSLURP_API_KEY);
-  }
-  
-  // Fall back to free services
   console.log('Using free temporary email service');
   return new TemporaryEmailService();
 }
