@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 import { DiscoveredPage } from "@shared/schema";
 import { analyzePageContent } from "./openai";
+import { connectionPool } from "./connection-pool";
 
 // Helper function to implement fetch with timeout using AbortController
 async function fetchWithTimeout(url: string, options: any = {}, timeoutMs: number = 10000): Promise<any> {
@@ -10,10 +11,14 @@ async function fetchWithTimeout(url: string, options: any = {}, timeoutMs: numbe
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   
   try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
+    // Use connection pool for HTTPS URLs if not already specified
+    let fetchOptions = { ...options, signal: controller.signal };
+    
+    if (url.startsWith('https') && !options.agent) {
+      fetchOptions.agent = connectionPool.getAgent(url);
+    }
+    
+    const response = await fetch(url, fetchOptions);
     clearTimeout(timeoutId);
     return response;
   } catch (error) {
@@ -578,6 +583,9 @@ export async function fetchPageContent(url: string): Promise<string> {
   const maxRetries = 3;
   let lastError: Error | null = null;
 
+  // Use connection pool for HTTPS URLs only
+  const agent = url.startsWith('https') ? connectionPool.getAgent(url) : undefined;
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       // Progressive delay between retries (exponential backoff)
@@ -591,6 +599,7 @@ export async function fetchPageContent(url: string): Promise<string> {
       const userAgent = userAgents[attempt % userAgents.length];
       
       const response = await fetchWithTimeout(url, {
+        agent, // Use connection pool agent for HTTPS, undefined for HTTP
         headers: {
           'User-Agent': userAgent,
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
@@ -623,16 +632,20 @@ export async function fetchPageContent(url: string): Promise<string> {
 
       const content = await response.text();
       
-      // Success - log if this was a retry
+      // Success - log if this was a retry or connection pool usage
       if (attempt > 0) {
-        console.log(`Successfully fetched ${url} on attempt ${attempt + 1}`);
+        console.log(`Successfully fetched ${url} on attempt ${attempt + 1} ${agent ? '(with connection pool)' : '(standard fetch)'}`);
+      } else if (agent) {
+        // Only log connection pool usage on first attempt to avoid spam
+        const hostname = new URL(url).hostname;
+        console.log(`Fetched ${hostname} using connection pool`);
       }
       
       return content;
       
     } catch (error) {
       lastError = error as Error;
-      console.log(`Fetch attempt ${attempt + 1} failed for ${url}: ${error.message}`);
+      console.log(`Fetch attempt ${attempt + 1} failed for ${url}: ${error.message} ${agent ? '(with connection pool)' : '(standard fetch)'}`);
       
       // Don't retry on certain errors that won't be fixed by retrying
       if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
