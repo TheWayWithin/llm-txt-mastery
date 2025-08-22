@@ -231,7 +231,7 @@ export default function LoginPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link href={`/signup?tier=${tierParam}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}>
+                <Link href={`/signup?tier=${tierParam || 'coffee'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}>
                   <a className="text-blue-600 hover:text-blue-800 font-medium">
                     Sign up for free
                   </a>
