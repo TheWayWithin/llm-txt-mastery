@@ -551,35 +551,33 @@ export default function SignupPage() {
           <div className="space-y-6">
             
             {/* Selected Tier Benefits */}
-            {selectedTier && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    {getTierIcon(selectedTier)}
-                    <span className="ml-2">{getTierDisplayName(selectedTier)} Plan Benefits</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {getTierBenefits(selectedTier).map((benefit, index) => (
-                      <li key={index} className="flex items-start">
-                        {selectedTier === 'starter' ? (
-                          <X className="h-4 w-4 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                        ) : (
-                          <Check className="h-4 w-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                        )}
-                        <span className={`text-sm font-medium ${
-                          selectedTier === 'starter' ? 'text-red-700' : 
-                          selectedTier === 'coffee' ? 'text-green-700' : 'text-gray-700'
-                        }`}>
-                          {benefit}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  {getTierIcon(selectedTier)}
+                  <span className="ml-2">{getTierDisplayName(selectedTier)} Plan Benefits</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  {getTierBenefits(selectedTier).map((benefit, index) => (
+                    <li key={index} className="flex items-start">
+                      {selectedTier === 'starter' ? (
+                        <X className="h-4 w-4 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                      ) : (
+                        <Check className="h-4 w-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                      )}
+                      <span className={`text-sm font-medium ${
+                        selectedTier === 'starter' ? 'text-red-700' : 
+                        selectedTier === 'coffee' ? 'text-green-700' : 'text-gray-700'
+                      }`}>
+                        {benefit}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
 
             {/* Dramatic Trust Signals */}
             <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
