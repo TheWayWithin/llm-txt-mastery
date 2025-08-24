@@ -1,0 +1,61 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list
+- region "Notifications alt+T"
+- banner:
+  - link "LLM.txt Mastery":
+    - /url: /
+    - img "LLM.txt Mastery"
+  - paragraph: Built by Jamie Watters
+  - paragraph: Solopreneur & Tool Builder
+- main:
+  - text: Welcome Back Sign in to your LLM.txt Mastery account
+  - alert: Too many authentication attempts
+  - text: Email Address
+  - img
+  - textbox "Email Address": tmuybqteuljyrjvwra@nespj.com
+  - text: Password
+  - img
+  - textbox "Password": testpassword
+  - button "Show password":
+    - img
+  - link "Forgot your password?":
+    - /url: /forgot-password
+  - button "Sign In":
+    - text: Sign In
+    - img
+  - paragraph:
+    - text: Don't have an account?
+    - link "Sign up for free":
+      - /url: /signup?tier=coffee
+  - paragraph: Want to try it first?
+  - link "Try Demo Mode":
+    - /url: /
+    - button "Try Demo Mode"
+  - paragraph: Secure login protected by industry-standard encryption
+- contentinfo:
+  - link "Privacy Policy":
+    - /url: /privacy
+  - link "Terms of Service":
+    - /url: /terms
+  - link "Contact":
+    - /url: /contact
+  - paragraph: © 2025 Jamie Watters. No corporate BS. Just tools that work.
+- img "Cookie Icon"
+- text: We use cookies to optimize your browsing experience for the purpose of personalizing and measuring the effectiveness of ads. By clicking "Allow All", you consent to our use of cookies.
+- link "Privacy Policy ↗":
+  - /url: /privacy-policy
+- button "Manage Cookies"
+- button "Decline"
+- button "Allow All"
+- link "Dismiss Banner":
+  - /url: "#"
+- paragraph:
+  - text: We use cookies to enhance your experience and analyze site usage. By continuing to use this site, you consent to our use of cookies.
+  - link "Privacy Policy":
+    - /url: /privacy-policy
+- button "Accept All"
+- button "Necessary Only"
+```

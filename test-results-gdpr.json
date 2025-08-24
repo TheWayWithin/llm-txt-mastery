@@ -1,0 +1,1609 @@
+{
+  "config": {
+    "configFile": "/Users/jamiewatters/DevProjects/llm-txt-mastery/playwright-gdpr.config.ts",
+    "rootDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report-gdpr",
+          "open": "never"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results-gdpr.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results-gdpr.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "chromium-gdpr",
+        "name": "chromium-gdpr",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/gdpr-compliance-comprehensive.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "firefox-gdpr",
+        "name": "firefox-gdpr",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/gdpr-compliance-comprehensive.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "webkit-gdpr",
+        "name": "webkit-gdpr",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/gdpr-compliance-comprehensive.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "mobile-chrome-gdpr",
+        "name": "mobile-chrome-gdpr",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/gdpr-compliance-comprehensive.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "mobile-safari-gdpr",
+        "name": "mobile-safari-gdpr",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/gdpr-compliance-comprehensive.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 3,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "gdpr-compliance-comprehensive.spec.ts",
+      "file": "gdpr-compliance-comprehensive.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "GDPR Compliance Comprehensive Testing Suite",
+          "file": "gdpr-compliance-comprehensive.spec.ts",
+          "line": 356,
+          "column": 6,
+          "specs": [
+            {
+              "title": "GDPR-001: Consent banner appears on first visit",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3338,
+                      "error": {
+                        "message": "Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")') resolved to 2 elements:\n    1) <button id=\"ez-cookie-notification__accept\" class=\"enzuzo-notification-button notification-button button-default button-accept\">Allow All</button> aka getByRole('button', { name: 'Allow All' })\n    2) <button id=\"ez-accept-modal\" class=\"enzuzo-modal-button enzuzo-modal-button-accept\">Allow All</button> aka locator('#ez-accept-modal')\n\nCall log:\n\u001b[2m    - checking visibility of locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")')\u001b[22m\n",
+                        "stack": "Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")') resolved to 2 elements:\n    1) <button id=\"ez-cookie-notification__accept\" class=\"enzuzo-notification-button notification-button button-default button-accept\">Allow All</button> aka getByRole('button', { name: 'Allow All' })\n    2) <button id=\"ez-accept-modal\" class=\"enzuzo-modal-button enzuzo-modal-button-accept\">Allow All</button> aka locator('#ez-accept-modal')\n\nCall log:\n\u001b[2m    - checking visibility of locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")')\u001b[22m\n\n    at ConsentBannerPage.verifyBannerContent (/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:350:51)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:386:27",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 51,
+                          "line": 350
+                        },
+                        "snippet": "  348 |       hasCookieLink: await this.cookiePolicyLink.isVisible(),\n  349 |       hasCustomizeOption: await this.customizeButton.isVisible(),\n> 350 |       hasAcceptOption: await this.acceptAllButton.isVisible(),\n      |                                                   ^\n  351 |       hasRejectOption: await this.rejectOptionalButton.isVisible()\n  352 |     };\n  353 |   }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 51,
+                            "line": 350
+                          },
+                          "message": "Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")') resolved to 2 elements:\n    1) <button id=\"ez-cookie-notification__accept\" class=\"enzuzo-notification-button notification-button button-default button-accept\">Allow All</button> aka getByRole('button', { name: 'Allow All' })\n    2) <button id=\"ez-accept-modal\" class=\"enzuzo-modal-button enzuzo-modal-button-accept\">Allow All</button> aka locator('#ez-accept-modal')\n\nCall log:\n\u001b[2m    - checking visibility of locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")')\u001b[22m\n\n\n  348 |       hasCookieLink: await this.cookiePolicyLink.isVisible(),\n  349 |       hasCustomizeOption: await this.customizeButton.isVisible(),\n> 350 |       hasAcceptOption: await this.acceptAllButton.isVisible(),\n      |                                                   ^\n  351 |       hasRejectOption: await this.rejectOptionalButton.isVisible()\n  352 |     };\n  353 |   }\n    at ConsentBannerPage.verifyBannerContent (/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:350:51)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:386:27"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🍪 Testing: Consent banner appearance on first visit\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:32.195Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 51,
+                        "line": 350
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1682,
+                      "error": {
+                        "message": "Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")') resolved to 2 elements:\n    1) <button id=\"ez-cookie-notification__accept\" class=\"enzuzo-notification-button notification-button button-default button-accept\">Allow All</button> aka getByRole('button', { name: 'Allow All' })\n    2) <button id=\"ez-accept-modal\" class=\"enzuzo-modal-button enzuzo-modal-button-accept\">Allow All</button> aka locator('#ez-accept-modal')\n\nCall log:\n\u001b[2m    - checking visibility of locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")')\u001b[22m\n",
+                        "stack": "Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")') resolved to 2 elements:\n    1) <button id=\"ez-cookie-notification__accept\" class=\"enzuzo-notification-button notification-button button-default button-accept\">Allow All</button> aka getByRole('button', { name: 'Allow All' })\n    2) <button id=\"ez-accept-modal\" class=\"enzuzo-modal-button enzuzo-modal-button-accept\">Allow All</button> aka locator('#ez-accept-modal')\n\nCall log:\n\u001b[2m    - checking visibility of locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")')\u001b[22m\n\n    at ConsentBannerPage.verifyBannerContent (/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:350:51)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:386:27",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 51,
+                          "line": 350
+                        },
+                        "snippet": "  348 |       hasCookieLink: await this.cookiePolicyLink.isVisible(),\n  349 |       hasCustomizeOption: await this.customizeButton.isVisible(),\n> 350 |       hasAcceptOption: await this.acceptAllButton.isVisible(),\n      |                                                   ^\n  351 |       hasRejectOption: await this.rejectOptionalButton.isVisible()\n  352 |     };\n  353 |   }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 51,
+                            "line": 350
+                          },
+                          "message": "Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")') resolved to 2 elements:\n    1) <button id=\"ez-cookie-notification__accept\" class=\"enzuzo-notification-button notification-button button-default button-accept\">Allow All</button> aka getByRole('button', { name: 'Allow All' })\n    2) <button id=\"ez-accept-modal\" class=\"enzuzo-modal-button enzuzo-modal-button-accept\">Allow All</button> aka locator('#ez-accept-modal')\n\nCall log:\n\u001b[2m    - checking visibility of locator('#ez-cookie-notification__accept, button:has-text(\"Allow All\")')\u001b[22m\n\n\n  348 |       hasCookieLink: await this.cookiePolicyLink.isVisible(),\n  349 |       hasCustomizeOption: await this.customizeButton.isVisible(),\n> 350 |       hasAcceptOption: await this.acceptAllButton.isVisible(),\n      |                                                   ^\n  351 |       hasRejectOption: await this.rejectOptionalButton.isVisible()\n  352 |     };\n  353 |   }\n    at ConsentBannerPage.verifyBannerContent (/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:350:51)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:386:27"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🍪 Testing: Consent banner appearance on first visit\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-23T21:35:36.082Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 51,
+                        "line": 350
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67849dd791d32f260247-c4f80ca9b6fea4231a0b",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 372,
+              "column": 3
+            },
+            {
+              "title": "GDPR-002: Accept All cookies functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 8417,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🍪 Testing: Accept All cookies functionality\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "📊 Analytics requests found: 1\n"
+                        },
+                        {
+                          "text": "📝 Consent-related logs: 0\n"
+                        },
+                        {
+                          "text": "📝 GTM-related logs: 0\n"
+                        },
+                        {
+                          "text": "🍪 Cookie counts - Necessary: 0, Analytics: 1\n"
+                        },
+                        {
+                          "text": "✅ Analytics tracking confirmed after accepting all cookies\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:32.194Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-269a5-t-All-cookies-functionality-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-849f010199114a107f2a",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 397,
+              "column": 3
+            },
+            {
+              "title": "GDPR-003: Reject Optional cookies functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 8439,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🍪 Testing: Reject Optional cookies functionality\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Decline\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Decline cookies\n"
+                        },
+                        {
+                          "text": "📊 Analytics requests after rejection: 1\n"
+                        },
+                        {
+                          "text": "📈 Marketing requests after rejection: 1\n"
+                        },
+                        {
+                          "text": "🍪 Cookie counts after rejection - Necessary: 0, Analytics: 1, Marketing: 1\n"
+                        },
+                        {
+                          "text": "✅ Reject optional cookies validation completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:32.193Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-a9f1b-ional-cookies-functionality-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-bf17d712b1d5686419a5",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 440,
+              "column": 3
+            },
+            {
+              "title": "GDPR-004: GTM Consent Mode integration validation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8018,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔧 Testing: GTM Consent Mode integration\n"
+                        },
+                        {
+                          "text": "Testing GTM consent mode: rejected\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Decline\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Decline cookies\n"
+                        },
+                        {
+                          "text": "Consent signals for rejected: 0\n"
+                        },
+                        {
+                          "text": "GTM calls for rejected: 0\n"
+                        },
+                        {
+                          "text": "GTM consent requests for rejected: 0\n"
+                        },
+                        {
+                          "text": "Testing GTM consent mode: accepted\n"
+                        },
+                        {
+                          "text": "Enzuzo Accept button not found - checking for alternatives\n"
+                        },
+                        {
+                          "text": "No accept button found\n"
+                        },
+                        {
+                          "text": "Consent signals for accepted: 0\n"
+                        },
+                        {
+                          "text": "GTM calls for accepted: 0\n"
+                        },
+                        {
+                          "text": "GTM consent requests for accepted: 0\n"
+                        },
+                        {
+                          "text": "✅ GTM Consent Mode integration test completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:38.096Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-09c72-Mode-integration-validation-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-1c70d7befba411aab525",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 476,
+              "column": 3
+            },
+            {
+              "title": "GDPR-005: Cookie categorization validation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 9965,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🏷️ Testing: Cookie categorization validation\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "📊 Cookie Categorization Analysis:\n"
+                        },
+                        {
+                          "text": "Necessary cookies: 0\n"
+                        },
+                        {
+                          "text": "Analytics cookies: 1\n"
+                        },
+                        {
+                          "text": "Marketing cookies: 1\n"
+                        },
+                        {
+                          "text": "Functional cookies: 1\n"
+                        },
+                        {
+                          "text": "Other cookies: 4\n"
+                        },
+                        {
+                          "text": "\n🔍 Cookie Details:\n"
+                        },
+                        {
+                          "text": "Analytics: cookies-analytics (llmtxtmastery.com)\n"
+                        },
+                        {
+                          "text": "Marketing: cookies-marketing (llmtxtmastery.com)\n"
+                        },
+                        {
+                          "text": "Functional: cookies-preferences (llmtxtmastery.com)\n"
+                        },
+                        {
+                          "text": "Other: cookies-functional (llmtxtmastery.com)\n"
+                        },
+                        {
+                          "text": "Other: m (m.stripe.com)\n"
+                        },
+                        {
+                          "text": "Other: __stripe_mid (.llmtxtmastery.com)\n"
+                        },
+                        {
+                          "text": "Other: __stripe_sid (.llmtxtmastery.com)\n"
+                        },
+                        {
+                          "text": "✅ Cookie categorization validation completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:40.926Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-3608e-e-categorization-validation-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-b7970e2df68c2c26b0ce",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 525,
+              "column": 3
+            },
+            {
+              "title": "GDPR-006: Privacy policy and cookie policy link validation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 8132,
+                      "error": {
+                        "message": "Error: Should navigate to privacy policy page\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: Should navigate to privacy policy page\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:597:51",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 51,
+                          "line": 597
+                        },
+                        "snippet": "  595 |       const currentUrl = page.url();\n  596 |       expect(currentUrl.includes('privacy') || currentUrl.includes('policy'), \n> 597 |         'Should navigate to privacy policy page').toBe(true);\n      |                                                   ^\n  598 |       \n  599 |       await helper.takeScreenshotWithTimestamp('privacy-policy-page');\n  600 |       "
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 51,
+                            "line": 597
+                          },
+                          "message": "Error: Should navigate to privacy policy page\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  595 |       const currentUrl = page.url();\n  596 |       expect(currentUrl.includes('privacy') || currentUrl.includes('policy'), \n> 597 |         'Should navigate to privacy policy page').toBe(true);\n      |                                                   ^\n  598 |       \n  599 |       await helper.takeScreenshotWithTimestamp('privacy-policy-page');\n  600 |       \n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:597:51"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "📄 Testing: Privacy policy and cookie policy links\n"
+                        },
+                        {
+                          "text": "📄 Privacy policy link found - testing accessibility\n"
+                        },
+                        {
+                          "text": "Privacy policy URL: /privacy-policy\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:40.942Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/test-failed-2.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 51,
+                        "line": 597
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 4786,
+                      "error": {
+                        "message": "Error: Should navigate to privacy policy page\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: Should navigate to privacy policy page\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:597:51",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 51,
+                          "line": 597
+                        },
+                        "snippet": "  595 |       const currentUrl = page.url();\n  596 |       expect(currentUrl.includes('privacy') || currentUrl.includes('policy'), \n> 597 |         'Should navigate to privacy policy page').toBe(true);\n      |                                                   ^\n  598 |       \n  599 |       await helper.takeScreenshotWithTimestamp('privacy-policy-page');\n  600 |       "
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 51,
+                            "line": 597
+                          },
+                          "message": "Error: Should navigate to privacy policy page\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  595 |       const currentUrl = page.url();\n  596 |       expect(currentUrl.includes('privacy') || currentUrl.includes('policy'), \n> 597 |         'Should navigate to privacy policy page').toBe(true);\n      |                                                   ^\n  598 |       \n  599 |       await helper.takeScreenshotWithTimestamp('privacy-policy-page');\n  600 |       \n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:597:51"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "📄 Testing: Privacy policy and cookie policy links\n"
+                        },
+                        {
+                          "text": "📄 Privacy policy link found - testing accessibility\n"
+                        },
+                        {
+                          "text": "Privacy policy URL: /privacy-policy\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-23T21:35:49.453Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/test-failed-2.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 51,
+                        "line": 597
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67849dd791d32f260247-401d4e28dae4ba425462",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 575,
+              "column": 3
+            },
+            {
+              "title": "GDPR-007: Consent preferences persistence across sessions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8298,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "💾 Testing: Consent preferences persistence\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Decline\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Decline cookies\n"
+                        },
+                        {
+                          "text": "Initial session - Analytics cookies: 1\n"
+                        },
+                        {
+                          "text": "No Enzuzo consent banner found\n"
+                        },
+                        {
+                          "text": "Consent banner visible in new session: false\n"
+                        },
+                        {
+                          "text": "New session - Analytics cookies: 1\n"
+                        },
+                        {
+                          "text": "✅ Consent preferences persistence validation completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:46.219Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-ff8c1-persistence-across-sessions-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-ce14ce2c9afb3ef523bc",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 628,
+              "column": 3
+            },
+            {
+              "title": "GDPR-008: User registration with GDPR consent integration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4775,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "👤 Testing: User registration with GDPR consent\n"
+                        },
+                        {
+                          "text": "Created temporary email: test-1755984950938-q5c63g@mailinator.com\n"
+                        },
+                        {
+                          "text": "Using test email: test-1755984950938-q5c63g@mailinator.com\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "⚠️ Sign Up button not found on landing page\n"
+                        },
+                        {
+                          "text": "✅ User registration GDPR integration test completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:50.913Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-63c30-th-GDPR-consent-integration-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-30e7534400274d0a86ec",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 670,
+              "column": 3
+            },
+            {
+              "title": "GDPR-009: Cross-browser consent behavior validation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 7505,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🌐 Testing: Cross-browser consent behavior (chromium)\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "chromium: Consent banner visible: true\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "chromium - Cookies: N:0, A:1, M:1\n"
+                        },
+                        {
+                          "text": "chromium - Analytics requests: 1\n"
+                        },
+                        {
+                          "text": "No Enzuzo consent banner found\n"
+                        },
+                        {
+                          "text": "chromium: Banner visible after reload: false\n"
+                        },
+                        {
+                          "text": "✅ Cross-browser validation completed for chromium\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:54.692Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-1d4c6-consent-behavior-validation-chromium-gdpr/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67849dd791d32f260247-29880dc42ce8242b31d0",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 724,
+              "column": 3
+            },
+            {
+              "title": "GDPR-010: Performance impact of GDPR implementation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6748,
+                      "error": {
+                        "message": "Error: Consent processing should be fast\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m2031\u001b[39m",
+                        "stack": "Error: Consent processing should be fast\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m2031\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:792:69",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 69,
+                          "line": 792
+                        },
+                        "snippet": "  790 |     // Basic performance assertions\n  791 |     expect(bannerLoadTime, 'Page should load with consent banner within reasonable time').toBeLessThan(10000);\n> 792 |     expect(consentProcessTime, 'Consent processing should be fast').toBeLessThan(2000);\n      |                                                                     ^\n  793 |     \n  794 |     await helper.takeScreenshotWithTimestamp('performance-test-complete');\n  795 |     "
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 69,
+                            "line": 792
+                          },
+                          "message": "Error: Consent processing should be fast\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m2031\u001b[39m\n\n  790 |     // Basic performance assertions\n  791 |     expect(bannerLoadTime, 'Page should load with consent banner within reasonable time').toBeLessThan(10000);\n> 792 |     expect(consentProcessTime, 'Consent processing should be fast').toBeLessThan(2000);\n      |                                                                     ^\n  793 |     \n  794 |     await helper.takeScreenshotWithTimestamp('performance-test-complete');\n  795 |     \n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:792:69"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "⚡ Testing: Performance impact of GDPR implementation\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "Page load with consent banner: 1549ms\n"
+                        },
+                        {
+                          "text": "Banner visible: true\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "Consent processing time: 2031ms\n"
+                        },
+                        {
+                          "text": "Performance-related logs: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:54.546Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 69,
+                        "line": 792
+                      }
+                    },
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7332,
+                      "error": {
+                        "message": "Error: Consent processing should be fast\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m2070\u001b[39m",
+                        "stack": "Error: Consent processing should be fast\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m2070\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:792:69",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 69,
+                          "line": 792
+                        },
+                        "snippet": "  790 |     // Basic performance assertions\n  791 |     expect(bannerLoadTime, 'Page should load with consent banner within reasonable time').toBeLessThan(10000);\n> 792 |     expect(consentProcessTime, 'Consent processing should be fast').toBeLessThan(2000);\n      |                                                                     ^\n  793 |     \n  794 |     await helper.takeScreenshotWithTimestamp('performance-test-complete');\n  795 |     "
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 69,
+                            "line": 792
+                          },
+                          "message": "Error: Consent processing should be fast\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m2070\u001b[39m\n\n  790 |     // Basic performance assertions\n  791 |     expect(bannerLoadTime, 'Page should load with consent banner within reasonable time').toBeLessThan(10000);\n> 792 |     expect(consentProcessTime, 'Consent processing should be fast').toBeLessThan(2000);\n      |                                                                     ^\n  793 |     \n  794 |     await helper.takeScreenshotWithTimestamp('performance-test-complete');\n  795 |     \n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:792:69"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "⚡ Testing: Performance impact of GDPR implementation\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "Page load with consent banner: 2050ms\n"
+                        },
+                        {
+                          "text": "Banner visible: true\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "Consent processing time: 2070ms\n"
+                        },
+                        {
+                          "text": "Performance-related logs: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-23T21:36:01.621Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 69,
+                        "line": 792
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67849dd791d32f260247-221830e132fe4b65c574",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 763,
+              "column": 3
+            },
+            {
+              "title": "GDPR-011: Data subject rights validation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 2655,
+                      "error": {
+                        "message": "Error: Should mention data subject rights\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: Should mention data subject rights\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:842:72",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 72,
+                          "line": 842
+                        },
+                        "snippet": "  840 |       \n  841 |       // At minimum, should mention some data rights\n> 842 |       expect(foundRights.length, 'Should mention data subject rights').toBeGreaterThan(0);\n      |                                                                        ^\n  843 |     } else {\n  844 |       console.log('⚠️ Privacy policy link not accessible');\n  845 |     }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 72,
+                            "line": 842
+                          },
+                          "message": "Error: Should mention data subject rights\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  840 |       \n  841 |       // At minimum, should mention some data rights\n> 842 |       expect(foundRights.length, 'Should mention data subject rights').toBeGreaterThan(0);\n      |                                                                        ^\n  843 |     } else {\n  844 |       console.log('⚠️ Privacy policy link not accessible');\n  845 |     }\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:842:72"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "⚖️ Testing: Data subject rights implementation\n"
+                        },
+                        {
+                          "text": "📋 Data subject rights found: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:35:55.715Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/test-failed-2.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/video.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/video-1.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 72,
+                        "line": 842
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 2536,
+                      "error": {
+                        "message": "Error: Should mention data subject rights\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: Should mention data subject rights\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:842:72",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 72,
+                          "line": 842
+                        },
+                        "snippet": "  840 |       \n  841 |       // At minimum, should mention some data rights\n> 842 |       expect(foundRights.length, 'Should mention data subject rights').toBeGreaterThan(0);\n      |                                                                        ^\n  843 |     } else {\n  844 |       console.log('⚠️ Privacy policy link not accessible');\n  845 |     }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 72,
+                            "line": 842
+                          },
+                          "message": "Error: Should mention data subject rights\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  840 |       \n  841 |       // At minimum, should mention some data rights\n> 842 |       expect(foundRights.length, 'Should mention data subject rights').toBeGreaterThan(0);\n      |                                                                        ^\n  843 |     } else {\n  844 |       console.log('⚠️ Privacy policy link not accessible');\n  845 |     }\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:842:72"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "⚖️ Testing: Data subject rights implementation\n"
+                        },
+                        {
+                          "text": "📋 Data subject rights found: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-23T21:35:58.716Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 72,
+                        "line": 842
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67849dd791d32f260247-97dfe5a3331c9f10b56a",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 799,
+              "column": 3
+            },
+            {
+              "title": "GDPR-012: Compliance documentation generation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-gdpr",
+                  "projectName": "chromium-gdpr",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 9072,
+                      "error": {
+                        "message": "Error: GDPR compliance should be at least 60%\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m60\u001b[39m\nReceived:    \u001b[31m50\u001b[39m",
+                        "stack": "Error: GDPR compliance should be at least 60%\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m60\u001b[39m\nReceived:    \u001b[31m50\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:934:76",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 76,
+                          "line": 934
+                        },
+                        "snippet": "  932 |     \n  933 |     // Compliance assertion\n> 934 |     expect(compliancePercentage, 'GDPR compliance should be at least 60%').toBeGreaterThanOrEqual(60);\n      |                                                                            ^\n  935 |     \n  936 |     console.log('✅ GDPR compliance documentation generated');\n  937 |   });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 76,
+                            "line": 934
+                          },
+                          "message": "Error: GDPR compliance should be at least 60%\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m60\u001b[39m\nReceived:    \u001b[31m50\u001b[39m\n\n  932 |     \n  933 |     // Compliance assertion\n> 934 |     expect(compliancePercentage, 'GDPR compliance should be at least 60%').toBeGreaterThanOrEqual(60);\n      |                                                                            ^\n  935 |     \n  936 |     console.log('✅ GDPR compliance documentation generated');\n  937 |   });\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:934:76"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "📑 Generating: GDPR compliance documentation\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "✅ Consent banner: true\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "Enzuzo Decline button not found - checking for alternatives\n"
+                        },
+                        {
+                          "text": "No decline button found\n"
+                        },
+                        {
+                          "text": "\n📊 GDPR COMPLIANCE REPORT:\n"
+                        },
+                        {
+                          "text": "================================\n"
+                        },
+                        {
+                          "text": "Consent Banner: ✅ PASS\n"
+                        },
+                        {
+                          "text": "Cookie Control: ✅ PASS\n"
+                        },
+                        {
+                          "text": "Privacy Links: ❌ FAIL\n"
+                        },
+                        {
+                          "text": "\n🍪 COOKIE ANALYSIS:\n"
+                        },
+                        {
+                          "text": "Before Consent - Total: 0\n"
+                        },
+                        {
+                          "text": "After Accept - Total: 7\n"
+                        },
+                        {
+                          "text": "After Reject - Total: 9\n"
+                        },
+                        {
+                          "text": "\n🎯 OVERALL COMPLIANCE: 50% (2/4 tests passed)\n"
+                        },
+                        {
+                          "text": "❌ GDPR COMPLIANCE: CRITICAL ISSUES\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T21:36:01.701Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 76,
+                        "line": 934
+                      }
+                    },
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8324,
+                      "error": {
+                        "message": "Error: GDPR compliance should be at least 60%\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m60\u001b[39m\nReceived:    \u001b[31m50\u001b[39m",
+                        "stack": "Error: GDPR compliance should be at least 60%\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m60\u001b[39m\nReceived:    \u001b[31m50\u001b[39m\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:934:76",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                          "column": 76,
+                          "line": 934
+                        },
+                        "snippet": "  932 |     \n  933 |     // Compliance assertion\n> 934 |     expect(compliancePercentage, 'GDPR compliance should be at least 60%').toBeGreaterThanOrEqual(60);\n      |                                                                            ^\n  935 |     \n  936 |     console.log('✅ GDPR compliance documentation generated');\n  937 |   });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                            "column": 76,
+                            "line": 934
+                          },
+                          "message": "Error: GDPR compliance should be at least 60%\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m60\u001b[39m\nReceived:    \u001b[31m50\u001b[39m\n\n  932 |     \n  933 |     // Compliance assertion\n> 934 |     expect(compliancePercentage, 'GDPR compliance should be at least 60%').toBeGreaterThanOrEqual(60);\n      |                                                                            ^\n  935 |     \n  936 |     console.log('✅ GDPR compliance documentation generated');\n  937 |   });\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:934:76"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "📑 Generating: GDPR compliance documentation\n"
+                        },
+                        {
+                          "text": "Found Enzuzo Accept button - consent banner is visible\n"
+                        },
+                        {
+                          "text": "✅ Consent banner: true\n"
+                        },
+                        {
+                          "text": "Clicking Enzuzo \"Allow All\" button\n"
+                        },
+                        {
+                          "text": "Successfully clicked Accept All cookies\n"
+                        },
+                        {
+                          "text": "Enzuzo Decline button not found - checking for alternatives\n"
+                        },
+                        {
+                          "text": "No decline button found\n"
+                        },
+                        {
+                          "text": "\n📊 GDPR COMPLIANCE REPORT:\n"
+                        },
+                        {
+                          "text": "================================\n"
+                        },
+                        {
+                          "text": "Consent Banner: ✅ PASS\n"
+                        },
+                        {
+                          "text": "Cookie Control: ✅ PASS\n"
+                        },
+                        {
+                          "text": "Privacy Links: ❌ FAIL\n"
+                        },
+                        {
+                          "text": "\n🍪 COOKIE ANALYSIS:\n"
+                        },
+                        {
+                          "text": "Before Consent - Total: 0\n"
+                        },
+                        {
+                          "text": "After Accept - Total: 7\n"
+                        },
+                        {
+                          "text": "After Reject - Total: 9\n"
+                        },
+                        {
+                          "text": "\n🎯 OVERALL COMPLIANCE: 50% (2/4 tests passed)\n"
+                        },
+                        {
+                          "text": "❌ GDPR COMPLIANCE: CRITICAL ISSUES\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-23T21:36:11.152Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts",
+                        "column": 76,
+                        "line": 934
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67849dd791d32f260247-01725e5aa9ab7d28383a",
+              "file": "gdpr-compliance-comprehensive.spec.ts",
+              "line": 850,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-23T21:35:31.794Z",
+    "duration": 47835.737,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}
