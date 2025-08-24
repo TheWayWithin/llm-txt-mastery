@@ -135,12 +135,14 @@ export default function ContentAnalysis({
   const [completedAnalysisIds, setCompletedAnalysisIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
+    console.log(`🔍 Analysis status check: status=${analysisData?.status}, id=${analysisData?.id}, alreadyCompleted=${analysisData?.id ? completedAnalysisIds.has(analysisData.id) : 'n/a'}`);
+    
     if (analysisData && analysisData.status === "completed" && !completedAnalysisIds.has(analysisData.id)) {
       console.log(`📊 Analysis completed: id=${analysisData.id}, pages=${analysisData.discoveredPages.length}`);
       setProgress(100);
       setCurrentStepIndex(analysisSteps.length - 1);
       setCurrentStage('finalization');
-      setCompletedStages(['discovery', 'content-fetch', 'ai-analysis']);
+      setCompletedStages(['discovery', 'content-fetch', 'ai-analysis', 'finalization']);
       setTotalPages(analysisData.totalPagesFound);
       setProcessedPages(analysisData.discoveredPages.length);
       
@@ -156,9 +158,15 @@ export default function ContentAnalysis({
         queryKey: ["/api/usage", userEmail]
       });
       
-      // Call completion callback immediately - no need for timeout
-      console.log(`🚀 Calling onAnalysisComplete: id=${analysisData.id}`);
-      onAnalysisComplete(analysisData.id, analysisData.discoveredPages);
+      // Call completion callback with delay to allow state updates
+      console.log(`🚀 Calling onAnalysisComplete: id=${analysisData.id} in 500ms`);
+      setTimeout(() => {
+        console.log(`✅ Executing onAnalysisComplete callback now`);
+        onAnalysisComplete(analysisData.id, analysisData.discoveredPages);
+      }, 500);
+    } else if (analysisData && analysisData.status === "failed") {
+      console.error(`❌ Analysis failed: id=${analysisData.id}, error=${analysisData.error}`);
+      setLastError(analysisData.error || "Analysis failed unexpectedly");
     } else if (analysisData && analysisData.status === "processing") {
       // Enhanced progress tracking with stage updates
       const stageMapping = [
