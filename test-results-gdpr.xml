@@ -1,0 +1,728 @@
+<testsuites id="" name="" tests="12" failures="5" skipped="0" errors="0" time="47.835737">
+<testsuite name="gdpr-compliance-comprehensive.spec.ts" timestamp="2025-08-23T21:35:31.929Z" hostname="chromium-gdpr" tests="12" failures="5" skipped="0" time="110.022" errors="0">
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-001: Consent banner appears on first visit" classname="gdpr-compliance-comprehensive.spec.ts" time="5.02">
+<failure message="gdpr-compliance-comprehensive.spec.ts:372:3 GDPR-001: Consent banner appears on first visit" type="FAILURE">
+<![CDATA[  [chromium-gdpr] › gdpr-compliance-comprehensive.spec.ts:372:3 › GDPR Compliance Comprehensive Testing Suite › GDPR-001: Consent banner appears on first visit 
+
+    Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text("Allow All")') resolved to 2 elements:
+        1) <button id="ez-cookie-notification__accept" class="enzuzo-notification-button notification-button button-default button-accept">Allow All</button> aka getByRole('button', { name: 'Allow All' })
+        2) <button id="ez-accept-modal" class="enzuzo-modal-button enzuzo-modal-button-accept">Allow All</button> aka locator('#ez-accept-modal')
+
+    Call log:
+        - checking visibility of locator('#ez-cookie-notification__accept, button:has-text("Allow All")')
+
+
+      348 |       hasCookieLink: await this.cookiePolicyLink.isVisible(),
+      349 |       hasCustomizeOption: await this.customizeButton.isVisible(),
+    > 350 |       hasAcceptOption: await this.acceptAllButton.isVisible(),
+          |                                                   ^
+      351 |       hasRejectOption: await this.rejectOptionalButton.isVisible()
+      352 |     };
+      353 |   }
+        at ConsentBannerPage.verifyBannerContent (/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:350:51)
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:386:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: locator.isVisible: Error: strict mode violation: locator('#ez-cookie-notification__accept, button:has-text("Allow All")') resolved to 2 elements:
+        1) <button id="ez-cookie-notification__accept" class="enzuzo-notification-button notification-button button-default button-accept">Allow All</button> aka getByRole('button', { name: 'Allow All' })
+        2) <button id="ez-accept-modal" class="enzuzo-modal-button enzuzo-modal-button-accept">Allow All</button> aka locator('#ez-accept-modal')
+
+    Call log:
+        - checking visibility of locator('#ez-cookie-notification__accept, button:has-text("Allow All")')
+
+
+      348 |       hasCookieLink: await this.cookiePolicyLink.isVisible(),
+      349 |       hasCustomizeOption: await this.customizeButton.isVisible(),
+    > 350 |       hasAcceptOption: await this.acceptAllButton.isVisible(),
+          |                                                   ^
+      351 |       hasRejectOption: await this.rejectOptionalButton.isVisible()
+      352 |     };
+      353 |   }
+        at ConsentBannerPage.verifyBannerContent (/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:350:51)
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:386:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🍪 Testing: Consent banner appearance on first visit
+Found Enzuzo Accept button - consent banner is visible
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr/trace.zip]]
+🍪 Testing: Consent banner appearance on first visit
+Found Enzuzo Accept button - consent banner is visible
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a840c-nner-appears-on-first-visit-chromium-gdpr-retry1/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-002: Accept All cookies functionality" classname="gdpr-compliance-comprehensive.spec.ts" time="8.417">
+<system-out>
+<![CDATA[🍪 Testing: Accept All cookies functionality
+Found Enzuzo Accept button - consent banner is visible
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+📊 Analytics requests found: 1
+📝 Consent-related logs: 0
+📝 GTM-related logs: 0
+🍪 Cookie counts - Necessary: 0, Analytics: 1
+✅ Analytics tracking confirmed after accepting all cookies
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-269a5-t-All-cookies-functionality-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-003: Reject Optional cookies functionality" classname="gdpr-compliance-comprehensive.spec.ts" time="8.439">
+<system-out>
+<![CDATA[🍪 Testing: Reject Optional cookies functionality
+Found Enzuzo Accept button - consent banner is visible
+Clicking Enzuzo "Decline" button
+Successfully clicked Decline cookies
+📊 Analytics requests after rejection: 1
+📈 Marketing requests after rejection: 1
+🍪 Cookie counts after rejection - Necessary: 0, Analytics: 1, Marketing: 1
+✅ Reject optional cookies validation completed
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-a9f1b-ional-cookies-functionality-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-004: GTM Consent Mode integration validation" classname="gdpr-compliance-comprehensive.spec.ts" time="8.018">
+<system-out>
+<![CDATA[🔧 Testing: GTM Consent Mode integration
+Testing GTM consent mode: rejected
+Clicking Enzuzo "Decline" button
+Successfully clicked Decline cookies
+Consent signals for rejected: 0
+GTM calls for rejected: 0
+GTM consent requests for rejected: 0
+Testing GTM consent mode: accepted
+Enzuzo Accept button not found - checking for alternatives
+No accept button found
+Consent signals for accepted: 0
+GTM calls for accepted: 0
+GTM consent requests for accepted: 0
+✅ GTM Consent Mode integration test completed
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-09c72-Mode-integration-validation-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-005: Cookie categorization validation" classname="gdpr-compliance-comprehensive.spec.ts" time="9.965">
+<system-out>
+<![CDATA[🏷️ Testing: Cookie categorization validation
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+📊 Cookie Categorization Analysis:
+Necessary cookies: 0
+Analytics cookies: 1
+Marketing cookies: 1
+Functional cookies: 1
+Other cookies: 4
+
+🔍 Cookie Details:
+Analytics: cookies-analytics (llmtxtmastery.com)
+Marketing: cookies-marketing (llmtxtmastery.com)
+Functional: cookies-preferences (llmtxtmastery.com)
+Other: cookies-functional (llmtxtmastery.com)
+Other: m (m.stripe.com)
+Other: __stripe_mid (.llmtxtmastery.com)
+Other: __stripe_sid (.llmtxtmastery.com)
+✅ Cookie categorization validation completed
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-3608e-e-categorization-validation-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-006: Privacy policy and cookie policy link validation" classname="gdpr-compliance-comprehensive.spec.ts" time="12.918">
+<failure message="gdpr-compliance-comprehensive.spec.ts:575:3 GDPR-006: Privacy policy and cookie policy link validation" type="FAILURE">
+<![CDATA[  [chromium-gdpr] › gdpr-compliance-comprehensive.spec.ts:575:3 › GDPR Compliance Comprehensive Testing Suite › GDPR-006: Privacy policy and cookie policy link validation 
+
+    Error: Should navigate to privacy policy page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      595 |       const currentUrl = page.url();
+      596 |       expect(currentUrl.includes('privacy') || currentUrl.includes('policy'), 
+    > 597 |         'Should navigate to privacy policy page').toBe(true);
+          |                                                   ^
+      598 |       
+      599 |       await helper.takeScreenshotWithTimestamp('privacy-policy-page');
+      600 |       
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:597:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Should navigate to privacy policy page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      595 |       const currentUrl = page.url();
+      596 |       expect(currentUrl.includes('privacy') || currentUrl.includes('policy'), 
+    > 597 |         'Should navigate to privacy policy page').toBe(true);
+          |                                                   ^
+      598 |       
+      599 |       await helper.takeScreenshotWithTimestamp('privacy-policy-page');
+      600 |       
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:597:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[📄 Testing: Privacy policy and cookie policy links
+📄 Privacy policy link found - testing accessibility
+Privacy policy URL: /privacy-policy
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/test-failed-2.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/video-1.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr/trace.zip]]
+📄 Testing: Privacy policy and cookie policy links
+📄 Privacy policy link found - testing accessibility
+Privacy policy URL: /privacy-policy
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/test-failed-2.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/video-1.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-2e33a-okie-policy-link-validation-chromium-gdpr-retry1/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-007: Consent preferences persistence across sessions" classname="gdpr-compliance-comprehensive.spec.ts" time="8.298">
+<system-out>
+<![CDATA[💾 Testing: Consent preferences persistence
+Clicking Enzuzo "Decline" button
+Successfully clicked Decline cookies
+Initial session - Analytics cookies: 1
+No Enzuzo consent banner found
+Consent banner visible in new session: false
+New session - Analytics cookies: 1
+✅ Consent preferences persistence validation completed
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-ff8c1-persistence-across-sessions-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-008: User registration with GDPR consent integration" classname="gdpr-compliance-comprehensive.spec.ts" time="4.775">
+<system-out>
+<![CDATA[👤 Testing: User registration with GDPR consent
+Created temporary email: test-1755984950938-q5c63g@mailinator.com
+Using test email: test-1755984950938-q5c63g@mailinator.com
+Found Enzuzo Accept button - consent banner is visible
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+⚠️ Sign Up button not found on landing page
+✅ User registration GDPR integration test completed
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-63c30-th-GDPR-consent-integration-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-009: Cross-browser consent behavior validation" classname="gdpr-compliance-comprehensive.spec.ts" time="7.505">
+<system-out>
+<![CDATA[🌐 Testing: Cross-browser consent behavior (chromium)
+Found Enzuzo Accept button - consent banner is visible
+chromium: Consent banner visible: true
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+chromium - Cookies: N:0, A:1, M:1
+chromium - Analytics requests: 1
+No Enzuzo consent banner found
+chromium: Banner visible after reload: false
+✅ Cross-browser validation completed for chromium
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-1d4c6-consent-behavior-validation-chromium-gdpr/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-010: Performance impact of GDPR implementation" classname="gdpr-compliance-comprehensive.spec.ts" time="14.08">
+<failure message="gdpr-compliance-comprehensive.spec.ts:763:3 GDPR-010: Performance impact of GDPR implementation" type="FAILURE">
+<![CDATA[  [chromium-gdpr] › gdpr-compliance-comprehensive.spec.ts:763:3 › GDPR Compliance Comprehensive Testing Suite › GDPR-010: Performance impact of GDPR implementation 
+
+    Error: Consent processing should be fast
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 2000
+    Received:   2031
+
+      790 |     // Basic performance assertions
+      791 |     expect(bannerLoadTime, 'Page should load with consent banner within reasonable time').toBeLessThan(10000);
+    > 792 |     expect(consentProcessTime, 'Consent processing should be fast').toBeLessThan(2000);
+          |                                                                     ^
+      793 |     
+      794 |     await helper.takeScreenshotWithTimestamp('performance-test-complete');
+      795 |     
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:792:69
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Consent processing should be fast
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 2000
+    Received:   2070
+
+      790 |     // Basic performance assertions
+      791 |     expect(bannerLoadTime, 'Page should load with consent banner within reasonable time').toBeLessThan(10000);
+    > 792 |     expect(consentProcessTime, 'Consent processing should be fast').toBeLessThan(2000);
+          |                                                                     ^
+      793 |     
+      794 |     await helper.takeScreenshotWithTimestamp('performance-test-complete');
+      795 |     
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:792:69
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[⚡ Testing: Performance impact of GDPR implementation
+Found Enzuzo Accept button - consent banner is visible
+Page load with consent banner: 1549ms
+Banner visible: true
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+Consent processing time: 2031ms
+Performance-related logs: 0
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr/trace.zip]]
+⚡ Testing: Performance impact of GDPR implementation
+Found Enzuzo Accept button - consent banner is visible
+Page load with consent banner: 2050ms
+Banner visible: true
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+Consent processing time: 2070ms
+Performance-related logs: 0
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-02562-pact-of-GDPR-implementation-chromium-gdpr-retry1/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-011: Data subject rights validation" classname="gdpr-compliance-comprehensive.spec.ts" time="5.191">
+<failure message="gdpr-compliance-comprehensive.spec.ts:799:3 GDPR-011: Data subject rights validation" type="FAILURE">
+<![CDATA[  [chromium-gdpr] › gdpr-compliance-comprehensive.spec.ts:799:3 › GDPR Compliance Comprehensive Testing Suite › GDPR-011: Data subject rights validation 
+
+    Error: Should mention data subject rights
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      840 |       
+      841 |       // At minimum, should mention some data rights
+    > 842 |       expect(foundRights.length, 'Should mention data subject rights').toBeGreaterThan(0);
+          |                                                                        ^
+      843 |     } else {
+      844 |       console.log('⚠️ Privacy policy link not accessible');
+      845 |     }
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:842:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Should mention data subject rights
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      840 |       
+      841 |       // At minimum, should mention some data rights
+    > 842 |       expect(foundRights.length, 'Should mention data subject rights').toBeGreaterThan(0);
+          |                                                                        ^
+      843 |     } else {
+      844 |       console.log('⚠️ Privacy policy link not accessible');
+      845 |     }
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:842:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[⚖️ Testing: Data subject rights implementation
+📋 Data subject rights found: 0
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/test-failed-2.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/video-1.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr/trace.zip]]
+⚖️ Testing: Data subject rights implementation
+📋 Data subject rights found: 0
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/test-failed-2.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/video-1.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-de7f8-a-subject-rights-validation-chromium-gdpr-retry1/trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="GDPR Compliance Comprehensive Testing Suite › GDPR-012: Compliance documentation generation" classname="gdpr-compliance-comprehensive.spec.ts" time="17.396">
+<failure message="gdpr-compliance-comprehensive.spec.ts:850:3 GDPR-012: Compliance documentation generation" type="FAILURE">
+<![CDATA[  [chromium-gdpr] › gdpr-compliance-comprehensive.spec.ts:850:3 › GDPR Compliance Comprehensive Testing Suite › GDPR-012: Compliance documentation generation 
+
+    Error: GDPR compliance should be at least 60%
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 60
+    Received:    50
+
+      932 |     
+      933 |     // Compliance assertion
+    > 934 |     expect(compliancePercentage, 'GDPR compliance should be at least 60%').toBeGreaterThanOrEqual(60);
+          |                                                                            ^
+      935 |     
+      936 |     console.log('✅ GDPR compliance documentation generated');
+      937 |   });
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:934:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: GDPR compliance should be at least 60%
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 60
+    Received:    50
+
+      932 |     
+      933 |     // Compliance assertion
+    > 934 |     expect(compliancePercentage, 'GDPR compliance should be at least 60%').toBeGreaterThanOrEqual(60);
+          |                                                                            ^
+      935 |     
+      936 |     console.log('✅ GDPR compliance documentation generated');
+      937 |   });
+        at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/gdpr-compliance-comprehensive.spec.ts:934:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[📑 Generating: GDPR compliance documentation
+Found Enzuzo Accept button - consent banner is visible
+✅ Consent banner: true
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+Enzuzo Decline button not found - checking for alternatives
+No decline button found
+
+📊 GDPR COMPLIANCE REPORT:
+================================
+Consent Banner: ✅ PASS
+Cookie Control: ✅ PASS
+Privacy Links: ❌ FAIL
+
+🍪 COOKIE ANALYSIS:
+Before Consent - Total: 0
+After Accept - Total: 7
+After Reject - Total: 9
+
+🎯 OVERALL COMPLIANCE: 50% (2/4 tests passed)
+❌ GDPR COMPLIANCE: CRITICAL ISSUES
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr/trace.zip]]
+📑 Generating: GDPR compliance documentation
+Found Enzuzo Accept button - consent banner is visible
+✅ Consent banner: true
+Clicking Enzuzo "Allow All" button
+Successfully clicked Accept All cookies
+Enzuzo Decline button not found - checking for alternatives
+No decline button found
+
+📊 GDPR COMPLIANCE REPORT:
+================================
+Consent Banner: ✅ PASS
+Cookie Control: ✅ PASS
+Privacy Links: ❌ FAIL
+
+🍪 COOKIE ANALYSIS:
+Before Consent - Total: 0
+After Accept - Total: 7
+After Reject - Total: 9
+
+🎯 OVERALL COMPLIANCE: 50% (2/4 tests passed)
+❌ GDPR COMPLIANCE: CRITICAL ISSUES
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/video.webm]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/error-context.md]]
+
+[[ATTACHMENT|test-results/gdpr-compliance-comprehens-9d773-ce-documentation-generation-chromium-gdpr-retry1/trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,371 @@
+{
+  "config": {
+    "configFile": "/Users/jamiewatters/DevProjects/llm-txt-mastery/playwright.production.config.ts",
+    "rootDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report-production"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results-production.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-production",
+        "name": "chromium-production",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox-production",
+        "name": "firefox-production",
+        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "production-quick-diagnostic.spec.ts",
+      "file": "production-quick-diagnostic.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production Site Diagnostic",
+          "file": "production-quick-diagnostic.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should verify site is loading and main elements are present",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-production",
+                  "projectName": "chromium-production",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2478,
+                      "error": {
+                        "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n",
+                        "stack": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts:26:33",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                          "column": 33,
+                          "line": 26
+                        },
+                        "snippet": "  24 |     // Check for Get Started button\n  25 |     const getStartedBtn = page.locator('button:has-text(\"Get Started\")');\n> 26 |     await expect(getStartedBtn).toBeVisible();\n     |                                 ^\n  27 |     console.log('✅ Get Started button found');\n  28 |     \n  29 |     // Check for URL input area (might be on analyze page)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                            "column": 33,
+                            "line": 26
+                          },
+                          "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n\n\n  24 |     // Check for Get Started button\n  25 |     const getStartedBtn = page.locator('button:has-text(\"Get Started\")');\n> 26 |     await expect(getStartedBtn).toBeVisible();\n     |                                 ^\n  27 |     console.log('✅ Get Started button found');\n  28 |     \n  29 |     // Check for URL input area (might be on analyze page)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts:26:33"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== PRODUCTION SITE DIAGNOSTIC ===\n"
+                        },
+                        {
+                          "text": "Page title: LLM.txt Mastery - AI-Ready Website Content Generator\n"
+                        },
+                        {
+                          "text": "✅ Main heading found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T05:10:40.840Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                        "column": 33,
+                        "line": 26
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2223,
+                      "error": {
+                        "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n",
+                        "stack": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts:26:33",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                          "column": 33,
+                          "line": 26
+                        },
+                        "snippet": "  24 |     // Check for Get Started button\n  25 |     const getStartedBtn = page.locator('button:has-text(\"Get Started\")');\n> 26 |     await expect(getStartedBtn).toBeVisible();\n     |                                 ^\n  27 |     console.log('✅ Get Started button found');\n  28 |     \n  29 |     // Check for URL input area (might be on analyze page)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                            "column": 33,
+                            "line": 26
+                          },
+                          "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n\n\n  24 |     // Check for Get Started button\n  25 |     const getStartedBtn = page.locator('button:has-text(\"Get Started\")');\n> 26 |     await expect(getStartedBtn).toBeVisible();\n     |                                 ^\n  27 |     console.log('✅ Get Started button found');\n  28 |     \n  29 |     // Check for URL input area (might be on analyze page)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts:26:33"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== PRODUCTION SITE DIAGNOSTIC ===\n"
+                        },
+                        {
+                          "text": "Page title: LLM.txt Mastery - AI-Ready Website Content Generator\n"
+                        },
+                        {
+                          "text": "✅ Main heading found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-21T05:10:43.711Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                        "column": 33,
+                        "line": 26
+                      }
+                    },
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2258,
+                      "error": {
+                        "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n",
+                        "stack": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts:26:33",
+                        "location": {
+                          "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                          "column": 33,
+                          "line": 26
+                        },
+                        "snippet": "  24 |     // Check for Get Started button\n  25 |     const getStartedBtn = page.locator('button:has-text(\"Get Started\")');\n> 26 |     await expect(getStartedBtn).toBeVisible();\n     |                                 ^\n  27 |     console.log('✅ Get Started button found');\n  28 |     \n  29 |     // Check for URL input area (might be on analyze page)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                            "column": 33,
+                            "line": 26
+                          },
+                          "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('button:has-text(\"Get Started\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2\">Get Started</button> aka getByRole('button', { name: 'Get Started', exact: true })\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-11 rounded-md bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3\">Get Started Today →</button> aka getByRole('button', { name: 'Get Started Today →' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Get Started\")')\u001b[22m\n\n\n  24 |     // Check for Get Started button\n  25 |     const getStartedBtn = page.locator('button:has-text(\"Get Started\")');\n> 26 |     await expect(getStartedBtn).toBeVisible();\n     |                                 ^\n  27 |     console.log('✅ Get Started button found');\n  28 |     \n  29 |     // Check for URL input area (might be on analyze page)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts:26:33"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== PRODUCTION SITE DIAGNOSTIC ===\n"
+                        },
+                        {
+                          "text": "Page title: LLM.txt Mastery - AI-Ready Website Content Generator\n"
+                        },
+                        {
+                          "text": "✅ Main heading found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 2,
+                      "startTime": "2025-08-21T05:10:46.262Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry2/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry2/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results/production-quick-diagnosti-626af-d-main-elements-are-present-chromium-production-retry2/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/production-quick-diagnostic.spec.ts",
+                        "column": 33,
+                        "line": 26
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e1815e3bcd58556b7e00-277ff9247afadf449f6f",
+              "file": "production-quick-diagnostic.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should test basic analysis flow to understand form structure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-production",
+                  "projectName": "chromium-production",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1909,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== BASIC ANALYSIS FLOW TEST ===\n"
+                        },
+                        {
+                          "text": "⚠️ URL input not found on analyze page\n"
+                        },
+                        {
+                          "text": "Total inputs found: 3\n"
+                        },
+                        {
+                          "text": "=== BASIC FLOW TEST COMPLETE ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T05:10:48.825Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e1815e3bcd58556b7e00-125da992db0327ff9e1b",
+              "file": "production-quick-diagnostic.spec.ts",
+              "line": 55,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-21T05:10:40.544Z",
+    "duration": 10284.973,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
