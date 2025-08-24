@@ -518,31 +518,31 @@ function updateProgressForState(state: FlowState, progress: ProgressContext): Pr
       break;
     case 'URL_INPUT':
       newProgress.currentStep = 'url-input';
-      newProgress.completedSteps = ['getting-started'];
+      newProgress.completedSteps = ['getting-started', 'email-capture'];
       newProgress.progress = 20;
       break;
     case 'TIER_LIMITS':
       newProgress.currentStep = 'tier-setup';
-      newProgress.completedSteps = ['getting-started', 'url-input'];
+      newProgress.completedSteps = ['getting-started', 'email-capture', 'url-input'];
       newProgress.progress = 30;
       break;
     case 'ANALYSIS':
       newProgress.currentStep = 'analysis';
-      newProgress.completedSteps = ['getting-started', 'url-input', 'tier-setup'];
+      newProgress.completedSteps = ['getting-started', 'email-capture', 'url-input', 'tier-setup'];
       newProgress.progress = 40;
       newProgress.analysisStage = 'discovery';
       newProgress.completedAnalysisStages = [];
       break;
     case 'REVIEW':
       newProgress.currentStep = 'review';
-      newProgress.completedSteps = ['getting-started', 'url-input', 'tier-setup', 'analysis'];
+      newProgress.completedSteps = ['getting-started', 'email-capture', 'url-input', 'tier-setup', 'analysis'];
       newProgress.progress = 70;
       newProgress.analysisStage = undefined;
       newProgress.completedAnalysisStages = ['discovery', 'content-fetch', 'ai-analysis', 'finalization'];
       break;
     case 'GENERATION':
       newProgress.currentStep = 'generation';
-      newProgress.completedSteps = ['getting-started', 'url-input', 'tier-setup', 'analysis', 'review'];
+      newProgress.completedSteps = ['getting-started', 'email-capture', 'url-input', 'tier-setup', 'analysis', 'review'];
       newProgress.progress = 100;
       break;
   }
