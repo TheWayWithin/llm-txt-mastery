@@ -1188,12 +1188,12 @@ export default function Home() {
                 </ul>
               </div>
               <div>
-                <h5 className="font-semibold mb-4">Connect</h5>
+                <h5 className="font-semibold mb-4">Legal & Connect</h5>
                 <ul className="text-sm text-slate-300 space-y-2">
-                  <li><a href="https://aisearchmastery.com" target="_blank" rel="noopener noreferrer" className="hover:text-innovation-teal transition-colors">Main Website</a></li>
-                  <li><a href="https://github.com/TheWayWithin" target="_blank" rel="noopener noreferrer" className="hover:text-innovation-teal transition-colors">Other Projects</a></li>
+                  <li><a href="/privacy" className="hover:text-innovation-teal transition-colors">Privacy Policy</a></li>
+                  <li><a href="/terms" className="hover:text-innovation-teal transition-colors">Terms of Service</a></li>
+                  <li><a href="/contact" className="hover:text-innovation-teal transition-colors">Contact & Support</a></li>
                   <li><a href="/blog" className="hover:text-innovation-teal transition-colors">Blog</a></li>
-                  <li><a href="/contact" className="hover:text-innovation-teal transition-colors">Contact</a></li>
                 </ul>
               </div>
             </div>
