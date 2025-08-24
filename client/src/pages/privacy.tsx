@@ -164,22 +164,66 @@ export const PrivacyPage: React.FC = () => {
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
                 <UserCheck className="mr-3 text-indigo-600" />
-                Your Rights (GDPR)
+                Your Rights (GDPR Articles 15-22)
               </h2>
-              <p className="text-gray-700 mb-4">Under GDPR, you have the right to:</p>
-              <ul className="space-y-2 text-gray-700">
-                <li>✓ <strong>Access:</strong> Get a copy of your personal data</li>
-                <li>✓ <strong>Rectification:</strong> Correct inaccurate data</li>
-                <li>✓ <strong>Erasure:</strong> Delete your data ("right to be forgotten")</li>
-                <li>✓ <strong>Portability:</strong> Export your data in a portable format</li>
-                <li>✓ <strong>Restriction:</strong> Limit how we process your data</li>
-                <li>✓ <strong>Object:</strong> Opt-out of processing based on legitimate interest</li>
-                <li>✓ <strong>Withdraw consent:</strong> For analytics and communications</li>
-                <li>✓ <strong>Complain:</strong> Contact your local data protection authority</li>
-              </ul>
-              <p className="text-gray-700 mt-4">
-                To exercise these rights, contact jamie@llmtxtmastery.com. We'll respond within 30 days.
-              </p>
+              <p className="text-gray-700 mb-4">Under GDPR, you have comprehensive rights regarding your personal data:</p>
+              
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-bold text-blue-800 mb-2">Article 15 - Right of Access</h3>
+                  <p className="text-gray-700 text-sm">Get a complete copy of your personal data, including how it's processed, who it's shared with, and how long it's stored.</p>
+                </div>
+                
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h3 className="font-bold text-green-800 mb-2">Article 16 - Right to Rectification</h3>
+                  <p className="text-gray-700 text-sm">Correct any inaccurate or incomplete personal data we hold about you.</p>
+                </div>
+                
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h3 className="font-bold text-red-800 mb-2">Article 17 - Right to Erasure ("Right to be Forgotten")</h3>
+                  <p className="text-gray-700 text-sm">Request deletion of your personal data when there's no longer a legitimate reason for processing it.</p>
+                </div>
+                
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h3 className="font-bold text-yellow-800 mb-2">Article 18 - Right to Restriction</h3>
+                  <p className="text-gray-700 text-sm">Limit how we process your data while disputes are resolved or accuracy is verified.</p>
+                </div>
+                
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h3 className="font-bold text-purple-800 mb-2">Article 20 - Right to Data Portability</h3>
+                  <p className="text-gray-700 text-sm">Export your data in a machine-readable format to transfer to another service.</p>
+                </div>
+                
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <h3 className="font-bold text-indigo-800 mb-2">Article 21 - Right to Object</h3>
+                  <p className="text-gray-700 text-sm">Opt-out of data processing based on legitimate interest or for direct marketing purposes.</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-6 rounded-lg mb-4">
+                <h3 className="font-bold text-gray-800 mb-3">How to Exercise Your Rights</h3>
+                <div className="space-y-3 text-gray-700">
+                  <p><strong>Email:</strong> <a href="mailto:jamie@llmtxtmastery.com?subject=GDPR%20Data%20Subject%20Request" className="text-blue-600 hover:underline">jamie@llmtxtmastery.com</a></p>
+                  <p><strong>Subject Line:</strong> "GDPR Data Subject Request" (for faster processing)</p>
+                  <p><strong>Response Time:</strong> Within 30 days (1 month) of receiving your request</p>
+                  <p><strong>Verification:</strong> We may need to verify your identity before processing requests</p>
+                  <p><strong>Cost:</strong> Free for most requests (reasonable fees may apply for excessive requests)</p>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
+                <h3 className="font-bold text-amber-800 mb-2">Right to Complain (Article 77)</h3>
+                <p className="text-gray-700 text-sm">
+                  If you're not satisfied with how we handle your request or believe we're not complying with GDPR, 
+                  you can file a complaint with your local data protection authority. For EU residents, find your 
+                  <a href="https://edpb.europa.eu/about-edpb/about-edpb/members_en" 
+                     className="text-amber-700 hover:underline font-medium" 
+                     target="_blank" 
+                     rel="noopener noreferrer">
+                    local data protection authority here
+                  </a>.
+                </p>
+              </div>
             </div>
 
             {/* No Corporate BS */}

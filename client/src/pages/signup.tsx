@@ -646,10 +646,19 @@ export default function SignupPage() {
 
       {/* Footer */}
       <footer className="bg-framework-black text-white py-8 mt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm text-slate-400">
-            &copy; 2025 Jamie Watters. No corporate BS. Just tools that work.
-          </p>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-4">
+            <div className="flex justify-center space-x-6 text-sm">
+              <a href="/privacy" className="text-slate-300 hover:text-innovation-teal transition-colors">Privacy Policy</a>
+              <a href="/terms" className="text-slate-300 hover:text-innovation-teal transition-colors">Terms of Service</a>
+              <a href="/contact" className="text-slate-300 hover:text-innovation-teal transition-colors">Contact</a>
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-slate-400">
+              &copy; 2025 Jamie Watters. No corporate BS. Just tools that work.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
