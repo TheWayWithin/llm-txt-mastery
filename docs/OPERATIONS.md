@@ -1,514 +1,858 @@
-# LLM.txt Mastery Operations Manual
-*Last Updated: August 21, 2025 - Connection Pooling Added*
+# LLM.txt Mastery - Operations Manual
 
-## 🎯 Quick Reference
+> Last Updated: August 25, 2025  
+> Version: 1.1.1 - Current Pricing & Tier Information Updated
 
-**Live System URLs:**
-- **Frontend**: https://www.llmtxtmastery.com (Netlify)
-- **Backend**: https://llm-txt-mastery-production.up.railway.app (Railway)
-- **Health Check**: https://llm-txt-mastery-production.up.railway.app/api/health
-- **Admin Stats**: https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
+## Table of Contents
+- [System Architecture](#system-architecture)
+- [Authentication System](#authentication-system)
+- [Environment Variables](#environment-variables)
+- [Deployment Guide](#deployment-guide)
+- [Configuration Management](#configuration-management)
+- [Monitoring & Maintenance](#monitoring--maintenance)
+- [Cost Optimization](#cost-optimization)
+- [Troubleshooting](#troubleshooting)
+- [Emergency Procedures](#emergency-procedures)
+- [Development Workflow](#development-workflow)
 
-**Emergency Contacts:**
-- Developer: Jamie Watters
-- Support Email: support@llmtxtmastery.com
-- Status Page: Railway Dashboard + Netlify Dashboard
+---
 
-## 🏗️ System Architecture Overview
-
-### Production Infrastructure
-```
-Frontend (Netlify)          Backend (Railway)         Database
-==================          =================         ========
-React 18 + TypeScript  -->  Express.js + TypeScript   Neon PostgreSQL
-Tailwind CSS + shadcn       JWT Authentication         Drizzle ORM
-Stripe Elements             OpenAI Integration         Connection Pooling
-Real-time Updates           Multi-tier Management      Smart Caching
-```
-
-### Core Services
-- **Website Analysis**: Real sitemap discovery + AI quality scoring
-- **Payment Processing**: Stripe Coffee tier ($4.95) fully operational
-- **User Management**: Complete authentication + customer dashboard
-- **File Generation**: Standards-compliant LLM.txt with analysis summaries
-- **Tier Management**: Free (20 pages) vs Coffee (200 pages + AI analysis)
-
-## 🔄 Connection Pooling Configuration
+## System Architecture
 
 ### Overview
-Connection pooling was deployed on August 21, 2025, providing significant performance improvements for API responses. The system auto-scales connections based on demand and includes comprehensive monitoring.
-
-### Configuration Parameters
-```typescript
-// Agent Configuration
-maxSockets: 10,        // Max simultaneous connections per origin
-maxFreeSockets: 5,     // Max idle connections to maintain
-timeout: 60000,        // Connection timeout (60 seconds)
-keepAlive: true,       // Reuse connections for better performance
-
-// Pool Management
-minConnections: 2,     // Minimum pool size
-maxConnections: 10,    // Maximum pool size
-idleTimeout: 60000,    // Idle connection cleanup (60 seconds)
-maxAgents: 50,         // Maximum HTTP agents globally
+```
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────────┐
+│                 │         │                  │         │                 │
+│   Netlify CDN   │◄────────│   Railway API    │◄────────│   Neon DB      │
+│   (Frontend)    │  CORS   │   (Backend)      │   SQL   │   (PostgreSQL)  │
+│                 │         │                  │         │                 │
+└─────────────────┘         └──────────────────┘         └─────────────────┘
+        │                            │                            │
+        ▼                            ▼                            ▼
+   llmtxtmastery.com    llm-txt-mastery-         ep-dark-fire-ae795ogn
+                        production.up.            -pooler.c-2.us-east-2
+                        railway.app               .aws.neon.tech
 ```
 
-### Auto-Scaling Behavior
-- **Startup**: Begins with 2 active connections
-- **Load Increase**: Scales up to 10 connections based on demand
-- **Load Decrease**: Scales down to minimum after idle timeout
-- **Benefits**: 4.9% average performance improvement (up to 7.3% for some sites)
+### Components
+- **Frontend**: React SPA deployed on Netlify (auto-deploy from GitHub)
+- **Backend**: Express.js API on Railway (auto-deploy from GitHub)
+- **Database**: Neon PostgreSQL (managed, connection pooling enabled)
+- **Cache**: In-database caching with 30-day TTL for starter tier
 
-### Best Performance Scenarios
-- **Multi-page same domain**: Maximum connection reuse
-- **Sitemap discovery**: Reduced latency for consecutive requests
-- **Large site analysis**: Batch requests benefit most
-- **Minimal impact**: Single page analyses (still beneficial)
+---
 
-## 📊 Monitoring Connection Pool
+## Authentication System
 
-### Pool Statistics Endpoint
-```bash
-# Check connection pool statistics
-curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
+### Overview
+LLM.txt Mastery uses **JWT-based authentication** with access/refresh token pairs for secure user management and session handling.
 
-# Expected response format:
+```
+┌─────────────────┐    JWT Tokens    ┌─────────────────┐    Session DB    ┌─────────────────┐
+│                 │ ◄────────────────│                 │ ◄────────────────│                 │
+│  React Frontend │    Access/       │  Express.js API │    Validation    │  PostgreSQL     │
+│  (AuthContext)  │    Refresh       │  (Middleware)   │                  │  (Sessions)     │
+│                 │ ─────────────────►│                 │ ─────────────────►│                 │
+└─────────────────┘    Authorization  └─────────────────┘    Auth Storage   └─────────────────┘
+```
+
+### Database Schema
+
+#### Authentication Tables
+```sql
+-- Primary authentication table
+auth_users (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  email_verified BOOLEAN DEFAULT false,
+  tier TEXT DEFAULT 'starter',  -- starter|coffee|growth|scale
+  credits_remaining INTEGER DEFAULT 0,
+  stripe_customer_id TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Session management table
+user_sessions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES auth_users(id),
+  token_hash TEXT UNIQUE NOT NULL,
+  refresh_token_hash TEXT UNIQUE NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  refresh_expires_at TIMESTAMP NOT NULL,
+  last_used_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### JWT Configuration
+
+#### Token Types and Expiry
+- **Access Token**: 15 minutes (short-lived for security)
+- **Refresh Token**: 7 days (for seamless user experience)
+- **Token Storage**: sessionStorage (proper incognito isolation)
+- **Token Hashing**: SHA-256 before database storage
+
+#### Token Structure
+```javascript
+// Access Token Payload
 {
-  "totalAgents": 15,
-  "activeConnections": 8,
-  "idleConnections": 3,
-  "requestsProcessed": 1247,
-  "averageResponseTime": "1.2s",
-  "poolEfficiency": "92%"
+  "userId": 123,
+  "email": "user@example.com", 
+  "tier": "starter",
+  "iat": 1643723400,
+  "exp": 1643724300
+}
+
+// Refresh Token Payload
+{
+  "userId": 123,
+  "type": "refresh",
+  "iat": 1643723400,
+  "exp": 1644328200
 }
 ```
 
-### Key Metrics to Monitor
-- **totalAgents**: Number of HTTP agents created (should stay under 50)
-- **activeConnections**: Currently processing requests
-- **idleConnections**: Available for reuse
-- **requestsProcessed**: Total requests through pool since startup
-- **averageResponseTime**: Performance indicator (target: <2s)
-- **poolEfficiency**: Connection reuse percentage (target: >80%)
+### Authentication Flow
 
-### Health Check Commands
-```bash
-# Basic health check
-curl https://llm-txt-mastery-production.up.railway.app/api/health
+#### Registration Process
+1. **Input Validation**: Email format, password strength (12+ chars, complexity)
+2. **Duplicate Check**: Verify email not already registered
+3. **Password Hashing**: bcrypt with 12 salt rounds
+4. **User Creation**: Insert into `auth_users` table
+5. **Token Generation**: Create JWT access/refresh token pair
+6. **Session Storage**: Store hashed tokens in `user_sessions`
+7. **Response**: Return user data and tokens to frontend
 
-# Connection pool specific health
-curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats | jq '.poolEfficiency'
+#### Login Process
+1. **Credential Validation**: Email/password verification against database
+2. **Password Verification**: bcrypt comparison with stored hash
+3. **Token Generation**: Create new JWT token pair
+4. **Session Creation**: Insert new session record
+5. **Old Session Cleanup**: Optional cleanup of expired sessions
+6. **Response**: Return authenticated user and tokens
 
-# Monitor real-time performance
-watch -n 5 'curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats'
+#### Session Validation (Per Request)
+1. **Token Extraction**: Extract Bearer token from Authorization header
+2. **JWT Verification**: Validate signature and expiration
+3. **Session Lookup**: Find session in database by token hash
+4. **User Attachment**: Add `req.user` and `req.session` to request
+5. **Middleware Chain**: Continue to protected route handler
+
+### Middleware System
+
+#### Authentication Middlewares
+
+**`authenticate`** - Strict Authentication
+```typescript
+// Requires valid authentication, returns 401 if missing/invalid
+app.get('/api/auth/me', authenticate, handler);
 ```
 
-## 🛠️ Troubleshooting Connection Pool
-
-### Common Issues and Solutions
-
-#### High Memory Usage
-**Symptoms**: Server memory consumption increasing over time
-**Cause**: Connection pool not releasing connections properly
-**Solution**:
-```bash
-# Check pool statistics
-curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
-
-# If activeConnections > 20 consistently:
-# 1. Check for hung requests in Railway logs
-# 2. Consider reducing maxConnections in config
-# 3. Monitor for memory leaks in connection handling
+**`optionalAuth`** - Optional Authentication  
+```typescript
+// Populates req.user if token present, continues if not
+app.post('/api/analyze', optionalAuth, handler);
 ```
 
-#### Poor Performance Despite Pooling
-**Symptoms**: Response times not improving with pooling enabled
-**Cause**: Pool configuration mismatch or external bottlenecks
-**Investigation**:
-```bash
-# Check efficiency metrics
-curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats | jq '.poolEfficiency'
-
-# If efficiency < 60%:
-# 1. Increase maxSockets if many different domains
-# 2. Check if sites are blocking connection reuse
-# 3. Review timeout settings for slow sites
+#### Rate Limiting for Auth Endpoints
+```typescript
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 5,                     // 5 attempts per window
+  message: "Too many authentication attempts",
+  standardHeaders: true,
+  legacyHeaders: false
+});
 ```
 
-#### Connection Pool Exhaustion
-**Symptoms**: "EMFILE: too many open files" errors
-**Cause**: Pool creating too many connections simultaneously
-**Solution**:
-```bash
-# Temporary fix - disable pooling
-export DISABLE_CONNECTION_POOL=true
+### User Tier Management
 
-# Permanent fix - adjust limits in config:
-# maxConnections: 5 (reduced from 10)
-# maxAgents: 25 (reduced from 50)
+#### Current Tier System & Pricing
+
+**Free Tier (Starter)**
+- **Price**: $0 (Free forever)
+- **Daily Limit**: 3 analyses per day
+- **Page Limit**: 20 pages per analysis  
+- **AI Analysis**: ✅ Full AI-enhanced quality scoring
+- **Features**: HTML extraction, smart caching
+- **Cache Duration**: 30 days
+
+**Coffee Tier**
+- **Price**: $4.95 (One-time payment)
+- **Daily Limit**: Unlimited (credit-based system)
+- **Page Limit**: 200 pages per analysis
+- **AI Analysis**: ✅ Full AI-enhanced analysis  
+- **Features**: HTML extraction, AI analysis, smart caching
+- **Cache Duration**: 7 days
+- **Target**: Individual users, small projects
+
+**Growth Tier**  
+- **Price**: $9.95/month (Monthly subscription)
+- **Daily Limit**: Unlimited analyses
+- **Page Limit**: 1,000 pages per analysis
+- **AI Analysis**: ✅ 200 pages with AI enhancement
+- **Features**: File history, priority support, smart caching
+- **Cache Duration**: 7 days
+- **Target**: Professional users, growing businesses
+
+**Scale Tier**
+- **Price**: $19.95/month (Monthly subscription)  
+- **Daily Limit**: Unlimited analyses
+- **Page Limit**: Unlimited pages per analysis
+- **AI Analysis**: ✅ Unlimited AI-enhanced pages
+- **Features**: API access, white-label support, enterprise features
+- **Cache Duration**: 3 days (freshest data)
+- **Target**: Enterprise users, high-volume applications
+
+#### Tier Operations
+```bash
+# Check user tier status
+curl -H "Authorization: Bearer $ACCESS_TOKEN" \
+     https://llm-txt-mastery-production.up.railway.app/api/auth/me
+
+# Update user tier (admin operation)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  await authStorage.updateUserTier(userId, 'coffee', 5);
+"
 ```
 
-### Emergency Procedures
+### Session Management Operations
 
-#### Disable Connection Pooling
-If connection pooling causes issues, it can be disabled without code changes:
+#### Token Refresh Flow
+1. **Access Token Expiry**: Frontend receives 401 response
+2. **Refresh Request**: Send refresh token to `/api/auth/refresh`
+3. **Refresh Validation**: Verify refresh token and session
+4. **New Token Generation**: Create fresh access/refresh token pair
+5. **Session Update**: Update session with new token hashes
+6. **Response**: Return new tokens to frontend
+7. **Retry Original Request**: Frontend retries with new access token
 
-**Railway Environment Variable:**
+#### Session Cleanup
 ```bash
-DISABLE_CONNECTION_POOL=true
+# Manual session cleanup (removes expired sessions)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const cleaned = await authStorage.deleteExpiredSessions();
+  console.log(\`Cleaned \${cleaned} expired sessions\`);
+"
+
+# Logout specific user (invalidate all sessions)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const count = await authStorage.deleteAllUserSessions(userId);
+  console.log(\`Invalidated \${count} user sessions\`);
+"
 ```
 
-**Effects of Disabling:**
-- Reverts to individual connections per request
-- 4-7% performance decrease but stable operation
-- All other functionality remains unchanged
-- Can be re-enabled by removing the environment variable
+### Security Features
 
-#### Memory Monitoring Guidelines
-Monitor these metrics to detect connection pool issues early:
+#### Password Security
+- **Hashing Algorithm**: bcrypt with 12 salt rounds
+- **Strength Requirements**: 12+ characters, mixed case, numbers, symbols
+- **No Plaintext Storage**: Passwords never stored in readable format
+- **Reset Mechanism**: Email-based password reset with temporary tokens
 
-**Memory Usage Alerts:**
-- **Warning**: Memory usage > 80% of Railway plan limit
-- **Critical**: Memory usage > 95% of Railway plan limit
-- **Action**: Check connection pool stats and consider disabling temporarily
+#### Token Security
+- **JWT Secrets**: Environment-based secrets for signing/verification
+- **Token Hashing**: SHA-256 hashing before database storage
+- **Short Expiration**: 15-minute access tokens minimize exposure
+- **Secure Headers**: Proper Authorization header handling
+- **CORS Configuration**: Controlled cross-origin access
 
-**Connection Count Alerts:**
-- **Warning**: activeConnections > 15 for >5 minutes
-- **Critical**: totalAgents > 40
-- **Action**: Investigate slow responses or connection leaks
+#### Session Security
+- **Database Validation**: Every request validates against session table
+- **Automatic Expiry**: Expired sessions automatically rejected
+- **Session Rotation**: New tokens on refresh prevent replay attacks
+- **Logout Protection**: Secure session termination
 
-## 🌐 Environment Variables
+---
 
-### Railway Backend (Critical Variables)
+## Environment Variables
+
+### Critical Production Variables (Railway)
+
+#### Database
 ```bash
-# Database Configuration
-DATABASE_URL=postgresql://neondb_owner:...@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+```
+⚠️ **NEVER CHANGE** without coordinating database migration
 
-# Connection Pooling (New)
-DISABLE_CONNECTION_POOL=false  # Set to true to disable pooling
-CONNECTION_POOL_MAX_SOCKETS=10 # Max connections per domain
-CONNECTION_POOL_TIMEOUT=60000  # Connection timeout in ms
+#### JWT Authentication
+```bash
+JWT_SECRET=your-256-bit-secret-key-here           # Access token signing key  
+JWT_REFRESH_SECRET=different-256-bit-secret       # Refresh token signing key
+JWT_EXPIRES_IN=15m                                # Access token expiry (15 minutes)
+JWT_REFRESH_EXPIRES_IN=7d                         # Refresh token expiry (7 days)
+```
+🔒 **SECURITY CRITICAL**: Use strong, unique secrets. Never reuse between environments.
 
-# AI Services
-OPENAI_API_KEY=sk-proj-...
-OPENAI_MODEL=gpt-4o-mini  # 93% cost savings vs gpt-4o
-
-# Authentication
-JWT_SECRET=...
-SUPABASE_URL=https://...supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
-
-# Payment Processing
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_1RmkNAIiC84gpR8H33p6OPKV
-STRIPE_LLM_TXT_GROWTH_PRICE_ID=price_...
-STRIPE_LLM_TXT_SCALE_PRICE_ID=price_...
-
-# Email Services
-RESEND_API_KEY=re_...
-EMAIL_FROM=noreply@llmtxtmastery.com
-
-# Security & Bot Protection
-RATE_LIMIT_ENABLED=true
-BOT_PROTECTION_ENABLED=true
-SMART_BOT_PROTECTION=true
+#### OpenAI Configuration
+```bash
+OPENAI_API_KEY=sk-proj-...  # Your OpenAI API key
+OPENAI_MODEL=gpt-4o-mini    # Model selection (gpt-4o-mini | gpt-4o | gpt-3.5-turbo)
 ```
 
-### Netlify Frontend
+#### Stripe Payments
+```bash
+STRIPE_SECRET_KEY=sk_live_...                    # Production secret key
+STRIPE_WEBHOOK_SECRET=whsec_...                  # Webhook endpoint secret
+STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_...        # $4.95 one-time payment (Coffee tier)
+STRIPE_LLM_TXT_GROWTH_PRICE_ID=price_...        # $9.95/month subscription (Growth tier)
+STRIPE_LLM_TXT_SCALE_PRICE_ID=price_...         # $19.95/month subscription (Scale tier)
+```
+
+#### Supabase Auth (if enabled)
+```bash
+SUPABASE_URL=https://xghwqtmveoiownqxgsii.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiI...
+```
+
+### Frontend Variables (Netlify)
 ```bash
 VITE_API_URL=https://llm-txt-mastery-production.up.railway.app
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
-VITE_SUPABASE_URL=https://...supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+VITE_SUPABASE_URL=https://xghwqtmveoiownqxgsii.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiI...
 ```
 
-## 🔍 Health Monitoring
+---
 
-### System Health Checks
+## Deployment Guide
+
+### Automatic Deployments
+Both platforms auto-deploy from GitHub `main` branch:
+- **Push to main** → Railway deploys backend (2-3 minutes)
+- **Push to main** → Netlify deploys frontend (1-2 minutes)
+
+### Manual Deployment
+
+#### Backend (Railway)
 ```bash
-# Primary health check
-curl https://llm-txt-mastery-production.up.railway.app/api/health
-# Expected: {"status": "healthy", "timestamp": "..."}
+# No manual deployment needed - automatic from GitHub
+# To force redeploy: Railway Dashboard > Service > Redeploy
+```
 
-# Frontend accessibility
-curl -I https://www.llmtxtmastery.com
+#### Frontend (Netlify)
+```bash
+# Build locally first to test
+npm run build
+
+# Netlify auto-deploys, but to trigger manually:
+# Netlify Dashboard > Deploys > Trigger Deploy
+```
+
+### Database Migrations
+```bash
+# Always backup first!
+pg_dump $DATABASE_URL > backup-$(date +%Y%m%d).sql
+
+# Apply schema changes
+DATABASE_URL="..." npm run db:push
+
+# Verify migration
+DATABASE_URL="..." npx tsx -e "
+  import { db } from './server/db';
+  // Test queries here
+"
+```
+
+---
+
+## Configuration Management
+
+### Switching OpenAI Models
+
+#### Option 1: Via Railway Dashboard (Recommended)
+1. Go to Railway Dashboard
+2. Select your service
+3. Variables tab
+4. Update `OPENAI_MODEL` to one of:
+   - `gpt-4o-mini` (default, cheapest, recommended)
+   - `gpt-4o` (highest quality, 16x more expensive)
+   - `gpt-3.5-turbo` (legacy, being phased out)
+5. Service auto-redeploys
+
+#### Option 2: Test Different Models
+```bash
+# Run comparison test locally
+OPENAI_API_KEY=your-key npx tsx server/test-model-comparison.ts
+```
+
+### Adjusting Rate Limits
+Edit `/server/middleware/rate-limit.ts`:
+```typescript
+export const analysisLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 10,                    // Increase for higher limits
+  message: "Too many analysis requests"
+});
+```
+
+### Changing Tier Limits
+Edit `/server/services/cache.ts`:
+```typescript
+export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
+  starter: {
+    dailyAnalyses: 3,        // Daily analysis limit
+    maxPagesPerAnalysis: 20, // Page limit per analysis
+    aiPagesLimit: 20,        // AI-enhanced pages
+    cacheDurationDays: 30,   // Cache duration
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,      // ✅ AI enabled for free tier
+      fileHistory: false,
+      prioritySupport: false,
+      smartCaching: true
+    }
+  },
+  coffee: {
+    dailyAnalyses: 999,      // Unlimited (credit-based)
+    maxPagesPerAnalysis: 200,// 10x more than starter
+    aiPagesLimit: 200,       // Full AI analysis
+    cacheDurationDays: 7,    // Weekly cache refresh
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: false,    // No persistent history
+      prioritySupport: false,
+      smartCaching: true
+    }
+  },
+  growth: {
+    dailyAnalyses: 999,      // Unlimited
+    maxPagesPerAnalysis: 1000,// Enterprise-level capacity  
+    aiPagesLimit: 200,       // AI enhancement limit
+    cacheDurationDays: 7,    // Professional cache duration
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: true,     // ✅ Persistent file history
+      prioritySupport: true, // ✅ Priority support
+      smartCaching: true
+    }
+  },
+  scale: {
+    dailyAnalyses: 999,      // Unlimited
+    maxPagesPerAnalysis: 999999, // No practical limit
+    aiPagesLimit: 999999,    // Unlimited AI enhancement
+    cacheDurationDays: 3,    // Fresh data priority
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: true,
+      prioritySupport: true,
+      smartCaching: true,
+      whiteLabel: true,      // ✅ White-label support
+      apiAccess: true        // ✅ API access
+    }
+  }
+};
+```
+
+---
+
+## Monitoring & Maintenance
+
+### Health Checks
+
+#### Backend Health
+```bash
+curl https://llm-txt-mastery-production.up.railway.app/health
+# Expected: {"status":"ok","timestamp":"...","database":"configured"}
+```
+
+#### Frontend Status
+```bash
+curl -I https://llmtxtmastery.com
 # Expected: HTTP/2 200
-
-# Database connectivity
-curl https://llm-txt-mastery-production.up.railway.app/api/admin/db-status
-# Expected: {"database": "connected", "tables": "operational"}
-
-# Stripe integration
-curl https://llm-txt-mastery-production.up.railway.app/api/stripe/health
-# Expected: {"stripe": "configured", "webhook": "active"}
 ```
 
-### Performance Monitoring
+#### Database Connection
 ```bash
-# Connection pool efficiency
-curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats | jq '.poolEfficiency'
-# Target: >80%
+curl https://llm-txt-mastery-production.up.railway.app/api/analyze \
+  -X POST -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com","email":"test@example.com"}'
+# Should not return "relation does not exist" errors
+```
 
-# API response times
-curl -w "@-" -o /dev/null -s https://llm-txt-mastery-production.up.railway.app/api/health <<< "time_total: %{time_total}s"
-# Target: <500ms
+#### Authentication Health
+```bash
+# Test authentication endpoints
+curl https://llm-txt-mastery-production.up.railway.app/api/auth/health
+# Expected: {"status":"ok","auth":"operational"}
 
-# Analysis performance test
-time curl -X POST https://llm-txt-mastery-production.up.railway.app/api/analyze \
+# Verify JWT token generation (test endpoint)
+curl -X POST https://llm-txt-mastery-production.up.railway.app/api/auth/test-token \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com", "email": "test@example.com", "tier": "starter"}'
-# Target: <5s for small sites
+  -d '{"test":"jwt-generation"}'
+# Should return valid JWT structure
+
+# Check session table health
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const activeCount = await authStorage.getActiveSessionCount();
+  console.log(\`Active sessions: \${activeCount}\`);
+"
 ```
 
-## 🚨 Critical Database Issues
+### Monitoring Checklist (Daily)
+- [ ] Check Railway metrics (memory, CPU, restarts)
+- [ ] Verify Netlify build status
+- [ ] Review error logs in Railway
+- [ ] **Authentication Health**: Verify auth endpoints respond correctly
+- [ ] **Session Count**: Monitor active session count for anomalies
+- [ ] **Failed Logins**: Check for unusual authentication failure rates
+- [ ] **Token Expiry**: Ensure token refresh flow working properly
+- [ ] **Rate Limiting**: Review auth rate limit hits and potential abuse
+- [ ] Check database connection pool stats
+- [ ] Monitor OpenAI API usage/costs
+- [ ] Review Stripe webhook failures
 
-### Primary Database: Neon PostgreSQL
-**Connection String**: `postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+### Cache Management
+```bash
+# Check cache statistics
+DATABASE_URL="..." npx tsx -e "
+  import { getCacheStats } from './server/services/cache';
+  const stats = await getCacheStats();
+  console.log('Cache stats:', stats);
+"
 
-### Common Database Problems
+# Clear expired cache entries
+DATABASE_URL="..." npx tsx -e "
+  import { cleanupExpiredCache } from './server/services/cache';
+  await cleanupExpiredCache();
+"
+```
 
-#### Issue: "relation does not exist" errors
-**Symptoms**: `"relation \"sitemapAnalysis\" does not exist"`
-**Cause**: Railway DATABASE_URL not pointing to Neon database
+---
+
+## Cost Optimization
+
+### OpenAI API Costs
+
+#### Current Model Pricing (Jan 2025)
+| Model | Input (per 1M tokens) | Output (per 1M tokens) | Cost per 1000 pages |
+|-------|----------------------|------------------------|---------------------|
+| gpt-4o-mini | $0.15 | $0.60 | $0.11 |
+| gpt-4o | $2.50 | $10.00 | $1.69 |
+| gpt-3.5-turbo | $0.50 | $1.50 | $0.27 |
+
+#### Cost Reduction Strategies
+1. **Use gpt-4o-mini** (default) - 93% cheaper than gpt-4o
+2. **Enable caching** - Reduces API calls by 70-90%
+3. **Limit AI pages** - Process only high-value pages with AI
+4. **Batch processing** - Group API calls for efficiency
+
+### Database Costs
+- **Current**: Neon free tier (0.5 GB storage, 1 compute unit)
+- **Optimization**: Regularly clean old analyses
+```sql
+-- Remove analyses older than 90 days
+DELETE FROM sitemap_analysis WHERE created_at < NOW() - INTERVAL '90 days';
+```
+
+### Monitoring Costs
+```bash
+# Check daily OpenAI usage
+curl https://api.openai.com/v1/usage \
+  -H "Authorization: Bearer $OPENAI_API_KEY"
+
+# Estimate monthly costs
+# Average: 100 analyses/day * 20 pages * $0.00011 = $0.22/day = $6.60/month
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues & Solutions
+
+#### 1. "relation does not exist" Error
+**Cause**: Database schema out of sync  
 **Solution**:
 ```bash
-# Verify Railway environment variable
-railway vars
-
-# Should show DATABASE_URL pointing to Neon, not Railway PostgreSQL
-# If incorrect, update:
-railway vars set DATABASE_URL="postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="..." npm run db:push
 ```
 
-#### Issue: Column naming mismatches
-**Symptoms**: `column "sitemap_content" does not exist`
-**Cause**: Database schema out of sync with code
+#### 2. CORS Errors
+**Cause**: Frontend/backend URL mismatch  
+**Solution**: Verify `VITE_API_URL` in Netlify matches Railway URL
+
+#### 3. OpenAI API Not Working
+**Symptoms**: Only HTML extraction, no AI analysis  
+**Check**:
+```bash
+# In Railway logs, look for:
+"✅ OPENAI_API_KEY configured - AI analysis enabled"
+# or
+"⚠️ WARNING: OPENAI_API_KEY not set"
+```
+**Solution**: Set `OPENAI_API_KEY` in Railway variables
+
+#### 4. Stripe Webhooks Failing
+**Check**: Stripe Dashboard > Webhooks > Event logs  
+**Common fixes**:
+- Update `STRIPE_WEBHOOK_SECRET` in Railway
+- Verify endpoint URL: `https://llm-txt-mastery-production.up.railway.app/api/stripe/webhook`
+
+#### 5. High Memory Usage
+**Symptoms**: Railway container restarts  
 **Solution**:
-```bash
-# Sync database schema
-DATABASE_URL="postgresql://neondb_owner:..." npm run db:push
+- Reduce batch size in `/server/services/sitemap-enhanced.ts`
+- Lower concurrent batches from 5 to 3
 
-# Verify schema matches
-npm run db:studio  # Opens Drizzle Studio to inspect schema
+#### 6. Cache Not Working
+**Symptoms**: 0 cache hits displayed  
+**Debug**:
+```bash
+# Check cache entries
+DATABASE_URL="..." npx tsx -e "
+  import { db } from './server/db';
+  import { analysisCache } from '@shared/schema';
+  const entries = await db.select().from(analysisCache).limit(10);
+  console.log('Cache entries:', entries);
+"
 ```
 
-## 🔧 Deployment Procedures
+#### 7. Authentication Failures
+**Symptoms**: Users unable to login, 401 errors, token validation failures
 
-### Automatic Deployment (Normal Operations)
+**Common Authentication Issues**:
+
+**JWT Secret Mismatch**:
 ```bash
-# Both frontend and backend auto-deploy on git push
-git add .
-git commit -m "Description of changes"
+# Verify JWT secrets are set in Railway
+curl -H "Authorization: Bearer invalid-token" \
+     https://llm-txt-mastery-production.up.railway.app/api/auth/me
+# Should return structured error, not 500 server error
+```
+
+**Session Table Issues**:
+```bash
+# Check session table exists and has records
+DATABASE_URL="..." npx tsx -e "
+  import { db } from './server/db';
+  import { userSessions } from '@shared/schema';
+  const count = await db.select().from(userSessions).limit(1);
+  console.log('Session table accessible:', count.length >= 0);
+"
+```
+
+**Token Expiry Problems**:
+```bash
+# Check if tokens are expiring too quickly
+# Review JWT_EXPIRES_IN and JWT_REFRESH_EXPIRES_IN settings
+# Default: 15m access, 7d refresh
+```
+
+**Solutions**:
+- **Invalid JWT Secret**: Update `JWT_SECRET` in Railway variables
+- **Session DB Errors**: Run schema migration with `npm run db:push`
+- **Mass Logouts**: Clear expired sessions with cleanup script
+- **Rate Limiting**: Increase auth rate limits if legitimate traffic
+
+#### 8. User Account Issues
+**Symptoms**: Users can't register, email verification fails, tier mismatches
+
+**Account Creation Problems**:
+```bash
+# Test registration endpoint
+curl -X POST https://llm-txt-mastery-production.up.railway.app/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"TestPassword123!"}'
+```
+
+**Email Verification Issues**:
+```bash
+# Check email service health (if configured)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const user = await authStorage.getUserByEmail('user@example.com');
+  console.log('Email verified:', user?.emailVerified);
+"
+```
+
+**Tier/Permission Problems**:
+```bash
+# Verify user tier and credits
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const user = await authStorage.getUserByEmail('user@example.com');
+  console.log('Tier:', user?.tier, 'Credits:', user?.creditsRemaining);
+"
+```
+
+**Solutions**:
+- **Registration Fails**: Check password validation rules, email uniqueness
+- **Email Not Verified**: Manual verification via database update
+- **Wrong Tier**: Update user tier via admin script
+- **Missing Credits**: Add credits for coffee tier users
+
+---
+
+## Emergency Procedures
+
+### Site Down - Recovery Steps
+1. **Check service status**:
+   - [Netlify Status](https://www.netlifystatus.com/)
+   - [Railway Status](https://status.railway.app/)
+   - [Neon Status](https://status.neon.tech/)
+
+2. **If Railway is down**:
+   ```bash
+   # Check logs
+   railway logs -n 100
+   
+   # Force redeploy
+   # Railway Dashboard > Service > Redeploy
+   ```
+
+3. **If database is down**:
+   ```bash
+   # Test connection
+   psql $DATABASE_URL -c "SELECT 1"
+   
+   # If connection pool exhausted, restart Railway service
+   ```
+
+### Rollback Procedures
+```bash
+# Find last working commit
+git log --oneline -10
+
+# Revert to specific commit
+git revert HEAD
 git push origin main
 
-# Railway backend deploys automatically
-# Netlify frontend deploys automatically
+# Or reset to specific commit (destructive)
+git reset --hard <commit-hash>
+git push --force origin main
 ```
 
-### Manual Deployment Verification
+### Rate Limit / DDoS Attack
+1. Increase rate limits temporarily in Railway
+2. Enable Cloudflare protection on domain
+3. Block IPs in Railway logs showing abuse
+
+### Database Corruption
 ```bash
-# 1. Wait for deployment completion (2-5 minutes)
-# Check Railway dashboard: https://railway.app/project/...
-# Check Netlify dashboard: https://app.netlify.com/sites/...
+# Restore from backup
+psql $DATABASE_URL < backup-20250120.sql
 
-# 2. Verify backend deployment
-curl https://llm-txt-mastery-production.up.railway.app/api/health
-
-# 3. Verify frontend deployment
-curl -I https://www.llmtxtmastery.com
-
-# 4. Test critical path
-curl -X POST https://llm-txt-mastery-production.up.railway.app/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com", "email": "test@example.com", "tier": "starter"}'
+# Verify integrity
+DATABASE_URL="..." npm run db:push
 ```
-
-### Database Migration Procedures
-```bash
-# When schema changes are needed
-npm run db:push  # Push schema changes to database
-
-# Verify migration success
-npm run db:studio  # Visual verification of schema
-
-# Test application after migration
-npm run check  # TypeScript compliance
-npm run build  # Production build test
-```
-
-## 💰 Business Operations
-
-### Tier Management
-- **Free Tier**: 20 pages, HTML extraction, daily limits enforced
-- **Coffee Tier ($4.95)**: 200 pages, AI analysis, customer dashboard
-- **Growth Tier ($25/mo)**: Unlimited analysis, premium features
-- **Scale Tier ($99/mo)**: API access, enterprise features
-
-### Payment Processing
-- **Stripe Integration**: Fully operational with webhook validation
-- **Coffee Tier**: One-time $4.95 payments working end-to-end
-- **Subscription Tiers**: Growth and Scale ready for activation
-- **Revenue Tracking**: All purchases logged in database
-
-### Usage Tracking
-- **Daily Limits**: Enforced for free tier (1 analysis/day)
-- **Usage Counter**: Real-time updates (1/3, 2/3, 3/3)
-- **Tier Enforcement**: Page limits applied correctly (20 free, 200 Coffee)
-- **Analytics**: Complete usage data for business intelligence
-
-## 🛡️ Security Operations
-
-### Authentication System
-- **JWT Tokens**: Secure authentication with refresh capabilities
-- **Email Verification**: Required for account activation
-- **Password Security**: Special character requirements enforced
-- **Session Management**: Automatic token refresh and expiry
-
-### Bot Protection
-- **Smart Detection**: Intelligent bot protection without false positives
-- **Rate Limiting**: API (60/min), Analysis (20/hour)
-- **Fingerprinting**: Progressive penalties for suspicious activity
-- **Whitelisting**: Legitimate services and user flows protected
-
-### Data Protection
-- **Input Sanitization**: All user inputs validated and cleaned
-- **SQL Injection**: Protected via Drizzle ORM parameterized queries
-- **XSS Protection**: React's automatic HTML escaping utilized
-- **HTTPS Enforcement**: All traffic encrypted end-to-end
-
-## 📞 Support Procedures
-
-### User Support Escalation
-1. **Level 1**: Check system health and user tier status
-2. **Level 2**: Review usage logs and error messages
-3. **Level 3**: Database investigation and manual intervention
-4. **Emergency**: Disable problematic features via environment variables
-
-### Common Support Issues
-
-#### "Analysis not working"
-1. Check user's tier and daily limits
-2. Verify website URL accessibility
-3. Review sitemap discovery logs
-4. Check OpenAI API status and credits
-
-#### "Payment not processed"
-1. Verify Stripe webhook delivery
-2. Check emailCaptures table for tier update
-3. Review Stripe dashboard for payment status
-4. Manual tier upgrade if needed
-
-#### "File not downloading"
-1. Check llmTextFiles table for file record
-2. Verify file generation completion
-3. Test download endpoint directly
-4. Regenerate file if corrupted
-
-### Emergency Response
-
-#### Complete System Outage
-1. Check Railway and Netlify status pages
-2. Verify environment variables in both platforms
-3. Test database connectivity from Railway
-4. Review recent deployment logs for errors
-
-#### Database Connection Issues
-1. Verify DATABASE_URL environment variable
-2. Check Neon database status
-3. Test direct database connection
-4. Consider connection pool adjustment or disabling
-
-#### Performance Degradation
-1. Check connection pool statistics
-2. Review OpenAI API response times
-3. Monitor Railway resource usage
-4. Disable connection pooling if necessary
-
-## 📊 Performance Metrics
-
-### Target Performance
-- **Analysis Speed**: <5 seconds for 200-page analysis
-- **API Response Time**: <500ms for most endpoints
-- **Sitemap Discovery**: >95% success rate
-- **Cache Hit Rate**: >70% for returning users
-- **System Uptime**: >99.9% monthly
-
-### Current Benchmarks (August 21, 2025)
-- **Connection Pool Efficiency**: 92% (4.9% performance improvement)
-- **OpenAI Cost**: $0.11 per 1000 pages (93% reduction from previous)
-- **Cache Performance**: 70-90% API call reduction for popular sites
-- **Payment Success**: 100% Coffee tier conversion rate
-- **User Retention**: Customer dashboard enabling repeat usage
-
-## 🔄 Backup and Recovery
-
-### Database Backup
-- **Neon Automatic**: Point-in-time recovery available
-- **Frequency**: Continuous backup with 7-day retention
-- **Recovery**: Via Neon dashboard or CLI tools
-
-### Environment Configuration Backup
-- **Railway**: Environment variables backed up in dashboard
-- **Netlify**: Build configuration stored in Git repository
-- **Secrets**: Stored securely in respective platform vaults
-
-### Code Repository
-- **Primary**: GitHub repository with full history
-- **Branches**: Main branch protected, requires PR reviews
-- **Releases**: Tagged releases for rollback capability
-
-## 📋 Maintenance Schedules
-
-### Daily Operations
-- Monitor system health endpoints
-- Review error logs in Railway dashboard
-- Check connection pool performance
-- Verify payment processing status
-
-### Weekly Operations
-- Review usage analytics and conversion metrics
-- Check database performance and optimize queries
-- Update dependencies and security patches
-- Analyze customer feedback and support tickets
-
-### Monthly Operations
-- Performance review and optimization planning
-- Security audit and vulnerability assessment
-- Cost analysis and optimization opportunities
-- Backup and disaster recovery testing
 
 ---
 
-## Quick Commands Reference
+## Development Workflow
 
+### Local Development Setup
 ```bash
-# Health Checks
-curl https://llm-txt-mastery-production.up.railway.app/api/health
-curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
+# Install dependencies
+npm install
 
-# Database Operations
-npm run db:push     # Apply schema changes
-npm run db:studio   # Visual database browser
+# Set up .env file
+cp .env.example .env
+# Add your development keys
 
-# Development
-npm run dev         # Local development server
-npm run build       # Production build test
-npm run check       # TypeScript validation
-
-# Emergency
-railway vars set DISABLE_CONNECTION_POOL=true  # Disable pooling
-railway vars set OPENAI_API_KEY=backup_key     # Switch API keys
+# Start dev server
+npm run dev  # Runs on http://localhost:5000
 ```
 
-## Contact Information
+### Testing Changes
+```bash
+# Type checking
+npm run check
 
+# Test OpenAI integration
+npx tsx server/test-model-comparison.ts
+
+# Test database queries
+DATABASE_URL="..." npx tsx server/test-db-connection.ts
+```
+
+### Pre-deployment Checklist
+- [ ] Run `npm run check` - no TypeScript errors
+- [ ] Test locally with production API keys
+- [ ] Verify rate limits are appropriate
+- [ ] Check error handling for edge cases
+- [ ] Review logs for any warnings
+
+### Deployment Flow
+```bash
+# 1. Make changes
+git add .
+git commit -m "feat: description"
+
+# 2. Test locally
+npm run dev
+
+# 3. Push to GitHub (auto-deploys)
+git push origin main
+
+# 4. Monitor deployment
+# - Railway Dashboard: ~3 minutes
+# - Netlify Dashboard: ~2 minutes
+
+# 5. Verify production
+curl https://llm-txt-mastery-production.up.railway.app/health
+```
+
+---
+
+## Quick Reference
+
+### Key Commands
+```bash
+# Local development
+npm run dev                    # Start local server
+npm run build                  # Build for production
+npm run check                  # TypeScript checking
+
+# Database
+npm run db:push                # Push schema changes
+npm run migrate                # Run migrations
+
+# Testing
+npx tsx server/test-model-comparison.ts  # Compare AI models
+curl $API_URL/health           # Health check
+```
+
+### Important URLs
+- **Production**: https://llmtxtmastery.com
+- **API**: https://llm-txt-mastery-production.up.railway.app
+- **Railway Dashboard**: https://railway.app/project/[project-id]
+- **Netlify Dashboard**: https://app.netlify.com/sites/llmtxtmastery
+- **Stripe Dashboard**: https://dashboard.stripe.com
+- **Neon Dashboard**: https://console.neon.tech
+
+### Support Contacts
 - **Developer**: Jamie Watters
-- **Repository**: https://github.com/jwatters/llm-txt-mastery
-- **Railway Dashboard**: https://railway.app/project/...
-- **Netlify Dashboard**: https://app.netlify.com/sites/...
-- **Emergency**: Disable features via environment variables
+- **Email**: [your-email]
+- **GitHub**: https://github.com/TheWayWithin/llm-txt-mastery
 
 ---
 
-*This operations manual should be reviewed and updated with each major deployment or system change.*
+## Revision History
+- **v1.1.1** (Aug 25, 2025) - Updated pricing and tier information to reflect current offerings
+  - Coffee tier: $4.95 one-time (was $5.00)
+  - Growth tier: $9.95/month (was $15/month)  
+  - Scale tier: $19.95/month (was $49/month)
+  - Added detailed feature breakdown for each tier
+  - Updated TIER_LIMITS configuration with current values
+- **v1.1.0** (Aug 25, 2025) - Authentication system coverage added
+  - JWT-based authentication architecture
+  - Database schema documentation
+  - Session management procedures
+  - Authentication monitoring and troubleshooting
+- **v1.0.0** (Jan 20, 2025) - Initial operations manual
+  - OpenAI model switching documentation
+  - Cost optimization strategies
+  - Comprehensive troubleshooting guide
+
+---
+
+*This document should be updated whenever significant operational changes are made to the system.*
