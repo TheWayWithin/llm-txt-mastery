@@ -1,10 +1,11 @@
 # LLM.txt Mastery - Operations Manual
 
-> Last Updated: January 20, 2025  
-> Version: 1.0.0
+> Last Updated: August 25, 2025  
+> Version: 1.1.0 - Authentication System Coverage Added
 
 ## Table of Contents
 - [System Architecture](#system-architecture)
+- [Authentication System](#authentication-system)
 - [Environment Variables](#environment-variables)
 - [Deployment Guide](#deployment-guide)
 - [Configuration Management](#configuration-management)
@@ -41,6 +42,202 @@
 
 ---
 
+## Authentication System
+
+### Overview
+LLM.txt Mastery uses **JWT-based authentication** with access/refresh token pairs for secure user management and session handling.
+
+```
+┌─────────────────┐    JWT Tokens    ┌─────────────────┐    Session DB    ┌─────────────────┐
+│                 │ ◄────────────────│                 │ ◄────────────────│                 │
+│  React Frontend │    Access/       │  Express.js API │    Validation    │  PostgreSQL     │
+│  (AuthContext)  │    Refresh       │  (Middleware)   │                  │  (Sessions)     │
+│                 │ ─────────────────►│                 │ ─────────────────►│                 │
+└─────────────────┘    Authorization  └─────────────────┘    Auth Storage   └─────────────────┘
+```
+
+### Database Schema
+
+#### Authentication Tables
+```sql
+-- Primary authentication table
+auth_users (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  email_verified BOOLEAN DEFAULT false,
+  tier TEXT DEFAULT 'starter',  -- starter|coffee|growth|scale
+  credits_remaining INTEGER DEFAULT 0,
+  stripe_customer_id TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Session management table
+user_sessions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES auth_users(id),
+  token_hash TEXT UNIQUE NOT NULL,
+  refresh_token_hash TEXT UNIQUE NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  refresh_expires_at TIMESTAMP NOT NULL,
+  last_used_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### JWT Configuration
+
+#### Token Types and Expiry
+- **Access Token**: 15 minutes (short-lived for security)
+- **Refresh Token**: 7 days (for seamless user experience)
+- **Token Storage**: sessionStorage (proper incognito isolation)
+- **Token Hashing**: SHA-256 before database storage
+
+#### Token Structure
+```javascript
+// Access Token Payload
+{
+  "userId": 123,
+  "email": "user@example.com", 
+  "tier": "starter",
+  "iat": 1643723400,
+  "exp": 1643724300
+}
+
+// Refresh Token Payload
+{
+  "userId": 123,
+  "type": "refresh",
+  "iat": 1643723400,
+  "exp": 1644328200
+}
+```
+
+### Authentication Flow
+
+#### Registration Process
+1. **Input Validation**: Email format, password strength (12+ chars, complexity)
+2. **Duplicate Check**: Verify email not already registered
+3. **Password Hashing**: bcrypt with 12 salt rounds
+4. **User Creation**: Insert into `auth_users` table
+5. **Token Generation**: Create JWT access/refresh token pair
+6. **Session Storage**: Store hashed tokens in `user_sessions`
+7. **Response**: Return user data and tokens to frontend
+
+#### Login Process
+1. **Credential Validation**: Email/password verification against database
+2. **Password Verification**: bcrypt comparison with stored hash
+3. **Token Generation**: Create new JWT token pair
+4. **Session Creation**: Insert new session record
+5. **Old Session Cleanup**: Optional cleanup of expired sessions
+6. **Response**: Return authenticated user and tokens
+
+#### Session Validation (Per Request)
+1. **Token Extraction**: Extract Bearer token from Authorization header
+2. **JWT Verification**: Validate signature and expiration
+3. **Session Lookup**: Find session in database by token hash
+4. **User Attachment**: Add `req.user` and `req.session` to request
+5. **Middleware Chain**: Continue to protected route handler
+
+### Middleware System
+
+#### Authentication Middlewares
+
+**`authenticate`** - Strict Authentication
+```typescript
+// Requires valid authentication, returns 401 if missing/invalid
+app.get('/api/auth/me', authenticate, handler);
+```
+
+**`optionalAuth`** - Optional Authentication  
+```typescript
+// Populates req.user if token present, continues if not
+app.post('/api/analyze', optionalAuth, handler);
+```
+
+#### Rate Limiting for Auth Endpoints
+```typescript
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 5,                     // 5 attempts per window
+  message: "Too many authentication attempts",
+  standardHeaders: true,
+  legacyHeaders: false
+});
+```
+
+### User Tier Management
+
+#### Tier System
+- **starter**: Free tier (3 daily analyses, 20 pages max)
+- **coffee**: One-time purchase ($4.95, credit-based)  
+- **growth**: Monthly subscription (unlimited analyses)
+- **scale**: Annual subscription (priority processing)
+
+#### Tier Operations
+```bash
+# Check user tier status
+curl -H "Authorization: Bearer $ACCESS_TOKEN" \
+     https://llm-txt-mastery-production.up.railway.app/api/auth/me
+
+# Update user tier (admin operation)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  await authStorage.updateUserTier(userId, 'coffee', 5);
+"
+```
+
+### Session Management Operations
+
+#### Token Refresh Flow
+1. **Access Token Expiry**: Frontend receives 401 response
+2. **Refresh Request**: Send refresh token to `/api/auth/refresh`
+3. **Refresh Validation**: Verify refresh token and session
+4. **New Token Generation**: Create fresh access/refresh token pair
+5. **Session Update**: Update session with new token hashes
+6. **Response**: Return new tokens to frontend
+7. **Retry Original Request**: Frontend retries with new access token
+
+#### Session Cleanup
+```bash
+# Manual session cleanup (removes expired sessions)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const cleaned = await authStorage.deleteExpiredSessions();
+  console.log(\`Cleaned \${cleaned} expired sessions\`);
+"
+
+# Logout specific user (invalidate all sessions)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const count = await authStorage.deleteAllUserSessions(userId);
+  console.log(\`Invalidated \${count} user sessions\`);
+"
+```
+
+### Security Features
+
+#### Password Security
+- **Hashing Algorithm**: bcrypt with 12 salt rounds
+- **Strength Requirements**: 12+ characters, mixed case, numbers, symbols
+- **No Plaintext Storage**: Passwords never stored in readable format
+- **Reset Mechanism**: Email-based password reset with temporary tokens
+
+#### Token Security
+- **JWT Secrets**: Environment-based secrets for signing/verification
+- **Token Hashing**: SHA-256 hashing before database storage
+- **Short Expiration**: 15-minute access tokens minimize exposure
+- **Secure Headers**: Proper Authorization header handling
+- **CORS Configuration**: Controlled cross-origin access
+
+#### Session Security
+- **Database Validation**: Every request validates against session table
+- **Automatic Expiry**: Expired sessions automatically rejected
+- **Session Rotation**: New tokens on refresh prevent replay attacks
+- **Logout Protection**: Secure session termination
+
+---
+
 ## Environment Variables
 
 ### Critical Production Variables (Railway)
@@ -50,6 +247,15 @@
 DATABASE_URL=postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
 ⚠️ **NEVER CHANGE** without coordinating database migration
+
+#### JWT Authentication
+```bash
+JWT_SECRET=your-256-bit-secret-key-here           # Access token signing key  
+JWT_REFRESH_SECRET=different-256-bit-secret       # Refresh token signing key
+JWT_EXPIRES_IN=15m                                # Access token expiry (15 minutes)
+JWT_REFRESH_EXPIRES_IN=7d                         # Refresh token expiry (7 days)
+```
+🔒 **SECURITY CRITICAL**: Use strong, unique secrets. Never reuse between environments.
 
 #### OpenAI Configuration
 ```bash
@@ -193,10 +399,35 @@ curl https://llm-txt-mastery-production.up.railway.app/api/analyze \
 # Should not return "relation does not exist" errors
 ```
 
+#### Authentication Health
+```bash
+# Test authentication endpoints
+curl https://llm-txt-mastery-production.up.railway.app/api/auth/health
+# Expected: {"status":"ok","auth":"operational"}
+
+# Verify JWT token generation (test endpoint)
+curl -X POST https://llm-txt-mastery-production.up.railway.app/api/auth/test-token \
+  -H "Content-Type: application/json" \
+  -d '{"test":"jwt-generation"}'
+# Should return valid JWT structure
+
+# Check session table health
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const activeCount = await authStorage.getActiveSessionCount();
+  console.log(\`Active sessions: \${activeCount}\`);
+"
+```
+
 ### Monitoring Checklist (Daily)
 - [ ] Check Railway metrics (memory, CPU, restarts)
 - [ ] Verify Netlify build status
 - [ ] Review error logs in Railway
+- [ ] **Authentication Health**: Verify auth endpoints respond correctly
+- [ ] **Session Count**: Monitor active session count for anomalies
+- [ ] **Failed Logins**: Check for unusual authentication failure rates
+- [ ] **Token Expiry**: Ensure token refresh flow working properly
+- [ ] **Rate Limiting**: Review auth rate limit hits and potential abuse
 - [ ] Check database connection pool stats
 - [ ] Monitor OpenAI API usage/costs
 - [ ] Review Stripe webhook failures
@@ -306,6 +537,80 @@ DATABASE_URL="..." npx tsx -e "
   console.log('Cache entries:', entries);
 "
 ```
+
+#### 7. Authentication Failures
+**Symptoms**: Users unable to login, 401 errors, token validation failures
+
+**Common Authentication Issues**:
+
+**JWT Secret Mismatch**:
+```bash
+# Verify JWT secrets are set in Railway
+curl -H "Authorization: Bearer invalid-token" \
+     https://llm-txt-mastery-production.up.railway.app/api/auth/me
+# Should return structured error, not 500 server error
+```
+
+**Session Table Issues**:
+```bash
+# Check session table exists and has records
+DATABASE_URL="..." npx tsx -e "
+  import { db } from './server/db';
+  import { userSessions } from '@shared/schema';
+  const count = await db.select().from(userSessions).limit(1);
+  console.log('Session table accessible:', count.length >= 0);
+"
+```
+
+**Token Expiry Problems**:
+```bash
+# Check if tokens are expiring too quickly
+# Review JWT_EXPIRES_IN and JWT_REFRESH_EXPIRES_IN settings
+# Default: 15m access, 7d refresh
+```
+
+**Solutions**:
+- **Invalid JWT Secret**: Update `JWT_SECRET` in Railway variables
+- **Session DB Errors**: Run schema migration with `npm run db:push`
+- **Mass Logouts**: Clear expired sessions with cleanup script
+- **Rate Limiting**: Increase auth rate limits if legitimate traffic
+
+#### 8. User Account Issues
+**Symptoms**: Users can't register, email verification fails, tier mismatches
+
+**Account Creation Problems**:
+```bash
+# Test registration endpoint
+curl -X POST https://llm-txt-mastery-production.up.railway.app/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"TestPassword123!"}'
+```
+
+**Email Verification Issues**:
+```bash
+# Check email service health (if configured)
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const user = await authStorage.getUserByEmail('user@example.com');
+  console.log('Email verified:', user?.emailVerified);
+"
+```
+
+**Tier/Permission Problems**:
+```bash
+# Verify user tier and credits
+DATABASE_URL="..." npx tsx -e "
+  import { authStorage } from './server/services/auth-storage';
+  const user = await authStorage.getUserByEmail('user@example.com');
+  console.log('Tier:', user?.tier, 'Credits:', user?.creditsRemaining);
+"
+```
+
+**Solutions**:
+- **Registration Fails**: Check password validation rules, email uniqueness
+- **Email Not Verified**: Manual verification via database update
+- **Wrong Tier**: Update user tier via admin script
+- **Missing Credits**: Add credits for coffee tier users
 
 ---
 
