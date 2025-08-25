@@ -24,12 +24,14 @@ import LoginPage from "@/pages/login";
 import AnalyzePage from "@/pages/analyze";
 import CheckEmailPage from "@/pages/check-email";
 import NotFound from "@/pages/not-found";
+import AnalysisDetailPage from "@/pages/analysis-detail";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/analyze" component={AnalyzePage} />
+      <Route path="/analysis/:id" component={AnalysisDetailPage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/about" component={AboutPage} />
