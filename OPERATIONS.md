@@ -1,7 +1,7 @@
 # LLM.txt Mastery - Operations Manual
 
 > Last Updated: August 25, 2025  
-> Version: 1.1.0 - Authentication System Coverage Added
+> Version: 1.1.1 - Current Pricing & Tier Information Updated
 
 ## Table of Contents
 - [System Architecture](#system-architecture)
@@ -168,11 +168,42 @@ const authLimiter = rateLimit({
 
 ### User Tier Management
 
-#### Tier System
-- **starter**: Free tier (3 daily analyses, 20 pages max)
-- **coffee**: One-time purchase ($4.95, credit-based)  
-- **growth**: Monthly subscription (unlimited analyses)
-- **scale**: Annual subscription (priority processing)
+#### Current Tier System & Pricing
+
+**Free Tier (Starter)**
+- **Price**: $0 (Free forever)
+- **Daily Limit**: 3 analyses per day
+- **Page Limit**: 20 pages per analysis  
+- **AI Analysis**: ✅ Full AI-enhanced quality scoring
+- **Features**: HTML extraction, smart caching
+- **Cache Duration**: 30 days
+
+**Coffee Tier**
+- **Price**: $4.95 (One-time payment)
+- **Daily Limit**: Unlimited (credit-based system)
+- **Page Limit**: 200 pages per analysis
+- **AI Analysis**: ✅ Full AI-enhanced analysis  
+- **Features**: HTML extraction, AI analysis, smart caching
+- **Cache Duration**: 7 days
+- **Target**: Individual users, small projects
+
+**Growth Tier**  
+- **Price**: $9.95/month (Monthly subscription)
+- **Daily Limit**: Unlimited analyses
+- **Page Limit**: 1,000 pages per analysis
+- **AI Analysis**: ✅ 200 pages with AI enhancement
+- **Features**: File history, priority support, smart caching
+- **Cache Duration**: 7 days
+- **Target**: Professional users, growing businesses
+
+**Scale Tier**
+- **Price**: $19.95/month (Monthly subscription)  
+- **Daily Limit**: Unlimited analyses
+- **Page Limit**: Unlimited pages per analysis
+- **AI Analysis**: ✅ Unlimited AI-enhanced pages
+- **Features**: API access, white-label support, enterprise features
+- **Cache Duration**: 3 days (freshest data)
+- **Target**: Enterprise users, high-volume applications
 
 #### Tier Operations
 ```bash
@@ -267,9 +298,9 @@ OPENAI_MODEL=gpt-4o-mini    # Model selection (gpt-4o-mini | gpt-4o | gpt-3.5-tu
 ```bash
 STRIPE_SECRET_KEY=sk_live_...                    # Production secret key
 STRIPE_WEBHOOK_SECRET=whsec_...                  # Webhook endpoint secret
-STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_...        # $5 one-time payment
-STRIPE_LLM_TXT_GROWTH_PRICE_ID=price_...        # $15/month subscription
-STRIPE_LLM_TXT_SCALE_PRICE_ID=price_...         # $49/month subscription
+STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_...        # $4.95 one-time payment (Coffee tier)
+STRIPE_LLM_TXT_GROWTH_PRICE_ID=price_...        # $9.95/month subscription (Growth tier)
+STRIPE_LLM_TXT_SCALE_PRICE_ID=price_...         # $19.95/month subscription (Scale tier)
 ```
 
 #### Supabase Auth (if enabled)
@@ -362,14 +393,61 @@ export const analysisLimiter = rateLimit({
 ### Changing Tier Limits
 Edit `/server/services/cache.ts`:
 ```typescript
-export const TIER_LIMITS: Record<UserTier, TierLimits> = {
+export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
   starter: {
-    dailyAnalyses: 3,        // Change daily limit
-    maxPagesPerAnalysis: 20, // Change page limit
-    aiPagesLimit: 20,        // AI analysis pages
-    cacheDurationDays: 30    // Cache duration
+    dailyAnalyses: 3,        // Daily analysis limit
+    maxPagesPerAnalysis: 20, // Page limit per analysis
+    aiPagesLimit: 20,        // AI-enhanced pages
+    cacheDurationDays: 30,   // Cache duration
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,      // ✅ AI enabled for free tier
+      fileHistory: false,
+      prioritySupport: false,
+      smartCaching: true
+    }
   },
-  // ... other tiers
+  coffee: {
+    dailyAnalyses: 999,      // Unlimited (credit-based)
+    maxPagesPerAnalysis: 200,// 10x more than starter
+    aiPagesLimit: 200,       // Full AI analysis
+    cacheDurationDays: 7,    // Weekly cache refresh
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: false,    // No persistent history
+      prioritySupport: false,
+      smartCaching: true
+    }
+  },
+  growth: {
+    dailyAnalyses: 999,      // Unlimited
+    maxPagesPerAnalysis: 1000,// Enterprise-level capacity  
+    aiPagesLimit: 200,       // AI enhancement limit
+    cacheDurationDays: 7,    // Professional cache duration
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: true,     // ✅ Persistent file history
+      prioritySupport: true, // ✅ Priority support
+      smartCaching: true
+    }
+  },
+  scale: {
+    dailyAnalyses: 999,      // Unlimited
+    maxPagesPerAnalysis: 999999, // No practical limit
+    aiPagesLimit: 999999,    // Unlimited AI enhancement
+    cacheDurationDays: 3,    // Fresh data priority
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: true,
+      prioritySupport: true,
+      smartCaching: true,
+      whiteLabel: true,      // ✅ White-label support
+      apiAccess: true        // ✅ API access
+    }
+  }
 };
 ```
 
@@ -759,10 +837,21 @@ curl $API_URL/health           # Health check
 ---
 
 ## Revision History
+- **v1.1.1** (Aug 25, 2025) - Updated pricing and tier information to reflect current offerings
+  - Coffee tier: $4.95 one-time (was $5.00)
+  - Growth tier: $9.95/month (was $15/month)  
+  - Scale tier: $19.95/month (was $49/month)
+  - Added detailed feature breakdown for each tier
+  - Updated TIER_LIMITS configuration with current values
+- **v1.1.0** (Aug 25, 2025) - Authentication system coverage added
+  - JWT-based authentication architecture
+  - Database schema documentation
+  - Session management procedures
+  - Authentication monitoring and troubleshooting
 - **v1.0.0** (Jan 20, 2025) - Initial operations manual
-- Added OpenAI model switching documentation
-- Included cost optimization strategies
-- Comprehensive troubleshooting guide
+  - OpenAI model switching documentation
+  - Cost optimization strategies
+  - Comprehensive troubleshooting guide
 
 ---
 
