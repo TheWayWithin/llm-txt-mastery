@@ -200,9 +200,9 @@ export default function Home() {
 
         {/* Hero Section */}
         <section className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-framework-black mb-4">
+          <h1 className="text-4xl font-bold text-framework-black mb-4">
             Get Found by AI in 24 Hours, Not 24 Months
-          </h2>
+          </h1>
           <p className="text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
             Your expertise is invisible to ChatGPT, Claude, and Perplexity. We fix that with 
             AI-powered optimization that delivers <span className="font-bold text-innovation-teal">73% more AI citations</span> 
