@@ -243,15 +243,15 @@ export class AuthStorage {
   // Analysis history methods
   async getUserAnalyses(userEmail: string): Promise<any[]> {
     try {
+      // Get all analyses and filter by userEmail in metadata
+      // Since we need to query JSON field, we'll get all completed analyses and filter
       const analyses = await db
         .select()
         .from(sitemapAnalysis)
-        .where(eq(sitemapAnalysis.analysisMetadata, userEmail))
+        .where(eq(sitemapAnalysis.status, 'completed'))
         .orderBy(desc(sitemapAnalysis.createdAt));
       
-      // Note: This is a simplified query. In production, we'd want to properly 
-      // query the JSON field for userEmail within analysisMetadata
-      // For now, we'll need to filter in JavaScript
+      // Filter analyses that belong to this user based on metadata
       return analyses.filter(analysis => 
         analysis.analysisMetadata && 
         typeof analysis.analysisMetadata === 'object' &&
