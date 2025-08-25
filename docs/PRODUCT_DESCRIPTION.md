@@ -131,12 +131,12 @@
 ### Starter (Free)
 **Price**: $0/month
 **Features**:
-- 1 analysis per day
+- 3 analyses per day
 - 20 pages maximum per analysis
-- HTML extraction (no AI analysis)
+- Full AI-powered analysis (GPT-4o quality scoring)
 - 30-day cache retention
-- Basic sitemap discovery
-- Standard file generation
+- Complete sitemap discovery with 7+ fallback methods
+- Standards-compliant file generation
 
 **Ideal For**: Individual users exploring LLM.txt functionality, small personal projects
 
@@ -156,7 +156,7 @@
 **Ideal For**: One-off projects, testing AI analysis capabilities, small business websites
 
 ### Growth (Monthly Subscription) 🔄 READY FOR ACTIVATION
-**Price**: $25/month
+**Price**: $9.95/month
 **Features**:
 - Unlimited daily analyses
 - 1,000 pages maximum per analysis
@@ -170,7 +170,7 @@
 **Ideal For**: Growing businesses, agencies with multiple clients, regular content analysis needs
 
 ### Scale (Monthly Subscription)
-**Price**: $99/month
+**Price**: $19.95/month
 **Features**:
 - Unlimited daily analyses
 - Unlimited pages per analysis
@@ -453,6 +453,6 @@ This represents a major UX breakthrough that brings the application to professio
 
 ---
 
-*Last Updated: August 5, 2025*  
-*Version: 2.1*  
-*Status: Production Complete - Smart Reset User Flow Milestone Achieved*
+*Last Updated: August 25, 2025*  
+*Version: 2.2*  
+*Status: Production Complete - Current Pricing & Tier Information Updated*
