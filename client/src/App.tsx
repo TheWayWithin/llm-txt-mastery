@@ -21,6 +21,8 @@ import { TermsPage } from "@/pages/terms";
 import { BlogPage } from "@/pages/blog";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
+import ForgotPasswordPage from "@/pages/forgot-password";
+import ResetPasswordPage from "@/pages/reset-password";
 import AnalyzePage from "@/pages/analyze";
 import CheckEmailPage from "@/pages/check-email";
 import NotFound from "@/pages/not-found";
@@ -43,6 +45,8 @@ function Router() {
       <Route path="/blog" component={BlogPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/check-email" component={CheckEmailPage} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
       <Route path="/verify-email" component={VerifyEmail} />

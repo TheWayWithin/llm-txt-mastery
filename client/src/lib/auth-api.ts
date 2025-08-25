@@ -252,6 +252,24 @@ class AuthApiClient {
     });
   }
 
+  // Request password reset
+  async requestPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
+    const response = await this.makeRequest('/api/auth/request-password-reset', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    return response;
+  }
+
+  // Reset password with token
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    const response = await this.makeRequest('/api/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    });
+    return response;
+  }
+
   // Emergency method to clear tokens (for race condition recovery)
   clearAuthTokens(): void {
     console.log('🧹 Emergency token cleanup triggered')
