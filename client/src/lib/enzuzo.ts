@@ -124,7 +124,8 @@ const initializeFallbackConsent = () => {
     }
   } else {
     // Show basic consent banner after a delay
-    setTimeout(() => showBasicConsentBanner(), 2000);
+    // DISABLED: Using GTM consent management instead to prevent duplicate banners
+    // setTimeout(() => showBasicConsentBanner(), 2000);
   }
 };
 
