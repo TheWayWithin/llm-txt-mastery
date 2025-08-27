@@ -49,7 +49,8 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   // Handle both data structures - from props (nested) and from API (flat)
   const currentUsage = usageData?.currentUsage ?? usageData?.usage?.analysesToday ?? 0;
   const dailyAnalyses = usageData?.dailyAnalyses ?? usageData?.limits?.dailyAnalyses ?? 3;
-  const maxPagesPerAnalysis = usageData?.maxPagesPerAnalysis ?? usageData?.limits?.maxPagesPerAnalysis ?? 20;
+  // Coffee tier should have 200 pages per analysis
+  const maxPagesPerAnalysis = usageData?.maxPagesPerAnalysis ?? usageData?.limits?.maxPagesPerAnalysis ?? (usageData?.tier === 'coffee' ? 200 : 20);
   const aiPagesLimit = usageData?.aiPagesLimit ?? usageData?.limits?.aiPagesLimit ?? 0;
   const cacheHitsToday = usageData?.cacheHitsToday ?? usageData?.usage?.cacheHitsToday ?? 0;
 
@@ -153,13 +154,30 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                   • 3 free analyses per day
                 </p>
               )}
-              <p className="text-xs text-framework-black">
-                • Max {maxPagesPerAnalysis} pages per analysis
-              </p>
-              {aiPagesLimit > 0 && (
-                <p className="text-xs text-framework-black">
-                  • AI analysis for first {aiPagesLimit} pages
-                </p>
+              {usageData.tier === 'coffee' && (
+                <>
+                  <p className="text-xs text-framework-black">
+                    • 100 monthly analysis credits
+                  </p>
+                  <p className="text-xs text-framework-black">
+                    • Max 200 pages per analysis
+                  </p>
+                  <p className="text-xs text-framework-black">
+                    • AI analysis for all pages
+                  </p>
+                </>
+              )}
+              {usageData.tier !== 'coffee' && (
+                <>
+                  <p className="text-xs text-framework-black">
+                    • Max {maxPagesPerAnalysis} pages per analysis
+                  </p>
+                  {aiPagesLimit > 0 && (
+                    <p className="text-xs text-framework-black">
+                      • AI analysis for first {aiPagesLimit} pages
+                    </p>
+                  )}
+                </>
               )}
               {usageData?.smartCaching && (
                 <p className="text-xs text-framework-black">
