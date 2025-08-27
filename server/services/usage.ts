@@ -1,6 +1,7 @@
 import { storage } from "../storage";
 import { db } from "../db";
 import { UserTier, UsageTracking, emailCaptures, usageTracking, users, authUsers } from "@shared/schema";
+import { authStorage } from "../services/auth-storage";
 import { TIER_LIMITS } from "./cache";
 import { eq, and } from "drizzle-orm";
 
@@ -453,6 +454,48 @@ export async function getUserTierFromAuth(user: { id: string; email: string; tie
     return await getUserTier(email);
   } else {
     return 'starter';
+  }
+}
+
+// Monthly credit reset for Coffee tier subscriptions
+export async function resetMonthlyCredits(): Promise<void> {
+  try {
+    console.log('[CREDIT RESET] Starting monthly credit reset for Coffee tier users');
+    
+    // Get all Coffee tier users from auth_users table
+    const coffeeTierUsers = await db
+      .select()
+      .from(authUsers)
+      .where(eq(authUsers.tier, 'coffee'));
+    
+    console.log(`[CREDIT RESET] Found ${coffeeTierUsers.length} Coffee tier users`);
+    
+    // Reset credits to 100 for each user
+    for (const user of coffeeTierUsers) {
+      await authStorage.updateUser(user.id, {
+        creditsRemaining: 100 // Reset to full monthly allocation
+      });
+      console.log(`[CREDIT RESET] Reset credits to 100 for user ${user.email}`);
+    }
+    
+    console.log('[CREDIT RESET] Monthly credit reset completed');
+  } catch (error) {
+    console.error('[CREDIT RESET] Failed to reset monthly credits:', error);
+  }
+}
+
+// Handle subscription renewal (called from Stripe webhook)
+export async function handleSubscriptionRenewal(userId: number): Promise<void> {
+  try {
+    const user = await authStorage.getUserById(userId);
+    if (user && user.tier === 'coffee') {
+      await authStorage.updateUser(userId, {
+        creditsRemaining: 100 // Reset to full credits on renewal
+      });
+      console.log(`[SUBSCRIPTION] Reset credits to 100 for renewed Coffee subscription: ${user.email}`);
+    }
+  } catch (error) {
+    console.error(`[SUBSCRIPTION] Failed to handle renewal for user ${userId}:`, error);
   }
 }
 

@@ -83,10 +83,10 @@ export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsa
                 <div className="flex items-start space-x-3">
                   <Coffee className="h-6 w-6 text-orange-600 mt-1" />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-orange-800">Coffee Tier - $5</h4>
+                    <h4 className="font-semibold text-orange-800">Coffee Tier - $4.95/month</h4>
                     <p className="text-sm text-orange-700 mt-1">
-                      Get unlimited daily analyses with AI-enhanced results for the cost of buying me a coffee.<br/><br/>
-                      • Unlimited daily analyses<br/>
+                      Get 100 monthly analyses with AI-enhanced results for a simple monthly subscription.<br/><br/>
+                      • 100 analyses per month<br/>
                       • 200 pages per analysis<br/>
                       • AI-enhanced quality scoring<br/>
                       • Monthly subscription, cancel anytime
@@ -96,7 +96,7 @@ export default function DailyLimitModal({ isOpen, onClose, userEmail, currentUsa
                       className="bg-orange-600 hover:bg-orange-700 text-white mt-3 w-full"
                       disabled={isLoading}
                     >
-                      {isLoading ? "Processing..." : "☕ Buy me a coffee ($5)"}
+                      {isLoading ? "Processing..." : "☕ Start Coffee Plan ($4.95/month)"}
                     </Button>
                   </div>
                 </div>

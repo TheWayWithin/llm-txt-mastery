@@ -89,17 +89,17 @@ export default function Pricing() {
                 <Coffee className="h-6 w-6 text-orange-600" />
                 <div className="text-right">
                   <span className="text-2xl font-bold">$4.95</span>
-                  <span className="text-xs text-ai-silver block">one-time</span>
+                  <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>
               <CardTitle>Coffee</CardTitle>
-              <CardDescription>Unlimited daily analyses</CardDescription>
+              <CardDescription>100 analyses per month</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm font-medium">Unlimited daily analyses</span>
+                  <span className="text-sm font-medium">100 analyses per month</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />

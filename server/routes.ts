@@ -394,7 +394,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // For coffee tier users, check credits instead of daily limits
       if (tier === 'coffee' && user?.id) {
-        const creditCheck = await checkCoffeeCredits(user.id);
+        console.log(`[ANALYZE] Checking Coffee tier credits for user ${user.email} (id: ${user.id})`);
+        const creditCheck = await checkCoffeeCredits(user.id.toString());
+        console.log(`[ANALYZE] Credit check result:`, creditCheck);
         if (!creditCheck.hasCredits) {
           return res.status(403).json({
             message: "No coffee credits remaining. Purchase more credits or upgrade to Growth tier for unlimited analyses.",

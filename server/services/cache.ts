@@ -41,14 +41,14 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
     }
   },
   coffee: {
-    dailyAnalyses: 999, // No daily limit, credit-based instead
+    dailyAnalyses: 100, // 100 analyses per month (handled via credit system)
     maxPagesPerAnalysis: 200, // 10x more than free tier
     aiPagesLimit: 200, // Full AI analysis for coffee tier
     cacheDurationDays: 7, // Same as growth tier
     features: {
       htmlExtraction: true,
       aiAnalysis: true, // AI analysis enabled for coffee tier
-      fileHistory: false, // No file history for one-time purchases
+      fileHistory: true, // File history enabled for monthly subscription
       prioritySupport: false,
       smartCaching: true
     }

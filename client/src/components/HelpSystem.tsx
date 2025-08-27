@@ -58,7 +58,7 @@ const HELP_CONTENT: Record<string, HelpContent> = {
       'Click "Start Analysis" or "Continue to Payment"'
     ],
     tips: [
-      'Coffee tier ($4.95 one-time) is most popular for single analyses',
+      'Coffee tier ($4.95/month) provides 100 monthly analyses',
       'Create Account gives you dashboard access and analysis history',
       'Quick Start is fastest for immediate results',
       'Check your email for payment confirmations'

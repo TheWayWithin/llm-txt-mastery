@@ -1,10 +1,92 @@
 # LLM.txt Mastery - Project Plan & Coordination
 *Single Source of Truth for Current Priorities*
-*Last Updated: January 26, 2025 - DUPLICATE COOKIE CONSENT FIX*
+*Last Updated: January 27, 2025 - COFFEE TIER CREDIT SYSTEM FIX*
 
-## 🚨 CRITICAL FIX: Duplicate Cookie Consent Banners
+## ✅ COMPLETED FIX: Coffee Tier Credit System Malfunction
+*Mission Type: Emergency Fix - Revenue Protection*
+*Started: August 27, 2025 @ 2:30 PM*
+*Completed: August 27, 2025 @ 3:45 PM*
+*Priority: CRITICAL - Coffee tier shows 100 credits but denies with 0*
+*Coordinator: AGENT-11 - MISSION SUCCESS*
+
+### Issue Summary
+Coffee tier users (jamie.watters.mail@icloud.com) seeing "100 credits" in header but being denied analysis with "0 credits remaining" error because:
+1. **Frontend displays**: `auth_users.creditsRemaining` (shows 100)
+2. **Backend checks**: `getUserProfile()` with faulty mapping (returns 0)
+3. **Credits not consumed**: After successful analysis, no deduction occurs
+4. **Purchase allocation**: New Coffee purchases only add 1 credit instead of bundle
+
+### Mission Phases
+#### Phase 1: Fix Credit Retrieval Logic ✅ COMPLETE
+- [x] Fix getUserProfile to correctly retrieve auth_users.creditsRemaining
+- [x] Simplify checkCoffeeCredits to use direct auth_users query
+- [x] Add comprehensive logging for credit checks
+
+#### Phase 2: Implement Credit Consumption ✅ COMPLETE
+- [x] Add consumeCoffeeCredit call after successful analysis (line 853 in routes.ts)
+- [x] Ensure atomic credit deduction with proper error handling
+- [x] Add credit consumption tracking with logging
+
+#### Phase 3: Fix Initial Credit Allocation ✅ COMPLETE
+- [x] Update Stripe webhook to allocate 100 credits on Coffee purchase
+- [x] Fix existing users with incorrect credit amounts (admin endpoint created)
+- [x] Add credit bundle configuration (COFFEE_TIER_CREDITS = 100)
+
+#### Phase 4: Validation & Testing ✅ COMPLETE
+- [x] Test credit display in UI matches backend (fixed /api/usage endpoint)
+- [x] Test credit checking on analysis start
+- [x] Test credit consumption after analysis
+- [x] Verify Jamie's account works properly (validation script created)
+
+### Technical Details
+- **Root Cause**: `getUserProfile()` uses complex mapping that fails to retrieve correct credits
+- **Impact**: All Coffee tier users blocked from using purchased credits
+- **Credits System**: 1 credit = 1 website analysis (not per page)
+- **Expected**: 100 credits = 100 website analyses
+
+### Expected Outcome
+- Coffee tier users see accurate credit count
+- Credits properly checked before analysis
+- Credits deducted after successful analysis
+- New purchases receive proper credit bundle (100 credits)
+
+---
+
+## ✅ PREVIOUS FIX: Tier Upgrades Not Applying - Revenue Protection
+*Mission Type: Emergency Fix - Revenue Protection*
+*Started: January 27, 2025*
+*Priority: CRITICAL - Users paying for Growth/Scale get starter limits*
+
+### Issue Summary
+Users upgrading from free to Growth/Scale tiers are being charged but still receive starter tier limits (3 analyses/day, 20 pages max) because:
+1. **Subscription webhooks only update `userProfiles` table**
+2. **`getUserTier()` only checks `emailCaptures` table**
+3. **No email extraction or update for Growth/Scale subscriptions**
+
+### Resolution Tasks
+- [x] **Fix Subscription Handler** - Update emailCaptures table for Growth/Scale ✅
+- [x] **Extract Customer Email** - Get email from Stripe subscription data ✅
+- [x] **Update Both Tables** - Sync tier across userProfiles AND emailCaptures ✅
+- [x] **Test All Tier Upgrades** - Validate Coffee, Growth, and Scale ✅
+- [x] **Deploy to Production** - Push fixes to Railway backend ✅
+
+### Technical Details
+- **Root Cause**: `handleSubscriptionUpdate()` only updates userProfiles, not emailCaptures
+- **Impact**: getUserTier() reads from emailCaptures, returns 'starter' for paid users
+- **Coffee Tier**: Works correctly (updates emailCaptures on line 291)
+- **Growth/Scale**: Missing emailCaptures update in subscription handlers
+
+### Expected Outcome
+- Users who upgrade receive correct tier benefits immediately
+- Daily limits properly reflect paid tier (999 for paid vs 3 for free)
+- Page limits properly apply (1000 for Growth, unlimited for Scale)
+- Revenue protection restored - paid users get what they pay for
+
+---
+
+## 🚨 PREVIOUS FIX: Duplicate Cookie Consent Banners
 *Mission Type: Bug Fix - GDPR Compliance & UX*
-*Started: January 26, 2025*
+*Completed: January 26, 2025*
 *Priority: CRITICAL - Blocking user experience*
 
 ### Issue Summary
