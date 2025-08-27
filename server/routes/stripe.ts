@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { z } from "zod";
 import { 
+  stripe,
   createStripeCustomer, 
   createCheckoutSession,
   createOneTimeCheckoutSession, 
@@ -254,6 +255,108 @@ export function registerStripeRoutes(app: Express) {
       console.error("Coffee checkout session creation failed:", error);
       res.status(400).json({ 
         message: error instanceof Error ? error.message : "Failed to create coffee checkout session"
+      });
+    }
+  });
+
+  // Create subscription upgrade session (handles proration automatically)
+  app.post("/api/stripe/create-upgrade-session", requireAuth, apiLimiter, async (req, res) => {
+    try {
+      const { targetTier } = z.object({
+        targetTier: z.enum(['growth', 'scale'])
+      }).parse(req.body);
+
+      const authUser = req.user;
+      if (!authUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has a Stripe customer ID
+      if (!authUser.stripeCustomerId) {
+        // Create new customer if doesn't exist
+        const stripeCustomer = await createStripeCustomer({
+          email: authUser.email,
+          userId: authUser.id.toString()
+        });
+        
+        await authStorage.updateUser(authUser.id, {
+          stripeCustomerId: stripeCustomer.id
+        });
+        
+        authUser.stripeCustomerId = stripeCustomer.id;
+      }
+
+      // Get current subscriptions
+      const subscriptions = await getCustomerSubscriptions(authUser.stripeCustomerId);
+      
+      if (subscriptions.length > 0) {
+        // User has an active subscription - update it (Stripe handles proration)
+        const currentSubscription = subscriptions[0];
+        const targetPriceId = TIER_PRICES[targetTier].priceId;
+        
+        // Update subscription to new price (Stripe automatically prorates)
+        const updatedSubscription = await stripe().subscriptions.update(
+          currentSubscription.id,
+          {
+            items: [{
+              id: currentSubscription.items.data[0].id,
+              price: targetPriceId
+            }],
+            proration_behavior: 'always_invoice', // Charge immediately for the difference
+            payment_behavior: 'pending_if_incomplete'
+          }
+        );
+        
+        // If payment is required, create a checkout session to collect it
+        if (updatedSubscription.status === 'incomplete') {
+          const session = await stripe().checkout.sessions.create({
+            customer: authUser.stripeCustomerId,
+            payment_method_types: ['card'],
+            mode: 'setup', // Setup mode since subscription already exists
+            success_url: `${req.headers.origin}/subscription-success?upgraded=true&tier=${targetTier}`,
+            cancel_url: `${req.headers.origin}/subscription-cancel`,
+            metadata: {
+              userId: authUser.id.toString(),
+              upgradeFrom: authUser.tier,
+              upgradeTo: targetTier
+            }
+          });
+          
+          res.json({ 
+            sessionId: session.id,
+            url: session.url,
+            message: 'Payment required for upgrade'
+          });
+        } else {
+          // Upgrade successful without additional payment
+          res.json({ 
+            success: true,
+            message: 'Subscription upgraded successfully',
+            subscription: updatedSubscription
+          });
+        }
+      } else {
+        // No existing subscription - create new checkout session
+        const priceId = TIER_PRICES[targetTier].priceId;
+        const session = await createCheckoutSession({
+          customerId: authUser.stripeCustomerId,
+          priceId,
+          successUrl: `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&tier=${targetTier}`,
+          cancelUrl: `${req.headers.origin}/subscription-cancel`,
+          userId: authUser.id.toString()
+        });
+        
+        res.json({ 
+          sessionId: session.id,
+          url: session.url,
+          message: 'Redirecting to checkout'
+        });
+      }
+
+    } catch (error) {
+      console.error("Upgrade session creation failed:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to create upgrade session"
       });
     }
   });

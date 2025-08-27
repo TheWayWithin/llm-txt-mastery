@@ -56,6 +56,24 @@ export async function createCheckoutSession(tier: 'growth' | 'scale', authToken:
   return response.json();
 }
 
+export async function createUpgradeSession(targetTier: 'growth' | 'scale', authToken: string): Promise<CreateCheckoutSessionResponse & { success?: boolean; message?: string }> {
+  const response = await fetch('/api/stripe/create-upgrade-session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`
+    },
+    body: JSON.stringify({ targetTier })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to create upgrade session');
+  }
+
+  return response.json();
+}
+
 export async function createCoffeeCheckoutSession(authToken: string, email?: string): Promise<CreateCheckoutSessionResponse> {
   const body: any = {};
   

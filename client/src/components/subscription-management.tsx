@@ -6,6 +6,7 @@ import { CheckCircle, Loader2, CreditCard, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   createCheckoutSession,
+  createUpgradeSession,
   createCoffeeCheckoutSession, 
   createPortalSession, 
   getSubscriptionStatus, 
@@ -54,11 +55,29 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
         throw new Error('Authentication required');
       }
 
-      const { url } = await createCheckoutSession(tier, token);
+      // Use upgrade session if user has an active subscription (handles proration)
+      // Otherwise use regular checkout
+      const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription || false;
       
-      if (url) {
-        // Redirect to Stripe Checkout
-        window.location.href = url;
+      if (hasActiveSubscription) {
+        // Use upgrade endpoint which handles proration
+        const result = await createUpgradeSession(tier, token);
+        
+        if (result.url) {
+          // Redirect to Stripe for payment if needed
+          window.location.href = result.url;
+        } else if (result.success) {
+          // Upgrade completed without additional payment
+          alert('Subscription upgraded successfully!');
+          loadSubscriptionStatus(); // Refresh the status
+        }
+      } else {
+        // No existing subscription - use regular checkout
+        const { url } = await createCheckoutSession(tier, token);
+        
+        if (url) {
+          window.location.href = url;
+        }
       }
     } catch (error) {
       console.error('Upgrade failed:', error);
