@@ -500,7 +500,33 @@ async function handlePaymentSucceeded(invoice: any) {
 
     console.log(`Payment succeeded for subscription: ${subscriptionId}`);
     
-    // Could add payment history tracking here
+    // Get the customer email from the invoice
+    const customerEmail = invoice.customer_email;
+    
+    // Check if this is a renewal (not the first payment)
+    // billing_reason: 'subscription_cycle' means it's a renewal
+    // billing_reason: 'subscription_create' means it's the first payment
+    if (invoice.billing_reason === 'subscription_cycle') {
+      console.log(`Subscription renewal detected for: ${customerEmail}`);
+      
+      // Get the user from auth_users table
+      const authUser = await authStorage.getUserByEmail(customerEmail);
+      
+      if (authUser && authUser.tier === 'coffee') {
+        // Reset credits to 100 for Coffee tier renewal
+        await authStorage.updateUser(authUser.id, {
+          creditsRemaining: COFFEE_TIER_CREDITS
+        });
+        console.log(`[RENEWAL] Reset credits to ${COFFEE_TIER_CREDITS} for Coffee tier user: ${customerEmail}`);
+        
+        // Also call the handleSubscriptionRenewal function from usage.ts
+        const { handleSubscriptionRenewal } = await import('../services/usage');
+        await handleSubscriptionRenewal(authUser.id);
+      }
+    }
+    
+    // Add payment history tracking
+    console.log(`Payment recorded: ${invoice.amount_paid / 100} ${invoice.currency.toUpperCase()} for ${customerEmail}`);
     
   } catch (error) {
     console.error("Failed to handle payment success:", error);

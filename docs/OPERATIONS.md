@@ -298,7 +298,7 @@ OPENAI_MODEL=gpt-4o-mini    # Model selection (gpt-4o-mini | gpt-4o | gpt-3.5-tu
 ```bash
 STRIPE_SECRET_KEY=sk_live_...                    # Production secret key
 STRIPE_WEBHOOK_SECRET=whsec_...                  # Webhook endpoint secret
-STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_...        # $4.95 one-time payment (Coffee tier)
+STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_...        # $4.95/month subscription (Coffee tier)
 STRIPE_LLM_TXT_GROWTH_PRICE_ID=price_...        # $9.95/month subscription (Growth tier)
 STRIPE_LLM_TXT_SCALE_PRICE_ID=price_...         # $19.95/month subscription (Scale tier)
 ```
@@ -838,7 +838,7 @@ curl $API_URL/health           # Health check
 
 ## Revision History
 - **v1.1.1** (Aug 25, 2025) - Updated pricing and tier information to reflect current offerings
-  - Coffee tier: $4.95 one-time (was $5.00)
+  - Coffee tier: $4.95/month subscription (100 analyses/month)
   - Growth tier: $9.95/month (was $15/month)  
   - Scale tier: $19.95/month (was $49/month)
   - Added detailed feature breakdown for each tier

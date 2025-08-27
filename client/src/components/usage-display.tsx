@@ -55,6 +55,15 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   const costSaved = cacheHitsToday ? (cacheHitsToday * 0.03 * 0.7).toFixed(2) : "0.00";
   const isCoffeeTier = usageData.tier === 'coffee';
   const creditsRemaining = usageData?.creditsRemaining || 0;
+  
+  // Debug logging for Coffee tier credits
+  if (isCoffeeTier) {
+    console.log('[UsageDisplay] Coffee tier credits:', {
+      creditsRemaining,
+      rawData: usageData?.creditsRemaining,
+      fullUsageData: usageData
+    });
+  }
 
   return (
     <Card className="bg-slate-50 border-slate-200">
@@ -163,7 +172,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                 🚫 Daily limit reached! Upgrade to continue analyzing.
               </p>
               <p className="text-xs text-ai-silver mb-3">
-                Get unlimited daily analyses with AI-enhanced results for just $5
+                Get 100 monthly analyses with AI-enhanced results for just $4.95/month
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <button 
@@ -189,7 +198,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                   }}
                   className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
-                  ☕ Buy me a coffee ($5)
+                  ☕ Coffee Plan ($4.95/month)
                 </button>
                 <button 
                   onClick={() => window.location.href = '/pricing'}
@@ -230,7 +239,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                   }}
                   className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
-                  ☕ Buy me a coffee ($5)
+                  ☕ Coffee Plan ($4.95/month)
                 </button>
                 <button 
                   onClick={() => window.location.href = '/pricing'}

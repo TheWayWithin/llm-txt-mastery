@@ -76,11 +76,11 @@ export function TierSelectionGrid({ selectedTier, onTierSelect, disabled = false
                 alt="Coffee Tier" 
                 className="w-8 h-8" 
               />
-              <span className="font-bold text-xl text-green-800">Coffee Power ($4.95 one-time)</span>
+              <span className="font-bold text-xl text-green-800">Coffee Power ($4.95/month)</span>
             </Label>
             <p className="text-sm font-medium text-green-700 mt-2">
               ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly<br/>
-              ✅ UNLIMITED daily analyses (destroy daily limits)<br/>
+              ✅ 100 analyses per month (credits reset monthly)<br/>
               ✅ Keep your LLM.txt file CURRENT - update it as your site evolves<br/>
               ✅ 200 pages per analysis (10x more than free)<br/>
               ✅ AI-powered content scoring (find hidden gems)<br/>
