@@ -166,7 +166,7 @@ function AccountOverview() {
                   <ul className={`list-disc list-inside mt-1 space-y-1 ${
                     user.tier === 'growth' ? 'text-blue-600' : 'text-purple-600'
                   }`}>
-                    <li>Unlimited daily analyses</li>
+                    <li>100 monthly analyses</li>
                     <li>AI-enhanced analysis</li>
                     <li>Priority support</li>
                     {user.tier === 'scale' && (
@@ -349,8 +349,8 @@ function BillingSection() {
               
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">✅ UNLIMITED Daily Analyses</div>
-                  <div className="text-xs text-orange-600">vs FREE: Only 3 per day (then locked out)</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">✅ 100 Monthly Analyses</div>
+                  <div className="text-xs text-orange-600">vs FREE: Only 3 per day (90 per month max)</div>
                 </div>
                 
                 <div className="bg-white border border-orange-200 rounded-md p-3">
@@ -420,8 +420,8 @@ function BillingSection() {
                 </div>
                 
                 <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">📄 500 Pages per Analysis</div>
-                  <div className="text-xs text-blue-600">vs Coffee: 2.5x more content discovery</div>
+                  <div className="text-sm font-semibold text-blue-800 mb-1">📄 1,000 Pages per Analysis</div>
+                  <div className="text-xs text-blue-600">vs Coffee: 5x more content discovery</div>
                 </div>
                 
                 <div className="bg-white border border-blue-200 rounded-md p-3">
