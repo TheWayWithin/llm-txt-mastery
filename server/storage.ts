@@ -737,7 +737,7 @@ export class DatabaseStorage implements IStorage {
       tier: authUser.tier,
       creditsRemaining: authUser.creditsRemaining, // Correctly from auth_users table
       createdAt: authUser.createdAt || new Date(),
-      updatedAt: user.updatedAt || new Date()
+      updatedAt: authUser.updatedAt || new Date()
     };
   }
 
