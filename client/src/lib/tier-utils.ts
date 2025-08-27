@@ -28,9 +28,9 @@ export const getTierDescription = (tier: string): string => {
     case 'starter':
       return '3 free analyses per day, up to 20 pages';
     case 'coffee':
-      return 'Unlimited AI analysis, up to 200 pages';
+      return '100 monthly analyses, up to 200 pages each';
     case 'growth':
-      return 'Professional power: unlimited analyses, 500 pages each';
+      return '100 monthly analyses, up to 1,000 pages each';
     case 'scale':
       return 'Enterprise power: unlimited pages ($19.95 AI cost cap)';
     default:

@@ -54,9 +54,9 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
     }
   },
   growth: {
-    dailyAnalyses: 999,
+    dailyAnalyses: 100, // 100 analyses per month (handled via credit system like coffee)
     maxPagesPerAnalysis: 1000,
-    aiPagesLimit: 200,
+    aiPagesLimit: 1000, // Full AI analysis for growth tier
     cacheDurationDays: 7,
     features: {
       htmlExtraction: true,

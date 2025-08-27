@@ -217,20 +217,20 @@ export default function SignupPage() {
         ]
       case 'coffee':
         return [
-          "✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly",
-          "✅ UNLIMITED daily analyses (destroy daily limits)",
+          "✅ 100 monthly analysis credits",
           "✅ 200 pages per analysis (10x more than free)",
-          "✅ AI-powered content scoring (find hidden gems)",
-          "✅ Beat competitors who use broken tools"
+          "✅ AI-powered content scoring for all pages",
+          "✅ Priority processing and support",
+          "✅ 30-day money-back guarantee"
         ]
       case 'growth':
         return [
-          "✅ Unlimited AI analysis",
-          "✅ Up to 500 pages per analysis",
-          "✅ Team collaboration features",
-          "✅ Advanced analytics dashboard",
-          "✅ Priority support",
-          "🛡️ All Coffee tier guarantees included"
+          "✅ 100 monthly analyses (3x Coffee tier capacity)",
+          "✅ 1,000 pages per analysis (perfect for large sites)",
+          "✅ Bulk website processing - analyze multiple sites",
+          "✅ Export to CSV/JSON for data analysis",
+          "✅ Skip the queue - priority processing",
+          "🚀 Handle enterprise websites competitors can't touch"
         ]
       case 'scale':
         return [
@@ -313,10 +313,10 @@ export default function SignupPage() {
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
-                      <option value="starter">⚠️ FREE (Severely Limited - Miss Critical Pages)</option>
-                      <option value="coffee">🏆 COFFEE - Crush Competition ($4.95 one-time + Guarantees)</option>
-                      <option value="growth">💼 GROWTH - Professional Power ($9.95/month)</option>
-                      <option value="scale">🚀 SCALE - Enterprise Domination ($19.95/month)</option>
+                      <option value="starter">⚠️ FREE - 3 daily (20 pages max)</option>
+                      <option value="coffee">☕ COFFEE - 100 monthly ($4.95/month)</option>
+                      <option value="growth">💼 GROWTH - Go Pro ($9.95/month)</option>
+                      <option value="scale">🚀 SCALE - Enterprise ($19.95/month)</option>
                     </select>
                     
                     {/* Selected Tier Details */}
@@ -351,15 +351,23 @@ export default function SignupPage() {
                       {selectedTier === 'coffee' && (
                         <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded">
                           <p className="text-xs font-bold text-green-800">
-                            🚀 SMART CHOICE! Full power + 30-day guarantee + cancel instantly. After signup, secure Stripe payment ($5/month)
+                            🚀 SMART CHOICE! 100 monthly analyses + 30-day guarantee + cancel instantly. After signup, secure Stripe payment ($4.95/month)
                           </p>
                         </div>
                       )}
                       
-                      {(selectedTier === 'growth' || selectedTier === 'scale') && (
+                      {selectedTier === 'growth' && (
                         <div className="mt-3 p-3 bg-blue-100 border border-blue-300 rounded">
                           <p className="text-xs font-bold text-blue-800">
-                            💼 PROFESSIONAL CHOICE: All guarantees included + advanced features for serious businesses
+                            🚀 DOMINATE LARGE SITES: While competitors fail at 50+ pages, you'll analyze 1,000 pages effortlessly!
+                          </p>
+                        </div>
+                      )}
+                      
+                      {selectedTier === 'scale' && (
+                        <div className="mt-3 p-3 bg-purple-100 border border-purple-300 rounded">
+                          <p className="text-xs font-bold text-purple-800">
+                            👑 ENTERPRISE POWER: Unlimited everything + white-label options for agencies
                           </p>
                         </div>
                       )}
