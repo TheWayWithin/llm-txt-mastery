@@ -349,6 +349,35 @@ async function handleCheckoutCompleted(session: any) {
         subscriptionId: session.subscription,
         subscriptionStatus: 'active'
       });
+      
+      // CRITICAL FIX: Get customer email and update emailCaptures for subscriptions
+      const customerEmail = session.customer_details?.email || session.customer_email;
+      if (customerEmail) {
+        // Get tier from subscription metadata or price ID
+        const priceId = session.metadata?.priceId;
+        const tier = getTierFromPriceId(priceId) || 'starter';
+        
+        try {
+          const existingCapture = await storage.getEmailCapture(customerEmail);
+          if (existingCapture) {
+            // Update existing email capture to subscription tier
+            await storage.updateEmailCapture(customerEmail, { tier: tier as any });
+            console.log(`Updated email capture for ${customerEmail} to ${tier} tier`);
+          } else {
+            // Create new email capture record for subscription tier
+            await storage.createEmailCapture({
+              email: customerEmail,
+              tier: tier as any,
+              websiteUrl: null
+            });
+            console.log(`Created email capture for ${customerEmail} as ${tier} tier`);
+          }
+        } catch (error) {
+          console.error(`Failed to update email capture for subscription ${customerEmail}:`, error);
+        }
+      } else {
+        console.error(`No customer email found in subscription checkout session for user ${userId}`);
+      }
     }
   } catch (error) {
     console.error("Failed to handle checkout completion:", error);
@@ -373,6 +402,35 @@ async function handleSubscriptionUpdate(subscription: any) {
       subscriptionId: subscription.id,
       subscriptionStatus: subscription.status
     });
+
+    // CRITICAL FIX: Get customer email and update emailCaptures for subscription updates
+    let customerEmail = null;
+    try {
+      // Get customer email from Stripe
+      const customer = await getStripeCustomer(subscription.customer);
+      customerEmail = customer?.email;
+      
+      if (customerEmail) {
+        const existingCapture = await storage.getEmailCapture(customerEmail);
+        if (existingCapture) {
+          // Update existing email capture to subscription tier
+          await storage.updateEmailCapture(customerEmail, { tier: tier as any });
+          console.log(`Updated emailCaptures for ${customerEmail} to ${tier} tier`);
+        } else {
+          // Create new email capture record for subscription tier
+          await storage.createEmailCapture({
+            email: customerEmail,
+            tier: tier as any,
+            websiteUrl: null
+          });
+          console.log(`Created emailCaptures for ${customerEmail} as ${tier} tier`);
+        }
+      } else {
+        console.error(`No email found for Stripe customer ${subscription.customer}`);
+      }
+    } catch (customerError) {
+      console.error(`Failed to get customer email for subscription ${subscription.id}:`, customerError);
+    }
 
     // Record payment history if subscription is active
     if (subscription.status === 'active') {
@@ -405,6 +463,27 @@ async function handleSubscriptionCancelled(subscription: any) {
       tier: 'starter',
       subscriptionStatus: 'cancelled'
     });
+
+    // CRITICAL FIX: Downgrade emailCaptures tier when subscription is cancelled
+    let customerEmail = null;
+    try {
+      // Get customer email from Stripe
+      const customer = await getStripeCustomer(subscription.customer);
+      customerEmail = customer?.email;
+      
+      if (customerEmail) {
+        const existingCapture = await storage.getEmailCapture(customerEmail);
+        if (existingCapture) {
+          // Downgrade to starter tier on cancellation
+          await storage.updateEmailCapture(customerEmail, { tier: 'starter' });
+          console.log(`Downgraded emailCaptures for ${customerEmail} to starter tier (subscription cancelled)`);
+        }
+      } else {
+        console.error(`No email found for cancelled subscription customer ${subscription.customer}`);
+      }
+    } catch (customerError) {
+      console.error(`Failed to get customer email for cancelled subscription ${subscription.id}:`, customerError);
+    }
 
   } catch (error) {
     console.error("Failed to handle subscription cancellation:", error);
