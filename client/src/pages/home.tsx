@@ -5,6 +5,7 @@ import { User, Settings, Coffee, HelpCircle } from "lucide-react";
 import { AuthNav } from "@/components/AuthNav";
 import UrlInput from "@/components/url-input";
 import EmailCapture from "@/components/email-capture";
+import Footer from "@/components/footer";
 import ContentAnalysis from "@/components/content-analysis";
 import ContentReview from "@/components/content-review";
 import FileGeneration from "@/components/file-generation";
@@ -1169,39 +1170,7 @@ export default function Home() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-framework-black text-white py-12 mt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
-                <p className="text-sm text-slate-300">
-                  Simple, effective AI visibility tools. Built for builders by someone who refuses to let corporate slowness hold back innovation.
-                </p>
-              </div>
-              <div>
-                <h5 className="font-semibold mb-4">Resources</h5>
-                <ul className="text-sm text-slate-300 space-y-2">
-                  <li><a href="/docs" className="hover:text-innovation-teal transition-colors">Documentation</a></li>
-                  <li><a href="/docs#best-practices" className="hover:text-innovation-teal transition-colors">Best Practices</a></li>
-                  <li><a href="/docs#api" className="hover:text-innovation-teal transition-colors">API Reference</a></li>
-                  <li><a href="/contact" className="hover:text-innovation-teal transition-colors">Support</a></li>
-                </ul>
-              </div>
-              <div>
-                <h5 className="font-semibold mb-4">Legal & Connect</h5>
-                <ul className="text-sm text-slate-300 space-y-2">
-                  <li><a href="/privacy" className="hover:text-innovation-teal transition-colors">Privacy Policy</a></li>
-                  <li><a href="/terms" className="hover:text-innovation-teal transition-colors">Terms of Service</a></li>
-                  <li><a href="/contact" className="hover:text-innovation-teal transition-colors">Contact & Support</a></li>
-                  <li><a href="/blog" className="hover:text-innovation-teal transition-colors">Blog</a></li>
-                </ul>
-              </div>
-            </div>
-            <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
-              <p>&copy; 2025 Jamie Watters. No corporate BS. Just tools that work.</p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
 
         {/* Authentication Modal */}
         <AuthModal
