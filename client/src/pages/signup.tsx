@@ -137,12 +137,22 @@ export default function SignupPage() {
         event_category: 'auth'
       });
       
-      // If Coffee tier, redirect to Stripe checkout
-      if (selectedTier === 'coffee') {
-        console.log('☕ Coffee tier selected, redirecting to Stripe checkout')
+      // Handle paid tier checkouts (Coffee, Growth, Scale)
+      if (selectedTier === 'coffee' || selectedTier === 'growth' || selectedTier === 'scale') {
+        console.log(`💳 ${selectedTier} tier selected, redirecting to Stripe checkout`)
+        
+        // Determine the correct endpoint based on tier
+        let endpoint = '';
+        if (selectedTier === 'coffee') {
+          endpoint = '/api/stripe/create-coffee-checkout';
+        } else if (selectedTier === 'growth') {
+          endpoint = '/api/stripe/create-growth-checkout';
+        } else if (selectedTier === 'scale') {
+          endpoint = '/api/stripe/create-scale-checkout';
+        }
         
         // Create Stripe checkout session
-        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/stripe/create-coffee-checkout`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
