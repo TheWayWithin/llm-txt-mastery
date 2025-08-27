@@ -263,9 +263,13 @@ export default function AnalyzePage() {
                 <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
                   <BarChart3 className="h-5 w-5 text-innovation-teal" />
                   <div>
-                    <p className="text-sm font-medium text-framework-black">Today's Usage</p>
+                    <p className="text-sm font-medium text-framework-black">
+                      {user.tier === 'coffee' ? 'Credits' : "Today's Usage"}
+                    </p>
                     <p className="text-xs text-ai-silver">
-                      {usageData?.currentUsage || 0} / {usageData?.dailyAnalyses || 3}
+                      {user.tier === 'coffee' 
+                        ? `${usageData?.creditsRemaining || 0} remaining`
+                        : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || 3}`}
                     </p>
                   </div>
                 </div>
