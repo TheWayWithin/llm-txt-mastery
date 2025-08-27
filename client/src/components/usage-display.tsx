@@ -26,7 +26,8 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
       console.log(`📊 Usage data received for ${userEmail}:`, {
         tier: data.tier,
         dailyAnalyses: data.limits?.dailyAnalyses,
-        currentUsage: data.usage?.analysesToday
+        currentUsage: data.usage?.analysesToday,
+        creditsRemaining: data.creditsRemaining
       });
       
       return data;
@@ -58,11 +59,11 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   
   // Debug logging for Coffee tier credits
   if (isCoffeeTier) {
-    console.log('[UsageDisplay] Coffee tier credits:', {
-      creditsRemaining,
-      rawData: usageData?.creditsRemaining,
-      fullUsageData: usageData
-    });
+    console.log('[UsageDisplay] Coffee tier credits:', 
+      `${creditsRemaining} credits remaining`,
+      'Raw value:', usageData?.creditsRemaining,
+      'Full data:', usageData
+    );
   }
 
   return (

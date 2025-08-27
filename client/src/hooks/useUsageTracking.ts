@@ -7,6 +7,7 @@ interface UsageData {
   dailyAnalyses: number;
   currentUsage: number;
   lastReset: string;
+  creditsRemaining?: number; // For Coffee tier
 }
 
 // Client-side usage tracking as fallback
@@ -96,9 +97,10 @@ export function useUsageTracking(email: string | undefined) {
             tier: simpleData.tier || 'starter',
             dailyAnalyses: simpleData.limits?.dailyAnalyses || 3,
             currentUsage: simpleData.usage?.analysesToday || 0,
-            lastReset: new Date().toDateString()
+            lastReset: new Date().toDateString(),
+            creditsRemaining: simpleData.creditsRemaining // Preserve Coffee tier credits
           };
-          console.log(`📊 [SIMPLE] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}`);
+          console.log(`📊 [SIMPLE] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}${usage.creditsRemaining !== undefined ? ` (${usage.creditsRemaining} credits)` : ''}`);
           return usage;
         }
       } catch (simpleError) {
@@ -115,10 +117,11 @@ export function useUsageTracking(email: string | undefined) {
           tier: data.tier || 'starter',
           dailyAnalyses: data.limits?.dailyAnalyses || 3,
           currentUsage: data.usage?.analysesToday || 0,
-          lastReset: new Date().toDateString()
+          lastReset: new Date().toDateString(),
+          creditsRemaining: data.creditsRemaining // Preserve Coffee tier credits
         };
         
-        console.log(`📊 [SERVER] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}`);
+        console.log(`📊 [SERVER] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}${usage.creditsRemaining !== undefined ? ` (${usage.creditsRemaining} credits)` : ''}`);
         return usage;
       } catch (error) {
         console.warn(`⚠️ [SERVER] Failed to fetch usage, using client fallback:`, error);
@@ -169,7 +172,8 @@ export function useUsageTracking(email: string | undefined) {
     tier: 'starter',
     dailyAnalyses: 3,
     currentUsage: 0,
-    lastReset: new Date().toDateString()
+    lastReset: new Date().toDateString(),
+    creditsRemaining: undefined
   };
   
   // Check if limit reached
