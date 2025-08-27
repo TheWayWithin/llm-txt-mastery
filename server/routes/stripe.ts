@@ -67,6 +67,132 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
+  // Create Growth tier checkout session (for signup flow)
+  app.post("/api/stripe/create-growth-checkout", optionalAuth, apiLimiter, async (req, res) => {
+    try {
+      const { email, websiteUrl } = z.object({
+        email: z.string().email().optional(),
+        websiteUrl: z.string().url().optional()
+      }).parse(req.body);
+
+      // Support both authenticated and email-based purchases
+      const userEmail = req.user?.email || email;
+      
+      if (!userEmail) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Get or create email capture record
+      let emailCapture = await storage.getEmailCapture(userEmail);
+      if (!emailCapture) {
+        emailCapture = await storage.createEmailCapture({
+          email: userEmail,
+          tier: 'starter',
+          websiteUrl: websiteUrl || null
+        });
+      }
+
+      // Create Stripe customer
+      const stripeCustomer = await createStripeCustomer({
+        email: userEmail,
+        userId: emailCapture.id.toString()
+      });
+
+      // Create subscription checkout session for Growth tier
+      const priceId = TIER_PRICES.growth.priceId;
+      
+      const encodedEmail = encodeURIComponent(userEmail);
+      const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
+      
+      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=growth`;
+      if (websiteUrl) {
+        successUrl += `&website=${encodedWebsiteUrl}`;
+      }
+        
+      const session = await createCheckoutSession({
+        customerId: stripeCustomer.id,
+        priceId,
+        successUrl,
+        cancelUrl: `${req.headers.origin}/subscription-cancel`,
+        userId: emailCapture.id.toString()
+      });
+
+      res.json({ 
+        sessionId: session.id,
+        url: session.url 
+      });
+
+    } catch (error) {
+      console.error("Growth checkout session creation failed:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to create growth checkout session"
+      });
+    }
+  });
+
+  // Create Scale tier checkout session (for signup flow)
+  app.post("/api/stripe/create-scale-checkout", optionalAuth, apiLimiter, async (req, res) => {
+    try {
+      const { email, websiteUrl } = z.object({
+        email: z.string().email().optional(),
+        websiteUrl: z.string().url().optional()
+      }).parse(req.body);
+
+      // Support both authenticated and email-based purchases
+      const userEmail = req.user?.email || email;
+      
+      if (!userEmail) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Get or create email capture record
+      let emailCapture = await storage.getEmailCapture(userEmail);
+      if (!emailCapture) {
+        emailCapture = await storage.createEmailCapture({
+          email: userEmail,
+          tier: 'starter',
+          websiteUrl: websiteUrl || null
+        });
+      }
+
+      // Create Stripe customer
+      const stripeCustomer = await createStripeCustomer({
+        email: userEmail,
+        userId: emailCapture.id.toString()
+      });
+
+      // Create subscription checkout session for Scale tier
+      const priceId = TIER_PRICES.scale.priceId;
+      
+      const encodedEmail = encodeURIComponent(userEmail);
+      const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
+      
+      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=scale`;
+      if (websiteUrl) {
+        successUrl += `&website=${encodedWebsiteUrl}`;
+      }
+        
+      const session = await createCheckoutSession({
+        customerId: stripeCustomer.id,
+        priceId,
+        successUrl,
+        cancelUrl: `${req.headers.origin}/subscription-cancel`,
+        userId: emailCapture.id.toString()
+      });
+
+      res.json({ 
+        sessionId: session.id,
+        url: session.url 
+      });
+
+    } catch (error) {
+      console.error("Scale checkout session creation failed:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to create scale checkout session"
+      });
+    }
+  });
+
   // Create one-time checkout session for coffee tier
   app.post("/api/stripe/create-coffee-checkout", optionalAuth, apiLimiter, async (req, res) => {
     try {

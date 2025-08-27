@@ -309,7 +309,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
             </Card>
           )}
 
-          {currentTier !== 'scale' && (
+          {(currentTier === 'starter' || currentTier === 'coffee' || currentTier === 'growth') && (
             <Card className="border-purple-200">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
