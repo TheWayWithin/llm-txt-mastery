@@ -80,7 +80,8 @@ export function serveStatic(app: Express) {
   // SPA fallback - serve index.html for non-API routes
   app.use("*", (req, res, next) => {
     // Don't serve index.html for API routes - let them 404 properly
-    if (req.path.startsWith('/api/')) {
+    // Check both req.path and req.originalUrl to handle all cases
+    if (req.originalUrl.startsWith('/api/') || req.path.startsWith('/api/')) {
       return next();
     }
     
