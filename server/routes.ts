@@ -464,7 +464,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Start analysis process (async with proper error handling)
-      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, userEmail, tier)
+      // Pass user.id for Coffee tier credit consumption
+      analyzeWebsiteEnhanced(analysis.id, normalizedUrl, userEmail, tier, user?.id?.toString())
         .catch(error => {
           console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
           // Ensure the analysis is marked as failed even on unhandled errors
@@ -747,7 +748,8 @@ async function analyzeWebsiteEnhanced(
   analysisId: number, 
   url: string, 
   userEmail: string,
-  tier: UserTier
+  tier: UserTier,
+  authUserId?: string
 ) {
   console.log(`\n🚀 [ANALYSIS START] Beginning analysis for ${url}`);
   console.log(`  - User: ${userEmail}`);
@@ -766,7 +768,7 @@ async function analyzeWebsiteEnhanced(
   try {
     // Race the analysis against the timeout
     await Promise.race([
-      performAnalysisWithTimeout(analysisId, url, userEmail, tier),
+      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId),
       timeoutPromise
     ]);
   } catch (error) {
@@ -804,7 +806,8 @@ async function performAnalysisWithTimeout(
   analysisId: number, 
   url: string, 
   userEmail: string,
-  tier: UserTier
+  tier: UserTier,
+  authUserId?: string
 ) {
   try {
     const startTime = Date.now();
@@ -884,13 +887,18 @@ async function performAnalysisWithTimeout(
       try {
         console.log(`[CREDIT] Consuming coffee credit for ${userEmail}`);
         
-        // Resolve user ID from email
-        const userId = await resolveUserFromEmail(userEmail);
+        // Use authUserId if available (from JWT auth), otherwise resolve from email
+        let userId = authUserId;
+        if (!userId) {
+          const resolvedUserId = await resolveUserFromEmail(userEmail);
+          userId = resolvedUserId?.toString();
+        }
+        
         if (!userId) {
           console.error(`[CREDIT] Failed to resolve userId for ${userEmail}`);
         } else {
           // Consume one credit
-          const creditConsumed = await consumeCoffeeCredit(userId.toString());
+          const creditConsumed = await consumeCoffeeCredit(userId);
           if (creditConsumed) {
             console.log(`[CREDIT] Successfully consumed 1 credit for ${userEmail} (userId: ${userId})`);
           } else {
