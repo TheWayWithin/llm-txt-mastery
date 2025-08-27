@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Cookie, Shield, Info, Settings, ArrowLeft } from "lucide-react";
+import Footer from "@/components/footer";
 
 export default function CookiesPage() {
   const lastUpdated = "January 6, 2025";
@@ -405,39 +406,7 @@ export default function CookiesPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-framework-black text-white py-8 mt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-4">
-            <div className="flex justify-center space-x-6 text-sm">
-              <Link href="/privacy">
-                <a className="text-slate-300 hover:text-innovation-teal transition-colors">
-                  Privacy Policy
-                </a>
-              </Link>
-              <Link href="/terms">
-                <a className="text-slate-300 hover:text-innovation-teal transition-colors">
-                  Terms of Service
-                </a>
-              </Link>
-              <Link href="/cookies">
-                <a className="text-slate-300 hover:text-innovation-teal transition-colors">
-                  Cookie Policy
-                </a>
-              </Link>
-              <Link href="/contact">
-                <a className="text-slate-300 hover:text-innovation-teal transition-colors">
-                  Contact
-                </a>
-              </Link>
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-slate-400">
-              &copy; 2025 Jamie Watters. Built with integrity, not corporate BS.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Coffee, Shield, Zap } from "lucide-react"
 import { Link } from "wouter"
+import Footer from "@/components/footer"
 
 export default function LoginPage() {
   const [, navigate] = useLocation()
@@ -266,22 +267,7 @@ export default function LoginPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-framework-black text-white py-8 mt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-4">
-            <div className="flex justify-center space-x-6 text-sm">
-              <a href="/privacy" className="text-slate-300 hover:text-innovation-teal transition-colors">Privacy Policy</a>
-              <a href="/terms" className="text-slate-300 hover:text-innovation-teal transition-colors">Terms of Service</a>
-              <a href="/contact" className="text-slate-300 hover:text-innovation-teal transition-colors">Contact</a>
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-slate-400">
-              &copy; 2025 Jamie Watters. No corporate BS. Just tools that work.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
