@@ -93,15 +93,21 @@ export function useUsageTracking(email: string | undefined) {
         const simpleResponse = await apiRequest('GET', `/api/simple-usage/${encodeURIComponent(email)}`);
         if (simpleResponse.ok) {
           const simpleData = await simpleResponse.json();
-          const usage: UsageData = {
-            tier: simpleData.tier || 'starter',
-            dailyAnalyses: simpleData.limits?.dailyAnalyses || 3,
-            currentUsage: simpleData.usage?.analysesToday || 0,
-            lastReset: new Date().toDateString(),
-            creditsRemaining: simpleData.creditsRemaining // Preserve Coffee tier credits
-          };
-          console.log(`📊 [SIMPLE] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}${usage.creditsRemaining !== undefined ? ` (${usage.creditsRemaining} credits)` : ''}`);
-          return usage;
+          
+          // For Coffee tier, skip simple endpoint if it doesn't have creditsRemaining
+          if (simpleData.tier === 'coffee' && simpleData.creditsRemaining === undefined) {
+            console.log(`⚠️ [SIMPLE] Coffee tier detected but no creditsRemaining, falling back to full endpoint`);
+          } else {
+            const usage: UsageData = {
+              tier: simpleData.tier || 'starter',
+              dailyAnalyses: simpleData.limits?.dailyAnalyses || 3,
+              currentUsage: simpleData.usage?.analysesToday || 0,
+              lastReset: new Date().toDateString(),
+              creditsRemaining: simpleData.creditsRemaining // Preserve Coffee tier credits
+            };
+            console.log(`📊 [SIMPLE] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}${usage.creditsRemaining !== undefined ? ` (${usage.creditsRemaining} credits)` : ''}`);
+            return usage;
+          }
         }
       } catch (simpleError) {
         console.warn(`⚠️ [SIMPLE] Failed to fetch simple usage:`, simpleError);
