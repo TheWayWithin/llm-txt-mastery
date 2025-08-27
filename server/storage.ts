@@ -1,5 +1,5 @@
 import { 
-  users, sitemapAnalysis, llmTextFiles, emailCaptures, subscriptions, paymentHistory, usageTracking, analysisCache, oneTimeCredits, userProfiles,
+  users, sitemapAnalysis, llmTextFiles, emailCaptures, subscriptions, paymentHistory, usageTracking, analysisCache, oneTimeCredits, userProfiles, authUsers,
   type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile, 
   type EmailCapture, type InsertEmailCapture, type Subscription, type InsertSubscription, type PaymentHistory, type InsertPaymentHistory,
   type UsageTrackingDb, type InsertUsageTracking, type AnalysisCacheDb, type InsertAnalysisCache,
@@ -725,18 +725,18 @@ export class DatabaseStorage implements IStorage {
     const userId = parseInt(id);
     if (isNaN(userId)) return undefined;
     
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-    if (!user) return undefined;
+    // Get user from auth_users table where creditsRemaining is stored
+    const [authUser] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
+    if (!authUser) return undefined;
     
-    // Map user to UserProfile format
-    const emailCapture = await this.getEmailCaptureByUserId(userId);
+    // Map authUser to UserProfile format
     return {
-      id: user.id.toString(),
-      username: user.username,
-      email: emailCapture?.email || '',
-      tier: emailCapture?.tier || 'starter',
-      creditsRemaining: emailCapture?.creditsRemaining || 0,
-      createdAt: user.createdAt || new Date(),
+      id: authUser.id.toString(),
+      username: authUser.email.split('@')[0], // Use email prefix as username fallback
+      email: authUser.email,
+      tier: authUser.tier,
+      creditsRemaining: authUser.creditsRemaining, // Correctly from auth_users table
+      createdAt: authUser.createdAt || new Date(),
       updatedAt: user.updatedAt || new Date()
     };
   }

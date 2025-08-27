@@ -1,6 +1,6 @@
 import { storage } from "../storage";
 import { db } from "../db";
-import { UserTier, UsageTracking, emailCaptures, usageTracking, users } from "@shared/schema";
+import { UserTier, UsageTracking, emailCaptures, usageTracking, users, authUsers } from "@shared/schema";
 import { TIER_LIMITS } from "./cache";
 import { eq, and } from "drizzle-orm";
 
@@ -371,35 +371,74 @@ export async function trackUsage(
 // Coffee tier credit management
 export async function checkCoffeeCredits(userId: string): Promise<{ hasCredits: boolean; creditsRemaining: number }> {
   try {
-    const userProfile = await storage.getUserProfile(userId);
-    const creditsRemaining = userProfile?.creditsRemaining || 0;
+    console.log(`[DEBUG] Checking coffee credits for userId: ${userId}`);
+    
+    const numericUserId = parseInt(userId);
+    if (isNaN(numericUserId)) {
+      console.error(`[ERROR] Invalid userId format: ${userId}`);
+      return { hasCredits: false, creditsRemaining: 0 };
+    }
+
+    // Query auth_users table directly for creditsRemaining
+    const [authUser] = await db.select({
+      creditsRemaining: authUsers.creditsRemaining,
+      email: authUsers.email,
+      tier: authUsers.tier
+    })
+    .from(authUsers)
+    .where(eq(authUsers.id, numericUserId));
+    
+    if (!authUser) {
+      console.error(`[ERROR] No auth_user found for userId: ${userId}`);
+      return { hasCredits: false, creditsRemaining: 0 };
+    }
+    
+    const creditsRemaining = authUser.creditsRemaining;
+    console.log(`[DEBUG] Found user ${authUser.email} with ${creditsRemaining} credits (tier: ${authUser.tier})`);
     
     return {
       hasCredits: creditsRemaining > 0,
       creditsRemaining
     };
   } catch (error) {
-    console.error('Error checking coffee credits:', error);
+    console.error(`[ERROR] Failed to check coffee credits for userId ${userId}:`, error);
     return { hasCredits: false, creditsRemaining: 0 };
   }
 }
 
 export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
   try {
-    const userProfile = await storage.getUserProfile(userId);
-    if (!userProfile || userProfile.creditsRemaining <= 0) {
+    console.log(`[DEBUG] Attempting to consume credit for userId: ${userId}`);
+    
+    const numericUserId = parseInt(userId);
+    if (isNaN(numericUserId)) {
+      console.error(`[ERROR] Invalid userId format: ${userId}`);
+      return false;
+    }
+
+    // Get current credits directly from auth_users table
+    const [authUser] = await db.select({
+      creditsRemaining: authUsers.creditsRemaining,
+      email: authUsers.email
+    })
+    .from(authUsers)
+    .where(eq(authUsers.id, numericUserId));
+    
+    if (!authUser || authUser.creditsRemaining <= 0) {
+      console.log(`[DEBUG] User ${authUser?.email || 'unknown'} has ${authUser?.creditsRemaining || 0} credits - cannot consume`);
       return false;
     }
     
-    // Consume one credit
-    await storage.updateUserProfile(userId, {
-      creditsRemaining: userProfile.creditsRemaining - 1
-    });
+    // Consume one credit directly in auth_users table
+    const newCredits = authUser.creditsRemaining - 1;
+    await db.update(authUsers)
+      .set({ creditsRemaining: newCredits })
+      .where(eq(authUsers.id, numericUserId));
     
-    console.log(`Consumed 1 coffee credit for user: ${userId}. Remaining: ${userProfile.creditsRemaining - 1}`);
+    console.log(`[DEBUG] Consumed 1 coffee credit for user ${authUser.email}. Remaining: ${newCredits}`);
     return true;
   } catch (error) {
-    console.error('Error consuming coffee credit:', error);
+    console.error(`[ERROR] Failed to consume coffee credit for userId ${userId}:`, error);
     return false;
   }
 }
