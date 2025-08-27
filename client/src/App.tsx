@@ -18,6 +18,7 @@ import { DocsPage } from "@/pages/docs";
 import { ContactPage } from "@/pages/contact";
 import { PrivacyPage } from "@/pages/privacy";
 import { TermsPage } from "@/pages/terms";
+import CookiesPage from "@/pages/cookies";
 import { BlogPage } from "@/pages/blog";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/privacy-policy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />
+      <Route path="/cookies" component={CookiesPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
