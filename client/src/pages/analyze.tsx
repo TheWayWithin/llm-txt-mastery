@@ -288,17 +288,33 @@ export default function AnalyzePage() {
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
                   <Clock className="h-5 w-5 text-innovation-teal" />
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm font-medium text-framework-black">
-                      {user.tier === 'coffee' ? 'Monthly Renewal' : 'AI Analysis'}
+                      {user.tier === 'coffee' ? 'Manage Subscription' : 
+                       user.tier === 'starter' ? 'Upgrade Available' : 
+                       user.tier === 'growth' ? 'Pro Features Active' : 
+                       'Enterprise Features'}
                     </p>
                     <p className="text-xs text-ai-silver">
                       {user.tier === 'coffee' 
-                        ? `In ${30 - new Date().getDate()} days`
-                        : user.tier === 'starter' ? 'First 20 pages' : 'Unlimited'
+                        ? 'View billing & invoices'
+                        : user.tier === 'starter' ? 'Get more analyses' : 
+                        user.tier === 'growth' ? '1,000 pages per site' :
+                        'Unlimited everything'
                       }
                     </p>
                   </div>
+                  {user.tier !== 'scale' && (
+                    <Link href="/dashboard?tab=billing">
+                      <a>
+                        <Button variant="outline" size="sm" className="h-7 text-xs">
+                          {user.tier === 'starter' ? 'Upgrade' : 
+                           user.tier === 'coffee' ? 'Billing' :
+                           'Manage'}
+                        </Button>
+                      </a>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
