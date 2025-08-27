@@ -1016,4 +1016,64 @@ router.post('/demo/reset', async (req, res) => {
   }
 });
 
+// Admin endpoint to fix existing Coffee tier users with incorrect credit amounts
+router.post('/admin/fix-coffee-credits', async (req, res) => {
+  try {
+    // Security check - require admin access (this is a temporary migration endpoint)
+    const adminKey = req.headers['x-admin-key'] as string;
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return res.status(403).json({ 
+        error: 'Admin access required',
+        code: 'ADMIN_ACCESS_REQUIRED'
+      });
+    }
+
+    const COFFEE_TIER_CREDITS = 100;
+    
+    // Find all Coffee tier users with less than 100 credits
+    const coffeeUsers = await authStorage.getUsersByTier('coffee');
+    const usersToFix = coffeeUsers.filter(user => 
+      (user.creditsRemaining || 0) < COFFEE_TIER_CREDITS
+    );
+    
+    console.log(`Found ${usersToFix.length} Coffee tier users needing credit adjustment`);
+    
+    const fixes = [];
+    
+    for (const user of usersToFix) {
+      const currentCredits = user.creditsRemaining || 0;
+      const creditDiff = COFFEE_TIER_CREDITS - currentCredits;
+      
+      // Update user to have 100 total credits
+      await authStorage.updateUser(user.id, {
+        creditsRemaining: COFFEE_TIER_CREDITS
+      });
+      
+      fixes.push({
+        userId: user.id,
+        email: user.email,
+        oldCredits: currentCredits,
+        newCredits: COFFEE_TIER_CREDITS,
+        creditsAdded: creditDiff
+      });
+      
+      console.log(`Fixed Coffee user ${user.email}: ${currentCredits} -> ${COFFEE_TIER_CREDITS} credits`);
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Fixed ${fixes.length} Coffee tier users`,
+      fixes
+    });
+    
+  } catch (error) {
+    console.error('❌ Coffee credits fix failed:', error);
+    res.status(500).json({ 
+      error: 'Coffee credits fix failed',
+      code: 'COFFEE_CREDITS_FIX_ERROR',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;

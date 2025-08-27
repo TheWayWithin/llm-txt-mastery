@@ -39,6 +39,14 @@ export class AuthStorage {
     return updatedUser || null;
   }
 
+  async getUsersByTier(tier: UserTier): Promise<AuthUser[]> {
+    const users = await db
+      .select()
+      .from(authUsers)
+      .where(eq(authUsers.tier, tier));
+    return users;
+  }
+
   async verifyUserEmail(id: number): Promise<boolean> {
     const result = await db
       .update(authUsers)
