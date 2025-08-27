@@ -290,12 +290,12 @@ export default function AnalyzePage() {
                   <Clock className="h-5 w-5 text-innovation-teal" />
                   <div>
                     <p className="text-sm font-medium text-framework-black">
-                      {user.tier === 'coffee' ? 'Credits' : 'AI Analysis'}
+                      {user.tier === 'coffee' ? 'Monthly Renewal' : 'AI Analysis'}
                     </p>
                     <p className="text-xs text-ai-silver">
                       {user.tier === 'coffee' 
-                        ? `${user.creditsRemaining || 0} remaining`
-                        : user.tier === 'starter' ? 'First 5 pages' : 'Unlimited'
+                        ? `In ${30 - new Date().getDate()} days`
+                        : user.tier === 'starter' ? 'First 20 pages' : 'Unlimited'
                       }
                     </p>
                   </div>

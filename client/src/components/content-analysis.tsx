@@ -26,10 +26,11 @@ interface AnalysisStep {
 }
 
 const analysisSteps: AnalysisStep[] = [
-  { id: "sitemap", label: "Discovering sitemap.xml and content structure", progress: 25 },
-  { id: "content", label: "Analyzing content quality and relevance", progress: 50 },
-  { id: "filtering", label: "Applying intelligent filtering rules", progress: 75 },
-  { id: "descriptions", label: "Generating AI-powered descriptions", progress: 100 }
+  { id: "sitemap", label: "Discovering sitemap.xml and content structure", progress: 20 },
+  { id: "pages", label: "Processing discovered pages", progress: 40 },
+  { id: "content", label: "Extracting and analyzing content", progress: 60 },
+  { id: "ai", label: "AI quality analysis and scoring", progress: 80 },
+  { id: "finalize", label: "Finalizing results", progress: 100 }
 ];
 
 export default function ContentAnalysis({ 
@@ -139,6 +140,11 @@ export default function ContentAnalysis({
     
     if (analysisData && analysisData.status === "completed" && !completedAnalysisIds.has(analysisData.id)) {
       console.log(`📊 Analysis completed: id=${analysisData.id}, pages=${analysisData.discoveredPages.length}`);
+      // Don't immediately jump to 100%, let it progress naturally
+      if (currentStepIndex < analysisSteps.length - 1) {
+        // Let the timer handle the progression
+        return;
+      }
       setProgress(100);
       setCurrentStepIndex(analysisSteps.length - 1);
       setCurrentStage('finalization');
@@ -209,7 +215,7 @@ export default function ContentAnalysis({
           }
           return prev;
         });
-      }, 2000);
+      }, 5000); // Update every 5 seconds instead of 2 for more realistic progress on large sites
 
       return () => clearInterval(timer);
     }
