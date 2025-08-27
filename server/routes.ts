@@ -393,7 +393,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // For coffee tier users, check credits instead of daily limits
-      if (tier === 'coffee' && user?.id) {
+      if (tier === 'coffee') {
+        console.log(`[ANALYZE] Coffee tier detected, user object:`, { 
+          hasUser: !!user, 
+          userId: user?.id, 
+          userEmail: user?.email,
+          userTier: user?.tier 
+        });
+        
+        if (!user?.id) {
+          console.error(`[ANALYZE] Coffee tier user but no user.id available`);
+          return res.status(400).json({
+            message: "Authentication required for Coffee tier. Please log in again.",
+            tier: 'coffee'
+          });
+        }
+        
         console.log(`[ANALYZE] Checking Coffee tier credits for user ${user.email} (id: ${user.id})`);
         const creditCheck = await checkCoffeeCredits(user.id.toString());
         console.log(`[ANALYZE] Credit check result:`, creditCheck);
