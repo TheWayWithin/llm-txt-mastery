@@ -1,4 +1,6 @@
 // Enzuzo GDPR compliance integration
+// NOTE: Enzuzo is deployed via Google Tag Manager (GTM), not loaded directly
+// This file provides GTM consent mode synchronization only
 declare global {
   interface Window {
     EnzuzoConfig: {
@@ -231,13 +233,12 @@ const updateGTMConsent = (consent: any) => {
 export const initializeEnzuzo = () => {
   if (typeof window === 'undefined') return;
 
-  // Load Enzuzo script
-  loadEnzuzo();
+  // DISABLED: Enzuzo is loaded via GTM, not directly
+  // loadEnzuzo();
   
-  // Show consent banner on first visit
-  setTimeout(() => {
-    if (window.EnzuzoSDK && !getEnzuzoConsent()) {
-      showEnzuzoCookieConsent();
-    }
-  }, 1000);
+  // Initialize fallback consent for GTM consent mode
+  initializeFallbackConsent();
+  
+  // GTM will handle showing the Enzuzo consent banner
+  console.log('📋 Enzuzo consent management delegated to GTM');
 };

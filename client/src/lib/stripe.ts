@@ -133,7 +133,7 @@ export const TIER_PRICING = {
     interval: 'month',
     features: [
       'Unlimited analyses per day',
-      'Up to 500 pages per analysis',
+      'Up to 1,000 pages per analysis',
       'AI-enhanced analysis on all pages',
       'Priority support',
       'Advanced quality scoring',
