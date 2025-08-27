@@ -26,6 +26,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
       console.log(`📊 Usage data received for ${userEmail}:`, {
         tier: data.tier,
         dailyAnalyses: data.limits?.dailyAnalyses,
+        maxPagesPerAnalysis: data.limits?.maxPagesPerAnalysis,
         currentUsage: data.usage?.analysesToday,
         creditsRemaining: data.creditsRemaining
       });
@@ -57,13 +58,15 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   const isCoffeeTier = usageData.tier === 'coffee';
   const creditsRemaining = usageData?.creditsRemaining || 0;
   
-  // Debug logging for Coffee tier credits
+  // Debug logging for Coffee tier
   if (isCoffeeTier) {
-    console.log('[UsageDisplay] Coffee tier credits:', 
-      `${creditsRemaining} credits remaining`,
-      'Raw value:', usageData?.creditsRemaining,
-      'Full data:', usageData
-    );
+    console.log('[UsageDisplay] Coffee tier data:', {
+      creditsRemaining: `${creditsRemaining} credits`,
+      rawCredits: usageData?.creditsRemaining,
+      maxPagesPerAnalysis: maxPagesPerAnalysis,
+      rawMaxPages: usageData?.limits?.maxPagesPerAnalysis,
+      fullData: usageData
+    });
   }
 
   return (
