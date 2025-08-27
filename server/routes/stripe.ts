@@ -11,6 +11,9 @@ import {
   getTierFromPriceId,
   TIER_PRICES
 } from "../services/stripe";
+
+// Credit bundle configuration
+const COFFEE_TIER_CREDITS = 100;
 import { storage } from "../storage";
 import { authStorage } from "../services/auth-storage";
 import { requireAuth, optionalAuth } from "../middleware/auth";
@@ -266,8 +269,8 @@ async function handleCheckoutCompleted(session: any) {
       // Create credit record
       await storage.createOneTimeCredit({
         userId: parseInt(userId), // Convert to number for database
-        creditsRemaining: 1, // Coffee tier gives 1 analysis credit
-        creditsTotal: 1,
+        creditsRemaining: COFFEE_TIER_CREDITS, // Coffee tier gives 100 analysis credits
+        creditsTotal: COFFEE_TIER_CREDITS,
         productType: 'coffee',
         priceId: session.metadata?.priceId,
         stripePaymentIntentId: session.payment_intent
@@ -278,7 +281,7 @@ async function handleCheckoutCompleted(session: any) {
       const currentCredits = currentProfile?.creditsRemaining || 0;
       
       await storage.updateUserProfile(userId, {
-        creditsRemaining: currentCredits + 1,
+        creditsRemaining: currentCredits + COFFEE_TIER_CREDITS,
         tier: 'coffee' // Update tier to coffee
       });
       
@@ -313,7 +316,7 @@ async function handleCheckoutCompleted(session: any) {
             // Update existing authenticated user's tier and credits
             await authStorage.updateUser(authUser.id, {
               tier: 'coffee',
-              creditsRemaining: (authUser.creditsRemaining || 0) + 1
+              creditsRemaining: (authUser.creditsRemaining || 0) + COFFEE_TIER_CREDITS
             });
             console.log(`Updated authenticated user ${customerEmail} to Coffee tier with credits`);
           } else {
@@ -328,7 +331,7 @@ async function handleCheckoutCompleted(session: any) {
               passwordHash,
               emailVerified: false, // They'll need to verify later
               tier: 'coffee',
-              creditsRemaining: 1
+              creditsRemaining: COFFEE_TIER_CREDITS
             });
             
             console.log(`Created new auth user ${customerEmail} with Coffee tier for auto-login`);
@@ -341,7 +344,7 @@ async function handleCheckoutCompleted(session: any) {
         }
       }
       
-      console.log(`Added 1 coffee credit to user: ${userId}`);
+      console.log(`Added ${COFFEE_TIER_CREDITS} coffee credits to user: ${userId}`);
       
     } else if (session.subscription) {
       // Handle subscription signup
