@@ -656,9 +656,22 @@ export default function Dashboard() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => window.location.href = '/analyze'}
                 >
                   Back to App
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    sessionStorage.removeItem('auth_access_token');
+                    sessionStorage.removeItem('auth_refresh_token');
+                    sessionStorage.removeItem('auth_user');
+                    window.location.href = '/';
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
                 </Button>
               </div>
             </div>
