@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import { checkUsageLimits, trackUsage, getUserTier, estimateAnalysisCost, checkCoffeeCredits, consumeCoffeeCredit, getUserTierFromAuth, getTodayUsage, resolveUserFromEmail } from "./services/usage";
+import { authStorage } from "./services/auth-storage";
 import { TIER_LIMITS } from "./services/cache";
 import { apiLimiter, analysisLimiter, fileGenerationLimiter, emailCaptureLimiter } from "./middleware/rate-limit";
 import { smartBotProtection } from "./middleware/smart-bot-protection";
@@ -550,9 +551,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.debug('Could not fetch cache hits:', e);
       }
       
+      // CRITICAL FIX: Get credits for Coffee tier users
+      let creditsRemaining = 0;
+      if (tier === 'coffee') {
+        try {
+          // Check auth_users table for credits
+          const authUser = await authStorage.getUserByEmail(email);
+          if (authUser && authUser.tier === 'coffee') {
+            creditsRemaining = authUser.creditsRemaining || 0;
+            console.log(`[USAGE API] Coffee tier user ${email} has ${creditsRemaining} credits`);
+          }
+        } catch (e) {
+          console.debug('Could not fetch coffee credits:', e);
+        }
+      }
+      
       const limits = TIER_LIMITS[tier];
       
-      res.json({
+      const responseData = {
         tier,
         usage: {
           analysesToday: simpleUsage.count,
@@ -566,7 +582,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           aiPagesLimit: limits.aiPagesLimit
         },
         features: limits.features
-      });
+      };
+
+      // Add credits for Coffee tier
+      if (tier === 'coffee') {
+        responseData.creditsRemaining = creditsRemaining;
+      }
+      
+      res.json(responseData);
     } catch (error) {
       console.error("Get usage error:", error);
       // ALWAYS return something valid
@@ -840,10 +863,27 @@ async function performAnalysisWithTimeout(
     });
     
     // Consume coffee credit if user is on coffee tier
-    // Note: Coffee tier credit consumption is handled in the payment flow
-    // This is a placeholder for future credit-based analysis tracking
     if (tier === 'coffee') {
-      console.log(`Coffee tier analysis completed for ${userEmail}`);
+      try {
+        console.log(`[CREDIT] Consuming coffee credit for ${userEmail}`);
+        
+        // Resolve user ID from email
+        const userId = await resolveUserFromEmail(userEmail);
+        if (!userId) {
+          console.error(`[CREDIT] Failed to resolve userId for ${userEmail}`);
+        } else {
+          // Consume one credit
+          const creditConsumed = await consumeCoffeeCredit(userId.toString());
+          if (creditConsumed) {
+            console.log(`[CREDIT] Successfully consumed 1 credit for ${userEmail} (userId: ${userId})`);
+          } else {
+            console.error(`[CREDIT] Failed to consume credit for ${userEmail} (userId: ${userId}) - user may be out of credits`);
+          }
+        }
+      } catch (error) {
+        // Don't fail the analysis if credit consumption fails
+        console.error(`[CREDIT] Credit consumption failed for ${userEmail}:`, error);
+      }
     }
     
     // Update analysis with results and metrics
