@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, CheckCircle, Info, User, Calendar, Settings, Zap, BarChart3, Clock } from "lucide-react";
+import { Search, CheckCircle, Info, User, Calendar, Settings, Zap, BarChart3, Clock, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthNav } from "@/components/AuthNav";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -248,6 +248,19 @@ export default function AnalyzePage() {
                       </Button>
                     </a>
                   </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      sessionStorage.removeItem('auth_access_token');
+                      sessionStorage.removeItem('auth_refresh_token');
+                      sessionStorage.removeItem('auth_user');
+                      window.location.href = '/';
+                    }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
                 </div>
               </div>
               
