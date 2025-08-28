@@ -192,6 +192,7 @@ function BillingSection() {
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState<string | null>(null);
 
   useEffect(() => {
     loadSubscriptionStatus();
@@ -225,6 +226,50 @@ function BillingSection() {
       console.error('Failed to open billing portal:', error);
     } finally {
       setPortalLoading(false);
+    }
+  };
+  
+  const handleUpgrade = async (tier: 'coffee' | 'growth' | 'scale') => {
+    try {
+      setUpgradeLoading(tier);
+      const token = getAccessToken();
+      if (!token) throw new Error('Authentication required');
+      
+      // Determine the endpoint based on tier
+      let endpoint = '';
+      if (tier === 'coffee') {
+        endpoint = '/api/stripe/create-coffee-checkout';
+      } else if (tier === 'growth') {
+        endpoint = '/api/stripe/create-growth-checkout';
+      } else if (tier === 'scale') {
+        endpoint = '/api/stripe/create-scale-checkout';
+      }
+      
+      // Create checkout session
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: user?.email || ''
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.message || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error(`Failed to upgrade to ${tier}:`, error);
+      alert(`Failed to upgrade. Please try again later.`);
+    } finally {
+      setUpgradeLoading(null);
     }
   };
 
@@ -378,8 +423,10 @@ function BillingSection() {
                 <Button 
                   data-testid="upgrade-to-coffee"
                   className="w-full bg-orange-600 hover:bg-orange-700 font-bold"
+                  onClick={() => handleUpgrade('coffee')}
+                  disabled={upgradeLoading === 'coffee'}
                 >
-                  🚀 UPGRADE TO COFFEE - Beat Competitors Now
+                  {upgradeLoading === 'coffee' ? 'Processing...' : '🚀 UPGRADE TO COFFEE - Beat Competitors Now'}
                 </Button>
               ) : user.tier === 'coffee' ? (
                 <div className="text-center py-2 text-orange-600 font-medium">
@@ -451,8 +498,10 @@ function BillingSection() {
                 <Button 
                   data-testid="upgrade-to-growth"
                   className="w-full bg-blue-600 hover:bg-blue-700 font-bold"
+                  onClick={() => handleUpgrade('growth')}
+                  disabled={upgradeLoading === 'growth'}
                 >
-                  {user.tier === 'starter' ? '🚀 SKIP AHEAD TO GROWTH' : '⬆️ UPGRADE TO GROWTH'}
+                  {upgradeLoading === 'growth' ? 'Processing...' : (user.tier === 'starter' ? '🚀 SKIP AHEAD TO GROWTH' : '⬆️ UPGRADE TO GROWTH')}
                 </Button>
               )}
             </div>
@@ -521,8 +570,10 @@ function BillingSection() {
                 <Button 
                   data-testid="upgrade-to-scale"
                   className="w-full bg-purple-600 hover:bg-purple-700 font-bold"
+                  onClick={() => handleUpgrade('scale')}
+                  disabled={upgradeLoading === 'scale'}
                 >
-                  {user.tier === 'starter' ? '🚀 GO ENTERPRISE WITH SCALE' : user.tier === 'coffee' ? '⬆️ UPGRADE TO SCALE' : '⬆️ UPGRADE TO SCALE'}
+                  {upgradeLoading === 'scale' ? 'Processing...' : (user.tier === 'starter' ? '🚀 GO ENTERPRISE WITH SCALE' : user.tier === 'coffee' ? '⬆️ UPGRADE TO SCALE' : '⬆️ UPGRADE TO SCALE')}
                 </Button>
               )}
             </div>

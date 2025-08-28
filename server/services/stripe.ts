@@ -105,6 +105,7 @@ export async function createCheckoutSession(params: {
   successUrl: string;
   cancelUrl: string;
   userId: string;
+  metadata?: Record<string, string>;
 }): Promise<Stripe.Checkout.Session> {
   try {
     const session = await stripe().checkout.sessions.create({
@@ -120,7 +121,8 @@ export async function createCheckoutSession(params: {
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
       metadata: {
-        userId: params.userId
+        userId: params.userId,
+        ...(params.metadata || {})
       }
     });
 
