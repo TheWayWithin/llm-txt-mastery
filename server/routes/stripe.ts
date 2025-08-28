@@ -73,7 +73,7 @@ export function registerStripeRoutes(app: Express) {
     try {
       const { email, websiteUrl, metadata } = z.object({
         email: z.string().email().optional(),
-        websiteUrl: z.string().url().optional(),
+        websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
         metadata: z.object({
           password: z.string().optional(),
           tier: z.string().optional()
@@ -146,7 +146,7 @@ export function registerStripeRoutes(app: Express) {
     try {
       const { email, websiteUrl, metadata } = z.object({
         email: z.string().email().optional(),
-        websiteUrl: z.string().url().optional(),
+        websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
         metadata: z.object({
           password: z.string().optional(),
           tier: z.string().optional()
@@ -219,7 +219,7 @@ export function registerStripeRoutes(app: Express) {
     try {
       const { email, websiteUrl } = z.object({
         email: z.string().email().optional(),
-        websiteUrl: z.string().url().optional()
+        websiteUrl: z.union([z.string().url(), z.literal('')]).optional()
       }).parse(req.body);
 
       // Support both authenticated and email-based purchases
