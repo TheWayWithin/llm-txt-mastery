@@ -1,6 +1,58 @@
 # LLM.txt Mastery - Project Plan & Coordination
 *Single Source of Truth for Current Priorities*
-*Last Updated: January 27, 2025 - COFFEE TIER CREDIT SYSTEM FIX*
+*Last Updated: August 28, 2025 - GROWTH/SCALE TIER PAYMENT FLOW FIX*
+
+## ✅ COMPLETED FIX: Growth/Scale Tier Payment Flow Issues
+*Mission Type: Emergency Fix - Revenue Protection & User Experience*
+*Started: August 28, 2025 @ 10:00 AM*
+*Completed: August 28, 2025 @ 1:00 PM*
+*Priority: CRITICAL - Users paying for Growth/Scale created as free tier*
+*Status: MISSION SUCCESS - All tier upgrades now functional*
+
+### Issue Summary
+Users selecting Growth ($9.95/mo) or Scale ($19.95/mo) tiers were experiencing critical payment flow failures:
+1. **Signup Bug**: Registration created all users as "starter" tier before Stripe payment
+2. **Dashboard Broken**: Upgrade buttons had no onClick handlers - completely non-functional
+3. **Webhook Failure**: After payment, users remained starter tier in auth_users table
+4. **Revenue Impact**: Paid users received free tier limitations
+
+### Mission Phases
+#### Phase 1: Fix Signup Flow ✅ COMPLETE
+- [x] Skip user creation for paid tiers (Coffee/Growth/Scale)
+- [x] Store credentials in sessionStorage temporarily
+- [x] Pass password as metadata to Stripe for user creation after payment
+
+#### Phase 2: Add Dashboard Functionality ✅ COMPLETE
+- [x] Create handleUpgrade() function in BillingSection
+- [x] Add onClick handlers to all upgrade buttons
+- [x] Implement loading states and error handling
+- [x] Test upgrade flow from all tier combinations
+
+#### Phase 3: Fix Webhook Processing ✅ COMPLETE
+- [x] Update handleCheckoutCompleted to create users with correct tier
+- [x] Enhance handleSubscriptionUpdate to update auth_users table
+- [x] Fix handleSubscriptionCancelled to downgrade properly
+- [x] Pass and process metadata through Stripe session
+
+#### Phase 4: Testing & Deployment ✅ COMPLETE
+- [x] Test new user signup with Growth tier
+- [x] Test new user signup with Scale tier
+- [x] Test dashboard upgrades from Starter tier
+- [x] Deploy to production (commit 62b7ca2)
+
+### Technical Details
+- **Root Cause**: `/auth/register` hardcoded `tier: 'starter'` for all users
+- **Files Modified**: Signup.tsx, Dashboard.tsx, stripe.ts, services/stripe.ts
+- **Key Change**: Create user AFTER payment with correct tier, not before
+- **Metadata Flow**: Password encrypted and passed through Stripe session
+
+### Business Impact
+- **Revenue Recovery**: No more lost subscriptions from tier mismatches
+- **User Trust**: Users immediately get features they pay for
+- **Support Reduction**: Eliminates "paid but limited" support tickets
+- **Professional Flow**: Proper payment flow increases customer confidence
+
+---
 
 ## ✅ COMPLETED FIX: Coffee Tier Credit System Malfunction
 *Mission Type: Emergency Fix - Revenue Protection*
