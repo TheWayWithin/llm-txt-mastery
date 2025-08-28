@@ -1,15 +1,75 @@
 # LLM.txt Mastery - Project Progress & Status
-*Last Updated: August 27, 2025 - Cancellation & Refund System Complete*
+*Last Updated: August 28, 2025 - Growth/Scale Tier Payment Flow Fixed*
 
 ## ✅ Current Status: FULLY OPERATIONAL - All Core Features Working
 
-**LATEST UPDATE**: 🎉 **CANCELLATION & REFUND SYSTEM LIVE** - Complete implementation of customer-friendly cancellation with 30-day money-back guarantee, automatic Stripe refunds, and prorated subscription cancellations. All promises to customers now fulfilled.
+**LATEST UPDATE**: 🔧 **GROWTH/SCALE TIER PAYMENT FLOW FIXED** - Critical bug resolved where users selecting Growth ($9.95/mo) or Scale ($19.95/mo) tiers during signup were created as free tier users, and dashboard upgrade buttons were non-functional. All tier upgrades now working correctly.
 
 ### Live Production URLs
 - **Frontend**: `https://www.llmtxtmastery.com` (Netlify)
 - **Backend**: `https://llm-txt-mastery-production.up.railway.app` (Railway)
 - **Database**: Neon PostgreSQL (managed)
 - **Status**: ✅ **FULLY OPERATIONAL** - All tiers working, payments processing, cancellations enabled
+
+## 🔧 CRITICAL FIX: Growth/Scale Tier Payment Flow Issues
+*Resolved: August 28, 2025 | Duration: 3 hours | Impact: CRITICAL - Revenue & User Experience*
+
+### ✅ MISSION SUCCESS: Subscription Tier Upgrades Fully Functional
+
+**Issues Discovered**:
+1. **Signup Flow Bug**: Users selecting Growth ($9.95/mo) or Scale ($19.95/mo) tiers during registration were incorrectly created as "starter" (free) tier users before being redirected to Stripe
+2. **Dashboard Upgrade Broken**: Upgrade buttons in billing section had no onClick handlers - completely non-functional
+3. **Webhook Tier Assignment**: After successful Stripe payment, users remained as starter tier in auth_users table
+
+**Root Cause Analysis**:
+- **Registration Logic Flaw**: `/auth/register` endpoint hardcoded all new users as `tier: 'starter'` (line 102 of auth.ts)
+- **Premature User Creation**: Signup flow called `signUp()` creating starter user BEFORE redirecting to Stripe
+- **Missing UI Handlers**: Dashboard upgrade buttons were display-only with no functionality
+- **Incomplete Webhook Logic**: Stripe webhooks updated legacy tables but not auth_users for subscriptions
+
+**Technical Solutions Implemented**:
+
+#### 1. Fixed Signup Flow (`Signup.tsx`)
+- **Before**: Create user → Redirect to Stripe → User stuck as starter
+- **After**: Detect paid tier → Skip user creation → Stripe first → Create user with correct tier after payment
+- **Implementation**: Store credentials in sessionStorage, pass as metadata to Stripe
+
+#### 2. Added Dashboard Upgrade Functionality (`Dashboard.tsx`)
+- **Created**: `handleUpgrade()` function with proper Stripe checkout redirection
+- **Added**: onClick handlers to all tier upgrade buttons
+- **Features**: Loading states, error handling, token authentication
+
+#### 3. Enhanced Stripe Integration (`stripe.ts`)
+- **Updated**: Growth/Scale checkout endpoints accept password metadata
+- **Modified**: `createCheckoutSession()` passes metadata to Stripe session
+- **Result**: User credentials available in webhook for proper user creation
+
+#### 4. Fixed Webhook Handlers (`stripe.ts`)
+- **handleCheckoutCompleted**: Now creates auth users with correct tier for Growth/Scale
+- **handleSubscriptionUpdate**: Updates both auth_users and emailCaptures tables
+- **handleSubscriptionCancelled**: Properly downgrades users to starter tier
+- **New Logic**: Create user AFTER payment with correct tier assignment
+
+**User Experience Impact**:
+- ✅ **New Signups**: Growth/Scale users get immediate access to paid features
+- ✅ **Dashboard Upgrades**: All upgrade buttons now functional
+- ✅ **Tier Recognition**: System correctly identifies user tier after payment
+- ✅ **No Manual Intervention**: Automatic tier assignment without support tickets
+
+**Business Impact**:
+- **Revenue Recovery**: No more lost subscriptions due to tier mismatch
+- **Customer Satisfaction**: Users get what they pay for immediately
+- **Support Reduction**: No more "I paid but still limited" complaints
+- **Trust Building**: Professional payment flow increases confidence
+
+**Testing & Validation**:
+- ✅ New user signup with Growth tier → Correct tier assignment
+- ✅ New user signup with Scale tier → Correct tier assignment  
+- ✅ Dashboard upgrade from Starter → Coffee/Growth/Scale working
+- ✅ Webhook tier updates properly reflected in auth_users table
+- ✅ User login shows correct tier privileges immediately
+
+**Deployment**: Successfully deployed to production via commit `62b7ca2`
 
 ## 💳 FEATURE COMPLETE: Cancellation & Refund System
 *Completed: August 27, 2025 | Duration: 4 hours | Impact: HIGH - Customer Trust & Retention*
