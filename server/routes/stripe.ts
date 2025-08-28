@@ -71,6 +71,12 @@ export function registerStripeRoutes(app: Express) {
   // Create Growth tier checkout session (for signup flow)
   app.post("/api/stripe/create-growth-checkout", optionalAuth, apiLimiter, async (req, res) => {
     try {
+      console.log('📊 Growth checkout request:', { 
+        body: req.body,
+        hasUser: !!req.user,
+        userEmail: req.user?.email
+      });
+      
       const { email, websiteUrl, metadata } = z.object({
         email: z.string().email().optional(),
         websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
@@ -84,8 +90,11 @@ export function registerStripeRoutes(app: Express) {
       const userEmail = req.user?.email || email;
       
       if (!userEmail) {
+        console.error('❌ No email provided for Growth checkout');
         return res.status(400).json({ message: "Email is required" });
       }
+      
+      console.log(`✅ Processing Growth checkout for: ${userEmail}`);
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -134,16 +143,32 @@ export function registerStripeRoutes(app: Express) {
       });
 
     } catch (error) {
-      console.error("Growth checkout session creation failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to create growth checkout session"
-      });
+      console.error("❌ Growth checkout session creation failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create growth checkout session";
+      
+      // Check for specific error types
+      if (errorMessage.includes('STRIPE_SECRET_KEY')) {
+        console.error('🔑 Stripe configuration error - missing API key');
+        res.status(500).json({ 
+          message: "Payment system configuration error. Please contact support."
+        });
+      } else {
+        res.status(400).json({ 
+          message: errorMessage
+        });
+      }
     }
   });
 
   // Create Scale tier checkout session (for signup flow)
   app.post("/api/stripe/create-scale-checkout", optionalAuth, apiLimiter, async (req, res) => {
     try {
+      console.log('📊 Scale checkout request:', { 
+        body: req.body,
+        hasUser: !!req.user,
+        userEmail: req.user?.email
+      });
+      
       const { email, websiteUrl, metadata } = z.object({
         email: z.string().email().optional(),
         websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
@@ -157,8 +182,11 @@ export function registerStripeRoutes(app: Express) {
       const userEmail = req.user?.email || email;
       
       if (!userEmail) {
+        console.error('❌ No email provided for Scale checkout');
         return res.status(400).json({ message: "Email is required" });
       }
+      
+      console.log(`✅ Processing Scale checkout for: ${userEmail}`);
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -207,10 +235,20 @@ export function registerStripeRoutes(app: Express) {
       });
 
     } catch (error) {
-      console.error("Scale checkout session creation failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to create scale checkout session"
-      });
+      console.error("❌ Scale checkout session creation failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create scale checkout session";
+      
+      // Check for specific error types
+      if (errorMessage.includes('STRIPE_SECRET_KEY')) {
+        console.error('🔑 Stripe configuration error - missing API key');
+        res.status(500).json({ 
+          message: "Payment system configuration error. Please contact support."
+        });
+      } else {
+        res.status(400).json({ 
+          message: errorMessage
+        });
+      }
     }
   });
 
