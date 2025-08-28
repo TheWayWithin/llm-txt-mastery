@@ -1,10 +1,10 @@
 # LLM.txt Mastery - Project Plan & Architecture
-*Last Updated: August 27, 2025*
+*Last Updated: August 28, 2025*
 
 ## 📋 Project Overview
 
 **Product**: LLM.txt Mastery - AI-powered website analysis tool for generating optimized LLM.txt files
-**Status**: ✅ Production Live - Fully Operational
+**Status**: ✅ Production Live - Fully Operational (All Issues Resolved)
 **URLs**: 
 - Production: https://www.llmtxtmastery.com
 - API: https://llm-txt-mastery-production.up.railway.app
@@ -58,16 +58,16 @@
    - AI-enhanced quality scoring
    - Credits never expire
 
-3. **Growth ($29/month)**
+3. **Growth ($9.95/month)**
    - Unlimited analyses
    - 1,000 pages per analysis
    - Priority processing
    - Advanced features
 
-4. **Scale ($99/month)**
+4. **Scale ($19.95/month)**
    - Unlimited everything
-   - API access
-   - White-label options
+   - API access (coming soon)
+   - White-label options (coming soon)
    - Priority support
 
 ## ✅ Completed Features
@@ -84,11 +84,14 @@
 
 ### Recent Additions (August 2025)
 - ✅ Password reset functionality
-- ✅ Growth/Scale tier payment processing
+- ✅ Growth/Scale tier payment processing (fixed Aug 28)
 - ✅ Cancellation & refund system
 - ✅ 30-day money-back guarantee
 - ✅ Prorated subscription refunds
 - ✅ Comprehensive test suite
+- ✅ Analysis progress bar fix (Aug 28)
+- ✅ Enhanced crawler for better page discovery (Aug 28)
+- ✅ Database constraint fixes (Aug 28)
 
 ### Infrastructure
 - ✅ Split deployment (Netlify + Railway)
@@ -150,6 +153,26 @@ DATABASE_URL="..." npm run db:push
 - ✅ Terms of service
 - ✅ Refund policy
 - ✅ PCI compliance (via Stripe)
+
+## 🐛 Issues Resolved (August 28, 2025)
+
+### Critical Fixes Applied
+1. **Payment Flow Issues**
+   - Growth/Scale tier signup failures due to database constraints
+   - Dashboard upgrade buttons non-functional
+   - Webhook tier assignment errors
+
+2. **Analysis Issues**
+   - Progress bar stuck at 40% on completion
+   - Crawler only finding 1-2 pages on many sites
+   - HEAD request validation failures
+
+3. **Database Issues**
+   - websiteUrl NOT NULL constraint preventing signups
+   - Missing unique constraints on analysis_cache
+
+### Current Known Issues
+- None (all critical issues resolved)
 
 ## 📈 Future Roadmap
 
