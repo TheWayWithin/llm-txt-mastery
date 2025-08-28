@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, CreditCard, ExternalLink } from 'lucide-react';
+import { CheckCircle, Loader2, CreditCard, ExternalLink, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { CancellationModal } from './CancellationModal';
 import { 
   createCheckoutSession,
   createUpgradeSession,
@@ -24,6 +25,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
   const [selectedTier, setSelectedTier] = useState<'coffee' | 'growth' | 'scale' | null>(null);
+  const [showCancellation, setShowCancellation] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -190,6 +192,16 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <p>Each credit allows one full website analysis (up to 200 pages)</p>
                 <p>Credits never expire • AI-enhanced analysis included</p>
               </div>
+              {creditsRemaining > 0 && (
+                <Button 
+                  onClick={() => setShowCancellation(true)}
+                  variant="ghost"
+                  className="w-full min-h-[44px] text-sm text-gray-500 hover:text-red-600 hover:bg-red-50"
+                  size="sm"
+                >
+                  Request Refund (30-day guarantee)
+                </Button>
+              )}
             </div>
           )}
 
@@ -206,16 +218,27 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                   <p>Status: {subscriptionStatus.subscriptions[0].status}</p>
                 </div>
               )}
-              <Button 
-                onClick={handleManageSubscription}
-                variant="outline"
-                className="w-full min-h-[48px] px-6 py-3"
-                size="default"
-              >
-                <CreditCard className="h-5 w-5 mr-2" />
-                Manage Billing
-                <ExternalLink className="h-5 w-5 ml-2" />
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleManageSubscription}
+                  variant="outline"
+                  className="w-full min-h-[48px] px-6 py-3"
+                  size="default"
+                >
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  Manage Billing
+                  <ExternalLink className="h-5 w-5 ml-2" />
+                </Button>
+                <Button 
+                  onClick={() => setShowCancellation(true)}
+                  variant="ghost"
+                  className="w-full min-h-[48px] px-6 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  size="default"
+                >
+                  <XCircle className="h-5 w-5 mr-2" />
+                  Cancel Subscription
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -383,6 +406,16 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           </CardContent>
         </Card>
       )}
+      
+      {/* Cancellation Modal */}
+      <CancellationModal 
+        isOpen={showCancellation}
+        onClose={() => setShowCancellation(false)}
+        onSuccess={() => {
+          setShowCancellation(false);
+          loadSubscriptionStatus();
+        }}
+      />
     </div>
   );
 }

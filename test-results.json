@@ -10,7 +10,9 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 1
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -38,7 +40,9 @@
         "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 1
+        },
         "id": "chromium",
         "name": "chromium",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
@@ -46,13 +50,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 30000
       },
       {
         "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 1
+        },
         "id": "firefox",
         "name": "firefox",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
@@ -60,13 +66,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 30000
       },
       {
         "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 1
+        },
         "id": "webkit",
         "name": "webkit",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
@@ -74,7 +82,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 30000
       }
     ],
     "shard": null,
@@ -89,17 +97,267 @@
       "timeout": 120000
     }
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
-      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      "title": "e2e/growth-scale-payment-flows.spec.ts",
+      "file": "e2e/growth-scale-payment-flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "💳 GROWTH & SCALE TIER PAYMENT FLOWS",
+          "file": "e2e/growth-scale-payment-flows.spec.ts",
+          "line": 25,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "🆕 NEW USER SIGNUP FLOWS",
+              "file": "e2e/growth-scale-payment-flows.spec.ts",
+              "line": 59,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Tier Selection Validation - All Options Available",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 120000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3747,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Note: Storage clearing skipped due to security restrictions\n"
+                            },
+                            {
+                              "text": "\n🎯 Testing Tier Selection Validation...\n"
+                            },
+                            {
+                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 100 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
+                            },
+                            {
+                              "text": "✅ FREE tier option found\n"
+                            },
+                            {
+                              "text": "✅ COFFEE tier option found\n"
+                            },
+                            {
+                              "text": "✅ GROWTH tier option found\n"
+                            },
+                            {
+                              "text": "✅ SCALE tier option found\n"
+                            },
+                            {
+                              "text": "✅ Required tier options validated\n"
+                            },
+                            {
+                              "text": "✅ Growth tier selection updates UI\n"
+                            },
+                            {
+                              "text": "✅ Scale tier selection updates UI\n"
+                            },
+                            {
+                              "text": "✅ TIER SELECTION VALIDATION - PASSED\n"
+                            }
+                          ],
+                          "stderr": [
+                            {
+                              "text": "Browser Console Error: Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <a> a \n    at a\n    at a\n    at http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js?v=b1e74511:337:18\n    at div\n    at div\n    at header\n    at div\n    at SignupPage (http://localhost:8080/src/pages/signup.tsx?t=1756339609236:36:24)\n    at Route (http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js?v=b1e74511:323:16)\n    at Switch (http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js?v=b1e74511:379:17)\n    at Router\n    at AuthProvider (http://localhost:8080/src/contexts/AuthContext.tsx:30:32)\n    at Provider (http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=b1e74511:38:15)\n    at TooltipProvider (http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b1e74511:61:5)\n    at QueryClientProvider (http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/@tanstack_react-query.js?v=b1e74511:2805:3)\n    at App (http://localhost:8080/src/App.tsx?t=1756339627384&v=UUU6I3rHEt9eUvdiN8rCA:164:3)\n"
+                            }
+                          ],
+                          "retry": 0,
+                          "startTime": "2025-08-28T00:26:35.085Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "45a0d20bdffd3421ae5f-7d71b71308d087e2a83e",
+                  "file": "e2e/growth-scale-payment-flows.spec.ts",
+                  "line": 246,
+                  "column": 5
+                },
+                {
+                  "title": "Tier Selection Validation - All Options Available",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 120000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4677,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Note: Storage clearing skipped due to security restrictions\n"
+                            },
+                            {
+                              "text": "\n🎯 Testing Tier Selection Validation...\n"
+                            },
+                            {
+                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 100 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
+                            },
+                            {
+                              "text": "✅ FREE tier option found\n"
+                            },
+                            {
+                              "text": "✅ COFFEE tier option found\n"
+                            },
+                            {
+                              "text": "✅ GROWTH tier option found\n"
+                            },
+                            {
+                              "text": "✅ SCALE tier option found\n"
+                            },
+                            {
+                              "text": "✅ Required tier options validated\n"
+                            },
+                            {
+                              "text": "✅ Growth tier selection updates UI\n"
+                            },
+                            {
+                              "text": "✅ Scale tier selection updates UI\n"
+                            },
+                            {
+                              "text": "✅ TIER SELECTION VALIDATION - PASSED\n"
+                            }
+                          ],
+                          "stderr": [
+                            {
+                              "text": "Browser Console Error: Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.\na\na\nLink<@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js?v=b1e74511:337:18\ndiv\ndiv\nheader\ndiv\nSignupPage@http://localhost:8080/src/pages/signup.tsx?t=1756339609236:36:24\nRoute@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js?v=b1e74511:323:13\nSwitch@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js?v=b1e74511:379:14\nRouter\nAuthProvider@http://localhost:8080/src/contexts/AuthContext.tsx:30:29\nProvider@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=b1e74511:38:47\nTooltipProvider@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b1e74511:66:7\nQueryClientProvider@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/@tanstack_react-query.js?v=b1e74511:2804:27\nApp@http://localhost:8080/src/App.tsx?t=1756339627384&v=4C5LsQIG9D5bFfKqwn0XH:164:12\n"
+                            }
+                          ],
+                          "retry": 0,
+                          "startTime": "2025-08-28T00:26:39.262Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "45a0d20bdffd3421ae5f-2c78e8db24c53b3e3b73",
+                  "file": "e2e/growth-scale-payment-flows.spec.ts",
+                  "line": 246,
+                  "column": 5
+                },
+                {
+                  "title": "Tier Selection Validation - All Options Available",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 120000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3718,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Note: Storage clearing skipped due to security restrictions\n"
+                            },
+                            {
+                              "text": "\n🎯 Testing Tier Selection Validation...\n"
+                            },
+                            {
+                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 100 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
+                            },
+                            {
+                              "text": "✅ FREE tier option found\n"
+                            },
+                            {
+                              "text": "✅ COFFEE tier option found\n"
+                            },
+                            {
+                              "text": "✅ GROWTH tier option found\n"
+                            },
+                            {
+                              "text": "✅ SCALE tier option found\n"
+                            },
+                            {
+                              "text": "✅ Required tier options validated\n"
+                            },
+                            {
+                              "text": "✅ Growth tier selection updates UI\n"
+                            },
+                            {
+                              "text": "✅ Scale tier selection updates UI\n"
+                            },
+                            {
+                              "text": "✅ TIER SELECTION VALIDATION - PASSED\n"
+                            }
+                          ],
+                          "stderr": [
+                            {
+                              "text": "Browser Console Error: Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <a> a \na\na\n@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js:337:27\ndiv\ndiv\nheader\ndiv\nSignupPage@http://localhost:8080/src/pages/signup.tsx:36:35\nRoute@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js:323:14\nSwitch@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/wouter.js:380:27\nRouter\nAuthProvider@http://localhost:8080/src/contexts/AuthContext.tsx:31:6\nTooltipProviderProvider@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/chunk-PLT6GTVM.js:38:13\nTooltipProvider@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/@radix-ui_react-tooltip.js:62:43\nQueryClientProvider@http://localhost:8080/@fs/Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/.vite/deps/@tanstack_react-query.js:2805:9\nApp@http://localhost:8080/src/App.tsx:164:12\n"
+                            },
+                            {
+                              "text": "Browser Console Error: Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy.\n"
+                            },
+                            {
+                              "text": "Browser Console Error: Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy.\n"
+                            },
+                            {
+                              "text": "Browser Console Error: [Report Only] Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy.\n"
+                            },
+                            {
+                              "text": "Browser Console Error: Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy.\n"
+                            }
+                          ],
+                          "retry": 0,
+                          "startTime": "2025-08-28T00:26:44.989Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "45a0d20bdffd3421ae5f-4d6c167100ea97390213",
+                  "file": "e2e/growth-scale-payment-flows.spec.ts",
+                  "line": 246,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-08-23T21:30:55.808Z",
-    "duration": 1777.231,
-    "expected": 0,
+    "startTime": "2025-08-28T00:26:34.375Z",
+    "duration": 14518.603000000001,
+    "expected": 3,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

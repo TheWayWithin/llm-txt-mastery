@@ -375,7 +375,10 @@ function BillingSection() {
               </div>
               
               {user.tier === 'starter' ? (
-                <Button className="w-full bg-orange-600 hover:bg-orange-700 font-bold">
+                <Button 
+                  data-testid="upgrade-to-coffee"
+                  className="w-full bg-orange-600 hover:bg-orange-700 font-bold"
+                >
                   🚀 UPGRADE TO COFFEE - Beat Competitors Now
                 </Button>
               ) : user.tier === 'coffee' ? (
@@ -445,7 +448,10 @@ function BillingSection() {
                   ✅ You're Using Growth Plan
                 </div>
               ) : (
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 font-bold">
+                <Button 
+                  data-testid="upgrade-to-growth"
+                  className="w-full bg-blue-600 hover:bg-blue-700 font-bold"
+                >
                   {user.tier === 'starter' ? '🚀 SKIP AHEAD TO GROWTH' : '⬆️ UPGRADE TO GROWTH'}
                 </Button>
               )}
@@ -512,7 +518,10 @@ function BillingSection() {
                   ✅ You're Using Scale Plan
                 </div>
               ) : (
-                <Button className="w-full bg-purple-600 hover:bg-purple-700 font-bold">
+                <Button 
+                  data-testid="upgrade-to-scale"
+                  className="w-full bg-purple-600 hover:bg-purple-700 font-bold"
+                >
                   {user.tier === 'starter' ? '🚀 GO ENTERPRISE WITH SCALE' : user.tier === 'coffee' ? '⬆️ UPGRADE TO SCALE' : '⬆️ UPGRADE TO SCALE'}
                 </Button>
               )}
