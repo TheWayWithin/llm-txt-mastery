@@ -71,9 +71,13 @@ export function registerStripeRoutes(app: Express) {
   // Create Growth tier checkout session (for signup flow)
   app.post("/api/stripe/create-growth-checkout", optionalAuth, apiLimiter, async (req, res) => {
     try {
-      const { email, websiteUrl } = z.object({
+      const { email, websiteUrl, metadata } = z.object({
         email: z.string().email().optional(),
-        websiteUrl: z.string().url().optional()
+        websiteUrl: z.string().url().optional(),
+        metadata: z.object({
+          password: z.string().optional(),
+          tier: z.string().optional()
+        }).optional()
       }).parse(req.body);
 
       // Support both authenticated and email-based purchases
@@ -115,7 +119,13 @@ export function registerStripeRoutes(app: Express) {
         priceId,
         successUrl,
         cancelUrl: `${req.headers.origin}/subscription-cancel`,
-        userId: emailCapture.id.toString()
+        userId: emailCapture.id.toString(),
+        metadata: {
+          ...metadata,
+          email: userEmail,
+          tier: 'growth',
+          websiteUrl: websiteUrl || ''
+        }
       });
 
       res.json({ 
@@ -134,9 +144,13 @@ export function registerStripeRoutes(app: Express) {
   // Create Scale tier checkout session (for signup flow)
   app.post("/api/stripe/create-scale-checkout", optionalAuth, apiLimiter, async (req, res) => {
     try {
-      const { email, websiteUrl } = z.object({
+      const { email, websiteUrl, metadata } = z.object({
         email: z.string().email().optional(),
-        websiteUrl: z.string().url().optional()
+        websiteUrl: z.string().url().optional(),
+        metadata: z.object({
+          password: z.string().optional(),
+          tier: z.string().optional()
+        }).optional()
       }).parse(req.body);
 
       // Support both authenticated and email-based purchases
@@ -178,7 +192,13 @@ export function registerStripeRoutes(app: Express) {
         priceId,
         successUrl,
         cancelUrl: `${req.headers.origin}/subscription-cancel`,
-        userId: emailCapture.id.toString()
+        userId: emailCapture.id.toString(),
+        metadata: {
+          ...metadata,
+          email: userEmail,
+          tier: 'scale',
+          websiteUrl: websiteUrl || ''
+        }
       });
 
       res.json({ 
@@ -576,27 +596,62 @@ async function handleCheckoutCompleted(session: any) {
       console.log(`Added ${COFFEE_TIER_CREDITS} coffee credits to user: ${userId}`);
       
     } else if (session.subscription) {
-      // Handle subscription signup
+      // Handle subscription signup (Growth and Scale tiers)
+      console.log(`Processing subscription checkout for user: ${userId}`);
+      
+      // Get customer email and tier from session
+      const customerEmail = session.customer_details?.email || session.customer_email;
+      const tier = session.metadata?.tier || getTierFromPriceId(session.metadata?.priceId) || 'starter';
+      const encodedPassword = session.metadata?.password; // Base64 encoded password from signup flow
+      
       await storage.updateUserProfile(userId, {
         subscriptionId: session.subscription,
         subscriptionStatus: 'active'
       });
       
-      // CRITICAL FIX: Get customer email and update emailCaptures for subscriptions
-      const customerEmail = session.customer_details?.email || session.customer_email;
+      // CRITICAL FIX: Create or update auth_users for Growth/Scale subscription
       if (customerEmail) {
-        // Get tier from subscription metadata or price ID
-        const priceId = session.metadata?.priceId;
-        const tier = getTierFromPriceId(priceId) || 'starter';
-        
         try {
+          let authUser = await authStorage.getUserByEmail(customerEmail);
+          
+          if (authUser) {
+            // Update existing authenticated user's tier for subscription
+            await authStorage.updateUser(authUser.id, {
+              tier: tier as any,
+              stripeCustomerId: session.customer
+            });
+            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier`);
+          } else if (encodedPassword) {
+            // Create new auth user (coming from signup flow with password)
+            const { hashPassword } = await import('../services/auth');
+            const password = Buffer.from(encodedPassword, 'base64').toString();
+            const passwordHash = await hashPassword(password);
+            
+            authUser = await authStorage.createUser({
+              email: customerEmail,
+              passwordHash,
+              emailVerified: false, // Will be verified later
+              tier: tier as any,
+              creditsRemaining: 0, // Not used for subscription tiers
+              stripeCustomerId: session.customer
+            });
+            console.log(`Created authenticated user ${customerEmail} as ${tier} tier with subscription`);
+            
+            // Send verification email
+            const { sendVerificationEmail } = await import('../services/auth');
+            sendVerificationEmail(authUser).catch(error => {
+              console.error('Failed to send verification email:', error);
+            });
+          } else {
+            console.warn(`No auth user exists for ${customerEmail} and no password provided to create one`);
+          }
+          
+          // Update email capture
           const existingCapture = await storage.getEmailCapture(customerEmail);
           if (existingCapture) {
-            // Update existing email capture to subscription tier
             await storage.updateEmailCapture(customerEmail, { tier: tier as any });
             console.log(`Updated email capture for ${customerEmail} to ${tier} tier`);
           } else {
-            // Create new email capture record for subscription tier
             await storage.createEmailCapture({
               email: customerEmail,
               tier: tier as any,
@@ -605,7 +660,7 @@ async function handleCheckoutCompleted(session: any) {
             console.log(`Created email capture for ${customerEmail} as ${tier} tier`);
           }
         } catch (error) {
-          console.error(`Failed to update email capture for subscription ${customerEmail}:`, error);
+          console.error(`Failed to update auth/email for subscription ${customerEmail}:`, error);
         }
       } else {
         console.error(`No customer email found in subscription checkout session for user ${userId}`);
@@ -635,7 +690,7 @@ async function handleSubscriptionUpdate(subscription: any) {
       subscriptionStatus: subscription.status
     });
 
-    // CRITICAL FIX: Get customer email and update emailCaptures for subscription updates
+    // CRITICAL FIX: Get customer email and update both auth_users and emailCaptures
     let customerEmail = null;
     try {
       // Get customer email from Stripe
@@ -643,13 +698,22 @@ async function handleSubscriptionUpdate(subscription: any) {
       customerEmail = customer?.email;
       
       if (customerEmail) {
+        // Update auth_users table
+        const authUser = await authStorage.getUserByEmail(customerEmail);
+        if (authUser) {
+          await authStorage.updateUser(authUser.id, {
+            tier: tier as any,
+            stripeCustomerId: subscription.customer
+          });
+          console.log(`Updated auth_users for ${customerEmail} to ${tier} tier`);
+        }
+        
+        // Update email captures
         const existingCapture = await storage.getEmailCapture(customerEmail);
         if (existingCapture) {
-          // Update existing email capture to subscription tier
           await storage.updateEmailCapture(customerEmail, { tier: tier as any });
           console.log(`Updated emailCaptures for ${customerEmail} to ${tier} tier`);
         } else {
-          // Create new email capture record for subscription tier
           await storage.createEmailCapture({
             email: customerEmail,
             tier: tier as any,
@@ -696,7 +760,7 @@ async function handleSubscriptionCancelled(subscription: any) {
       subscriptionStatus: 'cancelled'
     });
 
-    // CRITICAL FIX: Downgrade emailCaptures tier when subscription is cancelled
+    // CRITICAL FIX: Downgrade both auth_users and emailCaptures when subscription is cancelled
     let customerEmail = null;
     try {
       // Get customer email from Stripe
@@ -704,9 +768,18 @@ async function handleSubscriptionCancelled(subscription: any) {
       customerEmail = customer?.email;
       
       if (customerEmail) {
+        // Downgrade auth_users table
+        const authUser = await authStorage.getUserByEmail(customerEmail);
+        if (authUser) {
+          await authStorage.updateUser(authUser.id, {
+            tier: 'starter'
+          });
+          console.log(`Downgraded auth_users for ${customerEmail} to starter tier (subscription cancelled)`);
+        }
+        
+        // Downgrade emailCaptures
         const existingCapture = await storage.getEmailCapture(customerEmail);
         if (existingCapture) {
-          // Downgrade to starter tier on cancellation
           await storage.updateEmailCapture(customerEmail, { tier: 'starter' });
           console.log(`Downgraded emailCaptures for ${customerEmail} to starter tier (subscription cancelled)`);
         }

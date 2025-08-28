@@ -125,21 +125,21 @@ export default function SignupPage() {
         throw new Error("Passwords do not match")
       }
 
-      // Register the user
-      await signUp(email, password, confirmPassword, selectedTier)
-      
-      console.log('✅ Registration successful')
-      
-      // Track successful signup
-      trackEvent('signup_complete', {
-        tier_selected: selectedTier,
-        website_url: websiteUrlParam,
-        event_category: 'auth'
-      });
-      
-      // Handle paid tier checkouts (Coffee, Growth, Scale)
+      // Handle paid tier checkouts BEFORE creating user (Coffee, Growth, Scale)
       if (selectedTier === 'coffee' || selectedTier === 'growth' || selectedTier === 'scale') {
-        console.log(`💳 ${selectedTier} tier selected, redirecting to Stripe checkout`)
+        console.log(`💳 ${selectedTier} tier selected, redirecting to Stripe checkout WITHOUT creating user first`)
+        
+        // Track signup attempt (not complete yet since payment pending)
+        trackEvent('signup_stripe_redirect', {
+          tier_selected: selectedTier,
+          website_url: websiteUrlParam,
+          event_category: 'auth'
+        });
+        
+        // Store credentials temporarily for after payment
+        sessionStorage.setItem('pendingSignupEmail', email);
+        sessionStorage.setItem('pendingSignupPassword', btoa(password)); // Basic encoding for session storage
+        sessionStorage.setItem('pendingSignupTier', selectedTier);
         
         // Determine the correct endpoint based on tier
         let endpoint = '';
@@ -159,7 +159,11 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: email,
-            websiteUrl: websiteUrlParam || ''
+            websiteUrl: websiteUrlParam || '',
+            metadata: {
+              password: btoa(password), // Will be used by webhook to create user
+              tier: selectedTier
+            }
           })
         });
         
@@ -173,6 +177,18 @@ export default function SignupPage() {
           throw new Error('Failed to create checkout session');
         }
       }
+      
+      // Only create user account for starter tier
+      await signUp(email, password, confirmPassword, selectedTier)
+      
+      console.log('✅ Registration successful')
+      
+      // Track successful signup
+      trackEvent('signup_complete', {
+        tier_selected: selectedTier,
+        website_url: websiteUrlParam,
+        event_category: 'auth'
+      });
       
       // Store email and website URL for after verification
       localStorage.setItem('pendingVerificationEmail', email)
