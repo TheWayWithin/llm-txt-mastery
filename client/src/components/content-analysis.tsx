@@ -140,11 +140,8 @@ export default function ContentAnalysis({
     
     if (analysisData && analysisData.status === "completed" && !completedAnalysisIds.has(analysisData.id)) {
       console.log(`📊 Analysis completed: id=${analysisData.id}, pages=${analysisData.discoveredPages.length}`);
-      // Don't immediately jump to 100%, let it progress naturally
-      if (currentStepIndex < analysisSteps.length - 1) {
-        // Let the timer handle the progression
-        return;
-      }
+      // CRITICAL FIX: Immediately update progress to 100% when analysis completes
+      // Don't wait for timer when analysis is already complete
       setProgress(100);
       setCurrentStepIndex(analysisSteps.length - 1);
       setCurrentStage('finalization');

@@ -246,13 +246,60 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
   }
 
   // Final fallback: basic page crawling for multi-page sites
-  console.log("No sitemap found, using basic crawling fallback");
+  console.log("No sitemap found, using aggressive crawling fallback");
   const fallbackEntries = await basicCrawlFallback(rootDomain);
+  
+  // CRITICAL: If fallback only found 1-2 pages, try a more aggressive crawl
+  if (fallbackEntries.length <= 2) {
+    console.log(`Only found ${fallbackEntries.length} pages, trying deeper crawl...`);
+    
+    // Try crawling each found page for more links
+    const secondLevelUrls = new Set<string>();
+    for (const entry of fallbackEntries) {
+      try {
+        const moreLinks = await crawlPageForLinks(entry.url, rootDomain);
+        moreLinks.forEach(link => secondLevelUrls.add(link));
+      } catch (error) {
+        console.log(`Failed to deep crawl ${entry.url}: ${error.message}`);
+      }
+    }
+    
+    // Validate second level URLs
+    const additionalPages = [];
+    for (const url of Array.from(secondLevelUrls).slice(0, 50)) { // Limit to 50 for performance
+      if (!fallbackEntries.find(e => e.url === url)) {
+        try {
+          const response = await fetchWithTimeout(url, {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            }
+          }, 5000);
+          
+          if (response.ok) {
+            additionalPages.push({
+              url: url,
+              lastmod: response.headers.get('last-modified') || undefined,
+              changefreq: 'weekly',
+              priority: '0.6'
+            });
+          }
+        } catch (error) {
+          // Ignore individual failures
+        }
+      }
+    }
+    
+    fallbackEntries.push(...additionalPages);
+    console.log(`Deep crawl found ${additionalPages.length} additional pages, total: ${fallbackEntries.length}`);
+  }
+  
   return {
     entries: fallbackEntries,
     sitemapFound: false,
     analysisMethod: "fallback-crawl",
-    message: `No sitemap found. Discovered ${fallbackEntries.length} pages through basic crawling. Some pages may be missing.`
+    message: `No sitemap found. Discovered ${fallbackEntries.length} pages through deep crawling. Some pages may be missing.`
   };
 }
 
@@ -402,15 +449,18 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   const maxUrlsToValidate = 500; // Increased to handle sites with many pages like calculator sites
   const validationPromises = Array.from(discoveredUrls).slice(0, maxUrlsToValidate).map(async (url) => {
     try {
+      // CRITICAL FIX: Use GET instead of HEAD for better compatibility
+      // Many sites block HEAD requests or return different status codes
       const response = await fetchWithTimeout(url, {
-        method: 'HEAD',
+        method: 'GET',
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         }
-      }, 5000);
+      }, 8000); // Increased timeout since GET takes longer than HEAD
 
-      // Accept both 200 (OK) and 206 (Partial Content) as valid responses
-      if (response.ok || response.status === 206) {
+      // Accept 200-299 (OK) and 206 (Partial Content) as valid responses
+      if ((response.status >= 200 && response.status < 300) || response.status === 206) {
         return {
           url: url,
           lastmod: response.headers.get('last-modified') || undefined,
@@ -419,7 +469,8 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
         };
       }
     } catch (error) {
-      // Ignore errors for individual pages
+      // Log but ignore errors for individual pages - might be transient
+      console.log(`Failed to validate ${url}: ${error.message}`);
     }
     return null;
   });
