@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
+import { authUsers } from '../schema';
+import { authStorage } from '../services/auth-storage';
 
 const router = Router();
 
@@ -34,12 +36,31 @@ router.get('/api/simple-usage/:email', async (req, res) => {
     
     console.log(`📊 [SIMPLE-USAGE] Checking usage for ${email} on ${today}`);
     
-    // Get or create today's usage record
+    // First, check auth_users table for tier and credits
+    let actualTier = 'starter';
+    let creditsRemaining: number | undefined;
+    
+    try {
+      const authUser = await authStorage.getUserByEmail(email);
+      if (authUser) {
+        actualTier = authUser.tier;
+        if (authUser.tier === 'coffee') {
+          creditsRemaining = authUser.creditsRemaining || 0;
+          console.log(`[SIMPLE-USAGE] Coffee tier user ${email} has ${creditsRemaining} credits`);
+        }
+      }
+    } catch (authError) {
+      console.warn(`[SIMPLE-USAGE] Could not fetch auth user for ${email}:`, authError);
+    }
+    
+    // Get or create today's usage record (use actual tier from auth_users)
     const result = await db.execute(sql`
       INSERT INTO simple_usage (email, date, count, tier)
-      VALUES (${email}, ${today}, 0, 'starter')
+      VALUES (${email}, ${today}, 0, ${actualTier})
       ON CONFLICT (email, date) 
-      DO UPDATE SET count = simple_usage.count
+      DO UPDATE SET 
+        count = simple_usage.count,
+        tier = ${actualTier}  -- Update tier to match auth_users
       RETURNING *
     `);
     
@@ -53,17 +74,22 @@ router.get('/api/simple-usage/:email', async (req, res) => {
       scale: 999
     };
     
-    const response = {
-      tier: usage.tier || 'starter',
+    const response: any = {
+      tier: actualTier, // Use tier from auth_users, not simple_usage
       usage: {
         analysesToday: usage.count || 0
       },
       limits: {
-        dailyAnalyses: tierLimits[usage.tier || 'starter']
+        dailyAnalyses: tierLimits[actualTier] || 3
       }
     };
     
-    console.log(`✅ [SIMPLE-USAGE] ${email}: ${response.usage.analysesToday}/${response.limits.dailyAnalyses}`);
+    // Add credits for Coffee tier users
+    if (actualTier === 'coffee' && creditsRemaining !== undefined) {
+      response.creditsRemaining = creditsRemaining;
+    }
+    
+    console.log(`✅ [SIMPLE-USAGE] ${email}: ${response.usage.analysesToday}/${response.limits.dailyAnalyses}${creditsRemaining !== undefined ? ` (${creditsRemaining} credits)` : ''}`);
     res.json(response);
   } catch (error) {
     console.error('[SIMPLE-USAGE] Error:', error);

@@ -94,6 +94,8 @@ export function useUsageTracking(email: string | undefined) {
         if (simpleResponse.ok) {
           const simpleData = await simpleResponse.json();
           
+          console.log(`[DEBUG] Simple usage response:`, simpleData);
+          
           // For Coffee tier, skip simple endpoint if it doesn't have creditsRemaining
           if (simpleData.tier === 'coffee' && simpleData.creditsRemaining === undefined) {
             console.log(`⚠️ [SIMPLE] Coffee tier detected but no creditsRemaining, falling back to full endpoint`);
@@ -105,7 +107,7 @@ export function useUsageTracking(email: string | undefined) {
               lastReset: new Date().toDateString(),
               creditsRemaining: simpleData.creditsRemaining // Preserve Coffee tier credits
             };
-            console.log(`📊 [SIMPLE] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}${usage.creditsRemaining !== undefined ? ` (${usage.creditsRemaining} credits)` : ''}`);
+            console.log(`📊 [SIMPLE] Usage fetched for ${email}: ${usage.currentUsage}/${usage.dailyAnalyses}${usage.creditsRemaining !== undefined ? ` (${usage.creditsRemaining} credits)` : ''} - tier: ${usage.tier}`);
             return usage;
           }
         }
