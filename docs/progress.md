@@ -1,9 +1,10 @@
 # LLM.txt Mastery - Project Progress & Status
-*Last Updated: August 28, 2025 - Analysis Progress & Crawler Issues Fixed*
+*Last Updated: August 28, 2025 - Database Constraint & Payment Issues Fixed*
 
 ## ✅ Current Status: FULLY OPERATIONAL - All Core Features Working
 
 **LATEST UPDATES**: 
+- 🗄️ **DATABASE CONSTRAINT FIX** - Resolved websiteUrl NOT NULL constraint preventing Growth/Scale tier signups
 - 🔧 **ANALYSIS PROGRESS FIX** - Resolved issue where analysis progress bar stuck at 40% even when complete
 - 🕷️ **CRAWLER IMPROVEMENTS** - Fixed crawler only finding 1-2 pages on sites like CERN and FreeCalcHub
 - 💳 **GROWTH/SCALE TIER PAYMENT FLOW FIXED** - All tier upgrades now working correctly
@@ -14,7 +15,31 @@
 - **Database**: Neon PostgreSQL (managed)
 - **Status**: ✅ **FULLY OPERATIONAL** - All tiers working, payments processing, cancellations enabled
 
-## 🔧 CRITICAL FIX: Analysis Progress & Page Discovery Issues
+## 🗄️ CRITICAL FIX: Database Constraint Error on Paid Tier Signups
+*Resolved: August 28, 2025 | Duration: 30 minutes | Impact: CRITICAL - All paid tier signups blocked*
+
+### ✅ MISSION SUCCESS: Growth and Scale Tier Signups Now Working
+
+**Issue Discovered**:
+- Growth and Scale tier signups failing with "Failed to create checkout session"
+- Error: `null value in column "websiteUrl" of relation "emailCaptures" violates not-null constraint`
+
+**Root Cause**:
+- Database had NOT NULL constraint on `websiteUrl` column
+- Code was updated to allow null values but database schema wasn't synced
+- When users signed up without providing a website URL, insert failed
+
+**Solution Implemented**:
+- Removed NOT NULL constraint from `websiteUrl` column in database
+- SQL executed: `ALTER TABLE "emailCaptures" ALTER COLUMN "websiteUrl" DROP NOT NULL`
+- Also added missing unique constraint on `analysis_cache.url_hash`
+
+**Impact**:
+- All paid tier signups (Coffee, Growth, Scale) now working
+- Users can sign up for paid tiers with or without providing a website URL
+- Database schema now matches application code expectations
+
+## 🔧 Analysis Progress & Page Discovery Issues (Earlier Today)
 *Resolved: August 28, 2025 | Duration: 1 hour | Impact: HIGH - User Experience & Analysis Quality*
 
 ### ✅ MISSION SUCCESS: Analysis Now Completes Properly with Full Page Discovery
