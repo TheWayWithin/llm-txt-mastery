@@ -14,6 +14,7 @@ import { apiLimiter, analysisLimiter, fileGenerationLimiter, emailCaptureLimiter
 import { smartBotProtection } from "./middleware/smart-bot-protection";
 import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
+import { registerCancellationRoutes } from "./routes/cancellation";
 import authRoutes from "./routes/auth";
 import simpleUsageRoutes from "./routes/simple-usage";
 import { incrementSimpleUsage, getSimpleUsage } from "./services/simple-tracker";
@@ -738,6 +739,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register Stripe payment routes
   registerStripeRoutes(app);
+  
+  // Register cancellation and refund routes
+  registerCancellationRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

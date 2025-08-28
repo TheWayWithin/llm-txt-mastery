@@ -129,6 +129,9 @@ export const oneTimeCredits = pgTable("one_time_credits", {
   productType: text("product_type").notNull().default("coffee"), // "coffee", future: "pro", etc.
   priceId: text("price_id"), // Stripe price ID for the purchase
   stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  purchasedAt: timestamp("purchased_at").notNull().defaultNow(), // Track for 30-day guarantee
+  refunded: boolean("refunded").notNull().default(false),
+  refundedAt: timestamp("refunded_at"),
   expiresAt: timestamp("expires_at"), // null = no expiration
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -409,6 +412,36 @@ export type UserSession = typeof userSessions.$inferSelect;
 export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
 export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type UserLogin = z.infer<typeof userLoginSchema>;
+
+// Cancellation and refund tracking
+export const cancellations = pgTable("cancellations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => authUsers.id),
+  subscriptionId: text("subscription_id"),
+  tier: text("tier").notNull(),
+  reason: text("reason"),
+  requestedAt: timestamp("requested_at").notNull().defaultNow(),
+  processedAt: timestamp("processed_at"),
+  refundAmount: integer("refund_amount"), // Amount in cents
+  refundStatus: text("refund_status"), // pending, processing, completed, failed
+  refundStripeId: text("refund_stripe_id"),
+  purchaseDate: timestamp("purchase_date"), // For 30-day guarantee check
+  daysSincePurchase: integer("days_since_purchase"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const refundRequests = pgTable("refund_requests", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => authUsers.id),
+  cancellationId: integer("cancellation_id").references(() => cancellations.id),
+  amount: integer("amount").notNull(), // Amount in cents
+  reason: text("reason"),
+  status: text("status").notNull().default("pending"),
+  stripeRefundId: text("stripe_refund_id"),
+  processedAt: timestamp("processed_at"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 // JWT payload interface
 export interface JWTPayload {

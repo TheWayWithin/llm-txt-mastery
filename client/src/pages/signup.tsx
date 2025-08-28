@@ -306,6 +306,7 @@ export default function SignupPage() {
                     <Label htmlFor="tier">Select Your Plan</Label>
                     <select
                       id="tier"
+                      data-testid="tier-select"
                       value={selectedTier}
                       onChange={(e) => {
                         const newTier = e.target.value as typeof selectedTier;
@@ -324,10 +325,10 @@ export default function SignupPage() {
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
-                      <option value="starter">⚠️ FREE - 3 daily (20 pages max)</option>
-                      <option value="coffee">☕ COFFEE - 100 monthly ($4.95/month)</option>
-                      <option value="growth">💼 GROWTH - Go Pro ($9.95/month)</option>
-                      <option value="scale">🚀 SCALE - Enterprise ($19.95/month)</option>
+                      <option value="starter" data-testid="tier-option-starter">⚠️ FREE - 3 daily (20 pages max)</option>
+                      <option value="coffee" data-testid="tier-option-coffee">☕ COFFEE - 100 monthly ($4.95/month)</option>
+                      <option value="growth" data-testid="tier-option-growth">💼 GROWTH - Go Pro ($9.95/month)</option>
+                      <option value="scale" data-testid="tier-option-scale">🚀 SCALE - Enterprise ($19.95/month)</option>
                     </select>
                     
                     {/* Selected Tier Details */}
@@ -392,6 +393,7 @@ export default function SignupPage() {
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="email"
+                        data-testid="email-input"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -427,6 +429,7 @@ export default function SignupPage() {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="password"
+                        data-testid="password-input"
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -477,6 +480,7 @@ export default function SignupPage() {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="confirmPassword"
+                        data-testid="confirm-password-input"
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -525,6 +529,7 @@ export default function SignupPage() {
                   {/* Submit Button */}
                   <Button
                     type="submit"
+                    data-testid="signup-submit"
                     className="w-full min-h-[48px] px-6 py-3 bg-innovation-teal hover:bg-innovation-teal/90"
                     size="default"
                     disabled={
