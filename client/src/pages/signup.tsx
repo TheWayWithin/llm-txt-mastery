@@ -159,7 +159,7 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: email,
-            websiteUrl: websiteUrlParam || '',
+            ...(websiteUrlParam && { websiteUrl: websiteUrlParam }), // Only include if not empty
             metadata: {
               password: btoa(password), // Will be used by webhook to create user
               tier: selectedTier
