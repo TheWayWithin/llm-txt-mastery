@@ -143,7 +143,7 @@ export function UserDashboard() {
                 <div>• 200 pages per analysis</div>
                 <div>• AI-enhanced analysis</div>
                 <div>• Quality scoring & insights</div>
-                <div>• Credits never expire</div>
+                <div>• 100 analyses per month</div>
               </>
             )}
             {userProfile.tier === 'growth' && (
@@ -157,11 +157,11 @@ export function UserDashboard() {
             )}
             {userProfile.tier === 'scale' && (
               <>
-                <div>• Unlimited pages</div>
-                <div>• Unlimited analyses</div>
-                <div>• API access</div>
-                <div>• White-label options</div>
-                <div>• Dedicated support</div>
+                <div>• Unlimited pages per analysis</div>
+                <div>• Full AI analysis (capped at $19.95)</div>
+                <div>• API access for integrations</div>
+                <div>• Multi-site management</div>
+                <div>• Direct email support line</div>
               </>
             )}
           </div>

@@ -30,7 +30,7 @@ export function TierGuaranteeContent({ selectedTier }: TierGuaranteeContentProps
           </div>
         ) : (
           <div className="bg-blue-50 border border-blue-200 p-3 rounded">
-            <span className="text-blue-700">✓ Enterprise control • White-label options • Dedicated support</span>
+            <span className="text-blue-700">✓ Enterprise control • API access • Direct email support</span>
           </div>
         )}
       </div>

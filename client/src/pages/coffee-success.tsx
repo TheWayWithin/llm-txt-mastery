@@ -149,7 +149,7 @@ export default function CoffeeSuccess() {
                   <li>• Up to 200 pages per analysis (10x free tier)</li>
                   <li>• Full AI-enhanced quality scoring</li>
                   <li>• Professional llms.txt file generation</li>
-                  <li>• Credits never expire</li>
+                  <li>• 100 analyses per month</li>
                 </ul>
               </div>
 

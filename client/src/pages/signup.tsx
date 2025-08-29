@@ -238,9 +238,9 @@ export default function SignupPage() {
         return [
           "❌ Only 3 analyses per day (then locked out)",
           "❌ Severely limited to 20 pages only",
-          "❌ No AI quality scoring",
-          "❌ Basic features only",
-          "⚠️ WARNING: Your competitors will find 10x more pages"
+          "❌ No AI quality scoring (missing critical content)",
+          "❌ Basic HTML extraction only",
+          "⚠️ WARNING: AI will only see 20 pages - missing your pricing, features, case studies, and 90% of what makes you unique!"
         ]
       case 'coffee':
         return [
@@ -261,12 +261,12 @@ export default function SignupPage() {
         ]
       case 'scale':
         return [
-          "✅ Unlimited everything",
-          "✅ Enterprise white-label options",
-          "✅ Custom API integrations",
-          "✅ Dedicated account manager",
-          "✅ Custom SLA agreements",
-          "🛡️ All guarantees + enterprise protection"
+          "✅ Everything in Growth tier",
+          "✅ Unlimited pages per analysis",
+          "✅ Full AI analysis (capped at $19.95 cost)",
+          "✅ API access for integrations",
+          "✅ Multi-site management",
+          "✅ Direct email support line"
         ]
       default:
         return []

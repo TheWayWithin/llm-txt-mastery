@@ -135,14 +135,14 @@ export async function getSubscriptionStatus(authToken: string): Promise<Subscrip
 export const TIER_PRICING = {
   coffee: {
     name: 'Coffee Analysis',
-    price: '$4.95',
-    interval: 'one-time',
+    price: '$100',
+    interval: 'monthly',
     features: [
-      '1 website analysis credit',
+      '100 monthly website analyses',
       'Up to 200 pages per analysis',
       'Full AI-enhanced analysis',
       'Quality scoring & insights',
-      'Credits never expire'
+      'Monthly subscription'
     ]
   },
   growth: {

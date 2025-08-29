@@ -26,7 +26,7 @@ export default function CoffeeCancel() {
               <p>• 10x more pages (200 vs 20)</p>
               <p>• AI-enhanced quality scoring</p>
               <p>• Professional analysis insights</p>
-              <p>• One-time payment, no subscription</p>
+              <p>• Monthly subscription for 100 analyses</p>
             </div>
           </div>
 

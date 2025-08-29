@@ -169,7 +169,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">White-label support</span>
+                  <span className="text-sm">Direct email support line</span>
                 </li>
               </ul>
             </CardContent>
