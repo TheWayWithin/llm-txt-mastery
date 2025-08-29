@@ -350,7 +350,7 @@ function BillingSection() {
                       You have {user.creditsRemaining} analysis credit{user.creditsRemaining !== 1 ? 's' : ''} remaining.
                     </p>
                     <p className="text-xs text-orange-500 mt-2">
-                      Coffee credits are one-time purchases and don't require subscription management.
+                      Coffee tier is a monthly subscription for 100 analyses per month.
                     </p>
                   </div>
                 </div>
@@ -387,8 +387,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Coffee</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-orange-600">$4.95</div>
-                  <div className="text-xs text-gray-500">one-time</div>
+                  <div className="text-2xl font-bold text-orange-600">$100</div>
+                  <div className="text-xs text-gray-500">per month</div>
                 </div>
               </div>
               
@@ -414,8 +414,8 @@ function BillingSection() {
                 </div>
                 
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">💰 Credits Never Expire</div>
-                  <div className="text-xs text-orange-600">One-time purchase, lifetime access</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">💰 100 Analyses Monthly</div>
+                  <div className="text-xs text-orange-600">$100/month for the cost of a coffee</div>
                 </div>
               </div>
               

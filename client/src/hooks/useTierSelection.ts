@@ -78,7 +78,7 @@ export function useTierSelection(options: UseTierSelectionOptions = {}): UseTier
     },
     {
       tier: 'coffee',
-      displayName: 'Coffee Power ($4.95 one-time)',
+      displayName: 'Coffee Power ($100/month)',
       features: [
         'UNLIMITED daily analyses',
         '200 pages per analysis (10x more)',
@@ -107,10 +107,11 @@ export function useTierSelection(options: UseTierSelectionOptions = {}): UseTier
       tier: 'scale',
       displayName: 'Agency & API ($19.95/mo)',
       features: [
-        'Full API access',
-        'Unlimited everything',
-        'White-label options',
-        'Dedicated account'
+        'Unlimited pages per analysis',
+        'Full AI analysis',
+        'API access for integrations',
+        'Multi-site management',
+        'Direct email support'
       ],
       price: 19.95,
       isRecommended: false,

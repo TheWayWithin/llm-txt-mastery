@@ -337,7 +337,7 @@ export const tierUtils = {
       starter: ['Basic HTML analysis', '1 analysis per day', 'Standard support'],
       coffee: ['AI-enhanced analysis', '5 analyses per day', 'Priority support', 'File history'],
       growth: ['Advanced AI analysis', '25 analyses per day', 'Smart caching', 'Priority support'],
-      scale: ['Enterprise AI analysis', 'Unlimited analyses', 'API access', 'White-label options']
+      scale: ['Enterprise AI analysis', 'Unlimited pages', 'API access', 'Direct email support']
     };
     return features[tier] || [];
   }

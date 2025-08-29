@@ -152,10 +152,10 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                 <p className="text-sm text-red-600 mt-2">
                   ❌ Only 3 analyses per day (then locked out)<br/>
                   ❌ Severely limited to 20 pages only<br/>
-                  ❌ No AI quality scoring<br/>
-                  ❌ Basic features only<br/>
+                  ❌ No AI quality scoring (missing critical content)<br/>
+                  ❌ Basic HTML extraction only<br/>
                   <span className="text-xs font-medium text-red-700 mt-1 block">
-                    ⚠️ WARNING: Your competitors will find 10x more pages
+                    ⚠️ WARNING: AI sees only 20 pages - missing your pricing, features, case studies & what makes you unique!
                   </span>
                 </p>
               </div>
@@ -172,7 +172,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Coffee Tier" 
                     className="w-8 h-8" 
                   />
-                  <span className="font-bold text-xl text-green-800">Coffee Power ($4.95 one-time)</span>
+                  <span className="font-bold text-xl text-green-800">Coffee Power ($100/month)</span>
                 </Label>
                 <p className="text-sm font-medium text-green-700 mt-2">
                   ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly<br/>
@@ -223,9 +223,9 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                 </Label>
                 <p className="text-sm text-ai-silver mt-2">
                   • Full API access<br/>
-                  • Unlimited everything<br/>
-                  • White-label options<br/>
-                  • Dedicated account
+                  • Unlimited pages<br/>
+                  • Multi-site management<br/>
+                  • Direct email support
                 </p>
               </div>
             </div>
