@@ -78,7 +78,7 @@ export function useTierSelection(options: UseTierSelectionOptions = {}): UseTier
     },
     {
       tier: 'coffee',
-      displayName: 'Coffee Power ($100/month)',
+      displayName: 'Coffee Power ($4.95/month)',
       features: [
         'UNLIMITED daily analyses',
         '200 pages per analysis (10x more)',

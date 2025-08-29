@@ -387,7 +387,7 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Coffee</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-orange-600">$100</div>
+                  <div className="text-2xl font-bold text-orange-600">$4.95</div>
                   <div className="text-xs text-gray-500">per month</div>
                 </div>
               </div>
@@ -414,8 +414,8 @@ function BillingSection() {
                 </div>
                 
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">💰 100 Analyses Monthly</div>
-                  <div className="text-xs text-orange-600">$100/month for the cost of a coffee</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">💰 Incredible Value</div>
+                  <div className="text-xs text-orange-600">100 analyses for just $4.95/month - the price of a coffee!</div>
                 </div>
               </div>
               

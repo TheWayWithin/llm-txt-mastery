@@ -172,7 +172,7 @@ export default function EmailCapture({ websiteUrl, onEmailCaptured, onLoginReque
                     alt="Coffee Tier" 
                     className="w-8 h-8" 
                   />
-                  <span className="font-bold text-xl text-green-800">Coffee Power ($100/month)</span>
+                  <span className="font-bold text-xl text-green-800">Coffee Power ($4.95/month)</span>
                 </Label>
                 <p className="text-sm font-medium text-green-700 mt-2">
                   ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly<br/>
