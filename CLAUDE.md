@@ -10,7 +10,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Status**: ✅ FREEMIUM MODEL OPERATIONAL - Usage tracking restored, daily limits enforced, revenue protection active
 
-**📊 Current Project Status**: See `/docs/progress.md` for comprehensive timeline, achievements, and next priorities
+**📊 Project Documentation**:
+- **Current Status & Coordination**: See `/project-plan.md` for active priorities and architecture
+- **Progress Timeline**: See `/docs/progress.md` for comprehensive timeline and achievements  
+- **Strategic Roadmap**: See `/Roadmap.md` for 18-month feature and infrastructure plans
+- **Capacity Planning**: See `/CapacityPlan.md` for scaling strategies and metrics
 
 ## 🗄️ Database Architecture (CRITICAL)
 
