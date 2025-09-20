@@ -10,16 +10,23 @@ import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurityMiddleware, corsOptions } from "./middleware/security";
+import { keepAliveService } from "./services/keep-alive";
 
 const app = express();
 
 // Health check endpoint for debugging
 app.get('/health', (req, res) => {
+  const keepAliveStatus = keepAliveService.getStatus();
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
     message: 'Railway backend is running',
-    database: process.env.DATABASE_URL ? 'configured' : 'missing'
+    database: process.env.DATABASE_URL ? 'configured' : 'missing',
+    keepAlive: {
+      running: keepAliveStatus.running,
+      nextPing: keepAliveStatus.nextPing?.toISOString(),
+      baseUrl: keepAliveStatus.baseUrl
+    }
   });
 });
 
@@ -91,6 +98,9 @@ app.use((req, res, next) => {
   const host = process.env.HOST || "0.0.0.0";
   server.listen(port, host, () => {
     log(`serving on port ${port} (host: ${host})`);
+    
+    // Initialize keep-alive service to prevent Railway hibernation
+    keepAliveService.start();
     
     // Log important configuration status
     if (!process.env.OPENAI_API_KEY) {

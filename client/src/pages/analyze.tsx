@@ -130,6 +130,7 @@ export default function AnalyzePage() {
   };
 
   const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
+    const handlerStart = performance.now();
     console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
     
     // DON'T track usage here - server already increments when analysis completes
@@ -149,11 +150,17 @@ export default function AnalyzePage() {
         // TODO: Add recent analyses invalidation when API is implemented
         // queryClient.invalidateQueries({
         //   queryKey: ["/api/recent-analyses", user.email]
-        // });
+        // })
       }
     }, 1000); // Give server 1 second to update
     
+    // Time the state machine action
+    const actionStart = performance.now();
     actions.completeAnalysis(id, pages);
+    const actionEnd = performance.now();
+    
+    const handlerEnd = performance.now();
+    console.log(`⏱️ handleAnalysisComplete took ${(handlerEnd - handlerStart).toFixed(2)}ms (action: ${(actionEnd - actionStart).toFixed(2)}ms)`);
   }, [actions.completeAnalysis, user?.email, queryClient]);
 
   const handleFileGenerated = useCallback((fileId: number) => {

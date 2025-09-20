@@ -51,13 +51,29 @@ export default function ContentAnalysis({
   const [processedPages, setProcessedPages] = useState<number>(0);
   const [retryCount, setRetryCount] = useState(0);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [coldStartDetected, setColdStartDetected] = useState(false);
+  const [requestStartTime, setRequestStartTime] = useState<number | null>(null);
 
   const startAnalysisMutation = useMutation({
     mutationFn: async ({ url, force = false, email }: { url: string; force?: boolean; email: string }) => {
       setLastError(null);
-      // Use real sitemap analysis endpoint with email for tier-based analysis
-      const response = await apiRequest("POST", "/api/analyze", { url, force, email });
-      return response.json();
+      setRequestStartTime(Date.now());
+      setColdStartDetected(false);
+      
+      // Detect cold start if request takes more than 10 seconds
+      const coldStartTimer = setTimeout(() => {
+        setColdStartDetected(true);
+      }, 10000);
+      
+      try {
+        // Use real sitemap analysis endpoint with email for tier-based analysis
+        const response = await apiRequest("POST", "/api/analyze", { url, force, email });
+        clearTimeout(coldStartTimer);
+        return response.json();
+      } catch (error) {
+        clearTimeout(coldStartTimer);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setLastError(null);
@@ -326,6 +342,14 @@ export default function ContentAnalysis({
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             Analyzing Your Website
           </h3>
+          {coldStartDetected && (
+            <div className="mb-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-800">
+                <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
+                Waking up services... First request after inactivity may take 30-60 seconds
+              </p>
+            </div>
+          )}
           <p className="text-sm text-gray-600 mb-4">
             Our AI system is carefully examining your content structure and optimizing it for machine readability
           </p>
