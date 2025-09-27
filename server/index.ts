@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 // Load environment variables first
 dotenv.config();
 
-// Force Railway deployment: 2025-01-20
+// Force Railway deployment: 2025-09-27 15:51 UTC - ENHANCED LLMS.TXT FEATURES
 
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
