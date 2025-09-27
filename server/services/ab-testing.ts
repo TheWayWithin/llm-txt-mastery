@@ -97,12 +97,19 @@ export interface UserContext {
 }
 
 class ABTestingService {
-  private redis: Redis;
+  private redis: Redis | null;
   private assignmentCacheKey = 'ab_assignments';
   private experimentCacheKey = 'ab_experiments';
 
   constructor() {
-    this.redis = redisClient.getInstance();
+    // Make Redis optional - use null if Redis unavailable
+    try {
+      this.redis = redisClient;
+      console.log('A/B Testing: Using Redis cache');
+    } catch (error) {
+      this.redis = null;
+      console.log('A/B Testing: Redis unavailable, service disabled');
+    }
   }
 
   /**
@@ -110,9 +117,9 @@ class ABTestingService {
    */
   async getAssignment(experimentName: string, userContext: UserContext): Promise<ExperimentAssignment | null> {
     try {
-      // Check cache first
+      // Check cache first (if Redis is available)
       const cacheKey = `${this.assignmentCacheKey}:${experimentName}:${userContext.userId || userContext.sessionId}`;
-      const cachedAssignment = await this.redis.get(cacheKey);
+      const cachedAssignment = this.redis ? await this.redis.get(cacheKey) : null;
       
       if (cachedAssignment) {
         return JSON.parse(cachedAssignment);
@@ -147,8 +154,10 @@ class ABTestingService {
           assignedAt: existingAssignment[0].assignedAt!
         };
 
-        // Cache for 1 hour
-        await this.redis.setex(cacheKey, 3600, JSON.stringify(assignment));
+        // Cache for 1 hour (if Redis is available)
+        if (this.redis) {
+          await this.redis.setex(cacheKey, 3600, JSON.stringify(assignment));
+        }
         return assignment;
       }
 
@@ -185,8 +194,10 @@ class ABTestingService {
         assignedAt: newAssignment.assignedAt!
       };
 
-      // Cache for 1 hour
-      await this.redis.setex(cacheKey, 3600, JSON.stringify(assignment));
+      // Cache for 1 hour (if Redis is available)
+      if (this.redis) {
+        await this.redis.setex(cacheKey, 3600, JSON.stringify(assignment));
+      }
 
       // Track impression event
       await this.trackEvent(experiment.name, assignment.variant, 'impression', userContext);
@@ -354,8 +365,10 @@ class ABTestingService {
         createdBy: experiment.createdBy
       }).returning({ id: experiments.id });
 
-      // Clear experiment cache
-      await this.redis.del(`${this.experimentCacheKey}:${experiment.name}`);
+      // Clear experiment cache (if Redis is available)
+      if (this.redis) {
+        await this.redis.del(`${this.experimentCacheKey}:${experiment.name}`);
+      }
 
       return created.id;
     } catch (error) {
@@ -378,8 +391,10 @@ class ABTestingService {
         })
         .where(eq(experiments.name, experimentName));
 
-      // Clear cache
-      await this.redis.del(`${this.experimentCacheKey}:${experimentName}`);
+      // Clear cache (if Redis is available)
+      if (this.redis) {
+        await this.redis.del(`${this.experimentCacheKey}:${experimentName}`);
+      }
       
       return true;
     } catch (error) {
@@ -403,8 +418,10 @@ class ABTestingService {
         })
         .where(eq(experiments.name, experimentName));
 
-      // Clear cache
-      await this.redis.del(`${this.experimentCacheKey}:${experimentName}`);
+      // Clear cache (if Redis is available)
+      if (this.redis) {
+        await this.redis.del(`${this.experimentCacheKey}:${experimentName}`);
+      }
       
       return true;
     } catch (error) {
@@ -418,7 +435,7 @@ class ABTestingService {
    */
   private async getExperiment(name: string): Promise<any> {
     const cacheKey = `${this.experimentCacheKey}:${name}`;
-    const cached = await this.redis.get(cacheKey);
+    const cached = this.redis ? await this.redis.get(cacheKey) : null;
     
     if (cached) {
       return JSON.parse(cached);
@@ -431,8 +448,10 @@ class ABTestingService {
       .limit(1);
 
     if (experiment) {
-      // Cache for 10 minutes
-      await this.redis.setex(cacheKey, 600, JSON.stringify(experiment));
+      // Cache for 10 minutes (if Redis is available)
+      if (this.redis) {
+        await this.redis.setex(cacheKey, 600, JSON.stringify(experiment));
+      }
     }
 
     return experiment;
@@ -590,7 +609,9 @@ class ABTestingService {
    */
   async healthCheck(): Promise<{ status: string; details: any }> {
     try {
-      await this.redis.ping();
+      if (this.redis) {
+        await this.redis.ping();
+      }
       
       const stats = await db
         .select({
@@ -604,7 +625,7 @@ class ABTestingService {
       return {
         status: 'healthy',
         details: {
-          redis: 'connected',
+          redis: this.redis ? 'connected' : 'unavailable',
           stats: stats[0]
         }
       };
