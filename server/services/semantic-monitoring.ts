@@ -130,7 +130,14 @@ class SemanticMonitoringService {
   };
 
   constructor() {
-    this.redis = redisClient.getInstance();
+    // Make Redis optional - use null if Redis unavailable
+    try {
+      this.redis = redisClient;
+      console.log('Semantic monitoring: Using Redis cache');
+    } catch (error) {
+      this.redis = null;
+      console.log('Semantic monitoring: Redis unavailable, using local cache only');
+    }
     
     // Flush metrics buffer every 30 seconds
     this.flushInterval = setInterval(() => {

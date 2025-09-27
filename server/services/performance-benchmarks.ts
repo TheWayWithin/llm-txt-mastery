@@ -117,7 +117,14 @@ class PerformanceBenchmarkService {
   };
 
   constructor() {
-    this.redis = redisClient.getInstance();
+    // Make Redis optional - use null if Redis unavailable
+    try {
+      this.redis = redisClient;
+      console.log('Performance benchmarks: Using Redis cache');
+    } catch (error) {
+      this.redis = null;
+      console.log('Performance benchmarks: Redis unavailable, using local cache only');
+    }
   }
 
   /**
