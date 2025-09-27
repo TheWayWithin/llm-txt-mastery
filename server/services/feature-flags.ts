@@ -1,6 +1,15 @@
 import { Redis } from 'ioredis';
 import { redisClient } from './redis-client';
 
+// Make Redis optional - don't crash if unavailable
+const isRedisAvailable = () => {
+  try {
+    return redisClient && redisClient.status === 'ready';
+  } catch {
+    return false;
+  }
+};
+
 export type FeatureFlagName = 
   | 'clustering'
   | 'semantic_tags'
@@ -34,14 +43,21 @@ export interface UserContext {
 }
 
 class FeatureFlagService {
-  private redis: Redis;
+  private redis: Redis | null;
   private cacheKey = 'feature_flags';
   private cacheExpiry = 300; // 5 minutes
   private localCache = new Map<string, FeatureFlag>();
   private lastCacheUpdate = 0;
 
   constructor() {
-    this.redis = redisClient.getInstance();
+    // Make Redis optional - use local cache if Redis unavailable
+    try {
+      this.redis = redisClient;
+      console.log('Feature flags: Using Redis cache');
+    } catch (error) {
+      this.redis = null;
+      console.log('Feature flags: Redis unavailable, using local cache only');
+    }
     this.initializeDefaultFlags();
   }
 
