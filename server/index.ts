@@ -14,18 +14,21 @@ import { keepAliveService } from "./services/keep-alive";
 
 const app = express();
 
-// Health check endpoint for debugging
+// Health check endpoint - available immediately for Railway
 app.get('/health', (req, res) => {
-  const keepAliveStatus = keepAliveService.getStatus();
   res.json({ 
-    status: 'ok', 
+    status: 'healthy', 
     timestamp: new Date().toISOString(),
-    message: 'Railway backend is running',
-    database: process.env.DATABASE_URL ? 'configured' : 'missing',
-    keepAlive: {
-      running: keepAliveStatus.running,
-      nextPing: keepAliveStatus.nextPing?.toISOString(),
-      baseUrl: keepAliveStatus.baseUrl
+    message: 'Server is running',
+    environment: process.env.NODE_ENV || 'production',
+    version: '2.0.0-enhanced',
+    enhancements: {
+      blockquoteSummary: true,
+      dynamicClustering: true,
+      semanticTags: true,
+      intelligentSequencing: true,
+      enhancedMetadata: true,
+      contentQuality: true
     }
   });
 });
