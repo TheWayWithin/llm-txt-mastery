@@ -636,6 +636,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Version endpoint to check deployment status
+  app.get("/api/version", (req, res) => {
+    res.json({
+      version: "2.0.0-enhanced",
+      features: {
+        blockquoteSummary: true,
+        dynamicClustering: true,
+        semanticTags: true,
+        intelligentSequencing: true,
+        enhancedMetadata: true,
+        contentQuality: true
+      },
+      deployedAt: new Date().toISOString(),
+      debugMode: true,
+      message: "Enhanced LLMs.txt generation with all 6 phases active"
+    });
+  });
+
   // Keep existing endpoints
   app.post("/api/generate-llm-file", fileGenerationLimiter, async (req, res) => {
     try {
