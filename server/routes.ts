@@ -2089,16 +2089,26 @@ function generateLlmTxtContent(
   allDiscoveredPages: DiscoveredPage[] = [],
   analysisMetadata: any = {}
 ): string {
+  console.log('[DEBUG] generateLlmTxtContent called with:');
+  console.log('[DEBUG] - baseUrl:', baseUrl);
+  console.log('[DEBUG] - selectedPages count:', selectedPages.length);
+  console.log('[DEBUG] - allDiscoveredPages count:', allDiscoveredPages.length);
+  console.log('[DEBUG] - analysisMetadata keys:', Object.keys(analysisMetadata));
+  
   const createdDate = new Date().toISOString().split('T')[0];
   const totalFound = analysisMetadata?.totalPagesFound || allDiscoveredPages.length;
   const analyzed = allDiscoveredPages.length;
   const excluded = excludedPages.length;
   
   // Phase 6: Apply content quality improvements before clustering
+  console.log('[DEBUG] Phase 6: Enhancing page descriptions...');
   const enhancedPages = enhancePageDescriptions(selectedPages);
+  console.log('[DEBUG] Enhanced pages count:', enhancedPages.length);
   
   // Generate comprehensive site summary (using enhanced pages)
+  console.log('[DEBUG] Phase 1: Generating site summary...');
   const siteSummary = generateSiteSummary(baseUrl, enhancedPages, allDiscoveredPages);
+  console.log('[DEBUG] Site summary generated:', siteSummary.substring(0, 100) + '...');
   
   // Phase 5: Enhanced Metadata Extraction (using enhanced pages)
   const avgQuality = calculateAverageQuality(enhancedPages);
@@ -2115,6 +2125,8 @@ function generateLlmTxtContent(
   if (technicalIndicators.hasAuthRequiredPages) techFeatures.push('Authenticated Content');
   if (technicalIndicators.hasBetaFeatures) techFeatures.push('Beta Features');
   
+  console.log('[DEBUG] Building header with blockquote summary...');
+  console.log('[DEBUG] Summary starts with:', siteSummary.substring(0, 50));
   const header = `# LLM.txt File for ${baseUrl}
 
 > ${siteSummary}
@@ -2157,7 +2169,12 @@ function generateLlmTxtContent(
 `;
 
   // Cluster pages into dynamic categories (using enhanced pages)
+  console.log('[DEBUG] Phase 2: Clustering pages into categories...');
   const clusteredPages = clusterPagesIntoCategories(enhancedPages);
+  console.log('[DEBUG] Clusters found:', clusteredPages.size);
+  clusteredPages.forEach((pages, category) => {
+    console.log(`[DEBUG] - Category "${category}": ${pages.length} pages`);
+  });
   
   // Generate content with category headers and semantic tags
   let content = '';
@@ -2213,7 +2230,14 @@ ${excludedPages
 # https://llmtxt.com/contact`;
   }
 
-  return header + content + excludedSection;
+  const finalOutput = header + content + excludedSection;
+  console.log('[DEBUG] Final output length:', finalOutput.length);
+  console.log('[DEBUG] First 500 chars of output:');
+  console.log(finalOutput.substring(0, 500));
+  console.log('[DEBUG] Has blockquote?', finalOutput.includes('> '));
+  console.log('[DEBUG] Has category headers?', finalOutput.includes('## '));
+  
+  return finalOutput;
 }
 
 // Helper function to get today's usage (imported from usage service)
