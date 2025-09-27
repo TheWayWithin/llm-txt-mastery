@@ -276,6 +276,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     }
 
     case 'ANALYSIS_COMPLETE': {
+      const transitionStart = performance.now();
+      
       // Event deduplication: Ignore if we've already processed this analysis
       if (context.lastProcessedAnalysisId === event.analysisId) {
         console.log(`🚫 ANALYSIS_COMPLETE ignored: Already processed analysisId=${event.analysisId}`);
@@ -290,7 +292,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
 
       console.log(`✅ ANALYSIS_COMPLETE processed: analysisId=${event.analysisId}, pages=${event.pages.length}`);
       const nextState = 'REVIEW';
-      return {
+      
+      const newContext = {
         ...updatedContext,
         analysisId: event.analysisId,
         discoveredPages: event.pages,
@@ -298,6 +301,11 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         currentState: nextState,
         progress: updateProgressForState(nextState, context.progress)
       };
+      
+      const transitionEnd = performance.now();
+      console.log(`⏱️ ANALYSIS_COMPLETE state transition took ${(transitionEnd - transitionStart).toFixed(2)}ms`);
+      
+      return newContext;
     }
 
     case 'FILE_GENERATED': {
