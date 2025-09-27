@@ -16,7 +16,7 @@ import { optionalAuth } from "./middleware/auth";
 import { registerStripeRoutes } from "./routes/stripe";
 import { registerCancellationRoutes } from "./routes/cancellation";
 import authRoutes from "./routes/auth";
-import featureFlagRoutes from "./routes/feature-flags";
+// import featureFlagRoutes from "./routes/feature-flags"; // Temporarily disabled - Redis issue
 import abTestingRoutes from "./routes/ab-testing";
 import semanticMonitoringRoutes from "./routes/semantic-monitoring";
 import simpleUsageRoutes from "./routes/simple-usage";
@@ -31,9 +31,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register authentication routes
   app.use("/api/auth", authRoutes);
   
-  // Register feature flag routes
-  app.use("/api/feature-flags", optionalAuth, featureFlagRoutes);
-  app.use("/api/admin", featureFlagRoutes);
+  // Register feature flag routes - TEMPORARILY DISABLED (Redis issue)
+  // app.use("/api/feature-flags", optionalAuth, featureFlagRoutes);
+  // app.use("/api/admin", featureFlagRoutes);
   
   // Register A/B testing routes
   app.use("/api/ab-testing", abTestingRoutes);
