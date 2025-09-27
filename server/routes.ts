@@ -25,6 +25,15 @@ import { connectionPool } from "./services/connection-pool";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Health check endpoint for Railway
+  app.get("/health", (req, res) => {
+    res.status(200).json({ 
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      version: "2.0.0-enhanced"
+    });
+  });
+
   // Apply smart bot protection to all routes for intelligent bot detection
   app.use(smartBotProtection);
   
