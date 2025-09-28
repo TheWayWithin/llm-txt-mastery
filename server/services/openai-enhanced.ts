@@ -77,6 +77,13 @@ export interface ContentAnalysisResult {
   relevance: number;
   model?: string; // Track which model was used
   estimatedCost?: number; // Track cost per analysis
+  // New token tracking fields
+  tokensUsed?: {
+    prompt: number;
+    completion: number;
+    total: number;
+  };
+  actualCostUSD?: number; // Precise cost in USD
 }
 
 export async function analyzePageContentWithModel(
@@ -165,19 +172,28 @@ Respond in JSON format with these exact keys: title, description, qualityScore, 
     const result = JSON.parse(response.choices[0].message.content || '{}');
     const usage = response.usage;
     
-    // Calculate cost
+    // Calculate precise cost
     let estimatedCost = 0;
+    let actualCostUSD = 0;
+    const tokensUsed = {
+      prompt: usage?.prompt_tokens || 0,
+      completion: usage?.completion_tokens || 0,
+      total: (usage?.prompt_tokens || 0) + (usage?.completion_tokens || 0)
+    };
+    
     if (usage && OPENAI_MODELS[model]) {
       const pricing = OPENAI_MODELS[model].pricing;
-      estimatedCost = (usage.prompt_tokens / 1_000_000) * pricing.input + 
-                     (usage.completion_tokens / 1_000_000) * pricing.output;
+      // Calculate precise cost in USD
+      actualCostUSD = (usage.prompt_tokens / 1_000_000) * pricing.input + 
+                      (usage.completion_tokens / 1_000_000) * pricing.output;
+      estimatedCost = actualCostUSD; // Keep for backward compatibility
     }
     
     const processingTime = Date.now() - startTime;
     console.log(`✅ AI analysis complete for ${url}`);
     console.log(`   - Model: ${model}`);
-    console.log(`   - Tokens: ${usage?.prompt_tokens || 0} in, ${usage?.completion_tokens || 0} out`);
-    console.log(`   - Cost: $${estimatedCost.toFixed(6)}`);
+    console.log(`   - Tokens: ${tokensUsed.prompt} in, ${tokensUsed.completion} out (${tokensUsed.total} total)`);
+    console.log(`   - Cost: $${actualCostUSD.toFixed(6)} USD`);
     console.log(`   - Time: ${processingTime}ms`);
     console.log(`   - Quality Score: ${result.qualityScore || 0}/10`);
 
@@ -188,7 +204,9 @@ Respond in JSON format with these exact keys: title, description, qualityScore, 
       category: result.category || 'Other',
       relevance: result.relevance || 5,
       model,
-      estimatedCost
+      estimatedCost,
+      tokensUsed,
+      actualCostUSD
     };
   } catch (error) {
     console.error(`AI analysis error for ${url}:`, error);

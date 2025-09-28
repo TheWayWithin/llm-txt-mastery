@@ -24,6 +24,10 @@ export interface AnalysisMetrics {
   processingTime: number;
   apiCalls: number;
   costSaved: number;
+  // New token tracking fields
+  totalTokensUsed: number;
+  actualAiCostUSD: number;
+  modelUsed: string;
 }
 
 export async function analyzeDiscoveredPagesWithCache(
@@ -60,7 +64,10 @@ export async function analyzeDiscoveredPagesWithCache(
         cacheHit: false,
         processingTime: 0,
         apiCalls: 0,
-        costSaved: 0
+        costSaved: 0,
+        totalTokensUsed: 0,
+        actualAiCostUSD: 0,
+        modelUsed: ''
       }
     };
   }
@@ -134,7 +141,10 @@ async function performPageAnalysisWithCache(
     cacheHit: false,
     processingTime: 0,
     apiCalls: 0,
-    costSaved: 0
+    costSaved: 0,
+    totalTokensUsed: 0,
+    actualAiCostUSD: 0,
+    modelUsed: ''
   };
   
   // Track consecutive failures for bot protection
@@ -309,10 +319,26 @@ async function processBatchWithCache(
       const lastModified = $('meta[http-equiv="last-modified"]').attr('content');
       const etag = $('meta[name="etag"]').attr('content');
       
-      // Determine if we should use AI based on tier and current usage
-      // Free tier (starter) now has AI analysis enabled for better user experience
-      // BUT only if the API key is actually configured
-      const shouldUseAI = !!process.env.OPENAI_API_KEY && metrics.aiCallsUsed < aiPagesLimit;
+      // Determine if we should use AI based on tier, current usage, and cost caps
+      // First check basic conditions
+      let shouldUseAI = !!process.env.OPENAI_API_KEY && metrics.aiCallsUsed < aiPagesLimit;
+      
+      // Then check cost caps if AI would be used
+      if (shouldUseAI && tier !== 'starter') {
+        // Import checkAiCostCap dynamically to avoid circular dependency
+        const { checkAiCostCap } = await import('./usage');
+        const costCheck = await checkAiCostCap(userEmail, tier);
+        
+        if (!costCheck.allowed) {
+          console.log(`💰 [AI COST CAP] AI disabled for ${userEmail}: ${costCheck.reason}`);
+          shouldUseAI = false;
+        }
+        
+        // Store if cap would trigger for tracking
+        if (costCheck.wouldTrigger) {
+          metrics['costCapWouldTrigger'] = true;
+        }
+      }
       
       // Debug logging for AI usage
       console.log(`[AI DECISION] For ${entry.url}:`);
@@ -329,7 +355,19 @@ async function processBatchWithCache(
       metrics.analyzedPages++;
       if (shouldUseAI) {
         metrics.aiCallsUsed++;
-        metrics.estimatedCost += 0.03; // Approximate GPT-4 cost
+        // Track actual token usage and costs if available
+        if (analysis.tokensUsed) {
+          metrics.totalTokensUsed += analysis.tokensUsed.total;
+        }
+        if (analysis.actualCostUSD !== undefined) {
+          metrics.actualAiCostUSD += analysis.actualCostUSD;
+          metrics.estimatedCost += analysis.actualCostUSD;
+        } else {
+          metrics.estimatedCost += 0.03; // Fallback to approximate cost
+        }
+        if (analysis.model) {
+          metrics.modelUsed = analysis.model;
+        }
       } else {
         metrics.htmlExtractionsUsed++;
         metrics.estimatedCost += 0.001; // Basic processing cost
