@@ -680,7 +680,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const selectedOnly = selectedPages.filter(page => page.selected);
       const excludedPages = selectedPages.filter(page => !page.selected);
       
-      // Generate LLM.txt content with analysis metadata
+      // Generate LLMs.txt content with analysis metadata
       const llmContent = generateLlmTxtContent(
         analysis.url, 
         selectedOnly, 
@@ -705,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Generate file error:", error);
       res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to generate LLM.txt file"
+        message: error instanceof Error ? error.message : "Failed to generate LLMs.txt file"
       });
     }
   });
@@ -732,7 +732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Download LLM.txt file
+  // Download LLMs.txt file
   app.get("/api/download/:id", async (req, res) => {
     try {
       const fileId = parseInt(req.params.id);
@@ -2151,7 +2151,7 @@ function generateLlmTxtContent(
 # === ANALYSIS SUMMARY ===
 # Pages Found: ${totalFound} (discovered in sitemap and crawling)
 # Pages Analyzed: ${analyzed} (successfully fetched and scored)
-# Pages Included: ${enhancedPages.length} (selected for LLM.txt file)
+# Pages Included: ${enhancedPages.length} (selected for LLMs.txt file)
 # Pages Excluded: ${excluded} (filtered out during review)
 #
 # Note: ${totalFound - analyzed} pages were skipped due to access restrictions,
