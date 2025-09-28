@@ -48,7 +48,7 @@
     <!-- Divider line -->
     <line x1="400" y1="0" x2="400" y2="400" stroke="#d1d5db" stroke-width="3"/>
     
-    <!-- LLM.txt file bridge (larger and more prominent) -->
+    <!-- LLMs.txt file bridge (larger and more prominent) -->
     <rect x="330" y="170" width="140" height="60" rx="8" fill="#f97316" stroke="#ea580c" stroke-width="3"/>
     <text x="400" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">LLM.txt</text>
     <text x="400" y="210" text-anchor="middle" font-size="14" font-weight="bold" fill="white">BRIDGE</text>

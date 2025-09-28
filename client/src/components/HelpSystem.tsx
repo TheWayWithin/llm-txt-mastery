@@ -108,7 +108,7 @@ const HELP_CONTENT: Record<string, HelpContent> = {
       'Check quality scores (higher is better)',
       'Select/deselect pages using checkboxes',
       'Add custom descriptions if needed',
-      'Click "Generate LLM.txt File" when ready'
+      'Click "Generate LLMs.txt File" when ready'
     ],
     tips: [
       'Focus on high-quality, relevant pages',
