@@ -31,6 +31,15 @@ Implement comprehensive semantic enhancements to LLM.txt Mastery based on expert
   - [ ] Test embedding API rate limits
   - [ ] Set up Google Analytics API access (for Business Objective mode)
   - [ ] Configure API key management
+- [ ] AI Cost Management System (January 30, 2025)
+  - [x] Add database schema for token/cost tracking
+  - [x] Implement actual token counting in OpenAI service
+  - [x] Add cost cap checking logic (monitoring mode)
+  - [x] Create admin monitoring endpoints
+  - [ ] Test cost calculation accuracy
+  - [ ] Validate token counting matches OpenAI billing
+  - [ ] Run month-long monitoring period
+  - [ ] Enable cost caps after validation
 - [x] Development Infrastructure
   - [x] Create feature flag system
   - [x] Set up A/B testing framework
@@ -338,6 +347,101 @@ Implement comprehensive semantic enhancements to LLM.txt Mastery based on expert
 - **Development Team**: 2-4 engineers
 - **Infrastructure Budget**: ~$200/month additional for Redis and increased API usage
 - **Time Commitment**: 8 weeks total (1 week prep + 7 weeks implementation)
+
+## AI Cost Management Testing Requirements
+
+### Phase 1: Monitoring & Validation (February 2025)
+**Duration**: 4 weeks
+**Mode**: Monitoring only (caps disabled)
+
+#### Week 1-2: Accuracy Validation
+- [ ] Compare tracked tokens with OpenAI response headers
+- [ ] Verify cost calculations match pricing model
+- [ ] Test with different content sizes and types
+- [ ] Validate model detection and tracking
+- [ ] Cross-reference with OpenAI billing dashboard
+
+#### Week 3: Load Testing
+- [ ] Simulate high-volume users (100+ pages/analysis)
+- [ ] Test concurrent analyses from multiple users
+- [ ] Verify cost accumulation accuracy
+- [ ] Test monthly reset functionality
+- [ ] Monitor database performance impact
+
+#### Week 4: Edge Cases
+- [ ] Test with very long content (max tokens)
+- [ ] Test with minimal content
+- [ ] Test cache hit scenarios (no AI cost)
+- [ ] Test tier transitions mid-month
+- [ ] Test error handling when OpenAI unavailable
+
+### Phase 2: Controlled Rollout (March 2025)
+**Duration**: 2 weeks
+**Mode**: Caps enabled for test users only
+
+#### Week 1: Internal Testing
+- [ ] Enable caps for internal test accounts
+- [ ] Verify fallback to HTML extraction works
+- [ ] Test user experience when cap reached
+- [ ] Validate alert thresholds (70% warning)
+- [ ] Test admin monitoring tools
+
+#### Week 2: Beta User Testing
+- [ ] Enable for 10% of Growth tier users
+- [ ] Monitor support tickets and feedback
+- [ ] Track conversion/churn impact
+- [ ] A/B test different cap thresholds
+- [ ] Prepare user communication
+
+### Phase 3: Full Production (Mid-March 2025)
+**Duration**: Ongoing
+**Mode**: Caps enabled with monitoring
+
+#### Success Metrics
+- Cost overruns reduced to <5% of revenue
+- User satisfaction maintained (NPS >40)
+- Support tickets <10 per month
+- Accurate cost tracking (±2% of actual)
+- Performance impact <100ms added latency
+
+#### Monitoring Dashboard Requirements
+- Real-time cost tracking by tier
+- Alert system for approaching caps
+- User impact analysis
+- Cost vs revenue visualization
+- Predictive monthly cost estimates
+
+### Testing Scripts Required
+```typescript
+// test-token-accuracy.ts
+- Compare OpenAI response tokens with tracked values
+- Generate report of discrepancies
+
+// test-cost-calculations.ts  
+- Validate pricing calculations for each model
+- Test with various token counts
+
+// simulate-high-usage.ts
+- Generate realistic high-volume usage patterns
+- Test system under load
+
+// test-cap-enforcement.ts
+- Verify caps trigger at correct thresholds
+- Test fallback behavior
+```
+
+### Rollback Plan
+If issues detected:
+1. Set ENABLE_AI_COST_CAPS=false immediately
+2. Investigate root cause with logs
+3. Fix issues and re-test in staging
+4. Gradual re-enable with monitoring
+
+### Communication Plan
+- Document for users explaining cost management
+- In-app notifications when approaching limits
+- Email alerts at 70% and 90% of budget
+- Support documentation for common issues
 
 ## Notes
 

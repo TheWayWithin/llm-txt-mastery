@@ -272,7 +272,11 @@ export async function trackUsage(
   aiCallsCount: number,
   htmlExtractionsCount: number,
   cacheHits: number,
-  estimatedCost: number
+  estimatedCost: number,
+  actualTokensUsed: number = 0,
+  actualAiCostUSD: number = 0,
+  modelUsed: string = '',
+  costCapWouldTrigger: boolean = false
 ): Promise<void> {
   try {
     console.log(`✅ [USAGE TRACKING] Called successfully for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
@@ -319,7 +323,7 @@ export async function trackUsage(
       .limit(1);
 
     if (existingUsage.length > 0) {
-      // Update existing record
+      // Update existing record with new cost tracking fields
       const updateResult = await db
         .update(usageTracking)
         .set({
@@ -329,6 +333,12 @@ export async function trackUsage(
           htmlExtractionsCount: existingUsage[0].htmlExtractionsCount + htmlExtractionsCount,
           cacheHits: existingUsage[0].cacheHits + cacheHits,
           totalCost: existingUsage[0].totalCost + Math.round(estimatedCost * 100), // Convert to cents
+          // New cost tracking fields
+          actualTokensUsed: (existingUsage[0].actualTokensUsed || 0) + actualTokensUsed,
+          actualAiCost: (existingUsage[0].actualAiCost || 0) + Math.round(actualAiCostUSD * 100), // Convert to cents
+          modelUsed: modelUsed || existingUsage[0].modelUsed,
+          costCapWouldTrigger: costCapWouldTrigger || existingUsage[0].costCapWouldTrigger,
+          costCapTriggeredAt: costCapWouldTrigger && !existingUsage[0].costCapWouldTrigger ? new Date() : existingUsage[0].costCapTriggeredAt,
           updatedAt: new Date()
         })
         .where(eq(usageTracking.id, existingUsage[0].id))
@@ -336,7 +346,7 @@ export async function trackUsage(
         
       console.log(`🔄 [USAGE TRACKING] UPDATED existing record for ${userEmail}:`, updateResult[0]);
     } else {
-      // Insert new record
+      // Insert new record with cost tracking fields
       const insertResult = await db
         .insert(usageTracking)
         .values({
@@ -347,7 +357,13 @@ export async function trackUsage(
           aiCallsCount: aiCallsCount,
           htmlExtractionsCount: htmlExtractionsCount,
           cacheHits: cacheHits,
-          totalCost: Math.round(estimatedCost * 100) // Convert to cents
+          totalCost: Math.round(estimatedCost * 100), // Convert to cents
+          // New cost tracking fields
+          actualTokensUsed: actualTokensUsed,
+          actualAiCost: Math.round(actualAiCostUSD * 100), // Convert to cents
+          modelUsed: modelUsed,
+          costCapWouldTrigger: costCapWouldTrigger,
+          costCapTriggeredAt: costCapWouldTrigger ? new Date() : null
         })
         .returning();
         
@@ -367,6 +383,104 @@ export async function trackUsage(
       constraint: error.constraint
     });
   }
+}
+
+// Get monthly AI cost for a user
+export async function getMonthlyAiCost(userEmail: string): Promise<{
+  monthlyTotal: number;
+  dailyAverage: number;
+  tokensUsed: number;
+  daysActive: number;
+}> {
+  try {
+    const actualUserId = await resolveUserFromEmail(userEmail);
+    if (!actualUserId) {
+      return { monthlyTotal: 0, dailyAverage: 0, tokensUsed: 0, daysActive: 0 };
+    }
+    
+    // Get current month's start date
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    
+    // Query usage tracking for this month
+    const monthUsage = await db
+      .select({
+        actualAiCost: usageTracking.actualAiCost,
+        actualTokensUsed: usageTracking.actualTokensUsed
+      })
+      .from(usageTracking)
+      .where(and(
+        eq(usageTracking.userId, actualUserId),
+        gt(usageTracking.date, monthStart)
+      ));
+    
+    const monthlyTotal = monthUsage.reduce((sum, day) => sum + (day.actualAiCost || 0), 0) / 100; // Convert cents to USD
+    const tokensUsed = monthUsage.reduce((sum, day) => sum + (day.actualTokensUsed || 0), 0);
+    const daysActive = monthUsage.length;
+    const dailyAverage = daysActive > 0 ? monthlyTotal / daysActive : 0;
+    
+    return { monthlyTotal, dailyAverage, tokensUsed, daysActive };
+  } catch (error) {
+    console.error('Error getting monthly AI cost:', error);
+    return { monthlyTotal: 0, dailyAverage: 0, tokensUsed: 0, daysActive: 0 };
+  }
+}
+
+// Check if AI usage should be allowed based on cost caps
+export async function checkAiCostCap(userEmail: string, tier: UserTier): Promise<{
+  allowed: boolean;
+  reason?: string;
+  monthlyBudget: number;
+  monthlySpent: number;
+  percentUsed: number;
+  wouldTrigger: boolean;
+}> {
+  // Check if cost caps are enabled
+  const enableCostCaps = process.env.ENABLE_AI_COST_CAPS === 'true';
+  
+  // Get tier-specific budget
+  const monthlyBudgets = {
+    starter: 0, // No AI for starter tier
+    coffee: 3.00, // Conservative limit for coffee tier
+    growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
+    scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00')
+  };
+  
+  const monthlyBudget = monthlyBudgets[tier];
+  const alertThreshold = parseFloat(process.env.AI_COST_ALERT_THRESHOLD || '0.7');
+  
+  // Get current monthly spending
+  const { monthlyTotal } = await getMonthlyAiCost(userEmail);
+  const percentUsed = monthlyBudget > 0 ? (monthlyTotal / monthlyBudget) : 0;
+  
+  // Check if cap would be triggered
+  const wouldTrigger = monthlyTotal >= monthlyBudget;
+  
+  // Log warning if approaching limit
+  if (percentUsed >= alertThreshold) {
+    console.warn(`⚠️ [AI COST WARNING] User ${userEmail} has used ${(percentUsed * 100).toFixed(1)}% of monthly AI budget`);
+    console.warn(`   Budget: $${monthlyBudget.toFixed(2)}, Spent: $${monthlyTotal.toFixed(2)}`);
+  }
+  
+  // Log when cap would trigger (monitoring mode)
+  if (wouldTrigger && !enableCostCaps) {
+    console.log(`🔍 [AI COST MONITOR] Cap WOULD trigger for ${userEmail} (monitoring mode)`);
+    console.log(`   Budget: $${monthlyBudget.toFixed(2)}, Spent: $${monthlyTotal.toFixed(2)}`);
+  }
+  
+  // Determine if AI should be allowed
+  const allowed = !enableCostCaps || !wouldTrigger;
+  
+  return {
+    allowed,
+    reason: wouldTrigger ? 
+      `Monthly AI budget of $${monthlyBudget.toFixed(2)} exceeded. Current spend: $${monthlyTotal.toFixed(2)}` :
+      undefined,
+    monthlyBudget,
+    monthlySpent: monthlyTotal,
+    percentUsed,
+    wouldTrigger
+  };
 }
 
 // Coffee tier credit management

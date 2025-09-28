@@ -20,6 +20,7 @@ import authRoutes from "./routes/auth";
 import abTestingRoutes from "./routes/ab-testing";
 import semanticMonitoringRoutes from "./routes/semantic-monitoring";
 import simpleUsageRoutes from "./routes/simple-usage";
+import adminAiCostsRoutes from "./routes/admin-ai-costs";
 import { incrementSimpleUsage, getSimpleUsage } from "./services/simple-tracker";
 import { connectionPool } from "./services/connection-pool";
 
@@ -45,6 +46,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register simple usage tracking routes (robust fallback)
   app.use(simpleUsageRoutes);
+  
+  // Register admin AI costs monitoring routes
+  app.use("/api/admin", adminAiCostsRoutes);
   
   // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
   app.post("/api/debug-tier", async (req, res) => {
@@ -913,7 +917,11 @@ async function performAnalysisWithTimeout(
       metrics.aiCallsUsed,
       metrics.htmlExtractionsUsed,
       metrics.cachedPages,
-      metrics.estimatedCost
+      metrics.estimatedCost,
+      metrics.totalTokensUsed || 0,
+      metrics.actualAiCostUSD || 0,
+      metrics.modelUsed || '',
+      metrics['costCapWouldTrigger'] || false
     ).catch(error => {
       // Silently fail - we don't care if complex tracking fails
       console.debug(`[USAGE] Complex tracking failed (ignored):`, error.message);

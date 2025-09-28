@@ -105,6 +105,12 @@ export const usageTracking = pgTable("usage_tracking", {
   htmlExtractionsCount: integer("html_extractions_count").notNull().default(0),
   cacheHits: integer("cache_hits").notNull().default(0),
   totalCost: integer("total_cost").notNull().default(0), // Cost in cents
+  // New AI cost tracking fields
+  actualTokensUsed: integer("actual_tokens_used").default(0),
+  actualAiCost: integer("actual_ai_cost").default(0), // Actual AI cost in cents
+  modelUsed: text("model_used"), // Track which OpenAI model was used
+  costCapWouldTrigger: boolean("cost_cap_would_trigger").default(false),
+  costCapTriggeredAt: timestamp("cost_cap_triggered_at"),
 });
 
 export const analysisCache = pgTable("analysis_cache", {
