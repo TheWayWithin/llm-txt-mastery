@@ -149,7 +149,7 @@ export const AboutPage: React.FC = () => {
               to="/"
               className="inline-flex items-center bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
-              Create Your LLM.txt File
+              Create Your LLMs.txt File
               <ArrowRight className="ml-2" />
             </Link>
           </CardContent>

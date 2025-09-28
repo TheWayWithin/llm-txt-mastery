@@ -85,7 +85,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
               <span className="text-white font-semibold text-sm">4</span>
             </div>
             <h3 className="text-xl font-semibold text-framework-black">
-              Professional LLM.txt File Generated
+              Professional LLMs.txt File Generated
             </h3>
           </div>
           <div className="flex items-center space-x-2 text-sm text-green-600">

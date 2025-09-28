@@ -2141,7 +2141,7 @@ function generateLlmTxtContent(
   if (technicalIndicators.hasAuthRequiredPages) techFeatures.push('Authenticated Content');
   if (technicalIndicators.hasBetaFeatures) techFeatures.push('Beta Features');
   
-  const header = `# LLM.txt File for ${baseUrl}
+  const header = `# LLMs.txt File for ${baseUrl}
 
 > ${siteSummary}
 
@@ -2173,7 +2173,7 @@ function generateLlmTxtContent(
 # - Information architecture (15%)
 # - User experience indicators (10%)
 #
-# Learn more about LLM.txt format: https://llmtxt.com/docs/format
+# Learn more about LLMs.txt format: https://llmtxt.com/docs/format
 # Understanding quality scores: https://llmtxt.com/docs/quality-scoring
 #
 # === INCLUDED PAGES ===
