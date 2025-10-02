@@ -65,6 +65,8 @@ export async function calculateRefundAmount(
         .orderBy(desc(oneTimeCredits.purchasedAt))
         .limit(1);
 
+      console.log(`[REFUND DEBUG] User ${userId} - Found ${coffeeCredits.length} coffee purchases`);
+
       if (!coffeeCredits.length) {
         return {
           eligible: false,
@@ -76,7 +78,12 @@ export async function calculateRefundAmount(
 
       const purchase = coffeeCredits[0];
       const purchaseDate = new Date(purchase.purchasedAt);
+      const daysSincePurchase = Math.floor((Date.now() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24));
       const guaranteeApplies = isEligibleFor30DayGuarantee(purchaseDate);
+
+      console.log(`[REFUND DEBUG] Purchase date: ${purchaseDate.toISOString()}`);
+      console.log(`[REFUND DEBUG] Days since purchase: ${daysSincePurchase}`);
+      console.log(`[REFUND DEBUG] Guarantee applies: ${guaranteeApplies}`);
 
       if (guaranteeApplies) {
         return {
