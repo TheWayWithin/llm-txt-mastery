@@ -3,7 +3,7 @@ import { authStorage } from "./auth-storage";
 import { storage } from "../storage";
 import { db } from "../db";
 import { cancellations, refundRequests, oneTimeCredits } from "@shared/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import type { AuthUser } from "@shared/schema";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -62,7 +62,7 @@ export async function calculateRefundAmount(
             eq(oneTimeCredits.refunded, false)
           )
         )
-        .orderBy(oneTimeCredits.purchasedAt)
+        .orderBy(desc(oneTimeCredits.purchasedAt))
         .limit(1);
 
       if (!coffeeCredits.length) {
