@@ -83,7 +83,8 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
         throw new Error('Authentication required');
       }
 
-      const response = await fetch('/api/cancel', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+      const response = await fetch(`${apiUrl}/api/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
