@@ -7,11 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
-import { 
-  User, 
-  CreditCard, 
-  Activity, 
-  Settings, 
+import { InstantRefundButton } from '@/components/InstantRefundButton';
+import {
+  User,
+  CreditCard,
+  Activity,
+  Settings,
   LogOut,
   Coffee,
   Crown,
@@ -761,6 +762,10 @@ export default function Dashboard() {
             </TabsList>
 
             <TabsContent value="overview">
+              {/* Instant Refund Button - Only shows if eligible */}
+              <div className="mb-6">
+                <InstantRefundButton />
+              </div>
               <AccountOverview />
             </TabsContent>
 
