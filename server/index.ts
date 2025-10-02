@@ -16,12 +16,17 @@ const app = express();
 
 // Health check endpoint - available immediately for Railway
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  res.json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     message: 'Server is running',
     environment: process.env.NODE_ENV || 'production',
-    version: '2.0.0-enhanced',
+    version: '2.0.1-refund-fix',
+    deployedAt: '2025-10-02T23:15:00Z',
+    fixes: {
+      refundEligibility: 'DESC ordering for Coffee purchases',
+      debugLogging: true
+    },
     enhancements: {
       blockquoteSummary: true,
       dynamicClustering: true,
