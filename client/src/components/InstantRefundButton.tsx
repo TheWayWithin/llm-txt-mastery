@@ -52,7 +52,8 @@ export function InstantRefundButton() {
         throw new Error('Authentication required');
       }
 
-      const response = await fetch('/api/refund/eligibility', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+      const response = await fetch(`${apiUrl}/api/refund/eligibility`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
