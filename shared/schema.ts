@@ -138,7 +138,7 @@ export const oneTimeCredits = pgTable("one_time_credits", {
   purchasedAt: timestamp("purchased_at").notNull().defaultNow(), // Track for 30-day guarantee
   refunded: boolean("refunded").notNull().default(false),
   refundedAt: timestamp("refunded_at"),
-  expiresAt: timestamp("expires_at"), // null = no expiration
+  // expiresAt: timestamp("expires_at"), // REMOVED: Column doesn't exist in production DB
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
