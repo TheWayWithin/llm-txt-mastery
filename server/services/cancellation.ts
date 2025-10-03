@@ -38,8 +38,12 @@ export async function calculateRefundAmount(
   tier: string
 ): Promise<RefundCalculation> {
   try {
+    console.log(`[REFUND DEBUG] calculateRefundAmount called - userId: ${userId}, tier: ${tier}`);
+
     // Get user details
     const user = await authStorage.getUserById(userId);
+    console.log(`[REFUND DEBUG] User lookup result:`, user ? `found (id: ${user.id})` : 'NOT FOUND');
+
     if (!user) {
       return {
         eligible: false,
@@ -51,6 +55,7 @@ export async function calculateRefundAmount(
 
     // Coffee tier (one-time payment)
     if (tier === 'coffee') {
+      console.log(`[REFUND DEBUG] Processing Coffee tier refund check`);
       // Find the most recent coffee purchase
       const coffeeCredits = await db
         .select()
@@ -183,7 +188,9 @@ export async function calculateRefundAmount(
       guaranteeApplies: false
     };
   } catch (error) {
-    console.error("Error calculating refund:", error);
+    console.error("❌ [REFUND ERROR] Error calculating refund:", error);
+    console.error("❌ [REFUND ERROR] Stack:", error instanceof Error ? error.stack : 'No stack trace');
+    console.error("❌ [REFUND ERROR] UserId:", userId, "Tier:", tier);
     return {
       eligible: false,
       amount: 0,
