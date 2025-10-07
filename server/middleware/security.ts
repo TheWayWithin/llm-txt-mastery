@@ -122,6 +122,11 @@ export const corsOptions = {
       return callback(null, true);
     }
 
+    // Allow Netlify domains (including branch deploys)
+    if (origin.includes('netlify.app')) {
+      return callback(null, true);
+    }
+
     // Allow localhost with any port
     if (origin.startsWith('http://localhost:')) {
       return callback(null, true);
