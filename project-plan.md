@@ -51,10 +51,10 @@
 **Why**: Test changes safely without affecting real users
 **Duration**: 2-3 hours
 
-- [ ] Create develop branch for testing
-- [ ] Set up staging database (copy of production)
-- [ ] Set up staging backend server
-- [ ] Set up staging website
+- [x] Create develop branch for testing
+- [x] Set up staging database (copy of production)
+- [x] Set up staging backend server
+- [x] Set up staging website
 - [ ] Organize all API keys and passwords
 - [ ] Connect everything to the right environments
 - [ ] Update operator agent with environment setup knowledge
