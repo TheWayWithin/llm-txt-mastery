@@ -69,3 +69,52 @@ The branches deploy to corresponding environments:
 
 4.  **CRITICAL FINAL STEP:** You **must** also merge this fix back into `develop` to keep the branches in sync.
     - **Action:** Open a new PR from your `hotfix/fix-login-error` branch into `develop` and merge it.
+
+---
+
+### Common Issues & Solutions
+
+**Issue: CORS blocking branch deploys**
+- **Symptom:** Your Netlify branch deploy shows network errors or "blocked by CORS policy" in browser console
+- **Cause:** Your backend only allows requests from production domain, not Netlify preview URLs
+- **Solution:** Update `server/middleware/security.ts` to allow Netlify domains:
+  ```typescript
+  const isNetlifyPreview = (origin: string) => {
+    return origin.includes('netlify.app');
+  };
+
+  // In CORS config:
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || isNetlifyPreview(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+  ```
+
+**Issue: Database connection errors**
+- **Symptom:** Backend logs show "SSL connection required" or "database connection failed"
+- **Cause:** Missing or incorrect `DATABASE_URL` format
+- **Solution:**
+  1. Go to Railway → staging environment → Variables
+  2. Verify `DATABASE_URL` includes `?sslmode=require` at the end
+  3. Format: `postgresql://postgres.[project]:[password]@[host]:5432/postgres?sslmode=require`
+  4. Click "Redeploy" after updating
+
+**Issue: Environment variables not applying**
+- **Symptom:** Changes to environment variables don't take effect
+- **Cause:** Railway and Netlify don't automatically redeploy when variables change
+- **Solution:**
+  - **Railway:** Go to Deployments tab → Click "Redeploy" on latest deployment
+  - **Netlify:** Go to Deploys tab → Click "Trigger deploy" → "Clear cache and deploy site"
+
+**Issue: Netlify dashboard session timeouts**
+- **Symptom:** Getting logged out frequently or actions failing silently
+- **Cause:** Netlify sessions expire after inactivity
+- **Solution:**
+  1. Log out completely from Netlify
+  2. Close all Netlify browser tabs
+  3. Clear browser cookies for netlify.com
+  4. Log back in fresh
+  5. Keep a tab open to prevent timeout during long sessions
