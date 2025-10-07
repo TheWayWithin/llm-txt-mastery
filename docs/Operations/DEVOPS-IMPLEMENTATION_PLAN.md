@@ -65,16 +65,52 @@
 2.  **Set Up the `staging` Supabase Project:**
     - This project is the dedicated database for your `staging` environment.
     - Go to [supabase.com](https://supabase.com) and click **"New project"**.
-    - Name it `llmtxtmastery-staging`.
-    - **Important:** Go to your **production** Supabase project (`llmtxtmastery`), navigate to **Database > Migrations**, and copy the SQL from the existing migrations. Paste and run this in the SQL Editor of your new `staging` project to replicate the schema.
+    - Name it `llmtxtmastery-staging` (or `[project-name]-staging`).
+    - Choose the same region as your production database.
+    - Save the database password securely.
+
+    **Copy Production Database Schema:**
+    - **Why:** Your production database is the "golden standard" - it has all the fixes and adjustments made over time. Migration files may be outdated.
+    - Install Supabase CLI if you haven't: `brew install supabase/tap/supabase`
+    - Export production schema:
+      ```bash
+      supabase db dump --db-url "postgresql://[prod-connection-string]" -f production-schema.sql
+      ```
+    - Clean the schema for Supabase compatibility:
+      ```bash
+      sed 's/neondb_owner/postgres/g' production-schema.sql > staging-schema.sql
+      grep -v "neon_superuser" staging-schema.sql > staging-schema-final.sql
+      ```
+    - Open `staging-schema-final.sql` in your editor
+    - Copy all contents (Cmd+A, Cmd+C)
+    - Go to your staging Supabase project → SQL Editor
+    - Paste and click **"Run"**
+    - Verify in **Table Editor** that all tables were created successfully
 
 3.  **Set Up the `staging` Railway Environment:**
     - This is the backend server for your `staging` environment.
-    - Go to your `llmtxtmastery` project in Railway.
-    - Click the environment name (likely `production`).
-    - Select **"+ New Environment"** and choose **"Duplicate 'production'"**.
-    - Name the new environment `staging`.
-    - In the `staging` environment's settings, connect it to the `develop` GitHub branch.
+    - **Login to Railway CLI** (if not already linked):
+      ```bash
+      railway login
+      railway link
+      ```
+      - Select your workspace, project, and production environment
+      - Press Escape when prompted for service selection
+
+    - **Create staging environment via Railway Dashboard:**
+      - Go to [railway.app](https://railway.app) and open your project
+      - Click the **"production"** dropdown at the top
+      - Select **"+ New Environment"**
+      - Choose **"Duplicate Environment"** (NOT Empty Environment)
+      - Name it `staging`
+      - Click **"Deploy"**
+      - This automatically copies all services and configuration from production
+
+    - **Connect staging to develop branch:**
+      - In the staging environment, click on your backend service
+      - Go to **Settings > Source**
+      - Change **"Branch"** from `main` to `develop`
+      - Save changes
 
 4.  **Set Up the `staging` Netlify Site:**
     - This is the frontend for your `staging` environment. It will be deployed from the `develop` branch.
