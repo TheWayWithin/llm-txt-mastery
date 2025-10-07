@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
+import {
   Activity,
   Globe,
   Calendar,
@@ -23,7 +23,7 @@ import {
   RefreshCw,
   Download,
   Eye,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -112,12 +112,15 @@ export function AnalysisHistory() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/my-analyses`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/my-analyses`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -133,7 +136,7 @@ export function AnalysisHistory() {
   };
 
   const filteredAndSortedAnalyses = analyses
-    .filter(analysis => {
+    .filter((analysis) => {
       const matchesSearch = analysis.url.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || analysis.status === statusFilter;
       return matchesSearch && matchesStatus;
@@ -213,7 +216,10 @@ export function AnalysisHistory() {
             </Select>
 
             {/* Sort */}
-            <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'pages') => setSortBy(value)}>
+            <Select
+              value={sortBy}
+              onValueChange={(value: 'newest' | 'oldest' | 'pages') => setSortBy(value)}
+            >
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -232,20 +238,21 @@ export function AnalysisHistory() {
         <Card>
           <CardContent className="text-center py-12">
             <div className="flex justify-center mb-6">
-              <img 
-                src="/images/empty-state-no-analysis.png" 
-                alt="No analyses yet - friendly robot ready to help" 
+              <img
+                src="/images/empty-state-no-analysis.png"
+                alt="No analyses yet - friendly robot ready to help"
                 className="max-w-xs h-auto max-h-48"
               />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm || statusFilter !== 'all' ? 'No matching analyses found' : 'Ready to analyze your first website!'}
+              {searchTerm || statusFilter !== 'all'
+                ? 'No matching analyses found'
+                : 'Ready to analyze your first website!'}
             </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria' 
-                : 'Transform your website content into AI-ready format with our expert analysis tools'
-              }
+              {searchTerm || statusFilter !== 'all'
+                ? 'Try adjusting your search or filter criteria'
+                : 'Transform your website content into AI-ready format with our expert analysis tools'}
             </p>
             {!searchTerm && statusFilter === 'all' && (
               <Link href="/">
@@ -273,17 +280,11 @@ export function AnalysisHistory() {
                         <h3 className="font-medium text-gray-900 truncate">
                           {new URL(analysis.url).hostname}
                         </h3>
-                        <p className="text-sm text-gray-500 truncate">
-                          {analysis.url}
-                        </p>
+                        <p className="text-sm text-gray-500 truncate">{analysis.url}</p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Badge className={getStatusColor(analysis.status)}>
-                          {analysis.status}
-                        </Badge>
-                        <Badge className={getTierColor(analysis.tier)}>
-                          {analysis.tier}
-                        </Badge>
+                        <Badge className={getStatusColor(analysis.status)}>{analysis.status}</Badge>
+                        <Badge className={getTierColor(analysis.tier)}>{analysis.tier}</Badge>
                       </div>
                     </div>
 
@@ -311,8 +312,10 @@ export function AnalysisHistory() {
                     {analysis.metrics && (
                       <div className="text-xs text-gray-500 mb-4">
                         Processing: {analysis.processingTime}s
-                        {analysis.metrics.aiCallsUsed && ` • AI calls: ${analysis.metrics.aiCallsUsed}`}
-                        {analysis.metrics.cachedPages && ` • Cached: ${analysis.metrics.cachedPages}`}
+                        {analysis.metrics.aiCallsUsed &&
+                          ` • AI calls: ${analysis.metrics.aiCallsUsed}`}
+                        {analysis.metrics.cachedPages &&
+                          ` • Cached: ${analysis.metrics.cachedPages}`}
                       </div>
                     )}
                   </div>
@@ -329,8 +332,8 @@ export function AnalysisHistory() {
                             </Button>
                           </a>
                         </Link>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handleRerunAnalysis(analysis.url)}
                         >
@@ -346,8 +349,8 @@ export function AnalysisHistory() {
                       </Button>
                     )}
                     {analysis.status === 'failed' && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleRerunAnalysis(analysis.url)}
                         className="text-red-600 border-red-300 hover:bg-red-50"

@@ -1,5 +1,5 @@
-import { Link } from "wouter";
-import { ExternalLink } from "lucide-react";
+import { Link } from 'wouter';
+import { ExternalLink } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -10,10 +10,11 @@ export default function Footer() {
           <div>
             <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
             <p className="text-sm text-slate-300">
-              Simple, effective AI visibility tools. Built for builders by someone who refuses to let corporate slowness hold back innovation.
+              Simple, effective AI visibility tools. Built for builders by someone who refuses to
+              let corporate slowness hold back innovation.
             </p>
           </div>
-          
+
           {/* Resources Section */}
           <div>
             <h5 className="font-semibold mb-4">Resources</h5>
@@ -40,7 +41,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          
+
           {/* Legal Section */}
           <div>
             <h5 className="font-semibold mb-4">Legal & Connect</h5>
@@ -67,15 +68,15 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          
+
           {/* Other Projects Section */}
           <div>
             <h5 className="font-semibold mb-4">Other Projects</h5>
             <ul className="text-sm text-slate-300 space-y-2">
               <li>
-                <a 
-                  href="https://www.aisearchmastery.com" 
-                  target="_blank" 
+                <a
+                  href="https://www.aisearchmastery.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-innovation-teal transition-colors inline-flex items-center"
                 >
@@ -84,9 +85,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://www.aimpactscanner.com" 
-                  target="_blank" 
+                <a
+                  href="https://www.aimpactscanner.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-innovation-teal transition-colors inline-flex items-center"
                 >
@@ -95,9 +96,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://www.aisearchmastery.com/mastery-ai-framework" 
-                  target="_blank" 
+                <a
+                  href="https://www.aisearchmastery.com/mastery-ai-framework"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-innovation-teal transition-colors inline-flex items-center"
                 >
@@ -108,7 +109,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        
+
         {/* Copyright Section */}
         <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
           <p>&copy; 2025 Jamie Watters. No corporate BS. Just tools that work.</p>

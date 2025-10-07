@@ -9,10 +9,12 @@ if (!stripePublishableKey) {
   console.error('Available env vars:', Object.keys(import.meta.env));
 }
 
-export const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey).catch(error => {
-  console.error('Failed to load Stripe:', error);
-  return null;
-}) : Promise.resolve(null);
+export const stripePromise = stripePublishableKey
+  ? loadStripe(stripePublishableKey).catch((error) => {
+      console.error('Failed to load Stripe:', error);
+      return null;
+    })
+  : Promise.resolve(null);
 
 // Stripe-related types
 export interface SubscriptionStatus {
@@ -38,14 +40,17 @@ export interface CreatePortalSessionResponse {
 }
 
 // API functions
-export async function createCheckoutSession(tier: 'growth' | 'scale', authToken: string): Promise<CreateCheckoutSessionResponse> {
+export async function createCheckoutSession(
+  tier: 'growth' | 'scale',
+  authToken: string
+): Promise<CreateCheckoutSessionResponse> {
   const response = await fetch('/api/stripe/create-checkout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
+      Authorization: `Bearer ${authToken}`,
     },
-    body: JSON.stringify({ tier })
+    body: JSON.stringify({ tier }),
   });
 
   if (!response.ok) {
@@ -56,14 +61,17 @@ export async function createCheckoutSession(tier: 'growth' | 'scale', authToken:
   return response.json();
 }
 
-export async function createUpgradeSession(targetTier: 'growth' | 'scale', authToken: string): Promise<CreateCheckoutSessionResponse & { success?: boolean; message?: string }> {
+export async function createUpgradeSession(
+  targetTier: 'growth' | 'scale',
+  authToken: string
+): Promise<CreateCheckoutSessionResponse & { success?: boolean; message?: string }> {
   const response = await fetch('/api/stripe/create-upgrade-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
+      Authorization: `Bearer ${authToken}`,
     },
-    body: JSON.stringify({ targetTier })
+    body: JSON.stringify({ targetTier }),
   });
 
   if (!response.ok) {
@@ -74,9 +82,12 @@ export async function createUpgradeSession(targetTier: 'growth' | 'scale', authT
   return response.json();
 }
 
-export async function createCoffeeCheckoutSession(authToken: string, email?: string): Promise<CreateCheckoutSessionResponse> {
+export async function createCoffeeCheckoutSession(
+  authToken: string,
+  email?: string
+): Promise<CreateCheckoutSessionResponse> {
   const body: any = {};
-  
+
   // Include email for non-authenticated purchases
   if (email) {
     body.email = email;
@@ -86,9 +97,9 @@ export async function createCoffeeCheckoutSession(authToken: string, email?: str
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
+      Authorization: `Bearer ${authToken}`,
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -104,8 +115,8 @@ export async function createPortalSession(authToken: string): Promise<CreatePort
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
-    }
+      Authorization: `Bearer ${authToken}`,
+    },
   });
 
   if (!response.ok) {
@@ -119,8 +130,8 @@ export async function createPortalSession(authToken: string): Promise<CreatePort
 export async function getSubscriptionStatus(authToken: string): Promise<SubscriptionStatus> {
   const response = await fetch('/api/stripe/subscription-status', {
     headers: {
-      'Authorization': `Bearer ${authToken}`
-    }
+      Authorization: `Bearer ${authToken}`,
+    },
   });
 
   if (!response.ok) {
@@ -142,8 +153,8 @@ export const TIER_PRICING = {
       'Up to 200 pages per analysis',
       'Full AI-enhanced analysis',
       'Quality scoring & insights',
-      'Monthly subscription - price of a coffee!'
-    ]
+      'Monthly subscription - price of a coffee!',
+    ],
   },
   growth: {
     name: 'Growth',
@@ -155,8 +166,8 @@ export const TIER_PRICING = {
       'AI-enhanced analysis on all pages',
       'Priority support',
       'Advanced quality scoring',
-      'Analysis history & tracking'
-    ]
+      'Analysis history & tracking',
+    ],
   },
   scale: {
     name: 'Scale',
@@ -168,7 +179,7 @@ export const TIER_PRICING = {
       'Full AI analysis (capped at $19.95 cost)',
       'API access for integrations',
       'Multi-site management',
-      'Direct email support line'
-    ]
-  }
+      'Direct email support line',
+    ],
+  },
 } as const;

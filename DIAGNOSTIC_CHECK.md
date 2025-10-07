@@ -1,18 +1,21 @@
 # Refund Button Diagnostic Check
 
 ## Issue Identified
+
 The refund button isn't appearing because of a token authentication issue. The root cause has been identified:
 
 **Your console test was checking the wrong storage location!**
 
 ## What You Checked (WRONG)
+
 ```javascript
-localStorage.getItem('access_token')
+localStorage.getItem('access_token');
 ```
 
 ## What You Should Check (CORRECT)
+
 ```javascript
-sessionStorage.getItem('auth_access_token')
+sessionStorage.getItem('auth_access_token');
 ```
 
 ## Run This Diagnostic in Browser Console
@@ -36,21 +39,21 @@ console.log('   Credits:', user?.creditsRemaining);
 console.log('\n3. Testing Eligibility API with CORRECT token:');
 fetch('https://llm-txt-mastery-production.up.railway.app/api/refund/eligibility', {
   headers: {
-    'Authorization': 'Bearer ' + token
-  }
+    Authorization: 'Bearer ' + token,
+  },
 })
-.then(r => {
-  console.log('   Response status:', r.status);
-  return r.json();
-})
-.then(d => {
-  console.log('   Eligibility data:', d);
-  console.log('   ✅ ELIGIBLE:', d.eligible);
-  console.log('   ✅ GUARANTEE APPLIES:', d.guaranteeApplies);
-  console.log('   Amount:', d.amountFormatted);
-  console.log('   Reason:', d.reason);
-})
-.catch(e => console.error('   ❌ Error:', e));
+  .then((r) => {
+    console.log('   Response status:', r.status);
+    return r.json();
+  })
+  .then((d) => {
+    console.log('   Eligibility data:', d);
+    console.log('   ✅ ELIGIBLE:', d.eligible);
+    console.log('   ✅ GUARANTEE APPLIES:', d.guaranteeApplies);
+    console.log('   Amount:', d.amountFormatted);
+    console.log('   Reason:', d.reason);
+  })
+  .catch((e) => console.error('   ❌ Error:', e));
 
 console.log('\n4. Checking if InstantRefundButton component loaded:');
 setTimeout(() => {
@@ -69,6 +72,7 @@ setTimeout(() => {
 ## Expected Results
 
 If everything is working correctly, you should see:
+
 - ✅ Token exists: true
 - ✅ User tier: coffee
 - ✅ Response status: 200
@@ -79,6 +83,7 @@ If everything is working correctly, you should see:
 ## If Token is Missing/Invalid
 
 If the token doesn't exist or is invalid, you need to:
+
 1. **Sign out** completely
 2. **Sign back in** with your email and password
 3. This will generate fresh tokens in sessionStorage

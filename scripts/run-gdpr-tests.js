@@ -2,7 +2,7 @@
 
 /**
  * GDPR Compliance Test Runner
- * 
+ *
  * Executes comprehensive GDPR compliance tests against the production site
  * and generates compliance documentation and reports.
  */
@@ -29,13 +29,9 @@ if (!fs.existsSync(testResultsDir)) {
 }
 
 // Clean up previous GDPR test results
-const cleanupFiles = [
-  'test-results-gdpr.json',
-  'test-results-gdpr.xml',
-  'playwright-report-gdpr'
-];
+const cleanupFiles = ['test-results-gdpr.json', 'test-results-gdpr.xml', 'playwright-report-gdpr'];
 
-cleanupFiles.forEach(file => {
+cleanupFiles.forEach((file) => {
   const fullPath = path.join(projectRoot, file);
   try {
     if (fs.existsSync(fullPath)) {
@@ -60,10 +56,10 @@ const options = {
   debug: false,
   headed: false,
   ui: false,
-  report: true
+  report: true,
 };
 
-args.forEach(arg => {
+args.forEach((arg) => {
   if (arg === '--chrome' || arg === '--chromium') options.browser = 'chromium-gdpr';
   if (arg === '--firefox') options.browser = 'firefox-gdpr';
   if (arg === '--safari' || arg === '--webkit') options.browser = 'webkit-gdpr';
@@ -99,80 +95,81 @@ console.log('');
 
 try {
   // Execute Playwright tests
-  execSync(playwrightCmd, { 
-    stdio: 'inherit', 
+  execSync(playwrightCmd, {
+    stdio: 'inherit',
     cwd: projectRoot,
-    env: { 
+    env: {
       ...process.env,
-      CI: process.env.CI || 'false'
-    }
+      CI: process.env.CI || 'false',
+    },
   });
-  
+
   console.log('');
   console.log('✅ GDPR compliance tests completed successfully');
-  
+
   // Generate compliance summary
   generateComplianceSummary();
-  
 } catch (error) {
   console.error('');
   console.error('❌ GDPR compliance tests failed');
   console.error('Error:', error.message);
-  
+
   // Still try to generate summary if results exist
   try {
     generateComplianceSummary();
   } catch (summaryError) {
     console.error('Could not generate compliance summary:', summaryError.message);
   }
-  
+
   process.exit(1);
 }
 
 function generateComplianceSummary() {
   console.log('');
   console.log('📊 Generating compliance summary...');
-  
+
   const jsonResultsPath = path.join(projectRoot, 'test-results-gdpr.json');
   const htmlReportPath = path.join(projectRoot, 'playwright-report-gdpr', 'index.html');
-  
+
   if (fs.existsSync(jsonResultsPath)) {
     try {
       const results = JSON.parse(fs.readFileSync(jsonResultsPath, 'utf8'));
-      
+
       const summary = {
         timestamp: new Date().toISOString(),
         testUrl: 'https://www.llmtxtmastery.com',
-        totalTests: results.suites?.reduce((acc, suite) => 
-          acc + (suite.specs?.length || 0), 0) || 0,
+        totalTests:
+          results.suites?.reduce((acc, suite) => acc + (suite.specs?.length || 0), 0) || 0,
         passedTests: 0,
         failedTests: 0,
         skippedTests: 0,
         browsers: [],
-        duration: results.duration || 0
+        duration: results.duration || 0,
       };
-      
+
       // Analyze results
-      results.suites?.forEach(suite => {
-        suite.specs?.forEach(spec => {
-          spec.tests?.forEach(test => {
-            test.results?.forEach(result => {
+      results.suites?.forEach((suite) => {
+        suite.specs?.forEach((spec) => {
+          spec.tests?.forEach((test) => {
+            test.results?.forEach((result) => {
               if (result.status === 'passed') summary.passedTests++;
               else if (result.status === 'failed') summary.failedTests++;
               else if (result.status === 'skipped') summary.skippedTests++;
-              
-              if (result.workerIndex !== undefined && !summary.browsers.includes(test.projectName)) {
+
+              if (
+                result.workerIndex !== undefined &&
+                !summary.browsers.includes(test.projectName)
+              ) {
                 summary.browsers.push(test.projectName);
               }
             });
           });
         });
       });
-      
-      const compliancePercentage = summary.totalTests > 0 
-        ? Math.round((summary.passedTests / summary.totalTests) * 100)
-        : 0;
-      
+
+      const compliancePercentage =
+        summary.totalTests > 0 ? Math.round((summary.passedTests / summary.totalTests) * 100) : 0;
+
       console.log('');
       console.log('📋 GDPR COMPLIANCE SUMMARY');
       console.log('==========================');
@@ -185,7 +182,7 @@ function generateComplianceSummary() {
       console.log(`Browsers: ${summary.browsers.join(', ')}`);
       console.log(`Duration: ${Math.round(summary.duration / 1000)}s`);
       console.log(`Compliance Rate: ${compliancePercentage}%`);
-      
+
       if (compliancePercentage >= 90) {
         console.log('🟢 EXCELLENT GDPR Compliance');
       } else if (compliancePercentage >= 80) {
@@ -195,17 +192,16 @@ function generateComplianceSummary() {
       } else {
         console.log('🔴 POOR GDPR Compliance - Critical issues require attention');
       }
-      
+
       // Save compliance summary
       const summaryPath = path.join(projectRoot, 'gdpr-compliance-summary.json');
       fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
       console.log(`📄 Summary saved to: ${summaryPath}`);
-      
     } catch (error) {
       console.error('❌ Could not parse test results:', error.message);
     }
   }
-  
+
   if (fs.existsSync(htmlReportPath) && options.report) {
     console.log('');
     console.log('📊 GDPR Test Reports:');
@@ -215,7 +211,7 @@ function generateComplianceSummary() {
     console.log('To view the HTML report:');
     console.log(`open ${htmlReportPath}`);
   }
-  
+
   console.log('');
   console.log('🎯 Quick Commands:');
   console.log('- npm run test:gdpr           # Run GDPR tests (Chrome only)');

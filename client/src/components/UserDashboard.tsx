@@ -1,66 +1,66 @@
-import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Coffee, Crown, Zap, Star, CreditCard, LogOut } from 'lucide-react'
-import { createCoffeeCheckoutSession } from '@/lib/stripe'
-import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Coffee, Crown, Zap, Star, CreditCard, LogOut } from 'lucide-react';
+import { createCoffeeCheckoutSession } from '@/lib/stripe';
+import { useState } from 'react';
 
 export function UserDashboard() {
-  const { user, userProfile, signOut, refreshProfile } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
+  const { user, userProfile, signOut, refreshProfile } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!user || !userProfile) {
-    return null
+    return null;
   }
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
       case 'coffee':
-        return <Coffee className="h-4 w-4" />
+        return <Coffee className="h-4 w-4" />;
       case 'growth':
-        return <Zap className="h-4 w-4" />
+        return <Zap className="h-4 w-4" />;
       case 'scale':
-        return <Crown className="h-4 w-4" />
+        return <Crown className="h-4 w-4" />;
       default:
-        return <Star className="h-4 w-4" />
+        return <Star className="h-4 w-4" />;
     }
-  }
+  };
 
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'coffee':
-        return 'bg-orange-100 text-orange-800 border-orange-200'
+        return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'growth':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'scale':
-        return 'bg-purple-100 text-purple-800 border-purple-200'
+        return 'bg-purple-100 text-purple-800 border-purple-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  }
+  };
 
   const handleCoffeePurchase = async () => {
     try {
-      setIsLoading(true)
-      const { url } = await createCoffeeCheckoutSession(user.email!)
-      window.location.href = url
+      setIsLoading(true);
+      const { url } = await createCoffeeCheckoutSession(user.email!);
+      window.location.href = url;
     } catch (error) {
-      console.error('Failed to create checkout session:', error)
-      alert('Failed to start checkout. Please try again.')
+      console.error('Failed to create checkout session:', error);
+      alert('Failed to start checkout. Please try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSignOut = async () => {
     try {
-      await signOut()
+      await signOut();
     } catch (error) {
-      console.error('Sign out failed:', error)
+      console.error('Sign out failed:', error);
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-md">
@@ -76,7 +76,7 @@ export function UserDashboard() {
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Current Tier */}
         <div className="space-y-2">
@@ -111,7 +111,7 @@ export function UserDashboard() {
                 <p className="text-sm text-orange-800 mb-2">
                   No credits remaining. Purchase more to continue analyzing websites.
                 </p>
-                <Button 
+                <Button
                   onClick={handleCoffeePurchase}
                   disabled={isLoading}
                   size="sm"
@@ -174,7 +174,7 @@ export function UserDashboard() {
             <div className="space-y-2">
               <span className="text-sm font-medium">Upgrade Options</span>
               <div className="space-y-2">
-                <Button 
+                <Button
                   onClick={handleCoffeePurchase}
                   disabled={isLoading}
                   variant="outline"
@@ -184,12 +184,7 @@ export function UserDashboard() {
                   <Coffee className="h-4 w-4 mr-2" />
                   Coffee Tier - $4.95 (1 analysis)
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  asChild
-                >
+                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
                   <a href="/pricing">
                     <Zap className="h-4 w-4 mr-2" />
                     Growth Tier - $25/month
@@ -207,7 +202,9 @@ export function UserDashboard() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Subscription</span>
-                <Badge variant={userProfile.subscriptionStatus === 'active' ? 'default' : 'secondary'}>
+                <Badge
+                  variant={userProfile.subscriptionStatus === 'active' ? 'default' : 'secondary'}
+                >
                   {userProfile.subscriptionStatus}
                 </Badge>
               </div>
@@ -222,5 +219,5 @@ export function UserDashboard() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

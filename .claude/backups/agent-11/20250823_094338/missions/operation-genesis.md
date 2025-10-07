@@ -1,4 +1,5 @@
 # Operation: GENESIS
+
 ## New Feature Development Mission
 
 **Objective**: Build a complete feature from concept to production  
@@ -14,13 +15,14 @@
 ```bash
 @strategist I need to add [FEATURE DESCRIPTION] to our application. Please:
 1. Create detailed user stories with INVEST criteria
-2. Define acceptance criteria for each story  
+2. Define acceptance criteria for each story
 3. Identify edge cases and error states
 4. Suggest MVP scope vs future enhancements
 5. Define success metrics we should track
 ```
 
 **Expected Output**:
+
 - Complete PRD with user stories
 - Prioritized feature list
 - Success metrics defined
@@ -41,6 +43,7 @@
 ```
 
 **Expected Output**:
+
 - Technical approach document
 - Risk assessment
 - Time estimates
@@ -61,6 +64,7 @@
 ```
 
 **Expected Output**:
+
 - User flow diagrams
 - UI mockups
 - Component specifications
@@ -81,6 +85,7 @@
 ```
 
 **Expected Output**:
+
 - Working code implementation
 - Unit tests
 - API endpoints
@@ -101,6 +106,7 @@
 ```
 
 **Expected Output**:
+
 - Test results report
 - Bug reports (if any)
 - Performance metrics
@@ -121,6 +127,7 @@
 ```
 
 **Expected Output**:
+
 - User documentation
 - Technical documentation
 - Updated changelog
@@ -141,6 +148,7 @@
 ```
 
 **Expected Output**:
+
 - Deployment checklist
 - Monitoring configured
 - Rollback plan
@@ -148,7 +156,7 @@
 
 ### Phase 8: Launch Operations (1-2 hours)
 
-**Lead Agents**: @operator, @marketer  
+**Lead Agents**: @operator, @marketer
 
 ```bash
 # Deployment
@@ -163,6 +171,7 @@
 ```
 
 **Expected Output**:
+
 - Feature live in production
 - Launch content published
 - Users notified
@@ -214,7 +223,7 @@ After mission completion, document:
 ```bash
 # Rapid Feature Development (2-hour sprint)
 @strategist Quick user story for [feature]
-@developer Implement based on above requirements  
+@developer Implement based on above requirements
 @tester Quick validation of implementation
 @operator Deploy to staging for review
 
@@ -229,6 +238,6 @@ Follow all phases above in sequence
 
 ---
 
-*"In war, the way is to avoid what is strong and strike at what is weak." - Sun Tzu*
+_"In war, the way is to avoid what is strong and strike at what is weak." - Sun Tzu_
 
-*In AGENT-11, we parallelize what we can and sequence what we must.*
+_In AGENT-11, we parallelize what we can and sequence what we must._

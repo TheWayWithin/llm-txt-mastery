@@ -25,8 +25,8 @@ This is the most significant feature recommendation and represents a major oppor
 
 1.  **Implement User-Controlled Sequencing:** The expert feedback strongly converges on this point. Instead of picking one sequencing philosophy, empower your users by offering multiple, optional sorting strategies. This could be a premium feature.
 2.  **Develop Sequencing Modes:** Based on the expert suggestions, you could offer the following modes:
-    *   **Logical Grouping (Default):** The standard mode, which groups pages by the topical clusters recommended above.
-    *   **Hierarchical Priority Mode:** A structured sequence that orders pages logically (e.g., Homepage -> Primary Category Pages -> High-Traffic Pages -> a-z). This caters to the belief that early context shapes AI interpretation.
-    *   **Business Objective Mode:** The most advanced option. Allow users to connect their Google Analytics or provide a list of priority URLs to sequence the file based on strategic goals like traffic, conversions, or product launches.
+    - **Logical Grouping (Default):** The standard mode, which groups pages by the topical clusters recommended above.
+    - **Hierarchical Priority Mode:** A structured sequence that orders pages logically (e.g., Homepage -> Primary Category Pages -> High-Traffic Pages -> a-z). This caters to the belief that early context shapes AI interpretation.
+    - **Business Objective Mode:** The most advanced option. Allow users to connect their Google Analytics or provide a list of priority URLs to sequence the file based on strategic goals like traffic, conversions, or product launches.
 
 By implementing these recommendations, **LLM.txt Mastery** can solidify its position as not just a generator, but a strategic optimization tool for the AI-powered AI-era of AI search.

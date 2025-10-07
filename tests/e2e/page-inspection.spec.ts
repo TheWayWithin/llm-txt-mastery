@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Page Inspection Test
- * 
+ *
  * This test is designed to inspect the actual page content and structure
  * to help us understand what elements are available for testing.
  */
@@ -16,9 +16,9 @@ test.describe('Page Inspection', () => {
     await page.waitForTimeout(5000); // Give React time to fully load
 
     // Take a screenshot to see what the page looks like
-    await page.screenshot({ 
-      path: 'test-results/homepage-inspection.png', 
-      fullPage: true 
+    await page.screenshot({
+      path: 'test-results/homepage-inspection.png',
+      fullPage: true,
     });
 
     // Get the page title
@@ -45,7 +45,7 @@ test.describe('Page Inspection', () => {
     // Get all input placeholders
     const inputElements = page.locator('input');
     const inputCount = await inputElements.count();
-    
+
     for (let i = 0; i < inputCount; i++) {
       const input = inputElements.nth(i);
       const placeholder = await input.getAttribute('placeholder');
@@ -56,7 +56,7 @@ test.describe('Page Inspection', () => {
     // Get all button text
     const buttonElements = page.locator('button');
     const buttonCount = await buttonElements.count();
-    
+
     for (let i = 0; i < buttonCount; i++) {
       const button = buttonElements.nth(i);
       const text = await button.textContent();
@@ -84,7 +84,7 @@ test.describe('Page Inspection', () => {
     const hasLLMText = pageContent.includes('llm') || pageContent.includes('LLM');
     const hasMasteryText = pageContent.includes('mastery') || pageContent.includes('Mastery');
     const hasAnalysisText = pageContent.includes('analysis') || pageContent.includes('Analysis');
-    
+
     console.log('🔍 Content indicators:');
     console.log('  - Contains LLM text:', hasLLMText);
     console.log('  - Contains Mastery text:', hasMasteryText);

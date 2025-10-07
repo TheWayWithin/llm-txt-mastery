@@ -1,43 +1,47 @@
-import { useState } from "react"
-import { useAuth } from "@/contexts/AuthContext"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 
 interface LoginFormProps {
-  onSwitchToSignup: () => void
-  onSwitchToForgotPassword: () => void
-  onSuccess?: () => void
+  onSwitchToSignup: () => void;
+  onSwitchToForgotPassword: () => void;
+  onSuccess?: () => void;
 }
 
-export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword, onSuccess }: LoginFormProps) {
-  const { signIn } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+export function LoginForm({
+  onSwitchToSignup,
+  onSwitchToForgotPassword,
+  onSuccess,
+}: LoginFormProps) {
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
-      await signIn(email, password)
+      await signIn(email, password);
       // Successfully logged in
       if (onSuccess) {
-        onSuccess()
+        onSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -54,7 +58,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword, onSucces
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
@@ -77,7 +81,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword, onSucces
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -111,13 +115,13 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword, onSucces
             size="default"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <button
               onClick={onSwitchToSignup}
               className="text-blue-600 hover:text-blue-800 font-medium min-h-[44px] px-2 py-2"
@@ -128,5 +132,5 @@ export function LoginForm({ onSwitchToSignup, onSwitchToForgotPassword, onSucces
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

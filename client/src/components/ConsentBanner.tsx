@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Settings, Shield, BarChart3 } from 'lucide-react';
-import { 
-  isConsentPending, 
-  acceptAllCookies, 
-  rejectOptionalCookies, 
+import {
+  isConsentPending,
+  acceptAllCookies,
+  rejectOptionalCookies,
   acceptAnalyticsOnly,
-  type ConsentState 
+  type ConsentState,
 } from '@/lib/consent';
 
 interface ConsentBannerProps {
@@ -51,19 +51,19 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
             <div className="flex-shrink-0">
               <Shield className="h-6 w-6 text-innovation-teal" />
             </div>
-            
+
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-framework-black mb-2">
                 Your Privacy Matters
               </h3>
-              
+
               {!showDetails ? (
                 <>
                   <p className="text-sm text-ai-silver mb-4">
-                    We use cookies to improve your experience and analyze usage patterns. 
-                    We respect your privacy and won't track you without permission.
+                    We use cookies to improve your experience and analyze usage patterns. We respect
+                    your privacy and won't track you without permission.
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={handleAcceptAll}
@@ -71,7 +71,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     >
                       Accept All
                     </Button>
-                    
+
                     <Button
                       onClick={handleAnalyticsOnly}
                       variant="outline"
@@ -80,7 +80,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Analytics Only
                     </Button>
-                    
+
                     <Button
                       onClick={handleRejectOptional}
                       variant="outline"
@@ -88,7 +88,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     >
                       Essential Only
                     </Button>
-                    
+
                     <Button
                       onClick={() => setShowDetails(!showDetails)}
                       variant="ghost"
@@ -108,31 +108,32 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                         🍪 Essential Cookies (Always Active)
                       </h4>
                       <p className="text-sm text-green-700">
-                        Required for login, security, and basic site functionality. Cannot be disabled.
+                        Required for login, security, and basic site functionality. Cannot be
+                        disabled.
                       </p>
                     </div>
-                    
+
                     <div className="p-3 bg-blue-50 rounded-lg">
                       <h4 className="font-semibold text-blue-800 mb-1">
                         📊 Analytics Cookies (Recommended)
                       </h4>
                       <p className="text-sm text-blue-700">
-                        Help us understand how you use our tool so we can improve it. 
-                        No personal data shared with third parties.
+                        Help us understand how you use our tool so we can improve it. No personal
+                        data shared with third parties.
                       </p>
                     </div>
-                    
+
                     <div className="p-3 bg-purple-50 rounded-lg">
                       <h4 className="font-semibold text-purple-800 mb-1">
                         🎯 Marketing Cookies (Optional)
                       </h4>
                       <p className="text-sm text-purple-700">
-                        Used to show you relevant updates and improvements. 
-                        You can always opt out later.
+                        Used to show you relevant updates and improvements. You can always opt out
+                        later.
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={handleAcceptAll}
@@ -140,7 +141,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     >
                       Accept All
                     </Button>
-                    
+
                     <Button
                       onClick={handleAnalyticsOnly}
                       variant="outline"
@@ -149,7 +150,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Analytics Only
                     </Button>
-                    
+
                     <Button
                       onClick={handleRejectOptional}
                       variant="outline"
@@ -157,7 +158,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     >
                       Essential Only
                     </Button>
-                    
+
                     <Button
                       onClick={() => setShowDetails(false)}
                       variant="ghost"
@@ -169,13 +170,13 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                   </div>
                 </>
               )}
-              
+
               <p className="text-xs text-gray-500 mt-3">
                 Learn more in our{' '}
                 <a href="/privacy" className="text-innovation-teal hover:underline">
                   Privacy Policy
-                </a>
-                {' '}and{' '}
+                </a>{' '}
+                and{' '}
                 <a href="/terms" className="text-innovation-teal hover:underline">
                   Terms of Service
                 </a>

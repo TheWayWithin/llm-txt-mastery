@@ -1,47 +1,47 @@
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, ArrowLeft } from 'lucide-react'
-import { apiRequest } from '@/lib/queryClient'
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 
 interface ForgotPasswordFormProps {
-  onBack: () => void
+  onBack: () => void;
 }
 
 export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) return
+    e.preventDefault();
+    if (!email.trim()) return;
 
-    setIsLoading(true)
-    setError('')
-    setMessage('')
+    setIsLoading(true);
+    setError('');
+    setMessage('');
 
     try {
       const response = await apiRequest('POST', '/api/auth/forgot-password', {
-        email: email.trim()
-      })
+        email: email.trim(),
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        setMessage(data.message || 'Password reset email sent successfully')
+        const data = await response.json();
+        setMessage(data.message || 'Password reset email sent successfully');
       } else {
-        const errorData = await response.json()
-        setError(errorData.error || 'Failed to send password reset email')
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to send password reset email');
       }
     } catch (err) {
-      setError('Network error. Please try again.')
+      setError('Network error. Please try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -54,17 +54,13 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
 
       {message && (
         <Alert className="border-green-200 bg-green-50">
-          <AlertDescription className="text-green-800">
-            {message}
-          </AlertDescription>
+          <AlertDescription className="text-green-800">{message}</AlertDescription>
         </Alert>
       )}
 
       {error && (
         <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">
-            {error}
-          </AlertDescription>
+          <AlertDescription className="text-red-800">{error}</AlertDescription>
         </Alert>
       )}
 
@@ -82,8 +78,8 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
           />
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-mastery-blue hover:bg-mastery-blue/90"
           disabled={isLoading || !email.trim()}
         >
@@ -108,5 +104,5 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
         Back to login
       </Button>
     </div>
-  )
+  );
 }

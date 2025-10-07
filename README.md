@@ -13,7 +13,7 @@ LLM.txt Mastery helps website owners create standards-compliant `llms.txt` files
 - **Smart Website Analysis**: Processes up to 200 pages with 7+ fallback strategies for sitemap discovery
 - **AI-Powered Content Scoring**: Uses GPT-4o-mini to evaluate content quality and relevance (93% cheaper than GPT-4o)
 - **Intelligent Caching**: 30-day cache reduces API costs by 70-90%
-- **Freemium Model**: 
+- **Freemium Model**:
   - **Free Tier**: 3 analyses/day with AI scoring for first 20 pages
   - **Coffee Tier**: $5 one-time for premium analysis credits
   - **Growth/Scale**: Monthly subscriptions for unlimited access
@@ -46,6 +46,7 @@ LLM.txt Mastery helps website owners create standards-compliant `llms.txt` files
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **React 18** with TypeScript
 - **Tailwind CSS** with custom design system
 - **shadcn/ui** component library
@@ -53,6 +54,7 @@ LLM.txt Mastery helps website owners create standards-compliant `llms.txt` files
 - **Wouter** for routing
 
 ### Backend
+
 - **Express.js** with TypeScript
 - **PostgreSQL** with Drizzle ORM
 - **OpenAI GPT-4o-mini** for content analysis
@@ -62,7 +64,9 @@ LLM.txt Mastery helps website owners create standards-compliant `llms.txt` files
 ## 📚 Documentation
 
 ### For Operators & Maintainers
+
 See **[OPERATIONS.md](./OPERATIONS.md)** for:
+
 - Complete environment variables reference
 - Deployment procedures
 - Monitoring and maintenance
@@ -71,7 +75,9 @@ See **[OPERATIONS.md](./OPERATIONS.md)** for:
 - Emergency procedures
 
 ### For Developers
+
 See **[CLAUDE.md](./CLAUDE.md)** for:
+
 - AI assistant integration notes
 - Development workflow
 - Code architecture decisions
@@ -79,6 +85,7 @@ See **[CLAUDE.md](./CLAUDE.md)** for:
 ## 🚀 Quick Start (Development)
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL database (or use Neon cloud)
 - OpenAI API key
@@ -87,6 +94,7 @@ See **[CLAUDE.md](./CLAUDE.md)** for:
 ### Local Development
 
 1. **Clone and install:**
+
    ```bash
    git clone https://github.com/TheWayWithin/llm-txt-mastery.git
    cd llm-txt-mastery
@@ -94,12 +102,14 @@ See **[CLAUDE.md](./CLAUDE.md)** for:
    ```
 
 2. **Configure environment:**
+
    ```bash
    cp .env.example .env
    # Edit .env with your keys
    ```
 
 3. **Set up database:**
+
    ```bash
    npm run db:push
    ```
@@ -115,22 +125,26 @@ See **[CLAUDE.md](./CLAUDE.md)** for:
 The application uses a split deployment architecture:
 
 ### Automatic Deployment (Current Setup)
+
 - **Push to main** → Railway auto-deploys backend
 - **Push to main** → Netlify auto-deploys frontend
 - No manual intervention needed!
 
 ### Manual Deployment
+
 See [OPERATIONS.md](./OPERATIONS.md#deployment-guide) for detailed deployment procedures.
 
 ## 💰 Cost Optimization
 
 ### Current Optimizations
+
 - **AI Model**: Using GPT-4o-mini (93% cheaper than GPT-4o)
 - **Caching**: 30-day cache reduces API calls by 70-90%
 - **Smart Batching**: Processes pages in optimized batches
 - **Tier Limits**: Prevents runaway costs with daily limits
 
 ### Typical Costs
+
 - **OpenAI API**: ~$0.11 per 1000 pages (with GPT-4o-mini)
 - **Database**: Free tier (up to 0.5GB)
 - **Hosting**: ~$5/month Railway, Free Netlify tier
@@ -171,10 +185,12 @@ npx tsx server/test-model-comparison.ts  # Compare AI models
 ## 📈 Monitoring
 
 ### Health Checks
+
 - Backend: `https://llm-txt-mastery-production.up.railway.app/health`
 - Frontend: `https://llmtxtmastery.com`
 
 ### Dashboards
+
 - [Railway Dashboard](https://railway.app) - Backend metrics
 - [Netlify Dashboard](https://app.netlify.com) - Frontend deploys
 - [Stripe Dashboard](https://dashboard.stripe.com) - Payment analytics

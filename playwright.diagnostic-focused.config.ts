@@ -12,17 +12,17 @@ export default defineConfig({
   retries: 0, // No retries for diagnostic
   workers: 1,
   timeout: 60000, // 1 minute per test
-  
+
   expect: {
     timeout: 15000, // 15 seconds for assertions
   },
-  
+
   reporter: [
     ['list'], // Detailed console output
     ['html', { outputFolder: 'playwright-report-diagnostic' }],
-    ['json', { outputFile: 'test-results-diagnostic.json' }]
+    ['json', { outputFile: 'test-results-diagnostic.json' }],
   ],
-  
+
   use: {
     baseURL: 'https://llmtxtmastery.com',
     trace: 'on',
@@ -35,10 +35,10 @@ export default defineConfig({
   projects: [
     {
       name: 'diagnostic',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
       },
-    }
+    },
   ],
 });

@@ -4,7 +4,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Content-Type': 'text/html'
+    'Content-Type': 'text/html',
   };
 
   // Handle preflight requests
@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: ''
+      body: '',
     };
   }
 
@@ -82,13 +82,13 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: testPage
+      body: testPage,
     };
   }
 
   return {
     statusCode: 405,
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: 'Method not allowed' })
+    body: JSON.stringify({ message: 'Method not allowed' }),
   };
 };

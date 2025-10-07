@@ -22,20 +22,20 @@ export const TIER_PRICES = {
     priceId: process.env.STRIPE_LLM_TXT_COFFEE_PRICE_ID || 'price_llm_txt_coffee_onetime',
     amount: 495, // $4.95 in cents
     currency: 'usd',
-    interval: 'one_time' // One-time payment
+    interval: 'one_time', // One-time payment
   },
   growth: {
     priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_llm_txt_growth_monthly',
     amount: 995, // $9.95 in cents
     currency: 'usd',
-    interval: 'month'
+    interval: 'month',
   },
   scale: {
-    priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_llm_txt_scale_monthly', 
+    priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_llm_txt_scale_monthly',
     amount: 1995, // $19.95 in cents
     currency: 'usd',
-    interval: 'month'
-  }
+    interval: 'month',
+  },
 } as const;
 
 export interface CreateCustomerParams {
@@ -60,22 +60,26 @@ export async function createStripeCustomer(params: CreateCustomerParams): Promis
       name: params.name,
       metadata: {
         userId: params.userId,
-        source: 'llm-txt-mastery'
-      }
+        source: 'llm-txt-mastery',
+      },
     });
 
     console.log(`Created Stripe customer: ${customer.id} for user: ${params.userId}`);
     return customer;
   } catch (error) {
     console.error('Failed to create Stripe customer:', error);
-    throw new Error(`Failed to create customer: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to create customer: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
 /**
  * Create a subscription for a customer
  */
-export async function createSubscription(params: CreateSubscriptionParams): Promise<Stripe.Subscription> {
+export async function createSubscription(
+  params: CreateSubscriptionParams
+): Promise<Stripe.Subscription> {
   try {
     const subscription = await stripe().subscriptions.create({
       customer: params.customerId,
@@ -84,15 +88,17 @@ export async function createSubscription(params: CreateSubscriptionParams): Prom
       payment_settings: { save_default_payment_method: 'on_subscription' },
       expand: ['latest_invoice.payment_intent'],
       metadata: {
-        userId: params.userId
-      }
+        userId: params.userId,
+      },
     });
 
     console.log(`Created subscription: ${subscription.id} for customer: ${params.customerId}`);
     return subscription;
   } catch (error) {
     console.error('Failed to create subscription:', error);
-    throw new Error(`Failed to create subscription: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to create subscription: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -122,15 +128,17 @@ export async function createCheckoutSession(params: {
       cancel_url: params.cancelUrl,
       metadata: {
         userId: params.userId,
-        ...(params.metadata || {})
-      }
+        ...(params.metadata || {}),
+      },
     });
 
     console.log(`Created checkout session: ${session.id} for customer: ${params.customerId}`);
     return session;
   } catch (error) {
     console.error('Failed to create checkout session:', error);
-    throw new Error(`Failed to create checkout session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to create checkout session: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -161,15 +169,19 @@ export async function createOneTimeCheckoutSession(params: {
       metadata: {
         userId: params.userId,
         productType: params.productType || 'coffee',
-        paymentType: 'one_time'
-      }
+        paymentType: 'one_time',
+      },
     });
 
-    console.log(`Created one-time checkout session: ${session.id} for customer: ${params.customerId}`);
+    console.log(
+      `Created one-time checkout session: ${session.id} for customer: ${params.customerId}`
+    );
     return session;
   } catch (error) {
     console.error('Failed to create one-time checkout session:', error);
-    throw new Error(`Failed to create one-time checkout session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to create one-time checkout session: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -179,7 +191,7 @@ export async function createOneTimeCheckoutSession(params: {
 export async function getStripeCustomer(customerId: string): Promise<Stripe.Customer | null> {
   try {
     const customer = await stripe().customers.retrieve(customerId);
-    return customer.deleted ? null : customer as Stripe.Customer;
+    return customer.deleted ? null : (customer as Stripe.Customer);
   } catch (error) {
     console.error('Failed to get Stripe customer:', error);
     return null;
@@ -193,7 +205,7 @@ export async function getCustomerSubscriptions(customerId: string): Promise<Stri
   try {
     const subscriptions = await stripe().subscriptions.list({
       customer: customerId,
-      status: 'active'
+      status: 'active',
     });
     return subscriptions.data;
   } catch (error) {
@@ -212,14 +224,19 @@ export async function cancelSubscription(subscriptionId: string): Promise<Stripe
     return subscription;
   } catch (error) {
     console.error('Failed to cancel subscription:', error);
-    throw new Error(`Failed to cancel subscription: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to cancel subscription: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
 /**
  * Create customer portal session for subscription management
  */
-export async function createPortalSession(customerId: string, returnUrl: string): Promise<Stripe.BillingPortal.Session> {
+export async function createPortalSession(
+  customerId: string,
+  returnUrl: string
+): Promise<Stripe.BillingPortal.Session> {
   try {
     const session = await stripe().billingPortal.sessions.create({
       customer: customerId,
@@ -228,7 +245,9 @@ export async function createPortalSession(customerId: string, returnUrl: string)
     return session;
   } catch (error) {
     console.error('Failed to create portal session:', error);
-    throw new Error(`Failed to create portal session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to create portal session: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -245,7 +264,9 @@ export function validateWebhookSignature(payload: string, signature: string): St
     return stripe().webhooks.constructEvent(payload, signature, webhookSecret);
   } catch (error) {
     console.error('Webhook signature validation failed:', error);
-    throw new Error(`Webhook signature validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Webhook signature validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 

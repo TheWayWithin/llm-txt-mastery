@@ -1,10 +1,10 @@
 /**
  * EMAIL CAPTURES TABLE UPDATE VALIDATION TESTS
- * 
+ *
  * These tests specifically validate the CRITICAL FIX for emailCaptures table updates
  * in webhook handlers. The bug was that webhook handlers only updated userProfiles
  * but not emailCaptures, causing getUserTier() to return incorrect tier information.
- * 
+ *
  * BUSINESS CRITICAL: This table drives the tier logic for freemium users and
  * revenue protection. Without these updates, paid customers are treated as free users.
  */
@@ -28,7 +28,7 @@ const mockDb = {
   set: vi.fn().mockReturnThis(),
   insert: vi.fn().mockReturnThis(),
   values: vi.fn().mockReturnThis(),
-  returning: vi.fn()
+  returning: vi.fn(),
 };
 
 (db as any).select = mockDb.select;
@@ -50,7 +50,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'starter',
         websiteUrl: 'https://test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
@@ -75,7 +75,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'coffee',
         websiteUrl: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([]); // No existing record
@@ -85,7 +85,7 @@ describe('EmailCaptures Table Update Validation', () => {
       const result = await storage.createEmailCapture({
         email: testEmail,
         tier: 'coffee',
-        websiteUrl: null
+        websiteUrl: null,
       });
 
       // Assert
@@ -93,7 +93,7 @@ describe('EmailCaptures Table Update Validation', () => {
       expect(mockDb.values).toHaveBeenCalledWith({
         email: testEmail,
         tier: 'coffee',
-        websiteUrl: null
+        websiteUrl: null,
       });
       expect(result.tier).toBe('coffee');
     });
@@ -109,7 +109,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'starter',
         websiteUrl: 'https://growth-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
@@ -133,7 +133,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'growth',
         websiteUrl: 'https://scale-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
@@ -157,7 +157,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'growth',
         websiteUrl: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([]); // No existing record
@@ -167,7 +167,7 @@ describe('EmailCaptures Table Update Validation', () => {
       const result = await storage.createEmailCapture({
         email: testEmail,
         tier: 'growth',
-        websiteUrl: null
+        websiteUrl: null,
       });
 
       // Assert
@@ -175,7 +175,7 @@ describe('EmailCaptures Table Update Validation', () => {
       expect(mockDb.values).toHaveBeenCalledWith({
         email: testEmail,
         tier: 'growth',
-        websiteUrl: null
+        websiteUrl: null,
       });
       expect(result.tier).toBe('growth');
     });
@@ -191,7 +191,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'scale',
         websiteUrl: 'https://cancelled-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
@@ -232,13 +232,13 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'starter',
         websiteUrl: 'https://progression-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       // Step 1: Starter → Coffee
       mockDb.select.mockResolvedValue([currentCapture]);
       mockDb.returning.mockResolvedValue([{ ...currentCapture, tier: 'coffee' }]);
-      
+
       let result = await storage.updateEmailCapture(testEmail, { tier: 'coffee' });
       expect(result?.tier).toBe('coffee');
       currentCapture.tier = 'coffee';
@@ -246,7 +246,7 @@ describe('EmailCaptures Table Update Validation', () => {
       // Step 2: Coffee → Growth
       mockDb.select.mockResolvedValue([currentCapture]);
       mockDb.returning.mockResolvedValue([{ ...currentCapture, tier: 'growth' }]);
-      
+
       result = await storage.updateEmailCapture(testEmail, { tier: 'growth' });
       expect(result?.tier).toBe('growth');
       currentCapture.tier = 'growth';
@@ -254,7 +254,7 @@ describe('EmailCaptures Table Update Validation', () => {
       // Step 3: Growth → Scale
       mockDb.select.mockResolvedValue([currentCapture]);
       mockDb.returning.mockResolvedValue([{ ...currentCapture, tier: 'scale' }]);
-      
+
       result = await storage.updateEmailCapture(testEmail, { tier: 'scale' });
       expect(result?.tier).toBe('scale');
 
@@ -274,7 +274,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'scale',
         websiteUrl: 'https://downgrade-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([currentCapture]);
@@ -299,15 +299,17 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'starter',
         websiteUrl: 'https://preserve-test.com',
         createdAt: new Date('2025-01-01'),
-        updatedAt: new Date('2025-01-01')
+        updatedAt: new Date('2025-01-01'),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
-      mockDb.returning.mockResolvedValue([{ 
-        ...existingCapture, 
-        tier: 'coffee',
-        updatedAt: new Date('2025-01-02') // Only tier and updatedAt should change
-      }]);
+      mockDb.returning.mockResolvedValue([
+        {
+          ...existingCapture,
+          tier: 'coffee',
+          updatedAt: new Date('2025-01-02'), // Only tier and updatedAt should change
+        },
+      ]);
 
       // Act
       const result = await storage.updateEmailCapture(testEmail, { tier: 'coffee' });
@@ -329,7 +331,7 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'starter',
         websiteUrl: 'https://concurrent-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
@@ -339,14 +341,14 @@ describe('EmailCaptures Table Update Validation', () => {
       const promises = [
         storage.updateEmailCapture(testEmail, { tier: 'growth' }),
         storage.updateEmailCapture(testEmail, { tier: 'growth' }),
-        storage.updateEmailCapture(testEmail, { tier: 'growth' })
+        storage.updateEmailCapture(testEmail, { tier: 'growth' }),
       ];
 
       // Act
       const results = await Promise.all(promises);
 
       // Assert - All should succeed (database handles concurrency)
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result?.tier).toBe('growth');
       });
     });
@@ -359,7 +361,9 @@ describe('EmailCaptures Table Update Validation', () => {
       mockDb.select.mockRejectedValue(new Error('Database connection failed'));
 
       // Act & Assert
-      await expect(storage.getEmailCapture(testEmail)).rejects.toThrow('Database connection failed');
+      await expect(storage.getEmailCapture(testEmail)).rejects.toThrow(
+        'Database connection failed'
+      );
     });
 
     it('should handle invalid tier values', async () => {
@@ -371,15 +375,16 @@ describe('EmailCaptures Table Update Validation', () => {
         tier: 'starter',
         websiteUrl: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockResolvedValue([existingCapture]);
       mockDb.returning.mockRejectedValue(new Error('Invalid tier value'));
 
       // Act & Assert
-      await expect(storage.updateEmailCapture(testEmail, { tier: 'invalid_tier' as any }))
-        .rejects.toThrow('Invalid tier value');
+      await expect(
+        storage.updateEmailCapture(testEmail, { tier: 'invalid_tier' as any })
+      ).rejects.toThrow('Invalid tier value');
     });
   });
 });

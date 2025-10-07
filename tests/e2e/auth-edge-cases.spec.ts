@@ -2,16 +2,15 @@ import { test, expect, type Page, type BrowserContext } from '@playwright/test';
 
 /**
  * Authentication Edge Cases Test Suite
- * 
+ *
  * This test suite covers edge cases and error scenarios for authentication persistence,
  * ensuring robust handling of various authentication states and error conditions.
  */
 
 test.describe('Authentication Edge Cases', () => {
-
   /**
    * Test: Token Expiration Handling
-   * 
+   *
    * Verify that expired tokens are handled gracefully without forcing re-authentication
    * when refresh tokens are still valid.
    */
@@ -22,7 +21,7 @@ test.describe('Authentication Edge Cases', () => {
     const page = await context.newPage();
 
     // Mock network requests to simulate token refresh
-    await page.route('**/api/auth/refresh', route => {
+    await page.route('**/api/auth/refresh', (route) => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -33,11 +32,11 @@ test.describe('Authentication Edge Cases', () => {
             tier: 'starter',
             creditsRemaining: 3,
             emailVerified: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
           },
           accessToken: 'new-access-token',
-          refreshToken: 'new-refresh-token'
-        })
+          refreshToken: 'new-refresh-token',
+        }),
       });
     });
 
@@ -51,9 +50,9 @@ test.describe('Authentication Edge Cases', () => {
         tier: 'starter',
         creditsRemaining: 3,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'expired-token');
       localStorage.setItem('auth_refresh_token', 'valid-refresh-token');
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -65,13 +64,16 @@ test.describe('Authentication Edge Cases', () => {
     // Start analysis flow
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://token-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
     // Should not see email capture (token refresh should work behind the scenes)
     await page.waitForTimeout(3000);
-    const emailCapturePresent = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+    const emailCapturePresent = await page
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
     expect(emailCapturePresent).toBe(false);
 
     console.log('✅ Token refresh handled gracefully without user interruption');
@@ -81,7 +83,7 @@ test.describe('Authentication Edge Cases', () => {
 
   /**
    * Test: Network Failure During Auth Initialization
-   * 
+   *
    * Ensure that network failures during auth initialization don't break the user experience
    * and that stored user data is preserved for offline operation.
    */
@@ -92,7 +94,7 @@ test.describe('Authentication Edge Cases', () => {
     const page = await context.newPage();
 
     // Mock network failure for auth endpoints
-    await page.route('**/api/auth/**', route => {
+    await page.route('**/api/auth/**', (route) => {
       route.abort('failed'); // Simulate network failure
     });
 
@@ -106,9 +108,9 @@ test.describe('Authentication Edge Cases', () => {
         tier: 'coffee', // Coffee user should work offline
         creditsRemaining: 5,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'offline-token');
       localStorage.setItem('auth_refresh_token', 'offline-refresh');
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -120,15 +122,18 @@ test.describe('Authentication Edge Cases', () => {
     // Start analysis flow
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://offline-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
     // Coffee user should proceed even with network issues
     await page.waitForTimeout(3000);
-    
+
     // Should not see email capture
-    const emailCapturePresent = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+    const emailCapturePresent = await page
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
     expect(emailCapturePresent).toBe(false);
 
     console.log('✅ Network failure handled gracefully, stored auth data preserved');
@@ -138,7 +143,7 @@ test.describe('Authentication Edge Cases', () => {
 
   /**
    * Test: Concurrent Authentication Attempts
-   * 
+   *
    * Test behavior when multiple authentication operations happen simultaneously
    * (e.g., multiple tabs, rapid user actions).
    */
@@ -146,7 +151,7 @@ test.describe('Authentication Edge Cases', () => {
     console.log('📑 Testing Concurrent Authentication');
 
     const context = await browser.newContext();
-    
+
     // Create multiple pages (simulate multiple tabs)
     const page1 = await context.newPage();
     const page2 = await context.newPage();
@@ -160,9 +165,9 @@ test.describe('Authentication Edge Cases', () => {
         tier: 'starter',
         creditsRemaining: 3,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'concurrent-token');
       localStorage.setItem('auth_refresh_token', 'concurrent-refresh');
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -181,23 +186,26 @@ test.describe('Authentication Edge Cases', () => {
 
     await Promise.all([
       urlInput1.fill('https://concurrent1.com'),
-      urlInput2.fill('https://concurrent2.com')
+      urlInput2.fill('https://concurrent2.com'),
     ]);
 
     const startButton1 = page1.getByRole('button', { name: /analyze|start/i });
     const startButton2 = page2.getByRole('button', { name: /analyze|start/i });
 
-    await Promise.all([
-      startButton1.click(),
-      startButton2.click()
-    ]);
+    await Promise.all([startButton1.click(), startButton2.click()]);
 
     await page1.waitForTimeout(3000);
     await page2.waitForTimeout(3000);
 
     // Both tabs should skip email capture
-    const emailCapture1 = await page1.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
-    const emailCapture2 = await page2.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+    const emailCapture1 = await page1
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
+    const emailCapture2 = await page2
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
 
     expect(emailCapture1).toBe(false);
     expect(emailCapture2).toBe(false);
@@ -209,7 +217,7 @@ test.describe('Authentication Edge Cases', () => {
 
   /**
    * Test: Invalid Token Cleanup
-   * 
+   *
    * Verify that invalid or corrupted tokens are properly cleaned up
    * and don't cause persistent errors.
    */
@@ -231,11 +239,11 @@ test.describe('Authentication Edge Cases', () => {
 
     // Monitor for errors
     const errors: string[] = [];
-    page.on('pageerror', error => {
+    page.on('pageerror', (error) => {
       errors.push(error.message);
     });
 
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -247,7 +255,7 @@ test.describe('Authentication Edge Cases', () => {
     // Start analysis flow
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://cleanup-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
@@ -255,10 +263,11 @@ test.describe('Authentication Edge Cases', () => {
     await expect(page.getByText(/choose.*analysis.*type/i)).toBeVisible({ timeout: 10000 });
 
     // Should not have persistent errors
-    const criticalErrors = errors.filter(error => 
-      error.includes('Cannot read') || 
-      error.includes('SyntaxError') ||
-      error.includes('undefined')
+    const criticalErrors = errors.filter(
+      (error) =>
+        error.includes('Cannot read') ||
+        error.includes('SyntaxError') ||
+        error.includes('undefined')
     );
 
     console.log('🔍 Detected errors:', errors);
@@ -269,7 +278,7 @@ test.describe('Authentication Edge Cases', () => {
       return {
         accessToken: localStorage.getItem('auth_access_token'),
         refreshToken: localStorage.getItem('auth_refresh_token'),
-        user: localStorage.getItem('auth_user')
+        user: localStorage.getItem('auth_user'),
       };
     });
 
@@ -283,7 +292,7 @@ test.describe('Authentication Edge Cases', () => {
 
   /**
    * Test: Auth State Synchronization
-   * 
+   *
    * Test that auth state changes are properly synchronized across components
    * and don't cause UI inconsistencies.
    */
@@ -297,14 +306,14 @@ test.describe('Authentication Edge Cases', () => {
 
     // Start with no auth
     let currentState = 'unauthenticated';
-    
+
     // Monitor auth nav for changes
     const authNav = page.getByTestId('auth-nav').or(page.locator('[data-testid*="auth"]')).first();
 
     // Enter URL to trigger auth flow
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://sync-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
@@ -320,19 +329,21 @@ test.describe('Authentication Edge Cases', () => {
         tier: 'starter',
         creditsRemaining: 3,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'sync-token');
       localStorage.setItem('auth_refresh_token', 'sync-refresh');
       localStorage.setItem('auth_user', JSON.stringify(user));
-      
+
       // Trigger storage event to simulate cross-tab auth
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'auth_user',
-        newValue: JSON.stringify(user),
-        storageArea: localStorage
-      }));
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: 'auth_user',
+          newValue: JSON.stringify(user),
+          storageArea: localStorage,
+        })
+      );
     });
 
     // Wait for auth state to synchronize
@@ -340,19 +351,27 @@ test.describe('Authentication Edge Cases', () => {
 
     // UI should update to reflect authenticated state
     // Should skip from email capture to tier limits or analysis
-    
-    const stillShowingEmailCapture = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
-    
+
+    const stillShowingEmailCapture = await page
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
+
     if (!stillShowingEmailCapture) {
       console.log('✅ UI synchronized correctly after auth state change');
       currentState = 'authenticated';
     } else {
-      console.log('⚠️ UI may not have synchronized immediately, checking for eventual consistency...');
-      
+      console.log(
+        '⚠️ UI may not have synchronized immediately, checking for eventual consistency...'
+      );
+
       // Give it more time for eventual consistency
       await page.waitForTimeout(3000);
-      
-      const eventuallySync = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+
+      const eventuallySync = await page
+        .getByText(/choose.*analysis.*type/i)
+        .isVisible()
+        .catch(() => false);
       if (!eventuallySync) {
         console.log('✅ UI eventually synchronized correctly');
         currentState = 'authenticated';
@@ -366,7 +385,7 @@ test.describe('Authentication Edge Cases', () => {
 
   /**
    * Test: Memory Leak Prevention
-   * 
+   *
    * Verify that authentication operations don't cause memory leaks
    * through proper cleanup of event listeners and timers.
    */
@@ -394,9 +413,9 @@ test.describe('Authentication Edge Cases', () => {
           tier: 'starter',
           creditsRemaining: 3,
           emailVerified: true,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         };
-        
+
         localStorage.setItem('auth_access_token', `cycle-token-${index}`);
         localStorage.setItem('auth_refresh_token', `cycle-refresh-${index}`);
         localStorage.setItem('auth_user', JSON.stringify(user));
@@ -421,7 +440,7 @@ test.describe('Authentication Edge Cases', () => {
       return {
         localStorageKeys: Object.keys(localStorage).length,
         // Note: We can't directly measure event listeners, but we can check for common leak indicators
-        windowProperties: Object.keys(window).filter(key => key.includes('auth')).length
+        windowProperties: Object.keys(window).filter((key) => key.includes('auth')).length,
       };
     });
 
@@ -438,11 +457,14 @@ test.describe('Authentication Edge Cases', () => {
 
   /**
    * Test: Cross-Browser Compatibility
-   * 
+   *
    * Verify that authentication persistence works across different browsers
    * (This test will run across all configured browsers in playwright.config.ts).
    */
-  test('Cross-Browser Compatibility - Auth works in all browsers', async ({ browser, browserName }) => {
+  test('Cross-Browser Compatibility - Auth works in all browsers', async ({
+    browser,
+    browserName,
+  }) => {
     console.log(`🌐 Testing Cross-Browser Compatibility in ${browserName}`);
 
     const context = await browser.newContext();
@@ -458,9 +480,9 @@ test.describe('Authentication Edge Cases', () => {
         tier: 'coffee',
         creditsRemaining: 5,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'cross-browser-token');
       localStorage.setItem('auth_refresh_token', 'cross-browser-refresh');
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -472,14 +494,17 @@ test.describe('Authentication Edge Cases', () => {
     // Test auth persistence
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://crossbrowser-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
     await page.waitForTimeout(3000);
 
     // Should work consistently across browsers
-    const emailCapturePresent = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+    const emailCapturePresent = await page
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
     expect(emailCapturePresent).toBe(false);
 
     console.log(`✅ Authentication persistence works correctly in ${browserName}`);
@@ -490,7 +515,7 @@ test.describe('Authentication Edge Cases', () => {
 
 /**
  * EDGE CASE COVERAGE SUMMARY
- * 
+ *
  * This test suite covers critical edge cases:
  * ✅ Token expiration and refresh scenarios
  * ✅ Network failures during authentication
@@ -499,7 +524,7 @@ test.describe('Authentication Edge Cases', () => {
  * ✅ Auth state synchronization across UI
  * ✅ Memory leak prevention
  * ✅ Cross-browser compatibility
- * 
+ *
  * These tests ensure the authentication persistence fix is robust
  * and handles real-world error conditions gracefully.
  */

@@ -55,6 +55,7 @@ Run the automated setup script:
 ```
 
 This will:
+
 - Enable pgvector extension
 - Create all semantic enhancement tables
 - Set up vector indexes (if data exists)
@@ -77,12 +78,14 @@ npm run test:environment
 ### Database Setup (Neon PostgreSQL)
 
 #### Option A: Automated Setup (Recommended)
+
 ```bash
 export DATABASE_URL="your_neon_connection_string"
 ./scripts/setup-database.sh
 ```
 
 #### Option B: Manual Setup
+
 ```bash
 # 1. Enable pgvector
 psql $DATABASE_URL -f scripts/setup-pgvector.sql
@@ -95,12 +98,13 @@ psql $DATABASE_URL -f scripts/create-vector-indexes.sql
 ```
 
 #### Verify Database Setup
+
 ```sql
 -- Check pgvector extension
 SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
 
 -- Check tables
-SELECT table_name FROM information_schema.tables 
+SELECT table_name FROM information_schema.tables
 WHERE table_name IN ('embedding_cache', 'content_clusters', 'semantic_tags');
 
 -- Test vector operations
@@ -110,18 +114,22 @@ SELECT '[1,2,3]'::vector <-> '[4,5,6]'::vector;
 ### Redis Setup
 
 #### Option A: Railway (Recommended)
+
 1. Login to Railway dashboard
 2. Create new Redis service
 3. Copy connection details to `.env.local`
 4. Test connection:
+
 ```bash
 redis-cli -h your-host -p your-port -a your-password ping
 ```
 
 #### Option B: Upstash (Serverless)
+
 1. Sign up at Upstash.com
 2. Create Redis database
 3. Use REST URL format:
+
 ```bash
 REDIS_HOST=your-upstash-endpoint
 REDIS_PORT=6379
@@ -129,6 +137,7 @@ REDIS_PASSWORD=your-upstash-token
 ```
 
 #### Option C: Local Development
+
 ```bash
 # Install Redis locally
 brew install redis  # macOS
@@ -147,11 +156,14 @@ REDIS_PORT=6379
 
 1. Get API key from [OpenAI Platform](https://platform.openai.com/api-keys)
 2. Add to environment:
+
 ```bash
 OPENAI_API_KEY=sk-your-key-here
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ```
+
 3. Test API access:
+
 ```bash
 curl https://api.openai.com/v1/models \
   -H "Authorization: Bearer $OPENAI_API_KEY"
@@ -170,6 +182,7 @@ npm run test:environment
 ```
 
 **Test Coverage:**
+
 - ✅ Configuration validation
 - ✅ PostgreSQL connection and pgvector
 - ✅ Semantic enhancement tables
@@ -182,11 +195,13 @@ npm run test:environment
 ### Manual Testing
 
 #### Test PostgreSQL + pgvector
+
 ```bash
 psql $DATABASE_URL -c "SELECT test_vector_performance();"
 ```
 
 #### Test Redis Cache
+
 ```bash
 node -e "
 const { EmbeddingCache } = require('./server/services/redis-client.ts');
@@ -195,6 +210,7 @@ EmbeddingCache.setEmbedding('test', [1,2,3], {contentText: 'test', modelVersion:
 ```
 
 #### Test OpenAI Embeddings
+
 ```bash
 node -e "
 const OpenAI = require('openai');
@@ -206,14 +222,14 @@ openai.embeddings.create({model: 'text-embedding-3-small', input: 'test'})
 
 ### Performance Expectations
 
-| Operation | Expected Time | Notes |
-|-----------|---------------|--------|
-| Vector Insert | < 50ms | Per embedding in PostgreSQL |
-| Vector Similarity Search | < 100ms | With proper indexes |
-| Redis Cache Hit | < 5ms | Local network |
-| OpenAI Embedding Generation | < 500ms | Per API call |
-| Full Pipeline (cache miss) | < 600ms | Including OpenAI + storage |
-| Full Pipeline (cache hit) | < 10ms | Redis + PostgreSQL |
+| Operation                   | Expected Time | Notes                       |
+| --------------------------- | ------------- | --------------------------- |
+| Vector Insert               | < 50ms        | Per embedding in PostgreSQL |
+| Vector Similarity Search    | < 100ms       | With proper indexes         |
+| Redis Cache Hit             | < 5ms         | Local network               |
+| OpenAI Embedding Generation | < 500ms       | Per API call                |
+| Full Pipeline (cache miss)  | < 600ms       | Including OpenAI + storage  |
+| Full Pipeline (cache hit)   | < 10ms        | Redis + PostgreSQL          |
 
 ---
 
@@ -222,20 +238,22 @@ openai.embeddings.create({model: 'text-embedding-3-small', input: 'test'})
 ### Environment Variables
 
 #### Required Variables
+
 ```bash
 DATABASE_URL=postgresql://...           # Neon PostgreSQL
-REDIS_HOST=your-redis-host             # Redis cache server  
+REDIS_HOST=your-redis-host             # Redis cache server
 REDIS_PASSWORD=your-redis-password     # Redis auth
 OPENAI_API_KEY=sk-...                  # OpenAI API access
 ```
 
 #### Optional Configuration
+
 ```bash
 # Redis Settings
 REDIS_PORT=6379                        # Default: 6379
 REDIS_DB=0                             # Default: 0
 
-# OpenAI Settings  
+# OpenAI Settings
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small  # Default model
 EMBEDDING_DIMENSIONS=1536              # Model dimensions
 EMBEDDING_BATCH_SIZE=100               # Batch processing size
@@ -262,6 +280,7 @@ ENABLE_CLUSTERING_DEBUG=false          # Debug logging
 ```
 
 ### File Structure
+
 ```
 ├── server/
 │   ├── config/
@@ -287,13 +306,15 @@ ENABLE_CLUSTERING_DEBUG=false          # Debug logging
 ### Common Issues
 
 #### pgvector Extension Not Found
+
 ```bash
 # Error: extension "vector" is not available
 # Solution: Ensure you're using Neon PostgreSQL (supports pgvector)
 psql $DATABASE_URL -c "CREATE EXTENSION vector;"
 ```
 
-#### Redis Connection Failed  
+#### Redis Connection Failed
+
 ```bash
 # Error: Redis connection timeout
 # Check: Host, port, password configuration
@@ -301,6 +322,7 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT ping
 ```
 
 #### OpenAI Rate Limits
+
 ```bash
 # Error: Rate limit exceeded
 # Solution: Reduce EMBEDDING_BATCH_SIZE and add delays
@@ -308,6 +330,7 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT ping
 ```
 
 #### Vector Index Creation Failed
+
 ```bash
 # Error: IVFFlat requires existing data
 # Solution: Generate embeddings first, then create indexes
@@ -317,6 +340,7 @@ psql $DATABASE_URL -f scripts/create-vector-indexes.sql
 ### Debug Mode
 
 Enable debug logging:
+
 ```bash
 export ENABLE_CLUSTERING_DEBUG=true
 export NODE_ENV=development
@@ -325,12 +349,14 @@ export NODE_ENV=development
 ### Performance Issues
 
 #### Slow Vector Operations
+
 1. **Check indexes**: Ensure vector indexes exist
 2. **Optimize queries**: Use proper similarity operators
 3. **Monitor memory**: Vector operations are memory-intensive
 4. **Consider HNSW**: For large datasets (>100k vectors)
 
 #### Redis Cache Misses
+
 1. **Check TTL**: Ensure cache isn't expiring too quickly
 2. **Monitor memory**: Redis may be evicting data
 3. **Hash consistency**: Verify content hashing algorithm
@@ -340,6 +366,7 @@ export NODE_ENV=development
 ## 📊 Monitoring and Maintenance
 
 ### Cache Statistics
+
 ```bash
 # View Redis cache performance
 node -e "
@@ -349,16 +376,17 @@ EmbeddingCache.getStats(7).then(console.log);
 ```
 
 ### Database Monitoring
+
 ```sql
 -- View embedding cache stats
 SELECT * FROM embedding_cache_stats;
 
 -- Check table sizes
-SELECT 
+SELECT
     schemaname,
     tablename,
     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
+FROM pg_tables
 WHERE tablename LIKE '%embedding%' OR tablename LIKE '%semantic%'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
@@ -367,6 +395,7 @@ SELECT * FROM pg_stat_user_indexes WHERE indexrelname LIKE '%embedding%';
 ```
 
 ### Cleanup Operations
+
 ```bash
 # Clear expired embeddings
 psql $DATABASE_URL -c "SELECT cleanup_expired_embeddings();"
@@ -406,12 +435,12 @@ node -e "const { EmbeddingCache } = require('./server/services/redis-client.ts')
 
 ### Support Channels
 
-- **Technical Issues**: Check error logs and performance metrics  
+- **Technical Issues**: Check error logs and performance metrics
 - **Configuration**: Review environment variables and validation
 - **Performance**: Monitor cache hit rates and query performance
 
 ---
 
-**Setup Complete!** 🎉 
+**Setup Complete!** 🎉
 
 Your environment is ready for semantic enhancement development. Run the test suite to verify everything is working correctly.

@@ -1,11 +1,11 @@
 /**
  * CRITICAL TIER UPGRADE VALIDATION TESTS
- * 
+ *
  * These tests validate the fixes for tier upgrade webhooks that were causing
  * revenue protection failures. The core issue was webhook handlers only updating
  * userProfiles table but not emailCaptures table, causing getUserTier() to return
  * wrong tier information.
- * 
+ *
  * BUSINESS IMPACT: Without these fixes, paid customers could be treated as free users,
  * causing revenue loss and customer dissatisfaction.
  */
@@ -25,8 +25,8 @@ vi.mock('../../server/services/stripe', () => ({
   TIER_PRICES: {
     coffee: { priceId: 'price_coffee_123' },
     growth: { priceId: 'price_growth_456' },
-    scale: { priceId: 'price_scale_789' }
-  }
+    scale: { priceId: 'price_scale_789' },
+  },
 }));
 
 // Mock storage
@@ -65,26 +65,26 @@ const mockStorage: IStorage = {
   consumeCredit: vi.fn(),
   deleteAnalysesForUser: vi.fn(),
   deleteLlmFilesForUser: vi.fn(),
-  deleteUsageForUser: vi.fn()
+  deleteUsageForUser: vi.fn(),
 };
 
 vi.mock('../../server/storage', () => ({
-  storage: mockStorage
+  storage: mockStorage,
 }));
 
 // Mock auth storage
 const mockAuthStorage = {
   getUserByEmail: vi.fn(),
   updateUser: vi.fn(),
-  createUser: vi.fn()
+  createUser: vi.fn(),
 };
 
 vi.mock('../../server/services/auth-storage', () => ({
-  authStorage: mockAuthStorage
+  authStorage: mockAuthStorage,
 }));
 
 vi.mock('../../server/services/auth', () => ({
-  hashPassword: vi.fn().mockResolvedValue('hashed_password')
+  hashPassword: vi.fn().mockResolvedValue('hashed_password'),
 }));
 
 describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
@@ -100,22 +100,22 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
           userId: '123',
           paymentType: 'one_time',
           productType: 'coffee',
-          priceId: 'price_coffee_123'
+          priceId: 'price_coffee_123',
         },
         customer_details: {
-          email: 'test@example.com'
+          email: 'test@example.com',
         },
-        payment_intent: 'pi_test123'
+        payment_intent: 'pi_test123',
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue({
         id: 1,
         email: 'test@example.com',
-        tier: 'starter'
+        tier: 'starter',
       });
 
       (mockStorage.getUserProfile as Mock).mockResolvedValue({
-        creditsRemaining: 0
+        creditsRemaining: 0,
       });
 
       // Import the handler function dynamically
@@ -125,14 +125,14 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       await handleCheckoutCompleted(mockSession);
 
       // Assert - CRITICAL: emailCaptures must be updated to Coffee tier
-      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('test@example.com', { 
-        tier: 'coffee' 
+      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('test@example.com', {
+        tier: 'coffee',
       });
 
       // Verify userProfiles is also updated
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('123', {
         creditsRemaining: 1,
-        tier: 'coffee'
+        tier: 'coffee',
       });
 
       // Verify credit is created
@@ -142,7 +142,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         creditsTotal: 1,
         productType: 'coffee',
         priceId: 'price_coffee_123',
-        stripePaymentIntentId: 'pi_test123'
+        stripePaymentIntentId: 'pi_test123',
       });
     });
 
@@ -151,12 +151,12 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       const mockSession = {
         metadata: {
           userId: '456',
-          priceId: 'price_growth_456'
+          priceId: 'price_growth_456',
         },
         customer_details: {
-          email: 'growth@example.com'
+          email: 'growth@example.com',
         },
-        subscription: 'sub_test456'
+        subscription: 'sub_test456',
       };
 
       mockGetTierFromPriceId.mockReturnValue('growth');
@@ -164,7 +164,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       (mockStorage.getEmailCapture as Mock).mockResolvedValue({
         id: 2,
         email: 'growth@example.com',
-        tier: 'starter'
+        tier: 'starter',
       });
 
       const { handleCheckoutCompleted } = await import('./test-webhook-handlers');
@@ -173,14 +173,14 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       await handleCheckoutCompleted(mockSession);
 
       // Assert - CRITICAL: emailCaptures must be updated to Growth tier
-      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('growth@example.com', { 
-        tier: 'growth' 
+      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('growth@example.com', {
+        tier: 'growth',
       });
 
       // Verify userProfiles subscription is created
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('456', {
         subscriptionId: 'sub_test456',
-        subscriptionStatus: 'active'
+        subscriptionStatus: 'active',
       });
     });
 
@@ -189,12 +189,12 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       const mockSession = {
         metadata: {
           userId: '789',
-          priceId: 'price_scale_789'
+          priceId: 'price_scale_789',
         },
         customer_details: {
-          email: 'scale@example.com'
+          email: 'scale@example.com',
         },
-        subscription: 'sub_test789'
+        subscription: 'sub_test789',
       };
 
       mockGetTierFromPriceId.mockReturnValue('scale');
@@ -210,7 +210,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       expect(mockStorage.createEmailCapture).toHaveBeenCalledWith({
         email: 'scale@example.com',
         tier: 'scale',
-        websiteUrl: null
+        websiteUrl: null,
       });
     });
 
@@ -220,8 +220,8 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         metadata: {
           userId: '999',
           paymentType: 'one_time',
-          productType: 'coffee'
-        }
+          productType: 'coffee',
+        },
         // No customer_details or customer_email
       };
 
@@ -229,7 +229,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
 
       // Act & Assert - Should not throw error
       await expect(handleCheckoutCompleted(mockSession)).resolves.not.toThrow();
-      
+
       // emailCaptures should not be called without email
       expect(mockStorage.updateEmailCapture).not.toHaveBeenCalled();
       expect(mockStorage.createEmailCapture).not.toHaveBeenCalled();
@@ -243,29 +243,31 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         id: 'sub_updated123',
         customer: 'cus_test123',
         metadata: {
-          userId: '456'
+          userId: '456',
         },
         items: {
-          data: [{
-            price: {
-              id: 'price_scale_789',
-              unit_amount: 9900,
-              currency: 'usd'
-            }
-          }]
+          data: [
+            {
+              price: {
+                id: 'price_scale_789',
+                unit_amount: 9900,
+                currency: 'usd',
+              },
+            },
+          ],
         },
-        status: 'active'
+        status: 'active',
       };
 
       mockGetTierFromPriceId.mockReturnValue('scale');
       mockGetStripeCustomer.mockResolvedValue({
-        email: 'upgrade@example.com'
+        email: 'upgrade@example.com',
       });
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue({
         id: 3,
         email: 'upgrade@example.com',
-        tier: 'growth'
+        tier: 'growth',
       });
 
       const { handleSubscriptionUpdate } = await import('./test-webhook-handlers');
@@ -274,15 +276,15 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       await handleSubscriptionUpdate(mockSubscription);
 
       // Assert - CRITICAL: emailCaptures must be updated to new tier
-      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('upgrade@example.com', { 
-        tier: 'scale' 
+      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('upgrade@example.com', {
+        tier: 'scale',
       });
 
       // Verify userProfiles is updated
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('456', {
         tier: 'scale',
         subscriptionId: 'sub_updated123',
-        subscriptionStatus: 'active'
+        subscriptionStatus: 'active',
       });
 
       // Verify payment history is created
@@ -292,7 +294,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         amount: 9900,
         currency: 'usd',
         status: 'paid',
-        tier: 'scale'
+        tier: 'scale',
       });
     });
 
@@ -302,21 +304,23 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         id: 'sub_new123',
         customer: 'cus_new123',
         metadata: {
-          userId: '999'
+          userId: '999',
         },
         items: {
-          data: [{
-            price: {
-              id: 'price_growth_456'
-            }
-          }]
+          data: [
+            {
+              price: {
+                id: 'price_growth_456',
+              },
+            },
+          ],
         },
-        status: 'active'
+        status: 'active',
       };
 
       mockGetTierFromPriceId.mockReturnValue('growth');
       mockGetStripeCustomer.mockResolvedValue({
-        email: 'newcustomer@example.com'
+        email: 'newcustomer@example.com',
       });
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(null); // No existing record
@@ -330,7 +334,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       expect(mockStorage.createEmailCapture).toHaveBeenCalledWith({
         email: 'newcustomer@example.com',
         tier: 'growth',
-        websiteUrl: null
+        websiteUrl: null,
       });
     });
 
@@ -340,16 +344,18 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         id: 'sub_error123',
         customer: 'cus_error123',
         metadata: {
-          userId: '888'
+          userId: '888',
         },
         items: {
-          data: [{
-            price: {
-              id: 'price_growth_456'
-            }
-          }]
+          data: [
+            {
+              price: {
+                id: 'price_growth_456',
+              },
+            },
+          ],
         },
-        status: 'active'
+        status: 'active',
       };
 
       mockGetTierFromPriceId.mockReturnValue('growth');
@@ -359,12 +365,12 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
 
       // Act & Assert - Should not throw error
       await expect(handleSubscriptionUpdate(mockSubscription)).resolves.not.toThrow();
-      
+
       // userProfiles should still be updated
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('888', {
         tier: 'growth',
         subscriptionId: 'sub_error123',
-        subscriptionStatus: 'active'
+        subscriptionStatus: 'active',
       });
     });
   });
@@ -376,18 +382,18 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         id: 'sub_cancelled123',
         customer: 'cus_cancelled123',
         metadata: {
-          userId: '777'
-        }
+          userId: '777',
+        },
       };
 
       mockGetStripeCustomer.mockResolvedValue({
-        email: 'cancelled@example.com'
+        email: 'cancelled@example.com',
       });
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue({
         id: 4,
         email: 'cancelled@example.com',
-        tier: 'scale'
+        tier: 'scale',
       });
 
       const { handleSubscriptionCancelled } = await import('./test-webhook-handlers');
@@ -396,14 +402,14 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       await handleSubscriptionCancelled(mockSubscription);
 
       // Assert - CRITICAL: emailCaptures must be downgraded to starter
-      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('cancelled@example.com', { 
-        tier: 'starter' 
+      expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('cancelled@example.com', {
+        tier: 'starter',
       });
 
       // Verify userProfiles is downgraded
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('777', {
         tier: 'starter',
-        subscriptionStatus: 'cancelled'
+        subscriptionStatus: 'cancelled',
       });
     });
 
@@ -413,8 +419,8 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         id: 'sub_cancelled456',
         customer: 'cus_cancelled456',
         metadata: {
-          userId: '666'
-        }
+          userId: '666',
+        },
       };
 
       mockGetStripeCustomer.mockRejectedValue(new Error('Customer lookup failed'));
@@ -423,11 +429,11 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
 
       // Act & Assert - Should not throw error
       await expect(handleSubscriptionCancelled(mockSubscription)).resolves.not.toThrow();
-      
+
       // userProfiles should still be downgraded
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('666', {
         tier: 'starter',
-        subscriptionStatus: 'cancelled'
+        subscriptionStatus: 'cancelled',
       });
     });
   });
@@ -439,14 +445,16 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         metadata: {
           userId: '500',
           paymentType: 'one_time',
-          productType: 'coffee'
+          productType: 'coffee',
         },
         customer_details: {
-          email: 'error@example.com'
-        }
+          email: 'error@example.com',
+        },
       };
 
-      (mockStorage.updateEmailCapture as Mock).mockRejectedValue(new Error('Database connection failed'));
+      (mockStorage.updateEmailCapture as Mock).mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       const { handleCheckoutCompleted } = await import('./test-webhook-handlers');
 
@@ -460,18 +468,18 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         metadata: {
           // Missing userId
           paymentType: 'one_time',
-          productType: 'coffee'
+          productType: 'coffee',
         },
         customer_details: {
-          email: 'nouserid@example.com'
-        }
+          email: 'nouserid@example.com',
+        },
       };
 
       const { handleCheckoutCompleted } = await import('./test-webhook-handlers');
 
       // Act & Assert - Should return early without processing
       await expect(handleCheckoutCompleted(mockSession)).resolves.not.toThrow();
-      
+
       // No storage operations should be called
       expect(mockStorage.updateEmailCapture).not.toHaveBeenCalled();
       expect(mockStorage.updateUserProfile).not.toHaveBeenCalled();

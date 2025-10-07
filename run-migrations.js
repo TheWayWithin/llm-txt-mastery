@@ -19,7 +19,7 @@ async function runMigrations() {
   }
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  
+
   try {
     // Create migrations table if it doesn't exist
     await pool.query(`
@@ -32,12 +32,13 @@ async function runMigrations() {
 
     // Get list of executed migrations
     const executedResult = await pool.query('SELECT filename FROM "migrations"');
-    const executedMigrations = new Set(executedResult.rows.map(row => row.filename));
+    const executedMigrations = new Set(executedResult.rows.map((row) => row.filename));
 
     // Read migration files
     const migrationsDir = path.join(__dirname, 'migrations');
-    const migrationFiles = fs.readdirSync(migrationsDir)
-      .filter(file => file.endsWith('.sql'))
+    const migrationFiles = fs
+      .readdirSync(migrationsDir)
+      .filter((file) => file.endsWith('.sql'))
       .sort();
 
     let executedCount = 0;
@@ -49,19 +50,19 @@ async function runMigrations() {
       }
 
       console.log(`🔄 Executing ${filename}...`);
-      
+
       const filePath = path.join(migrationsDir, filename);
       const sql = fs.readFileSync(filePath, 'utf8');
-      
+
       // Execute migration in a transaction
       await pool.query('BEGIN');
-      
+
       try {
         // Split by semicolons but preserve those within strings
         const statements = sql
           .split(/;(?=(?:[^']*'[^']*')*[^']*$)/)
-          .filter(stmt => stmt.trim().length > 0 && !stmt.trim().startsWith('--'))
-          .map(stmt => stmt.trim());
+          .filter((stmt) => stmt.trim().length > 0 && !stmt.trim().startsWith('--'))
+          .map((stmt) => stmt.trim());
 
         // Execute each statement
         for (const statement of statements) {
@@ -69,10 +70,10 @@ async function runMigrations() {
             await pool.query(statement);
           }
         }
-        
+
         await pool.query('INSERT INTO "migrations" (filename) VALUES ($1)', [filename]);
         await pool.query('COMMIT');
-        
+
         console.log(`✅ Successfully executed ${filename}`);
         executedCount++;
       } catch (error) {
@@ -87,7 +88,6 @@ async function runMigrations() {
     } else {
       console.log(`✨ Successfully executed ${executedCount} migration(s)`);
     }
-
   } catch (error) {
     console.error('❌ Migration failed:', error.message);
     process.exit(1);

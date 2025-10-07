@@ -1,72 +1,76 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
-// Keep existing users table as-is for backward compatibility  
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+// Keep existing users table as-is for backward compatibility
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  username: text('username').notNull().unique(),
+  password: text('password').notNull(),
 });
 
 // New authentication users table
-export const authUsers = pgTable("auth_users", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
-  emailVerified: boolean("email_verified").default(false),
-  tier: text("tier").notNull().default("starter"), // "starter", "coffee", "growth", "scale"
-  creditsRemaining: integer("credits_remaining").default(0), // For coffee tier
-  stripeCustomerId: text("stripe_customer_id"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const authUsers = pgTable('auth_users', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  emailVerified: boolean('email_verified').default(false),
+  tier: text('tier').notNull().default('starter'), // "starter", "coffee", "growth", "scale"
+  creditsRemaining: integer('credits_remaining').default(0), // For coffee tier
+  stripeCustomerId: text('stripe_customer_id'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const emailCaptures = pgTable("emailCaptures", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  email: text("email").notNull().unique(),
-  websiteUrl: text("websiteUrl"), // Made optional to fix email capture
-  tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
-  createdAt: timestamp("createdAt").defaultNow(),
+export const emailCaptures = pgTable('emailCaptures', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  email: text('email').notNull().unique(),
+  websiteUrl: text('websiteUrl'), // Made optional to fix email capture
+  tier: text('tier').notNull().default('starter'), // "starter", "growth", or "scale"
+  createdAt: timestamp('createdAt').defaultNow(),
 });
 
-export const subscriptions = pgTable("subscriptions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  stripeCustomerId: text("stripe_customer_id").unique(),
-  stripeSubscriptionId: text("stripe_subscription_id").unique(),
-  tier: text("tier").notNull().default("starter"), // "starter", "growth", or "scale"
-  status: text("status").notNull().default("active"), // "active", "canceled", "past_due", "incomplete"
-  currentPeriodStart: timestamp("current_period_start"),
-  currentPeriodEnd: timestamp("current_period_end"),
-  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const subscriptions = pgTable('subscriptions', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  tier: text('tier').notNull().default('starter'), // "starter", "growth", or "scale"
+  status: text('status').notNull().default('active'), // "active", "canceled", "past_due", "incomplete"
+  currentPeriodStart: timestamp('current_period_start'),
+  currentPeriodEnd: timestamp('current_period_end'),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const paymentHistory = pgTable("payment_history", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
-  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
-  amount: integer("amount").notNull(), // Amount in cents
-  currency: text("currency").notNull().default("usd"),
-  status: text("status").notNull(), // "succeeded", "failed", "pending"
-  createdAt: timestamp("created_at").defaultNow(),
+export const paymentHistory = pgTable('payment_history', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  subscriptionId: integer('subscription_id').references(() => subscriptions.id),
+  stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
+  amount: integer('amount').notNull(), // Amount in cents
+  currency: text('currency').notNull().default('usd'),
+  status: text('status').notNull(), // "succeeded", "failed", "pending"
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const sitemapAnalysis = pgTable("sitemapAnalysis", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  url: text("url").notNull(),
-  sitemapContent: jsonb("sitemap_content"),
-  discoveredPages: jsonb("discovered_pages").$type<DiscoveredPage[]>(),
-  status: text("status").notNull().default("pending"),
-  analysisMetadata: jsonb("analysis_metadata").$type<{
-    siteType: "single-page" | "multi-page" | "unknown";
+export const sitemapAnalysis = pgTable('sitemapAnalysis', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  url: text('url').notNull(),
+  sitemapContent: jsonb('sitemap_content'),
+  discoveredPages: jsonb('discovered_pages').$type<DiscoveredPage[]>(),
+  status: text('status').notNull().default('pending'),
+  analysisMetadata: jsonb('analysis_metadata').$type<{
+    siteType: 'single-page' | 'multi-page' | 'unknown';
     sitemapFound: boolean;
-    analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
+    analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
     message: string;
     totalPagesFound: number;
     userEmail?: string;
@@ -83,90 +87,96 @@ export const sitemapAnalysis = pgTable("sitemapAnalysis", {
     };
     processingTime?: number;
   }>(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const llmTextFiles = pgTable("llmTextFiles", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  analysisId: integer("analysis_id").references(() => sitemapAnalysis.id),
-  selectedPages: jsonb("selected_pages").$type<SelectedPage[]>(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+export const llmTextFiles = pgTable('llmTextFiles', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  analysisId: integer('analysis_id').references(() => sitemapAnalysis.id),
+  selectedPages: jsonb('selected_pages').$type<SelectedPage[]>(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const usageTracking = pgTable("usage_tracking", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  date: text("date").notNull(), // YYYY-MM-DD format
-  analysesCount: integer("analyses_count").notNull().default(0),
-  pagesProcessed: integer("pages_processed").notNull().default(0),
-  aiCallsCount: integer("ai_calls_count").notNull().default(0),
-  htmlExtractionsCount: integer("html_extractions_count").notNull().default(0),
-  cacheHits: integer("cache_hits").notNull().default(0),
-  totalCost: integer("total_cost").notNull().default(0), // Cost in cents
+export const usageTracking = pgTable('usage_tracking', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  date: text('date').notNull(), // YYYY-MM-DD format
+  analysesCount: integer('analyses_count').notNull().default(0),
+  pagesProcessed: integer('pages_processed').notNull().default(0),
+  aiCallsCount: integer('ai_calls_count').notNull().default(0),
+  htmlExtractionsCount: integer('html_extractions_count').notNull().default(0),
+  cacheHits: integer('cache_hits').notNull().default(0),
+  totalCost: integer('total_cost').notNull().default(0), // Cost in cents
   // New AI cost tracking fields
-  actualTokensUsed: integer("actual_tokens_used").default(0),
-  actualAiCost: integer("actual_ai_cost").default(0), // Actual AI cost in cents
-  modelUsed: text("model_used"), // Track which OpenAI model was used
-  costCapWouldTrigger: boolean("cost_cap_would_trigger").default(false),
-  costCapTriggeredAt: timestamp("cost_cap_triggered_at"),
+  actualTokensUsed: integer('actual_tokens_used').default(0),
+  actualAiCost: integer('actual_ai_cost').default(0), // Actual AI cost in cents
+  modelUsed: text('model_used'), // Track which OpenAI model was used
+  costCapWouldTrigger: boolean('cost_cap_would_trigger').default(false),
+  costCapTriggeredAt: timestamp('cost_cap_triggered_at'),
 });
 
-export const analysisCache = pgTable("analysis_cache", {
-  id: serial("id").primaryKey(),
-  url: text("url").notNull(),
-  urlHash: text("url_hash").notNull().unique(),
-  contentHash: text("content_hash").notNull(),
-  lastModified: text("last_modified"),
-  etag: text("etag"),
-  analysisResult: jsonb("analysis_result").$type<DiscoveredPage[]>(),
-  tier: text("tier").notNull(),
-  cachedAt: timestamp("cached_at").defaultNow(),
-  expiresAt: timestamp("expires_at").notNull(),
-  hitCount: integer("hit_count").notNull().default(0),
+export const analysisCache = pgTable('analysis_cache', {
+  id: serial('id').primaryKey(),
+  url: text('url').notNull(),
+  urlHash: text('url_hash').notNull().unique(),
+  contentHash: text('content_hash').notNull(),
+  lastModified: text('last_modified'),
+  etag: text('etag'),
+  analysisResult: jsonb('analysis_result').$type<DiscoveredPage[]>(),
+  tier: text('tier').notNull(),
+  cachedAt: timestamp('cached_at').defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+  hitCount: integer('hit_count').notNull().default(0),
 });
 
-export const oneTimeCredits = pgTable("one_time_credits", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  creditsRemaining: integer("credits_remaining").notNull().default(0),
-  creditsTotal: integer("credits_total").notNull().default(0),
-  productType: text("product_type").notNull().default("coffee"), // "coffee", future: "pro", etc.
-  priceId: text("price_id"), // Stripe price ID for the purchase
-  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
-  purchasedAt: timestamp("purchased_at").notNull().defaultNow(), // Track for 30-day guarantee
-  refunded: boolean("refunded").notNull().default(false),
-  refundedAt: timestamp("refunded_at"),
+export const oneTimeCredits = pgTable('one_time_credits', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  creditsRemaining: integer('credits_remaining').notNull().default(0),
+  creditsTotal: integer('credits_total').notNull().default(0),
+  productType: text('product_type').notNull().default('coffee'), // "coffee", future: "pro", etc.
+  priceId: text('price_id'), // Stripe price ID for the purchase
+  stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
+  purchasedAt: timestamp('purchased_at').notNull().defaultNow(), // Track for 30-day guarantee
+  refunded: boolean('refunded').notNull().default(false),
+  refundedAt: timestamp('refunded_at'),
   // expiresAt: timestamp("expires_at"), // REMOVED: Column doesn't exist in production DB
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const userProfiles = pgTable("user_profiles", {
-  id: text("id").primaryKey(), // Supabase user UUID
-  email: text("email").notNull(),
-  tier: text("tier").notNull().default("starter"),
-  stripeCustomerId: text("stripe_customer_id").unique(),
-  subscriptionId: text("subscription_id"),
-  subscriptionStatus: text("subscription_status"),
-  creditsRemaining: integer("credits_remaining").notNull().default(0), // Current coffee credits
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const userProfiles = pgTable('user_profiles', {
+  id: text('id').primaryKey(), // Supabase user UUID
+  email: text('email').notNull(),
+  tier: text('tier').notNull().default('starter'),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  subscriptionId: text('subscription_id'),
+  subscriptionStatus: text('subscription_status'),
+  creditsRemaining: integer('credits_remaining').notNull().default(0), // Current coffee credits
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // User sessions for JWT token management
-export const userSessions = pgTable("user_sessions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => authUsers.id),
-  tokenHash: text("token_hash").notNull().unique(),
-  refreshTokenHash: text("refresh_token_hash").notNull().unique(),
-  expiresAt: timestamp("expires_at").notNull(),
-  refreshExpiresAt: timestamp("refresh_expires_at").notNull(),
-  userAgent: text("user_agent"),
-  ipAddress: text("ip_address"),
-  createdAt: timestamp("created_at").defaultNow(),
-  lastUsedAt: timestamp("last_used_at").defaultNow(),
+export const userSessions = pgTable('user_sessions', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => authUsers.id),
+  tokenHash: text('token_hash').notNull().unique(),
+  refreshTokenHash: text('refresh_token_hash').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  refreshExpiresAt: timestamp('refresh_expires_at').notNull(),
+  userAgent: text('user_agent'),
+  ipAddress: text('ip_address'),
+  createdAt: timestamp('created_at').defaultNow(),
+  lastUsedAt: timestamp('last_used_at').defaultNow(),
 });
 
 export interface DiscoveredPage {
@@ -181,11 +191,11 @@ export interface DiscoveredPage {
 export interface SiteAnalysisResult {
   id: number;
   url: string;
-  status: "analyzing" | "completed" | "failed" | "pending" | "processing";
+  status: 'analyzing' | 'completed' | 'failed' | 'pending' | 'processing';
   discoveredPages: DiscoveredPage[];
-  siteType: "single-page" | "multi-page" | "unknown";
+  siteType: 'single-page' | 'multi-page' | 'unknown';
   sitemapFound: boolean;
-  analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
+  analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
   message: string;
   totalPagesFound: number;
   metrics?: {
@@ -206,7 +216,7 @@ export interface SelectedPage {
 }
 
 export const urlAnalysisSchema = z.object({
-  url: z.string().url("Please enter a valid URL"),
+  url: z.string().url('Please enter a valid URL'),
 });
 
 export const insertSitemapAnalysisSchema = createInsertSchema(sitemapAnalysis).pick({
@@ -301,14 +311,12 @@ export const insertUserProfileSchema = createInsertSchema(userProfiles).pick({
 });
 
 export const emailCaptureSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  websiteUrl: z.union([
-    z.string().url("Please enter a valid URL"),
-    z.literal(""),
-    z.null(),
-    z.undefined()
-  ]).optional().nullable(),
-  tier: z.enum(["starter", "coffee", "growth", "scale"]).default("coffee"),
+  email: z.string().email('Please enter a valid email address'),
+  websiteUrl: z
+    .union([z.string().url('Please enter a valid URL'), z.literal(''), z.null(), z.undefined()])
+    .optional()
+    .nullable(),
+  tier: z.enum(['starter', 'coffee', 'growth', 'scale']).default('coffee'),
 });
 
 export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;
@@ -397,18 +405,20 @@ export const insertUserSessionSchema = createInsertSchema(userSessions).pick({
   ipAddress: true,
 });
 
-export const userRegistrationSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const userRegistrationSchema = z
+  .object({
+    email: z.string().email('Please enter a valid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 export const userLoginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 export type User = typeof users.$inferSelect;
@@ -420,33 +430,37 @@ export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type UserLogin = z.infer<typeof userLoginSchema>;
 
 // Cancellation and refund tracking
-export const cancellations = pgTable("cancellations", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => authUsers.id),
-  subscriptionId: text("subscription_id"),
-  tier: text("tier").notNull(),
-  reason: text("reason"),
-  requestedAt: timestamp("requested_at").notNull().defaultNow(),
-  processedAt: timestamp("processed_at"),
-  refundAmount: integer("refund_amount"), // Amount in cents
-  refundStatus: text("refund_status"), // pending, processing, completed, failed
-  refundStripeId: text("refund_stripe_id"),
-  purchaseDate: timestamp("purchase_date"), // For 30-day guarantee check
-  daysSincePurchase: integer("days_since_purchase"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+export const cancellations = pgTable('cancellations', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => authUsers.id),
+  subscriptionId: text('subscription_id'),
+  tier: text('tier').notNull(),
+  reason: text('reason'),
+  requestedAt: timestamp('requested_at').notNull().defaultNow(),
+  processedAt: timestamp('processed_at'),
+  refundAmount: integer('refund_amount'), // Amount in cents
+  refundStatus: text('refund_status'), // pending, processing, completed, failed
+  refundStripeId: text('refund_stripe_id'),
+  purchaseDate: timestamp('purchase_date'), // For 30-day guarantee check
+  daysSincePurchase: integer('days_since_purchase'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const refundRequests = pgTable("refund_requests", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => authUsers.id),
-  cancellationId: integer("cancellation_id").references(() => cancellations.id),
-  amount: integer("amount").notNull(), // Amount in cents
-  reason: text("reason"),
-  status: text("status").notNull().default("pending"),
-  stripeRefundId: text("stripe_refund_id"),
-  processedAt: timestamp("processed_at"),
-  errorMessage: text("error_message"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+export const refundRequests = pgTable('refund_requests', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => authUsers.id),
+  cancellationId: integer('cancellation_id').references(() => cancellations.id),
+  amount: integer('amount').notNull(), // Amount in cents
+  reason: text('reason'),
+  status: text('status').notNull().default('pending'),
+  stripeRefundId: text('stripe_refund_id'),
+  processedAt: timestamp('processed_at'),
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
 // JWT payload interface

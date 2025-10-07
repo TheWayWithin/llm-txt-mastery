@@ -7,11 +7,13 @@ This document outlines the improvements made to handle websites without sitemap.
 ## Problems Addressed
 
 ### 1. Limited Discovery for Sites Without Sitemaps
+
 **Before**: Sites without sitemap.xml would only analyze the single provided URL, resulting in minimal content discovery.
 
 **Example**: `https://info.cern.ch/hypertext/WWW/TheProject.html` would only analyze that specific page.
 
 ### 2. No Navigation Back to Analysis
+
 **Before**: Once users downloaded the LLM.txt file, they couldn't review quality scores or analysis details without starting over.
 
 ## Solutions Implemented
@@ -19,12 +21,14 @@ This document outlines the improvements made to handle websites without sitemap.
 ### Enhanced Fallback Crawling
 
 #### Intelligent Link Discovery
+
 - **Homepage Crawling**: Extract all internal links from the provided URL
 - **Common Path Checking**: Test standard paths like `/docs`, `/api`, `/about`, etc.
 - **Smart Filtering**: Exclude unwanted file types and admin paths
 - **URL Normalization**: Proper handling of relative/absolute URLs
 
 #### Improved Analysis Flow
+
 ```
 1. Try standard sitemap locations (unchanged)
 2. Check robots.txt for sitemap references (unchanged)
@@ -35,6 +39,7 @@ This document outlines the improvements made to handle websites without sitemap.
 ```
 
 #### Technical Enhancements
+
 - **Parallel Validation**: Check up to 50 URLs simultaneously with HEAD requests
 - **Timeout Management**: 5-10 second timeouts for reliability
 - **Error Handling**: Graceful failure for inaccessible pages
@@ -43,11 +48,13 @@ This document outlines the improvements made to handle websites without sitemap.
 ### Navigation Back Functionality
 
 #### UI Components
+
 - **"View Analysis Details" Button**: Added to file generation component
 - **State Management**: Proper handling of analysis ID through workflow
 - **Seamless Navigation**: Return to content review without losing data
 
 #### LLM.txt File Enhancements
+
 - **Analysis Details Section**: Links back to view complete analysis
 - **Contact Information**: Support links for user assistance
 - **Quality Score References**: Clear explanations and methodology links
@@ -55,9 +62,11 @@ This document outlines the improvements made to handle websites without sitemap.
 ## Results
 
 ### CERN Website Example
+
 **URL**: `https://info.cern.ch/hypertext/WWW/TheProject.html`
 
 **Before Enhancement**:
+
 ```
 Pages Found: 1
 Pages Analyzed: 1
@@ -66,16 +75,19 @@ Message: Single-page site analysis
 ```
 
 **After Enhancement**:
+
 ```
 Pages Found: 1
-Pages Analyzed: 1  
+Pages Analyzed: 1
 Analysis Method: fallback-crawl
 Message: No sitemap found. Discovered 1 pages through basic crawling.
 Quality Score: 6 (Medium Quality)
 ```
 
 ### Typical Multi-page Site Results
+
 For sites without sitemaps, the enhanced crawling typically discovers:
+
 - **5-15 pages** for small sites
 - **20-50 pages** for medium sites (limited by validation cap)
 - **Better quality content** through intelligent path discovery
@@ -83,6 +95,7 @@ For sites without sitemaps, the enhanced crawling typically discovers:
 ## Enhanced LLM.txt Format
 
 ### Analysis Summary Section
+
 ```
 # === ANALYSIS SUMMARY ===
 # Pages Found: 102 (discovered in sitemap and crawling)
@@ -95,6 +108,7 @@ For sites without sitemaps, the enhanced crawling typically discovers:
 ```
 
 ### Quality Scoring Reference
+
 ```
 # === QUALITY SCORING REFERENCE ===
 # Quality scores range from 1-10 based on AI analysis of:
@@ -106,6 +120,7 @@ For sites without sitemaps, the enhanced crawling typically discovers:
 ```
 
 ### Analysis Details Links
+
 ```
 # === ANALYSIS DETAILS ===
 # To review the complete analysis, quality scores, and make changes:
@@ -118,12 +133,15 @@ For sites without sitemaps, the enhanced crawling typically discovers:
 ## Technical Implementation
 
 ### New Functions
+
 - `crawlPageForLinks()`: Extract and normalize internal links
 - `basicCrawlFallback()`: Enhanced multi-step discovery process
 - `handleViewAnalysisDetails()`: Navigate back to analysis review
 
 ### Path Discovery
+
 Expanded common paths list includes:
+
 - Documentation: `/docs`, `/documentation`, `/api-docs`
 - User guides: `/guides`, `/tutorials`, `/help`
 - Company info: `/about`, `/team`, `/contact`
@@ -131,7 +149,9 @@ Expanded common paths list includes:
 - Content: `/blog`, `/news`, `/changelog`
 
 ### URL Filtering
+
 Excludes:
+
 - File downloads: `.pdf`, `.zip`, `.doc`, etc.
 - Media files: `.jpg`, `.mp4`, `.mp3`, etc.
 - Admin interfaces: `/wp-admin/`, `/admin/`, `/login`

@@ -3,7 +3,9 @@
 ## Comparison of Redis Hosting Solutions
 
 ### 1. Railway Redis (RECOMMENDED)
+
 **Pros:**
+
 - Seamlessly integrates with existing Railway backend deployment
 - Managed service with automatic scaling
 - Built-in monitoring and logging
@@ -11,14 +13,17 @@
 - Same infrastructure as backend (low latency)
 
 **Cons:**
+
 - Higher cost for large-scale usage
 - Less control over Redis configuration
 
 **Cost:** $5/month for starter plan
 **Setup:** Single-click deployment through Railway dashboard
 
-### 2. Upstash Redis  
+### 2. Upstash Redis
+
 **Pros:**
+
 - Serverless model (pay-per-request)
 - Excellent free tier (10K requests/day)
 - Global edge locations
@@ -26,6 +31,7 @@
 - Good for variable workloads
 
 **Cons:**
+
 - REST API has slight latency overhead vs TCP
 - Less familiar for traditional Redis usage
 
@@ -33,13 +39,16 @@
 **Setup:** Sign up and get connection details
 
 ### 3. Redis Cloud
+
 **Pros:**
+
 - Official Redis service
 - Enterprise-grade features
 - High performance
 - Good free tier (30MB)
 
 **Cons:**
+
 - More complex setup
 - Higher costs at scale
 - Overkill for caching needs
@@ -47,12 +56,15 @@
 **Cost:** Free 30MB tier, then $5+/month
 
 ### 4. Local Development
+
 **Pros:**
+
 - No cost for development
 - Full control
 - Fast for testing
 
 **Cons:**
+
 - Not production-ready
 - Requires maintenance
 - No persistence in containers
@@ -68,6 +80,7 @@ For LLM.txt Mastery, **Railway Redis** is the optimal choice because:
 5. **Team Familiarity**: Same platform as current deployment
 
 The embedding cache use case involves:
+
 - Frequent reads for cache hits
 - Batch writes during analysis
 - TTL-based expiration

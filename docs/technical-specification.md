@@ -7,12 +7,14 @@ This document provides a comprehensive technical specification for implementing 
 ## 1. System Architecture Overview
 
 ### Current Stack
+
 - **Frontend**: React 18 + TypeScript + Vite (Netlify)
 - **Backend**: Express.js + TypeScript + Drizzle ORM (Railway)
 - **Database**: Neon PostgreSQL with connection pooling
 - **External APIs**: OpenAI GPT-4, Stripe Payments
 
 ### Required Extensions
+
 - **Database**: pgvector extension for embeddings
 - **APIs**: OpenAI Embeddings API integration
 - **Services**: New clustering and sequencing services
@@ -22,6 +24,7 @@ This document provides a comprehensive technical specification for implementing 
 ### 2.1 Topical Clustering
 
 #### Requirements
+
 - Group URLs into topical clusters with descriptive headers
 - Support 5-20 clusters per analysis
 - Maintain cluster coherence score > 0.7
@@ -43,22 +46,16 @@ interface ContentEmbedding {
 
 // Clustering Service
 class ClusteringService {
-  async generateClusters(
-    pages: PageAnalysis[],
-    config: ClusterConfig
-  ): Promise<ClusteredContent> {
+  async generateClusters(pages: PageAnalysis[], config: ClusterConfig): Promise<ClusteredContent> {
     // 1. Generate embeddings via OpenAI
     const embeddings = await this.generateEmbeddings(pages);
-    
+
     // 2. Apply K-means clustering
-    const clusters = await this.kMeansClustering(
-      embeddings,
-      config.numClusters || 'auto'
-    );
-    
+    const clusters = await this.kMeansClustering(embeddings, config.numClusters || 'auto');
+
     // 3. Generate cluster names
     const namedClusters = await this.generateClusterNames(clusters);
-    
+
     // 4. Calculate coherence scores
     return this.calculateCoherence(namedClusters);
   }
@@ -91,6 +88,7 @@ interface ClusterResponse {
 ### 2.2 Semantic Tagging
 
 #### Requirements
+
 - Generate 2-4 semantic tags per page
 - Support hierarchical tag relationships
 - Maintain tag consistency across similar pages
@@ -111,18 +109,16 @@ class TaggingService {
     type: ['interactive_tool', 'educational_content', 'reference', 'guide'],
     topic: ['finance', 'lifestyle', 'technology', 'business'],
     purpose: ['calculation', 'learning', 'comparison', 'analysis'],
-    audience: ['consumer', 'professional', 'academic', 'general']
+    audience: ['consumer', 'professional', 'academic', 'general'],
   };
 
-  async generateTags(
-    content: PageContent
-  ): Promise<SemanticTag[]> {
+  async generateTags(content: PageContent): Promise<SemanticTag[]> {
     // Rule-based extraction
     const ruleTags = this.extractRuleTags(content);
-    
+
     // AI-enhanced tagging
     const aiTags = await this.generateAITags(content);
-    
+
     // Merge and validate
     return this.mergeTags(ruleTags, aiTags);
   }
@@ -132,6 +128,7 @@ class TaggingService {
 ### 2.3 Enhanced Description Uniqueness
 
 #### Requirements
+
 - Uniqueness score > 0.8 for all descriptions
 - Automatic regeneration for low-uniqueness content
 - Context-aware variation generation
@@ -141,11 +138,9 @@ class TaggingService {
 
 ```typescript
 class UniquenessService {
-  async enhanceDescriptions(
-    descriptions: Description[]
-  ): Promise<EnhancedDescription[]> {
+  async enhanceDescriptions(descriptions: Description[]): Promise<EnhancedDescription[]> {
     const uniquenessMatrix = this.calculateUniquenessMatrix(descriptions);
-    
+
     return Promise.all(
       descriptions.map(async (desc, index) => {
         if (uniquenessMatrix[index].score < 0.8) {
@@ -156,13 +151,13 @@ class UniquenessService {
             context,
             uniquenessMatrix[index].similarTo
           );
-          
+
           // Validate uniqueness
           if (this.calculateUniqueness(enhanced, descriptions) < 0.8) {
             // Apply template-based variation
             return this.applyTemplateVariation(enhanced);
           }
-          
+
           return enhanced;
         }
         return desc;
@@ -175,6 +170,7 @@ class UniquenessService {
 ### 2.4 Blockquote Summary Generation
 
 #### Requirements
+
 - Executive summary in markdown blockquote
 - Key statistics and metrics
 - Topic overview with main themes
@@ -184,11 +180,12 @@ class UniquenessService {
 
 ```markdown
 > **About [Site Name]**
-> 
-> [3-5 sentence executive summary describing the website's purpose, 
-> target audience, and key value propositions]
-> 
+>
+> [3-5 sentence executive summary describing the website's purpose,
+> > target audience, and key value propositions]
+>
 > **Key Statistics:**
+>
 > - Total Pages: [count]
 > - Content Types: [list]
 > - Primary Topics: [list]
@@ -199,24 +196,22 @@ class UniquenessService {
 
 ```typescript
 class SummaryGenerator {
-  async generateBlockquote(
-    analysis: WebsiteAnalysis
-  ): Promise<BlockquoteSummary> {
+  async generateBlockquote(analysis: WebsiteAnalysis): Promise<BlockquoteSummary> {
     // Generate executive summary
     const executive = await this.generateExecutiveSummary(analysis);
-    
+
     // Extract key statistics
     const stats = this.extractStatistics(analysis);
-    
+
     // Identify primary topics
     const topics = this.identifyTopics(analysis.clusters);
-    
+
     // Format as markdown blockquote
     return this.formatBlockquote({
       siteName: analysis.siteName,
       summary: executive,
       statistics: stats,
-      topics: topics
+      topics: topics,
     });
   }
 }
@@ -225,6 +220,7 @@ class SummaryGenerator {
 ### 2.5 Multi-Mode Sequencing System
 
 #### Requirements
+
 - Three sequencing modes: Logical Grouping, Hierarchical Priority, Business Objective
 - User-configurable preferences
 - Live preview capabilities
@@ -236,7 +232,7 @@ class SummaryGenerator {
 enum SequencingMode {
   LOGICAL_GROUPING = 'logical', // Default: cluster-based
   HIERARCHICAL_PRIORITY = 'hierarchical', // Structure-based
-  BUSINESS_OBJECTIVE = 'business' // Goal-based
+  BUSINESS_OBJECTIVE = 'business', // Goal-based
 }
 
 interface SequencingConfig {
@@ -249,22 +245,16 @@ interface SequencingConfig {
 }
 
 class SequencingEngine {
-  async sequence(
-    content: ClusteredContent,
-    config: SequencingConfig
-  ): Promise<SequencedContent> {
+  async sequence(content: ClusteredContent, config: SequencingConfig): Promise<SequencedContent> {
     switch (config.mode) {
       case SequencingMode.LOGICAL_GROUPING:
         return this.logicalGroupingSequence(content);
-        
+
       case SequencingMode.HIERARCHICAL_PRIORITY:
         return this.hierarchicalPrioritySequence(content);
-        
+
       case SequencingMode.BUSINESS_OBJECTIVE:
-        return this.businessObjectiveSequence(
-          content,
-          config.preferences
-        );
+        return this.businessObjectiveSequence(content, config.preferences);
     }
   }
 }
@@ -325,14 +315,14 @@ CREATE INDEX idx_sequencing_user ON sequencing_preferences(user_id);
 // POST /api/analysis/cluster
 router.post('/analysis/cluster', async (req, res) => {
   const { analysisId, mode, numClusters } = req.body;
-  
+
   try {
     const analysis = await getAnalysis(analysisId);
-    const clusters = await clusteringService.generateClusters(
-      analysis.pages,
-      { mode, numClusters }
-    );
-    
+    const clusters = await clusteringService.generateClusters(analysis.pages, {
+      mode,
+      numClusters,
+    });
+
     await saveClusters(analysisId, clusters);
     res.json({ success: true, clusters });
   } catch (error) {
@@ -348,10 +338,7 @@ router.get('/analysis/:id/clusters', async (req, res) => {
 
 // PUT /api/analysis/:id/clusters/:clusterId
 router.put('/analysis/:id/clusters/:clusterId', async (req, res) => {
-  const updated = await updateCluster(
-    req.params.clusterId,
-    req.body
-  );
+  const updated = await updateCluster(req.params.clusterId, req.body);
   res.json(updated);
 });
 ```
@@ -362,21 +349,17 @@ router.put('/analysis/:id/clusters/:clusterId', async (req, res) => {
 // POST /api/analysis/tags
 router.post('/analysis/tags', async (req, res) => {
   const { analysisId, regenerate } = req.body;
-  
+
   const tags = regenerate
     ? await taggingService.regenerateTags(analysisId)
     : await taggingService.generateTags(analysisId);
-    
+
   res.json({ success: true, tags });
 });
 
 // PUT /api/analysis/:id/tags/:url
 router.put('/api/analysis/:id/tags/:url', async (req, res) => {
-  const updated = await updateTags(
-    req.params.id,
-    req.params.url,
-    req.body.tags
-  );
+  const updated = await updateTags(req.params.id, req.params.url, req.body.tags);
   res.json(updated);
 });
 ```
@@ -387,24 +370,18 @@ router.put('/api/analysis/:id/tags/:url', async (req, res) => {
 // POST /api/analysis/sequence
 router.post('/analysis/sequence', async (req, res) => {
   const { analysisId, mode, preferences } = req.body;
-  
-  const sequenced = await sequencingEngine.sequence(
-    analysisId,
-    { mode, preferences }
-  );
-  
+
+  const sequenced = await sequencingEngine.sequence(analysisId, { mode, preferences });
+
   res.json({ success: true, sequenced });
 });
 
 // GET /api/analysis/:id/sequence/preview
 router.get('/analysis/:id/sequence/preview', async (req, res) => {
   const { mode } = req.query;
-  
-  const preview = await sequencingEngine.preview(
-    req.params.id,
-    mode
-  );
-  
+
+  const preview = await sequencingEngine.preview(req.params.id, mode);
+
   res.json(preview);
 });
 ```
@@ -492,7 +469,7 @@ const SequencingControls: React.FC<SequencingControlsProps> = ({
           </SelectItem>
         </SelectContent>
       </Select>
-      
+
       <Button onClick={onPreview} variant="outline">
         <Eye className="w-4 h-4 mr-2" />
         Preview
@@ -509,11 +486,8 @@ const SequencingControls: React.FC<SequencingControlsProps> = ({
 ```typescript
 class CachingService {
   private redis: Redis;
-  
-  async cacheEmbeddings(
-    analysisId: string,
-    embeddings: Embedding[]
-  ): Promise<void> {
+
+  async cacheEmbeddings(analysisId: string, embeddings: Embedding[]): Promise<void> {
     const key = `embeddings:${analysisId}`;
     await this.redis.setex(
       key,
@@ -521,10 +495,8 @@ class CachingService {
       JSON.stringify(embeddings)
     );
   }
-  
-  async getCachedEmbeddings(
-    analysisId: string
-  ): Promise<Embedding[] | null> {
+
+  async getCachedEmbeddings(analysisId: string): Promise<Embedding[] | null> {
     const cached = await this.redis.get(`embeddings:${analysisId}`);
     return cached ? JSON.parse(cached) : null;
   }
@@ -541,15 +513,13 @@ class BatchProcessor {
     batchSize: number = 10
   ): Promise<R[]> {
     const results: R[] = [];
-    
+
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, i + batchSize);
-      const batchResults = await Promise.all(
-        batch.map(processor)
-      );
+      const batchResults = await Promise.all(batch.map(processor));
       results.push(...batchResults);
     }
-    
+
     return results;
   }
 }
@@ -563,23 +533,17 @@ class BatchProcessor {
 describe('ClusteringService', () => {
   it('should generate appropriate number of clusters', async () => {
     const pages = mockPages(50);
-    const result = await clusteringService.generateClusters(
-      pages,
-      { mode: 'auto' }
-    );
-    
+    const result = await clusteringService.generateClusters(pages, { mode: 'auto' });
+
     expect(result.clusters.length).toBeGreaterThanOrEqual(3);
     expect(result.clusters.length).toBeLessThanOrEqual(10);
   });
-  
+
   it('should maintain cluster coherence above threshold', async () => {
     const pages = mockPages(30);
-    const result = await clusteringService.generateClusters(
-      pages,
-      { mode: 'auto' }
-    );
-    
-    result.clusters.forEach(cluster => {
+    const result = await clusteringService.generateClusters(pages, { mode: 'auto' });
+
+    result.clusters.forEach((cluster) => {
       expect(cluster.coherenceScore).toBeGreaterThan(0.7);
     });
   });
@@ -593,29 +557,26 @@ describe('Enhancement Pipeline', () => {
   it('should process complete enhancement workflow', async () => {
     // 1. Analyze website
     const analysis = await analyzeWebsite('https://example.com');
-    
+
     // 2. Generate clusters
     const clusters = await generateClusters(analysis.id);
-    
+
     // 3. Add semantic tags
     const tags = await generateTags(analysis.id);
-    
+
     // 4. Enhance descriptions
     const enhanced = await enhanceDescriptions(analysis.id);
-    
+
     // 5. Generate blockquote
     const summary = await generateSummary(analysis.id);
-    
+
     // 6. Apply sequencing
-    const sequenced = await applySequencing(
-      analysis.id,
-      'logical'
-    );
-    
+    const sequenced = await applySequencing(analysis.id, 'logical');
+
     // Validate complete output
     expect(sequenced).toHaveProperty('summary');
     expect(sequenced.clusters).toHaveLength(clusters.length);
-    expect(sequenced.pages.every(p => p.tags.length >= 2)).toBe(true);
+    expect(sequenced.pages.every((p) => p.tags.length >= 2)).toBe(true);
   });
 });
 ```
@@ -629,25 +590,25 @@ class EnhancementErrorHandler {
       return {
         code: 'AI_SERVICE_ERROR',
         message: 'AI processing temporarily unavailable',
-        fallback: this.getFallbackStrategy(context)
+        fallback: this.getFallbackStrategy(context),
       };
     }
-    
+
     if (error instanceof ClusteringError) {
       return {
         code: 'CLUSTERING_FAILED',
         message: 'Unable to generate content clusters',
-        fallback: 'linear' // Fall back to quality-based sorting
+        fallback: 'linear', // Fall back to quality-based sorting
       };
     }
-    
+
     // Log unexpected errors
     logger.error(`Enhancement error in ${context}:`, error);
-    
+
     return {
       code: 'ENHANCEMENT_ERROR',
       message: 'Enhancement processing failed',
-      fallback: 'basic' // Return basic llms.txt without enhancements
+      fallback: 'basic', // Return basic llms.txt without enhancements
     };
   }
 }
@@ -675,7 +636,7 @@ const featureFlags = {
   clustering: process.env.ENABLE_CLUSTERING === 'true',
   semanticTags: process.env.ENABLE_SEMANTIC_TAGS === 'true',
   enhancedDescriptions: process.env.ENABLE_ENHANCED_DESC === 'true',
-  multiSequencing: process.env.ENABLE_MULTI_SEQUENCE === 'true'
+  multiSequencing: process.env.ENABLE_MULTI_SEQUENCE === 'true',
 };
 
 // Progressive rollout
@@ -693,12 +654,12 @@ class EnhancementMetrics {
     analytics.track('enhancement_applied', {
       type,
       ...metrics,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
-    
+
     // Log performance metrics
     logger.info(`Enhancement ${type}:`, metrics);
-    
+
     // Update dashboard
     dashboard.update(type, metrics);
   }

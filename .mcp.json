@@ -24,7 +24,13 @@
     },
     "supabase": {
       "command": "npx",
-      "args": ["@supabase/mcp-server", "--access-token", "${SUPABASE_ACCESS_TOKEN}", "--project-ref", "${SUPABASE_PROJECT_REF}"]
+      "args": [
+        "@supabase/mcp-server",
+        "--access-token",
+        "${SUPABASE_ACCESS_TOKEN}",
+        "--project-ref",
+        "${SUPABASE_PROJECT_REF}"
+      ]
     },
     "playwright": {
       "command": "npx",

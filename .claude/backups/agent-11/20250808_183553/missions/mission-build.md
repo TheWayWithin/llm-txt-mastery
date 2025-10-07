@@ -1,4 +1,5 @@
 # Mission: BUILD 🏗️
+
 ## Build New Service/Feature from Requirements
 
 **Mission Code**: BUILD  
@@ -33,6 +34,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - User stories with acceptance criteria
 - Feature prioritization matrix
 - Success metrics defined
@@ -53,12 +55,13 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Architecture design document
 - Technology decisions
 - API specifications
 - Data model designs
 
-### Phase 3: Design & UX (1-2 hours) *[If UI Required]*
+### Phase 3: Design & UX (1-2 hours) _[If UI Required]_
 
 **Lead**: @designer  
 **Support**: @strategist  
@@ -74,6 +77,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - User flow diagrams
 - UI mockups
 - Design system components
@@ -95,6 +99,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Working implementation
 - Test coverage >80%
 - Error handling
@@ -116,6 +121,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Test execution report
 - Bug reports (if any)
 - Performance metrics
@@ -137,6 +143,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - API documentation
 - User documentation
 - Integration guides
@@ -158,6 +165,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Deployment scripts
 - Environment configs
 - Monitoring setup
@@ -176,17 +184,20 @@ Transform product requirements into production-ready implementation. This missio
 ## Common Variations
 
 ### Quick Build (2-4 hours)
+
 - Skip formal design phase
 - Minimal documentation
 - Focus on core functionality
 
 ### Enterprise Build (8-16 hours)
+
 - Extended architecture phase
 - Formal design review
 - Comprehensive documentation
 - Load testing included
 
 ### Prototype Build (1-2 hours)
+
 - Proof of concept only
 - Minimal testing
 - Basic documentation
@@ -201,6 +212,7 @@ Transform product requirements into production-ready implementation. This missio
 ## Mission Debrief Protocol
 
 Upon completion:
+
 1. Update progress.md with learnings
 2. Document any reusable patterns
 3. Note time variations from estimates
@@ -208,4 +220,4 @@ Upon completion:
 
 ---
 
-*Mission SUCCESS depends on clear requirements and systematic execution. Begin with `/coord build [requirements.md]`*
+_Mission SUCCESS depends on clear requirements and systematic execution. Begin with `/coord build [requirements.md]`_

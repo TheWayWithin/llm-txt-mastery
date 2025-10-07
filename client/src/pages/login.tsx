@@ -1,106 +1,103 @@
-import { useState, useEffect } from "react"
-import { useLocation } from "wouter"
-import { useAuth } from "@/contexts/AuthContext"
-import { isValidEmail } from "@/lib/auth-utils"
-import { getTierDisplayName, getTierDescription, getTierColorClass } from "@/lib/tier-utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Coffee, Shield, Zap } from "lucide-react"
-import { Link } from "wouter"
-import Footer from "@/components/footer"
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
+import { isValidEmail } from '@/lib/auth-utils';
+import { getTierDisplayName, getTierDescription, getTierColorClass } from '@/lib/tier-utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Coffee, Shield, Zap } from 'lucide-react';
+import { Link } from 'wouter';
+import Footer from '@/components/footer';
 
 export default function LoginPage() {
-  const [, navigate] = useLocation()
-  const { signIn, isAuthenticated, user } = useAuth()
-  
+  const [, navigate] = useLocation();
+  const { signIn, isAuthenticated, user } = useAuth();
+
   // URL parameters
-  const urlParams = new URLSearchParams(window.location.search)
-  const emailParam = urlParams.get('email') || ''
-  const tierParam = urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale' | null
-  const websiteUrlParam = urlParams.get('websiteUrl') || ''
-  
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailParam = urlParams.get('email') || '';
+  const tierParam = urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale' | null;
+  const websiteUrlParam = urlParams.get('websiteUrl') || '';
+
   // Form state
-  const [email, setEmail] = useState(emailParam)
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState(emailParam);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Redirect authenticated users
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('✅ User already authenticated, redirecting to home page')
-      const targetUrl = websiteUrlParam 
-        ? `/?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/'
-      navigate(targetUrl)
+      console.log('✅ User already authenticated, redirecting to home page');
+      const targetUrl = websiteUrlParam ? `/?url=${encodeURIComponent(websiteUrlParam)}` : '/';
+      navigate(targetUrl);
     }
-  }, [isAuthenticated, user, navigate, websiteUrlParam])
+  }, [isAuthenticated, user, navigate, websiteUrlParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
       // Basic validation
       if (!isValidEmail(email)) {
-        throw new Error("Please enter a valid email address")
+        throw new Error('Please enter a valid email address');
       }
 
       if (!password) {
-        throw new Error("Please enter your password")
+        throw new Error('Please enter your password');
       }
 
       // Sign in the user
-      await signIn(email, password)
-      
-      console.log('✅ Login successful, redirecting to analyze page')
-      
+      await signIn(email, password);
+
+      console.log('✅ Login successful, redirecting to analyze page');
+
       // Navigate to analyze page with website URL if provided
-      const targetUrl = websiteUrlParam 
+      const targetUrl = websiteUrlParam
         ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/analyze'
+        : '/analyze';
       // Use window.location for full page refresh to reset auth state
-      window.location.href = targetUrl
-      
+      window.location.href = targetUrl;
     } catch (err) {
-      console.error('Login error:', err)
-      const errorMessage = err instanceof Error ? err.message : "Login failed"
-      
+      console.error('Login error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+
       // Handle specific error types
       if (errorMessage.includes('Invalid credentials') || errorMessage.includes('unauthorized')) {
-        setError("Invalid email or password. Please check your credentials and try again.")
+        setError('Invalid email or password. Please check your credentials and try again.');
       } else if (errorMessage.includes('Too many login attempts') || errorMessage.includes('429')) {
-        setError("Too many login attempts. Please wait a few minutes and try again.")
+        setError('Too many login attempts. Please wait a few minutes and try again.');
       } else if (errorMessage.includes('User not found')) {
-        setError("No account found with this email address. Please sign up first.")
+        setError('No account found with this email address. Please sign up first.');
       } else {
-        setError(errorMessage)
+        setError(errorMessage);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
       case 'starter':
-        return <Shield className="h-5 w-5" />
+        return <Shield className="h-5 w-5" />;
       case 'coffee':
-        return <Coffee className="h-5 w-5" />
+        return <Coffee className="h-5 w-5" />;
       case 'growth':
-        return <Zap className="h-5 w-5" />
+        return <Zap className="h-5 w-5" />;
       case 'scale':
-        return <Zap className="h-5 w-5" />
+        return <Zap className="h-5 w-5" />;
       default:
-        return <Shield className="h-5 w-5" />
+        return <Shield className="h-5 w-5" />;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -110,9 +107,9 @@ export default function LoginPage() {
           <div className="flex items-center justify-between">
             <Link href="/">
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                <img 
-                  src="/images/logo-primary.png" 
-                  alt="LLM.txt Mastery" 
+                <img
+                  src="/images/logo-primary.png"
+                  alt="LLM.txt Mastery"
                   className="h-16 md:h-20 w-auto"
                 />
               </a>
@@ -141,7 +138,7 @@ export default function LoginPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              
+
               {/* Selected Tier Display */}
               {tierParam && (
                 <div className="bg-slate-50 rounded-lg p-4 border">
@@ -155,7 +152,7 @@ export default function LoginPage() {
                   <p className="text-xs text-slate-600">{getTierDescription(tierParam)}</p>
                 </div>
               )}
-              
+
               {/* Email Field */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
@@ -180,7 +177,7 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
@@ -191,7 +188,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -201,9 +198,7 @@ export default function LoginPage() {
               {/* Forgot Password Link */}
               <div className="text-right">
                 <Link href="/forgot-password">
-                  <a className="text-sm text-blue-600 hover:text-blue-800">
-                    Forgot your password?
-                  </a>
+                  <a className="text-sm text-blue-600 hover:text-blue-800">Forgot your password?</a>
                 </Link>
               </div>
 
@@ -231,11 +226,11 @@ export default function LoginPage() {
             {/* Signup Link */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Don't have an account?{" "}
-                <Link href={`/signup?tier=${tierParam || 'coffee'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}>
-                  <a className="text-blue-600 hover:text-blue-800 font-medium">
-                    Sign up for free
-                  </a>
+                Don't have an account?{' '}
+                <Link
+                  href={`/signup?tier=${tierParam || 'coffee'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}
+                >
+                  <a className="text-blue-600 hover:text-blue-800 font-medium">Sign up for free</a>
                 </Link>
               </p>
             </div>
@@ -243,9 +238,7 @@ export default function LoginPage() {
             {/* Demo Option */}
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="text-center">
-                <p className="text-sm text-gray-500 mb-3">
-                  Want to try it first?
-                </p>
+                <p className="text-sm text-gray-500 mb-3">Want to try it first?</p>
                 <Link href="/">
                   <a>
                     <Button variant="outline" className="w-full">
@@ -269,5 +262,5 @@ export default function LoginPage() {
       {/* Footer */}
       <Footer />
     </div>
-  )
+  );
 }

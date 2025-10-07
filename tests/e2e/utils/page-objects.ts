@@ -2,7 +2,7 @@ import { Page, Locator, expect } from '@playwright/test';
 
 /**
  * Page Object Models for LLM.txt Mastery Application
- * 
+ *
  * Provides maintainable, reusable page interaction patterns for Playwright tests.
  * Follows the Page Object Model pattern for better test structure and maintenance.
  */
@@ -106,14 +106,14 @@ export class LandingPage extends BasePage {
 
   async getSelectedTier(): Promise<string | null> {
     const tiers = ['starter', 'coffee', 'growth', 'scale'];
-    
+
     for (const tier of tiers) {
       const radio = this.page.locator(`input[value="${tier}"]`);
       if (await radio.isChecked()) {
         return tier;
       }
     }
-    
+
     return null;
   }
 
@@ -168,23 +168,23 @@ export class SignupPage extends BasePage {
   async navigateToSignup(tier?: string, website?: string): Promise<void> {
     let url = '/signup';
     const params = new URLSearchParams();
-    
+
     if (tier) params.append('tier', tier);
     if (website) params.append('website', website);
-    
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
+
     await this.navigateTo(url);
   }
 
   async fillForm(email: string, password: string): Promise<void> {
     await expect(this.emailInput).toBeVisible();
-    
+
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
-    
+
     // Fill confirm password if present
     if (await this.confirmPasswordInput.isVisible()) {
       await this.confirmPasswordInput.fill(password);
@@ -212,14 +212,14 @@ export class SignupPage extends BasePage {
   async getErrors(): Promise<string[]> {
     const elements = await this.errorMessages.all();
     const errors: string[] = [];
-    
+
     for (const element of elements) {
       const text = await element.textContent();
       if (text?.trim()) {
         errors.push(text.trim());
       }
     }
-    
+
     return errors;
   }
 }
@@ -254,20 +254,20 @@ export class LoginPage extends BasePage {
   async navigateToLogin(tier?: string, website?: string): Promise<void> {
     let url = '/login';
     const params = new URLSearchParams();
-    
+
     if (tier) params.append('tier', tier);
     if (website) params.append('website', website);
-    
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
+
     await this.navigateTo(url);
   }
 
   async fillForm(email: string, password: string): Promise<void> {
     await expect(this.emailInput).toBeVisible();
-    
+
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
   }
@@ -293,14 +293,14 @@ export class LoginPage extends BasePage {
   async getErrors(): Promise<string[]> {
     const elements = await this.errorMessages.all();
     const errors: string[] = [];
-    
+
     for (const element of elements) {
       const text = await element.textContent();
       if (text?.trim()) {
         errors.push(text.trim());
       }
     }
-    
+
     return errors;
   }
 }
@@ -312,7 +312,9 @@ export class LoginPage extends BasePage {
 export class AnalyzePage extends BasePage {
   // Locators
   get urlInput(): Locator {
-    return this.page.locator('input[type="url"], input[placeholder*="website"], input[placeholder*="URL"]');
+    return this.page.locator(
+      'input[type="url"], input[placeholder*="website"], input[placeholder*="URL"]'
+    );
   }
 
   get analyzeButton(): Locator {
@@ -442,7 +444,7 @@ export class DashboardPage extends BasePage {
       this.isElementVisible('[data-testid="user-stats"]'),
       this.isElementVisible('[data-testid="tier-info"]'),
       this.isElementVisible('.tier-badge'),
-      this.isElementVisible('.user-menu')
+      this.isElementVisible('.user-menu'),
     ]);
 
     const hasData = hasAnyUserData.some(Boolean);
@@ -496,7 +498,11 @@ export class AppNavigator {
   /**
    * Complete signup flow from landing page
    */
-  async completeSignupFlow(email: string, password: string, tier: string = 'coffee'): Promise<void> {
+  async completeSignupFlow(
+    email: string,
+    password: string,
+    tier: string = 'coffee'
+  ): Promise<void> {
     const landingPage = this.pageFactory.getLandingPage();
     const signupPage = this.pageFactory.getSignupPage();
     const analyzePage = this.pageFactory.getAnalyzePage();
@@ -556,7 +562,7 @@ export class AppNavigator {
     return {
       coffeeDefault,
       authButtonsVisible: signUpVisible && signInVisible,
-      noFrictionPoints: coffeeDefault && signUpVisible && signInVisible
+      noFrictionPoints: coffeeDefault && signUpVisible && signInVisible,
     };
   }
 

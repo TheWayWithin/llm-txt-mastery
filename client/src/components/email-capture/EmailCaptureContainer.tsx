@@ -1,14 +1,14 @@
 /**
  * EmailCaptureContainer - Business logic container for email capture
- * 
+ *
  * Orchestrates the email capture flow using extracted hooks and components.
  * This is the new implementation that will replace the monolithic email-capture.tsx
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Mail, RotateCcw, Home } from "lucide-react";
-import { QuickHelp } from "../HelpSystem";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Mail, RotateCcw, Home } from 'lucide-react';
+import { QuickHelp } from '../HelpSystem';
 import { UserTier } from '@shared/schema';
 
 // Extracted components
@@ -39,7 +39,7 @@ export function EmailCaptureContainer({
   onEmailCaptured,
   onLoginRequested,
   onReset,
-  isVisible
+  isVisible,
 }: EmailCaptureContainerProps) {
   // Main business logic hook
   const {
@@ -52,12 +52,12 @@ export function EmailCaptureContainer({
     handleSignUp,
     reset,
     canProceed,
-    shouldShowAuthOptions
+    shouldShowAuthOptions,
   } = useEmailCapture({
     websiteUrl,
     onEmailCaptured,
     onLoginRequested,
-    onReset
+    onReset,
   });
 
   // Analytics for component-level tracking
@@ -95,22 +95,25 @@ export function EmailCaptureContainer({
         </CardTitle>
         <p className="text-sm text-ai-silver">
           {websiteUrl ? (
-            <>Generate professional llms.txt files for <strong>{websiteUrl}</strong> in seconds</>
+            <>
+              Generate professional llms.txt files for <strong>{websiteUrl}</strong> in seconds
+            </>
           ) : (
-            <>Select your tier, enter your email, and we'll help you create a professional llms.txt file</>
+            <>
+              Select your tier, enter your email, and we'll help you create a professional llms.txt
+              file
+            </>
           )}
         </p>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Error Display */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-red-800 mb-2">
-                  Unable to proceed
-                </h4>
+                <h4 className="text-sm font-semibold text-red-800 mb-2">Unable to proceed</h4>
                 <p className="text-sm text-red-700 mb-3">{error}</p>
                 <div className="flex items-center space-x-3">
                   <Button
@@ -159,7 +162,8 @@ export function EmailCaptureContainer({
             {/* Help Section */}
             <div className="flex items-center justify-between border-t pt-4">
               <div className="text-sm text-slate-600">
-                Need help choosing? <span className="font-medium">Coffee tier</span> is perfect for most users.
+                Need help choosing? <span className="font-medium">Coffee tier</span> is perfect for
+                most users.
               </div>
               <QuickHelp context="email-capture" />
             </div>
@@ -181,9 +185,7 @@ export function EmailCaptureContainer({
         {/* Show tier selection prompt when no tier is selected */}
         {!selectedTier && (
           <div className="text-center py-8">
-            <p className="text-slate-600 text-lg">
-              Please select a tier above to continue
-            </p>
+            <p className="text-slate-600 text-lg">Please select a tier above to continue</p>
             <p className="text-sm text-slate-500 mt-2">
               Choose the analysis type that best fits your needs
             </p>

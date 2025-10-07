@@ -5,7 +5,8 @@ import { AuthUser, JWTPayload, UserTier } from '@shared/schema';
 
 // Environment variables for JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-development';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret-for-development';
+const JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret-for-development';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 
@@ -27,7 +28,7 @@ export function generateAccessToken(user: { id: number; email: string; tier: Use
     tier: user.tier,
     iat: Math.floor(Date.now() / 1000),
   };
-  
+
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
@@ -37,7 +38,7 @@ export function generateRefreshToken(userId: number): string {
     type: 'refresh',
     iat: Math.floor(Date.now() / 1000),
   };
-  
+
   return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
 }
 
@@ -84,37 +85,37 @@ export function extractTokenFromHeader(authHeader: string | undefined): string |
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
-  
+
   return authHeader.substring(7); // Remove 'Bearer ' prefix
 }
 
 // Validate password strength
 export function validatePassword(password: string): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
-  
+
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters long');
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push('Password must contain at least one lowercase letter');
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push('Password must contain at least one uppercase letter');
   }
-  
+
   if (!/\d/.test(password)) {
     errors.push('Password must contain at least one number');
   }
-  
+
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
     errors.push('Password must contain at least one special character');
   }
-  
+
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 }
 
@@ -134,13 +135,15 @@ export function generateEmailVerificationToken(userId: number, email: string): s
     email,
     type: 'email_verification',
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
   };
-  
+
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 }
 
-export function verifyEmailVerificationToken(token: string): { userId: number; email: string } | null {
+export function verifyEmailVerificationToken(
+  token: string
+): { userId: number; email: string } | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     if (decoded.type !== 'email_verification') {
@@ -176,7 +179,7 @@ export function getSecurityHeaders() {
     'X-XSS-Protection': '1; mode=block',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
+    Pragma: 'no-cache',
+    Expires: '0',
   };
 }

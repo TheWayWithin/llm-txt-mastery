@@ -29,10 +29,10 @@ app.get('/', (req, res) => {
 
 // API test endpoint
 app.get('/api/test', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'working',
     message: 'API endpoints functional',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

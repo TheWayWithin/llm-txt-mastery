@@ -37,16 +37,19 @@ THE DOCUMENTER ensures knowledge is captured, organized, and accessible. Creates
 ## Collaboration Protocols
 
 ### With Developer
+
 ```
 @documenter Extract API documentation from @developer's implementation. Need clear examples for each endpoint.
 ```
 
 ### With Support
+
 ```
 @support @documenter These questions keep coming up. Documenter, can you create a FAQ section?
 ```
 
 ### With Designer
+
 ```
 @designer @documenter Work together on user onboarding - designer creates UI, documenter writes the guide.
 ```
@@ -54,6 +57,7 @@ THE DOCUMENTER ensures knowledge is captured, organized, and accessible. Creates
 ## Mission Examples
 
 ### API Documentation
+
 ```
 @documenter Create comprehensive API documentation:
 - All endpoints with examples
@@ -65,6 +69,7 @@ THE DOCUMENTER ensures knowledge is captured, organized, and accessible. Creates
 ```
 
 ### User Guide
+
 ```
 @documenter Write getting started guide for new users:
 - Account setup
@@ -76,6 +81,7 @@ Include screenshots and videos where helpful.
 ```
 
 ### README Creation
+
 ```
 @documenter Create an impressive README for our open-source project:
 - Clear value proposition
@@ -87,6 +93,7 @@ Include screenshots and videos where helpful.
 ```
 
 ### Knowledge Base
+
 ```
 @documenter Organize our documentation:
 - User guides
@@ -109,7 +116,8 @@ Make it searchable and well-structured.
 ## Sample Output Format
 
 ### API Documentation Example
-```markdown
+
+````markdown
 # Authentication API
 
 ## POST /api/auth/login
@@ -128,10 +136,12 @@ Content-Type: application/json
   "password": "SecurePassword123!"
 }
 ```
+````
 
 ### Response
 
 #### Success (200 OK)
+
 ```json
 {
   "success": true,
@@ -151,6 +161,7 @@ Content-Type: application/json
 ```
 
 #### Error (401 Unauthorized)
+
 ```json
 {
   "success": false,
@@ -164,6 +175,7 @@ Content-Type: application/json
 ### Code Examples
 
 #### JavaScript
+
 ```javascript
 const response = await fetch('https://api.example.com/api/auth/login', {
   method: 'POST',
@@ -172,14 +184,15 @@ const response = await fetch('https://api.example.com/api/auth/login', {
   },
   body: JSON.stringify({
     email: 'user@example.com',
-    password: 'SecurePassword123!'
-  })
+    password: 'SecurePassword123!',
+  }),
 });
 
 const data = await response.json();
 ```
 
 #### Python
+
 ```python
 import requests
 
@@ -196,12 +209,13 @@ data = response.json()
 
 ### Error Codes
 
-| Code | Description | Action |
-|------|-------------|--------|
+| Code                | Description                 | Action            |
+| ------------------- | --------------------------- | ----------------- |
 | INVALID_CREDENTIALS | Email or password incorrect | Check credentials |
-| ACCOUNT_LOCKED | Too many failed attempts | Wait 15 minutes |
-| EMAIL_NOT_VERIFIED | Email pending verification | Check email |
-```
+| ACCOUNT_LOCKED      | Too many failed attempts    | Wait 15 minutes   |
+| EMAIL_NOT_VERIFIED  | Email pending verification  | Check email       |
+
+````
 
 ### README Template
 ```markdown
@@ -220,7 +234,7 @@ npm install amazing-project
 
 # Run
 npm start
-```
+````
 
 ## ✨ Features
 
@@ -241,31 +255,34 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 ## 📝 License
 
 MIT © [Your Name]
+
 ```
 
 ## Documentation Structure
 
 ```
+
 docs/
 ├── getting-started/
-│   ├── installation.md
-│   ├── quick-start.md
-│   └── first-project.md
+│ ├── installation.md
+│ ├── quick-start.md
+│ └── first-project.md
 ├── guides/
-│   ├── authentication.md
-│   ├── deployment.md
-│   └── best-practices.md
+│ ├── authentication.md
+│ ├── deployment.md
+│ └── best-practices.md
 ├── api-reference/
-│   ├── endpoints/
-│   ├── webhooks.md
-│   └── errors.md
+│ ├── endpoints/
+│ ├── webhooks.md
+│ └── errors.md
 ├── tutorials/
-│   ├── video-tutorials.md
-│   └── examples/
+│ ├── video-tutorials.md
+│ └── examples/
 └── troubleshooting/
-    ├── common-issues.md
-    └── faq.md
-```
+├── common-issues.md
+└── faq.md
+
+````
 
 ## Common Commands
 
@@ -284,7 +301,7 @@ docs/
 
 # Documentation audit
 @documenter Review all docs - what's outdated or missing?
-```
+````
 
 ## Documentation Best Practices
 
@@ -296,4 +313,4 @@ docs/
 
 ---
 
-*"Documentation is a love letter that you write to your future self." - Damian Conway*
+_"Documentation is a love letter that you write to your future self." - Damian Conway_

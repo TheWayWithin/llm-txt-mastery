@@ -53,8 +53,8 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
 
       const response = await fetch('/api/refund/eligibility', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -80,12 +80,12 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           reason: reason || undefined,
-          processRefund: true
-        })
+          processRefund: true,
+        }),
       });
 
       const data = await response.json();
@@ -113,21 +113,21 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
           'Access to AI-enhanced analysis',
           'Remaining analysis credits',
           '200-page analysis capability',
-          'Premium support'
+          'Premium support',
         ];
       case 'growth':
         return [
           '100 monthly analyses',
           '1,000-page analysis capability',
           'Priority processing',
-          'Advanced features'
+          'Advanced features',
         ];
       case 'scale':
         return [
           'Unlimited analyses',
           'Unlimited page processing',
           'API access',
-          'Priority support'
+          'Priority support',
         ];
       default:
         return [];
@@ -156,9 +156,13 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
             <div className="space-y-4">
               {/* Refund Information */}
               {refundInfo && (
-                <div className={`p-4 rounded-lg border ${
-                  refundInfo.eligible ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
-                }`}>
+                <div
+                  className={`p-4 rounded-lg border ${
+                    refundInfo.eligible
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-gray-50 border-gray-200'
+                  }`}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium flex items-center">
                       <DollarSign className="h-4 w-4 mr-1" />
@@ -170,9 +174,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {refundInfo.reason}
-                  </p>
+                  <p className="text-sm text-gray-600">{refundInfo.reason}</p>
                   {refundInfo.guaranteeApplies && (
                     <p className="text-sm text-green-600 mt-1 font-medium">
                       ✅ 30-day money-back guarantee applies
@@ -183,9 +185,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
 
               {/* What You'll Lose */}
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <h4 className="font-medium text-red-800 mb-2">
-                  You will lose access to:
-                </h4>
+                <h4 className="font-medium text-red-800 mb-2">You will lose access to:</h4>
                 <ul className="space-y-1">
                   {getTierLosses().map((loss, index) => (
                     <li key={index} className="text-sm text-red-700 flex items-start">
@@ -199,8 +199,8 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
               {/* Alternative Actions */}
               <Alert>
                 <AlertDescription>
-                  Need help? Contact support@llmtxtmastery.com before cancelling.
-                  We're here to help resolve any issues.
+                  Need help? Contact support@llmtxtmastery.com before cancelling. We're here to help
+                  resolve any issues.
                 </AlertDescription>
               </Alert>
             </div>
@@ -209,10 +209,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
               <Button variant="outline" onClick={onClose}>
                 Keep Subscription
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => setStep('reason')}
-              >
+              <Button variant="destructive" onClick={() => setStep('reason')}>
                 Continue Cancellation
               </Button>
             </DialogFooter>
@@ -249,18 +246,10 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
             </div>
 
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setStep('confirm')}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={() => setStep('confirm')} disabled={loading}>
                 Back
               </Button>
-              <Button
-                variant="destructive"
-                onClick={handleCancel}
-                disabled={loading}
-              >
+              <Button variant="destructive" onClick={handleCancel} disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -287,18 +276,17 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
-                  {cancellationResult?.message || 'Your subscription has been cancelled successfully.'}
+                  {cancellationResult?.message ||
+                    'Your subscription has been cancelled successfully.'}
                 </AlertDescription>
               </Alert>
 
               {refundInfo?.eligible && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-medium text-blue-800 mb-1">
-                    Refund Processing
-                  </h4>
+                  <h4 className="font-medium text-blue-800 mb-1">Refund Processing</h4>
                   <p className="text-sm text-blue-700">
-                    Your refund of {refundInfo.amountFormatted} will be processed
-                    within 5-7 business days.
+                    Your refund of {refundInfo.amountFormatted} will be processed within 5-7
+                    business days.
                   </p>
                 </div>
               )}
@@ -312,9 +300,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
             </div>
 
             <DialogFooter>
-              <Button onClick={onClose}>
-                Close
-              </Button>
+              <Button onClick={onClose}>Close</Button>
             </DialogFooter>
           </>
         )}

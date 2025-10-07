@@ -34,13 +34,12 @@ export default function SubscriptionSuccess() {
           ) : (
             <>
               <CheckCircle className="h-16 w-16 mx-auto mb-6 text-green-500" />
-              <h1 className="text-2xl font-bold text-green-800 mb-2">
-                Welcome to your new plan!
-              </h1>
+              <h1 className="text-2xl font-bold text-green-800 mb-2">Welcome to your new plan!</h1>
               <p className="text-slate-600 mb-6">
-                Your subscription has been activated successfully. You now have access to all the features of your new tier.
+                Your subscription has been activated successfully. You now have access to all the
+                features of your new tier.
               </p>
-              
+
               {sessionId && (
                 <div className="bg-slate-100 rounded-lg p-4 mb-6">
                   <p className="text-sm text-slate-600">
@@ -56,7 +55,7 @@ export default function SubscriptionSuccess() {
                     Go to Dashboard
                   </Button>
                 </Link>
-                
+
                 <Link to="/">
                   <Button variant="outline" className="w-full">
                     Start Analysis

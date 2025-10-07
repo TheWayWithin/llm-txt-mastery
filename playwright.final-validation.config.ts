@@ -8,16 +8,13 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   timeout: 90000,
-  
+
   expect: {
     timeout: 20000,
   },
-  
-  reporter: [
-    ['list'],
-    ['json', { outputFile: 'test-results-final-validation.json' }]
-  ],
-  
+
+  reporter: [['list'], ['json', { outputFile: 'test-results-final-validation.json' }]],
+
   use: {
     baseURL: 'https://llmtxtmastery.com',
     trace: 'retain-on-failure',
@@ -30,10 +27,10 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium-final',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
       },
-    }
+    },
   ],
 });

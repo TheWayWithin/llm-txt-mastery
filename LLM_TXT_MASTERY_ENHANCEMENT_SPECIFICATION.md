@@ -1,11 +1,13 @@
 # LLM.txt Mastery - Enhancement Technical Specification
-*Version 1.0 | Created: January 30, 2025 | Status: Engineering Ready*
+
+_Version 1.0 | Created: January 30, 2025 | Status: Engineering Ready_
 
 ## Executive Summary
 
 This specification defines the technical implementation requirements for enhancing LLM.txt Mastery with advanced semantic analysis capabilities. The enhancements transform the current linear URL listing into intelligent content organization with topical clustering, semantic tagging, enhanced descriptions, blockquote summaries, and multi-mode sequencing.
 
 **Key Enhancement Areas:**
+
 - **Semantic Content Clustering**: Group related URLs with clear topical headers
 - **Enhanced Description Generation**: Unique, contextual descriptions with semantic tagging
 - **Multi-Mode Sequencing**: Logical Grouping, Hierarchical Priority, Business Objective modes
@@ -17,25 +19,28 @@ This specification defines the technical implementation requirements for enhanci
 ## Current System Architecture Context
 
 ### Existing Technology Stack
+
 - **Frontend**: React 18 + TypeScript + Tailwind CSS + shadcn/ui (Netlify)
-- **Backend**: Express.js + TypeScript + Drizzle ORM (Railway) 
+- **Backend**: Express.js + TypeScript + Drizzle ORM (Railway)
 - **Database**: Neon PostgreSQL with connection pooling
 - **AI Integration**: OpenAI GPT-4 for content analysis
 - **Deployment**: Split architecture with automatic CI/CD
 
 ### Current LLM.txt Generation Pipeline
+
 ```
 URL Input → Sitemap Discovery → Content Analysis → Quality Scoring → Linear List → LLM.txt File
 ```
 
 ### Current Data Models
+
 ```typescript
 interface DiscoveredPage {
   url: string;
   title: string;
   description: string;
-  qualityScore: number;  // 1-10 AI-generated score
-  category: string;      // Auto-classified category
+  qualityScore: number; // 1-10 AI-generated score
+  category: string; // Auto-classified category
   lastModified?: string;
 }
 
@@ -54,12 +59,14 @@ interface AnalysisMetadata {
 ### 1.1 Requirements
 
 **Primary Objectives:**
+
 - Group semantically related URLs under clear topical headers
 - Provide 3-5 word descriptive cluster labels
 - Support 3-8 clusters per analysis depending on content diversity
 - Maintain quality score ordering within clusters
 
 **User Stories:**
+
 - As a user, I want related documentation pages grouped together so I can understand content organization at a glance
 - As an AI system, I want thematically organized content so I can more efficiently locate relevant information
 - As a developer, I want cluster metadata so I can understand the site's content architecture
@@ -72,26 +79,26 @@ interface AnalysisMetadata {
 
 ```typescript
 export interface SemanticAnalysisConfig {
-  maxClusters: number;        // 3-8 clusters
-  minClusterSize: number;     // Minimum 2 pages per cluster
+  maxClusters: number; // 3-8 clusters
+  minClusterSize: number; // Minimum 2 pages per cluster
   similarityThreshold: number; // 0.7 cosine similarity
-  embeddingModel: string;     // 'text-embedding-ada-002'
+  embeddingModel: string; // 'text-embedding-ada-002'
 }
 
 export interface SemanticCluster {
-  id: string;                 // UUID for cluster
-  label: string;              // 3-5 word descriptive name
-  description: string;        // Brief cluster description
-  pages: DiscoveredPage[];    // Pages in this cluster
-  centroid: number[];         // Cluster center embedding
-  coherenceScore: number;     // 0-1 cluster quality score
-  size: number;               // Number of pages
+  id: string; // UUID for cluster
+  label: string; // 3-5 word descriptive name
+  description: string; // Brief cluster description
+  pages: DiscoveredPage[]; // Pages in this cluster
+  centroid: number[]; // Cluster center embedding
+  coherenceScore: number; // 0-1 cluster quality score
+  size: number; // Number of pages
 }
 
 export interface SemanticTag {
-  tag: string;                // Semantic tag (e.g., "API Reference")
-  confidence: number;         // 0-1 confidence score
-  category: string;           // Primary category
+  tag: string; // Semantic tag (e.g., "API Reference")
+  confidence: number; // 0-1 confidence score
+  category: string; // Primary category
 }
 
 export class SemanticAnalysisService {
@@ -108,7 +115,7 @@ export class SemanticAnalysisService {
    * Perform clustering using K-means and hierarchical methods
    */
   async clusterPages(
-    pages: DiscoveredPage[], 
+    pages: DiscoveredPage[],
     embeddings: EmbeddingResult[]
   ): Promise<SemanticCluster[]> {
     // 1. Determine optimal cluster count using elbow method (3-8 range)
@@ -141,18 +148,18 @@ export class ClusteringEngine {
    * Determine optimal cluster count using elbow method
    */
   async findOptimalClusters(
-    embeddings: number[][], 
-    minK: number = 3, 
+    embeddings: number[][],
+    minK: number = 3,
     maxK: number = 8
   ): Promise<number> {
     const inertias: number[] = [];
-    
+
     for (let k = minK; k <= maxK; k++) {
       const clusters = await this.kMeansClustering(embeddings, k);
       const inertia = this.calculateInertia(embeddings, clusters);
       inertias.push(inertia);
     }
-    
+
     return this.findElbowPoint(inertias) + minK;
   }
 
@@ -160,7 +167,7 @@ export class ClusteringEngine {
    * K-means clustering with cosine distance
    */
   async kMeansClustering(
-    embeddings: number[][], 
+    embeddings: number[][],
     k: number,
     maxIterations: number = 100
   ): Promise<ClusterAssignment[]> {
@@ -196,35 +203,39 @@ export class ClusterLabelingService {
    */
   async generateClusterLabels(cluster: SemanticCluster): Promise<ClusterLabel> {
     const prompt = this.buildLabelingPrompt(cluster.pages);
-    
+
     const response = await this.openaiService.complete({
       model: 'gpt-4-turbo',
-      messages: [{
-        role: 'system',
-        content: 'Generate concise, descriptive labels for content clusters. Use 3-5 words maximum. Focus on the primary topic or purpose.'
-      }, {
-        role: 'user', 
-        content: prompt
-      }],
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Generate concise, descriptive labels for content clusters. Use 3-5 words maximum. Focus on the primary topic or purpose.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
       temperature: 0.3,
-      max_tokens: 50
+      max_tokens: 50,
     });
 
     return this.parseClusterLabel(response);
   }
 
   private buildLabelingPrompt(pages: DiscoveredPage[]): string {
-    const pageInfo = pages.map(p => ({
+    const pageInfo = pages.map((p) => ({
       title: p.title,
       path: new URL(p.url).pathname,
-      description: p.description.substring(0, 100)
+      description: p.description.substring(0, 100),
     }));
 
     return `
 Analyze these related pages and generate a descriptive cluster label:
 
 Pages:
-${pageInfo.map(p => `- ${p.title} (${p.path}): ${p.description}`).join('\n')}
+${pageInfo.map((p) => `- ${p.title} (${p.path}): ${p.description}`).join('\n')}
 
 Generate:
 1. Primary label (3-5 words)
@@ -297,7 +308,7 @@ interface ClusterAnalysisResponse {
 // Implementation in server/routes.ts
 app.post('/api/analysis/cluster', async (req: Request, res: Response) => {
   const { analysisId, forceRegenerate = false } = req.body;
-  
+
   try {
     // 1. Fetch analysis and discovered pages
     const analysis = await getAnalysisById(analysisId);
@@ -311,7 +322,7 @@ app.post('/api/analysis/cluster', async (req: Request, res: Response) => {
         clusters: analysis.semanticClusters,
         metadata: analysis.clusteringMetadata,
         processingTime: 0,
-        cacheHit: true
+        cacheHit: true,
       });
     }
 
@@ -329,9 +340,8 @@ app.post('/api/analysis/cluster', async (req: Request, res: Response) => {
       clusters,
       metadata: generateClusteringMetadata(clusters),
       processingTime: Date.now() - startTime,
-      cacheHit: false
+      cacheHit: false,
     });
-
   } catch (error) {
     console.error('Clustering error:', error);
     res.status(500).json({ error: 'Failed to generate clusters' });
@@ -353,11 +363,11 @@ interface ClusterVisualizationProps {
   readonly?: boolean;
 }
 
-export function ClusterVisualization({ 
-  clusters, 
-  onClusterEdit, 
+export function ClusterVisualization({
+  clusters,
+  onClusterEdit,
   onPageMove,
-  readonly = false 
+  readonly = false
 }: ClusterVisualizationProps) {
   const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState<string | null>(null);
@@ -368,7 +378,7 @@ export function ClusterVisualization({
         <h3 className="text-lg font-semibold">Content Clusters</h3>
         <Badge variant="outline">{clusters.length} clusters</Badge>
       </div>
-      
+
       {clusters.map(cluster => (
         <ClusterCard
           key={cluster.id}
@@ -393,9 +403,9 @@ interface ClusterCardProps {
   onPageMove?: (pageUrl: string, targetClusterId: string) => void;
 }
 
-function ClusterCard({ 
-  cluster, 
-  isSelected, 
+function ClusterCard({
+  cluster,
+  isSelected,
   onSelect,
   onEditLabel,
   onPageMove
@@ -412,7 +422,7 @@ function ClusterCard({
   };
 
   return (
-    <Card 
+    <Card
       className={cn(
         "border-2 transition-colors",
         isSelected && "border-blue-500",
@@ -440,7 +450,7 @@ function ClusterCard({
           {cluster.description}
         </p>
       </CardHeader>
-      
+
       <CardContent>
         <div className="space-y-2">
           {cluster.pages
@@ -467,12 +477,14 @@ function ClusterCard({
 ### 2.1 Requirements
 
 **Primary Objectives:**
+
 - Generate unique, contextual descriptions that avoid repetition
 - Add semantic tags to each page entry
 - Validate description uniqueness across the analysis
 - Enhance descriptions with page context and purpose
 
 **User Stories:**
+
 - As a user, I want unique descriptions for each page so I can distinguish between similar content
 - As an AI system, I want semantic tags so I can categorize and filter content effectively
 - As a developer, I want contextual descriptions so I understand each page's role in the overall documentation
@@ -485,17 +497,17 @@ function ClusterCard({
 
 ```typescript
 export interface DescriptionEnhancementConfig {
-  maxLength: number;          // 150 characters max
+  maxLength: number; // 150 characters max
   uniquenessThreshold: number; // 0.8 similarity threshold
   includeSemanticTags: boolean;
-  contextWindow: number;      // Pages to consider for context
+  contextWindow: number; // Pages to consider for context
 }
 
 export interface EnhancedDescription {
-  original: string;           // Original description
-  enhanced: string;           // AI-enhanced description  
+  original: string; // Original description
+  enhanced: string; // AI-enhanced description
   semanticTags: SemanticTag[];
-  uniquenessScore: number;    // 0-1 (1 = completely unique)
+  uniquenessScore: number; // 0-1 (1 = completely unique)
   contextualRelevance: number; // 0-1 page importance in cluster
 }
 
@@ -511,22 +523,19 @@ export class EnhancedDescriptionService {
     clusters: SemanticCluster[]
   ): Promise<Map<string, EnhancedDescription>> {
     const enhancements = new Map<string, EnhancedDescription>();
-    
+
     // Process pages in cluster context for better descriptions
     for (const cluster of clusters) {
-      const clusterEnhancements = await this.enhanceClusterDescriptions(
-        cluster.pages,
-        cluster
-      );
-      
+      const clusterEnhancements = await this.enhanceClusterDescriptions(cluster.pages, cluster);
+
       clusterEnhancements.forEach((enhancement, url) => {
         enhancements.set(url, enhancement);
       });
     }
-    
+
     // Validate uniqueness across all descriptions
     await this.validateGlobalUniqueness(enhancements);
-    
+
     return enhancements;
   }
 
@@ -538,12 +547,12 @@ export class EnhancedDescriptionService {
     cluster: SemanticCluster
   ): Promise<Map<string, EnhancedDescription>> {
     const enhancements = new Map<string, EnhancedDescription>();
-    
+
     for (const page of pages) {
       const enhancement = await this.enhanceSingleDescription(page, cluster, pages);
       enhancements.set(page.url, enhancement);
     }
-    
+
     return enhancements;
   }
 
@@ -556,29 +565,32 @@ export class EnhancedDescriptionService {
     siblingPages: DiscoveredPage[]
   ): Promise<EnhancedDescription> {
     const prompt = this.buildEnhancementPrompt(page, cluster, siblingPages);
-    
+
     const response = await this.openaiService.complete({
       model: 'gpt-4-turbo',
-      messages: [{
-        role: 'system',
-        content: this.getSystemPrompt()
-      }, {
-        role: 'user',
-        content: prompt
-      }],
+      messages: [
+        {
+          role: 'system',
+          content: this.getSystemPrompt(),
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
       temperature: 0.7,
-      max_tokens: 200
+      max_tokens: 200,
     });
 
     const enhanced = await this.parseEnhancedDescription(response);
     const uniquenessScore = await this.uniquenessValidator.calculateUniqueness(
       enhanced.enhanced,
-      siblingPages.map(p => p.description)
+      siblingPages.map((p) => p.description)
     );
 
     return {
       ...enhanced,
-      uniquenessScore
+      uniquenessScore,
     };
   }
 
@@ -601,8 +613,8 @@ Focus on what makes this page different from similar pages in the same cluster.`
     siblingPages: DiscoveredPage[]
   ): string {
     const siblings = siblingPages
-      .filter(p => p.url !== page.url)
-      .map(p => `- ${p.title}: ${p.description}`)
+      .filter((p) => p.url !== page.url)
+      .map((p) => `- ${p.title}: ${p.description}`)
       .join('\n');
 
     return `
@@ -655,13 +667,13 @@ export class UniquenessValidator {
     const scores = await Promise.all([
       this.jaccardSimilarity(targetDescription, compareDescriptions),
       this.semanticSimilarity(targetDescription, compareDescriptions),
-      this.levenshteinSimilarity(targetDescription, compareDescriptions)
+      this.levenshteinSimilarity(targetDescription, compareDescriptions),
     ]);
 
     // Weighted average: semantic similarity gets highest weight
     const weights = [0.2, 0.6, 0.2];
     const weightedScore = scores.reduce((sum, score, i) => sum + score * weights[i], 0);
-    
+
     return 1 - weightedScore; // Convert similarity to uniqueness
   }
 
@@ -674,9 +686,9 @@ export class UniquenessValidator {
 
     for (const comparison of comparisons) {
       const compWords = new Set(this.tokenize(comparison.toLowerCase()));
-      const intersection = new Set([...targetWords].filter(x => compWords.has(x)));
+      const intersection = new Set([...targetWords].filter((x) => compWords.has(x)));
       const union = new Set([...targetWords, ...compWords]);
-      
+
       const similarity = intersection.size / union.size;
       maxSimilarity = Math.max(maxSimilarity, similarity);
     }
@@ -708,7 +720,7 @@ export class UniquenessValidator {
 
     for (const comparison of comparisons) {
       const distance = this.levenshteinDistance(target, comparison);
-      const similarity = 1 - (distance / Math.max(target.length, comparison.length));
+      const similarity = 1 - distance / Math.max(target.length, comparison.length);
       maxSimilarity = Math.max(maxSimilarity, similarity);
     }
 
@@ -776,25 +788,25 @@ export class SemanticTaggerService {
     {
       pattern: /\/api\//i,
       tags: [{ tag: 'API Reference', confidence: 0.9, category: 'technical' }],
-      priority: 1
+      priority: 1,
     },
     {
       pattern: /\/docs?\//i,
       tags: [{ tag: 'Documentation', confidence: 0.8, category: 'content' }],
-      priority: 1
+      priority: 1,
     },
     // Title-based rules
     {
       pattern: /tutorial|guide|how.?to/i,
       tags: [{ tag: 'Tutorial', confidence: 0.85, category: 'educational' }],
-      priority: 2
+      priority: 2,
     },
     // Description-based rules
     {
       pattern: /authentication|auth|login/i,
       tags: [{ tag: 'Authentication', confidence: 0.8, category: 'feature' }],
-      priority: 3
-    }
+      priority: 3,
+    },
   ];
 
   /**
@@ -864,7 +876,7 @@ Return as JSON array with confidence scores:
       model: 'gpt-4-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
-      max_tokens: 150
+      max_tokens: 150,
     });
 
     return this.parseAITags(response);
@@ -875,7 +887,7 @@ Return as JSON array with confidence scores:
    */
   private analyzeContent(page: DiscoveredPage): SemanticTag[] {
     const tags: SemanticTag[] = [];
-    
+
     // Analyze URL structure
     const urlParts = new URL(page.url).pathname.split('/').filter(Boolean);
     const pathTags = this.generatePathTags(urlParts);
@@ -953,7 +965,7 @@ app.post('/api/analysis/enhance-descriptions', async (req: Request, res: Respons
       return res.json({
         enhancements: analysis.enhancedDescriptions,
         statistics: analysis.descriptionStatistics,
-        cached: true
+        cached: true,
       });
     }
 
@@ -974,11 +986,10 @@ app.post('/api/analysis/enhance-descriptions', async (req: Request, res: Respons
       enhancements: Object.fromEntries(enhancements),
       statistics: {
         ...statistics,
-        processingTime: Date.now() - startTime
+        processingTime: Date.now() - startTime,
       },
-      cached: false
+      cached: false,
     });
-
   } catch (error) {
     console.error('Description enhancement error:', error);
     res.status(500).json({ error: 'Failed to enhance descriptions' });
@@ -991,14 +1002,16 @@ app.post('/api/analysis/enhance-descriptions', async (req: Request, res: Respons
 ### 3.1 Requirements
 
 **Primary Objectives:**
+
 - Provide three distinct sequencing modes for different use cases
 - Allow user selection of sequencing mode with live preview
 - Maintain backward compatibility with current quality-score ordering
 - Support custom sequencing overrides for manual adjustments
 
 **Sequencing Modes:**
+
 1. **Logical Grouping**: Related content grouped together with natural flow
-2. **Hierarchical Priority**: Parent-child relationships with dependency ordering  
+2. **Hierarchical Priority**: Parent-child relationships with dependency ordering
 3. **Business Objective**: Conversion funnel and business goal alignment
 
 ### 3.2 Technical Implementation
@@ -1010,19 +1023,19 @@ app.post('/api/analysis/enhance-descriptions', async (req: Request, res: Respons
 ```typescript
 export enum SequencingMode {
   LOGICAL_GROUPING = 'logical_grouping',
-  HIERARCHICAL_PRIORITY = 'hierarchical_priority', 
+  HIERARCHICAL_PRIORITY = 'hierarchical_priority',
   BUSINESS_OBJECTIVE = 'business_objective',
-  QUALITY_SCORE = 'quality_score' // Legacy default
+  QUALITY_SCORE = 'quality_score', // Legacy default
 }
 
 export interface SequencingConfig {
   mode: SequencingMode;
   preserveClusterIntegrity: boolean;
   customWeights?: {
-    qualityScore: number;     // 0-1 weight
-    pageDepth: number;        // URL depth consideration
-    contentLength: number;    // Content size factor
-    businessValue: number;    // Business importance
+    qualityScore: number; // 0-1 weight
+    pageDepth: number; // URL depth consideration
+    contentLength: number; // Content size factor
+    businessValue: number; // Business importance
   };
   businessObjectives?: BusinessObjective[];
 }
@@ -1055,30 +1068,38 @@ export class SequencingEngine {
     config: SequencingConfig
   ): Promise<SequencedResult> {
     const startTime = Date.now();
-    
+
     let sequencedClusters: SemanticCluster[];
     let reasoning: SequencingReasoning[];
 
     switch (config.mode) {
       case SequencingMode.LOGICAL_GROUPING:
-        ({ clusters: sequencedClusters, reasoning } = 
-          await this.applyLogicalGrouping(clusters, config));
+        ({ clusters: sequencedClusters, reasoning } = await this.applyLogicalGrouping(
+          clusters,
+          config
+        ));
         break;
-        
+
       case SequencingMode.HIERARCHICAL_PRIORITY:
-        ({ clusters: sequencedClusters, reasoning } = 
-          await this.applyHierarchicalPriority(clusters, config));
+        ({ clusters: sequencedClusters, reasoning } = await this.applyHierarchicalPriority(
+          clusters,
+          config
+        ));
         break;
-        
+
       case SequencingMode.BUSINESS_OBJECTIVE:
-        ({ clusters: sequencedClusters, reasoning } = 
-          await this.applyBusinessObjective(clusters, config));
+        ({ clusters: sequencedClusters, reasoning } = await this.applyBusinessObjective(
+          clusters,
+          config
+        ));
         break;
-        
+
       case SequencingMode.QUALITY_SCORE:
       default:
-        ({ clusters: sequencedClusters, reasoning } = 
-          await this.applyQualityScoring(clusters, config));
+        ({ clusters: sequencedClusters, reasoning } = await this.applyQualityScoring(
+          clusters,
+          config
+        ));
         break;
     }
 
@@ -1089,9 +1110,9 @@ export class SequencingEngine {
         mode: config.mode,
         algorithmsUsed: this.getAlgorithmsForMode(config.mode),
         confidence: this.calculateConfidence(reasoning),
-        processingTime: Date.now() - startTime
+        processingTime: Date.now() - startTime,
       },
-      reasoning
+      reasoning,
     };
   }
 }
@@ -1109,13 +1130,13 @@ class LogicalGroupingSequencer {
     config: SequencingConfig
   ): Promise<{ clusters: SemanticCluster[]; reasoning: SequencingReasoning[] }> {
     const reasoning: SequencingReasoning[] = [];
-    
+
     // 1. Order clusters by logical flow
     const orderedClusters = await this.orderClustersByFlow(clusters);
-    
+
     // 2. Sequence pages within each cluster
     const sequencedClusters = await Promise.all(
-      orderedClusters.map(async cluster => {
+      orderedClusters.map(async (cluster) => {
         const sequencedPages = await this.sequencePagesInCluster(cluster);
         return { ...cluster, pages: sequencedPages };
       })
@@ -1137,8 +1158,12 @@ class LogicalGroupingSequencer {
 
     const clusterTypes = await this.classifyClusterTypes(clusters);
     const flowOrder = [
-      'overview', 'getting-started', 'core-functionality', 
-      'advanced-features', 'reference', 'other'
+      'overview',
+      'getting-started',
+      'core-functionality',
+      'advanced-features',
+      'reference',
+      'other',
     ];
 
     return clusters.sort((a, b) => {
@@ -1146,11 +1171,11 @@ class LogicalGroupingSequencer {
       const bType = clusterTypes.get(b.id) || 'other';
       const aIndex = flowOrder.indexOf(aType);
       const bIndex = flowOrder.indexOf(bType);
-      
+
       if (aIndex !== bIndex) {
         return aIndex - bIndex;
       }
-      
+
       // Secondary sort by cluster size (larger first within same type)
       return b.size - a.size;
     });
@@ -1159,26 +1184,28 @@ class LogicalGroupingSequencer {
   /**
    * Sequence pages within cluster based on logical progression
    */
-  private async sequencePagesInCluster(cluster: SemanticCluster): Promise<EnhancedDiscoveredPage[]> {
+  private async sequencePagesInCluster(
+    cluster: SemanticCluster
+  ): Promise<EnhancedDiscoveredPage[]> {
     const pages = [...cluster.pages];
-    
+
     // 1. Identify page types within cluster
     const pageTypes = await this.identifyPageTypes(pages);
-    
+
     // 2. Apply logical ordering within cluster
     return pages.sort((a, b) => {
       const aType = pageTypes.get(a.url) || 'content';
       const bType = pageTypes.get(b.url) || 'content';
-      
+
       // Type-based ordering
       const typeOrder = ['overview', 'quickstart', 'tutorial', 'guide', 'reference', 'examples'];
       const aTypeIndex = typeOrder.indexOf(aType);
       const bTypeIndex = typeOrder.indexOf(bType);
-      
+
       if (aTypeIndex !== bTypeIndex) {
         return aTypeIndex - bTypeIndex;
       }
-      
+
       // Secondary sort by quality score
       return b.qualityScore - a.qualityScore;
     });
@@ -1189,12 +1216,12 @@ class LogicalGroupingSequencer {
    */
   private async classifyClusterTypes(clusters: SemanticCluster[]): Promise<Map<string, string>> {
     const classifications = new Map<string, string>();
-    
+
     for (const cluster of clusters) {
       const type = await this.classifyClusterType(cluster);
       classifications.set(cluster.id, type);
     }
-    
+
     return classifications;
   }
 
@@ -1204,7 +1231,7 @@ Analyze this content cluster and classify its type:
 
 Cluster: ${cluster.label}
 Description: ${cluster.description}
-Pages: ${cluster.pages.map(p => p.title).join(', ')}
+Pages: ${cluster.pages.map((p) => p.title).join(', ')}
 
 Classify as one of:
 - overview: Introduction, overview, or general information
@@ -1220,7 +1247,7 @@ Return only the classification (one word).`;
       model: 'gpt-4-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.1,
-      max_tokens: 20
+      max_tokens: 20,
     });
 
     return response.trim().toLowerCase();
@@ -1240,17 +1267,17 @@ class HierarchicalPrioritySequencer {
     config: SequencingConfig
   ): Promise<{ clusters: SemanticCluster[]; reasoning: SequencingReasoning[] }> {
     const reasoning: SequencingReasoning[] = [];
-    
+
     // 1. Build dependency graph from URL structure and content analysis
     const dependencyGraph = await this.buildDependencyGraph(clusters);
-    
+
     // 2. Perform topological sort to respect dependencies
     const orderedClusters = this.topologicalSort(clusters, dependencyGraph);
-    
+
     // 3. Within clusters, order by hierarchy depth
-    const sequencedClusters = orderedClusters.map(cluster => ({
+    const sequencedClusters = orderedClusters.map((cluster) => ({
       ...cluster,
-      pages: this.orderPagesByHierarchy(cluster.pages)
+      pages: this.orderPagesByHierarchy(cluster.pages),
     }));
 
     return { clusters: sequencedClusters, reasoning };
@@ -1261,21 +1288,21 @@ class HierarchicalPrioritySequencer {
    */
   private async buildDependencyGraph(clusters: SemanticCluster[]): Promise<DependencyGraph> {
     const graph: DependencyGraph = { nodes: [], edges: [] };
-    
+
     // Add clusters as nodes
-    clusters.forEach(cluster => {
+    clusters.forEach((cluster) => {
       graph.nodes.push({ id: cluster.id, type: 'cluster', data: cluster });
     });
 
     // Analyze dependencies
     for (const cluster of clusters) {
       const dependencies = await this.findClusterDependencies(cluster, clusters);
-      dependencies.forEach(depId => {
+      dependencies.forEach((depId) => {
         graph.edges.push({
           from: depId,
           to: cluster.id,
           weight: 1,
-          type: 'prerequisite'
+          type: 'prerequisite',
         });
       });
     }
@@ -1291,54 +1318,49 @@ class HierarchicalPrioritySequencer {
     allClusters: SemanticCluster[]
   ): Promise<string[]> {
     const dependencies: string[] = [];
-    
+
     // 1. URL hierarchy analysis
     const urlDeps = this.analyzeURLHierarchy(cluster, allClusters);
     dependencies.push(...urlDeps);
-    
+
     // 2. Content prerequisite analysis using AI
     const contentDeps = await this.analyzeContentPrerequisites(cluster, allClusters);
     dependencies.push(...contentDeps);
-    
+
     return [...new Set(dependencies)]; // Deduplicate
   }
 
   /**
    * Analyze URL structure for hierarchical relationships
    */
-  private analyzeURLHierarchy(
-    cluster: SemanticCluster,
-    allClusters: SemanticCluster[]
-  ): string[] {
+  private analyzeURLHierarchy(cluster: SemanticCluster, allClusters: SemanticCluster[]): string[] {
     const dependencies: string[] = [];
-    
+
     // Find parent paths in cluster URLs
-    const clusterPaths = cluster.pages.map(p => new URL(p.url).pathname);
-    const avgDepth = clusterPaths.reduce((sum, path) => 
-      sum + path.split('/').length, 0) / clusterPaths.length;
-    
+    const clusterPaths = cluster.pages.map((p) => new URL(p.url).pathname);
+    const avgDepth =
+      clusterPaths.reduce((sum, path) => sum + path.split('/').length, 0) / clusterPaths.length;
+
     // Look for clusters with shallower average depth (potential parents)
     for (const otherCluster of allClusters) {
       if (otherCluster.id === cluster.id) continue;
-      
-      const otherPaths = otherCluster.pages.map(p => new URL(p.url).pathname);
-      const otherAvgDepth = otherPaths.reduce((sum, path) => 
-        sum + path.split('/').length, 0) / otherPaths.length;
-      
+
+      const otherPaths = otherCluster.pages.map((p) => new URL(p.url).pathname);
+      const otherAvgDepth =
+        otherPaths.reduce((sum, path) => sum + path.split('/').length, 0) / otherPaths.length;
+
       // If other cluster is shallower and shares path prefix, it's likely a parent
       if (otherAvgDepth < avgDepth) {
-        const hasSharedPrefix = clusterPaths.some(path =>
-          otherPaths.some(otherPath => 
-            path.startsWith(otherPath) && path !== otherPath
-          )
+        const hasSharedPrefix = clusterPaths.some((path) =>
+          otherPaths.some((otherPath) => path.startsWith(otherPath) && path !== otherPath)
         );
-        
+
         if (hasSharedPrefix) {
           dependencies.push(otherCluster.id);
         }
       }
     }
-    
+
     return dependencies;
   }
 
@@ -1354,12 +1376,16 @@ Analyze these content clusters to identify prerequisite relationships:
 
 Target Cluster: ${cluster.label}
 Description: ${cluster.description}
-Sample Pages: ${cluster.pages.slice(0, 3).map(p => p.title).join(', ')}
+Sample Pages: ${cluster.pages
+      .slice(0, 3)
+      .map((p) => p.title)
+      .join(', ')}
 
 Other Clusters:
-${allClusters.filter(c => c.id !== cluster.id).map(c => 
-  `- ${c.label}: ${c.description}`
-).join('\n')}
+${allClusters
+  .filter((c) => c.id !== cluster.id)
+  .map((c) => `- ${c.label}: ${c.description}`)
+  .join('\n')}
 
 Which clusters should users read BEFORE the target cluster?
 Consider:
@@ -1373,19 +1399,21 @@ Return cluster labels that are prerequisites, one per line:`;
       model: 'gpt-4-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.2,
-      max_tokens: 100
+      max_tokens: 100,
     });
 
-    const prerequisiteLabels = response.split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
+    const prerequisiteLabels = response
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
 
     // Convert labels back to cluster IDs
     const dependencies: string[] = [];
     for (const label of prerequisiteLabels) {
-      const matchingCluster = allClusters.find(c => 
-        c.label.toLowerCase().includes(label.toLowerCase()) ||
-        label.toLowerCase().includes(c.label.toLowerCase())
+      const matchingCluster = allClusters.find(
+        (c) =>
+          c.label.toLowerCase().includes(label.toLowerCase()) ||
+          label.toLowerCase().includes(c.label.toLowerCase())
       );
       if (matchingCluster && matchingCluster.id !== cluster.id) {
         dependencies.push(matchingCluster.id);
@@ -1403,11 +1431,11 @@ Return cluster labels that are prerequisites, one per line:`;
       // Primary sort: URL depth (shallower first)
       const aDepth = new URL(a.url).pathname.split('/').length;
       const bDepth = new URL(b.url).pathname.split('/').length;
-      
+
       if (aDepth !== bDepth) {
         return aDepth - bDepth;
       }
-      
+
       // Secondary sort: Quality score (higher first)
       return b.qualityScore - a.qualityScore;
     });
@@ -1416,42 +1444,39 @@ Return cluster labels that are prerequisites, one per line:`;
   /**
    * Topological sort for dependency ordering
    */
-  private topologicalSort(
-    clusters: SemanticCluster[],
-    graph: DependencyGraph
-  ): SemanticCluster[] {
+  private topologicalSort(clusters: SemanticCluster[], graph: DependencyGraph): SemanticCluster[] {
     const sorted: SemanticCluster[] = [];
     const visited = new Set<string>();
     const visiting = new Set<string>();
-    
+
     const visit = (clusterId: string) => {
       if (visited.has(clusterId)) return;
       if (visiting.has(clusterId)) {
         // Circular dependency detected - break it by priority
         return;
       }
-      
+
       visiting.add(clusterId);
-      
+
       // Visit dependencies first
       const dependencies = graph.edges
-        .filter(edge => edge.to === clusterId)
-        .map(edge => edge.from);
-      
-      dependencies.forEach(depId => visit(depId));
-      
+        .filter((edge) => edge.to === clusterId)
+        .map((edge) => edge.from);
+
+      dependencies.forEach((depId) => visit(depId));
+
       visiting.delete(clusterId);
       visited.add(clusterId);
-      
-      const cluster = clusters.find(c => c.id === clusterId);
+
+      const cluster = clusters.find((c) => c.id === clusterId);
       if (cluster) {
         sorted.push(cluster);
       }
     };
-    
+
     // Visit all clusters
-    clusters.forEach(cluster => visit(cluster.id));
-    
+    clusters.forEach((cluster) => visit(cluster.id));
+
     return sorted;
   }
 }
@@ -1464,8 +1489,8 @@ interface BusinessObjective {
   id: string;
   name: string;
   description: string;
-  priority: number;        // 1-10 priority level
-  targetPages: string[];   // URL patterns or specific URLs
+  priority: number; // 1-10 priority level
+  targetPages: string[]; // URL patterns or specific URLs
   conversionFunnel: string[]; // Ordered list of page types in funnel
 }
 
@@ -1478,20 +1503,24 @@ class BusinessObjectiveSequencer {
     config: SequencingConfig
   ): Promise<{ clusters: SemanticCluster[]; reasoning: SequencingReasoning[] }> {
     const reasoning: SequencingReasoning[] = [];
-    const objectives = config.businessObjectives || await this.inferBusinessObjectives(clusters);
-    
+    const objectives = config.businessObjectives || (await this.inferBusinessObjectives(clusters));
+
     // 1. Map clusters to business objectives
     const clusterObjectiveMap = await this.mapClustersToObjectives(clusters, objectives);
-    
+
     // 2. Order clusters by business priority
-    const orderedClusters = this.orderClustersByBusinessPriority(clusters, clusterObjectiveMap, objectives);
-    
+    const orderedClusters = this.orderClustersByBusinessPriority(
+      clusters,
+      clusterObjectiveMap,
+      objectives
+    );
+
     // 3. Within clusters, order by conversion funnel position
-    const sequencedClusters = orderedClusters.map(cluster => {
+    const sequencedClusters = orderedClusters.map((cluster) => {
       const objective = clusterObjectiveMap.get(cluster.id);
       return {
         ...cluster,
-        pages: this.orderPagesByFunnelPosition(cluster.pages, objective)
+        pages: this.orderPagesByFunnelPosition(cluster.pages, objective),
       };
     });
 
@@ -1506,7 +1535,7 @@ class BusinessObjectiveSequencer {
 Analyze these content clusters and infer the primary business objectives:
 
 Clusters:
-${clusters.map(c => `- ${c.label}: ${c.description} (${c.size} pages)`).join('\n')}
+${clusters.map((c) => `- ${c.label}: ${c.description} (${c.size} pages)`).join('\n')}
 
 Common business objectives for documentation sites:
 1. User Onboarding - Get users started quickly
@@ -1536,7 +1565,7 @@ Format as JSON array:
       model: 'gpt-4-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
-      max_tokens: 800
+      max_tokens: 800,
     });
 
     return this.parseBusinessObjectives(response);
@@ -1550,14 +1579,14 @@ Format as JSON array:
     objectives: BusinessObjective[]
   ): Promise<Map<string, BusinessObjective>> {
     const mapping = new Map<string, BusinessObjective>();
-    
+
     for (const cluster of clusters) {
       const bestObjective = await this.findBestObjectiveForCluster(cluster, objectives);
       if (bestObjective) {
         mapping.set(cluster.id, bestObjective);
       }
     }
-    
+
     return mapping;
   }
 
@@ -1593,9 +1622,9 @@ Format as JSON array:
     const semanticScore = await this.scoreSemanticMatch(cluster, objective);
     const urlPatternScore = this.scoreURLPatternMatch(cluster, objective);
     const contentTypeScore = this.scoreContentTypeMatch(cluster, objective);
-    
+
     // Weighted average
-    return (semanticScore * 0.5) + (urlPatternScore * 0.3) + (contentTypeScore * 0.2);
+    return semanticScore * 0.5 + urlPatternScore * 0.3 + contentTypeScore * 0.2;
   }
 
   /**
@@ -1609,17 +1638,17 @@ Format as JSON array:
     return [...clusters].sort((a, b) => {
       const aObjective = clusterObjectiveMap.get(a.id);
       const bObjective = clusterObjectiveMap.get(b.id);
-      
+
       // Clusters with business objectives first
       if (aObjective && !bObjective) return -1;
       if (!aObjective && bObjective) return 1;
       if (!aObjective && !bObjective) return b.coherenceScore - a.coherenceScore;
-      
+
       // Order by business objective priority
       if (aObjective!.priority !== bObjective!.priority) {
         return bObjective!.priority - aObjective!.priority;
       }
-      
+
       // Secondary sort by cluster quality
       return b.coherenceScore - a.coherenceScore;
     });
@@ -1640,11 +1669,11 @@ Format as JSON array:
     return [...pages].sort((a, b) => {
       const aFunnelPosition = this.getFunnelPosition(a, objective.conversionFunnel);
       const bFunnelPosition = this.getFunnelPosition(b, objective.conversionFunnel);
-      
+
       if (aFunnelPosition !== bFunnelPosition) {
         return aFunnelPosition - bFunnelPosition;
       }
-      
+
       return b.qualityScore - a.qualityScore;
     });
   }
@@ -1742,7 +1771,7 @@ export function SequencingControls({
                 )}
               </div>
             </CardHeader>
-            
+
             <CardContent className="pt-0">
               <p className="text-sm text-muted-foreground mb-2">
                 {modeInfo.description}
@@ -1750,7 +1779,7 @@ export function SequencingControls({
               <p className="text-xs text-muted-foreground">
                 <strong>Best for:</strong> {modeInfo.bestFor}
               </p>
-              
+
               {showPreview && (
                 <div className="mt-3 flex gap-2">
                   <Button
@@ -1828,7 +1857,7 @@ export function SequencingPreview({ mode, onClose, onApply }: SequencingPreviewP
           previewOnly: true
         })
       });
-      
+
       const data = await response.json();
       setPreviewData(data);
     } catch (error) {
@@ -1902,9 +1931,9 @@ function PreviewContent({ data }: { data: SequencedResult }) {
       <div className="space-y-4">
         <h4 className="font-medium">Content Organization</h4>
         {data.clusters.map((cluster, index) => (
-          <PreviewClusterCard 
-            key={cluster.id} 
-            cluster={cluster} 
+          <PreviewClusterCard
+            key={cluster.id}
+            cluster={cluster}
             position={index + 1}
           />
         ))}
@@ -1939,7 +1968,7 @@ function PreviewClusterCard({ cluster, position }: { cluster: SemanticCluster; p
           <Badge variant="secondary">{cluster.size} pages</Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <div className="text-sm text-muted-foreground mb-2">
           {cluster.description}
@@ -1973,12 +2002,14 @@ function PreviewClusterCard({ cluster, position }: { cluster: SemanticCluster; p
 ### 4.1 Requirements
 
 **Primary Objectives:**
+
 - Generate concise executive summary of website's content at top of LLM.txt
 - Provide 2-3 sentence overview in blockquote format
 - Include key statistics and content highlights
 - Maintain consistent formatting across all analyses
 
 **User Stories:**
+
 - As an AI system, I want a quick summary so I can understand the site's purpose immediately
 - As a user, I want key statistics so I can assess the content scope at a glance
 - As a developer, I want structured metadata so I can programmatically understand the analysis
@@ -1991,23 +2022,23 @@ function PreviewClusterCard({ cluster, position }: { cluster: SemanticCluster; p
 
 ```typescript
 export interface SummaryConfig {
-  maxLength: number;         // 200 characters for summary
+  maxLength: number; // 200 characters for summary
   includeStatistics: boolean;
   includeKeyTopics: boolean;
   summaryStyle: 'executive' | 'technical' | 'descriptive';
 }
 
 export interface GeneratedSummary {
-  summary: string;           // Main 2-3 sentence summary
+  summary: string; // Main 2-3 sentence summary
   keyStatistics: {
     totalPages: number;
     clustersFound: number;
     avgQualityScore: number;
     topCategories: string[];
   };
-  keyTopics: string[];       // 3-5 most important topics
-  contentTypes: string[];    // Types of content found
-  confidence: number;        // 0-1 summary quality score
+  keyTopics: string[]; // 3-5 most important topics
+  contentTypes: string[]; // Types of content found
+  confidence: number; // 0-1 summary quality score
 }
 
 export class SummaryGeneratorService {
@@ -2023,19 +2054,19 @@ export class SummaryGeneratorService {
     const statistics = this.extractStatistics(analysis, clusters);
     const keyTopics = this.extractKeyTopics(clusters);
     const contentTypes = this.identifyContentTypes(analysis.discoveredPages);
-    
+
     // 2. Generate AI summary
     const summary = await this.generateAISummary(analysis, clusters, statistics, config);
-    
+
     // 3. Validate and refine
     const refinedSummary = await this.refineSummary(summary, config);
-    
+
     return {
       summary: refinedSummary,
       keyStatistics: statistics,
       keyTopics,
       contentTypes,
-      confidence: this.calculateSummaryConfidence(refinedSummary, analysis)
+      confidence: this.calculateSummaryConfidence(refinedSummary, analysis),
     };
   }
 
@@ -2049,18 +2080,21 @@ export class SummaryGeneratorService {
     config: SummaryConfig
   ): Promise<string> {
     const prompt = this.buildSummaryPrompt(analysis, clusters, statistics, config);
-    
+
     const response = await this.openaiService.complete({
       model: 'gpt-4-turbo',
-      messages: [{
-        role: 'system',
-        content: this.getSummarySystemPrompt(config.summaryStyle)
-      }, {
-        role: 'user',
-        content: prompt
-      }],
+      messages: [
+        {
+          role: 'system',
+          content: this.getSummarySystemPrompt(config.summaryStyle),
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
       temperature: 0.4,
-      max_tokens: 150
+      max_tokens: 150,
     });
 
     return response.trim();
@@ -2070,7 +2104,7 @@ export class SummaryGeneratorService {
     const stylePrompts = {
       executive: `Create concise, high-level summaries focusing on business value and key outcomes. Write for executives and decision-makers.`,
       technical: `Create detailed, precise summaries focusing on technical aspects and implementation details. Write for developers and technical professionals.`,
-      descriptive: `Create comprehensive, accessible summaries that explain both what and why. Write for general audiences.`
+      descriptive: `Create comprehensive, accessible summaries that explain both what and why. Write for general audiences.`,
     };
 
     return `You are a professional content analyst specializing in website documentation analysis.
@@ -2093,20 +2127,20 @@ Requirements:
     config: SummaryConfig
   ): string {
     const baseUrl = new URL(analysis.url).hostname;
-    
+
     return `
 Analyze this website and create a summary:
 
 Website: ${baseUrl}
 Total Pages: ${statistics.totalPages}
-Content Clusters: ${clusters.map(c => `${c.label} (${c.size} pages)`).join(', ')}
+Content Clusters: ${clusters.map((c) => `${c.label} (${c.size} pages)`).join(', ')}
 Average Quality: ${statistics.avgQualityScore}/10
 
 Top Page Examples:
 ${analysis.discoveredPages
   .sort((a, b) => b.qualityScore - a.qualityScore)
   .slice(0, 5)
-  .map(p => `- ${p.title} (${p.qualityScore}/10): ${p.description}`)
+  .map((p) => `- ${p.title} (${p.qualityScore}/10): ${p.description}`)
   .join('\n')}
 
 Create a ${config.summaryStyle} summary that captures:
@@ -2126,16 +2160,16 @@ Keep it concise but informative. Focus on what makes this documentation valuable
   ): GeneratedSummary['keyStatistics'] {
     const pages = analysis.discoveredPages;
     const avgQualityScore = pages.reduce((sum, p) => sum + p.qualityScore, 0) / pages.length;
-    
+
     // Count categories
     const categoryCount = new Map<string, number>();
-    pages.forEach(page => {
+    pages.forEach((page) => {
       const category = page.category;
       categoryCount.set(category, (categoryCount.get(category) || 0) + 1);
     });
-    
+
     const topCategories = Array.from(categoryCount.entries())
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 3)
       .map(([category]) => category);
 
@@ -2143,7 +2177,7 @@ Keep it concise but informative. Focus on what makes this documentation valuable
       totalPages: pages.length,
       clustersFound: clusters.length,
       avgQualityScore: Math.round(avgQualityScore * 10) / 10,
-      topCategories
+      topCategories,
     };
   }
 
@@ -2153,18 +2187,19 @@ Keep it concise but informative. Focus on what makes this documentation valuable
   private extractKeyTopics(clusters: SemanticCluster[]): string[] {
     // Combine cluster labels and extract most important topics
     const topicCounts = new Map<string, number>();
-    
-    clusters.forEach(cluster => {
+
+    clusters.forEach((cluster) => {
       const words = cluster.label.toLowerCase().split(' ');
-      words.forEach(word => {
-        if (word.length > 3) { // Skip short words
+      words.forEach((word) => {
+        if (word.length > 3) {
+          // Skip short words
           topicCounts.set(word, (topicCounts.get(word) || 0) + cluster.size);
         }
       });
     });
-    
+
     return Array.from(topicCounts.entries())
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([topic]) => topic);
   }
@@ -2174,17 +2209,17 @@ Keep it concise but informative. Focus on what makes this documentation valuable
    */
   private identifyContentTypes(pages: DiscoveredPage[]): string[] {
     const types = new Set<string>();
-    
-    pages.forEach(page => {
+
+    pages.forEach((page) => {
       // Analyze URL patterns
       const path = new URL(page.url).pathname.toLowerCase();
-      
+
       if (path.includes('/api/')) types.add('API Reference');
       if (path.includes('/tutorial/')) types.add('Tutorials');
       if (path.includes('/guide/')) types.add('Guides');
       if (path.includes('/example/')) types.add('Examples');
       if (path.includes('/doc/')) types.add('Documentation');
-      
+
       // Analyze titles
       const title = page.title.toLowerCase();
       if (title.includes('getting started')) types.add('Getting Started');
@@ -2192,7 +2227,7 @@ Keep it concise but informative. Focus on what makes this documentation valuable
       if (title.includes('installation')) types.add('Installation');
       if (title.includes('configuration')) types.add('Configuration');
     });
-    
+
     return Array.from(types);
   }
 }
@@ -2207,49 +2242,47 @@ export class BlockquoteFormatterService {
   /**
    * Format summary as LLM.txt blockquote section
    */
-  formatSummaryAsBlockquote(
-    summary: GeneratedSummary,
-    baseUrl: string,
-    generatedAt: Date
-  ): string {
+  formatSummaryAsBlockquote(summary: GeneratedSummary, baseUrl: string, generatedAt: Date): string {
     const lines: string[] = [];
-    
+
     // Header
     lines.push('> ## Executive Summary');
     lines.push('>');
-    
+
     // Main summary
     const summaryLines = this.wrapText(summary.summary, 75);
-    summaryLines.forEach(line => lines.push(`> ${line}`));
+    summaryLines.forEach((line) => lines.push(`> ${line}`));
     lines.push('>');
-    
+
     // Key statistics
     if (summary.keyStatistics) {
-      lines.push(`> **Content Overview**: ${summary.keyStatistics.totalPages} pages across ${summary.keyStatistics.clustersFound} topic areas`);
+      lines.push(
+        `> **Content Overview**: ${summary.keyStatistics.totalPages} pages across ${summary.keyStatistics.clustersFound} topic areas`
+      );
       lines.push(`> **Quality Score**: ${summary.keyStatistics.avgQualityScore}/10 average`);
-      
+
       if (summary.keyStatistics.topCategories.length > 0) {
         lines.push(`> **Primary Categories**: ${summary.keyStatistics.topCategories.join(', ')}`);
       }
       lines.push('>');
     }
-    
+
     // Key topics
     if (summary.keyTopics.length > 0) {
       lines.push(`> **Key Topics**: ${summary.keyTopics.join(', ')}`);
       lines.push('>');
     }
-    
+
     // Content types
     if (summary.contentTypes.length > 0) {
       lines.push(`> **Content Types**: ${summary.contentTypes.join(', ')}`);
       lines.push('>');
     }
-    
+
     // Metadata
     lines.push(`> *Generated from ${baseUrl} on ${generatedAt.toISOString().split('T')[0]}*`);
     lines.push('');
-    
+
     return lines.join('\n');
   }
 
@@ -2262,24 +2295,28 @@ export class BlockquoteFormatterService {
     clusters: SemanticCluster[]
   ): string {
     const lines: string[] = [];
-    
+
     lines.push('# === ANALYSIS METADATA ===');
     lines.push(`# Website: ${analysis.url}`);
     lines.push(`# Analysis Date: ${new Date().toISOString().split('T')[0]}`);
     lines.push(`# Total Pages Discovered: ${analysis.discoveredPages.length}`);
-    lines.push(`# Pages Included: ${analysis.discoveredPages.filter(p => p.qualityScore > 3).length}`);
+    lines.push(
+      `# Pages Included: ${analysis.discoveredPages.filter((p) => p.qualityScore > 3).length}`
+    );
     lines.push(`# Content Clusters: ${clusters.length}`);
     lines.push(`# Average Quality Score: ${summary.keyStatistics.avgQualityScore}/10`);
     lines.push(`# Summary Confidence: ${Math.round(summary.confidence * 100)}%`);
     lines.push('#');
-    
+
     // Cluster overview
     lines.push('# === CONTENT ORGANIZATION ===');
     clusters.forEach((cluster, index) => {
-      lines.push(`# ${index + 1}. ${cluster.label} (${cluster.size} pages) - ${cluster.description}`);
+      lines.push(
+        `# ${index + 1}. ${cluster.label} (${cluster.size} pages) - ${cluster.description}`
+      );
     });
     lines.push('#');
-    
+
     return lines.join('\n');
   }
 
@@ -2290,7 +2327,7 @@ export class BlockquoteFormatterService {
     const words = text.split(' ');
     const lines: string[] = [];
     let currentLine = '';
-    
+
     for (const word of words) {
       if (currentLine.length + word.length + 1 <= maxLength) {
         currentLine += (currentLine ? ' ' : '') + word;
@@ -2299,7 +2336,7 @@ export class BlockquoteFormatterService {
         currentLine = word;
       }
     }
-    
+
     if (currentLine) lines.push(currentLine);
     return lines;
   }
@@ -2346,28 +2383,24 @@ export class EnhancedLlmTxtGenerator {
     if (config.includeBlockquoteSummary) {
       const summary = await this.summaryGenerator.generateSummary(analysis, clusters);
       const blockquote = this.blockquoteFormatter.formatSummaryAsBlockquote(
-        summary, baseUrl, generatedAt
+        summary,
+        baseUrl,
+        generatedAt
       );
       sections.push(blockquote);
     }
 
     // 3. Metadata section
-    const metadata = this.blockquoteFormatter.formatMetadataSection(
-      analysis, summary, clusters
-    );
+    const metadata = this.blockquoteFormatter.formatMetadataSection(analysis, summary, clusters);
     sections.push(metadata);
 
     // 4. Sequenced content
     const sequencedResult = await this.sequencingEngine.sequencePages(clusters, {
       mode: config.sequencingMode,
-      preserveClusterIntegrity: true
+      preserveClusterIntegrity: true,
     });
 
-    const contentSection = this.generateContentSection(
-      sequencedResult,
-      enhancements,
-      config
-    );
+    const contentSection = this.generateContentSection(sequencedResult, enhancements, config);
     sections.push(contentSection);
 
     // 5. Footer with generation info
@@ -2387,38 +2420,40 @@ export class EnhancedLlmTxtGenerator {
     const lines: string[] = [];
     lines.push('# === CONTENT INDEX ===');
     lines.push('#');
-    
+
     // Generate clustered content
     for (let i = 0; i < sequencedResult.clusters.length; i++) {
       const cluster = sequencedResult.clusters[i];
-      
+
       // Cluster header (if enabled)
       if (config.includeClusterHeaders) {
         lines.push(`# --- ${cluster.label.toUpperCase()} ---`);
         lines.push(`# ${cluster.description}`);
-        lines.push(`# Pages: ${cluster.size} | Coherence: ${Math.round(cluster.coherenceScore * 100)}%`);
+        lines.push(
+          `# Pages: ${cluster.size} | Coherence: ${Math.round(cluster.coherenceScore * 100)}%`
+        );
         lines.push('#');
       }
-      
+
       // Pages in cluster
       for (const page of cluster.pages) {
         const enhancement = enhancements.get(page.url);
         const description = enhancement?.enhanced || page.description;
-        
+
         // Format: URL: Title - Description [Tags]
         let line = `${page.url}: ${page.title} - ${description}`;
-        
+
         // Add semantic tags (if enabled)
         if (config.includeSemanticTags && enhancement?.semanticTags.length) {
           const tagStrings = enhancement.semanticTags
             .slice(0, 3) // Limit to 3 tags
-            .map(tag => tag.tag);
+            .map((tag) => tag.tag);
           line += ` [${tagStrings.join(', ')}]`;
         }
-        
+
         lines.push(line);
       }
-      
+
       // Separator between clusters
       if (i < sequencedResult.clusters.length - 1) {
         lines.push('');
@@ -2473,54 +2508,56 @@ export class EnhancedCacheManager {
       name: 'embedding_cache',
       ttl: 7 * 24 * 60 * 60, // 7 days
       keyStrategy: 'content-hash',
-      storage: 'database'
+      storage: 'database',
     },
     {
       name: 'cluster_cache',
       ttl: 24 * 60 * 60, // 24 hours
       keyStrategy: 'analysis-id',
-      storage: 'database'
+      storage: 'database',
     },
     {
       name: 'sequence_cache',
       ttl: 6 * 60 * 60, // 6 hours
       keyStrategy: 'analysis-id',
-      storage: 'memory'
-    }
+      storage: 'memory',
+    },
   ];
 
   async getCachedEmbedding(contentHash: string): Promise<number[] | null> {
-    const cached = await this.db.select()
+    const cached = await this.db
+      .select()
       .from(embeddingCache)
       .where(eq(embeddingCache.contentHash, contentHash))
       .where(gt(embeddingCache.expiresAt, new Date()));
-    
+
     return cached[0]?.embedding || null;
   }
 
   async setCachedEmbedding(
-    contentHash: string, 
-    url: string, 
+    contentHash: string,
+    url: string,
     embedding: number[],
     tags: SemanticTag[]
   ): Promise<void> {
-    const expiresAt = new Date(Date.now() + (7 * 24 * 60 * 60 * 1000));
-    
-    await this.db.insert(embeddingCache)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await this.db
+      .insert(embeddingCache)
       .values({
         contentHash,
         url,
         embedding,
         semanticTags: tags,
-        expiresAt
+        expiresAt,
       })
       .onConflictDoUpdate({
         target: embeddingCache.contentHash,
         set: {
           embedding,
           semanticTags: tags,
-          expiresAt
-        }
+          expiresAt,
+        },
       });
   }
 }
@@ -2540,43 +2577,42 @@ export class BatchProcessor {
     batchSize: number = 100
   ): Promise<EmbeddingResult[]> {
     const results: EmbeddingResult[] = [];
-    
+
     for (let i = 0; i < pages.length; i += batchSize) {
       const batch = pages.slice(i, i + batchSize);
-      const batchTexts = batch.map(page => 
-        `${page.title} ${page.description} ${new URL(page.url).pathname}`
+      const batchTexts = batch.map(
+        (page) => `${page.title} ${page.description} ${new URL(page.url).pathname}`
       );
-      
+
       try {
         const embeddings = await this.openaiService.createEmbeddings({
           input: batchTexts,
-          model: 'text-embedding-ada-002'
+          model: 'text-embedding-ada-002',
         });
-        
+
         embeddings.data.forEach((embedding, index) => {
           results.push({
             url: batch[index].url,
             embedding: embedding.embedding,
-            contentHash: this.generateContentHash(batch[index])
+            contentHash: this.generateContentHash(batch[index]),
           });
         });
-        
+
         // Rate limiting - 100 requests per minute for OpenAI
         if (i + batchSize < pages.length) {
           await this.delay(600); // 600ms between batches
         }
-        
       } catch (error) {
         console.error(`Batch ${i}-${i + batchSize} failed:`, error);
         // Implement retry logic or fallback
       }
     }
-    
+
     return results;
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 ```
@@ -2585,21 +2621,21 @@ export class BatchProcessor {
 
 ```sql
 -- Add indexes for semantic analysis performance
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_embedding_cache_content_hash 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_embedding_cache_content_hash
 ON embedding_cache(content_hash);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_embedding_cache_expires_at 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_embedding_cache_expires_at
 ON embedding_cache(expires_at);
 
 -- Vector similarity index (requires pgvector extension)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_embedding_cache_embedding_cosine 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_embedding_cache_embedding_cosine
 ON embedding_cache USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 
 -- Analysis lookup optimization
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_sitemap_analysis_url 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_sitemap_analysis_url
 ON "sitemapAnalysis"(url);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_sitemap_analysis_last_clustered 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_sitemap_analysis_last_clustered
 ON "sitemapAnalysis"(last_clustered_at);
 ```
 
@@ -2634,17 +2670,14 @@ export interface EnhancementMetrics {
 }
 
 export class EnhancementAnalytics {
-  async trackEnhancementMetrics(
-    analysisId: string,
-    metrics: EnhancementMetrics
-  ): Promise<void> {
+  async trackEnhancementMetrics(analysisId: string, metrics: EnhancementMetrics): Promise<void> {
     // Store comprehensive metrics for performance analysis
     await this.db.insert(enhancementMetrics).values({
       analysisId,
       metrics: JSON.stringify(metrics),
-      createdAt: new Date()
+      createdAt: new Date(),
     });
-    
+
     // Update usage tracking with enhanced features
     await this.updateUsageWithEnhancements(analysisId, metrics);
   }
@@ -2660,11 +2693,13 @@ export class EnhancementAnalytics {
 ## 6. Phased Implementation Plan
 
 ### Phase 1: Foundation (Weeks 1-2)
+
 **Duration**: 2 weeks
 **Priority**: Critical
 **Dependencies**: None
 
 #### Week 1: Database & Core Services
+
 - **Day 1-2**: Database schema extensions
   - Add semantic_clusters, clustering_metadata to sitemapAnalysis
   - Create embeddingCache table with pgvector support
@@ -2679,6 +2714,7 @@ export class EnhancementAnalytics {
   - Integration with existing analysis pipeline
 
 #### Week 2: Enhanced Descriptions
+
 - **Day 1-2**: Enhanced Description Service
   - Uniqueness validation system
   - Semantic tagging rules and AI integration
@@ -2693,12 +2729,14 @@ export class EnhancementAnalytics {
   - Frontend integration prep
 
 **Deliverables**:
+
 - Functional semantic clustering with 3-8 clusters per analysis
 - Enhanced descriptions with uniqueness validation
 - Database schema supporting semantic analysis
 - API endpoints for clustering and description enhancement
 
 **Success Criteria**:
+
 - Clustering algorithm achieves >0.7 average coherence score
 - Description uniqueness >0.8 average across analyses
 - API response times <5 seconds for typical analyses
@@ -2707,11 +2745,13 @@ export class EnhancementAnalytics {
 ---
 
 ### Phase 2: Advanced Features (Weeks 3-4)
+
 **Duration**: 2 weeks  
 **Priority**: High
 **Dependencies**: Phase 1 complete
 
 #### Week 3: Multi-Mode Sequencing
+
 - **Day 1-2**: Sequencing Engine implementation
   - Logical Grouping sequencer
   - Hierarchical Priority sequencer with dependency analysis
@@ -2726,6 +2766,7 @@ export class EnhancementAnalytics {
   - Performance optimization
 
 #### Week 4: Blockquote Summaries & Enhanced Generation
+
 - **Day 1-2**: Summary Generation Service
   - AI-powered executive summaries
   - Statistics extraction
@@ -2740,12 +2781,14 @@ export class EnhancementAnalytics {
   - Error handling improvements
 
 **Deliverables**:
+
 - Three working sequencing modes with preview
 - Blockquote summary generation
 - Complete enhanced LLM.txt generation pipeline
 - Performance optimizations and caching
 
 **Success Criteria**:
+
 - All three sequencing modes produce meaningful organization
 - Summaries are coherent and informative (>0.8 quality score)
 - End-to-end generation time <30 seconds for 100-page analyses
@@ -2754,11 +2797,13 @@ export class EnhancementAnalytics {
 ---
 
 ### Phase 3: UI/UX Integration (Weeks 5-6)
+
 **Duration**: 2 weeks
 **Priority**: Medium
 **Dependencies**: Phase 2 complete
 
 #### Week 5: Frontend Components
+
 - **Day 1-2**: Cluster visualization components
   - Interactive cluster cards
   - Drag-and-drop page management
@@ -2773,6 +2818,7 @@ export class EnhancementAnalytics {
   - Export options
 
 #### Week 6: User Experience Polish
+
 - **Day 1-2**: Integration with existing analysis flow
   - Seamless workflow integration
   - Progress indicators
@@ -2787,12 +2833,14 @@ export class EnhancementAnalytics {
   - Performance optimization
 
 **Deliverables**:
+
 - Complete frontend interface for all enhancement features
 - Intuitive user workflow from analysis to enhanced generation
 - Mobile-responsive design
 - Comprehensive user testing results
 
 **Success Criteria**:
+
 - User can complete enhanced analysis workflow in <5 minutes
 - All features work across modern browsers
 - Mobile experience maintains full functionality
@@ -2801,11 +2849,13 @@ export class EnhancementAnalytics {
 ---
 
 ### Phase 4: Optimization & Rollout (Week 7)
+
 **Duration**: 1 week
 **Priority**: Medium
 **Dependencies**: Phase 3 complete
 
 #### Week 7: Production Readiness
+
 - **Day 1-2**: Performance optimization
   - Database query optimization
   - Caching strategy implementation
@@ -2824,12 +2874,14 @@ export class EnhancementAnalytics {
   - Monitoring and feedback collection
 
 **Deliverables**:
+
 - Production-ready enhancement features
 - Comprehensive monitoring and analytics
 - Documentation and user guides
 - Controlled rollout strategy
 
 **Success Criteria**:
+
 - System handles 10x current load without degradation
 - All features monitored with appropriate alerts
 - User adoption >50% within first month
@@ -2848,7 +2900,7 @@ describe('SemanticClusteringService', () => {
     it('should create 3-8 clusters for typical analysis', async () => {
       const mockPages = createMockPages(50);
       const clusters = await clusteringService.clusterPages(mockPages);
-      
+
       expect(clusters.length).toBeGreaterThanOrEqual(3);
       expect(clusters.length).toBeLessThanOrEqual(8);
     });
@@ -2856,7 +2908,7 @@ describe('SemanticClusteringService', () => {
     it('should achieve >0.7 average coherence score', async () => {
       const mockPages = createMockPages(30);
       const clusters = await clusteringService.clusterPages(mockPages);
-      
+
       const avgCoherence = clusters.reduce((sum, c) => sum + c.coherenceScore, 0) / clusters.length;
       expect(avgCoherence).toBeGreaterThan(0.7);
     });
@@ -2881,34 +2933,34 @@ describe('SemanticClusteringService', () => {
 describe('Enhancement Pipeline Integration', () => {
   it('should complete full enhancement pipeline', async () => {
     const analysisId = await createTestAnalysis();
-    
+
     // Test clustering
     const clusters = await request(app)
       .post('/api/analysis/cluster')
       .send({ analysisId })
       .expect(200);
-    
+
     // Test description enhancement
     const descriptions = await request(app)
       .post('/api/analysis/enhance-descriptions')
       .send({ analysisId })
       .expect(200);
-    
+
     // Test sequencing
     const sequenced = await request(app)
       .post('/api/analysis/sequence')
-      .send({ 
+      .send({
         analysisId,
-        mode: SequencingMode.LOGICAL_GROUPING
+        mode: SequencingMode.LOGICAL_GROUPING,
       })
       .expect(200);
-    
+
     // Test generation
     const generated = await request(app)
       .post('/api/analysis/generate-enhanced')
       .send({ analysisId })
       .expect(200);
-    
+
     // Validate complete pipeline
     expect(generated.body.content).toContain('## Executive Summary');
     expect(generated.body.content).toContain('=== CONTENT INDEX ===');
@@ -2923,25 +2975,25 @@ describe('Performance Requirements', () => {
   it('should complete clustering within 10 seconds for 100 pages', async () => {
     const pages = createMockPages(100);
     const startTime = Date.now();
-    
+
     const clusters = await clusteringService.clusterPages(pages);
     const duration = Date.now() - startTime;
-    
+
     expect(duration).toBeLessThan(10000);
     expect(clusters).toBeDefined();
   });
 
   it('should achieve 80%+ cache hit rate on repeated analyses', async () => {
     const pages = createMockPages(50);
-    
+
     // First run - populate cache
     await clusteringService.clusterPages(pages);
-    
+
     // Second run - should hit cache
     const startTime = Date.now();
     await clusteringService.clusterPages(pages);
     const duration = Date.now() - startTime;
-    
+
     expect(duration).toBeLessThan(2000); // Should be much faster
   });
 });
@@ -2950,6 +3002,7 @@ describe('Performance Requirements', () => {
 ### 7.4 User Acceptance Testing
 
 #### Test Scenarios:
+
 1. **Content Discovery**: Users can identify content clusters that make logical sense
 2. **Description Quality**: Enhanced descriptions are more informative than originals
 3. **Sequencing Value**: Different sequencing modes provide meaningful organization differences
@@ -2957,6 +3010,7 @@ describe('Performance Requirements', () => {
 5. **Workflow Integration**: Enhancement features integrate seamlessly with existing flow
 
 #### Success Criteria:
+
 - **Content Quality**: 90% of users find enhanced descriptions more helpful
 - **Organization Value**: 85% of users prefer clustered organization to linear lists
 - **Sequencing Utility**: Users can distinguish between sequencing modes and select appropriate ones
@@ -2970,15 +3024,17 @@ describe('Performance Requirements', () => {
 ### 8.1 Technical Risks
 
 #### High Risk: OpenAI API Rate Limits & Costs
+
 - **Risk**: Enhanced features require significantly more API calls
 - **Impact**: Service degradation, unexpected costs
-- **Mitigation**: 
+- **Mitigation**:
   - Implement aggressive caching (7-day embedding cache)
   - Batch processing to optimize API usage
   - Circuit breakers for API failures
   - Cost monitoring with automatic limits
 
 #### Medium Risk: Performance Degradation
+
 - **Risk**: Complex clustering algorithms slow down analysis
 - **Impact**: User experience degradation, timeouts
 - **Mitigation**:
@@ -2988,6 +3044,7 @@ describe('Performance Requirements', () => {
   - Set reasonable time limits with fallbacks
 
 #### Medium Risk: Database Storage Growth
+
 - **Risk**: Embedding vectors and semantic data significantly increase storage
 - **Impact**: Higher infrastructure costs, potential performance issues
 - **Mitigation**:
@@ -2999,6 +3056,7 @@ describe('Performance Requirements', () => {
 ### 8.2 Product Risks
 
 #### Medium Risk: Feature Complexity Overwhelming Users
+
 - **Risk**: Too many options and configurations confuse users
 - **Impact**: Reduced adoption, negative user feedback
 - **Mitigation**:
@@ -3008,6 +3066,7 @@ describe('Performance Requirements', () => {
   - Comprehensive user onboarding
 
 #### Low Risk: Semantic Analysis Accuracy
+
 - **Risk**: AI-generated clusters or descriptions may be inaccurate
 - **Impact**: User trust issues, reduced value perception
 - **Mitigation**:
@@ -3019,6 +3078,7 @@ describe('Performance Requirements', () => {
 ### 8.3 Business Risks
 
 #### Low Risk: Development Timeline Extensions
+
 - **Risk**: Complex features take longer than estimated
 - **Impact**: Delayed launch, opportunity cost
 - **Mitigation**:
@@ -3034,6 +3094,7 @@ describe('Performance Requirements', () => {
 ### 9.1 Technical Metrics
 
 #### Performance Targets:
+
 - **Clustering Time**: <10 seconds for 100-page analyses
 - **Cache Hit Rate**: >80% for embeddings, >60% for clusters
 - **API Response Time**: <2 seconds for enhancement endpoints
@@ -3041,6 +3102,7 @@ describe('Performance Requirements', () => {
 - **Database Query Performance**: <100ms for semantic lookups
 
 #### Quality Metrics:
+
 - **Cluster Coherence**: >0.7 average coherence score
 - **Description Uniqueness**: >0.8 average uniqueness score
 - **Summary Accuracy**: >80% user agreement on summary quality
@@ -3049,12 +3111,14 @@ describe('Performance Requirements', () => {
 ### 9.2 User Engagement Metrics
 
 #### Adoption Metrics:
+
 - **Feature Usage**: >60% of analyses use clustering
 - **Mode Selection**: Even distribution across sequencing modes
 - **Enhancement Completion**: >80% completion rate for full enhancement
 - **Time to Value**: <5 minutes for complete enhanced analysis
 
 #### Satisfaction Metrics:
+
 - **User Preference**: >85% prefer enhanced over basic LLM.txt
 - **Feature Rating**: >4.0/5.0 average rating for enhancement features
 - **Support Reduction**: <20% support tickets related to content organization
@@ -3063,12 +3127,14 @@ describe('Performance Requirements', () => {
 ### 9.3 Business Impact Metrics
 
 #### Revenue Impact:
+
 - **Conversion Improvement**: >25% increase in free-to-paid conversion
 - **Tier Upgrades**: >40% of enhancement users upgrade tiers
 - **Customer Lifetime Value**: >30% increase in CLV
 - **Churn Reduction**: >20% reduction in monthly churn
 
 #### Competitive Position:
+
 - **Unique Value Proposition**: Only service offering intelligent content organization
 - **Market Differentiation**: Clear advantage over 4 main competitors
 - **User Acquisition**: >50% of new users cite enhancements as decision factor
@@ -3081,6 +3147,7 @@ describe('Performance Requirements', () => {
 This technical specification provides a comprehensive roadmap for implementing advanced semantic analysis capabilities in LLM.txt Mastery. The phased approach ensures manageable implementation while delivering incremental value to users.
 
 ### Key Implementation Principles:
+
 1. **Extend, Don't Replace**: Build upon existing solid architecture
 2. **Progressive Enhancement**: New features gracefully degrade if AI services fail
 3. **Performance First**: Optimize for speed and user experience
@@ -3088,6 +3155,7 @@ This technical specification provides a comprehensive roadmap for implementing a
 5. **Measurable Value**: Every feature includes success metrics and validation
 
 ### Expected Outcomes:
+
 - **Technical Excellence**: Production-ready semantic analysis system
 - **User Delight**: Significantly improved content organization and insights
 - **Business Growth**: Increased conversion, retention, and competitive advantage
@@ -3097,4 +3165,4 @@ The implementation team should prioritize Phase 1 foundation work to establish t
 
 ---
 
-*This specification is a living document and should be updated as implementation progresses and new requirements are discovered.*
+_This specification is a living document and should be updated as implementation progresses and new requirements are discovered._

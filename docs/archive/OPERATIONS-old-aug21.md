@@ -1,15 +1,18 @@
 # LLM.txt Mastery Operations Manual
-*Last Updated: August 21, 2025 - Connection Pooling Added*
+
+_Last Updated: August 21, 2025 - Connection Pooling Added_
 
 ## 🎯 Quick Reference
 
 **Live System URLs:**
+
 - **Frontend**: https://www.llmtxtmastery.com (Netlify)
 - **Backend**: https://llm-txt-mastery-production.up.railway.app (Railway)
 - **Health Check**: https://llm-txt-mastery-production.up.railway.app/api/health
 - **Admin Stats**: https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
 
 **Emergency Contacts:**
+
 - Developer: Jamie Watters
 - Support Email: support@llmtxtmastery.com
 - Status Page: Railway Dashboard + Netlify Dashboard
@@ -17,6 +20,7 @@
 ## 🏗️ System Architecture Overview
 
 ### Production Infrastructure
+
 ```
 Frontend (Netlify)          Backend (Railway)         Database
 ==================          =================         ========
@@ -27,6 +31,7 @@ Real-time Updates           Multi-tier Management      Smart Caching
 ```
 
 ### Core Services
+
 - **Website Analysis**: Real sitemap discovery + AI quality scoring
 - **Payment Processing**: Stripe Coffee tier ($4.95) fully operational
 - **User Management**: Complete authentication + customer dashboard
@@ -36,9 +41,11 @@ Real-time Updates           Multi-tier Management      Smart Caching
 ## 🔄 Connection Pooling Configuration
 
 ### Overview
+
 Connection pooling was deployed on August 21, 2025, providing significant performance improvements for API responses. The system auto-scales connections based on demand and includes comprehensive monitoring.
 
 ### Configuration Parameters
+
 ```typescript
 // Agent Configuration
 maxSockets: 10,        // Max simultaneous connections per origin
@@ -54,12 +61,14 @@ maxAgents: 50,         // Maximum HTTP agents globally
 ```
 
 ### Auto-Scaling Behavior
+
 - **Startup**: Begins with 2 active connections
 - **Load Increase**: Scales up to 10 connections based on demand
 - **Load Decrease**: Scales down to minimum after idle timeout
 - **Benefits**: 4.9% average performance improvement (up to 7.3% for some sites)
 
 ### Best Performance Scenarios
+
 - **Multi-page same domain**: Maximum connection reuse
 - **Sitemap discovery**: Reduced latency for consecutive requests
 - **Large site analysis**: Batch requests benefit most
@@ -68,6 +77,7 @@ maxAgents: 50,         // Maximum HTTP agents globally
 ## 📊 Monitoring Connection Pool
 
 ### Pool Statistics Endpoint
+
 ```bash
 # Check connection pool statistics
 curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
@@ -84,6 +94,7 @@ curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool
 ```
 
 ### Key Metrics to Monitor
+
 - **totalAgents**: Number of HTTP agents created (should stay under 50)
 - **activeConnections**: Currently processing requests
 - **idleConnections**: Available for reuse
@@ -92,6 +103,7 @@ curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool
 - **poolEfficiency**: Connection reuse percentage (target: >80%)
 
 ### Health Check Commands
+
 ```bash
 # Basic health check
 curl https://llm-txt-mastery-production.up.railway.app/api/health
@@ -108,9 +120,11 @@ watch -n 5 'curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/
 ### Common Issues and Solutions
 
 #### High Memory Usage
+
 **Symptoms**: Server memory consumption increasing over time
 **Cause**: Connection pool not releasing connections properly
 **Solution**:
+
 ```bash
 # Check pool statistics
 curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats
@@ -122,9 +136,11 @@ curl https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool
 ```
 
 #### Poor Performance Despite Pooling
+
 **Symptoms**: Response times not improving with pooling enabled
 **Cause**: Pool configuration mismatch or external bottlenecks
 **Investigation**:
+
 ```bash
 # Check efficiency metrics
 curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats | jq '.poolEfficiency'
@@ -136,9 +152,11 @@ curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-p
 ```
 
 #### Connection Pool Exhaustion
+
 **Symptoms**: "EMFILE: too many open files" errors
 **Cause**: Pool creating too many connections simultaneously
 **Solution**:
+
 ```bash
 # Temporary fix - disable pooling
 export DISABLE_CONNECTION_POOL=true
@@ -151,28 +169,34 @@ export DISABLE_CONNECTION_POOL=true
 ### Emergency Procedures
 
 #### Disable Connection Pooling
+
 If connection pooling causes issues, it can be disabled without code changes:
 
 **Railway Environment Variable:**
+
 ```bash
 DISABLE_CONNECTION_POOL=true
 ```
 
 **Effects of Disabling:**
+
 - Reverts to individual connections per request
 - 4-7% performance decrease but stable operation
 - All other functionality remains unchanged
 - Can be re-enabled by removing the environment variable
 
 #### Memory Monitoring Guidelines
+
 Monitor these metrics to detect connection pool issues early:
 
 **Memory Usage Alerts:**
+
 - **Warning**: Memory usage > 80% of Railway plan limit
 - **Critical**: Memory usage > 95% of Railway plan limit
 - **Action**: Check connection pool stats and consider disabling temporarily
 
 **Connection Count Alerts:**
+
 - **Warning**: activeConnections > 15 for >5 minutes
 - **Critical**: totalAgents > 40
 - **Action**: Investigate slow responses or connection leaks
@@ -180,6 +204,7 @@ Monitor these metrics to detect connection pool issues early:
 ## 🌐 Environment Variables
 
 ### Railway Backend (Critical Variables)
+
 ```bash
 # Database Configuration
 DATABASE_URL=postgresql://neondb_owner:...@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
@@ -216,6 +241,7 @@ SMART_BOT_PROTECTION=true
 ```
 
 ### Netlify Frontend
+
 ```bash
 VITE_API_URL=https://llm-txt-mastery-production.up.railway.app
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
@@ -226,6 +252,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
 ## 🔍 Health Monitoring
 
 ### System Health Checks
+
 ```bash
 # Primary health check
 curl https://llm-txt-mastery-production.up.railway.app/api/health
@@ -245,6 +272,7 @@ curl https://llm-txt-mastery-production.up.railway.app/api/stripe/health
 ```
 
 ### Performance Monitoring
+
 ```bash
 # Connection pool efficiency
 curl -s https://llm-txt-mastery-production.up.railway.app/api/admin/connection-pool-stats | jq '.poolEfficiency'
@@ -264,14 +292,17 @@ time curl -X POST https://llm-txt-mastery-production.up.railway.app/api/analyze 
 ## 🚨 Critical Database Issues
 
 ### Primary Database: Neon PostgreSQL
+
 **Connection String**: `postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
 
 ### Common Database Problems
 
 #### Issue: "relation does not exist" errors
+
 **Symptoms**: `"relation \"sitemapAnalysis\" does not exist"`
 **Cause**: Railway DATABASE_URL not pointing to Neon database
 **Solution**:
+
 ```bash
 # Verify Railway environment variable
 railway vars
@@ -282,9 +313,11 @@ railway vars set DATABASE_URL="postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dar
 ```
 
 #### Issue: Column naming mismatches
+
 **Symptoms**: `column "sitemap_content" does not exist`
 **Cause**: Database schema out of sync with code
 **Solution**:
+
 ```bash
 # Sync database schema
 DATABASE_URL="postgresql://neondb_owner:..." npm run db:push
@@ -296,6 +329,7 @@ npm run db:studio  # Opens Drizzle Studio to inspect schema
 ## 🔧 Deployment Procedures
 
 ### Automatic Deployment (Normal Operations)
+
 ```bash
 # Both frontend and backend auto-deploy on git push
 git add .
@@ -307,6 +341,7 @@ git push origin main
 ```
 
 ### Manual Deployment Verification
+
 ```bash
 # 1. Wait for deployment completion (2-5 minutes)
 # Check Railway dashboard: https://railway.app/project/...
@@ -325,6 +360,7 @@ curl -X POST https://llm-txt-mastery-production.up.railway.app/api/analyze \
 ```
 
 ### Database Migration Procedures
+
 ```bash
 # When schema changes are needed
 npm run db:push  # Push schema changes to database
@@ -340,18 +376,21 @@ npm run build  # Production build test
 ## 💰 Business Operations
 
 ### Tier Management
+
 - **Free Tier**: 20 pages, HTML extraction, daily limits enforced
 - **Coffee Tier ($4.95)**: 200 pages, AI analysis, customer dashboard
 - **Growth Tier ($25/mo)**: Unlimited analysis, premium features
 - **Scale Tier ($99/mo)**: API access, enterprise features
 
 ### Payment Processing
+
 - **Stripe Integration**: Fully operational with webhook validation
 - **Coffee Tier**: One-time $4.95 payments working end-to-end
 - **Subscription Tiers**: Growth and Scale ready for activation
 - **Revenue Tracking**: All purchases logged in database
 
 ### Usage Tracking
+
 - **Daily Limits**: Enforced for free tier (1 analysis/day)
 - **Usage Counter**: Real-time updates (1/3, 2/3, 3/3)
 - **Tier Enforcement**: Page limits applied correctly (20 free, 200 Coffee)
@@ -360,18 +399,21 @@ npm run build  # Production build test
 ## 🛡️ Security Operations
 
 ### Authentication System
+
 - **JWT Tokens**: Secure authentication with refresh capabilities
 - **Email Verification**: Required for account activation
 - **Password Security**: Special character requirements enforced
 - **Session Management**: Automatic token refresh and expiry
 
 ### Bot Protection
+
 - **Smart Detection**: Intelligent bot protection without false positives
 - **Rate Limiting**: API (60/min), Analysis (20/hour)
 - **Fingerprinting**: Progressive penalties for suspicious activity
 - **Whitelisting**: Legitimate services and user flows protected
 
 ### Data Protection
+
 - **Input Sanitization**: All user inputs validated and cleaned
 - **SQL Injection**: Protected via Drizzle ORM parameterized queries
 - **XSS Protection**: React's automatic HTML escaping utilized
@@ -380,6 +422,7 @@ npm run build  # Production build test
 ## 📞 Support Procedures
 
 ### User Support Escalation
+
 1. **Level 1**: Check system health and user tier status
 2. **Level 2**: Review usage logs and error messages
 3. **Level 3**: Database investigation and manual intervention
@@ -388,18 +431,21 @@ npm run build  # Production build test
 ### Common Support Issues
 
 #### "Analysis not working"
+
 1. Check user's tier and daily limits
 2. Verify website URL accessibility
 3. Review sitemap discovery logs
 4. Check OpenAI API status and credits
 
 #### "Payment not processed"
+
 1. Verify Stripe webhook delivery
 2. Check emailCaptures table for tier update
 3. Review Stripe dashboard for payment status
 4. Manual tier upgrade if needed
 
 #### "File not downloading"
+
 1. Check llmTextFiles table for file record
 2. Verify file generation completion
 3. Test download endpoint directly
@@ -408,18 +454,21 @@ npm run build  # Production build test
 ### Emergency Response
 
 #### Complete System Outage
+
 1. Check Railway and Netlify status pages
 2. Verify environment variables in both platforms
 3. Test database connectivity from Railway
 4. Review recent deployment logs for errors
 
 #### Database Connection Issues
+
 1. Verify DATABASE_URL environment variable
 2. Check Neon database status
 3. Test direct database connection
 4. Consider connection pool adjustment or disabling
 
 #### Performance Degradation
+
 1. Check connection pool statistics
 2. Review OpenAI API response times
 3. Monitor Railway resource usage
@@ -428,6 +477,7 @@ npm run build  # Production build test
 ## 📊 Performance Metrics
 
 ### Target Performance
+
 - **Analysis Speed**: <5 seconds for 200-page analysis
 - **API Response Time**: <500ms for most endpoints
 - **Sitemap Discovery**: >95% success rate
@@ -435,6 +485,7 @@ npm run build  # Production build test
 - **System Uptime**: >99.9% monthly
 
 ### Current Benchmarks (August 21, 2025)
+
 - **Connection Pool Efficiency**: 92% (4.9% performance improvement)
 - **OpenAI Cost**: $0.11 per 1000 pages (93% reduction from previous)
 - **Cache Performance**: 70-90% API call reduction for popular sites
@@ -444,16 +495,19 @@ npm run build  # Production build test
 ## 🔄 Backup and Recovery
 
 ### Database Backup
+
 - **Neon Automatic**: Point-in-time recovery available
 - **Frequency**: Continuous backup with 7-day retention
 - **Recovery**: Via Neon dashboard or CLI tools
 
 ### Environment Configuration Backup
+
 - **Railway**: Environment variables backed up in dashboard
 - **Netlify**: Build configuration stored in Git repository
 - **Secrets**: Stored securely in respective platform vaults
 
 ### Code Repository
+
 - **Primary**: GitHub repository with full history
 - **Branches**: Main branch protected, requires PR reviews
 - **Releases**: Tagged releases for rollback capability
@@ -461,18 +515,21 @@ npm run build  # Production build test
 ## 📋 Maintenance Schedules
 
 ### Daily Operations
+
 - Monitor system health endpoints
 - Review error logs in Railway dashboard
 - Check connection pool performance
 - Verify payment processing status
 
 ### Weekly Operations
+
 - Review usage analytics and conversion metrics
 - Check database performance and optimize queries
 - Update dependencies and security patches
 - Analyze customer feedback and support tickets
 
 ### Monthly Operations
+
 - Performance review and optimization planning
 - Security audit and vulnerability assessment
 - Cost analysis and optimization opportunities
@@ -511,4 +568,4 @@ railway vars set OPENAI_API_KEY=backup_key     # Switch API keys
 
 ---
 
-*This operations manual should be reviewed and updated with each major deployment or system change.*
+_This operations manual should be reviewed and updated with each major deployment or system change._

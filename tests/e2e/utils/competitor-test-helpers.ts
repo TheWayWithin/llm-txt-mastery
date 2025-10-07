@@ -1,9 +1,14 @@
 import { Page, Locator } from '@playwright/test';
-import { CompetitorTestConfig, BROWSER_CONFIG, CONTENT_PATTERNS, BENCHMARKS } from './competitor-config.js';
+import {
+  CompetitorTestConfig,
+  BROWSER_CONFIG,
+  CONTENT_PATTERNS,
+  BENCHMARKS,
+} from './competitor-config.js';
 
 /**
  * COMPETITOR TEST HELPERS
- * 
+ *
  * Specialized utilities for testing competitor LLMs.txt generators.
  * Handles common challenges like rate limiting, CAPTCHA detection,
  * dynamic content loading, and output extraction.
@@ -56,7 +61,7 @@ export class CompetitorTestHelper {
     await this.page.setViewportSize(BROWSER_CONFIG.viewport);
     await this.page.setExtraHTTPHeaders({
       'User-Agent': BROWSER_CONFIG.userAgent,
-      ...BROWSER_CONFIG.extraHTTPHeaders
+      ...BROWSER_CONFIG.extraHTTPHeaders,
     });
   }
 
@@ -65,23 +70,22 @@ export class CompetitorTestHelper {
    */
   async navigateToCompetitor(config: CompetitorTestConfig): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
-      await this.page.goto(config.url, { 
-        waitUntil: 'networkidle', 
-        timeout: 30000 
+      await this.page.goto(config.url, {
+        waitUntil: 'networkidle',
+        timeout: 30000,
       });
-      
+
       // Handle cookie consent if needed
       if (config.specialHandling?.needsCookieAccept) {
         await this.handleCookieConsent(config);
       }
-      
+
       // Handle any modals or overlays
       await this.handleModals(config);
-      
+
       console.log(`✅ Successfully navigated to ${config.name} in ${Date.now() - startTime}ms`);
-      
     } catch (error) {
       console.error(`❌ Failed to navigate to ${config.name}:`, error);
       throw error;
@@ -97,7 +101,7 @@ export class CompetitorTestHelper {
         const input = this.page.locator(selector);
         if (await input.isVisible({ timeout: 2000 })) {
           await input.fill(testUrl);
-          
+
           // Verify the input was filled correctly
           const value = await input.inputValue();
           if (value === testUrl) {
@@ -110,7 +114,7 @@ export class CompetitorTestHelper {
         console.log(`⚠️ Input selector failed: ${selector}`);
       }
     }
-    
+
     console.error(`❌ No working input selector found for ${config.name}`);
     return false;
   }
@@ -128,7 +132,7 @@ export class CompetitorTestHelper {
     for (const selector of config.selectors.submitButton) {
       try {
         const button = this.page.locator(selector);
-        if (await button.isVisible({ timeout: 2000 }) && await button.isEnabled()) {
+        if ((await button.isVisible({ timeout: 2000 })) && (await button.isEnabled())) {
           await button.click();
           console.log(`✅ Successfully clicked submit with selector: ${selector}`);
           return true;
@@ -138,7 +142,7 @@ export class CompetitorTestHelper {
         console.log(`⚠️ Submit selector failed: ${selector}`);
       }
     }
-    
+
     console.error(`❌ No working submit selector found for ${config.name}`);
     return false;
   }
@@ -150,7 +154,7 @@ export class CompetitorTestHelper {
     const maxWaitTime = config.expectations.maxWaitTime;
     const checkInterval = 2000; // Check every 2 seconds
     const maxChecks = Math.floor(maxWaitTime / checkInterval);
-    
+
     console.log(`⏳ Waiting up to ${maxWaitTime}ms for output from ${config.name}`);
 
     for (let check = 0; check < maxChecks; check++) {
@@ -166,7 +170,8 @@ export class CompetitorTestHelper {
 
       // Try to find output
       const output = await this.findOutput(config);
-      if (output && output.length > 50) { // Minimum content threshold
+      if (output && output.length > 50) {
+        // Minimum content threshold
         console.log(`✅ Found output: ${output.length} characters`);
         return output;
       }
@@ -194,20 +199,20 @@ export class CompetitorTestHelper {
         hasPageList: false,
         hasContent: false,
         sections: [],
-        qualityScore: 0
+        qualityScore: 0,
       };
     }
 
-    const hasMetadata = CONTENT_PATTERNS.metadata.some(pattern => pattern.test(content));
+    const hasMetadata = CONTENT_PATTERNS.metadata.some((pattern) => pattern.test(content));
     const pageMatches = content.match(CONTENT_PATTERNS.pageList[0]) || [];
     const hasPageList = pageMatches.length > 0;
     const hasContent = content.length > 100;
 
     // Extract sections
     const sections: string[] = [];
-    CONTENT_PATTERNS.structure.forEach(pattern => {
+    CONTENT_PATTERNS.structure.forEach((pattern) => {
       const matches = [...content.matchAll(pattern)];
-      matches.forEach(match => {
+      matches.forEach((match) => {
         if (match[1]) sections.push(match[1].trim());
       });
     });
@@ -225,7 +230,7 @@ export class CompetitorTestHelper {
       hasPageList,
       hasContent,
       sections,
-      qualityScore
+      qualityScore,
     };
   }
 
@@ -243,8 +248,8 @@ export class CompetitorTestHelper {
    * Detect if we're being rate limited or blocked
    */
   async detectBlocking(): Promise<{ blocked: boolean; reason?: string }> {
-    const pageContent = await this.page.textContent('body') || '';
-    
+    const pageContent = (await this.page.textContent('body')) || '';
+
     const blockingIndicators = [
       { pattern: /rate.?limit/i, reason: 'rate_limited' },
       { pattern: /too many requests/i, reason: 'rate_limited' },
@@ -252,7 +257,7 @@ export class CompetitorTestHelper {
       { pattern: /blocked/i, reason: 'blocked' },
       { pattern: /access denied/i, reason: 'blocked' },
       { pattern: /forbidden/i, reason: 'blocked' },
-      { pattern: /503|502|504/i, reason: 'server_error' }
+      { pattern: /503|502|504/i, reason: 'server_error' },
     ];
 
     for (const indicator of blockingIndicators) {
@@ -267,7 +272,11 @@ export class CompetitorTestHelper {
   /**
    * Generate performance benchmark classification
    */
-  classifyPerformance(processingTime: number, contentSize: number, pageCount: number): {
+  classifyPerformance(
+    processingTime: number,
+    contentSize: number,
+    pageCount: number
+  ): {
     timeRating: string;
     sizeRating: string;
     pageRating: string;
@@ -317,7 +326,7 @@ export class CompetitorTestHelper {
       '[data-dismiss="modal"]',
       '.close-button',
       'button:has-text("×")',
-      'button:has-text("Close")'
+      'button:has-text("Close")',
     ];
 
     for (const selector of modalCloseSelectors) {
@@ -384,7 +393,7 @@ export class CompetitorTestHelper {
       const content = await this.page.evaluate(() => {
         // Look for script tags containing llms.txt content
         const scripts = document.querySelectorAll('script');
-        
+
         for (const script of scripts) {
           const scriptText = script.textContent || '';
           if (scriptText.includes('llmsContent') && scriptText.includes('llms.txt')) {
@@ -402,15 +411,15 @@ export class CompetitorTestHelper {
             }
           }
         }
-        
+
         // Also check for other common JavaScript patterns
         const patterns = [
           /content:\s*["']([^"']+)["']/,
           /llms[_-]?txt[_-]?content:\s*["']([^"']+)["']/i,
           /generated[_-]?content:\s*["']([^"']+)["']/i,
-          /output[_-]?text:\s*["']([^"']+)["']/i
+          /output[_-]?text:\s*["']([^"']+)["']/i,
         ];
-        
+
         for (const script of scripts) {
           const scriptText = script.textContent || '';
           for (const pattern of patterns) {
@@ -426,10 +435,10 @@ export class CompetitorTestHelper {
             }
           }
         }
-        
+
         return null;
       });
-      
+
       return content;
     } catch (error) {
       console.log('JavaScript extraction failed:', error);

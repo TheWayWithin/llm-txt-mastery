@@ -1,7 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Home, RotateCcw } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Home, RotateCcw } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { useState } from 'react';
 
 interface ResetButtonProps {
   onReset: () => void;
@@ -10,11 +16,11 @@ interface ResetButtonProps {
   className?: string;
 }
 
-export default function ResetButton({ 
-  onReset, 
-  variant = 'inline', 
+export default function ResetButton({
+  onReset,
+  variant = 'inline',
   showConfirmation = true,
-  className = '' 
+  className = '',
 }: ResetButtonProps) {
   const [showDialog, setShowDialog] = useState(false);
 
@@ -43,7 +49,7 @@ export default function ResetButton({
               <Home className="h-4 w-4 mr-2" />
               Start Over
             </>
-          )
+          ),
         };
       case 'prominent':
         return {
@@ -55,7 +61,7 @@ export default function ResetButton({
               <Home className="h-5 w-5 mr-2" />
               Start Over
             </>
-          )
+          ),
         };
       default: // inline
         return {
@@ -67,7 +73,7 @@ export default function ResetButton({
               <RotateCcw className="h-4 w-4 mr-2" />
               Start Over
             </>
-          )
+          ),
         };
     }
   };
@@ -106,26 +112,22 @@ export default function ResetButton({
             Start Over?
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <p className="text-slate-700">
-            This will reset your current progress and return you to the beginning. 
-            Any unsaved work will be lost.
+            This will reset your current progress and return you to the beginning. Any unsaved work
+            will be lost.
           </p>
-          
+
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-blue-800">
-              💡 <strong>Tip:</strong> If you're experiencing an error, try the "Try Again" 
-              button first - it might resolve the issue without losing your progress.
+              💡 <strong>Tip:</strong> If you're experiencing an error, try the "Try Again" button
+              first - it might resolve the issue without losing your progress.
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button
-              onClick={() => setShowDialog(false)}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button onClick={() => setShowDialog(false)} variant="outline" className="flex-1">
               Cancel
             </Button>
             <Button

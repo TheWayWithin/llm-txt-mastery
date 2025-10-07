@@ -1,6 +1,6 @@
 /**
  * useEmailCapture - Main business logic hook for email capture flow
- * 
+ *
  * Manages tier selection, navigation, analytics tracking, and error handling
  * for the email capture component.
  */
@@ -23,14 +23,14 @@ export interface UseEmailCaptureReturn {
   selectedTier: UserTier | null;
   error: string | null;
   isLoading: boolean;
-  
+
   // Actions
   selectTier: (tier: UserTier) => void;
   clearError: () => void;
   handleSignIn: () => void;
   handleSignUp: () => void;
   reset: () => void;
-  
+
   // Computed
   canProceed: boolean;
   shouldShowAuthOptions: boolean;
@@ -45,7 +45,7 @@ export function useEmailCapture(options: UseEmailCaptureOptions = {}): UseEmailC
     onEmailCaptured,
     onLoginRequested,
     onReset,
-    initialTier = 'coffee'
+    initialTier = 'coffee',
   } = options;
 
   // State
@@ -57,16 +57,19 @@ export function useEmailCapture(options: UseEmailCaptureOptions = {}): UseEmailC
   const { trackTierSelection, trackLoginAttempt, trackSignupAttempt } = useAnalytics();
 
   // Select tier with analytics tracking
-  const selectTier = useCallback((tier: UserTier) => {
-    const previousTier = selectedTier;
-    
-    // Track tier selection
-    trackTierSelection(tier, previousTier, websiteUrl);
-    
-    // Update state
-    setSelectedTier(tier);
-    setError(null); // Clear any existing errors
-  }, [selectedTier, websiteUrl, trackTierSelection]);
+  const selectTier = useCallback(
+    (tier: UserTier) => {
+      const previousTier = selectedTier;
+
+      // Track tier selection
+      trackTierSelection(tier, previousTier, websiteUrl);
+
+      // Update state
+      setSelectedTier(tier);
+      setError(null); // Clear any existing errors
+    },
+    [selectedTier, websiteUrl, trackTierSelection]
+  );
 
   // Clear error
   const clearError = useCallback(() => {
@@ -82,25 +85,24 @@ export function useEmailCapture(options: UseEmailCaptureOptions = {}): UseEmailC
 
     try {
       setIsLoading(true);
-      
+
       // Track analytics
       trackLoginAttempt(selectedTier, websiteUrl);
-      
+
       // Navigate to login page with tier and website parameters
       const params = new URLSearchParams();
       params.set('tier', selectedTier);
       if (websiteUrl) {
         params.set('website', websiteUrl);
       }
-      
+
       const loginUrl = `/login?${params.toString()}`;
-      
+
       // Use window.location for navigation to ensure proper parameter handling
       window.location.href = loginUrl;
-      
+
       // Call callback if provided
       onLoginRequested?.();
-      
     } catch (error) {
       const appError = AppError.fromError(error, 'Failed to navigate to login');
       setError(appError.message);
@@ -118,22 +120,21 @@ export function useEmailCapture(options: UseEmailCaptureOptions = {}): UseEmailC
 
     try {
       setIsLoading(true);
-      
+
       // Track analytics
       trackSignupAttempt(selectedTier, websiteUrl);
-      
+
       // Navigate to signup page with tier and website parameters
       const params = new URLSearchParams();
       params.set('tier', selectedTier);
       if (websiteUrl) {
         params.set('website', websiteUrl);
       }
-      
+
       const signupUrl = `/signup?${params.toString()}`;
-      
+
       // Use window.location for navigation to ensure proper parameter handling
       window.location.href = signupUrl;
-      
     } catch (error) {
       const appError = AppError.fromError(error, 'Failed to navigate to signup');
       setError(appError.message);
@@ -159,16 +160,16 @@ export function useEmailCapture(options: UseEmailCaptureOptions = {}): UseEmailC
     selectedTier,
     error,
     isLoading,
-    
+
     // Actions
     selectTier,
     clearError,
     handleSignIn,
     handleSignUp,
     reset,
-    
+
     // Computed
     canProceed,
-    shouldShowAuthOptions
+    shouldShowAuthOptions,
   };
 }

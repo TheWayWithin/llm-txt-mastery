@@ -11,15 +11,15 @@ const mockUser = {
   email: 'test@example.com',
   tier: 'coffee' as const,
   creditsRemaining: 5,
-  username: 'testuser'
+  username: 'testuser',
 };
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: mockUser,
     getAccessToken: mockGetAccessToken,
-    refreshUser: mockRefreshUser
-  })
+    refreshUser: mockRefreshUser,
+  }),
 }));
 
 describe('InstantRefundModal', () => {
@@ -29,7 +29,7 @@ describe('InstantRefundModal', () => {
     amountFormatted: '$4.95',
     reason: 'Within 30-day guarantee period',
     guaranteeApplies: true,
-    tier: 'coffee'
+    tier: 'coffee',
   };
 
   const mockOnClose = vi.fn();
@@ -47,24 +47,18 @@ describe('InstantRefundModal', () => {
 
   it('should display refund amount from props', () => {
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     expect(screen.getByText('$4.95')).toBeInTheDocument();
-    expect(screen.getByText(/Refunded to your original payment method within 5-7 business days/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Refunded to your original payment method within 5-7 business days/)
+    ).toBeInTheDocument();
   });
 
   it('should show warning about what user will lose', () => {
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     expect(screen.getByText(/You will lose access to:/)).toBeInTheDocument();
@@ -78,15 +72,11 @@ describe('InstantRefundModal', () => {
       ...mockEligibility,
       tier: 'growth',
       amount: 995,
-      amountFormatted: '$9.95'
+      amountFormatted: '$9.95',
     };
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={growthEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={growthEligibility} />
     );
 
     expect(screen.getByText(/100 monthly analyses/)).toBeInTheDocument();
@@ -99,15 +89,11 @@ describe('InstantRefundModal', () => {
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true, message: 'Refund processed' })
+      json: async () => ({ success: true, message: 'Refund processed' }),
     });
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     const confirmButton = screen.getByRole('button', { name: /Confirm Refund/ });
@@ -118,12 +104,12 @@ describe('InstantRefundModal', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer mock-token'
+          Authorization: 'Bearer mock-token',
         },
         body: JSON.stringify({
           processRefund: true,
-          reason: 'Instant refund via 30-day money-back guarantee'
-        })
+          reason: 'Instant refund via 30-day money-back guarantee',
+        }),
       });
     });
   });
@@ -134,11 +120,7 @@ describe('InstantRefundModal', () => {
     (global.fetch as any).mockImplementation(() => new Promise(() => {})); // Never resolves
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     const confirmButton = screen.getByRole('button', { name: /Confirm Refund/ });
@@ -154,15 +136,11 @@ describe('InstantRefundModal', () => {
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true, message: 'Refund processed' })
+      json: async () => ({ success: true, message: 'Refund processed' }),
     });
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     const confirmButton = screen.getByRole('button', { name: /Confirm Refund/ });
@@ -179,15 +157,11 @@ describe('InstantRefundModal', () => {
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true, message: 'Refund processed' })
+      json: async () => ({ success: true, message: 'Refund processed' }),
     });
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     const confirmButton = screen.getByRole('button', { name: /Confirm Refund/ });
@@ -203,15 +177,11 @@ describe('InstantRefundModal', () => {
 
     (global.fetch as any).mockResolvedValue({
       ok: false,
-      json: async () => ({ success: false, message: 'Refund failed' })
+      json: async () => ({ success: false, message: 'Refund failed' }),
     });
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     const confirmButton = screen.getByRole('button', { name: /Confirm Refund/ });
@@ -229,11 +199,7 @@ describe('InstantRefundModal', () => {
     const user = userEvent.setup({ delay: null });
 
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     const cancelButton = screen.getByRole('button', { name: /Cancel/ });
@@ -244,11 +210,7 @@ describe('InstantRefundModal', () => {
 
   it('should show "cannot be undone" warning', () => {
     render(
-      <InstantRefundModal
-        isOpen={true}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument();
@@ -257,11 +219,7 @@ describe('InstantRefundModal', () => {
 
   it('should not render when closed', () => {
     render(
-      <InstantRefundModal
-        isOpen={false}
-        onClose={mockOnClose}
-        eligibility={mockEligibility}
-      />
+      <InstantRefundModal isOpen={false} onClose={mockOnClose} eligibility={mockEligibility} />
     );
 
     expect(screen.queryByText('Confirm Instant Refund')).not.toBeInTheDocument();

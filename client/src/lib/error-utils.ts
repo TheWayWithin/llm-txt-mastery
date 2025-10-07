@@ -1,12 +1,17 @@
 /**
  * Standardized error handling utilities for LLM.txt Mastery
- * 
+ *
  * Provides consistent error handling patterns, display components,
  * and recovery mechanisms across the application.
  */
 
 import { ReactNode } from 'react';
-import { ErrorContext, createErrorContext, errorHelpers, classifyError } from '@/utils/errorHelpers';
+import {
+  ErrorContext,
+  createErrorContext,
+  errorHelpers,
+  classifyError,
+} from '@/utils/errorHelpers';
 
 // Re-export existing error helpers for consistency
 export { createErrorContext, errorHelpers, classifyError };
@@ -55,14 +60,9 @@ export class AppError extends Error {
   public readonly context: ErrorContext;
   public readonly originalError?: Error;
 
-  constructor(
-    context: ErrorContext | string,
-    originalError?: Error
-  ) {
-    const errorContext = typeof context === 'string' 
-      ? errorHelpers.unknownError(context)
-      : context;
-    
+  constructor(context: ErrorContext | string, originalError?: Error) {
+    const errorContext = typeof context === 'string' ? errorHelpers.unknownError(context) : context;
+
     super(errorContext.message);
     this.name = 'AppError';
     this.context = errorContext;
@@ -79,9 +79,7 @@ export class AppError extends Error {
       return new AppError(context, error);
     }
 
-    const context = errorHelpers.unknownError(
-      typeof error === 'string' ? error : fallbackMessage
-    );
+    const context = errorHelpers.unknownError(typeof error === 'string' ? error : fallbackMessage);
     return new AppError(context);
   }
 
@@ -110,29 +108,29 @@ export class ValidationError extends Error {
       super(errors);
       this.errors = [error];
     } else {
-      super(`Validation failed: ${errors.map(e => e.message).join(', ')}`);
+      super(`Validation failed: ${errors.map((e) => e.message).join(', ')}`);
       this.errors = errors;
     }
     this.name = 'ValidationError';
   }
 
   hasFieldError(field: string): boolean {
-    return this.errors.some(error => error.field === field);
+    return this.errors.some((error) => error.field === field);
   }
 
   getFieldError(field: string): FormFieldError | undefined {
-    return this.errors.find(error => error.field === field);
+    return this.errors.find((error) => error.field === field);
   }
 
   getFieldErrors(field: string): FormFieldError[] {
-    return this.errors.filter(error => error.field === field);
+    return this.errors.filter((error) => error.field === field);
   }
 
   toValidationResult(): ValidationResult {
     return {
       isValid: false,
       errors: this.errors,
-      firstError: this.errors[0]
+      firstError: this.errors[0],
     };
   }
 }
@@ -146,7 +144,7 @@ export const errorMessages = {
     offline: 'You appear to be offline. Please check your internet connection.',
     timeout: 'The request timed out. Please try again.',
     serverError: 'Server error occurred. Our team has been notified.',
-    maintenance: 'The service is temporarily unavailable for maintenance.'
+    maintenance: 'The service is temporarily unavailable for maintenance.',
   },
 
   // Validation errors
@@ -156,7 +154,7 @@ export const errorMessages = {
     url: 'Please enter a valid URL',
     password: 'Password must be at least 8 characters long',
     passwordMismatch: 'Passwords do not match',
-    tierRequired: 'Please select a service tier'
+    tierRequired: 'Please select a service tier',
   },
 
   // Authentication errors
@@ -166,7 +164,7 @@ export const errorMessages = {
     emailExists: 'An account with this email already exists.',
     emailNotVerified: 'Please verify your email address to continue.',
     sessionExpired: 'Your session has expired. Please log in again.',
-    unauthorized: 'You do not have permission to access this resource.'
+    unauthorized: 'You do not have permission to access this resource.',
   },
 
   // Analysis errors
@@ -175,7 +173,7 @@ export const errorMessages = {
     noContent: 'No suitable content was found on this website.',
     processingFailed: 'Website analysis failed. Please try again.',
     limitExceeded: 'Daily analysis limit reached. Upgrade for more analyses.',
-    invalidWebsite: 'This URL does not appear to be a valid website.'
+    invalidWebsite: 'This URL does not appear to be a valid website.',
   },
 
   // Payment errors
@@ -183,8 +181,8 @@ export const errorMessages = {
     cardDeclined: 'Your card was declined. Please try a different payment method.',
     insufficientFunds: 'Insufficient funds. Please check your account balance.',
     processing: 'Payment processing failed. Please try again.',
-    subscriptionFailed: 'Subscription setup failed. Please contact support.'
-  }
+    subscriptionFailed: 'Subscription setup failed. Please contact support.',
+  },
 } as const;
 
 /**
@@ -199,9 +197,9 @@ export const errorRecovery = {
             return await fn();
           } catch (error) {
             if (attempt === maxAttempts) throw error;
-            
+
             const delay = baseDelay * Math.pow(2, attempt - 1);
-            await new Promise(resolve => setTimeout(resolve, delay));
+            await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }
       };
@@ -209,7 +207,7 @@ export const errorRecovery = {
 
     immediate: (fn: () => Promise<any>, maxAttempts = 2) => {
       return errorRecovery.retry.withBackoff(fn, maxAttempts, 0);
-    }
+    },
   },
 
   fallback: {
@@ -221,8 +219,8 @@ export const errorRecovery = {
           return defaultValue;
         }
       };
-    }
-  }
+    },
+  },
 };
 
 /**
@@ -257,7 +255,7 @@ export const errorHandlers = {
     return {
       isValid: false,
       errors: [{ field: 'form', message: appError.message }],
-      firstError: { field: 'form', message: appError.message }
+      firstError: { field: 'form', message: appError.message },
     };
   },
 
@@ -266,21 +264,21 @@ export const errorHandlers = {
    */
   api: (response: Response, data?: any): AppError => {
     const message = data?.error || data?.message || 'API request failed';
-    
+
     if (response.status === 401) {
       return new AppError(errorHelpers.authError(message));
     }
-    
+
     if (response.status === 400) {
       return new AppError(errorHelpers.validationError(message));
     }
-    
+
     if (response.status >= 500) {
       return new AppError(errorHelpers.networkError(message));
     }
-    
+
     return new AppError(errorHelpers.unknownError(message));
-  }
+  },
 };
 
 /**
@@ -297,7 +295,7 @@ export const errorUtils = {
       auth: 'lock',
       analysis: 'search-x',
       payment: 'credit-card',
-      unknown: 'alert-triangle'
+      unknown: 'alert-triangle',
     };
     return iconMap[errorType] || iconMap.unknown;
   },
@@ -312,7 +310,7 @@ export const errorUtils = {
       auth: 'warning' as const,
       analysis: 'error' as const,
       payment: 'error' as const,
-      unknown: 'error' as const
+      unknown: 'error' as const,
     };
     return severityMap[errorType] || 'error';
   },
@@ -332,15 +330,15 @@ export const errorUtils = {
     if (error instanceof AppError) {
       return error.context.message;
     }
-    
+
     if (error instanceof ValidationError) {
       return error.errors[0]?.message || 'Please check your input';
     }
-    
+
     if (error instanceof Error) {
       return error.message;
     }
-    
+
     return 'An unexpected error occurred';
-  }
+  },
 };

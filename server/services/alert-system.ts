@@ -60,18 +60,18 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     window_minutes: 60,
     severity: 'medium',
     cooldown_minutes: 60,
-    enabled: true
+    enabled: true,
   },
   {
     id: 'openai_quota_critical',
-    service: 'openai', 
+    service: 'openai',
     metric: 'quota_usage',
     threshold: 95,
     comparison: 'gt',
     window_minutes: 60,
     severity: 'critical',
     cooldown_minutes: 30,
-    enabled: true
+    enabled: true,
   },
   {
     id: 'openai_rate_limit',
@@ -82,7 +82,7 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     window_minutes: 10,
     severity: 'high',
     cooldown_minutes: 30,
-    enabled: true
+    enabled: true,
   },
   {
     id: 'google_analytics_quota',
@@ -93,7 +93,7 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     window_minutes: 1440, // 24 hours
     severity: 'medium',
     cooldown_minutes: 240,
-    enabled: true
+    enabled: true,
   },
   {
     id: 'api_error_rate',
@@ -104,8 +104,8 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     window_minutes: 15,
     severity: 'high',
     cooldown_minutes: 30,
-    enabled: true
-  }
+    enabled: true,
+  },
 ];
 
 // Alert storage and management
@@ -118,16 +118,16 @@ class AlertManager {
   constructor() {
     this.initializeDefaultRules();
     this.setupDefaultChannels();
-    
+
     if (ENABLE_ALERTS) {
       console.log('🔔 Alert system initialized');
       console.log(`   - Rules: ${this.rules.size}`);
-      console.log(`   - Channels: ${this.channels.filter(c => c.enabled).length}`);
+      console.log(`   - Channels: ${this.channels.filter((c) => c.enabled).length}`);
     }
   }
 
   private initializeDefaultRules(): void {
-    DEFAULT_ALERT_RULES.forEach(rule => {
+    DEFAULT_ALERT_RULES.forEach((rule) => {
       this.rules.set(rule.id, rule);
     });
   }
@@ -138,7 +138,7 @@ class AlertManager {
       type: 'console',
       enabled: true,
       config: {},
-      severity_filter: ['low', 'medium', 'high', 'critical']
+      severity_filter: ['low', 'medium', 'high', 'critical'],
     });
 
     // Email channel (if configured)
@@ -149,9 +149,9 @@ class AlertManager {
         config: {
           to: process.env.ALERT_EMAIL_TO,
           from: process.env.EMAIL_FROM || 'alerts@llmtxtmastery.com',
-          api_key: process.env.RESEND_API_KEY
+          api_key: process.env.RESEND_API_KEY,
         },
-        severity_filter: ['high', 'critical']
+        severity_filter: ['high', 'critical'],
       });
     }
 
@@ -165,11 +165,12 @@ class AlertManager {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': process.env.ALERT_WEBHOOK_TOKEN ? 
-              `Bearer ${process.env.ALERT_WEBHOOK_TOKEN}` : undefined
-          }
+            Authorization: process.env.ALERT_WEBHOOK_TOKEN
+              ? `Bearer ${process.env.ALERT_WEBHOOK_TOKEN}`
+              : undefined,
+          },
         },
-        severity_filter: ['medium', 'high', 'critical']
+        severity_filter: ['medium', 'high', 'critical'],
       });
     }
   }
@@ -181,7 +182,7 @@ class AlertManager {
   private checkCooldown(ruleId: string, cooldownMinutes: number): boolean {
     const lastTime = this.lastTriggered.get(ruleId);
     if (!lastTime) return false;
-    
+
     const cooldownMs = cooldownMinutes * 60 * 1000;
     return Date.now() - lastTime.getTime() < cooldownMs;
   }
@@ -196,12 +197,12 @@ class AlertManager {
     const alert: Alert = {
       ...alertData,
       id: alertId,
-      created_at: new Date()
+      created_at: new Date(),
     };
 
     // Store alert
     this.alerts.set(alertId, alert);
-    
+
     // Trim old alerts if needed
     if (this.alerts.size > MAX_ALERTS_STORED) {
       const oldestId = Array.from(this.alerts.keys())[0];
@@ -226,8 +227,11 @@ class AlertManager {
   ): void {
     if (!ENABLE_ALERTS) return;
 
-    const relevantRules = Array.from(this.rules.values()).filter(rule => 
-      rule.enabled && (rule.service === service || rule.service === 'all') && rule.metric === metric
+    const relevantRules = Array.from(this.rules.values()).filter(
+      (rule) =>
+        rule.enabled &&
+        (rule.service === service || rule.service === 'all') &&
+        rule.metric === metric
     );
 
     for (const rule of relevantRules) {
@@ -238,7 +242,7 @@ class AlertManager {
 
       // Check threshold
       const triggered = this.evaluateThreshold(value, rule.threshold, rule.comparison);
-      
+
       if (triggered) {
         this.triggerRule(rule, value, metadata);
         this.lastTriggered.set(rule.id, new Date());
@@ -246,25 +250,33 @@ class AlertManager {
     }
   }
 
-  private evaluateThreshold(value: number, threshold: number, comparison: AlertRule['comparison']): boolean {
+  private evaluateThreshold(
+    value: number,
+    threshold: number,
+    comparison: AlertRule['comparison']
+  ): boolean {
     switch (comparison) {
-      case 'gt': return value > threshold;
-      case 'lt': return value < threshold;
-      case 'eq': return value === threshold;
-      default: return false;
+      case 'gt':
+        return value > threshold;
+      case 'lt':
+        return value < threshold;
+      case 'eq':
+        return value === threshold;
+      default:
+        return false;
     }
   }
 
   private triggerRule(rule: AlertRule, value: number, metadata?: Record<string, any>): void {
     const actions: AlertAction[] = [];
-    
+
     // Add relevant actions based on rule type
     if (rule.metric === 'quota_usage' && rule.severity === 'critical') {
       actions.push({
         type: 'url',
         label: 'View Usage Dashboard',
         value: '/admin/api-usage',
-        urgent: true
+        urgent: true,
       });
     }
 
@@ -272,27 +284,32 @@ class AlertManager {
       actions.push({
         type: 'command',
         label: 'Reduce Request Rate',
-        value: 'implement exponential backoff'
+        value: 'implement exponential backoff',
       });
     }
 
     const alert = this.createAlert({
-      type: rule.metric === 'quota_usage' ? 'quota_warning' : 
-            rule.metric === 'rate_limit_hits' ? 'rate_limit' :
-            rule.metric === 'error_rate' ? 'api_error' : 'system',
+      type:
+        rule.metric === 'quota_usage'
+          ? 'quota_warning'
+          : rule.metric === 'rate_limit_hits'
+            ? 'rate_limit'
+            : rule.metric === 'error_rate'
+              ? 'api_error'
+              : 'system',
       severity: rule.severity,
       service: rule.service,
       title: this.generateAlertTitle(rule, value),
       message: this.generateAlertMessage(rule, value),
       metadata: { rule_id: rule.id, value, threshold: rule.threshold, ...metadata },
-      actions
+      actions,
     });
   }
 
   private generateAlertTitle(rule: AlertRule, value: number): string {
     const serviceName = rule.service.replace('_', ' ').toUpperCase();
     const metricName = rule.metric.replace('_', ' ');
-    
+
     switch (rule.metric) {
       case 'quota_usage':
         return `${serviceName} Quota Usage High (${value}%)`;
@@ -307,7 +324,7 @@ class AlertManager {
 
   private generateAlertMessage(rule: AlertRule, value: number): string {
     const serviceName = rule.service.replace('_', ' ');
-    
+
     switch (rule.metric) {
       case 'quota_usage':
         return `${serviceName} API quota usage is at ${value}%, exceeding the ${rule.threshold}% threshold. Consider reducing API calls or upgrading your plan.`;
@@ -321,8 +338,8 @@ class AlertManager {
   }
 
   private async sendNotifications(alert: Alert): Promise<void> {
-    const enabledChannels = this.channels.filter(channel => 
-      channel.enabled && channel.severity_filter.includes(alert.severity)
+    const enabledChannels = this.channels.filter(
+      (channel) => channel.enabled && channel.severity_filter.includes(alert.severity)
     );
 
     for (const channel of enabledChannels) {
@@ -353,20 +370,20 @@ class AlertManager {
   private sendConsoleAlert(alert: Alert): void {
     const icon = {
       low: '🟢',
-      medium: '🟡', 
+      medium: '🟡',
       high: '🟠',
-      critical: '🔴'
+      critical: '🔴',
     }[alert.severity];
 
     const logLevel = alert.severity === 'critical' || alert.severity === 'high' ? 'error' : 'warn';
-    
+
     console[logLevel](`${icon} [ALERT] ${alert.title}`);
     console[logLevel](`   Service: ${alert.service}`);
     console[logLevel](`   Message: ${alert.message}`);
-    
+
     if (alert.actions && alert.actions.length > 0) {
       console[logLevel](`   Actions:`);
-      alert.actions.forEach(action => {
+      alert.actions.forEach((action) => {
         console[logLevel](`     - ${action.label}: ${action.value}`);
       });
     }
@@ -388,7 +405,7 @@ class AlertManager {
    */
   getActiveAlerts(): Alert[] {
     return Array.from(this.alerts.values())
-      .filter(alert => !alert.resolved_at)
+      .filter((alert) => !alert.resolved_at)
       .sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
   }
 
@@ -427,27 +444,31 @@ class AlertManager {
     last_24h: number;
   } {
     const alerts = Array.from(this.alerts.values());
-    const active = alerts.filter(a => !a.resolved_at);
-    const last24h = alerts.filter(a => 
-      Date.now() - a.created_at.getTime() < 24 * 60 * 60 * 1000
+    const active = alerts.filter((a) => !a.resolved_at);
+    const last24h = alerts.filter((a) => Date.now() - a.created_at.getTime() < 24 * 60 * 60 * 1000);
+
+    const bySeverity = alerts.reduce(
+      (acc, alert) => {
+        acc[alert.severity] = (acc[alert.severity] || 0) + 1;
+        return acc;
+      },
+      {} as Record<Alert['severity'], number>
     );
 
-    const bySeverity = alerts.reduce((acc, alert) => {
-      acc[alert.severity] = (acc[alert.severity] || 0) + 1;
-      return acc;
-    }, {} as Record<Alert['severity'], number>);
-
-    const byService = alerts.reduce((acc, alert) => {
-      acc[alert.service] = (acc[alert.service] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const byService = alerts.reduce(
+      (acc, alert) => {
+        acc[alert.service] = (acc[alert.service] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       total: alerts.length,
       active: active.length,
       by_severity: bySeverity,
       by_service: byService,
-      last_24h: last24h.length
+      last_24h: last24h.length,
     };
   }
 
@@ -462,18 +483,18 @@ class AlertManager {
         service: 'alert_system',
         title: 'Alert System Test',
         message: 'This is a test alert to verify the alert system is working correctly.',
-        metadata: { test: true }
+        metadata: { test: true },
       });
 
       return {
         success: true,
         message: 'Test alert created successfully',
-        alert_id: testAlertId
+        alert_id: testAlertId,
       };
     } catch (error: any) {
       return {
         success: false,
-        message: `Alert system test failed: ${error.message}`
+        message: `Alert system test failed: ${error.message}`,
       };
     }
   }
@@ -487,15 +508,27 @@ export function createAlert(alertData: Omit<Alert, 'id' | 'created_at'>): string
   return alertManager.createAlert(alertData);
 }
 
-export function checkQuota(service: string, usagePercent: number, metadata?: Record<string, any>): void {
+export function checkQuota(
+  service: string,
+  usagePercent: number,
+  metadata?: Record<string, any>
+): void {
   alertManager.checkMetric(service, 'quota_usage', usagePercent, metadata);
 }
 
-export function checkRateLimit(service: string, hitCount: number, metadata?: Record<string, any>): void {
+export function checkRateLimit(
+  service: string,
+  hitCount: number,
+  metadata?: Record<string, any>
+): void {
   alertManager.checkMetric(service, 'rate_limit_hits', hitCount, metadata);
 }
 
-export function checkErrorRate(service: string, errorPercent: number, metadata?: Record<string, any>): void {
+export function checkErrorRate(
+  service: string,
+  errorPercent: number,
+  metadata?: Record<string, any>
+): void {
   alertManager.checkMetric(service, 'error_rate', errorPercent, metadata);
 }
 

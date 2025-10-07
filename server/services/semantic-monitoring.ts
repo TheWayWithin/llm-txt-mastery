@@ -1,7 +1,16 @@
 import { Redis } from 'ioredis';
 import { redisClient } from './redis-client';
 import { db } from '../db';
-import { pgTable, serial, text, integer, timestamp, jsonb, decimal, boolean } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  timestamp,
+  jsonb,
+  decimal,
+  boolean,
+} from 'drizzle-orm/pg-core';
 import { eq, and, sql, desc, gte, lte } from 'drizzle-orm';
 import { performance } from 'perf_hooks';
 
@@ -126,7 +135,7 @@ class SemanticMonitoringService {
     responseTimeMs: 5000, // Alert if response time > 5s
     errorRatePercent: 10, // Alert if error rate > 10%
     costPerHourUSD: 10, // Alert if hourly cost > $10
-    cacheHitRatePercent: 50 // Alert if cache hit rate < 50%
+    cacheHitRatePercent: 50, // Alert if cache hit rate < 50%
   };
 
   constructor() {
@@ -138,7 +147,7 @@ class SemanticMonitoringService {
       this.redis = null;
       console.log('Semantic monitoring: Redis unavailable, using local cache only');
     }
-    
+
     // Flush metrics buffer every 30 seconds
     this.flushInterval = setInterval(() => {
       this.flushMetricsBuffer();
@@ -165,7 +174,7 @@ class SemanticMonitoringService {
         tokenUsage: entry.tokenUsage,
         cost: entry.cost?.toString(),
         errorMessage: entry.errorMessage,
-        metadata: entry.metadata
+        metadata: entry.metadata,
       });
 
       // Update real-time metrics in Redis
@@ -173,7 +182,6 @@ class SemanticMonitoringService {
 
       // Check for alerts
       await this.checkAlerts(entry);
-
     } catch (error) {
       console.error('Error logging semantic operation:', error);
     }
@@ -193,13 +201,15 @@ class SemanticMonitoringService {
 
       // Also update real-time Redis metrics
       const redisKey = `metrics:realtime:${key}`;
-      await this.redis.lpush(redisKey, JSON.stringify({
-        value: metric.value,
-        timestamp: metric.timestamp.toISOString()
-      }));
+      await this.redis.lpush(
+        redisKey,
+        JSON.stringify({
+          value: metric.value,
+          timestamp: metric.timestamp.toISOString(),
+        })
+      );
       await this.redis.ltrim(redisKey, 0, 99); // Keep last 100 values
       await this.redis.expire(redisKey, 3600); // Expire after 1 hour
-
     } catch (error) {
       console.error('Error recording performance metric:', error);
     }
@@ -208,13 +218,15 @@ class SemanticMonitoringService {
   /**
    * Get dashboard metrics
    */
-  async getDashboardMetrics(timeRange: '1h' | '6h' | '24h' | '7d' = '24h'): Promise<DashboardMetrics> {
+  async getDashboardMetrics(
+    timeRange: '1h' | '6h' | '24h' | '7d' = '24h'
+  ): Promise<DashboardMetrics> {
     try {
       const timeRangeHours = {
         '1h': 1,
-        '6h': 6, 
+        '6h': 6,
         '24h': 24,
-        '7d': 168
+        '7d': 168,
       };
 
       const hoursBack = timeRangeHours[timeRange];
@@ -227,15 +239,16 @@ class SemanticMonitoringService {
           successfulRequests: sql<number>`count(case when status = 'success' then 1 end)`,
           avgDuration: sql<number>`avg(duration)`,
           totalCost: sql<number>`sum(cast(cost as decimal))`,
-          activeFeatures: sql<string[]>`array_agg(distinct feature)`
+          activeFeatures: sql<string[]>`array_agg(distinct feature)`,
         })
         .from(semanticLogs)
         .where(gte(semanticLogs.timestamp, startTime));
 
       const overview = overviewResults[0];
-      const successRate = overview.totalRequests > 0 
-        ? (overview.successfulRequests / overview.totalRequests) * 100 
-        : 0;
+      const successRate =
+        overview.totalRequests > 0
+          ? (overview.successfulRequests / overview.totalRequests) * 100
+          : 0;
 
       // Feature breakdown
       const featureResults = await db
@@ -244,18 +257,18 @@ class SemanticMonitoringService {
           requests: sql<number>`count(*)`,
           successfulRequests: sql<number>`count(case when status = 'success' then 1 end)`,
           avgDuration: sql<number>`avg(duration)`,
-          totalCost: sql<number>`sum(cast(cost as decimal))`
+          totalCost: sql<number>`sum(cast(cost as decimal))`,
         })
         .from(semanticLogs)
         .where(gte(semanticLogs.timestamp, startTime))
         .groupBy(semanticLogs.feature);
 
-      const featureBreakdown = featureResults.map(f => ({
+      const featureBreakdown = featureResults.map((f) => ({
         feature: f.feature,
         requests: f.requests,
         successRate: f.requests > 0 ? (f.successfulRequests / f.requests) * 100 : 0,
         avgDuration: f.avgDuration || 0,
-        cost: f.totalCost || 0
+        cost: f.totalCost || 0,
       }));
 
       // Performance trends (hourly aggregation)
@@ -264,18 +277,18 @@ class SemanticMonitoringService {
           hour: sql<string>`date_trunc('hour', timestamp)`,
           avgDuration: sql<number>`avg(duration)`,
           totalRequests: sql<number>`count(*)`,
-          errorCount: sql<number>`count(case when status = 'error' then 1 end)`
+          errorCount: sql<number>`count(case when status = 'error' then 1 end)`,
         })
         .from(semanticLogs)
         .where(gte(semanticLogs.timestamp, startTime))
         .groupBy(sql`date_trunc('hour', timestamp)`)
         .orderBy(sql`date_trunc('hour', timestamp)`);
 
-      const performanceTrends = trendsResults.map(t => ({
+      const performanceTrends = trendsResults.map((t) => ({
         timestamp: new Date(t.hour),
         responseTime: t.avgDuration || 0,
         throughput: t.totalRequests || 0,
-        errorRate: t.totalRequests > 0 ? (t.errorCount / t.totalRequests) * 100 : 0
+        errorRate: t.totalRequests > 0 ? (t.errorCount / t.totalRequests) * 100 : 0,
       }));
 
       // Get alerts from Redis
@@ -287,13 +300,12 @@ class SemanticMonitoringService {
           successRate,
           avgResponseTime: overview.avgDuration || 0,
           totalCost: overview.totalCost || 0,
-          activeFeatures: overview.activeFeatures?.filter(Boolean) || []
+          activeFeatures: overview.activeFeatures?.filter(Boolean) || [],
         },
         featureBreakdown,
         performanceTrends,
-        alerts
+        alerts,
       };
-
     } catch (error) {
       console.error('Error getting dashboard metrics:', error);
       return {
@@ -302,11 +314,11 @@ class SemanticMonitoringService {
           successRate: 0,
           avgResponseTime: 0,
           totalCost: 0,
-          activeFeatures: []
+          activeFeatures: [],
         },
         featureBreakdown: [],
         performanceTrends: [],
-        alerts: []
+        alerts: [],
       };
     }
   }
@@ -314,7 +326,10 @@ class SemanticMonitoringService {
   /**
    * Get feature-specific metrics
    */
-  async getFeatureMetrics(feature: string, timeRange: '1h' | '6h' | '24h' | '7d' = '24h'): Promise<any> {
+  async getFeatureMetrics(
+    feature: string,
+    timeRange: '1h' | '6h' | '24h' | '7d' = '24h'
+  ): Promise<any> {
     try {
       const timeRangeHours = { '1h': 1, '6h': 6, '24h': 24, '7d': 168 };
       const hoursBack = timeRangeHours[timeRange];
@@ -328,15 +343,10 @@ class SemanticMonitoringService {
           successfulRequests: sql<number>`count(case when status = 'success' then 1 end)`,
           avgDuration: sql<number>`avg(duration)`,
           totalTokens: sql<number>`sum(token_usage)`,
-          totalCost: sql<number>`sum(cast(cost as decimal))`
+          totalCost: sql<number>`sum(cast(cost as decimal))`,
         })
         .from(semanticLogs)
-        .where(
-          and(
-            eq(semanticLogs.feature, feature),
-            gte(semanticLogs.timestamp, startTime)
-          )
-        )
+        .where(and(eq(semanticLogs.feature, feature), gte(semanticLogs.timestamp, startTime)))
         .groupBy(semanticLogs.operation);
 
       // Performance over time
@@ -345,35 +355,29 @@ class SemanticMonitoringService {
           timestamp: sql<string>`date_trunc('hour', timestamp)`,
           avgDuration: sql<number>`avg(duration)`,
           requests: sql<number>`count(*)`,
-          errors: sql<number>`count(case when status = 'error' then 1 end)`
+          errors: sql<number>`count(case when status = 'error' then 1 end)`,
         })
         .from(semanticLogs)
-        .where(
-          and(
-            eq(semanticLogs.feature, feature),
-            gte(semanticLogs.timestamp, startTime)
-          )
-        )
+        .where(and(eq(semanticLogs.feature, feature), gte(semanticLogs.timestamp, startTime)))
         .groupBy(sql`date_trunc('hour', timestamp)`)
         .orderBy(sql`date_trunc('hour', timestamp)`);
 
       return {
-        operationBreakdown: operationResults.map(op => ({
+        operationBreakdown: operationResults.map((op) => ({
           operation: op.operation,
           requests: op.requests,
           successRate: op.requests > 0 ? (op.successfulRequests / op.requests) * 100 : 0,
           avgDuration: op.avgDuration || 0,
           totalTokens: op.totalTokens || 0,
-          totalCost: op.totalCost || 0
+          totalCost: op.totalCost || 0,
         })),
-        timeSeries: timeSeriesResults.map(ts => ({
+        timeSeries: timeSeriesResults.map((ts) => ({
           timestamp: new Date(ts.timestamp),
           avgDuration: ts.avgDuration || 0,
           requests: ts.requests,
-          errorRate: ts.requests > 0 ? (ts.errors / ts.requests) * 100 : 0
-        }))
+          errorRate: ts.requests > 0 ? (ts.errors / ts.requests) * 100 : 0,
+        })),
       };
-
     } catch (error) {
       console.error('Error getting feature metrics:', error);
       return { operationBreakdown: [], timeSeries: [] };
@@ -392,7 +396,7 @@ class SemanticMonitoringService {
    */
   private async updateRealtimeMetrics(entry: SemanticLogEntry): Promise<void> {
     const timestamp = new Date().toISOString();
-    
+
     // Update counters
     await this.redis.hincrby(`metrics:counters:${entry.feature}`, 'total', 1);
     if (entry.status === 'success') {
@@ -432,7 +436,7 @@ class SemanticMonitoringService {
         severity: 'high',
         message: `High response time detected: ${entry.duration}ms for ${entry.feature}:${entry.operation}`,
         timestamp: new Date(),
-        metadata: { feature: entry.feature, operation: entry.operation, duration: entry.duration }
+        metadata: { feature: entry.feature, operation: entry.operation, duration: entry.duration },
       });
     }
 
@@ -443,18 +447,19 @@ class SemanticMonitoringService {
         severity: 'medium',
         message: `Error in ${entry.feature}:${entry.operation}: ${entry.errorMessage}`,
         timestamp: new Date(),
-        metadata: { feature: entry.feature, operation: entry.operation, error: entry.errorMessage }
+        metadata: { feature: entry.feature, operation: entry.operation, error: entry.errorMessage },
       });
     }
 
     // High cost alert
-    if (entry.cost && entry.cost > 1.0) { // $1 per operation
+    if (entry.cost && entry.cost > 1.0) {
+      // $1 per operation
       alerts.push({
         type: 'cost',
         severity: 'high',
         message: `High cost operation: $${entry.cost} for ${entry.feature}:${entry.operation}`,
         timestamp: new Date(),
-        metadata: { feature: entry.feature, operation: entry.operation, cost: entry.cost }
+        metadata: { feature: entry.feature, operation: entry.operation, cost: entry.cost },
       });
     }
 
@@ -472,8 +477,9 @@ class SemanticMonitoringService {
   private async getActiveAlerts(): Promise<any[]> {
     try {
       const alertStrings = await this.redis.lrange('semantic:alerts', 0, -1);
-      return alertStrings.map(alertStr => JSON.parse(alertStr))
-        .filter(alert => {
+      return alertStrings
+        .map((alertStr) => JSON.parse(alertStr))
+        .filter((alert) => {
           // Only show alerts from the last hour
           const alertTime = new Date(alert.timestamp);
           const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
@@ -493,7 +499,7 @@ class SemanticMonitoringService {
 
     try {
       const metricsToInsert: any[] = [];
-      
+
       for (const [key, metrics] of this.metricsBuffer.entries()) {
         for (const metric of metrics) {
           metricsToInsert.push({
@@ -505,7 +511,7 @@ class SemanticMonitoringService {
             aggregationType: 'instant',
             timeWindow: '1m',
             timestamp: metric.timestamp,
-            metadata: metric.metadata
+            metadata: metric.metadata,
           });
         }
       }
@@ -516,7 +522,6 @@ class SemanticMonitoringService {
 
       // Clear buffer
       this.metricsBuffer.clear();
-
     } catch (error) {
       console.error('Error flushing metrics buffer:', error);
     }
@@ -527,14 +532,20 @@ class SemanticMonitoringService {
    */
   private initializeMetricsAggregation(): void {
     // Aggregate hourly stats every hour
-    setInterval(async () => {
-      await this.aggregateHourlyStats();
-    }, 60 * 60 * 1000); // 1 hour
+    setInterval(
+      async () => {
+        await this.aggregateHourlyStats();
+      },
+      60 * 60 * 1000
+    ); // 1 hour
 
     // Aggregate daily stats once per day
-    setInterval(async () => {
-      await this.aggregateDailyStats();
-    }, 24 * 60 * 60 * 1000); // 24 hours
+    setInterval(
+      async () => {
+        await this.aggregateDailyStats();
+      },
+      24 * 60 * 60 * 1000
+    ); // 24 hours
   }
 
   /**
@@ -544,7 +555,7 @@ class SemanticMonitoringService {
     try {
       const now = new Date();
       const hourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-      
+
       await db.execute(sql`
         INSERT INTO semantic_feature_usage (
           feature, date, hour, total_requests, successful_requests, failed_requests,
@@ -585,7 +596,7 @@ class SemanticMonitoringService {
     try {
       const now = new Date();
       const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      
+
       await db.execute(sql`
         INSERT INTO semantic_feature_usage (
           feature, date, total_requests, successful_requests, failed_requests,
@@ -624,7 +635,7 @@ class SemanticMonitoringService {
   async healthCheck(): Promise<{ status: string; details: any }> {
     try {
       await this.redis.ping();
-      
+
       const recentLogs = await db
         .select({ count: sql<number>`count(*)` })
         .from(semanticLogs)
@@ -635,15 +646,18 @@ class SemanticMonitoringService {
         details: {
           redis: 'connected',
           recentLogs: recentLogs[0]?.count || 0,
-          bufferSize: Array.from(this.metricsBuffer.values()).reduce((sum, arr) => sum + arr.length, 0)
-        }
+          bufferSize: Array.from(this.metricsBuffer.values()).reduce(
+            (sum, arr) => sum + arr.length,
+            0
+          ),
+        },
       };
     } catch (error) {
       return {
         status: 'unhealthy',
-        details: { 
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
       };
     }
   }
@@ -703,7 +717,7 @@ export class SemanticTimer {
       tokenUsage: options.tokenUsage,
       cost: options.cost,
       errorMessage: options.errorMessage,
-      metadata: this.metadata
+      metadata: this.metadata,
     });
 
     // Record performance metric
@@ -714,7 +728,7 @@ export class SemanticTimer {
       value: duration,
       unit: 'ms',
       timestamp: new Date(),
-      metadata: this.metadata
+      metadata: this.metadata,
     });
   }
 }

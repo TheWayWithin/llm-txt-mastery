@@ -5,12 +5,12 @@ dotenv.config();
 
 // Force Railway deployment: 2025-09-27 15:51 UTC - ENHANCED LLMS.TXT FEATURES
 
-import express, { type Request, Response, NextFunction } from "express";
-import cors from "cors";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { setupSecurityMiddleware, corsOptions } from "./middleware/security";
-import { keepAliveService } from "./services/keep-alive";
+import express, { type Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import { registerRoutes } from './routes';
+import { setupVite, serveStatic, log } from './vite';
+import { setupSecurityMiddleware, corsOptions } from './middleware/security';
+import { keepAliveService } from './services/keep-alive';
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.get('/health', (req, res) => {
     deployedAt: '2025-10-02T23:15:00Z',
     fixes: {
       refundEligibility: 'DESC ordering for Coffee purchases',
-      debugLogging: true
+      debugLogging: true,
     },
     enhancements: {
       blockquoteSummary: true,
@@ -33,11 +33,10 @@ app.get('/health', (req, res) => {
       semanticTags: true,
       intelligentSequencing: true,
       enhancedMetadata: true,
-      contentQuality: true
-    }
+      contentQuality: true,
+    },
   });
 });
-
 
 // Trust proxy for Railway deployment
 app.set('trust proxy', true);
@@ -62,16 +61,16 @@ app.use((req, res, next) => {
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
 
-  res.on("finish", () => {
+  res.on('finish', () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
+    if (path.startsWith('/api')) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
 
       if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
+        logLine = logLine.slice(0, 79) + '…';
       }
 
       log(logLine);
@@ -86,7 +85,7 @@ app.use((req, res, next) => {
 
   // Set up static file serving BEFORE error handler
   // This prevents static file 404s from becoming JSON errors
-  if (app.get("env") === "development") {
+  if (app.get('env') === 'development') {
     await setupVite(app, server);
   } else {
     serveStatic(app);
@@ -95,27 +94,29 @@ app.use((req, res, next) => {
   // Global error handler for API routes only - comes AFTER static serving
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const message = err.message || 'Internal Server Error';
 
     res.status(status).json({ message });
     throw err;
   });
 
   // Use port from environment or default to 8080
-  const port = parseInt(process.env.PORT || "8080", 10);
-  const host = process.env.HOST || "0.0.0.0";
+  const port = parseInt(process.env.PORT || '8080', 10);
+  const host = process.env.HOST || '0.0.0.0';
   server.listen(port, host, () => {
     log(`serving on port ${port} (host: ${host})`);
-    
+
     // Initialize keep-alive service to prevent Railway hibernation
     keepAliveService.start();
-    
+
     // Log important configuration status
     if (!process.env.OPENAI_API_KEY) {
-      console.log("⚠️ WARNING: OPENAI_API_KEY not set - AI analysis disabled, using HTML extraction only");
-      console.log("  To enable AI analysis, set OPENAI_API_KEY in Railway environment variables");
+      console.log(
+        '⚠️ WARNING: OPENAI_API_KEY not set - AI analysis disabled, using HTML extraction only'
+      );
+      console.log('  To enable AI analysis, set OPENAI_API_KEY in Railway environment variables');
     } else {
-      console.log("✅ OPENAI_API_KEY configured - AI analysis enabled");
+      console.log('✅ OPENAI_API_KEY configured - AI analysis enabled');
     }
   });
 })();

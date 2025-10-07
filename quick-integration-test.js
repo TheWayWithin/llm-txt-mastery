@@ -2,7 +2,7 @@
 
 /**
  * Quick Integration Test - Verify Key Fixes
- * 
+ *
  * Tests the critical fixes without requiring Playwright setup
  */
 
@@ -14,30 +14,30 @@ const TEST_EMAIL = `test-integration-${Date.now()}@example.com`;
 
 async function testAPIEndpoints() {
   console.log('🧪 Testing API Endpoints...\n');
-  
+
   const tests = [
     {
       name: 'Health Check',
       method: 'GET',
       endpoint: '/api/health',
-      expectedStatus: 200
+      expectedStatus: 200,
     },
     {
       name: 'URL Normalization Test',
       method: 'POST',
       endpoint: '/api/analyze',
-      body: { 
-        url: 'www.example.com',  // Test URL without protocol
-        email: TEST_EMAIL 
+      body: {
+        url: 'www.example.com', // Test URL without protocol
+        email: TEST_EMAIL,
       },
-      expectedStatus: [200, 202] // Analysis might be async
+      expectedStatus: [200, 202], // Analysis might be async
     },
     {
       name: 'Usage Counter Check',
       method: 'GET',
       endpoint: `/api/usage/${encodeURIComponent(TEST_EMAIL)}`,
-      expectedStatus: [200, 404] // 404 if user doesn't exist yet
-    }
+      expectedStatus: [200, 404], // 404 if user doesn't exist yet
+    },
   ];
 
   let passedTests = 0;
@@ -46,12 +46,12 @@ async function testAPIEndpoints() {
   for (const test of tests) {
     try {
       console.log(`Testing ${test.name}...`);
-      
+
       const options = {
         method: test.method,
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
       };
 
       if (test.body) {
@@ -59,19 +59,21 @@ async function testAPIEndpoints() {
       }
 
       const response = await fetch(`${BASE_URL}${test.endpoint}`, options);
-      
-      const expectedStatuses = Array.isArray(test.expectedStatus) 
-        ? test.expectedStatus 
+
+      const expectedStatuses = Array.isArray(test.expectedStatus)
+        ? test.expectedStatus
         : [test.expectedStatus];
-      
+
       if (expectedStatuses.includes(response.status)) {
         console.log(`✅ ${test.name}: PASSED (${response.status})`);
         passedTests++;
-        
+
         // Log response for debugging
         if (test.endpoint.includes('/api/analyze')) {
           const responseData = await response.json().catch(() => ({}));
-          console.log(`   Analysis Response: ${JSON.stringify(responseData, null, 2).substring(0, 200)}...`);
+          console.log(
+            `   Analysis Response: ${JSON.stringify(responseData, null, 2).substring(0, 200)}...`
+          );
         }
       } else {
         console.log(`❌ ${test.name}: FAILED (${response.status})`);
@@ -81,7 +83,7 @@ async function testAPIEndpoints() {
     } catch (error) {
       console.log(`❌ ${test.name}: ERROR - ${error.message}`);
     }
-    
+
     console.log('');
   }
 
@@ -90,27 +92,27 @@ async function testAPIEndpoints() {
 
 async function testURLNormalization() {
   console.log('🔗 Testing URL Normalization...\n');
-  
+
   const urlTests = [
     { input: 'www.example.com', expected: 'should accept without protocol' },
     { input: 'example.com', expected: 'should accept bare domain' },
     { input: 'https://example.com', expected: 'should accept with https' },
-    { input: 'invalid-url', expected: 'should reject invalid URLs' }
+    { input: 'invalid-url', expected: 'should reject invalid URLs' },
   ];
 
   let passedUrlTests = 0;
-  
+
   for (const urlTest of urlTests) {
     try {
       console.log(`Testing URL: "${urlTest.input}"`);
-      
+
       const response = await fetch(`${BASE_URL}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          url: urlTest.input, 
-          email: `test-url-${Date.now()}@example.com` 
-        })
+        body: JSON.stringify({
+          url: urlTest.input,
+          email: `test-url-${Date.now()}@example.com`,
+        }),
       });
 
       if (urlTest.input === 'invalid-url') {
@@ -119,7 +121,9 @@ async function testURLNormalization() {
           console.log(`✅ ${urlTest.expected}: PASSED (${response.status})`);
           passedUrlTests++;
         } else {
-          console.log(`❌ ${urlTest.expected}: FAILED (${response.status}) - should have rejected invalid URL`);
+          console.log(
+            `❌ ${urlTest.expected}: FAILED (${response.status}) - should have rejected invalid URL`
+          );
         }
       } else {
         // Should succeed for valid URLs
@@ -135,7 +139,7 @@ async function testURLNormalization() {
     } catch (error) {
       console.log(`❌ ${urlTest.expected}: ERROR - ${error.message}`);
     }
-    
+
     console.log('');
   }
 
@@ -144,15 +148,15 @@ async function testURLNormalization() {
 
 async function testUsageTracking() {
   console.log('📊 Testing Usage Counter...\n');
-  
+
   const testEmail = `usage-test-${Date.now()}@example.com`;
-  
+
   try {
     // First, check initial usage (should be 0)
     console.log('Checking initial usage...');
     let response = await fetch(`${BASE_URL}/api/usage/${encodeURIComponent(testEmail)}`);
     let initialUsage = 0;
-    
+
     if (response.status === 200) {
       const usageData = await response.json();
       initialUsage = usageData.usage?.analysesToday || 0;
@@ -166,26 +170,26 @@ async function testUsageTracking() {
     response = await fetch(`${BASE_URL}/api/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        url: 'www.example.com', 
-        email: testEmail 
-      })
+      body: JSON.stringify({
+        url: 'www.example.com',
+        email: testEmail,
+      }),
     });
 
     if (response.status < 400) {
       console.log(`✅ Analysis started successfully (${response.status})`);
-      
+
       // Wait a bit for processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Check usage again
       console.log('Checking updated usage...');
       response = await fetch(`${BASE_URL}/api/usage/${encodeURIComponent(testEmail)}`);
-      
+
       if (response.status === 200) {
         const usageData = await response.json();
         const newUsage = usageData.usage?.analysesToday || 0;
-        
+
         if (newUsage > initialUsage) {
           console.log(`✅ Usage counter incremented: ${initialUsage} → ${newUsage}`);
           return true;

@@ -11,14 +11,14 @@ export const ContactPage: React.FC = () => {
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // For now, just show a success message
     // In production, this would send to an API endpoint
-    toast.success('Message sent! I\'ll get back to you soon.');
+    toast.success("Message sent! I'll get back to you soon.");
     setFormData({ name: '', email: '', subject: '', message: '' });
   };
 
@@ -27,9 +27,7 @@ export const ContactPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">
-            Let's Connect
-          </h1>
+          <h1 className="text-4xl font-bold mb-4">Let's Connect</h1>
           <p className="text-xl text-gray-600">
             Have a question, feedback, or just want to say hi? I'd love to hear from you.
           </p>
@@ -75,7 +73,7 @@ export const ContactPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium mb-2">
                       Subject
@@ -89,7 +87,7 @@ export const ContactPage: React.FC = () => {
                       placeholder="What's this about?"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium mb-2">
                       Message
@@ -103,7 +101,7 @@ export const ContactPage: React.FC = () => {
                       rows={6}
                     />
                   </div>
-                  
+
                   <Button type="submit" className="w-full">
                     <Send className="mr-2" size={16} />
                     Send Message
@@ -124,13 +122,8 @@ export const ContactPage: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">
-                  For quick questions or feedback:
-                </p>
-                <a 
-                  href="mailto:jamie@llmtxtmastery.com" 
-                  className="text-blue-600 hover:underline"
-                >
+                <p className="text-gray-700 mb-4">For quick questions or feedback:</p>
+                <a href="mailto:jamie@llmtxtmastery.com" className="text-blue-600 hover:underline">
                   jamie@llmtxtmastery.com
                 </a>
               </CardContent>
@@ -178,7 +171,7 @@ export const ContactPage: React.FC = () => {
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="pt-6">
                 <p className="text-sm text-gray-700">
-                  <strong>Response Time:</strong> I personally read and respond to every message. 
+                  <strong>Response Time:</strong> I personally read and respond to every message.
                   Expect a reply within 24-48 hours.
                 </p>
               </CardContent>
@@ -215,12 +208,8 @@ export const ContactPage: React.FC = () => {
 
         {/* Footer Note */}
         <div className="text-center mt-12 text-gray-600">
-          <p>
-            No corporate support tickets. No automated responses.
-          </p>
-          <p className="mt-2">
-            Just direct communication with the person who built this.
-          </p>
+          <p>No corporate support tickets. No automated responses.</p>
+          <p className="mt-2">Just direct communication with the person who built this.</p>
         </div>
       </div>
     </div>

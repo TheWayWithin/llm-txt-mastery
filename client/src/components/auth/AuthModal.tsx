@@ -1,37 +1,37 @@
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { LoginForm } from "./LoginForm"
-import { SignupForm } from "./SignupForm"
-import ForgotPasswordForm from "./ForgotPasswordForm"
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LoginForm } from './LoginForm';
+import { SignupForm } from './SignupForm';
+import ForgotPasswordForm from './ForgotPasswordForm';
 
 interface AuthModalProps {
-  isOpen: boolean
-  onClose: () => void
-  defaultMode?: 'login' | 'signup' | 'forgot-password'
-  defaultEmail?: string
-  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale'
+  isOpen: boolean;
+  onClose: () => void;
+  defaultMode?: 'login' | 'signup' | 'forgot-password';
+  defaultEmail?: string;
+  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale';
 }
 
-export function AuthModal({ 
-  isOpen, 
-  onClose, 
-  defaultMode = 'login', 
-  defaultEmail = "",
-  defaultTier = 'starter' 
+export function AuthModal({
+  isOpen,
+  onClose,
+  defaultMode = 'login',
+  defaultEmail = '',
+  defaultTier = 'starter',
 }: AuthModalProps) {
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot-password'>(defaultMode)
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot-password'>(defaultMode);
 
   const handleSwitchToSignup = () => {
-    setMode('signup')
-  }
+    setMode('signup');
+  };
 
   const handleSwitchToLogin = () => {
-    setMode('login')
-  }
+    setMode('login');
+  };
 
   const handleSwitchToForgotPassword = () => {
-    setMode('forgot-password')
-  }
+    setMode('forgot-password');
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -41,15 +41,15 @@ export function AuthModal({
             {mode === 'login' ? 'Sign In' : mode === 'signup' ? 'Sign Up' : 'Reset Password'}
           </DialogTitle>
         </DialogHeader>
-        
+
         {mode === 'login' ? (
-          <LoginForm 
-            onSwitchToSignup={handleSwitchToSignup} 
+          <LoginForm
+            onSwitchToSignup={handleSwitchToSignup}
             onSwitchToForgotPassword={handleSwitchToForgotPassword}
             onSuccess={onClose}
           />
         ) : mode === 'signup' ? (
-          <SignupForm 
+          <SignupForm
             onSwitchToLogin={handleSwitchToLogin}
             onSuccess={onClose}
             defaultEmail={defaultEmail}
@@ -60,5 +60,5 @@ export function AuthModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

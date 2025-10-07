@@ -1,5 +1,6 @@
 // Authentication API client for JWT-based authentication
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
 
 export interface AuthUser {
   id: number;
@@ -46,7 +47,7 @@ class AuthApiClient {
 
   private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -64,7 +65,7 @@ class AuthApiClient {
     }
 
     const response = await fetch(url, config);
-    
+
     // Handle 401 errors by attempting token refresh
     if (response.status === 401 && this.refreshToken && !endpoint.includes('/auth/refresh')) {
       const refreshed = await this.refreshTokens();
@@ -90,7 +91,7 @@ class AuthApiClient {
         endpoint,
         error: data.error,
         code: data.code,
-        details: data.details || data
+        details: data.details || data,
       });
       throw new Error(data.error || `HTTP ${response.status}`);
     }
@@ -101,14 +102,19 @@ class AuthApiClient {
   private setTokens(authResponse: AuthResponse) {
     this.accessToken = authResponse.accessToken;
     this.refreshToken = authResponse.refreshToken;
-    
+
     // Store in sessionStorage for proper incognito isolation
     sessionStorage.setItem('auth_access_token', authResponse.accessToken);
     sessionStorage.setItem('auth_refresh_token', authResponse.refreshToken);
     sessionStorage.setItem('auth_user', JSON.stringify(authResponse.user));
-    
+
     // Debug logging for Coffee users
-    console.log('🔐 Tokens stored for user:', authResponse.user.email, 'tier:', authResponse.user.tier);
+    console.log(
+      '🔐 Tokens stored for user:',
+      authResponse.user.email,
+      'tier:',
+      authResponse.user.tier
+    );
     if (authResponse.user.tier === 'coffee') {
       console.log('☕ Coffee user authentication - credits:', authResponse.user.creditsRemaining);
     }
@@ -117,7 +123,7 @@ class AuthApiClient {
   private clearTokens() {
     this.accessToken = null;
     this.refreshToken = null;
-    
+
     sessionStorage.removeItem('auth_access_token');
     sessionStorage.removeItem('auth_refresh_token');
     sessionStorage.removeItem('auth_user');
@@ -159,12 +165,12 @@ class AuthApiClient {
     const hasToken = !!this.accessToken;
     const hasUser = !!this.getStoredUser();
     const isAuth = hasToken && hasUser;
-    
+
     // Debug logging for authentication checks
     if (!isAuth) {
       console.log('🔒 Authentication check failed - token:', hasToken, 'user:', hasUser);
     }
-    
+
     return isAuth;
   }
 
@@ -225,7 +231,7 @@ class AuthApiClient {
   // Get current user profile
   async getCurrentUser(): Promise<AuthUser> {
     const response = await this.makeRequest('/api/auth/me');
-    
+
     // Update stored user data
     sessionStorage.setItem('auth_user', JSON.stringify(response.user));
     return response.user;
@@ -262,7 +268,10 @@ class AuthApiClient {
   }
 
   // Reset password with token
-  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string }> {
     const response = await this.makeRequest('/api/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ token, newPassword }),
@@ -272,8 +281,8 @@ class AuthApiClient {
 
   // Emergency method to clear tokens (for race condition recovery)
   clearAuthTokens(): void {
-    console.log('🧹 Emergency token cleanup triggered')
-    this.clearTokens()
+    console.log('🧹 Emergency token cleanup triggered');
+    this.clearTokens();
   }
 }
 

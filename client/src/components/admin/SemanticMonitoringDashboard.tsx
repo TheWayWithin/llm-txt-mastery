@@ -5,19 +5,35 @@ import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { 
-  Activity, 
-  Clock, 
-  DollarSign, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Activity,
+  Clock,
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
   XCircle,
   RefreshCw,
   Zap,
-  Users
+  Users,
 } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 interface DashboardMetrics {
   overview: {
@@ -80,8 +96,8 @@ export default function SemanticMonitoringDashboard() {
       setLoading(true);
       const response = await fetch(`/api/semantic/metrics/dashboard?timeRange=${timeRange}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
       });
 
       if (!response.ok) {
@@ -99,18 +115,21 @@ export default function SemanticMonitoringDashboard() {
 
   const fetchFeatureMetrics = async (feature: string) => {
     try {
-      const response = await fetch(`/api/semantic/metrics/feature/${feature}?timeRange=${timeRange}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      const response = await fetch(
+        `/api/semantic/metrics/feature/${feature}?timeRange=${timeRange}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch feature metrics: ${response.statusText}`);
       }
 
       const data = await response.json();
-      setFeatureMetrics(prev => ({ ...prev, [feature]: data }));
+      setFeatureMetrics((prev) => ({ ...prev, [feature]: data }));
     } catch (err) {
       console.error('Error fetching feature metrics:', err);
     }
@@ -128,10 +147,14 @@ export default function SemanticMonitoringDashboard() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   };
 
@@ -139,7 +162,7 @@ export default function SemanticMonitoringDashboard() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
@@ -161,9 +184,7 @@ export default function SemanticMonitoringDashboard() {
     return (
       <Alert variant="destructive" className="m-6">
         <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          Error loading monitoring dashboard: {error}
-        </AlertDescription>
+        <AlertDescription>Error loading monitoring dashboard: {error}</AlertDescription>
       </Alert>
     );
   }
@@ -205,7 +226,9 @@ export default function SemanticMonitoringDashboard() {
               <Activity className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Requests</p>
-                <p className="text-2xl font-bold">{metrics.overview.totalRequests.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {metrics.overview.totalRequests.toLocaleString()}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -229,7 +252,9 @@ export default function SemanticMonitoringDashboard() {
               <Clock className="h-8 w-8 text-orange-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
-                <p className="text-2xl font-bold">{formatDuration(metrics.overview.avgResponseTime)}</p>
+                <p className="text-2xl font-bold">
+                  {formatDuration(metrics.overview.avgResponseTime)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -450,35 +475,33 @@ export default function SemanticMonitoringDashboard() {
                   <ResponsiveContainer width="100%" height={400}>
                     <LineChart data={featureMetrics[selectedFeature].timeSeries}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="timestamp" 
+                      <XAxis
+                        dataKey="timestamp"
                         tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                       />
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip 
-                        labelFormatter={(value) => new Date(value).toLocaleString()}
-                      />
+                      <Tooltip labelFormatter={(value) => new Date(value).toLocaleString()} />
                       <Legend />
-                      <Line 
+                      <Line
                         yAxisId="left"
-                        type="monotone" 
-                        dataKey="avgDuration" 
-                        stroke="#8884d8" 
+                        type="monotone"
+                        dataKey="avgDuration"
+                        stroke="#8884d8"
                         name="Avg Duration (ms)"
                       />
-                      <Line 
+                      <Line
                         yAxisId="right"
-                        type="monotone" 
-                        dataKey="requests" 
-                        stroke="#82ca9d" 
+                        type="monotone"
+                        dataKey="requests"
+                        stroke="#82ca9d"
                         name="Requests"
                       />
-                      <Line 
+                      <Line
                         yAxisId="right"
-                        type="monotone" 
-                        dataKey="errorRate" 
-                        stroke="#ff7c7c" 
+                        type="monotone"
+                        dataKey="errorRate"
+                        stroke="#ff7c7c"
                         name="Error Rate (%)"
                       />
                     </LineChart>
@@ -499,15 +522,13 @@ export default function SemanticMonitoringDashboard() {
               <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={metrics.performanceTrends}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="timestamp" 
+                  <XAxis
+                    dataKey="timestamp"
                     tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                   />
                   <YAxis yAxisId="left" />
                   <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value).toLocaleString()}
-                  />
+                  <Tooltip labelFormatter={(value) => new Date(value).toLocaleString()} />
                   <Legend />
                   <Area
                     yAxisId="left"

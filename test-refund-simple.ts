@@ -49,7 +49,7 @@ async function testRefund() {
   process.exit(0);
 }
 
-testRefund().catch(err => {
+testRefund().catch((err) => {
   console.error('Error:', err);
   process.exit(1);
 });

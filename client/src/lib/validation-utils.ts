@@ -1,20 +1,26 @@
 /**
  * Standardized validation utilities for LLM.txt Mastery
- * 
+ *
  * Provides reusable Zod schemas, validation functions, and form field validators
  * to ensure consistency across all forms and user inputs.
  */
 
 import { z } from 'zod';
-import { UserTier, emailCaptureSchema, urlAnalysisSchema, userRegistrationSchema, userLoginSchema } from '@shared/schema';
+import {
+  UserTier,
+  emailCaptureSchema,
+  urlAnalysisSchema,
+  userRegistrationSchema,
+  userLoginSchema,
+} from '@shared/schema';
 import { ValidationError, FormFieldError, ValidationResult } from './error-utils';
 
 // Re-export shared schemas for convenience
-export { 
-  emailCaptureSchema, 
-  urlAnalysisSchema, 
-  userRegistrationSchema, 
-  userLoginSchema 
+export {
+  emailCaptureSchema,
+  urlAnalysisSchema,
+  userRegistrationSchema,
+  userLoginSchema,
 } from '@shared/schema';
 
 // Common validation schemas
@@ -27,14 +33,11 @@ export const commonSchemas = {
     .min(1, 'Email is required')
     .email('Please enter a valid email address')
     .max(254, 'Email address is too long')
-    .refine(
-      (email) => {
-        // Basic domain format check
-        const domain = email.split('@')[1];
-        return domain && domain.includes('.') && !domain.startsWith('.') && !domain.endsWith('.');
-      },
-      'Please enter a valid email address'
-    ),
+    .refine((email) => {
+      // Basic domain format check
+      const domain = email.split('@')[1];
+      return domain && domain.includes('.') && !domain.startsWith('.') && !domain.endsWith('.');
+    }, 'Please enter a valid email address'),
 
   /**
    * URL validation with protocol handling
@@ -42,25 +45,22 @@ export const commonSchemas = {
   url: z
     .string()
     .min(1, 'URL is required')
-    .refine(
-      (url) => {
-        try {
-          // Auto-add protocol if missing
-          const urlWithProtocol = url.match(/^https?:\/\//) ? url : `https://${url}`;
-          const parsed = new URL(urlWithProtocol);
-          return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-        } catch {
-          return false;
-        }
-      },
-      'Please enter a valid URL (e.g., example.com or https://example.com)'
-    ),
+    .refine((url) => {
+      try {
+        // Auto-add protocol if missing
+        const urlWithProtocol = url.match(/^https?:\/\//) ? url : `https://${url}`;
+        const parsed = new URL(urlWithProtocol);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    }, 'Please enter a valid URL (e.g., example.com or https://example.com)'),
 
   /**
    * Tier validation
    */
   tier: z.enum(['starter', 'coffee', 'growth', 'scale'], {
-    errorMap: () => ({ message: 'Please select a valid service tier' })
+    errorMap: () => ({ message: 'Please select a valid service tier' }),
   }),
 
   /**
@@ -70,14 +70,8 @@ export const commonSchemas = {
     .string()
     .min(8, 'Password must be at least 8 characters')
     .max(128, 'Password must be less than 128 characters')
-    .refine(
-      (password) => /[A-Za-z]/.test(password),
-      'Password must contain at least one letter'
-    )
-    .refine(
-      (password) => /\d/.test(password),
-      'Password must contain at least one number'
-    ),
+    .refine((password) => /[A-Za-z]/.test(password), 'Password must contain at least one letter')
+    .refine((password) => /\d/.test(password), 'Password must contain at least one number'),
 
   /**
    * Optional string that can be empty
@@ -87,7 +81,7 @@ export const commonSchemas = {
   /**
    * Non-empty string validation
    */
-  nonEmptyString: z.string().min(1, 'This field is required').trim()
+  nonEmptyString: z.string().min(1, 'This field is required').trim(),
 };
 
 // Form-specific schemas
@@ -98,61 +92,59 @@ export const formSchemas = {
   emailCapture: z.object({
     email: commonSchemas.email,
     websiteUrl: commonSchemas.optionalString,
-    tier: commonSchemas.tier.default('coffee')
+    tier: commonSchemas.tier.default('coffee'),
   }),
 
   /**
    * URL analysis form
    */
   urlAnalysis: z.object({
-    url: commonSchemas.url
+    url: commonSchemas.url,
   }),
 
   /**
    * Enhanced user registration
    */
-  userRegistration: z.object({
-    email: commonSchemas.email,
-    password: commonSchemas.password,
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-    tier: commonSchemas.tier.optional()
-  }).refine(
-    (data) => data.password === data.confirmPassword,
-    {
+  userRegistration: z
+    .object({
+      email: commonSchemas.email,
+      password: commonSchemas.password,
+      confirmPassword: z.string().min(1, 'Please confirm your password'),
+      tier: commonSchemas.tier.optional(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
       message: 'Passwords do not match',
-      path: ['confirmPassword']
-    }
-  ),
+      path: ['confirmPassword'],
+    }),
 
   /**
    * User login
    */
   userLogin: z.object({
     email: commonSchemas.email,
-    password: z.string().min(1, 'Password is required')
+    password: z.string().min(1, 'Password is required'),
   }),
 
   /**
    * Password reset request
    */
   passwordResetRequest: z.object({
-    email: commonSchemas.email
+    email: commonSchemas.email,
   }),
 
   /**
    * Password reset confirmation
    */
-  passwordResetConfirm: z.object({
-    password: commonSchemas.password,
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-    token: z.string().min(1, 'Reset token is required')
-  }).refine(
-    (data) => data.password === data.confirmPassword,
-    {
+  passwordResetConfirm: z
+    .object({
+      password: commonSchemas.password,
+      confirmPassword: z.string().min(1, 'Please confirm your password'),
+      token: z.string().min(1, 'Reset token is required'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
       message: 'Passwords do not match',
-      path: ['confirmPassword']
-    }
-  )
+      path: ['confirmPassword'],
+    }),
 };
 
 // Type exports for form schemas
@@ -198,7 +190,7 @@ export const urlUtils = {
     } catch {
       return null;
     }
-  }
+  },
 };
 
 /**
@@ -230,11 +222,11 @@ export const emailUtils = {
       'tempmail.org',
       'guerrillamail.com',
       'mailinator.com',
-      'temp-mail.org'
+      'temp-mail.org',
     ];
     const domain = emailUtils.getDomain(email);
     return domain ? disposableDomains.includes(domain) : false;
-  }
+  },
 };
 
 /**
@@ -244,7 +236,9 @@ export const passwordUtils = {
   /**
    * Check password strength
    */
-  checkStrength: (password: string): {
+  checkStrength: (
+    password: string
+  ): {
     score: number; // 0-4
     feedback: string[];
     isStrong: boolean;
@@ -270,7 +264,7 @@ export const passwordUtils = {
     return {
       score,
       feedback,
-      isStrong: score >= 3
+      isStrong: score >= 3,
     };
   },
 
@@ -295,9 +289,9 @@ export const passwordUtils = {
     return {
       isValid: errors.length === 0,
       errors,
-      firstError: errors[0]
+      firstError: errors[0],
     };
-  }
+  },
 };
 
 /**
@@ -324,7 +318,7 @@ export const tierUtils = {
       starter: 'Starter (Free)',
       coffee: 'Coffee ($4.95)',
       growth: 'Growth ($9.95)',
-      scale: 'Scale ($19.95)'
+      scale: 'Scale ($19.95)',
     };
     return displayNames[tier] || tier;
   },
@@ -337,10 +331,10 @@ export const tierUtils = {
       starter: ['Basic HTML analysis', '1 analysis per day', 'Standard support'],
       coffee: ['AI-enhanced analysis', '5 analyses per day', 'Priority support', 'File history'],
       growth: ['Advanced AI analysis', '25 analyses per day', 'Smart caching', 'Priority support'],
-      scale: ['Enterprise AI analysis', 'Unlimited pages', 'API access', 'Direct email support']
+      scale: ['Enterprise AI analysis', 'Unlimited pages', 'API access', 'Direct email support'],
     };
     return features[tier] || [];
-  }
+  },
 };
 
 /**
@@ -355,19 +349,21 @@ export const validateForm = <T>(
     return { data: validatedData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors: FormFieldError[] = error.errors.map(err => ({
+      const errors: FormFieldError[] = error.errors.map((err) => ({
         field: err.path.join('.') || 'form',
         message: err.message,
-        code: err.code
+        code: err.code,
       }));
       return { errors };
     }
-    
-    return { 
-      errors: [{ 
-        field: 'form', 
-        message: 'Validation failed' 
-      }] 
+
+    return {
+      errors: [
+        {
+          field: 'form',
+          message: 'Validation failed',
+        },
+      ],
     };
   }
 };
@@ -381,7 +377,7 @@ export const fieldValidators = {
     return {
       isValid: !result.errors,
       errors: result.errors || [],
-      firstError: result.errors?.[0]
+      firstError: result.errors?.[0],
     };
   },
 
@@ -390,7 +386,7 @@ export const fieldValidators = {
     return {
       isValid: !result.errors,
       errors: result.errors || [],
-      firstError: result.errors?.[0]
+      firstError: result.errors?.[0],
     };
   },
 
@@ -399,7 +395,7 @@ export const fieldValidators = {
     return {
       isValid: !result.errors,
       errors: result.errors || [],
-      firstError: result.errors?.[0]
+      firstError: result.errors?.[0],
     };
   },
 
@@ -408,9 +404,9 @@ export const fieldValidators = {
     return {
       isValid: !result.errors,
       errors: result.errors || [],
-      firstError: result.errors?.[0]
+      firstError: result.errors?.[0],
     };
-  }
+  },
 };
 
 /**
@@ -422,30 +418,30 @@ export const validationMessages = {
   tooShort: (field: string, min: number) => `${field} must be at least ${min} characters`,
   tooLong: (field: string, max: number) => `${field} must be no more than ${max} characters`,
   mismatch: (field1: string, field2: string) => `${field1} and ${field2} do not match`,
-  
+
   // Specific field messages
   email: {
     required: 'Email address is required',
     invalid: 'Please enter a valid email address',
     disposable: 'Please use a non-disposable email address',
-    tooLong: 'Email address is too long'
+    tooLong: 'Email address is too long',
   },
-  
+
   password: {
     required: 'Password is required',
     tooShort: 'Password must be at least 8 characters',
     weak: 'Password is too weak',
-    mismatch: 'Passwords do not match'
+    mismatch: 'Passwords do not match',
   },
-  
+
   url: {
     required: 'Website URL is required',
     invalid: 'Please enter a valid URL (e.g., example.com)',
-    notAccessible: 'This website appears to be inaccessible'
+    notAccessible: 'This website appears to be inaccessible',
   },
-  
+
   tier: {
     required: 'Please select a service tier',
-    invalid: 'Please select a valid service tier'
-  }
+    invalid: 'Please select a valid service tier',
+  },
 };

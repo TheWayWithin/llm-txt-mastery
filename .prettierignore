@@ -1,0 +1,29 @@
+# Ignore files with JSX in .ts extension (intentional pattern in this codebase)
+client/src/hooks/useABTesting.ts
+client/src/hooks/useFeatureFlags.ts
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db

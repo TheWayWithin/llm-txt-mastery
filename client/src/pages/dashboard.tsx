@@ -20,32 +20,45 @@ import {
   Calendar,
   Mail,
   Shield,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
-import { getSubscriptionStatus, createPortalSession, TIER_PRICING, type SubscriptionStatus } from '@/lib/stripe';
+import {
+  getSubscriptionStatus,
+  createPortalSession,
+  TIER_PRICING,
+  type SubscriptionStatus,
+} from '@/lib/stripe';
 import { getTierDisplayName } from '@/lib/tier-utils';
 
 const getTierIcon = (tier: string) => {
   switch (tier) {
-    case 'coffee': return <Coffee className="h-4 w-4" />;
-    case 'growth': return <Zap className="h-4 w-4" />;
-    case 'scale': return <Crown className="h-4 w-4" />;
-    default: return <User className="h-4 w-4" />;
+    case 'coffee':
+      return <Coffee className="h-4 w-4" />;
+    case 'growth':
+      return <Zap className="h-4 w-4" />;
+    case 'scale':
+      return <Crown className="h-4 w-4" />;
+    default:
+      return <User className="h-4 w-4" />;
   }
 };
 
 const getTierColor = (tier: string) => {
   switch (tier) {
-    case 'coffee': return 'bg-orange-100 text-orange-800 border-orange-200';
-    case 'growth': return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'scale': return 'bg-purple-100 text-purple-800 border-purple-200';
-    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'coffee':
+      return 'bg-orange-100 text-orange-800 border-orange-200';
+    case 'growth':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'scale':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
 function AccountOverview() {
   const { user, refreshUser } = useAuth();
-  
+
   if (!user) return null;
 
   return (
@@ -77,7 +90,7 @@ function AccountOverview() {
                 )}
               </div>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-600">Member Since</label>
               <div className="flex items-center space-x-2 mt-1">
@@ -86,7 +99,7 @@ function AccountOverview() {
                   {new Date(user.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
                   })}
                 </span>
               </div>
@@ -123,12 +136,18 @@ function AccountOverview() {
                   </Badge>
                 </div>
                 <p className="text-sm text-orange-700 mb-3">
-                  Each credit allows one full website analysis (up to 200 pages) with AI enhancement.
+                  Each credit allows one full website analysis (up to 200 pages) with AI
+                  enhancement.
                 </p>
                 {user.creditsRemaining === 0 && (
                   <div className="text-sm text-orange-800">
-                    <p className="mb-2">🎯 <strong>Ready for more analysis?</strong></p>
-                    <p>Purchase another Coffee credit or upgrade to unlimited access with Growth or Scale plans.</p>
+                    <p className="mb-2">
+                      🎯 <strong>Ready for more analysis?</strong>
+                    </p>
+                    <p>
+                      Purchase another Coffee credit or upgrade to unlimited access with Growth or
+                      Scale plans.
+                    </p>
                   </div>
                 )}
               </div>
@@ -142,31 +161,42 @@ function AccountOverview() {
                   You're currently on the free plan with basic website analysis (up to 20 pages).
                 </p>
                 <p className="text-sm text-gray-700">
-                  <strong>Upgrade benefits:</strong> More pages, AI-enhanced analysis, priority support, and more.
+                  <strong>Upgrade benefits:</strong> More pages, AI-enhanced analysis, priority
+                  support, and more.
                 </p>
               </div>
             )}
 
             {/* Growth/Scale Tier Status */}
-            {(['growth', 'scale'].includes(user.tier)) && (
-              <div className={`border rounded-lg p-4 ${
-                user.tier === 'growth' ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200'
-              }`}>
-                <h4 className={`font-medium mb-2 ${
-                  user.tier === 'growth' ? 'text-blue-800' : 'text-purple-800'
-                }`}>
+            {['growth', 'scale'].includes(user.tier) && (
+              <div
+                className={`border rounded-lg p-4 ${
+                  user.tier === 'growth'
+                    ? 'bg-blue-50 border-blue-200'
+                    : 'bg-purple-50 border-purple-200'
+                }`}
+              >
+                <h4
+                  className={`font-medium mb-2 ${
+                    user.tier === 'growth' ? 'text-blue-800' : 'text-purple-800'
+                  }`}
+                >
                   {user.tier === 'growth' ? 'Growth Plan' : 'Scale Plan'}
                 </h4>
-                <p className={`text-sm mb-3 ${
-                  user.tier === 'growth' ? 'text-blue-700' : 'text-purple-700'
-                }`}>
+                <p
+                  className={`text-sm mb-3 ${
+                    user.tier === 'growth' ? 'text-blue-700' : 'text-purple-700'
+                  }`}
+                >
                   You have access to unlimited website analysis and premium features.
                 </p>
                 <div className="text-sm">
                   <strong>Active features:</strong>
-                  <ul className={`list-disc list-inside mt-1 space-y-1 ${
-                    user.tier === 'growth' ? 'text-blue-600' : 'text-purple-600'
-                  }`}>
+                  <ul
+                    className={`list-disc list-inside mt-1 space-y-1 ${
+                      user.tier === 'growth' ? 'text-blue-600' : 'text-purple-600'
+                    }`}
+                  >
                     <li>100 monthly analyses</li>
                     <li>AI-enhanced analysis</li>
                     <li>Priority support</li>
@@ -229,13 +259,13 @@ function BillingSection() {
       setPortalLoading(false);
     }
   };
-  
+
   const handleUpgrade = async (tier: 'coffee' | 'growth' | 'scale') => {
     try {
       setUpgradeLoading(tier);
       const token = getAccessToken();
       if (!token) throw new Error('Authentication required');
-      
+
       // Determine the endpoint based on tier
       let endpoint = '';
       if (tier === 'coffee') {
@@ -245,21 +275,21 @@ function BillingSection() {
       } else if (tier === 'scale') {
         endpoint = '/api/stripe/create-scale-checkout';
       }
-      
+
       // Create checkout session
       const response = await fetch(`${import.meta.env.VITE_API_URL || ''}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          email: user?.email || ''
-        })
+          email: user?.email || '',
+        }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.url) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
@@ -299,16 +329,18 @@ function BillingSection() {
                     <div>
                       <h4 className="font-medium text-green-800">Active Subscription</h4>
                       <p className="text-sm text-green-600">
-                        {user.tier === 'growth' ? 'Growth Plan' : user.tier === 'scale' ? 'Scale Plan' : 'Active Plan'}
+                        {user.tier === 'growth'
+                          ? 'Growth Plan'
+                          : user.tier === 'scale'
+                            ? 'Scale Plan'
+                            : 'Active Plan'}
                       </p>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                      Active
-                    </Badge>
+                    <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>
                   </div>
-                  
+
                   <div className="space-y-3">
-                    <Button 
+                    <Button
                       onClick={handleManageBilling}
                       disabled={portalLoading}
                       className="w-full bg-blue-600 hover:bg-blue-700"
@@ -316,8 +348,8 @@ function BillingSection() {
                       <ExternalLink className="h-4 w-4 mr-2" />
                       {portalLoading ? 'Opening...' : 'View Billing Details & Invoices'}
                     </Button>
-                    
-                    <Button 
+
+                    <Button
                       onClick={handleManageBilling}
                       disabled={portalLoading}
                       variant="outline"
@@ -326,8 +358,8 @@ function BillingSection() {
                       <Settings className="h-4 w-4 mr-2" />
                       Update Payment Method
                     </Button>
-                    
-                    <Button 
+
+                    <Button
                       onClick={handleManageBilling}
                       disabled={portalLoading}
                       variant="outline"
@@ -336,10 +368,11 @@ function BillingSection() {
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Cancel Subscription (Instant)
                     </Button>
-                    
+
                     <div className="text-xs text-gray-500 text-center mt-2">
                       All billing changes are processed securely through Stripe.
-                      <br />Cancellations take effect immediately - no hoops to jump through.
+                      <br />
+                      Cancellations take effect immediately - no hoops to jump through.
                     </div>
                   </div>
                 </div>
@@ -348,7 +381,8 @@ function BillingSection() {
                   <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
                     <h4 className="font-medium text-orange-800">Coffee Credits</h4>
                     <p className="text-sm text-orange-600 mt-1">
-                      You have {user.creditsRemaining} analysis credit{user.creditsRemaining !== 1 ? 's' : ''} remaining.
+                      You have {user.creditsRemaining} analysis credit
+                      {user.creditsRemaining !== 1 ? 's' : ''} remaining.
                     </p>
                     <p className="text-xs text-orange-500 mt-2">
                       Coffee tier is a monthly subscription for 100 analyses per month.
@@ -358,7 +392,9 @@ function BillingSection() {
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <p>No active subscriptions</p>
-                  <p className="text-sm mt-2">Upgrade to Growth or Scale for subscription management</p>
+                  <p className="text-sm mt-2">
+                    Upgrade to Growth or Scale for subscription management
+                  </p>
                 </div>
               )}
             </div>
@@ -370,13 +406,16 @@ function BillingSection() {
       <Card data-upgrade-section>
         <CardHeader>
           <CardTitle className="text-xl">🚀 Unlock Your Website's Full Potential</CardTitle>
-          <p className="text-gray-600">Choose the plan that matches your ambition. Compare what you're missing:</p>
+          <p className="text-gray-600">
+            Choose the plan that matches your ambition. Compare what you're missing:
+          </p>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
-            
             {/* Coffee Tier */}
-            <div className={`relative border-2 rounded-lg p-5 ${user.tier === 'coffee' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}>
+            <div
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'coffee' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}
+            >
               {user.tier === 'coffee' && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
@@ -392,42 +431,64 @@ function BillingSection() {
                   <div className="text-xs text-gray-500">per month</div>
                 </div>
               </div>
-              
+
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">✅ 100 Monthly Analyses</div>
-                  <div className="text-xs text-orange-600">vs FREE: Only 3 per day (90 per month max)</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                    ✅ 100 Monthly Analyses
+                  </div>
+                  <div className="text-xs text-orange-600">
+                    vs FREE: Only 3 per day (90 per month max)
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">🔄 Keep Your LLM.txt Current</div>
-                  <div className="text-xs text-orange-600">Update your file as your site changes - new pages, fresh content</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                    🔄 Keep Your LLM.txt Current
+                  </div>
+                  <div className="text-xs text-orange-600">
+                    Update your file as your site changes - new pages, fresh content
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">📄 200 Pages per Analysis</div>
-                  <div className="text-xs text-orange-600">vs FREE: Only 20 pages (miss critical content)</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                    📄 200 Pages per Analysis
+                  </div>
+                  <div className="text-xs text-orange-600">
+                    vs FREE: Only 20 pages (miss critical content)
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">🤖 AI Quality Scoring</div>
-                  <div className="text-xs text-orange-600">vs FREE: No AI analysis (basic HTML only)</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                    🤖 AI Quality Scoring
+                  </div>
+                  <div className="text-xs text-orange-600">
+                    vs FREE: No AI analysis (basic HTML only)
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">💰 Incredible Value</div>
-                  <div className="text-xs text-orange-600">100 analyses for just $4.95/month - the price of a coffee!</div>
+                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                    💰 Incredible Value
+                  </div>
+                  <div className="text-xs text-orange-600">
+                    100 analyses for just $4.95/month - the price of a coffee!
+                  </div>
                 </div>
               </div>
-              
+
               {user.tier === 'starter' ? (
-                <Button 
+                <Button
                   data-testid="upgrade-to-coffee"
                   className="w-full bg-orange-600 hover:bg-orange-700 font-bold"
                   onClick={() => handleUpgrade('coffee')}
                   disabled={upgradeLoading === 'coffee'}
                 >
-                  {upgradeLoading === 'coffee' ? 'Processing...' : '🚀 UPGRADE TO COFFEE - Beat Competitors Now'}
+                  {upgradeLoading === 'coffee'
+                    ? 'Processing...'
+                    : '🚀 UPGRADE TO COFFEE - Beat Competitors Now'}
                 </Button>
               ) : user.tier === 'coffee' ? (
                 <div className="text-center py-2 text-orange-600 font-medium">
@@ -441,7 +502,9 @@ function BillingSection() {
             </div>
 
             {/* Growth Tier */}
-            <div className={`relative border-2 rounded-lg p-5 ${user.tier === 'growth' ? 'border-blue-400 bg-blue-50' : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50'} transition-all transform hover:scale-105`}>
+            <div
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'growth' ? 'border-blue-400 bg-blue-50' : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50'} transition-all transform hover:scale-105`}
+            >
               {user.tier === 'growth' && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
@@ -452,7 +515,7 @@ function BillingSection() {
                   🔥 POPULAR CHOICE
                 </div>
               )}
-              
+
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Zap className="h-6 w-6 text-blue-600" />
@@ -463,52 +526,70 @@ function BillingSection() {
                   <div className="text-xs text-gray-500">per month</div>
                 </div>
               </div>
-              
+
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">🚀 EVERYTHING in Coffee +</div>
+                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                    🚀 EVERYTHING in Coffee +
+                  </div>
                   <div className="text-xs text-blue-600">All Coffee benefits included</div>
                 </div>
-                
+
                 <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">📄 1,000 Pages per Analysis</div>
+                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                    📄 1,000 Pages per Analysis
+                  </div>
                   <div className="text-xs text-blue-600">vs Coffee: 5x more content discovery</div>
                 </div>
-                
+
                 <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">⚡ Priority Processing</div>
+                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                    ⚡ Priority Processing
+                  </div>
                   <div className="text-xs text-blue-600">Skip the queue, get results faster</div>
                 </div>
-                
+
                 <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">🎯 Advanced Analytics</div>
-                  <div className="text-xs text-blue-600">Content quality insights & optimization tips</div>
+                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                    🎯 Advanced Analytics
+                  </div>
+                  <div className="text-xs text-blue-600">
+                    Content quality insights & optimization tips
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">📂 Analysis History</div>
+                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                    📂 Analysis History
+                  </div>
                   <div className="text-xs text-blue-600">Track your progress over time</div>
                 </div>
               </div>
-              
+
               {user.tier === 'growth' ? (
                 <div className="text-center py-2 text-blue-600 font-medium">
                   ✅ You're Using Growth Plan
                 </div>
               ) : (
-                <Button 
+                <Button
                   data-testid="upgrade-to-growth"
                   className="w-full bg-blue-600 hover:bg-blue-700 font-bold"
                   onClick={() => handleUpgrade('growth')}
                   disabled={upgradeLoading === 'growth'}
                 >
-                  {upgradeLoading === 'growth' ? 'Processing...' : (user.tier === 'starter' ? '🚀 SKIP AHEAD TO GROWTH' : '⬆️ UPGRADE TO GROWTH')}
+                  {upgradeLoading === 'growth'
+                    ? 'Processing...'
+                    : user.tier === 'starter'
+                      ? '🚀 SKIP AHEAD TO GROWTH'
+                      : '⬆️ UPGRADE TO GROWTH'}
                 </Button>
               )}
             </div>
 
             {/* Scale Tier */}
-            <div className={`relative border-2 rounded-lg p-5 ${user.tier === 'scale' ? 'border-purple-400 bg-purple-50' : 'border-purple-300 hover:border-purple-400 hover:bg-purple-50'} transition-all transform hover:scale-105`}>
+            <div
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'scale' ? 'border-purple-400 bg-purple-50' : 'border-purple-300 hover:border-purple-400 hover:bg-purple-50'} transition-all transform hover:scale-105`}
+            >
               {user.tier === 'scale' && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
@@ -519,7 +600,7 @@ function BillingSection() {
                   👑 ULTIMATE POWER
                 </div>
               )}
-              
+
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Crown className="h-6 w-6 text-purple-600" />
@@ -530,56 +611,80 @@ function BillingSection() {
                   <div className="text-xs text-gray-500">per month</div>
                 </div>
               </div>
-              
+
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">🚀 EVERYTHING in Growth +</div>
+                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                    🚀 EVERYTHING in Growth +
+                  </div>
                   <div className="text-xs text-purple-600">All Growth benefits included</div>
                 </div>
-                
+
                 <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">♾️ UNLIMITED Pages</div>
-                  <div className="text-xs text-purple-600">Analyze massive sites (capped at $19.95 AI cost)</div>
+                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                    ♾️ UNLIMITED Pages
+                  </div>
+                  <div className="text-xs text-purple-600">
+                    Analyze massive sites (capped at $19.95 AI cost)
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">🤖 Full AI Analysis</div>
-                  <div className="text-xs text-purple-600">AI processes ALL pages (not just samples)</div>
+                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                    🤖 Full AI Analysis
+                  </div>
+                  <div className="text-xs text-purple-600">
+                    AI processes ALL pages (not just samples)
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-purple-200 rounded-md p-3">
                   <div className="text-sm font-semibold text-purple-800 mb-1">🔗 API Access</div>
-                  <div className="text-xs text-purple-600">Integrate with your tools & workflows</div>
+                  <div className="text-xs text-purple-600">
+                    Integrate with your tools & workflows
+                  </div>
                 </div>
-                
+
                 <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">🏢 Multi-Site Management</div>
+                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                    🏢 Multi-Site Management
+                  </div>
                   <div className="text-xs text-purple-600">Perfect for agencies & enterprises</div>
                 </div>
-                
+
                 <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">📞 Direct Support Line</div>
-                  <div className="text-xs text-purple-600">Email jamie@llmtxtmastery.com for priority help</div>
+                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                    📞 Direct Support Line
+                  </div>
+                  <div className="text-xs text-purple-600">
+                    Email jamie@llmtxtmastery.com for priority help
+                  </div>
                 </div>
               </div>
-              
+
               {user.tier === 'scale' ? (
                 <div className="text-center py-2 text-purple-600 font-medium">
                   ✅ You're Using Scale Plan
                 </div>
               ) : (
-                <Button 
+                <Button
                   data-testid="upgrade-to-scale"
                   className="w-full bg-purple-600 hover:bg-purple-700 font-bold"
                   onClick={() => handleUpgrade('scale')}
                   disabled={upgradeLoading === 'scale'}
                 >
-                  {upgradeLoading === 'scale' ? 'Processing...' : (user.tier === 'starter' ? '🚀 GO ENTERPRISE WITH SCALE' : user.tier === 'coffee' ? '⬆️ UPGRADE TO SCALE' : '⬆️ UPGRADE TO SCALE')}
+                  {upgradeLoading === 'scale'
+                    ? 'Processing...'
+                    : user.tier === 'starter'
+                      ? '🚀 GO ENTERPRISE WITH SCALE'
+                      : user.tier === 'coffee'
+                        ? '⬆️ UPGRADE TO SCALE'
+                        : '⬆️ UPGRADE TO SCALE'}
                 </Button>
               )}
             </div>
           </div>
-          
+
           {/* Guarantee Section */}
           <div className="mt-8 bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
             <h4 className="font-bold text-green-800 text-lg mb-2">🛡️ ZERO RISK GUARANTEE</h4>
@@ -632,9 +737,9 @@ function SettingsSection() {
                 </Button>
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div>
               <h4 className="font-medium mb-2">Preferences</h4>
               <div className="space-y-2">
@@ -646,14 +751,14 @@ function SettingsSection() {
                 </Button>
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div>
               <h4 className="font-medium mb-2 text-red-600">Danger Zone</h4>
               <div className="space-y-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleSignOut}
                   className="text-red-600 border-red-300 hover:bg-red-50"
@@ -661,8 +766,8 @@ function SettingsSection() {
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="text-red-600 border-red-300 hover:bg-red-50"
                 >
@@ -684,7 +789,9 @@ export default function Dashboard() {
   const getDefaultTab = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    return ['overview', 'analyses', 'billing', 'settings'].includes(tab || '') ? (tab || 'overview') : 'overview';
+    return ['overview', 'analyses', 'billing', 'settings'].includes(tab || '')
+      ? tab || 'overview'
+      : 'overview';
   };
 
   return (
@@ -695,16 +802,14 @@ export default function Dashboard() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <img 
-                  src="/images/logo-primary.png" 
-                  alt="LLM.txt Mastery" 
+                <img
+                  src="/images/logo-primary.png"
+                  alt="LLM.txt Mastery"
                   className="h-16 md:h-20 w-auto"
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                  <p className="text-sm text-gray-600">
-                    Welcome back, {user?.email}
-                  </p>
+                  <p className="text-sm text-gray-600">Welcome back, {user?.email}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -714,15 +819,15 @@ export default function Dashboard() {
                     <span>{getTierDisplayName(user?.tier || 'starter')}</span>
                   </div>
                 </Badge>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
-                  onClick={() => window.location.href = '/analyze'}
+                  onClick={() => (window.location.href = '/analyze')}
                 >
                   Back to App
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     sessionStorage.removeItem('auth_access_token');

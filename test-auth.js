@@ -10,7 +10,7 @@ async function testEndpoint(endpoint, method = 'GET', body = null) {
       },
       body: body ? JSON.stringify(body) : null,
     });
-    
+
     const data = await response.json();
     console.log(`${method} ${endpoint}:`, response.status, data);
     return { status: response.status, data };
@@ -22,19 +22,19 @@ async function testEndpoint(endpoint, method = 'GET', body = null) {
 
 async function runTests() {
   console.log('Testing authentication endpoints...\n');
-  
+
   // Test health endpoint first
   await testEndpoint('/api/health');
-  
+
   // Test check-account endpoint
   await testEndpoint('/api/auth/check-account', 'POST', {
-    email: 'test@example.com'
+    email: 'test@example.com',
   });
-  
+
   // Test coffee-login endpoint (should fail without valid data)
   await testEndpoint('/api/auth/coffee-login', 'POST', {
     email: 'test@example.com',
-    sessionId: 'test-session'
+    sessionId: 'test-session',
   });
 }
 

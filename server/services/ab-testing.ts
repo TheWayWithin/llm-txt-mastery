@@ -2,7 +2,16 @@ import { Redis } from 'ioredis';
 import { redisClient } from './redis-client';
 import { db } from '../db';
 import { eq, and, sql, desc } from 'drizzle-orm';
-import { pgTable, serial, text, integer, timestamp, boolean, jsonb, decimal } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  timestamp,
+  boolean,
+  jsonb,
+  decimal,
+} from 'drizzle-orm/pg-core';
 
 // A/B Testing database tables
 export const experiments = pgTable('ab_experiments', {
@@ -11,7 +20,9 @@ export const experiments = pgTable('ab_experiments', {
   description: text('description'),
   featureFlag: text('feature_flag'), // Associated feature flag
   status: text('status').notNull().default('draft'), // draft, running, paused, completed
-  trafficAllocation: decimal('traffic_allocation', { precision: 5, scale: 2 }).notNull().default('100.00'), // 0-100%
+  trafficAllocation: decimal('traffic_allocation', { precision: 5, scale: 2 })
+    .notNull()
+    .default('100.00'), // 0-100%
   variants: jsonb('variants').$type<ExperimentVariant[]>().notNull(),
   targetingRules: jsonb('targeting_rules').$type<TargetingRule[]>(),
   metrics: jsonb('metrics').$type<ExperimentMetric[]>().notNull(),
@@ -26,7 +37,9 @@ export const experiments = pgTable('ab_experiments', {
 
 export const experimentAssignments = pgTable('ab_experiment_assignments', {
   id: serial('id').primaryKey(),
-  experimentId: integer('experiment_id').notNull().references(() => experiments.id),
+  experimentId: integer('experiment_id')
+    .notNull()
+    .references(() => experiments.id),
   userId: text('user_id'),
   sessionId: text('session_id'),
   variant: text('variant').notNull(),
@@ -36,7 +49,9 @@ export const experimentAssignments = pgTable('ab_experiment_assignments', {
 
 export const experimentEvents = pgTable('ab_experiment_events', {
   id: serial('id').primaryKey(),
-  experimentId: integer('experiment_id').notNull().references(() => experiments.id),
+  experimentId: integer('experiment_id')
+    .notNull()
+    .references(() => experiments.id),
   assignmentId: integer('assignment_id').references(() => experimentAssignments.id),
   userId: text('user_id'),
   sessionId: text('session_id'),
@@ -115,12 +130,15 @@ class ABTestingService {
   /**
    * Get experiment assignment for a user/session
    */
-  async getAssignment(experimentName: string, userContext: UserContext): Promise<ExperimentAssignment | null> {
+  async getAssignment(
+    experimentName: string,
+    userContext: UserContext
+  ): Promise<ExperimentAssignment | null> {
     try {
       // Check cache first (if Redis is available)
       const cacheKey = `${this.assignmentCacheKey}:${experimentName}:${userContext.userId || userContext.sessionId}`;
       const cachedAssignment = this.redis ? await this.redis.get(cacheKey) : null;
-      
+
       if (cachedAssignment) {
         return JSON.parse(cachedAssignment);
       }
@@ -138,7 +156,7 @@ class ABTestingService {
         .where(
           and(
             eq(experimentAssignments.experimentId, experiment.id),
-            userContext.userId 
+            userContext.userId
               ? eq(experimentAssignments.userId, userContext.userId)
               : eq(experimentAssignments.sessionId, userContext.sessionId!)
           )
@@ -151,7 +169,7 @@ class ABTestingService {
           experimentName: experiment.name,
           variant: existingAssignment[0].variant,
           config: this.getVariantConfig(experiment, existingAssignment[0].variant),
-          assignedAt: existingAssignment[0].assignedAt!
+          assignedAt: existingAssignment[0].assignedAt!,
         };
 
         // Cache for 1 hour (if Redis is available)
@@ -173,7 +191,7 @@ class ABTestingService {
 
       // Assign variant
       const variant = this.assignVariant(experiment, userContext);
-      
+
       // Save assignment
       const [newAssignment] = await db
         .insert(experimentAssignments)
@@ -182,7 +200,7 @@ class ABTestingService {
           userId: userContext.userId,
           sessionId: userContext.sessionId,
           variant: variant.name,
-          metadata: { userContext }
+          metadata: { userContext },
         })
         .returning();
 
@@ -191,7 +209,7 @@ class ABTestingService {
         experimentName: experiment.name,
         variant: variant.name,
         config: variant.config,
-        assignedAt: newAssignment.assignedAt!
+        assignedAt: newAssignment.assignedAt!,
       };
 
       // Cache for 1 hour (if Redis is available)
@@ -203,7 +221,6 @@ class ABTestingService {
       await this.trackEvent(experiment.name, assignment.variant, 'impression', userContext);
 
       return assignment;
-
     } catch (error) {
       console.error('Error getting experiment assignment:', error);
       return null;
@@ -213,9 +230,12 @@ class ABTestingService {
   /**
    * Get multiple experiment assignments for a user
    */
-  async getMultipleAssignments(experimentNames: string[], userContext: UserContext): Promise<Record<string, ExperimentAssignment>> {
+  async getMultipleAssignments(
+    experimentNames: string[],
+    userContext: UserContext
+  ): Promise<Record<string, ExperimentAssignment>> {
     const assignments: Record<string, ExperimentAssignment> = {};
-    
+
     for (const experimentName of experimentNames) {
       const assignment = await this.getAssignment(experimentName, userContext);
       if (assignment) {
@@ -248,7 +268,7 @@ class ABTestingService {
         variant,
         eventType,
         eventValue: eventValue?.toString(),
-        eventProperties
+        eventProperties,
       });
 
       return true;
@@ -273,10 +293,12 @@ class ABTestingService {
 
       // Get results for each variant
       const results: ExperimentResult[] = [];
-      
+
       for (const variant of experiment.variants) {
         const userCount = await db
-          .select({ count: sql<number>`count(DISTINCT COALESCE(${experimentAssignments.userId}, ${experimentAssignments.sessionId}))` })
+          .select({
+            count: sql<number>`count(DISTINCT COALESCE(${experimentAssignments.userId}, ${experimentAssignments.sessionId}))`,
+          })
           .from(experimentAssignments)
           .where(
             and(
@@ -294,7 +316,7 @@ class ABTestingService {
           const conversionData = await db
             .select({
               count: sql<number>`count(*)`,
-              totalValue: sql<number>`sum(COALESCE(${experimentEvents.eventValue}, 0))`
+              totalValue: sql<number>`sum(COALESCE(${experimentEvents.eventValue}, 0))`,
             })
             .from(experimentEvents)
             .where(
@@ -319,7 +341,7 @@ class ABTestingService {
           conversions,
           conversionRate,
           averageValue,
-          totalValue
+          totalValue,
         });
       }
 
@@ -331,9 +353,8 @@ class ABTestingService {
         experiment,
         results,
         statisticalSignificance,
-        winner
+        winner,
       };
-
     } catch (error) {
       console.error('Error getting experiment results:', error);
       return null;
@@ -354,16 +375,19 @@ class ABTestingService {
     createdBy: string;
   }): Promise<number | null> {
     try {
-      const [created] = await db.insert(experiments).values({
-        name: experiment.name,
-        description: experiment.description,
-        featureFlag: experiment.featureFlag,
-        variants: experiment.variants,
-        metrics: experiment.metrics,
-        targetingRules: experiment.targetingRules || [],
-        trafficAllocation: experiment.trafficAllocation?.toString() || '100.00',
-        createdBy: experiment.createdBy
-      }).returning({ id: experiments.id });
+      const [created] = await db
+        .insert(experiments)
+        .values({
+          name: experiment.name,
+          description: experiment.description,
+          featureFlag: experiment.featureFlag,
+          variants: experiment.variants,
+          metrics: experiment.metrics,
+          targetingRules: experiment.targetingRules || [],
+          trafficAllocation: experiment.trafficAllocation?.toString() || '100.00',
+          createdBy: experiment.createdBy,
+        })
+        .returning({ id: experiments.id });
 
       // Clear experiment cache (if Redis is available)
       if (this.redis) {
@@ -384,10 +408,10 @@ class ABTestingService {
     try {
       await db
         .update(experiments)
-        .set({ 
+        .set({
           status: 'running',
           startDate: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(experiments.name, experimentName));
 
@@ -395,7 +419,7 @@ class ABTestingService {
       if (this.redis) {
         await this.redis.del(`${this.experimentCacheKey}:${experimentName}`);
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error starting experiment:', error);
@@ -410,11 +434,11 @@ class ABTestingService {
     try {
       await db
         .update(experiments)
-        .set({ 
+        .set({
           status: 'completed',
           endDate: new Date(),
           winnerVariant,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(experiments.name, experimentName));
 
@@ -422,7 +446,7 @@ class ABTestingService {
       if (this.redis) {
         await this.redis.del(`${this.experimentCacheKey}:${experimentName}`);
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error stopping experiment:', error);
@@ -436,7 +460,7 @@ class ABTestingService {
   private async getExperiment(name: string): Promise<any> {
     const cacheKey = `${this.experimentCacheKey}:${name}`;
     const cached = this.redis ? await this.redis.get(cacheKey) : null;
-    
+
     if (cached) {
       return JSON.parse(cached);
     }
@@ -481,8 +505,8 @@ class ABTestingService {
     let propertyValue: any;
 
     if (rule.type === 'user_property') {
-      propertyValue = userContext.properties?.[rule.property!] || 
-                    (userContext as any)[rule.property!];
+      propertyValue =
+        userContext.properties?.[rule.property!] || (userContext as any)[rule.property!];
     } else if (rule.type === 'session_property') {
       propertyValue = userContext.properties?.[rule.property!];
     } else if (rule.type === 'random') {
@@ -517,7 +541,7 @@ class ABTestingService {
     if (allocation >= 100) return true;
 
     const hash = this.hashUserContext(userContext);
-    return (hash * 100) < allocation;
+    return hash * 100 < allocation;
   }
 
   /**
@@ -526,11 +550,11 @@ class ABTestingService {
   private assignVariant(experiment: any, userContext: UserContext): ExperimentVariant {
     const variants = experiment.variants;
     const hash = this.hashUserContext(userContext);
-    
+
     let cumulativeAllocation = 0;
     for (const variant of variants) {
       cumulativeAllocation += variant.trafficAllocation;
-      if ((hash * 100) < cumulativeAllocation) {
+      if (hash * 100 < cumulativeAllocation) {
         return variant;
       }
     }
@@ -555,7 +579,7 @@ class ABTestingService {
     let hash = 0;
     for (let i = 0; i < identifier.length; i++) {
       const char = identifier.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash) / 2147483647; // Normalize to 0-1
@@ -568,21 +592,21 @@ class ABTestingService {
     if (results.length < 2) return false;
 
     // Simplified check: need at least 100 users per variant and > 5% difference
-    const hasEnoughUsers = results.every(r => r.users >= 100);
+    const hasEnoughUsers = results.every((r) => r.users >= 100);
     if (!hasEnoughUsers) return false;
 
-    const rates = results.map(r => r.conversionRate);
+    const rates = results.map((r) => r.conversionRate);
     const maxRate = Math.max(...rates);
     const minRate = Math.min(...rates);
 
-    return (maxRate - minRate) > 5; // 5% difference threshold
+    return maxRate - minRate > 5; // 5% difference threshold
   }
 
   /**
    * Determine winner variant
    */
   private determineWinner(results: ExperimentResult[]): string {
-    return results.reduce((winner, current) => 
+    return results.reduce((winner, current) =>
       current.conversionRate > winner.conversionRate ? current : winner
     ).variant;
   }
@@ -597,7 +621,7 @@ class ABTestingService {
         .from(experiments)
         .where(eq(experiments.status, 'running'));
 
-      return activeExperiments.map(e => e.name);
+      return activeExperiments.map((e) => e.name);
     } catch (error) {
       console.error('Error getting active experiments:', error);
       return [];
@@ -612,13 +636,13 @@ class ABTestingService {
       if (this.redis) {
         await this.redis.ping();
       }
-      
+
       const stats = await db
         .select({
           totalExperiments: sql<number>`count(*)`,
           runningExperiments: sql<number>`count(case when status = 'running' then 1 end)`,
           totalAssignments: sql<number>`count(*) from ${experimentAssignments}`,
-          totalEvents: sql<number>`count(*) from ${experimentEvents}`
+          totalEvents: sql<number>`count(*) from ${experimentEvents}`,
         })
         .from(experiments);
 
@@ -626,15 +650,15 @@ class ABTestingService {
         status: 'healthy',
         details: {
           redis: this.redis ? 'connected' : 'unavailable',
-          stats: stats[0]
-        }
+          stats: stats[0],
+        },
       };
     } catch (error) {
       return {
         status: 'unhealthy',
-        details: { 
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
       };
     }
   }

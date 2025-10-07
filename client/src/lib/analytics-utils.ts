@@ -1,6 +1,6 @@
 /**
  * Enhanced analytics utilities for LLM.txt Mastery
- * 
+ *
  * Provides standardized event tracking, typed event definitions,
  * and analytics hook wrapper with debug support.
  */
@@ -168,7 +168,7 @@ class AnalyticsManager {
     this.debugMode = import.meta.env.DEV || import.meta.env.VITE_ANALYTICS_DEBUG === 'true';
     this.sessionId = this.generateSessionId();
     this.eventQueue = [];
-    
+
     // Initialize analytics in production
     if (this.isEnabled) {
       this.initializeAnalytics();
@@ -190,7 +190,7 @@ class AnalyticsManager {
     this.eventQueue.push({
       event,
       properties,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Keep queue size manageable
@@ -210,7 +210,7 @@ class AnalyticsManager {
       page_path: window.location.pathname,
       referrer: document.referrer,
       user_agent: navigator.userAgent,
-      event_category: properties.event_category || this.getCategoryForEvent(eventName)
+      event_category: properties.event_category || this.getCategoryForEvent(eventName),
     };
 
     return enhanced;
@@ -233,7 +233,7 @@ class AnalyticsManager {
       purchase: 'conversion',
       daily_limit_reached: 'limit',
       error_occurred: 'error',
-      performance_metric: 'performance'
+      performance_metric: 'performance',
     };
 
     return categoryMap[eventName] || 'general';
@@ -263,7 +263,7 @@ class AnalyticsManager {
     }
 
     const enhancedProperties = this.enhanceProperties(eventName, properties);
-    
+
     // Add to queue for debugging/offline support
     this.addToQueue(eventName, enhancedProperties);
 
@@ -284,7 +284,7 @@ class AnalyticsManager {
     this.track('page_view', {
       page_title: document.title,
       page_location: window.location.href,
-      ...additionalProperties
+      ...additionalProperties,
     });
   }
 
@@ -303,7 +303,7 @@ class AnalyticsManager {
       error_type: errorType,
       error_message: errorMessage,
       error_context: context,
-      ...additionalProperties
+      ...additionalProperties,
     });
   }
 
@@ -320,7 +320,7 @@ class AnalyticsManager {
       metric_name: metricName,
       metric_value: value,
       metric_unit: unit,
-      ...additionalProperties
+      ...additionalProperties,
     });
   }
 
@@ -369,21 +369,21 @@ export const analyticsHelpers = {
     analytics.track('tier_selected', {
       tier_selected: tier,
       previous_tier: previousTier,
-      website_url: websiteUrl
+      website_url: websiteUrl,
     });
   },
 
   trackLoginAttempt: (tier?: UserTier, websiteUrl?: string) => {
     analytics.track('login_click', {
       tier_selected: tier,
-      website_url: websiteUrl
+      website_url: websiteUrl,
     });
   },
 
   trackSignupAttempt: (tier?: UserTier, websiteUrl?: string) => {
     analytics.track('signup_click', {
       tier_selected: tier,
-      website_url: websiteUrl
+      website_url: websiteUrl,
     });
   },
 
@@ -391,7 +391,7 @@ export const analyticsHelpers = {
   trackAnalysisStart: (websiteUrl: string, userTier: UserTier) => {
     analytics.track('analysis_start', {
       website_url: websiteUrl,
-      user_tier: userTier
+      user_tier: userTier,
     });
   },
 
@@ -408,16 +408,21 @@ export const analyticsHelpers = {
       user_tier: userTier,
       processing_time: processingTime,
       cache_hit: cacheHit,
-      value: pagesDiscovered
+      value: pagesDiscovered,
     });
   },
 
-  trackAnalysisFailed: (websiteUrl: string, errorType: string, userTier: UserTier, errorMessage?: string) => {
+  trackAnalysisFailed: (
+    websiteUrl: string,
+    errorType: string,
+    userTier: UserTier,
+    errorMessage?: string
+  ) => {
     analytics.track('analysis_failed', {
       website_url: websiteUrl,
       error_type: errorType,
       error_message: errorMessage,
-      user_tier: userTier
+      user_tier: userTier,
     });
   },
 
@@ -427,14 +432,14 @@ export const analyticsHelpers = {
       starter: 0,
       coffee: 4.95,
       growth: 9.95,
-      scale: 19.95
+      scale: 19.95,
     };
 
     analytics.track('email_capture', {
       email_tier: emailTier,
       website_url: websiteUrl,
       value: tierValues[emailTier],
-      currency: 'USD'
+      currency: 'USD',
     });
   },
 
@@ -443,7 +448,7 @@ export const analyticsHelpers = {
       tier,
       price,
       value: price,
-      currency: 'USD'
+      currency: 'USD',
     });
   },
 
@@ -453,7 +458,7 @@ export const analyticsHelpers = {
       tier,
       price,
       value: price,
-      currency: 'USD'
+      currency: 'USD',
     });
   },
 
@@ -463,7 +468,7 @@ export const analyticsHelpers = {
       analysis_id: analysisId,
       user_tier: userTier,
       selected_pages_count: selectedPagesCount,
-      value: 1
+      value: 1,
     });
   },
 
@@ -472,17 +477,21 @@ export const analyticsHelpers = {
       file_id: fileId,
       user_tier: userTier,
       file_size: fileSize,
-      value: 1
+      value: 1,
     });
   },
 
   // Limit events
-  trackDailyLimitReached: (userTier: UserTier, analysesCount: number, limitType: 'daily_analyses' | 'ai_calls' | 'pages' = 'daily_analyses') => {
+  trackDailyLimitReached: (
+    userTier: UserTier,
+    analysesCount: number,
+    limitType: 'daily_analyses' | 'ai_calls' | 'pages' = 'daily_analyses'
+  ) => {
     analytics.track('daily_limit_reached', {
       user_tier: userTier,
       analyses_count: analysesCount,
       limit_type: limitType,
-      value: analysesCount
+      value: analysesCount,
     });
   },
 
@@ -492,15 +501,15 @@ export const analyticsHelpers = {
       starter: 0,
       coffee: 4.95,
       growth: 9.95,
-      scale: 19.95
+      scale: 19.95,
     };
 
     analytics.track('upgrade_click', {
       from_tier: fromTier,
       to_tier: toTier,
-      value: tierValues[toTier] - tierValues[fromTier]
+      value: tierValues[toTier] - tierValues[fromTier],
     });
-  }
+  },
 };
 
 // Export the main analytics object and helpers

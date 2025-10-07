@@ -1,15 +1,15 @@
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
-import { 
-  authUsers, 
-  userSessions, 
+import {
+  authUsers,
+  userSessions,
   sitemapAnalysis,
   llmTextFiles,
-  AuthUser, 
-  UserSession, 
-  InsertAuthUser, 
+  AuthUser,
+  UserSession,
+  InsertAuthUser,
   InsertUserSession,
-  UserTier
+  UserTier,
 } from '@shared/schema';
 import { hashToken } from './auth';
 
@@ -30,7 +30,10 @@ export class AuthStorage {
     return user || null;
   }
 
-  async updateUser(id: number, updates: Partial<Omit<AuthUser, 'id' | 'createdAt'>>): Promise<AuthUser | null> {
+  async updateUser(
+    id: number,
+    updates: Partial<Omit<AuthUser, 'id' | 'createdAt'>>
+  ): Promise<AuthUser | null> {
     const [updatedUser] = await db
       .update(authUsers)
       .set({ ...updates, updatedAt: new Date() })
@@ -40,10 +43,7 @@ export class AuthStorage {
   }
 
   async getUsersByTier(tier: UserTier): Promise<AuthUser[]> {
-    const users = await db
-      .select()
-      .from(authUsers)
-      .where(eq(authUsers.tier, tier));
+    const users = await db.select().from(authUsers).where(eq(authUsers.tier, tier));
     return users;
   }
 
@@ -53,7 +53,7 @@ export class AuthStorage {
       .set({ emailVerified: true, updatedAt: new Date() })
       .where(eq(authUsers.id, id))
       .returning({ id: authUsers.id });
-    
+
     return result.length > 0;
   }
 
@@ -63,7 +63,7 @@ export class AuthStorage {
       .set({ passwordHash, updatedAt: new Date() })
       .where(eq(authUsers.id, userId))
       .returning({ id: authUsers.id });
-    
+
     return result.length > 0;
   }
 
@@ -78,7 +78,7 @@ export class AuthStorage {
       .set(updates)
       .where(eq(authUsers.id, id))
       .returning({ id: authUsers.id });
-    
+
     return result.length > 0;
   }
 
@@ -105,10 +105,7 @@ export class AuthStorage {
   }
 
   async updateSessionLastUsed(id: number): Promise<void> {
-    await db
-      .update(userSessions)
-      .set({ lastUsedAt: new Date() })
-      .where(eq(userSessions.id, id));
+    await db.update(userSessions).set({ lastUsedAt: new Date() }).where(eq(userSessions.id, id));
   }
 
   async deleteSession(id: number): Promise<boolean> {
@@ -116,7 +113,7 @@ export class AuthStorage {
       .delete(userSessions)
       .where(eq(userSessions.id, id))
       .returning({ id: userSessions.id });
-    
+
     return result.length > 0;
   }
 
@@ -125,7 +122,7 @@ export class AuthStorage {
       .delete(userSessions)
       .where(eq(userSessions.tokenHash, tokenHash))
       .returning({ id: userSessions.id });
-    
+
     return result.length > 0;
   }
 
@@ -134,7 +131,7 @@ export class AuthStorage {
       .delete(userSessions)
       .where(eq(userSessions.userId, userId))
       .returning({ id: userSessions.id });
-    
+
     return result.length;
   }
 
@@ -144,12 +141,14 @@ export class AuthStorage {
       .delete(userSessions)
       .where(eq(userSessions.expiresAt, now))
       .returning({ id: userSessions.id });
-    
+
     return result.length;
   }
 
   // Combined operations
-  async getUserWithSession(tokenHash: string): Promise<{ user: AuthUser; session: UserSession } | null> {
+  async getUserWithSession(
+    tokenHash: string
+  ): Promise<{ user: AuthUser; session: UserSession } | null> {
     const session = await this.getSessionByTokenHash(tokenHash);
     if (!session || session.expiresAt < new Date()) {
       return null;
@@ -166,7 +165,13 @@ export class AuthStorage {
     return { user, session };
   }
 
-  async refreshUserSession(refreshTokenHash: string, newTokenHash: string, newRefreshTokenHash: string, expiresAt: Date, refreshExpiresAt: Date): Promise<UserSession | null> {
+  async refreshUserSession(
+    refreshTokenHash: string,
+    newTokenHash: string,
+    newRefreshTokenHash: string,
+    expiresAt: Date,
+    refreshExpiresAt: Date
+  ): Promise<UserSession | null> {
     const session = await this.getSessionByRefreshTokenHash(refreshTokenHash);
     if (!session || session.refreshExpiresAt < new Date()) {
       return null;
@@ -193,7 +198,7 @@ export class AuthStorage {
       .select({ id: authUsers.id })
       .from(authUsers)
       .where(eq(authUsers.email, email));
-    
+
     return !!user;
   }
 
@@ -203,7 +208,7 @@ export class AuthStorage {
     lastLogin: Date | null;
   }> {
     const now = new Date();
-    
+
     const [stats] = await db
       .select({
         totalSessions: userSessions.id,
@@ -215,12 +220,7 @@ export class AuthStorage {
     const activeSessions = await db
       .select({ id: userSessions.id })
       .from(userSessions)
-      .where(
-        and(
-          eq(userSessions.userId, userId),
-          eq(userSessions.expiresAt, now)
-        )
-      );
+      .where(and(eq(userSessions.userId, userId), eq(userSessions.expiresAt, now)));
 
     return {
       totalSessions: stats ? 1 : 0, // This would need to be a proper count query
@@ -231,10 +231,8 @@ export class AuthStorage {
 
   // Admin operations
   async getUserCount(): Promise<number> {
-    const [result] = await db
-      .select({ count: authUsers.id })
-      .from(authUsers);
-    
+    const [result] = await db.select({ count: authUsers.id }).from(authUsers);
+
     return result?.count || 0;
   }
 
@@ -244,7 +242,7 @@ export class AuthStorage {
       .select({ id: userSessions.id })
       .from(userSessions)
       .where(eq(userSessions.expiresAt, now));
-    
+
     return sessions.length;
   }
 
@@ -258,13 +256,14 @@ export class AuthStorage {
         .from(sitemapAnalysis)
         .where(eq(sitemapAnalysis.status, 'completed'))
         .orderBy(desc(sitemapAnalysis.createdAt));
-      
+
       // Filter analyses that belong to this user based on metadata
-      return analyses.filter(analysis => 
-        analysis.analysisMetadata && 
-        typeof analysis.analysisMetadata === 'object' &&
-        'userEmail' in analysis.analysisMetadata &&
-        analysis.analysisMetadata.userEmail === userEmail
+      return analyses.filter(
+        (analysis) =>
+          analysis.analysisMetadata &&
+          typeof analysis.analysisMetadata === 'object' &&
+          'userEmail' in analysis.analysisMetadata &&
+          analysis.analysisMetadata.userEmail === userEmail
       );
     } catch (error) {
       console.error('Error fetching user analyses:', error);
@@ -278,17 +277,19 @@ export class AuthStorage {
         .select()
         .from(sitemapAnalysis)
         .where(eq(sitemapAnalysis.id, analysisId));
-      
+
       if (!analysis) return null;
-      
+
       // Verify this analysis belongs to the user
-      if (analysis.analysisMetadata && 
-          typeof analysis.analysisMetadata === 'object' &&
-          'userEmail' in analysis.analysisMetadata &&
-          analysis.analysisMetadata.userEmail === userEmail) {
+      if (
+        analysis.analysisMetadata &&
+        typeof analysis.analysisMetadata === 'object' &&
+        'userEmail' in analysis.analysisMetadata &&
+        analysis.analysisMetadata.userEmail === userEmail
+      ) {
         return analysis;
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error fetching user analysis:', error);
@@ -300,16 +301,16 @@ export class AuthStorage {
     try {
       // Get all analyses for this user first
       const userAnalyses = await this.getUserAnalyses(userEmail);
-      const analysisIds = userAnalyses.map(a => a.id);
-      
+      const analysisIds = userAnalyses.map((a) => a.id);
+
       if (analysisIds.length === 0) return [];
-      
+
       // Get all LLM files for these analyses
       const files = await db
         .select()
         .from(llmTextFiles)
         .where(eq(llmTextFiles.analysisId, analysisIds[0])); // This would need proper IN query
-      
+
       return files;
     } catch (error) {
       console.error('Error fetching user analysis files:', error);

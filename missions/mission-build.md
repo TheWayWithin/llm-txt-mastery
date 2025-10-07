@@ -1,4 +1,5 @@
 # Mission: BUILD 🏗️
+
 ## Build New Service/Feature from Requirements
 
 **Mission Code**: BUILD  
@@ -11,11 +12,13 @@
 ### Ready to Build Features? (3 minutes)
 
 **Step 1**: Copy the requirements template
+
 ```bash
 cp templates/mission-inputs/requirements.md ./build-requirements.md
 ```
 
 **Step 2**: Complete these critical sections
+
 - **Core Features & User Stories**: Specific acceptance criteria
 - **Technical Requirements**: Performance, security, integration needs
 - **Business Rules**: Logic constraints and validation rules
@@ -23,6 +26,7 @@ cp templates/mission-inputs/requirements.md ./build-requirements.md
 - **Quality Standards**: Testing and documentation requirements
 
 **Step 3**: Execute mission
+
 ```bash
 /coord build build-requirements.md
 ```
@@ -30,13 +34,16 @@ cp templates/mission-inputs/requirements.md ./build-requirements.md
 **What You'll Get**: Production-ready code with full testing, documentation, and deployment configuration.
 
 **Example Requirements Format**:
+
 ```markdown
 ### User Story: User Authentication
+
 - **As a** new user
 - **I want** to create an account with email/password
 - **So that** I can access personalized features
 
 **Acceptance Criteria:**
+
 - [ ] User can register with valid email and password (8+ chars)
 - [ ] System sends email verification before activation
 - [ ] User can login with verified credentials
@@ -61,11 +68,14 @@ Transform product requirements into production-ready implementation. This missio
 **Objective**: Transform requirements into actionable user stories
 
 **COORDINATOR PROTOCOL**:
+
 1. **UPDATE project-plan.md** with Phase 1 tasks:
+
    ```markdown
    ## Mission: BUILD [Feature Name]
-   
+
    ### Phase 1: Strategic Analysis (In Progress)
+
    - [ ] Create detailed user stories in INVEST format (assigned to @strategist)
    - [ ] Define clear acceptance criteria (assigned to @strategist)
    - [ ] Identify edge cases and error states (assigned to @strategist)
@@ -84,11 +94,12 @@ Transform product requirements into production-ready implementation. This missio
 5. Define success metrics and KPIs
 ```
 
-3. **WAIT FOR @strategist RESPONSE** 
+3. **WAIT FOR @strategist RESPONSE**
 4. **UPDATE project-plan.md** mark completed tasks [x] and add Phase 2 tasks
 5. **LOG TO progress.md** any issues encountered during this phase
 
 **Deliverables**:
+
 - User stories with acceptance criteria
 - Feature prioritization matrix
 - Success metrics defined
@@ -113,12 +124,13 @@ Transform product requirements into production-ready implementation. This missio
 **WAIT FOR @architect RESPONSE** before proceeding to Phase 3
 
 **Deliverables**:
+
 - Architecture design document
 - Technology decisions
 - API specifications
 - Data model designs
 
-### Phase 3: Design & UX (1-2 hours) *[If UI Required]*
+### Phase 3: Design & UX (1-2 hours) _[If UI Required]_
 
 **Lead**: @designer  
 **Support**: @strategist  
@@ -134,6 +146,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - User flow diagrams
 - UI mockups
 - Design system components
@@ -155,6 +168,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Working implementation
 - Test coverage >80%
 - Error handling
@@ -176,6 +190,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Test execution report
 - Bug reports (if any)
 - Performance metrics
@@ -197,6 +212,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - API documentation
 - User documentation
 - Integration guides
@@ -218,6 +234,7 @@ Transform product requirements into production-ready implementation. This missio
 ```
 
 **Deliverables**:
+
 - Deployment scripts
 - Environment configs
 - Monitoring setup
@@ -236,17 +253,20 @@ Transform product requirements into production-ready implementation. This missio
 ## Common Variations
 
 ### Quick Build (2-4 hours)
+
 - Skip formal design phase
 - Minimal documentation
 - Focus on core functionality
 
 ### Enterprise Build (8-16 hours)
+
 - Extended architecture phase
 - Formal design review
 - Comprehensive documentation
 - Load testing included
 
 ### Prototype Build (1-2 hours)
+
 - Proof of concept only
 - Minimal testing
 - Basic documentation
@@ -261,6 +281,7 @@ Transform product requirements into production-ready implementation. This missio
 ## Mission Debrief Protocol
 
 Upon completion:
+
 1. Update progress.md with learnings
 2. Document any reusable patterns
 3. Note time variations from estimates
@@ -268,4 +289,4 @@ Upon completion:
 
 ---
 
-*Mission SUCCESS depends on clear requirements and systematic execution. Begin with `/coord build [requirements.md]`*
+_Mission SUCCESS depends on clear requirements and systematic execution. Begin with `/coord build [requirements.md]`_

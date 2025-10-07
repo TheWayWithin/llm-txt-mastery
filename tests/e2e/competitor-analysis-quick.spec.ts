@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * QUICK COMPETITOR ANALYSIS TEST
- * 
+ *
  * A simplified test to validate the competitor analysis infrastructure
  * and get a quick assessment of one competitor.
  */
@@ -14,13 +14,14 @@ test.describe('Quick Competitor Analysis', () => {
     // Configure browser
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.setExtraHTTPHeaders({
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     });
 
     // Navigate to SiteSpeakAI
-    await page.goto('https://sitespeak.ai/tools/llms-txt-generator', { 
-      waitUntil: 'networkidle', 
-      timeout: 30000 
+    await page.goto('https://sitespeak.ai/tools/llms-txt-generator', {
+      waitUntil: 'networkidle',
+      timeout: 30000,
     });
 
     // Take initial screenshot
@@ -31,12 +32,12 @@ test.describe('Quick Competitor Analysis', () => {
       'input[type="url"]',
       'input[placeholder*="website"]',
       'input[placeholder*="URL"]',
-      'input[name="url"]'
+      'input[name="url"]',
     ];
 
     let inputFound = false;
     let workingInputSelector = '';
-    
+
     for (const selector of inputSelectors) {
       try {
         const input = page.locator(selector);
@@ -65,7 +66,7 @@ test.describe('Quick Competitor Analysis', () => {
       'button:has-text("Create")',
       'button:has-text("Build")',
       'button[type="submit"]',
-      '.btn-primary'
+      '.btn-primary',
     ];
 
     let submitFound = false;
@@ -74,7 +75,7 @@ test.describe('Quick Competitor Analysis', () => {
     for (const selector of submitSelectors) {
       try {
         const button = page.locator(selector);
-        if (await button.isVisible({ timeout: 2000 }) && await button.isEnabled()) {
+        if ((await button.isVisible({ timeout: 2000 })) && (await button.isEnabled())) {
           console.log(`✅ Found submit button: ${selector}`);
           submitFound = true;
           workingSubmitSelector = selector;
@@ -91,10 +92,10 @@ test.describe('Quick Competitor Analysis', () => {
     if (submitFound) {
       await page.locator(workingSubmitSelector).click();
       console.log('✅ Clicked submit button');
-      
+
       // Wait 10 seconds to see if anything happens
       await page.waitForTimeout(10000);
-      
+
       // Take screenshot after submission
       await page.screenshot({ path: 'test-results/sitespeak-after-submit.png', fullPage: true });
     }
@@ -106,15 +107,10 @@ test.describe('Quick Competitor Analysis', () => {
       'code',
       '.output',
       '.result',
-      '.generated-content'
+      '.generated-content',
     ];
 
-    const loadingSelectors = [
-      '.loading',
-      '.spinner',
-      '[data-loading="true"]',
-      '.progress'
-    ];
+    const loadingSelectors = ['.loading', '.spinner', '[data-loading="true"]', '.progress'];
 
     console.log('🔍 Checking for output or loading indicators...');
 
@@ -153,7 +149,7 @@ test.describe('Quick Competitor Analysis', () => {
 
     if (!outputFound && !loadingFound) {
       console.log('❌ No output or loading indicators found');
-      
+
       // Check page content for clues
       const pageText = await page.textContent('body');
       if (pageText?.includes('error') || pageText?.includes('Error')) {
@@ -164,6 +160,8 @@ test.describe('Quick Competitor Analysis', () => {
       }
     }
 
-    console.log(`📊 Quick test results: Input=${inputFound}, Submit=${submitFound}, Output=${outputFound}, Loading=${loadingFound}`);
+    console.log(
+      `📊 Quick test results: Input=${inputFound}, Submit=${submitFound}, Output=${outputFound}, Loading=${loadingFound}`
+    );
   });
 });

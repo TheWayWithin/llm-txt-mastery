@@ -1,4 +1,5 @@
 # Mission: REFACTOR ♻️
+
 ## Code Quality Improvement
 
 **Mission Code**: REFACTOR  
@@ -34,6 +35,7 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
+
 - Code quality report
 - Refactoring priorities
 - Risk assessment
@@ -55,6 +57,7 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
+
 - Refactoring design
 - Step-by-step plan
 - Interface definitions
@@ -76,6 +79,7 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
+
 - Enhanced test suite
 - Behavior documentation
 - Performance baselines
@@ -97,6 +101,7 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
+
 - Refactored code
 - Passing test suite
 - Updated documentation
@@ -118,6 +123,7 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
+
 - Test results
 - Performance comparison
 - Compatibility report
@@ -139,6 +145,7 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
+
 - Review feedback
 - Approval status
 - Follow-up items
@@ -155,21 +162,25 @@ Improve code quality, maintainability, and performance without changing external
 ## Refactoring Patterns
 
 ### Extract Method/Class
+
 - Identify cohesive code blocks
 - Create meaningful abstractions
 - Improve testability
 
 ### Replace Conditionals
+
 - Strategy pattern
 - Polymorphism
 - Guard clauses
 
 ### Simplify Method Calls
+
 - Reduce parameters
 - Introduce parameter objects
 - Builder pattern
 
 ### Deal with Generalization
+
 - Extract interface
 - Pull up/push down methods
 - Replace inheritance with composition
@@ -177,21 +188,25 @@ Improve code quality, maintainability, and performance without changing external
 ## Common Refactoring Targets
 
 ### Legacy Code Refactor
+
 - Add tests first
 - Small incremental changes
 - Strangler fig pattern
 
 ### Performance Refactor
+
 - Profile first
 - Optimize algorithms
 - Cache strategically
 
 ### API Refactor
+
 - Version compatibility
 - Deprecation warnings
 - Migration guides
 
 ### Database Refactor
+
 - Backwards compatibility
 - Data migration scripts
 - Staged rollout
@@ -212,4 +227,4 @@ Improve code quality, maintainability, and performance without changing external
 
 ---
 
-*Clean code is a joy to maintain. Begin with `/coord refactor [target-area.md]`*
+_Clean code is a joy to maintain. Begin with `/coord refactor [target-area.md]`_

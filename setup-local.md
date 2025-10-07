@@ -5,6 +5,7 @@ This project was originally built for Replit, which automatically provides Postg
 ## Option 1: Use SQLite for Local Testing (Easiest)
 
 1. Install SQLite adapter for Drizzle:
+
 ```bash
 npm install better-sqlite3
 npm install --save-dev @types/better-sqlite3
@@ -15,6 +16,7 @@ npm install --save-dev @types/better-sqlite3
 ## Option 2: Use Docker for PostgreSQL (Recommended)
 
 1. Create a `docker-compose.yml`:
+
 ```yaml
 version: '3.8'
 services:
@@ -25,7 +27,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: llm_txt_mastery
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -34,11 +36,13 @@ volumes:
 ```
 
 2. Start PostgreSQL:
+
 ```bash
 docker-compose up -d
 ```
 
 3. Update `.env`:
+
 ```
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/llm_txt_mastery
 ```
@@ -48,6 +52,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/llm_txt_mastery
 1. Sign up at https://neon.tech
 2. Create a new project
 3. Copy the connection string to `.env`:
+
 ```
 DATABASE_URL=postgresql://[username]:[password]@[host]/[database]?sslmode=require
 ```
@@ -57,11 +62,13 @@ DATABASE_URL=postgresql://[username]:[password]@[host]/[database]?sslmode=requir
 After setting up the database:
 
 1. Run migrations:
+
 ```bash
 npm run db:migrate
 ```
 
 2. Start the development server:
+
 ```bash
 npm run dev
 ```

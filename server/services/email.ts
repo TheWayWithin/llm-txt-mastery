@@ -7,18 +7,17 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 
 // Email configuration
 const EMAIL_FROM = process.env.EMAIL_FROM || 'LLM.txt Mastery <noreply@llmtxtmastery.com>';
-const FRONTEND_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://llmtxtmastery.com'
-  : 'http://localhost:5000';
+const FRONTEND_URL =
+  process.env.NODE_ENV === 'production' ? 'https://llmtxtmastery.com' : 'http://localhost:5000';
 
 // Generate verification token
 export function generateVerificationToken(userId: number, email: string): string {
   const secret = process.env.JWT_SECRET || 'your-secret-key';
   return jwt.sign(
-    { 
-      userId, 
-      email, 
-      type: 'email-verification' 
+    {
+      userId,
+      email,
+      type: 'email-verification',
     },
     secret,
     { expiresIn: '24h' }
@@ -30,14 +29,14 @@ export function verifyEmailToken(token: string): { userId: number; email: string
   try {
     const secret = process.env.JWT_SECRET || 'your-secret-key';
     const decoded = jwt.verify(token, secret) as any;
-    
+
     if (decoded.type !== 'email-verification') {
       return null;
     }
-    
+
     return {
       userId: decoded.userId,
-      email: decoded.email
+      email: decoded.email,
     };
   } catch (error) {
     console.error('Token verification failed:', error);
@@ -50,7 +49,7 @@ export async function sendVerificationEmail(user: { id: number; email: string })
   console.log('📧 sendVerificationEmail called for:', user.email);
   console.log('📧 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
   console.log('📧 NODE_ENV:', process.env.NODE_ENV);
-  
+
   // In development without Resend key, log the link
   if (!resend) {
     const token = generateVerificationToken(user.id, user.email);
@@ -58,23 +57,23 @@ export async function sendVerificationEmail(user: { id: number; email: string })
     console.log('📧 Verification Email (No Resend API Key):');
     console.log(`To: ${user.email}`);
     console.log(`Verification URL: ${verificationUrl}`);
-    
+
     // In production, this is an error
     if (process.env.NODE_ENV === 'production') {
       console.error('❌ RESEND_API_KEY not set in production! Email cannot be sent.');
-      return { 
-        success: false, 
-        error: 'RESEND_API_KEY not configured in production environment' 
+      return {
+        success: false,
+        error: 'RESEND_API_KEY not configured in production environment',
       };
     }
-    
+
     return { success: true, message: 'Email logged to console (dev mode)' };
   }
 
   try {
     const token = generateVerificationToken(user.id, user.email);
     const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
-    
+
     // Enhanced logging for debugging
     console.log('📧 Email service configuration:');
     console.log('  - FROM:', EMAIL_FROM);
@@ -82,24 +81,24 @@ export async function sendVerificationEmail(user: { id: number; email: string })
     console.log('  - FRONTEND_URL:', FRONTEND_URL);
     console.log('  - Token length:', token.length);
     console.log('  - Verification URL:', verificationUrl);
-    
+
     // Validate email parameters
     if (!EMAIL_FROM || !EMAIL_FROM.includes('@')) {
       console.error('❌ Invalid EMAIL_FROM format:', EMAIL_FROM);
-      return { 
-        success: false, 
-        error: `Invalid EMAIL_FROM format: ${EMAIL_FROM}` 
+      return {
+        success: false,
+        error: `Invalid EMAIL_FROM format: ${EMAIL_FROM}`,
       };
     }
-    
+
     if (!user.email || !user.email.includes('@')) {
       console.error('❌ Invalid recipient email format:', user.email);
-      return { 
-        success: false, 
-        error: `Invalid recipient email format: ${user.email}` 
+      return {
+        success: false,
+        error: `Invalid recipient email format: ${user.email}`,
       };
     }
-    
+
     console.log('📧 Attempting to send email via Resend API...');
     const emailPayload = {
       from: EMAIL_FROM,
@@ -181,11 +180,11 @@ If you didn't create an account, you can safely ignore this email.
 
 Best regards,
 The LLM.txt Mastery Team
-      `
+      `,
     };
 
     console.log('📧 Email payload prepared, calling Resend API...');
-    
+
     const { data, error } = await resend.emails.send(emailPayload);
 
     // Enhanced error logging
@@ -194,7 +193,7 @@ The LLM.txt Mastery Team
       console.error('  - Error Object:', JSON.stringify(error, null, 2));
       console.error('  - Error Type:', typeof error);
       console.error('  - Error Keys:', Object.keys(error || {}));
-      
+
       // Check for common Resend error patterns
       const errorString = JSON.stringify(error);
       if (errorString.includes('domain')) {
@@ -206,12 +205,12 @@ The LLM.txt Mastery Team
       if (errorString.includes('auth') || errorString.includes('key')) {
         console.error('🔍 Authentication/API key issue detected');
       }
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         error: error.message || JSON.stringify(error),
         errorType: 'resend_api_error',
-        errorDetails: error
+        errorDetails: error,
       };
     }
 
@@ -219,29 +218,31 @@ The LLM.txt Mastery Team
     console.log('✅ Email sent successfully via Resend API');
     console.log('  - Message ID:', data?.id);
     console.log('  - Data:', JSON.stringify(data, null, 2));
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       messageId: data?.id,
-      provider: 'resend' 
+      provider: 'resend',
     };
-    
   } catch (error) {
     console.error('❌ Email service catch error:', error);
     console.error('  - Error Type:', typeof error);
     console.error('  - Error Name:', error instanceof Error ? error.name : 'Unknown');
     console.error('  - Error Message:', error instanceof Error ? error.message : 'Unknown');
     console.error('  - Stack Trace:', error instanceof Error ? error.stack : 'No stack');
-    
-    return { 
-      success: false, 
+
+    return {
+      success: false,
       error: error instanceof Error ? error.message : 'Failed to send email',
       errorType: 'service_error',
-      errorDetails: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      } : error
+      errorDetails:
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+          : error,
     };
   }
 }
@@ -249,7 +250,7 @@ The LLM.txt Mastery Team
 // Email service health check
 export async function checkEmailServiceHealth() {
   console.log('🏥 Email service health check starting...');
-  
+
   const health = {
     service: 'email',
     status: 'unknown',
@@ -257,17 +258,17 @@ export async function checkEmailServiceHealth() {
       resendApiKey: false,
       emailFromConfig: false,
       frontendUrlConfig: false,
-      resendConnection: false
+      resendConnection: false,
     },
     configuration: {
       nodeEnv: process.env.NODE_ENV,
       emailFrom: EMAIL_FROM,
       frontendUrl: FRONTEND_URL,
-      hasResendKey: !!process.env.RESEND_API_KEY
+      hasResendKey: !!process.env.RESEND_API_KEY,
     },
-    errors: [] as string[]
+    errors: [] as string[],
   };
-  
+
   try {
     // Check 1: RESEND_API_KEY exists
     if (process.env.RESEND_API_KEY) {
@@ -277,7 +278,7 @@ export async function checkEmailServiceHealth() {
       health.errors.push('RESEND_API_KEY environment variable not set');
       console.log('❌ RESEND_API_KEY is missing');
     }
-    
+
     // Check 2: EMAIL_FROM format
     if (EMAIL_FROM && EMAIL_FROM.includes('@')) {
       health.checks.emailFromConfig = true;
@@ -286,16 +287,16 @@ export async function checkEmailServiceHealth() {
       health.errors.push(`EMAIL_FROM is invalid: ${EMAIL_FROM}`);
       console.log('❌ EMAIL_FROM is invalid:', EMAIL_FROM);
     }
-    
+
     // Check 3: FRONTEND_URL configuration
-    if (FRONTEND_URL && (FRONTEND_URL.startsWith('http'))) {
+    if (FRONTEND_URL && FRONTEND_URL.startsWith('http')) {
       health.checks.frontendUrlConfig = true;
       console.log('✅ FRONTEND_URL is configured:', FRONTEND_URL);
     } else {
       health.errors.push(`FRONTEND_URL is invalid: ${FRONTEND_URL}`);
       console.log('❌ FRONTEND_URL is invalid:', FRONTEND_URL);
     }
-    
+
     // Check 4: Test Resend API connection (if available)
     if (resend && health.checks.resendApiKey) {
       try {
@@ -303,26 +304,29 @@ export async function checkEmailServiceHealth() {
         health.checks.resendConnection = true;
         console.log('✅ Resend client initialized successfully');
       } catch (error) {
-        health.errors.push(`Resend client error: ${error instanceof Error ? error.message : 'Unknown'}`);
+        health.errors.push(
+          `Resend client error: ${error instanceof Error ? error.message : 'Unknown'}`
+        );
         console.log('❌ Resend client error:', error);
       }
     }
-    
+
     // Overall health status
-    const allChecksPass = Object.values(health.checks).every(check => check);
+    const allChecksPass = Object.values(health.checks).every((check) => check);
     health.status = allChecksPass ? 'healthy' : 'degraded';
-    
+
     console.log('🏥 Email service health check completed:', health.status);
-    console.log('  - Passed checks:', Object.entries(health.checks).filter(([,v]) => v).length);
-    console.log('  - Failed checks:', Object.entries(health.checks).filter(([,v]) => !v).length);
+    console.log('  - Passed checks:', Object.entries(health.checks).filter(([, v]) => v).length);
+    console.log('  - Failed checks:', Object.entries(health.checks).filter(([, v]) => !v).length);
     console.log('  - Errors:', health.errors.length);
-    
+
     return health;
-    
   } catch (error) {
     console.error('❌ Email service health check failed:', error);
     health.status = 'unhealthy';
-    health.errors.push(`Health check exception: ${error instanceof Error ? error.message : 'Unknown'}`);
+    health.errors.push(
+      `Health check exception: ${error instanceof Error ? error.message : 'Unknown'}`
+    );
     return health;
   }
 }
@@ -334,9 +338,9 @@ export async function sendPasswordResetEmail(user: { id: number; email: string }
     process.env.JWT_SECRET || 'your-secret-key',
     { expiresIn: '1h' }
   );
-  
+
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
-  
+
   // In development without Resend key, log the link
   if (!resend) {
     console.log('📧 Password Reset Email (Dev Mode):');
@@ -402,7 +406,7 @@ If you didn't request a password reset, you can safely ignore this email.
 
 Best regards,
 The LLM.txt Mastery Team
-      `
+      `,
     });
 
     if (error) {
@@ -413,9 +417,9 @@ The LLM.txt Mastery Team
     return { success: true, messageId: data?.id };
   } catch (error) {
     console.error('Email service error:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to send email' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to send email',
     };
   }
 }

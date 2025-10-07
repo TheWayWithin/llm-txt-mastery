@@ -7,11 +7,13 @@ This document defines the Git workflow, branching model, and collaboration pract
 ## Branch Naming Convention
 
 ### Pattern Structure
+
 ```
 <type>/<module>/<brief-description>
 ```
 
 ### Type Prefixes
+
 - **feature/**: New functionality implementation
 - **enhancement/**: Improvements to existing functionality
 - **fix/**: Bug fixes and corrections
@@ -20,6 +22,7 @@ This document defines the Git workflow, branching model, and collaboration pract
 - **refactor/**: Code restructuring without functional changes
 
 ### Module Prefixes
+
 - **database**: Database schema, migrations, pgvector setup
 - **semantic**: Clustering, tagging, embeddings services
 - **api**: REST endpoints, validation, integration
@@ -28,6 +31,7 @@ This document defines the Git workflow, branching model, and collaboration pract
 - **ops**: Deployment, monitoring, infrastructure
 
 ### Example Branch Names
+
 ```bash
 feature/semantic/clustering-algorithm
 enhancement/api/response-caching
@@ -42,6 +46,7 @@ refactor/frontend/component-structure
 ### Main Branches
 
 #### `main`
+
 - **Purpose**: Production-ready code
 - **Protection**: Protected branch, no direct pushes
 - **Merging**: Only from `develop` via pull request
@@ -49,6 +54,7 @@ refactor/frontend/component-structure
 - **Stability**: Must always be deployable
 
 #### `develop`
+
 - **Purpose**: Integration branch for ongoing development
 - **Protection**: Protected branch, no direct pushes
 - **Merging**: From feature branches via pull request
@@ -56,6 +62,7 @@ refactor/frontend/component-structure
 - **Deployment**: Automatically deploys to staging
 
 #### `staging`
+
 - **Purpose**: Release preparation and final testing
 - **Source**: Created from `develop` when release ready
 - **Testing**: Comprehensive QA testing environment
@@ -69,26 +76,26 @@ gitGraph
     branch develop
     checkout develop
     commit id: "Setup"
-    
+
     branch feature/semantic/clustering
     checkout feature/semantic/clustering
     commit id: "Implement K-means"
     commit id: "Add hierarchical"
-    
+
     checkout develop
     merge feature/semantic/clustering
-    
+
     branch feature/api/cluster-endpoints
     checkout feature/api/cluster-endpoints
     commit id: "Add REST endpoints"
-    
+
     checkout develop
     merge feature/api/cluster-endpoints
-    
+
     branch staging
     checkout staging
     commit id: "Pre-release testing"
-    
+
     checkout main
     merge staging
 ```
@@ -96,7 +103,9 @@ gitGraph
 ## Phase-Based Development Strategy
 
 ### Phase 1 (Weeks 1-2): Foundation
+
 **Parallel Development Tracks**:
+
 - `feature/database/pgvector-setup`
 - `feature/database/schema-extensions`
 - `feature/semantic/openai-integration`
@@ -105,7 +114,9 @@ gitGraph
 **Integration Strategy**: Daily merges to `develop`, continuous staging deployment
 
 ### Phase 2 (Weeks 3-4): Core Features
+
 **Parallel Development Tracks**:
+
 - `feature/semantic/clustering-engine`
 - `feature/semantic/tagging-service`
 - `feature/api/enhancement-endpoints`
@@ -114,7 +125,9 @@ gitGraph
 **Integration Strategy**: Feature branches merge to `develop` every 2-3 days
 
 ### Phase 3 (Weeks 5-6): UI Integration
+
 **Parallel Development Tracks**:
+
 - `feature/frontend/cluster-visualization`
 - `feature/frontend/sequencing-controls`
 - `feature/frontend/preview-system`
@@ -123,7 +136,9 @@ gitGraph
 **Integration Strategy**: Daily integration testing on `develop`
 
 ### Phase 4 (Week 7): Production Preparation
+
 **Focused Development**:
+
 - `fix/*`: Bug fixes and optimization
 - `enhancement/*`: Performance improvements
 - `infrastructure/ops/deployment-prep`
@@ -136,9 +151,11 @@ gitGraph
 
 ```markdown
 ## Summary
+
 Brief description of changes and motivation
 
 ## Type of Change
+
 - [ ] New feature implementation
 - [ ] Enhancement to existing feature
 - [ ] Bug fix
@@ -146,6 +163,7 @@ Brief description of changes and motivation
 - [ ] Documentation update
 
 ## Module Impact
+
 - [ ] Database schema changes
 - [ ] Semantic analysis services
 - [ ] API endpoints
@@ -154,6 +172,7 @@ Brief description of changes and motivation
 - [ ] Operations/deployment
 
 ## Testing Completed
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests passing
 - [ ] Manual testing completed
@@ -161,41 +180,48 @@ Brief description of changes and motivation
 - [ ] Accessibility requirements met (if UI)
 
 ## Performance Impact
+
 - [ ] No performance impact
 - [ ] Performance improvement
 - [ ] Performance impact assessed and acceptable
 - [ ] Performance regression requires discussion
 
 ## Database Changes
+
 - [ ] No database changes
 - [ ] Migration script included
 - [ ] Migration tested in development
 - [ ] Migration approved by database module owner
 
 ## Breaking Changes
+
 - [ ] No breaking changes
 - [ ] Breaking changes documented below
 - [ ] Breaking changes coordinated with affected teams
 
 ## Security Considerations
+
 - [ ] No security impact
 - [ ] Security review completed
 - [ ] Credentials/secrets handled properly
 - [ ] Input validation implemented
 
 ## Documentation Updates
+
 - [ ] Code comments updated
 - [ ] API documentation updated
 - [ ] README files updated
 - [ ] Technical specification updated
 
 ## Deployment Notes
+
 - [ ] No special deployment requirements
 - [ ] Feature flag configuration required
 - [ ] Infrastructure changes required
 - [ ] Rollback plan documented
 
 ## Checklist
+
 - [ ] Code follows team conventions
 - [ ] Self-review completed
 - [ ] Automated tests passing
@@ -204,12 +230,14 @@ Brief description of changes and motivation
 - [ ] Ready for review
 
 ## Additional Notes
+
 [Any additional context, screenshots, or considerations]
 ```
 
 ### PR Review Requirements
 
 #### Automatic Checks
+
 - [ ] All CI/CD pipeline checks pass
 - [ ] Code coverage meets minimum threshold (80%)
 - [ ] No critical security vulnerabilities
@@ -217,6 +245,7 @@ Brief description of changes and motivation
 - [ ] TypeScript compilation successful
 
 #### Manual Review Requirements
+
 - **Standard Features**: 1 approval from module owner
 - **Cross-Module Changes**: 1 approval from each affected module owner
 - **Architecture Changes**: 1 approval from Tech Lead
@@ -224,6 +253,7 @@ Brief description of changes and motivation
 - **API Changes**: 1 approval from both backend and frontend owners
 
 #### Review Timeline
+
 - **Small Changes** (<100 lines): 4 hours
 - **Medium Changes** (100-500 lines): 24 hours
 - **Large Changes** (>500 lines): 48 hours
@@ -232,6 +262,7 @@ Brief description of changes and motivation
 ## Commit Message Standards
 
 ### Conventional Commit Format
+
 ```
 <type>(<module>): <description>
 
@@ -241,6 +272,7 @@ Brief description of changes and motivation
 ```
 
 ### Commit Types
+
 - **feat**: New feature implementation
 - **enhance**: Enhancement to existing feature
 - **fix**: Bug fix
@@ -251,6 +283,7 @@ Brief description of changes and motivation
 - **infra**: Infrastructure and deployment changes
 
 ### Examples
+
 ```bash
 feat(semantic): implement k-means clustering algorithm
 
@@ -267,7 +300,7 @@ analysis IDs in the clustering API endpoint.
 
 enhance(frontend): improve cluster visualization performance
 
-Optimize rendering for large cluster datasets using 
+Optimize rendering for large cluster datasets using
 virtualization and memoization techniques.
 
 infra(database): add pgvector performance indexes
@@ -277,6 +310,7 @@ to improve query performance for large datasets.
 ```
 
 ### Commit Best Practices
+
 - **Atomic Commits**: Each commit represents one logical change
 - **Descriptive Messages**: Clear description of what and why
 - **Present Tense**: Use present tense ("add feature" not "added feature")
@@ -286,19 +320,25 @@ to improve query performance for large datasets.
 ## Merge Strategies
 
 ### Feature Branch Merging
+
 **Strategy**: Squash and Merge
+
 - **Rationale**: Clean history, easier to revert features
 - **Process**: Multiple commits in feature branch become single commit in develop
 - **Commit Message**: Summarizes entire feature implementation
 
 ### Release Merging
+
 **Strategy**: Merge Commit
+
 - **Rationale**: Preserve release point history
 - **Process**: Create explicit merge commit for releases
 - **Commit Message**: Release version and summary
 
 ### Hotfix Merging
+
 **Strategy**: Fast-Forward Merge
+
 - **Rationale**: Immediate deployment, minimal history disruption
 - **Process**: Critical fixes merged directly to main and develop
 
@@ -307,6 +347,7 @@ to improve query performance for large datasets.
 ### Release Process
 
 #### 1. Release Preparation
+
 ```bash
 # Create staging branch from develop
 git checkout develop
@@ -316,12 +357,14 @@ git push origin staging/v1.1.0
 ```
 
 #### 2. Release Testing
+
 - Deploy to staging environment
 - Execute comprehensive test suite
 - Perform user acceptance testing
 - Complete performance validation
 
 #### 3. Release Deployment
+
 ```bash
 # Merge to main after approval
 git checkout main
@@ -337,6 +380,7 @@ git push origin --delete staging/v1.1.0
 ```
 
 ### Version Numbering
+
 **Semantic Versioning**: MAJOR.MINOR.PATCH
 
 - **MAJOR**: Breaking changes or major feature sets
@@ -344,6 +388,7 @@ git push origin --delete staging/v1.1.0
 - **PATCH**: Bug fixes, backward compatible
 
 **Release Schedule**:
+
 - **Weekly Minor Releases**: New features from completed phases
 - **Daily Patch Releases**: Bug fixes and small enhancements
 - **Major Release**: Final semantic enhancement delivery
@@ -351,6 +396,7 @@ git push origin --delete staging/v1.1.0
 ## Hotfix Process
 
 ### Critical Issue Response
+
 ```bash
 # Create hotfix branch from main
 git checkout main
@@ -359,12 +405,14 @@ git checkout -b fix/critical/issue-description
 ```
 
 ### Hotfix Development
+
 1. **Implement Fix**: Minimal change to resolve issue
 2. **Test Thoroughly**: Comprehensive testing of fix
 3. **Create PR**: Fast-track review process
 4. **Deploy Immediately**: Merge to main and deploy
 
 ### Hotfix Integration
+
 ```bash
 # Merge to main
 git checkout main
@@ -383,12 +431,14 @@ git branch -d fix/critical/issue-description
 ## Conflict Resolution
 
 ### Preventing Conflicts
+
 - **Frequent Merges**: Merge develop into feature branches daily
 - **Small Commits**: Keep changes atomic and focused
 - **Communication**: Coordinate changes with team members
 - **Module Boundaries**: Respect module ownership boundaries
 
 ### Resolving Conflicts
+
 1. **Identify Conflicts**: Use git status and diff tools
 2. **Communicate**: Coordinate with conflicting change authors
 3. **Resolve Carefully**: Preserve all functional changes
@@ -396,6 +446,7 @@ git branch -d fix/critical/issue-description
 5. **Document**: Explain resolution in commit message
 
 ### Conflict Resolution Tools
+
 - **VS Code**: Built-in merge conflict resolution
 - **GitKraken**: Visual merge conflict resolution
 - **Command Line**: Traditional git merge tools
@@ -403,6 +454,7 @@ git branch -d fix/critical/issue-description
 ## Git Hooks and Automation
 
 ### Pre-Commit Hooks
+
 ```bash
 #!/bin/sh
 # .husky/pre-commit
@@ -421,6 +473,7 @@ npm run format:check
 ```
 
 ### Pre-Push Hooks
+
 ```bash
 #!/bin/sh
 # .husky/pre-push
@@ -436,6 +489,7 @@ npm run security:check
 ```
 
 ### Automated Workflows
+
 - **CI/CD Pipeline**: Automated testing on every push
 - **Dependency Updates**: Automated dependency updates
 - **Security Scanning**: Automated security vulnerability scanning
@@ -444,11 +498,13 @@ npm run security:check
 ## Backup and Recovery
 
 ### Repository Backup
+
 - **GitHub**: Primary repository hosting
 - **Mirror**: Secondary mirror for redundancy
 - **Local Backup**: Key contributors maintain local backups
 
 ### Branch Recovery
+
 ```bash
 # Recover deleted branch
 git reflog
@@ -460,6 +516,7 @@ git show <commit-hash>
 ```
 
 ### History Preservation
+
 - **Protected Branches**: Main and develop branches protected
 - **Tag Preservation**: Release tags preserved permanently
 - **Audit Trail**: Complete history maintained
@@ -467,6 +524,7 @@ git show <commit-hash>
 ## Team Collaboration Guidelines
 
 ### Daily Workflow
+
 1. **Start of Day**: Pull latest develop branch
 2. **Feature Work**: Work in focused feature branches
 3. **Regular Commits**: Commit logical changes frequently
@@ -474,12 +532,14 @@ git show <commit-hash>
 5. **End of Day**: Push feature branch to origin
 
 ### Communication Protocol
+
 - **Branch Creation**: Announce new feature branches in Slack
 - **Large Changes**: Coordinate with affected team members
 - **Merge Conflicts**: Resolve quickly and communicate resolution
 - **Release Planning**: Coordinate release timing with team
 
 ### Best Practices
+
 - **Clean History**: Use meaningful commit messages
 - **Frequent Communication**: Over-communicate rather than under-communicate
 - **Code Reviews**: Thorough and constructive reviews

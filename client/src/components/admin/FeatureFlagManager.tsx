@@ -39,7 +39,12 @@ export default function FeatureFlagManager() {
   const [editingFlag, setEditingFlag] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<FeatureFlag>>({});
   const [userOverrideForm, setUserOverrideForm] = useState({ userId: '', enabled: false });
-  const [stats, setStats] = useState<AdminStats>({ totalFlags: 0, enabledFlags: 0, rolloutFlags: 0, userOverrides: 0 });
+  const [stats, setStats] = useState<AdminStats>({
+    totalFlags: 0,
+    enabledFlags: 0,
+    rolloutFlags: 0,
+    userOverrides: 0,
+  });
   const [healthStatus, setHealthStatus] = useState<any>(null);
 
   useEffect(() => {
@@ -61,8 +66,12 @@ export default function FeatureFlagManager() {
 
   const handleUserOverride = async (flagName: string) => {
     if (!userOverrideForm.userId) return;
-    
-    const success = await setUserOverride(flagName, userOverrideForm.userId, userOverrideForm.enabled);
+
+    const success = await setUserOverride(
+      flagName,
+      userOverrideForm.userId,
+      userOverrideForm.enabled
+    );
     if (success) {
       setUserOverrideForm({ userId: '', enabled: false });
     }
@@ -88,9 +97,7 @@ export default function FeatureFlagManager() {
     return (
       <Alert variant="destructive" className="m-6">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Error loading feature flags: {error}
-        </AlertDescription>
+        <AlertDescription>Error loading feature flags: {error}</AlertDescription>
       </Alert>
     );
   }
@@ -161,14 +168,15 @@ export default function FeatureFlagManager() {
 
       {/* Health Status */}
       {healthStatus && (
-        <Alert className={`mb-6 ${healthStatus.status === 'healthy' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+        <Alert
+          className={`mb-6 ${healthStatus.status === 'healthy' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+        >
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             <strong>System Health:</strong> {healthStatus.status}
             {healthStatus.details && (
               <div className="mt-2 text-sm">
-                Redis: {healthStatus.details.redis} | 
-                Cache Size: {healthStatus.details.cacheSize} | 
+                Redis: {healthStatus.details.redis} | Cache Size: {healthStatus.details.cacheSize} |
                 Last Update: {new Date(healthStatus.details.lastCacheUpdate).toLocaleString()}
               </div>
             )}
@@ -186,16 +194,21 @@ export default function FeatureFlagManager() {
                   <CardTitle className="flex items-center gap-3">
                     <span className="font-mono">{flag.name}</span>
                     <Badge variant={getStatusColor(flag)}>
-                      {!flag.enabled ? 'Disabled' : 
-                       flag.rolloutPercentage === 100 ? 'Full Rollout' :
-                       flag.rolloutPercentage === 0 ? 'No Rollout' :
-                       `${flag.rolloutPercentage}% Rollout`}
+                      {!flag.enabled
+                        ? 'Disabled'
+                        : flag.rolloutPercentage === 100
+                          ? 'Full Rollout'
+                          : flag.rolloutPercentage === 0
+                            ? 'No Rollout'
+                            : `${flag.rolloutPercentage}% Rollout`}
                     </Badge>
                   </CardTitle>
                   <p className="text-gray-600 mt-1">{flag.metadata.description}</p>
                   <div className="flex gap-2 mt-2">
-                    {flag.metadata.tags?.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                    {flag.metadata.tags?.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
                     ))}
                   </div>
                 </div>
@@ -238,16 +251,18 @@ export default function FeatureFlagManager() {
                           min="0"
                           max="100"
                           value={editForm.rolloutPercentage || 0}
-                          onChange={(e) => setEditForm({ ...editForm, rolloutPercentage: parseInt(e.target.value) })}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              rolloutPercentage: parseInt(e.target.value),
+                            })
+                          }
                           className="w-24"
                         />
                       </div>
 
                       <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleFlagUpdate(flag.name, editForm)}
-                          size="sm"
-                        >
+                        <Button onClick={() => handleFlagUpdate(flag.name, editForm)} size="sm">
                           Save
                         </Button>
                         <Button
@@ -281,7 +296,10 @@ export default function FeatureFlagManager() {
                     <h4 className="font-semibold mb-2">Environment Overrides</h4>
                     <div className="space-y-2">
                       {Object.entries(flag.environmentOverrides).map(([env, enabled]) => (
-                        <div key={env} className="flex items-center justify-between p-2 border rounded">
+                        <div
+                          key={env}
+                          className="flex items-center justify-between p-2 border rounded"
+                        >
                           <span className="font-mono">{env}</span>
                           <Badge variant={enabled ? 'default' : 'secondary'}>
                             {enabled ? 'Enabled' : 'Disabled'}
@@ -301,7 +319,10 @@ export default function FeatureFlagManager() {
                     ) : (
                       <div className="space-y-2">
                         {Object.entries(flag.userOverrides).map(([userId, enabled]) => (
-                          <div key={userId} className="flex items-center justify-between p-2 border rounded">
+                          <div
+                            key={userId}
+                            className="flex items-center justify-between p-2 border rounded"
+                          >
                             <span>User {userId}</span>
                             <Badge variant={enabled ? 'default' : 'secondary'}>
                               {enabled ? 'Enabled' : 'Disabled'}
@@ -318,19 +339,21 @@ export default function FeatureFlagManager() {
                         <Input
                           placeholder="User ID"
                           value={userOverrideForm.userId}
-                          onChange={(e) => setUserOverrideForm({ ...userOverrideForm, userId: e.target.value })}
+                          onChange={(e) =>
+                            setUserOverrideForm({ ...userOverrideForm, userId: e.target.value })
+                          }
                           className="flex-1"
                         />
                         <div className="flex items-center space-x-2">
                           <Switch
                             checked={userOverrideForm.enabled}
-                            onCheckedChange={(enabled) => setUserOverrideForm({ ...userOverrideForm, enabled })}
+                            onCheckedChange={(enabled) =>
+                              setUserOverrideForm({ ...userOverrideForm, enabled })
+                            }
                           />
                           <Label>Enabled</Label>
                         </div>
-                        <Button onClick={() => handleUserOverride(flag.name)}>
-                          Add
-                        </Button>
+                        <Button onClick={() => handleUserOverride(flag.name)}>Add</Button>
                       </div>
                     </div>
                   </div>
@@ -354,8 +377,10 @@ export default function FeatureFlagManager() {
                       <Label className="font-semibold">Dependencies</Label>
                       {flag.metadata.dependencies?.length ? (
                         <div className="flex gap-1 mt-1">
-                          {flag.metadata.dependencies.map(dep => (
-                            <Badge key={dep} variant="outline" className="text-xs">{dep}</Badge>
+                          {flag.metadata.dependencies.map((dep) => (
+                            <Badge key={dep} variant="outline" className="text-xs">
+                              {dep}
+                            </Badge>
                           ))}
                         </div>
                       ) : (

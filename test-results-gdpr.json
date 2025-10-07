@@ -22,10 +22,7 @@
           "open": "never"
         }
       ],
-      [
-        "list",
-        null
-      ],
+      ["list", null],
       [
         "json",
         {
@@ -56,9 +53,7 @@
         "name": "chromium-gdpr",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/gdpr-compliance-comprehensive.spec.ts"
-        ],
+        "testMatch": ["**/gdpr-compliance-comprehensive.spec.ts"],
         "timeout": 60000
       },
       {
@@ -72,9 +67,7 @@
         "name": "firefox-gdpr",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/gdpr-compliance-comprehensive.spec.ts"
-        ],
+        "testMatch": ["**/gdpr-compliance-comprehensive.spec.ts"],
         "timeout": 60000
       },
       {
@@ -88,9 +81,7 @@
         "name": "webkit-gdpr",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/gdpr-compliance-comprehensive.spec.ts"
-        ],
+        "testMatch": ["**/gdpr-compliance-comprehensive.spec.ts"],
         "timeout": 60000
       },
       {
@@ -104,9 +95,7 @@
         "name": "mobile-chrome-gdpr",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/gdpr-compliance-comprehensive.spec.ts"
-        ],
+        "testMatch": ["**/gdpr-compliance-comprehensive.spec.ts"],
         "timeout": 60000
       },
       {
@@ -120,9 +109,7 @@
         "name": "mobile-safari-gdpr",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/gdpr-compliance-comprehensive.spec.ts"
-        ],
+        "testMatch": ["**/gdpr-compliance-comprehensive.spec.ts"],
         "timeout": 60000
       }
     ],

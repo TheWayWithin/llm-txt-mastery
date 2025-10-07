@@ -8,15 +8,15 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false
+  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false,
 });
 
 async function setupAuthTables() {
   const client = await pool.connect();
-  
+
   try {
     console.log('Setting up authentication tables...');
-    
+
     // Create users table with proper authentication fields
     await client.query(`
       CREATE TABLE IF NOT EXISTS auth_users (
@@ -31,9 +31,9 @@ async function setupAuthTables() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
-    
+
     console.log('✓ Created auth_users table');
-    
+
     // Create user sessions table
     await client.query(`
       CREATE TABLE IF NOT EXISTS user_sessions (
@@ -49,9 +49,9 @@ async function setupAuthTables() {
         last_used_at TIMESTAMP DEFAULT NOW()
       )
     `);
-    
+
     console.log('✓ Created user_sessions table');
-    
+
     // Create indexes
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_auth_users_email ON auth_users(email);
@@ -60,9 +60,9 @@ async function setupAuthTables() {
       CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash);
       CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
     `);
-    
+
     console.log('✓ Created indexes');
-    
+
     // Create updated_at trigger function
     await client.query(`
       CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -73,7 +73,7 @@ async function setupAuthTables() {
       END;
       $$ LANGUAGE plpgsql;
     `);
-    
+
     // Create trigger for auth_users
     await client.query(`
       DROP TRIGGER IF EXISTS update_auth_users_updated_at ON auth_users;
@@ -81,9 +81,9 @@ async function setupAuthTables() {
         BEFORE UPDATE ON auth_users
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `);
-    
+
     console.log('✓ Created triggers');
-    
+
     // Verify tables
     const result = await client.query(`
       SELECT table_name 
@@ -92,10 +92,12 @@ async function setupAuthTables() {
         AND table_name IN ('auth_users', 'user_sessions')
       ORDER BY table_name
     `);
-    
+
     console.log('✅ Authentication setup complete!');
-    console.log('Tables created:', result.rows.map(row => row.table_name));
-    
+    console.log(
+      'Tables created:',
+      result.rows.map((row) => row.table_name)
+    );
   } catch (error) {
     console.error('Setup failed:', error);
     throw error;

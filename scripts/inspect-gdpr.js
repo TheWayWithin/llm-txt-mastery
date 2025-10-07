@@ -2,7 +2,7 @@
 
 /**
  * GDPR Implementation Inspector
- * 
+ *
  * Quick inspection of the production site to understand
  * the actual GDPR/consent implementation before running full tests.
  */
@@ -33,7 +33,7 @@ async function inspectGDPR() {
         foundElements: [],
         cookieRelatedText: [],
         buttons: [],
-        links: []
+        links: [],
       };
 
       // Check for common consent-related IDs and classes
@@ -47,19 +47,20 @@ async function inspectGDPR() {
         '[id*="privacy"]',
         '[class*="privacy"]',
         '[id*="enzuzo"]',
-        '[class*="enzuzo"]'
+        '[class*="enzuzo"]',
       ];
 
-      consentSelectors.forEach(selector => {
+      consentSelectors.forEach((selector) => {
         const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-          if (el.offsetParent !== null) { // visible elements only
+        elements.forEach((el) => {
+          if (el.offsetParent !== null) {
+            // visible elements only
             results.foundElements.push({
               selector: selector,
               tagName: el.tagName,
               id: el.id,
               className: el.className,
-              text: el.textContent?.substring(0, 100)
+              text: el.textContent?.substring(0, 100),
             });
           }
         });
@@ -67,30 +68,40 @@ async function inspectGDPR() {
 
       // Check for buttons that might be consent-related
       const buttons = document.querySelectorAll('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         const text = button.textContent?.toLowerCase() || '';
-        if (text.includes('accept') || text.includes('reject') || text.includes('cookie') || 
-            text.includes('consent') || text.includes('privacy') || text.includes('decline')) {
+        if (
+          text.includes('accept') ||
+          text.includes('reject') ||
+          text.includes('cookie') ||
+          text.includes('consent') ||
+          text.includes('privacy') ||
+          text.includes('decline')
+        ) {
           results.buttons.push({
             text: button.textContent,
             id: button.id,
-            className: button.className
+            className: button.className,
           });
         }
       });
 
       // Check for privacy/cookie policy links
       const links = document.querySelectorAll('a');
-      links.forEach(link => {
+      links.forEach((link) => {
         const text = link.textContent?.toLowerCase() || '';
         const href = link.href?.toLowerCase() || '';
-        if (text.includes('privacy') || text.includes('cookie') || 
-            href.includes('privacy') || href.includes('cookie')) {
+        if (
+          text.includes('privacy') ||
+          text.includes('cookie') ||
+          href.includes('privacy') ||
+          href.includes('cookie')
+        ) {
           results.links.push({
             text: link.textContent,
             href: link.href,
             id: link.id,
-            className: link.className
+            className: link.className,
           });
         }
       });
@@ -104,7 +115,7 @@ async function inspectGDPR() {
     });
 
     console.log(`Found ${consentElements.foundElements.length} consent-related elements:`);
-    consentElements.foundElements.forEach(el => {
+    consentElements.foundElements.forEach((el) => {
       console.log(`  - ${el.tagName} (${el.selector})`);
       console.log(`    ID: ${el.id || 'none'}`);
       console.log(`    Class: ${el.className || 'none'}`);
@@ -113,7 +124,7 @@ async function inspectGDPR() {
     });
 
     console.log(`Found ${consentElements.buttons.length} consent-related buttons:`);
-    consentElements.buttons.forEach(btn => {
+    consentElements.buttons.forEach((btn) => {
       console.log(`  - "${btn.text}"`);
       console.log(`    ID: ${btn.id || 'none'}`);
       console.log(`    Class: ${btn.className || 'none'}`);
@@ -121,14 +132,16 @@ async function inspectGDPR() {
     });
 
     console.log(`Found ${consentElements.links.length} privacy/cookie links:`);
-    consentElements.links.forEach(link => {
+    consentElements.links.forEach((link) => {
       console.log(`  - "${link.text}" -> ${link.href}`);
       console.log(`    ID: ${link.id || 'none'}`);
       console.log(`    Class: ${link.className || 'none'}`);
       console.log('');
     });
 
-    console.log(`Cookie/consent related text found: ${consentElements.cookieRelatedText.length} instances`);
+    console.log(
+      `Cookie/consent related text found: ${consentElements.cookieRelatedText.length} instances`
+    );
     if (consentElements.cookieRelatedText.length > 0) {
       console.log('Sample matches:', consentElements.cookieRelatedText.slice(0, 5));
     }
@@ -136,26 +149,29 @@ async function inspectGDPR() {
     // Check current cookies
     const cookies = await context.cookies();
     console.log(`\n🍪 Current cookies: ${cookies.length}`);
-    cookies.forEach(cookie => {
+    cookies.forEach((cookie) => {
       console.log(`  - ${cookie.name} (${cookie.domain})`);
     });
 
     // Check for Google Analytics or other tracking
     const scripts = await page.evaluate(() => {
       const scripts = Array.from(document.querySelectorAll('script'));
-      return scripts.map(script => ({
-        src: script.src,
-        content: script.innerHTML?.substring(0, 100)
-      })).filter(s => 
-        s.src?.includes('google') || 
-        s.src?.includes('analytics') || 
-        s.content?.includes('gtag') ||
-        s.content?.includes('analytics')
-      );
+      return scripts
+        .map((script) => ({
+          src: script.src,
+          content: script.innerHTML?.substring(0, 100),
+        }))
+        .filter(
+          (s) =>
+            s.src?.includes('google') ||
+            s.src?.includes('analytics') ||
+            s.content?.includes('gtag') ||
+            s.content?.includes('analytics')
+        );
     });
 
     console.log(`\n📊 Tracking scripts found: ${scripts.length}`);
-    scripts.forEach(script => {
+    scripts.forEach((script) => {
       console.log(`  - ${script.src || 'inline script'}`);
       if (script.content) {
         console.log(`    Content: ${script.content}...`);
@@ -163,21 +179,20 @@ async function inspectGDPR() {
     });
 
     // Take a screenshot for reference
-    await page.screenshot({ 
-      path: 'test-results/gdpr-inspection.png', 
-      fullPage: true 
+    await page.screenshot({
+      path: 'test-results/gdpr-inspection.png',
+      fullPage: true,
     });
     console.log('\n📸 Screenshot saved to: test-results/gdpr-inspection.png');
 
     console.log('\n✅ GDPR inspection completed');
-    
+
     // Wait for user interaction if in headed mode
     if (!browser.isConnected) {
       console.log('\n⏸️ Browser will remain open for manual inspection...');
       console.log('Press Ctrl+C to close when done.');
       await page.waitForTimeout(60000); // Wait 1 minute
     }
-
   } catch (error) {
     console.error('❌ Error during inspection:', error);
   } finally {

@@ -1,6 +1,6 @@
 /**
  * Analytics hook for simplified event tracking
- * 
+ *
  * Provides a React hook interface for the analytics system with
  * automatic context management and debugging support.
  */
@@ -25,14 +25,17 @@ export interface UseAnalyticsOptions {
 
 export interface UseAnalyticsReturn {
   /** Track a typed event */
-  track: <T extends EventName>(eventName: T, properties: Omit<EventProperties<T>, 'user_tier' | 'user_email' | 'credits_remaining'>) => void;
+  track: <T extends EventName>(
+    eventName: T,
+    properties: Omit<EventProperties<T>, 'user_tier' | 'user_email' | 'credits_remaining'>
+  ) => void;
   /** Track page view */
   trackPageView: (additionalProperties?: Record<string, any>) => void;
   /** Track error */
   trackError: (error: Error | string, context?: string) => void;
   /** Track performance metric */
   trackPerformance: (metricName: string, value: number, unit?: string) => void;
-  
+
   // Convenience methods for common events
   trackTierSelection: typeof analyticsHelpers.trackTierSelection;
   trackLoginAttempt: typeof analyticsHelpers.trackLoginAttempt;
@@ -47,7 +50,7 @@ export interface UseAnalyticsReturn {
   trackFileDownload: typeof analyticsHelpers.trackFileDownload;
   trackDailyLimitReached: typeof analyticsHelpers.trackDailyLimitReached;
   trackUpgradeClick: typeof analyticsHelpers.trackUpgradeClick;
-  
+
   /** Get recent events for debugging */
   getEventQueue: () => Array<{ event: string; properties: any; timestamp: number }>;
   /** Clear event queue */
@@ -58,11 +61,7 @@ export interface UseAnalyticsReturn {
  * Analytics hook with automatic user context
  */
 export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsReturn {
-  const {
-    debug = false,
-    trackPageViews = false,
-    userContext: manualUserContext
-  } = options;
+  const { debug = false, trackPageViews = false, userContext: manualUserContext } = options;
 
   const { user } = useAuth();
   const mountedRef = useRef(true);
@@ -71,7 +70,7 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
   const userContext = manualUserContext || {
     tier: user?.tier,
     email: user?.email,
-    creditsRemaining: user?.creditsRemaining
+    creditsRemaining: user?.creditsRemaining,
   };
 
   // Set debug mode
@@ -79,7 +78,7 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
     if (debug) {
       analytics.setDebugMode(true);
     }
-    
+
     return () => {
       if (debug) {
         analytics.setDebugMode(false);
@@ -93,7 +92,7 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
       analytics.trackPageView({
         user_tier: userContext.tier,
         user_email: userContext.email,
-        credits_remaining: userContext.creditsRemaining
+        credits_remaining: userContext.creditsRemaining,
       });
     }
   }, [trackPageViews, userContext.tier, userContext.email, userContext.creditsRemaining]);
@@ -107,61 +106,76 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
   }, []);
 
   // Enhanced track function with automatic user context
-  const track = useCallback(<T extends EventName>(
-    eventName: T,
-    properties: Omit<EventProperties<T>, 'user_tier' | 'user_email' | 'credits_remaining'>
-  ) => {
-    if (!mountedRef.current) return;
+  const track = useCallback(
+    <T extends EventName>(
+      eventName: T,
+      properties: Omit<EventProperties<T>, 'user_tier' | 'user_email' | 'credits_remaining'>
+    ) => {
+      if (!mountedRef.current) return;
 
-    const enhancedProperties = {
-      ...properties,
-      user_tier: userContext.tier,
-      user_email: userContext.email,
-      credits_remaining: userContext.creditsRemaining
-    } as EventProperties<T>;
+      const enhancedProperties = {
+        ...properties,
+        user_tier: userContext.tier,
+        user_email: userContext.email,
+        credits_remaining: userContext.creditsRemaining,
+      } as EventProperties<T>;
 
-    analytics.track(eventName, enhancedProperties);
-  }, [userContext]);
+      analytics.track(eventName, enhancedProperties);
+    },
+    [userContext]
+  );
 
   // Enhanced trackPageView with user context
-  const trackPageView = useCallback((additionalProperties: Record<string, any> = {}) => {
-    if (!mountedRef.current) return;
+  const trackPageView = useCallback(
+    (additionalProperties: Record<string, any> = {}) => {
+      if (!mountedRef.current) return;
 
-    analytics.trackPageView({
-      ...additionalProperties,
-      user_tier: userContext.tier,
-      user_email: userContext.email,
-      credits_remaining: userContext.creditsRemaining
-    });
-  }, [userContext]);
+      analytics.trackPageView({
+        ...additionalProperties,
+        user_tier: userContext.tier,
+        user_email: userContext.email,
+        credits_remaining: userContext.creditsRemaining,
+      });
+    },
+    [userContext]
+  );
 
   // Enhanced trackError with user context
-  const trackError = useCallback((error: Error | string, context?: string) => {
-    if (!mountedRef.current) return;
+  const trackError = useCallback(
+    (error: Error | string, context?: string) => {
+      if (!mountedRef.current) return;
 
-    analytics.trackError(error, context, {
-      user_tier: userContext.tier,
-      user_email: userContext.email,
-      credits_remaining: userContext.creditsRemaining
-    });
-  }, [userContext]);
+      analytics.trackError(error, context, {
+        user_tier: userContext.tier,
+        user_email: userContext.email,
+        credits_remaining: userContext.creditsRemaining,
+      });
+    },
+    [userContext]
+  );
 
   // Enhanced trackPerformance with user context
-  const trackPerformance = useCallback((metricName: string, value: number, unit?: string) => {
-    if (!mountedRef.current) return;
+  const trackPerformance = useCallback(
+    (metricName: string, value: number, unit?: string) => {
+      if (!mountedRef.current) return;
 
-    analytics.trackPerformance(metricName, value, unit, {
-      user_tier: userContext.tier,
-      user_email: userContext.email,
-      credits_remaining: userContext.creditsRemaining
-    });
-  }, [userContext]);
+      analytics.trackPerformance(metricName, value, unit, {
+        user_tier: userContext.tier,
+        user_email: userContext.email,
+        credits_remaining: userContext.creditsRemaining,
+      });
+    },
+    [userContext]
+  );
 
   // Convenience methods from analyticsHelpers
-  const trackTierSelection = useCallback((tier: UserTier, previousTier?: UserTier | null, websiteUrl?: string) => {
-    if (!mountedRef.current) return;
-    analyticsHelpers.trackTierSelection(tier, previousTier, websiteUrl);
-  }, []);
+  const trackTierSelection = useCallback(
+    (tier: UserTier, previousTier?: UserTier | null, websiteUrl?: string) => {
+      if (!mountedRef.current) return;
+      analyticsHelpers.trackTierSelection(tier, previousTier, websiteUrl);
+    },
+    []
+  );
 
   const trackLoginAttempt = useCallback((tier?: UserTier, websiteUrl?: string) => {
     if (!mountedRef.current) return;
@@ -178,21 +192,33 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
     analyticsHelpers.trackAnalysisStart(websiteUrl, userTier);
   }, []);
 
-  const trackAnalysisComplete = useCallback((
-    websiteUrl: string,
-    pagesDiscovered: number,
-    userTier: UserTier,
-    processingTime?: number,
-    cacheHit?: boolean
-  ) => {
-    if (!mountedRef.current) return;
-    analyticsHelpers.trackAnalysisComplete(websiteUrl, pagesDiscovered, userTier, processingTime, cacheHit);
-  }, []);
+  const trackAnalysisComplete = useCallback(
+    (
+      websiteUrl: string,
+      pagesDiscovered: number,
+      userTier: UserTier,
+      processingTime?: number,
+      cacheHit?: boolean
+    ) => {
+      if (!mountedRef.current) return;
+      analyticsHelpers.trackAnalysisComplete(
+        websiteUrl,
+        pagesDiscovered,
+        userTier,
+        processingTime,
+        cacheHit
+      );
+    },
+    []
+  );
 
-  const trackAnalysisFailed = useCallback((websiteUrl: string, errorType: string, userTier: UserTier, errorMessage?: string) => {
-    if (!mountedRef.current) return;
-    analyticsHelpers.trackAnalysisFailed(websiteUrl, errorType, userTier, errorMessage);
-  }, []);
+  const trackAnalysisFailed = useCallback(
+    (websiteUrl: string, errorType: string, userTier: UserTier, errorMessage?: string) => {
+      if (!mountedRef.current) return;
+      analyticsHelpers.trackAnalysisFailed(websiteUrl, errorType, userTier, errorMessage);
+    },
+    []
+  );
 
   const trackEmailCapture = useCallback((emailTier: UserTier, websiteUrl?: string) => {
     if (!mountedRef.current) return;
@@ -204,25 +230,38 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
     analyticsHelpers.trackCheckoutStart(tier, price);
   }, []);
 
-  const trackPurchaseComplete = useCallback((tier: UserTier, price: number, transactionId: string) => {
-    if (!mountedRef.current) return;
-    analyticsHelpers.trackPurchaseComplete(tier, price, transactionId);
-  }, []);
+  const trackPurchaseComplete = useCallback(
+    (tier: UserTier, price: number, transactionId: string) => {
+      if (!mountedRef.current) return;
+      analyticsHelpers.trackPurchaseComplete(tier, price, transactionId);
+    },
+    []
+  );
 
-  const trackFileGeneration = useCallback((analysisId: number, userTier: UserTier, selectedPagesCount?: number) => {
-    if (!mountedRef.current) return;
-    analyticsHelpers.trackFileGeneration(analysisId, userTier, selectedPagesCount);
-  }, []);
+  const trackFileGeneration = useCallback(
+    (analysisId: number, userTier: UserTier, selectedPagesCount?: number) => {
+      if (!mountedRef.current) return;
+      analyticsHelpers.trackFileGeneration(analysisId, userTier, selectedPagesCount);
+    },
+    []
+  );
 
   const trackFileDownload = useCallback((fileId: number, userTier: UserTier, fileSize?: number) => {
     if (!mountedRef.current) return;
     analyticsHelpers.trackFileDownload(fileId, userTier, fileSize);
   }, []);
 
-  const trackDailyLimitReached = useCallback((userTier: UserTier, analysesCount: number, limitType: 'daily_analyses' | 'ai_calls' | 'pages' = 'daily_analyses') => {
-    if (!mountedRef.current) return;
-    analyticsHelpers.trackDailyLimitReached(userTier, analysesCount, limitType);
-  }, []);
+  const trackDailyLimitReached = useCallback(
+    (
+      userTier: UserTier,
+      analysesCount: number,
+      limitType: 'daily_analyses' | 'ai_calls' | 'pages' = 'daily_analyses'
+    ) => {
+      if (!mountedRef.current) return;
+      analyticsHelpers.trackDailyLimitReached(userTier, analysesCount, limitType);
+    },
+    []
+  );
 
   const trackUpgradeClick = useCallback((fromTier: UserTier, toTier: UserTier) => {
     if (!mountedRef.current) return;
@@ -248,7 +287,7 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
     trackDailyLimitReached,
     trackUpgradeClick,
     getEventQueue: analytics.getEventQueue.bind(analytics),
-    clearEventQueue: analytics.clearEventQueue.bind(analytics)
+    clearEventQueue: analytics.clearEventQueue.bind(analytics),
   };
 }
 
@@ -261,7 +300,7 @@ export function usePageTracking(pageName?: string, additionalProperties?: Record
   useEffect(() => {
     trackPageView({
       page_title: pageName || document.title,
-      ...additionalProperties
+      ...additionalProperties,
     });
   }, [pageName, trackPageView, additionalProperties]);
 }
@@ -286,19 +325,25 @@ export function usePerformanceTracking(componentName: string) {
     };
   }, [componentName, trackPerformance]);
 
-  const trackRenderTime = useCallback((renderPhase: string = 'default') => {
-    if (startTimeRef.current) {
-      const renderTime = performance.now() - startTimeRef.current;
-      trackPerformance(`${componentName}_${renderPhase}_render_time`, renderTime, 'ms');
-    }
-  }, [componentName, trackPerformance]);
+  const trackRenderTime = useCallback(
+    (renderPhase: string = 'default') => {
+      if (startTimeRef.current) {
+        const renderTime = performance.now() - startTimeRef.current;
+        trackPerformance(`${componentName}_${renderPhase}_render_time`, renderTime, 'ms');
+      }
+    },
+    [componentName, trackPerformance]
+  );
 
-  const trackCustomMetric = useCallback((metricName: string, value: number, unit?: string) => {
-    trackPerformance(`${componentName}_${metricName}`, value, unit);
-  }, [componentName, trackPerformance]);
+  const trackCustomMetric = useCallback(
+    (metricName: string, value: number, unit?: string) => {
+      trackPerformance(`${componentName}_${metricName}`, value, unit);
+    },
+    [componentName, trackPerformance]
+  );
 
   return {
     trackRenderTime,
-    trackCustomMetric
+    trackCustomMetric,
   };
 }

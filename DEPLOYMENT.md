@@ -3,6 +3,7 @@
 ## 🚀 Quick Start for GitHub Repository
 
 ### 1. Create Repository
+
 1. Go to [GitHub](https://github.com/TheWayWithin)
 2. Click "New repository"
 3. Repository name: `llm-txt-mastery`
@@ -12,6 +13,7 @@
 7. Click "Create repository"
 
 ### 2. Connect Local Project to GitHub
+
 ```bash
 # Initialize git (if not already done)
 git init
@@ -30,7 +32,9 @@ git push -u origin main
 ```
 
 ### 3. Repository Setup
+
 After pushing, your repository will have:
+
 - ✅ Complete README with features, architecture, and usage
 - ✅ MIT License
 - ✅ Contributing guidelines
@@ -41,12 +45,14 @@ After pushing, your repository will have:
 ## 🌍 Environment Variables
 
 ### Required Variables
+
 ```bash
 DATABASE_URL=postgresql://user:password@host:port/database
 OPENAI_API_KEY=sk-your-openai-api-key
 ```
 
 ### Optional Variables
+
 ```bash
 NODE_ENV=development
 PORT=5000
@@ -55,11 +61,13 @@ PORT=5000
 ## 🏗️ Local Development
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL database
 - OpenAI API key
 
 ### Setup Commands
+
 ```bash
 # Install dependencies
 npm install
@@ -78,11 +86,13 @@ npm run dev
 ## 📦 Build Process
 
 ### Development Build
+
 ```bash
 npm run dev
 ```
 
 ### Production Build
+
 ```bash
 npm run build
 npm start
@@ -91,6 +101,7 @@ npm start
 ## 🔧 Database Management
 
 ### Schema Updates
+
 ```bash
 # Apply schema changes
 npm run db:push
@@ -100,6 +111,7 @@ npm run db:studio
 ```
 
 ### Migration Strategy
+
 - Use Drizzle ORM for all database operations
 - Schema changes applied via `npm run db:push`
 - No manual SQL migrations required
@@ -107,12 +119,14 @@ npm run db:studio
 ## 🚀 Deployment Options
 
 ### 1. Replit (Recommended)
+
 - Already configured for Replit deployment
 - PostgreSQL integration ready
 - Environment variables managed through Replit Secrets
 - One-click deployment
 
 ### 2. Vercel
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -122,6 +136,7 @@ vercel --prod
 ```
 
 ### 3. Railway
+
 ```bash
 # Install Railway CLI
 npm i -g @railway/cli
@@ -133,6 +148,7 @@ railway up
 ```
 
 ### 4. Render
+
 1. Connect GitHub repository
 2. Set environment variables
 3. Deploy automatically on push
@@ -140,11 +156,13 @@ railway up
 ## 📊 Monitoring
 
 ### Health Checks
+
 - Database connection status
 - API endpoint availability
 - OpenAI API connectivity
 
 ### Logging
+
 - Request/response logging
 - Error tracking
 - Performance metrics
@@ -152,11 +170,13 @@ railway up
 ## 🔐 Security
 
 ### Environment Variables
+
 - Never commit `.env` files
 - Use secure secrets management
 - Rotate API keys regularly
 
 ### Database Security
+
 - Use connection pooling
 - Implement query timeout
 - Validate all inputs with Zod
@@ -164,6 +184,7 @@ railway up
 ## 🧪 Testing
 
 ### Manual Testing
+
 ```bash
 # Test sitemap discovery
 curl -X POST http://localhost:5000/api/analyze \
@@ -180,6 +201,7 @@ curl -X POST http://localhost:5000/api/generate-llm-file \
 ```
 
 ### Automated Testing
+
 - Unit tests for utility functions
 - Integration tests for API endpoints
 - Component tests for React components
@@ -187,12 +209,14 @@ curl -X POST http://localhost:5000/api/generate-llm-file \
 ## 📈 Performance
 
 ### Optimization Strategies
+
 - Database query optimization
 - API response caching
 - Content delivery network (CDN)
 - Image optimization
 
 ### Monitoring
+
 - Response time tracking
 - Error rate monitoring
 - Database performance metrics
@@ -200,12 +224,14 @@ curl -X POST http://localhost:5000/api/generate-llm-file \
 ## 🔄 CI/CD Pipeline
 
 ### GitHub Actions
+
 - Automated testing on PR
 - Security audits
 - TypeScript type checking
 - Automated deployments
 
 ### Deployment Workflow
+
 1. Push to main branch
 2. Run tests and linting
 3. Build application
@@ -215,12 +241,14 @@ curl -X POST http://localhost:5000/api/generate-llm-file \
 ## 🐛 Troubleshooting
 
 ### Common Issues
+
 - Database connection failures
 - OpenAI API rate limits
 - Sitemap parsing errors
 - Memory usage optimization
 
 ### Debug Commands
+
 ```bash
 # Check database connection
 npm run db:studio

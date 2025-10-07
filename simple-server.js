@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = parseInt(process.env.PORT || "3000", 10);
+const port = parseInt(process.env.PORT || '3000', 10);
 
 console.log('🚀 Starting LLM.txt Mastery Server...');
 console.log('📂 Current directory:', __dirname);
@@ -22,24 +22,31 @@ console.log('🔑 Supabase URL exists:', !!process.env.SUPABASE_URL);
 console.log('🔑 Stripe keys exist:', !!process.env.STRIPE_SECRET_KEY);
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
-      objectSrc: ["'none'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'", "https://checkout.stripe.com"],
-      frameAncestors: ["'none'"],
-      frameSrc: ["'self'", "https://checkout.stripe.com", "https://js.stripe.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.openai.com", "https://*.supabase.co", "https://api.stripe.com"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://js.stripe.com'],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'", 'https://checkout.stripe.com'],
+        frameAncestors: ["'none'"],
+        frameSrc: ["'self'", 'https://checkout.stripe.com', 'https://js.stripe.com'],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: [
+          "'self'",
+          'https://api.openai.com',
+          'https://*.supabase.co',
+          'https://api.stripe.com',
+        ],
+      },
     },
-  },
-  crossOriginOpenerPolicy: { policy: "same-origin" },
-}));
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+  })
+);
 
 // Basic middleware
 app.use(express.json({ limit: '10mb' }));
@@ -58,13 +65,13 @@ if (fs.existsSync(publicPath)) {
 
 // API Routes
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     database: !!process.env.DATABASE_URL,
     supabase: !!process.env.SUPABASE_URL,
-    stripe: !!process.env.STRIPE_SECRET_KEY
+    stripe: !!process.env.STRIPE_SECRET_KEY,
   });
 });
 
@@ -73,7 +80,7 @@ app.get('/api/test-coffee', (req, res) => {
   res.json({
     message: 'Coffee tier endpoint working!',
     priceId: process.env.STRIPE_LLM_TXT_COFFEE_PRICE_ID,
-    testMode: process.env.STRIPE_SECRET_KEY?.includes('test') || false
+    testMode: process.env.STRIPE_SECRET_KEY?.includes('test') || false,
   });
 });
 

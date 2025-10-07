@@ -11,15 +11,12 @@ export default defineConfig({
   expect: {
     timeout: 15000,
   },
-  reporter: [
-    ['list'],
-    ['json', { outputFile: 'test-results-diagnostic.json' }]
-  ],
-  
+  reporter: [['list'], ['json', { outputFile: 'test-results-diagnostic.json' }]],
+
   use: {
     baseURL: 'https://www.llmtxtmastery.com',
     trace: 'on',
-    screenshot: 'always', 
+    screenshot: 'always',
     video: 'on',
     actionTimeout: 10000,
     navigationTimeout: 30000,
@@ -28,7 +25,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium-diagnostic',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
       },

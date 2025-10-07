@@ -1,30 +1,41 @@
-import { useState, useEffect, useCallback } from "react";
-import { useLocation, useRoute } from "wouter";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Search, CheckCircle, Info, User, Calendar, Settings, Zap, BarChart3, Clock, LogOut } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { AuthNav } from "@/components/AuthNav";
-import { AuthModal } from "@/components/auth/AuthModal";
-import UsageDisplay from "@/components/usage-display";
-import ContentAnalysis from "@/components/content-analysis";
-import ContentReview from "@/components/content-review";
-import FileGeneration from "@/components/file-generation";
-import TierLimitsDisplay from "@/components/tier-limits-display";
-import { ProgressBreadcrumb, FLOW_STEPS } from "@/components/ui/progress-breadcrumb";
-import { EnhancedLoading, LOADING_STATES } from "@/components/ui/enhanced-loading";
-import { useFlowStateMachine } from "@/hooks/useFlowStateMachine";
-import { DiscoveredPage } from "@shared/schema";
-import { Link } from "wouter";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import ErrorDisplay from "@/components/ErrorDisplay";
-import DailyLimitModal from "@/components/DailyLimitModal";
-import EmailVerificationBanner from "@/components/email-verification-banner";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useUsageTracking } from "@/hooks/useUsageTracking";
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useRoute } from 'wouter';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Search,
+  CheckCircle,
+  Info,
+  User,
+  Calendar,
+  Settings,
+  Zap,
+  BarChart3,
+  Clock,
+  LogOut,
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthNav } from '@/components/AuthNav';
+import { AuthModal } from '@/components/auth/AuthModal';
+import UsageDisplay from '@/components/usage-display';
+import ContentAnalysis from '@/components/content-analysis';
+import ContentReview from '@/components/content-review';
+import FileGeneration from '@/components/file-generation';
+import TierLimitsDisplay from '@/components/tier-limits-display';
+import { ProgressBreadcrumb, FLOW_STEPS } from '@/components/ui/progress-breadcrumb';
+import { EnhancedLoading, LOADING_STATES } from '@/components/ui/enhanced-loading';
+import { useFlowStateMachine } from '@/hooks/useFlowStateMachine';
+import { DiscoveredPage } from '@shared/schema';
+import { Link } from 'wouter';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ErrorDisplay from '@/components/ErrorDisplay';
+import DailyLimitModal from '@/components/DailyLimitModal';
+import EmailVerificationBanner from '@/components/email-verification-banner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useUsageTracking } from '@/hooks/useUsageTracking';
 
 export default function AnalyzePage() {
   const [, navigate] = useLocation();
@@ -32,11 +43,11 @@ export default function AnalyzePage() {
   const queryClient = useQueryClient();
   const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  
+
   // URL parameter handling
   const urlParams = new URLSearchParams(window.location.search);
   const websiteUrlParam = urlParams.get('websiteUrl') || urlParams.get('url') || '';
-  
+
   // URL input state
   const [url, setUrl] = useState(websiteUrlParam);
   const [isValid, setIsValid] = useState(false);
@@ -52,7 +63,7 @@ export default function AnalyzePage() {
     error,
     retryCount,
     visibility,
-    actions
+    actions,
   } = useFlowStateMachine();
 
   // Set pre-filled URL if provided
@@ -73,12 +84,12 @@ export default function AnalyzePage() {
   }, [authResolved, authLoading, isAuthenticated, navigate, url]);
 
   // Use the robust usage tracking hook
-  const { 
-    usage: usageData, 
+  const {
+    usage: usageData,
     // trackUsage removed - server handles incrementing
     isLimitReached,
     serverUsage,
-    clientUsage 
+    clientUsage,
   } = useUsageTracking(user?.email);
 
   // TODO: Add recent analyses when API endpoint is implemented
@@ -117,55 +128,63 @@ export default function AnalyzePage() {
 
   const handleAnalysisStart = () => {
     if (!isValid || !url) return;
-    
+
     // Check if user has reached daily limit
     if (isLimitReached && user?.tier === 'starter') {
       setShowDailyLimitModal(true);
       return;
     }
-    
+
     const normalizedUrl = normalizeUrl(url);
     console.log('🌐 Starting analysis for URL:', normalizedUrl);
     actions.submitUrl(normalizedUrl);
   };
 
-  const handleAnalysisComplete = useCallback((id: number, pages: DiscoveredPage[]) => {
-    const handlerStart = performance.now();
-    console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
-    
-    // DON'T track usage here - server already increments when analysis completes
-    // This was causing double incrementing!
-    // trackUsage(); // REMOVED - server handles this
-    
-    // Wait a bit for server to update, then invalidate queries
-    setTimeout(() => {
-      console.log(`🔄 Invalidating usage queries for user: ${user?.email}`);
-      if (user?.email) {
-        queryClient.invalidateQueries({
-          queryKey: ["/api/usage", user.email]
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["/api/simple-usage", user.email]
-        });
-        // TODO: Add recent analyses invalidation when API is implemented
-        // queryClient.invalidateQueries({
-        //   queryKey: ["/api/recent-analyses", user.email]
-        // })
-      }
-    }, 1000); // Give server 1 second to update
-    
-    // Time the state machine action
-    const actionStart = performance.now();
-    actions.completeAnalysis(id, pages);
-    const actionEnd = performance.now();
-    
-    const handlerEnd = performance.now();
-    console.log(`⏱️ handleAnalysisComplete took ${(handlerEnd - handlerStart).toFixed(2)}ms (action: ${(actionEnd - actionStart).toFixed(2)}ms)`);
-  }, [actions.completeAnalysis, user?.email, queryClient]);
+  const handleAnalysisComplete = useCallback(
+    (id: number, pages: DiscoveredPage[]) => {
+      const handlerStart = performance.now();
+      console.log(`🎯 ANALYSIS_COMPLETE triggered: id=${id}, pagesCount=${pages.length}`);
 
-  const handleFileGenerated = useCallback((fileId: number) => {
-    actions.generateFile(fileId);
-  }, [actions.generateFile]);
+      // DON'T track usage here - server already increments when analysis completes
+      // This was causing double incrementing!
+      // trackUsage(); // REMOVED - server handles this
+
+      // Wait a bit for server to update, then invalidate queries
+      setTimeout(() => {
+        console.log(`🔄 Invalidating usage queries for user: ${user?.email}`);
+        if (user?.email) {
+          queryClient.invalidateQueries({
+            queryKey: ['/api/usage', user.email],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ['/api/simple-usage', user.email],
+          });
+          // TODO: Add recent analyses invalidation when API is implemented
+          // queryClient.invalidateQueries({
+          //   queryKey: ["/api/recent-analyses", user.email]
+          // })
+        }
+      }, 1000); // Give server 1 second to update
+
+      // Time the state machine action
+      const actionStart = performance.now();
+      actions.completeAnalysis(id, pages);
+      const actionEnd = performance.now();
+
+      const handlerEnd = performance.now();
+      console.log(
+        `⏱️ handleAnalysisComplete took ${(handlerEnd - handlerStart).toFixed(2)}ms (action: ${(actionEnd - actionStart).toFixed(2)}ms)`
+      );
+    },
+    [actions.completeAnalysis, user?.email, queryClient]
+  );
+
+  const handleFileGenerated = useCallback(
+    (fileId: number) => {
+      actions.generateFile(fileId);
+    },
+    [actions.generateFile]
+  );
 
   const resetWorkflow = () => {
     actions.resetWorkflow();
@@ -202,9 +221,9 @@ export default function AnalyzePage() {
             <div className="flex items-center justify-between">
               <Link href="/">
                 <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                  <img 
-                    src="/images/logo-primary.png" 
-                    alt="LLM.txt Mastery" 
+                  <img
+                    src="/images/logo-primary.png"
+                    alt="LLM.txt Mastery"
                     className="h-20 md:h-24 w-auto"
                   />
                 </a>
@@ -255,8 +274,8 @@ export default function AnalyzePage() {
                       </Button>
                     </a>
                   </Link>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       sessionStorage.removeItem('auth_access_token');
@@ -270,7 +289,7 @@ export default function AnalyzePage() {
                   </Button>
                 </div>
               </div>
-              
+
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
@@ -287,7 +306,7 @@ export default function AnalyzePage() {
                       {user.tier === 'coffee' ? 'Credits' : "Today's Usage"}
                     </p>
                     <p className="text-xs text-ai-silver">
-                      {user.tier === 'coffee' 
+                      {user.tier === 'coffee'
                         ? `${usageData?.creditsRemaining || 0} remaining`
                         : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || 3}`}
                     </p>
@@ -297,27 +316,33 @@ export default function AnalyzePage() {
                   <Clock className="h-5 w-5 text-innovation-teal" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-framework-black">
-                      {user.tier === 'coffee' ? 'Manage Subscription' : 
-                       user.tier === 'starter' ? 'Upgrade Available' : 
-                       user.tier === 'growth' ? 'Pro Features Active' : 
-                       'Enterprise Features'}
+                      {user.tier === 'coffee'
+                        ? 'Manage Subscription'
+                        : user.tier === 'starter'
+                          ? 'Upgrade Available'
+                          : user.tier === 'growth'
+                            ? 'Pro Features Active'
+                            : 'Enterprise Features'}
                     </p>
                     <p className="text-xs text-ai-silver">
-                      {user.tier === 'coffee' 
+                      {user.tier === 'coffee'
                         ? 'View billing & invoices'
-                        : user.tier === 'starter' ? 'Get more analyses' : 
-                        user.tier === 'growth' ? '1,000 pages per site' :
-                        'Unlimited everything'
-                      }
+                        : user.tier === 'starter'
+                          ? 'Get more analyses'
+                          : user.tier === 'growth'
+                            ? '1,000 pages per site'
+                            : 'Unlimited everything'}
                     </p>
                   </div>
                   {user.tier !== 'scale' && (
                     <Link href="/dashboard?tab=billing">
                       <a>
                         <Button variant="outline" size="sm" className="h-7 text-xs">
-                          {user.tier === 'starter' ? 'Upgrade' : 
-                           user.tier === 'coffee' ? 'Billing' :
-                           'Manage'}
+                          {user.tier === 'starter'
+                            ? 'Upgrade'
+                            : user.tier === 'coffee'
+                              ? 'Billing'
+                              : 'Manage'}
                         </Button>
                       </a>
                     </Link>
@@ -351,8 +376,8 @@ export default function AnalyzePage() {
 
           {/* Usage Display - Pass usageData to avoid duplicate fetching */}
           {user.email && !visibility.error && (
-            <UsageDisplay 
-              userEmail={user.email} 
+            <UsageDisplay
+              userEmail={user.email}
               // Let UsageDisplay fetch its own data to get cache hits
               // Don't pass usageData prop so it fetches fresh data
             />
@@ -380,13 +405,23 @@ export default function AnalyzePage() {
                       Analyze Your Website
                     </h2>
                     <p className="text-ai-silver">
-                      Enter your website URL to discover pages and generate an optimized llms.txt file
+                      Enter your website URL to discover pages and generate an optimized llms.txt
+                      file
                     </p>
                   </div>
-                  
-                  <form onSubmit={(e) => { e.preventDefault(); handleAnalysisStart(); }} className="space-y-4">
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleAnalysisStart();
+                    }}
+                    className="space-y-4"
+                  >
                     <div>
-                      <Label htmlFor="website-url" className="text-sm font-medium text-framework-black">
+                      <Label
+                        htmlFor="website-url"
+                        className="text-sm font-medium text-framework-black"
+                      >
                         Website URL
                       </Label>
                       <div className="relative mt-2">
@@ -413,12 +448,11 @@ export default function AnalyzePage() {
                       <div className="flex items-center space-x-2 text-sm text-ai-silver">
                         <Info className="h-4 w-4 text-innovation-teal" />
                         <span>
-                          {user.tier === 'starter' 
+                          {user.tier === 'starter'
                             ? 'AI analysis for first 5 pages'
                             : user.tier === 'coffee'
-                            ? `${user.creditsRemaining || 0} premium analyses remaining`
-                            : 'Unlimited AI-enhanced analysis'
-                          }
+                              ? `${user.creditsRemaining || 0} premium analyses remaining`
+                              : 'Unlimited AI-enhanced analysis'}
                         </span>
                       </div>
                       <Button
@@ -481,44 +515,47 @@ export default function AnalyzePage() {
           )}
 
           {/* Recent Analyses - Show only when in URL input state */}
-          {(currentState === 'URL_INPUT' || currentState === 'INITIALIZING') && recentAnalyses && recentAnalyses.length > 0 && (
-            <section className="mt-8">
-              <Card className="bg-white shadow-sm border border-slate-200">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-framework-black mb-4">
-                    Recent Analyses
-                  </h3>
-                  <div className="space-y-3">
-                    {recentAnalyses.slice(0, 5).map((analysis: any) => (
-                      <div 
-                        key={analysis.id} 
-                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium text-framework-black truncate">
-                            {analysis.websiteUrl}
-                          </p>
-                          <p className="text-sm text-ai-silver">
-                            {analysis.discoveredPages} pages • {new Date(analysis.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setUrl(analysis.websiteUrl);
-                            validateUrl(analysis.websiteUrl);
-                          }}
+          {(currentState === 'URL_INPUT' || currentState === 'INITIALIZING') &&
+            recentAnalyses &&
+            recentAnalyses.length > 0 && (
+              <section className="mt-8">
+                <Card className="bg-white shadow-sm border border-slate-200">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-framework-black mb-4">
+                      Recent Analyses
+                    </h3>
+                    <div className="space-y-3">
+                      {recentAnalyses.slice(0, 5).map((analysis: any) => (
+                        <div
+                          key={analysis.id}
+                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                         >
-                          Re-analyze
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-framework-black truncate">
+                              {analysis.websiteUrl}
+                            </p>
+                            <p className="text-sm text-ai-silver">
+                              {analysis.discoveredPages} pages •{' '}
+                              {new Date(analysis.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setUrl(analysis.websiteUrl);
+                              validateUrl(analysis.websiteUrl);
+                            }}
+                          >
+                            Re-analyze
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+            )}
         </main>
 
         {/* Authentication Modal */}

@@ -11,7 +11,7 @@ const userContextSchema = z.object({
   sessionId: z.string().optional(),
   email: z.string().email().optional(),
   tier: z.string().optional(),
-  properties: z.record(z.any()).optional()
+  properties: z.record(z.any()).optional(),
 });
 
 const trackEventSchema = z.object({
@@ -19,33 +19,53 @@ const trackEventSchema = z.object({
   eventType: z.string(),
   eventValue: z.number().optional(),
   eventProperties: z.record(z.any()).optional(),
-  userContext: userContextSchema
+  userContext: userContextSchema,
 });
 
 const createExperimentSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().optional(),
   featureFlag: z.string().optional(),
-  variants: z.array(z.object({
-    name: z.string(),
-    description: z.string().optional(),
-    trafficAllocation: z.number().min(0).max(100),
-    config: z.record(z.any()).optional()
-  })).min(2),
-  metrics: z.array(z.object({
-    name: z.string(),
-    type: z.enum(['conversion_rate', 'click_through_rate', 'average_value', 'count']),
-    eventType: z.string(),
-    description: z.string().optional(),
-    isPrimary: z.boolean().optional()
-  })).min(1),
-  targetingRules: z.array(z.object({
-    type: z.enum(['user_property', 'session_property', 'random']),
-    property: z.string().optional(),
-    operator: z.enum(['equals', 'not_equals', 'in', 'not_in', 'greater_than', 'less_than', 'contains']),
-    value: z.any()
-  })).optional(),
-  trafficAllocation: z.number().min(0).max(100).optional()
+  variants: z
+    .array(
+      z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        trafficAllocation: z.number().min(0).max(100),
+        config: z.record(z.any()).optional(),
+      })
+    )
+    .min(2),
+  metrics: z
+    .array(
+      z.object({
+        name: z.string(),
+        type: z.enum(['conversion_rate', 'click_through_rate', 'average_value', 'count']),
+        eventType: z.string(),
+        description: z.string().optional(),
+        isPrimary: z.boolean().optional(),
+      })
+    )
+    .min(1),
+  targetingRules: z
+    .array(
+      z.object({
+        type: z.enum(['user_property', 'session_property', 'random']),
+        property: z.string().optional(),
+        operator: z.enum([
+          'equals',
+          'not_equals',
+          'in',
+          'not_in',
+          'greater_than',
+          'less_than',
+          'contains',
+        ]),
+        value: z.any(),
+      })
+    )
+    .optional(),
+  trafficAllocation: z.number().min(0).max(100).optional(),
 });
 
 /**
@@ -60,19 +80,19 @@ router.post('/assignment/:experimentName', optionalAuth, async (req: Request, re
     // Validate input
     const validatedContext = userContextSchema.safeParse(userContext);
     if (!validatedContext.success) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid user context',
-        details: validatedContext.error.errors 
+        details: validatedContext.error.errors,
       });
     }
 
     // Get assignment
     const assignment = await abTestingService.getAssignment(experimentName, validatedContext.data);
-    
+
     if (!assignment) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'Experiment not found or not running',
-        experimentName 
+        experimentName,
       });
     }
 
@@ -98,15 +118,15 @@ router.post('/assignments', optionalAuth, async (req: Request, res: Response) =>
     // Validate input
     const validatedContext = userContextSchema.safeParse(userContext);
     if (!validatedContext.success) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid user context',
-        details: validatedContext.error.errors 
+        details: validatedContext.error.errors,
       });
     }
 
     // Get assignments
     const assignments = await abTestingService.getMultipleAssignments(
-      experimentNames, 
+      experimentNames,
       validatedContext.data
     );
 
@@ -124,13 +144,13 @@ router.post('/assignments', optionalAuth, async (req: Request, res: Response) =>
 router.post('/event/:experimentName', optionalAuth, async (req: Request, res: Response) => {
   try {
     const experimentName = req.params.experimentName;
-    
+
     // Validate input
     const validatedData = trackEventSchema.safeParse(req.body);
     if (!validatedData.success) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid event data',
-        details: validatedData.error.errors 
+        details: validatedData.error.errors,
       });
     }
 
@@ -166,17 +186,17 @@ router.post('/conversion', optionalAuth, async (req: Request, res: Response) => 
     const { experimentName, conversionType, eventValue, eventProperties, userContext } = req.body;
 
     if (!experimentName || !conversionType || !userContext) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: experimentName, conversionType, userContext' 
+      return res.status(400).json({
+        error: 'Missing required fields: experimentName, conversionType, userContext',
       });
     }
 
     // Validate user context
     const validatedContext = userContextSchema.safeParse(userContext);
     if (!validatedContext.success) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid user context',
-        details: validatedContext.error.errors 
+        details: validatedContext.error.errors,
       });
     }
 
@@ -212,7 +232,7 @@ router.post('/conversion', optionalAuth, async (req: Request, res: Response) => 
 router.post('/admin/experiments', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
@@ -221,27 +241,27 @@ router.post('/admin/experiments', authenticate, async (req: Request, res: Respon
     // Validate input
     const validatedData = createExperimentSchema.safeParse(req.body);
     if (!validatedData.success) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid experiment data',
-        details: validatedData.error.errors 
+        details: validatedData.error.errors,
       });
     }
 
     const experimentData = {
       ...validatedData.data,
-      createdBy: user.email || user.userId.toString()
+      createdBy: user.email || user.userId.toString(),
     };
 
     const experimentId = await abTestingService.createExperiment(experimentData);
-    
+
     if (!experimentId) {
       return res.status(400).json({ error: 'Failed to create experiment' });
     }
 
-    res.status(201).json({ 
-      success: true, 
+    res.status(201).json({
+      success: true,
       experimentId,
-      message: 'Experiment created successfully'
+      message: 'Experiment created successfully',
     });
   } catch (error) {
     console.error('Error creating experiment:', error);
@@ -253,88 +273,100 @@ router.post('/admin/experiments', authenticate, async (req: Request, res: Respon
  * Start experiment
  * POST /api/admin/ab-testing/experiments/:experimentName/start
  */
-router.post('/admin/experiments/:experimentName/start', authenticate, async (req: Request, res: Response) => {
-  try {
-    const user = (req as any).user;
-    
-    // Check admin privileges
-    if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
-      return res.status(403).json({ error: 'Admin privileges required' });
-    }
+router.post(
+  '/admin/experiments/:experimentName/start',
+  authenticate,
+  async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
 
-    const experimentName = req.params.experimentName;
-    const success = await abTestingService.startExperiment(experimentName);
-    
-    if (!success) {
-      return res.status(404).json({ error: 'Experiment not found' });
-    }
+      // Check admin privileges
+      if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
+        return res.status(403).json({ error: 'Admin privileges required' });
+      }
 
-    res.json({ success: true, message: 'Experiment started successfully' });
-  } catch (error) {
-    console.error('Error starting experiment:', error);
-    res.status(500).json({ error: 'Failed to start experiment' });
+      const experimentName = req.params.experimentName;
+      const success = await abTestingService.startExperiment(experimentName);
+
+      if (!success) {
+        return res.status(404).json({ error: 'Experiment not found' });
+      }
+
+      res.json({ success: true, message: 'Experiment started successfully' });
+    } catch (error) {
+      console.error('Error starting experiment:', error);
+      res.status(500).json({ error: 'Failed to start experiment' });
+    }
   }
-});
+);
 
 /**
  * Stop experiment
  * POST /api/admin/ab-testing/experiments/:experimentName/stop
  */
-router.post('/admin/experiments/:experimentName/stop', authenticate, async (req: Request, res: Response) => {
-  try {
-    const user = (req as any).user;
-    
-    // Check admin privileges
-    if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
-      return res.status(403).json({ error: 'Admin privileges required' });
+router.post(
+  '/admin/experiments/:experimentName/stop',
+  authenticate,
+  async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+
+      // Check admin privileges
+      if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
+        return res.status(403).json({ error: 'Admin privileges required' });
+      }
+
+      const experimentName = req.params.experimentName;
+      const { winnerVariant } = req.body;
+
+      const success = await abTestingService.stopExperiment(experimentName, winnerVariant);
+
+      if (!success) {
+        return res.status(404).json({ error: 'Experiment not found' });
+      }
+
+      res.json({
+        success: true,
+        message: 'Experiment stopped successfully',
+        winnerVariant,
+      });
+    } catch (error) {
+      console.error('Error stopping experiment:', error);
+      res.status(500).json({ error: 'Failed to stop experiment' });
     }
-
-    const experimentName = req.params.experimentName;
-    const { winnerVariant } = req.body;
-
-    const success = await abTestingService.stopExperiment(experimentName, winnerVariant);
-    
-    if (!success) {
-      return res.status(404).json({ error: 'Experiment not found' });
-    }
-
-    res.json({ 
-      success: true, 
-      message: 'Experiment stopped successfully',
-      winnerVariant 
-    });
-  } catch (error) {
-    console.error('Error stopping experiment:', error);
-    res.status(500).json({ error: 'Failed to stop experiment' });
   }
-});
+);
 
 /**
  * Get experiment results
  * GET /api/admin/ab-testing/experiments/:experimentName/results
  */
-router.get('/admin/experiments/:experimentName/results', authenticate, async (req: Request, res: Response) => {
-  try {
-    const user = (req as any).user;
-    
-    // Check admin privileges
-    if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
-      return res.status(403).json({ error: 'Admin privileges required' });
-    }
+router.get(
+  '/admin/experiments/:experimentName/results',
+  authenticate,
+  async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
 
-    const experimentName = req.params.experimentName;
-    const results = await abTestingService.getExperimentResults(experimentName);
-    
-    if (!results) {
-      return res.status(404).json({ error: 'Experiment not found' });
-    }
+      // Check admin privileges
+      if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
+        return res.status(403).json({ error: 'Admin privileges required' });
+      }
 
-    res.json(results);
-  } catch (error) {
-    console.error('Error getting experiment results:', error);
-    res.status(500).json({ error: 'Failed to get experiment results' });
+      const experimentName = req.params.experimentName;
+      const results = await abTestingService.getExperimentResults(experimentName);
+
+      if (!results) {
+        return res.status(404).json({ error: 'Experiment not found' });
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error('Error getting experiment results:', error);
+      res.status(500).json({ error: 'Failed to get experiment results' });
+    }
   }
-});
+);
 
 /**
  * Get active experiments for current user
@@ -343,23 +375,23 @@ router.get('/admin/experiments/:experimentName/results', authenticate, async (re
 router.get('/active', optionalAuth, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     const userContext = {
       userId: user?.userId?.toString(),
       sessionId: req.headers['x-session-id'] as string,
       email: user?.email,
-      tier: user?.tier
+      tier: user?.tier,
     };
 
     const activeExperiments = await abTestingService.getActiveExperiments(userContext);
-    
-    res.json({ 
+
+    res.json({
       activeExperiments,
       userContext: {
         userId: userContext.userId,
         sessionId: userContext.sessionId,
-        tier: userContext.tier
-      }
+        tier: userContext.tier,
+      },
     });
   } catch (error) {
     console.error('Error getting active experiments:', error);
@@ -375,14 +407,14 @@ router.get('/health', async (req: Request, res: Response) => {
   try {
     const healthCheck = await abTestingService.healthCheck();
     const status = healthCheck.status === 'healthy' ? 200 : 503;
-    
+
     res.status(status).json(healthCheck);
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
       details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
     });
   }
 });

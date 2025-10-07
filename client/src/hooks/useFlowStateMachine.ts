@@ -5,12 +5,12 @@ import { DiscoveredPage } from '@shared/schema';
 import { AuthUser } from '@/lib/auth-api';
 
 // Flow states representing the user journey
-export type FlowState = 
+export type FlowState =
   | 'INITIALIZING'
   | 'LANDING'
   | 'TIER_SELECTION'
   | 'AUTH_CHOICE'
-  | 'URL_INPUT' 
+  | 'URL_INPUT'
   | 'AUTH_CHECK'
   | 'EMAIL_CAPTURE'
   | 'TIER_LIMITS'
@@ -23,7 +23,7 @@ export type FlowState =
 export type UserTier = 'starter' | 'coffee' | 'growth' | 'scale';
 
 // Events that can trigger state transitions
-export type FlowEvent = 
+export type FlowEvent =
   | { type: 'AUTH_RESOLVED'; user: AuthUser | null }
   | { type: 'URL_SUBMITTED'; url: string }
   | { type: 'TIER_SELECTED'; tier: UserTier }
@@ -43,7 +43,12 @@ export type FlowEvent =
   | { type: 'OPEN_AUTH_MODAL' }
   | { type: 'CLOSE_AUTH_MODAL' }
   | { type: 'UPDATE_PROGRESS'; progress: Partial<ProgressContext> }
-  | { type: 'UPDATE_ANALYSIS_PROGRESS'; stage: string; totalPages?: number; processedPages?: number }
+  | {
+      type: 'UPDATE_ANALYSIS_PROGRESS';
+      stage: string;
+      totalPages?: number;
+      processedPages?: number;
+    }
   | { type: 'ERROR_OCCURRED'; error: ErrorContext; recoverable?: boolean }
   | { type: 'RECOVER_FROM_ERROR'; targetState?: FlowState }
   | { type: 'RETRY_CURRENT_OPERATION' };
@@ -106,12 +111,14 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
   // Circuit breaker: Track event frequency to prevent runaway loops
   const eventKey = `${context.currentState}:${event.type}`;
   const currentCount = context.eventCounter.get(eventKey) || 0;
-  
+
   // Special handling for ANALYSIS_COMPLETE - should only happen once per analysis
   const maxEventCount = event.type === 'ANALYSIS_COMPLETE' ? 3 : 10;
 
   if (currentCount >= maxEventCount) {
-    console.error(`🚨 CIRCUIT BREAKER: Event ${eventKey} exceeded ${maxEventCount} occurrences - ignoring`);
+    console.error(
+      `🚨 CIRCUIT BREAKER: Event ${eventKey} exceeded ${maxEventCount} occurrences - ignoring`
+    );
     return context;
   }
 
@@ -127,30 +134,34 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
 
   const updatedContext = { ...context, eventCounter: newEventCounter };
 
-  console.log(`🔄 State transition: ${context.currentState} + ${event.type} (count: ${currentCount + 1}/${maxEventCount})`);
+  console.log(
+    `🔄 State transition: ${context.currentState} + ${event.type} (count: ${currentCount + 1}/${maxEventCount})`
+  );
 
   switch (event.type) {
     case 'AUTH_RESOLVED': {
       const { user } = event;
       const newContext = { ...updatedContext, user, authLoading: false };
 
-      console.log(`🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}`);
+      console.log(
+        `🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}`
+      );
 
       // Handle authenticated users
       if (context.currentState === 'INITIALIZING' || context.currentState === 'AUTH_CHECK') {
         if (user) {
           console.log('✅ AUTH_RESOLVED: Authenticated user - going to /analyze (URL_INPUT)');
-          return { 
-            ...newContext, 
+          return {
+            ...newContext,
             currentState: 'URL_INPUT',
-            progress: updateProgressForState('URL_INPUT', newContext.progress)
+            progress: updateProgressForState('URL_INPUT', newContext.progress),
           };
         } else {
           console.log('👤 AUTH_RESOLVED: Unauthenticated user - showing landing page');
-          return { 
-            ...newContext, 
+          return {
+            ...newContext,
             currentState: 'LANDING',
-            progress: updateProgressForState('LANDING', newContext.progress)
+            progress: updateProgressForState('LANDING', newContext.progress),
           };
         }
       }
@@ -165,7 +176,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       return {
         ...updatedContext,
         currentState: 'TIER_SELECTION',
-        progress: updateProgressForState('TIER_SELECTION', updatedContext.progress)
+        progress: updateProgressForState('TIER_SELECTION', updatedContext.progress),
       };
     }
 
@@ -175,7 +186,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         ...updatedContext,
         userTier: event.tier,
         currentState: 'AUTH_CHOICE',
-        progress: updateProgressForState('AUTH_CHOICE', updatedContext.progress)
+        progress: updateProgressForState('AUTH_CHOICE', updatedContext.progress),
       };
     }
 
@@ -189,7 +200,9 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
     case 'URL_SUBMITTED': {
       const newContext = { ...updatedContext, websiteUrl: event.url };
 
-      console.log(`🌐 URL_SUBMITTED: url=${event.url}, hasUser=${!!context.user}, userTier=${context.user?.tier || 'none'}`);
+      console.log(
+        `🌐 URL_SUBMITTED: url=${event.url}, hasUser=${!!context.user}, userTier=${context.user?.tier || 'none'}`
+      );
 
       // For authenticated users, proceed based on tier
       if (context.user) {
@@ -203,7 +216,9 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
           return { ...newContext, currentState: 'TIER_LIMITS' };
         }
       } else {
-        console.log('👤 URL_SUBMITTED: No authenticated user - this should not happen on /analyze page');
+        console.log(
+          '👤 URL_SUBMITTED: No authenticated user - this should not happen on /analyze page'
+        );
         // This case should not happen on the /analyze page since it requires auth
         return { ...newContext, currentState: 'TIER_SELECTION' };
       }
@@ -211,7 +226,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
 
     case 'EMAIL_CAPTURED': {
       console.log(`📧 EMAIL_CAPTURED: ${event.email} with tier ${event.tier}`);
-      
+
       // This is for the legacy email capture flow (should be rare now)
       // In the new flow, users authenticate first, then go to /analyze
       return {
@@ -219,13 +234,13 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         userEmail: event.email,
         userTier: event.tier,
         currentState: 'URL_INPUT',
-        progress: updateProgressForState('URL_INPUT', updatedContext.progress)
+        progress: updateProgressForState('URL_INPUT', updatedContext.progress),
       };
     }
 
     case 'EMAIL_RECOGNIZED': {
       console.log(`🔍 EMAIL_RECOGNIZED: ${event.user.email} with tier ${event.user.tier}`);
-      
+
       // User was recognized - go to URL_INPUT (authenticated analysis page)
       return {
         ...updatedContext,
@@ -234,13 +249,13 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         userTier: event.user.tier,
         currentState: 'URL_INPUT',
         showAuthModal: false,
-        progress: updateProgressForState('URL_INPUT', context.progress)
+        progress: updateProgressForState('URL_INPUT', context.progress),
       };
     }
 
     case 'EMAIL_VERIFIED': {
       console.log(`✅ EMAIL_VERIFIED: ${event.user.email} with tier ${event.user.tier}`);
-      
+
       // After email verification, go to URL_INPUT (authenticated analysis page)
       return {
         ...updatedContext,
@@ -249,21 +264,21 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         userTier: event.user.tier,
         currentState: 'URL_INPUT',
         showAuthModal: false,
-        progress: updateProgressForState('URL_INPUT', context.progress)
+        progress: updateProgressForState('URL_INPUT', context.progress),
       };
     }
 
     case 'BYPASS_EMAIL_CAPTURE': {
       return {
         ...context,
-        currentState: 'TIER_LIMITS'
+        currentState: 'TIER_LIMITS',
       };
     }
 
     case 'PROCEED_TO_ANALYSIS': {
       return {
         ...context,
-        currentState: 'ANALYSIS'
+        currentState: 'ANALYSIS',
       };
     }
 
@@ -271,40 +286,48 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       console.log('☕ Coffee tier proceeding to analysis with premium features');
       return {
         ...context,
-        currentState: 'ANALYSIS'
+        currentState: 'ANALYSIS',
       };
     }
 
     case 'ANALYSIS_COMPLETE': {
       const transitionStart = performance.now();
-      
+
       // Event deduplication: Ignore if we've already processed this analysis
       if (context.lastProcessedAnalysisId === event.analysisId) {
-        console.log(`🚫 ANALYSIS_COMPLETE ignored: Already processed analysisId=${event.analysisId}`);
+        console.log(
+          `🚫 ANALYSIS_COMPLETE ignored: Already processed analysisId=${event.analysisId}`
+        );
         return context;
       }
 
       // Additional safety: Only allow transition to REVIEW from ANALYSIS state
       if (context.currentState !== 'ANALYSIS') {
-        console.log(`🚫 ANALYSIS_COMPLETE ignored: Invalid state transition from ${context.currentState}`);
+        console.log(
+          `🚫 ANALYSIS_COMPLETE ignored: Invalid state transition from ${context.currentState}`
+        );
         return context;
       }
 
-      console.log(`✅ ANALYSIS_COMPLETE processed: analysisId=${event.analysisId}, pages=${event.pages.length}`);
+      console.log(
+        `✅ ANALYSIS_COMPLETE processed: analysisId=${event.analysisId}, pages=${event.pages.length}`
+      );
       const nextState = 'REVIEW';
-      
+
       const newContext = {
         ...updatedContext,
         analysisId: event.analysisId,
         discoveredPages: event.pages,
         lastProcessedAnalysisId: event.analysisId,
         currentState: nextState,
-        progress: updateProgressForState(nextState, context.progress)
+        progress: updateProgressForState(nextState, context.progress),
       };
-      
+
       const transitionEnd = performance.now();
-      console.log(`⏱️ ANALYSIS_COMPLETE state transition took ${(transitionEnd - transitionStart).toFixed(2)}ms`);
-      
+      console.log(
+        `⏱️ ANALYSIS_COMPLETE state transition took ${(transitionEnd - transitionStart).toFixed(2)}ms`
+      );
+
       return newContext;
     }
 
@@ -314,21 +337,21 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         ...context,
         generatedFileId: event.fileId,
         currentState: nextState,
-        progress: updateProgressForState(nextState, context.progress)
+        progress: updateProgressForState(nextState, context.progress),
       };
     }
 
     case 'VIEW_ANALYSIS_DETAILS': {
       return {
         ...context,
-        currentState: 'REVIEW'
+        currentState: 'REVIEW',
       };
     }
 
     case 'START_NEW_ANALYSIS': {
       // Smart reset: preserve user context but clear analysis data
       console.log('🔄 START_NEW_ANALYSIS: Preserving user context, clearing analysis data');
-      
+
       // Scroll to URL input field when starting new analysis
       if (typeof window !== 'undefined') {
         setTimeout(() => {
@@ -343,19 +366,23 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
           }
         }, 100);
       }
-      
+
       // Preserve user-related state
       const preservedUser = context.user;
       const preservedEmail = preservedUser?.email || context.userEmail;
       const preservedTier = preservedUser?.tier || context.userTier;
-      
-      console.log(`📋 Preserved context: email=${preservedEmail}, tier=${preservedTier}, hasUser=${!!preservedUser}`);
-      
+
+      console.log(
+        `📋 Preserved context: email=${preservedEmail}, tier=${preservedTier}, hasUser=${!!preservedUser}`
+      );
+
       // For authenticated users, always go to URL_INPUT
       // For unauthenticated users, go to LANDING or EMAIL_CAPTURE for legacy support
       const startState = preservedUser ? 'URL_INPUT' : 'LANDING';
-      console.log(`🚀 START_NEW_ANALYSIS: Starting with ${startState} (hasUser: ${!!preservedUser})`);
-      
+      console.log(
+        `🚀 START_NEW_ANALYSIS: Starting with ${startState} (hasUser: ${!!preservedUser})`
+      );
+
       return {
         ...context,
         currentState: startState,
@@ -374,7 +401,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         userTier: preservedTier,
         user: preservedUser,
         showAuthModal: false,
-        progress: createInitialProgress()
+        progress: createInitialProgress(),
       };
     }
 
@@ -397,7 +424,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         retryCount: 0,
         lastProcessedAnalysisId: null,
         eventCounter: new Map(),
-        progress: createInitialProgress()
+        progress: createInitialProgress(),
       };
     }
 
@@ -406,7 +433,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         ...context,
         previousState: context.currentState,
         currentState: 'ERROR',
-        error: event.error
+        error: event.error,
       };
     }
 
@@ -417,7 +444,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         currentState: targetState,
         previousState: null,
         error: null,
-        retryCount: 0
+        retryCount: 0,
       };
     }
 
@@ -427,21 +454,21 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         ...context,
         currentState: targetState,
         error: null,
-        retryCount: context.retryCount + 1
+        retryCount: context.retryCount + 1,
       };
     }
 
     case 'OPEN_AUTH_MODAL': {
       return {
         ...context,
-        showAuthModal: true
+        showAuthModal: true,
       };
     }
 
     case 'CLOSE_AUTH_MODAL': {
       return {
         ...context,
-        showAuthModal: false
+        showAuthModal: false,
       };
     }
 
@@ -450,8 +477,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         ...context,
         progress: {
           ...context.progress,
-          ...event.progress
-        }
+          ...event.progress,
+        },
       };
     }
 
@@ -471,8 +498,8 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
           analysisStage: event.stage,
           completedAnalysisStages: updatedAnalysisStages,
           totalPages: event.totalPages ?? context.progress.totalPages,
-          processedPages: event.processedPages ?? context.progress.processedPages
-        }
+          processedPages: event.processedPages ?? context.progress.processedPages,
+        },
       };
     }
 
@@ -488,7 +515,7 @@ function parseURLParams(location: string): URLParams {
     url: urlParams.get('url') || undefined,
     email: urlParams.get('email') || undefined,
     isCoffeeReturn: urlParams.get('coffee') === 'true',
-    isRerun: urlParams.get('rerun') === 'true'
+    isRerun: urlParams.get('rerun') === 'true',
   };
 }
 
@@ -503,14 +530,14 @@ function createInitialProgress(): ProgressContext {
     totalPages: undefined,
     processedPages: undefined,
     timeEstimate: undefined,
-    loadingMessage: undefined
+    loadingMessage: undefined,
   };
 }
 
 // Helper function to update progress based on flow state
 function updateProgressForState(state: FlowState, progress: ProgressContext): ProgressContext {
   const newProgress = { ...progress };
-  
+
   switch (state) {
     case 'LANDING':
     case 'TIER_SELECTION':
@@ -543,18 +570,36 @@ function updateProgressForState(state: FlowState, progress: ProgressContext): Pr
       break;
     case 'REVIEW':
       newProgress.currentStep = 'review';
-      newProgress.completedSteps = ['getting-started', 'email-capture', 'url-input', 'tier-setup', 'analysis'];
+      newProgress.completedSteps = [
+        'getting-started',
+        'email-capture',
+        'url-input',
+        'tier-setup',
+        'analysis',
+      ];
       newProgress.progress = 70;
       newProgress.analysisStage = undefined;
-      newProgress.completedAnalysisStages = ['discovery', 'content-fetch', 'ai-analysis', 'finalization'];
+      newProgress.completedAnalysisStages = [
+        'discovery',
+        'content-fetch',
+        'ai-analysis',
+        'finalization',
+      ];
       break;
     case 'GENERATION':
       newProgress.currentStep = 'generation';
-      newProgress.completedSteps = ['getting-started', 'email-capture', 'url-input', 'tier-setup', 'analysis', 'review'];
+      newProgress.completedSteps = [
+        'getting-started',
+        'email-capture',
+        'url-input',
+        'tier-setup',
+        'analysis',
+        'review',
+      ];
       newProgress.progress = 100;
       break;
   }
-  
+
   return newProgress;
 }
 
@@ -594,7 +639,7 @@ function createInitialState(urlParams: URLParams, authLoading: boolean): FlowCon
     error: null,
     retryCount: 0,
     lastProcessedAnalysisId: null,
-    eventCounter: new Map()
+    eventCounter: new Map(),
   };
 }
 
@@ -607,20 +652,21 @@ export function useFlowStateMachine() {
   const urlParams = useMemo(() => parseURLParams(location), [location]);
 
   // Initialize state machine
-  const [context, dispatch] = useReducer(
-    flowReducer,
-    createInitialState(urlParams, authLoading)
-  );
+  const [context, dispatch] = useReducer(flowReducer, createInitialState(urlParams, authLoading));
 
   // Handle URL parameter changes
   useEffect(() => {
     if (urlParams.url && urlParams.url !== context.websiteUrl) {
-      console.log(`🌐 URL parameter detected: ${urlParams.url}, currentState: ${context.currentState}, authLoading: ${authLoading}, hasUser: ${!!user}`);
+      console.log(
+        `🌐 URL parameter detected: ${urlParams.url}, currentState: ${context.currentState}, authLoading: ${authLoading}, hasUser: ${!!user}`
+      );
       dispatch({ type: 'URL_SUBMITTED', url: urlParams.url });
     }
 
     if (urlParams.email && urlParams.email !== context.userEmail) {
-      console.log(`📧 Email parameter detected: ${urlParams.email}, isCoffeeReturn: ${urlParams.isCoffeeReturn}`);
+      console.log(
+        `📧 Email parameter detected: ${urlParams.email}, isCoffeeReturn: ${urlParams.isCoffeeReturn}`
+      );
       const tier = urlParams.isCoffeeReturn ? 'coffee' : 'starter';
       dispatch({ type: 'EMAIL_CAPTURED', email: urlParams.email, tier });
     }
@@ -629,7 +675,9 @@ export function useFlowStateMachine() {
   // Handle auth state changes
   useEffect(() => {
     if (!authLoading) {
-      console.log(`🔐 Auth loading completed, user: ${user?.email || 'none'}, tier: ${user?.tier || 'none'}, currentState: ${context.currentState}`);
+      console.log(
+        `🔐 Auth loading completed, user: ${user?.email || 'none'}, tier: ${user?.tier || 'none'}, currentState: ${context.currentState}`
+      );
       dispatch({ type: 'AUTH_RESOLVED', user });
     } else {
       console.log(`⏳ Auth still loading, currentState: ${context.currentState}`);
@@ -639,7 +687,7 @@ export function useFlowStateMachine() {
   // Computed properties for convenience
   const effectiveEmail = user?.email || context.userEmail;
   const effectiveTier = user?.tier || context.userTier;
-  
+
   // Determine component visibility based on state
   const visibility = {
     landing: context.currentState === 'LANDING',
@@ -652,47 +700,56 @@ export function useFlowStateMachine() {
     analysis: context.currentState === 'ANALYSIS',
     review: context.currentState === 'REVIEW' && context.analysisId !== null,
     generation: context.currentState === 'GENERATION' && context.generatedFileId !== null,
-    error: context.currentState === 'ERROR'
+    error: context.currentState === 'ERROR',
   };
 
   // Debug visibility logic for troubleshooting
-  console.log(`👁️ VISIBILITY: state=${context.currentState}, authLoading=${authLoading}, hasUser=${!!user}, emailCapture=${visibility.emailCapture}, tierLimits=${visibility.tierLimits}, analysis=${visibility.analysis}`);
+  console.log(
+    `👁️ VISIBILITY: state=${context.currentState}, authLoading=${authLoading}, hasUser=${!!user}, emailCapture=${visibility.emailCapture}, tierLimits=${visibility.tierLimits}, analysis=${visibility.analysis}`
+  );
 
   // Stable action creators with useCallback to prevent unnecessary re-renders
-  const actions = useMemo(() => ({
-    // Navigation actions
-    navigateToTierSelection: () => dispatch({ type: 'NAVIGATE_TO_TIER_SELECTION' }),
-    selectTier: (tier: UserTier) => dispatch({ type: 'TIER_SELECTED', tier }),
-    chooseAuthMethod: (method: 'login' | 'signup') => dispatch({ type: 'AUTH_METHOD_CHOSEN', method }),
-    
-    // Analysis flow actions
-    submitUrl: (url: string) => dispatch({ type: 'URL_SUBMITTED', url }),
-    captureEmail: (email: string, tier: UserTier) => dispatch({ type: 'EMAIL_CAPTURED', email, tier }),
-    recognizeEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_RECOGNIZED', user }),
-    verifyEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_VERIFIED', user }),
-    proceedToAnalysis: () => dispatch({ type: 'PROCEED_TO_ANALYSIS' }),
-    coffeeProceedToAnalysis: () => dispatch({ type: 'COFFEE_PROCEED_TO_ANALYSIS' }),
-    completeAnalysis: (analysisId: number, pages: DiscoveredPage[]) => 
-      dispatch({ type: 'ANALYSIS_COMPLETE', analysisId, pages }),
-    generateFile: (fileId: number) => dispatch({ type: 'FILE_GENERATED', fileId }),
-    
-    // Workflow control actions
-    resetWorkflow: () => dispatch({ type: 'RESET_WORKFLOW' }),
-    startNewAnalysis: () => dispatch({ type: 'START_NEW_ANALYSIS' }),
-    viewAnalysisDetails: () => dispatch({ type: 'VIEW_ANALYSIS_DETAILS' }),
-    
-    // UI state actions
-    openAuthModal: () => dispatch({ type: 'OPEN_AUTH_MODAL' }),
-    closeAuthModal: () => dispatch({ type: 'CLOSE_AUTH_MODAL' }),
-    updateProgress: (progress: Partial<ProgressContext>) => dispatch({ type: 'UPDATE_PROGRESS', progress }),
-    updateAnalysisProgress: (stage: string, totalPages?: number, processedPages?: number) => 
-      dispatch({ type: 'UPDATE_ANALYSIS_PROGRESS', stage, totalPages, processedPages }),
-    
-    // Error handling actions
-    reportError: (error: ErrorContext) => dispatch({ type: 'ERROR_OCCURRED', error }),
-    recoverFromError: (targetState?: FlowState) => dispatch({ type: 'RECOVER_FROM_ERROR', targetState }),
-    retryCurrentOperation: () => dispatch({ type: 'RETRY_CURRENT_OPERATION' })
-  }), []);
+  const actions = useMemo(
+    () => ({
+      // Navigation actions
+      navigateToTierSelection: () => dispatch({ type: 'NAVIGATE_TO_TIER_SELECTION' }),
+      selectTier: (tier: UserTier) => dispatch({ type: 'TIER_SELECTED', tier }),
+      chooseAuthMethod: (method: 'login' | 'signup') =>
+        dispatch({ type: 'AUTH_METHOD_CHOSEN', method }),
+
+      // Analysis flow actions
+      submitUrl: (url: string) => dispatch({ type: 'URL_SUBMITTED', url }),
+      captureEmail: (email: string, tier: UserTier) =>
+        dispatch({ type: 'EMAIL_CAPTURED', email, tier }),
+      recognizeEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_RECOGNIZED', user }),
+      verifyEmail: (user: AuthUser) => dispatch({ type: 'EMAIL_VERIFIED', user }),
+      proceedToAnalysis: () => dispatch({ type: 'PROCEED_TO_ANALYSIS' }),
+      coffeeProceedToAnalysis: () => dispatch({ type: 'COFFEE_PROCEED_TO_ANALYSIS' }),
+      completeAnalysis: (analysisId: number, pages: DiscoveredPage[]) =>
+        dispatch({ type: 'ANALYSIS_COMPLETE', analysisId, pages }),
+      generateFile: (fileId: number) => dispatch({ type: 'FILE_GENERATED', fileId }),
+
+      // Workflow control actions
+      resetWorkflow: () => dispatch({ type: 'RESET_WORKFLOW' }),
+      startNewAnalysis: () => dispatch({ type: 'START_NEW_ANALYSIS' }),
+      viewAnalysisDetails: () => dispatch({ type: 'VIEW_ANALYSIS_DETAILS' }),
+
+      // UI state actions
+      openAuthModal: () => dispatch({ type: 'OPEN_AUTH_MODAL' }),
+      closeAuthModal: () => dispatch({ type: 'CLOSE_AUTH_MODAL' }),
+      updateProgress: (progress: Partial<ProgressContext>) =>
+        dispatch({ type: 'UPDATE_PROGRESS', progress }),
+      updateAnalysisProgress: (stage: string, totalPages?: number, processedPages?: number) =>
+        dispatch({ type: 'UPDATE_ANALYSIS_PROGRESS', stage, totalPages, processedPages }),
+
+      // Error handling actions
+      reportError: (error: ErrorContext) => dispatch({ type: 'ERROR_OCCURRED', error }),
+      recoverFromError: (targetState?: FlowState) =>
+        dispatch({ type: 'RECOVER_FROM_ERROR', targetState }),
+      retryCurrentOperation: () => dispatch({ type: 'RETRY_CURRENT_OPERATION' }),
+    }),
+    []
+  );
 
   return {
     // State
@@ -710,16 +767,16 @@ export function useFlowStateMachine() {
     progress: context.progress,
     error: context.error,
     retryCount: context.retryCount,
-    
+
     // Computed properties
     effectiveEmail,
     effectiveTier,
-    
+
     // Component visibility
     visibility,
-    
+
     // Actions
-    actions
+    actions,
   };
 }
 

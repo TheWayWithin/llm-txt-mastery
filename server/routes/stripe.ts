@@ -1,48 +1,49 @@
-import type { Express } from "express";
-import { z } from "zod";
-import { 
+import type { Express } from 'express';
+import { z } from 'zod';
+import {
   stripe,
-  createStripeCustomer, 
+  createStripeCustomer,
   createCheckoutSession,
-  createOneTimeCheckoutSession, 
+  createOneTimeCheckoutSession,
   createPortalSession,
   getStripeCustomer,
   getCustomerSubscriptions,
   validateWebhookSignature,
   getTierFromPriceId,
-  TIER_PRICES
-} from "../services/stripe";
+  TIER_PRICES,
+} from '../services/stripe';
 
 // Credit bundle configuration
 const COFFEE_TIER_CREDITS = 100;
-import { storage } from "../storage";
-import { authStorage } from "../services/auth-storage";
-import { requireAuth, optionalAuth } from "../middleware/auth";
-import { apiLimiter } from "../middleware/rate-limit";
+import { storage } from '../storage';
+import { authStorage } from '../services/auth-storage';
+import { requireAuth, optionalAuth } from '../middleware/auth';
+import { apiLimiter } from '../middleware/rate-limit';
 
 export function registerStripeRoutes(app: Express) {
-  
   // Create checkout session for subscription
-  app.post("/api/stripe/create-checkout", requireAuth, apiLimiter, async (req, res) => {
+  app.post('/api/stripe/create-checkout', requireAuth, apiLimiter, async (req, res) => {
     try {
-      const { tier } = z.object({
-        tier: z.enum(['growth', 'scale'])
-      }).parse(req.body);
+      const { tier } = z
+        .object({
+          tier: z.enum(['growth', 'scale']),
+        })
+        .parse(req.body);
 
       const authUser = req.user;
       if (!authUser) {
-        return res.status(401).json({ message: "Authentication required" });
+        return res.status(401).json({ message: 'Authentication required' });
       }
 
       // Create Stripe customer for authenticated user
       const stripeCustomer = await createStripeCustomer({
         email: authUser.email,
-        userId: authUser.id.toString()
+        userId: authUser.id.toString(),
       });
-      
+
       // Update auth user with Stripe customer ID
       await authStorage.updateUser(authUser.id, {
-        stripeCustomerId: stripeCustomer.id
+        stripeCustomerId: stripeCustomer.id,
       });
 
       // Create checkout session
@@ -52,48 +53,51 @@ export function registerStripeRoutes(app: Express) {
         priceId,
         successUrl: `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${req.headers.origin}/subscription-cancel`,
-        userId: authUser.id.toString()
+        userId: authUser.id.toString(),
       });
 
-      res.json({ 
+      res.json({
         sessionId: session.id,
-        url: session.url 
+        url: session.url,
       });
-
     } catch (error) {
-      console.error("Checkout session creation failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to create checkout session"
+      console.error('Checkout session creation failed:', error);
+      res.status(400).json({
+        message: error instanceof Error ? error.message : 'Failed to create checkout session',
       });
     }
   });
 
   // Create Growth tier checkout session (for signup flow)
-  app.post("/api/stripe/create-growth-checkout", optionalAuth, apiLimiter, async (req, res) => {
+  app.post('/api/stripe/create-growth-checkout', optionalAuth, apiLimiter, async (req, res) => {
     try {
-      console.log('📊 Growth checkout request:', { 
+      console.log('📊 Growth checkout request:', {
         body: req.body,
         hasUser: !!req.user,
-        userEmail: req.user?.email
+        userEmail: req.user?.email,
       });
-      
-      const { email, websiteUrl, metadata } = z.object({
-        email: z.string().email().optional(),
-        websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
-        metadata: z.object({
-          password: z.string().optional(),
-          tier: z.string().optional()
-        }).optional()
-      }).parse(req.body);
+
+      const { email, websiteUrl, metadata } = z
+        .object({
+          email: z.string().email().optional(),
+          websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
+          metadata: z
+            .object({
+              password: z.string().optional(),
+              tier: z.string().optional(),
+            })
+            .optional(),
+        })
+        .parse(req.body);
 
       // Support both authenticated and email-based purchases
       const userEmail = req.user?.email || email;
-      
+
       if (!userEmail) {
         console.error('❌ No email provided for Growth checkout');
-        return res.status(400).json({ message: "Email is required" });
+        return res.status(400).json({ message: 'Email is required' });
       }
-      
+
       console.log(`✅ Processing Growth checkout for: ${userEmail}`);
 
       // Get or create email capture record
@@ -102,27 +106,27 @@ export function registerStripeRoutes(app: Express) {
         emailCapture = await storage.createEmailCapture({
           email: userEmail,
           tier: 'starter',
-          websiteUrl: websiteUrl || null
+          websiteUrl: websiteUrl || null,
         });
       }
 
       // Create Stripe customer
       const stripeCustomer = await createStripeCustomer({
         email: userEmail,
-        userId: emailCapture.id.toString()
+        userId: emailCapture.id.toString(),
       });
 
       // Create subscription checkout session for Growth tier
       const priceId = TIER_PRICES.growth.priceId;
-      
+
       const encodedEmail = encodeURIComponent(userEmail);
       const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
-      
+
       let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=growth`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
-        
+
       const session = await createCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
@@ -133,59 +137,63 @@ export function registerStripeRoutes(app: Express) {
           ...metadata,
           email: userEmail,
           tier: 'growth',
-          websiteUrl: websiteUrl || ''
-        }
+          websiteUrl: websiteUrl || '',
+        },
       });
 
-      res.json({ 
+      res.json({
         sessionId: session.id,
-        url: session.url 
+        url: session.url,
       });
-
     } catch (error) {
-      console.error("❌ Growth checkout session creation failed:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to create growth checkout session";
-      
+      console.error('❌ Growth checkout session creation failed:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create growth checkout session';
+
       // Check for specific error types
       if (errorMessage.includes('STRIPE_SECRET_KEY')) {
         console.error('🔑 Stripe configuration error - missing API key');
-        res.status(500).json({ 
-          message: "Payment system configuration error. Please contact support."
+        res.status(500).json({
+          message: 'Payment system configuration error. Please contact support.',
         });
       } else {
-        res.status(400).json({ 
-          message: errorMessage
+        res.status(400).json({
+          message: errorMessage,
         });
       }
     }
   });
 
   // Create Scale tier checkout session (for signup flow)
-  app.post("/api/stripe/create-scale-checkout", optionalAuth, apiLimiter, async (req, res) => {
+  app.post('/api/stripe/create-scale-checkout', optionalAuth, apiLimiter, async (req, res) => {
     try {
-      console.log('📊 Scale checkout request:', { 
+      console.log('📊 Scale checkout request:', {
         body: req.body,
         hasUser: !!req.user,
-        userEmail: req.user?.email
+        userEmail: req.user?.email,
       });
-      
-      const { email, websiteUrl, metadata } = z.object({
-        email: z.string().email().optional(),
-        websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
-        metadata: z.object({
-          password: z.string().optional(),
-          tier: z.string().optional()
-        }).optional()
-      }).parse(req.body);
+
+      const { email, websiteUrl, metadata } = z
+        .object({
+          email: z.string().email().optional(),
+          websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
+          metadata: z
+            .object({
+              password: z.string().optional(),
+              tier: z.string().optional(),
+            })
+            .optional(),
+        })
+        .parse(req.body);
 
       // Support both authenticated and email-based purchases
       const userEmail = req.user?.email || email;
-      
+
       if (!userEmail) {
         console.error('❌ No email provided for Scale checkout');
-        return res.status(400).json({ message: "Email is required" });
+        return res.status(400).json({ message: 'Email is required' });
       }
-      
+
       console.log(`✅ Processing Scale checkout for: ${userEmail}`);
 
       // Get or create email capture record
@@ -194,27 +202,27 @@ export function registerStripeRoutes(app: Express) {
         emailCapture = await storage.createEmailCapture({
           email: userEmail,
           tier: 'starter',
-          websiteUrl: websiteUrl || null
+          websiteUrl: websiteUrl || null,
         });
       }
 
       // Create Stripe customer
       const stripeCustomer = await createStripeCustomer({
         email: userEmail,
-        userId: emailCapture.id.toString()
+        userId: emailCapture.id.toString(),
       });
 
       // Create subscription checkout session for Scale tier
       const priceId = TIER_PRICES.scale.priceId;
-      
+
       const encodedEmail = encodeURIComponent(userEmail);
       const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
-      
+
       let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=scale`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
-        
+
       const session = await createCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
@@ -225,46 +233,48 @@ export function registerStripeRoutes(app: Express) {
           ...metadata,
           email: userEmail,
           tier: 'scale',
-          websiteUrl: websiteUrl || ''
-        }
+          websiteUrl: websiteUrl || '',
+        },
       });
 
-      res.json({ 
+      res.json({
         sessionId: session.id,
-        url: session.url 
+        url: session.url,
       });
-
     } catch (error) {
-      console.error("❌ Scale checkout session creation failed:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to create scale checkout session";
-      
+      console.error('❌ Scale checkout session creation failed:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create scale checkout session';
+
       // Check for specific error types
       if (errorMessage.includes('STRIPE_SECRET_KEY')) {
         console.error('🔑 Stripe configuration error - missing API key');
-        res.status(500).json({ 
-          message: "Payment system configuration error. Please contact support."
+        res.status(500).json({
+          message: 'Payment system configuration error. Please contact support.',
         });
       } else {
-        res.status(400).json({ 
-          message: errorMessage
+        res.status(400).json({
+          message: errorMessage,
         });
       }
     }
   });
 
   // Create one-time checkout session for coffee tier
-  app.post("/api/stripe/create-coffee-checkout", optionalAuth, apiLimiter, async (req, res) => {
+  app.post('/api/stripe/create-coffee-checkout', optionalAuth, apiLimiter, async (req, res) => {
     try {
-      const { email, websiteUrl } = z.object({
-        email: z.string().email().optional(),
-        websiteUrl: z.union([z.string().url(), z.literal('')]).optional()
-      }).parse(req.body);
+      const { email, websiteUrl } = z
+        .object({
+          email: z.string().email().optional(),
+          websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
+        })
+        .parse(req.body);
 
       // Support both authenticated and email-based purchases
       const userEmail = req.user?.email || email;
-      
+
       if (!userEmail) {
-        return res.status(400).json({ message: "Email is required" });
+        return res.status(400).json({ message: 'Email is required' });
       }
 
       // Get or create email capture record (for freemium users)
@@ -273,60 +283,62 @@ export function registerStripeRoutes(app: Express) {
         emailCapture = await storage.createEmailCapture({
           email: userEmail,
           tier: 'starter',
-          websiteUrl: websiteUrl || null
+          websiteUrl: websiteUrl || null,
         });
       }
 
       // Create Stripe customer (don't need user profile for freemium checkout)
       const stripeCustomer = await createStripeCustomer({
         email: userEmail,
-        userId: emailCapture.id.toString() // Use email capture ID
+        userId: emailCapture.id.toString(), // Use email capture ID
       });
 
       // Create one-time payment checkout session
       const priceId = TIER_PRICES.coffee.priceId;
-      
+
       // Encode website URL and email for success redirect
       const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
       const encodedEmail = encodeURIComponent(userEmail);
-      
+
       let successUrl = `${req.headers.origin}/coffee-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
-        
+
       const session = await createOneTimeCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
         successUrl,
         cancelUrl: `${req.headers.origin}/coffee-cancel`,
         userId: emailCapture.id.toString(),
-        productType: 'coffee'
+        productType: 'coffee',
       });
 
-      res.json({ 
+      res.json({
         sessionId: session.id,
-        url: session.url 
+        url: session.url,
       });
-
     } catch (error) {
-      console.error("Coffee checkout session creation failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to create coffee checkout session"
+      console.error('Coffee checkout session creation failed:', error);
+      res.status(400).json({
+        message:
+          error instanceof Error ? error.message : 'Failed to create coffee checkout session',
       });
     }
   });
 
   // Create subscription upgrade session (handles proration automatically)
-  app.post("/api/stripe/create-upgrade-session", requireAuth, apiLimiter, async (req, res) => {
+  app.post('/api/stripe/create-upgrade-session', requireAuth, apiLimiter, async (req, res) => {
     try {
-      const { targetTier } = z.object({
-        targetTier: z.enum(['growth', 'scale'])
-      }).parse(req.body);
+      const { targetTier } = z
+        .object({
+          targetTier: z.enum(['growth', 'scale']),
+        })
+        .parse(req.body);
 
       const authUser = req.user;
       if (!authUser) {
-        return res.status(401).json({ message: "Authentication required" });
+        return res.status(401).json({ message: 'Authentication required' });
       }
 
       // Check if user has a Stripe customer ID
@@ -334,37 +346,36 @@ export function registerStripeRoutes(app: Express) {
         // Create new customer if doesn't exist
         const stripeCustomer = await createStripeCustomer({
           email: authUser.email,
-          userId: authUser.id.toString()
+          userId: authUser.id.toString(),
         });
-        
+
         await authStorage.updateUser(authUser.id, {
-          stripeCustomerId: stripeCustomer.id
+          stripeCustomerId: stripeCustomer.id,
         });
-        
+
         authUser.stripeCustomerId = stripeCustomer.id;
       }
 
       // Get current subscriptions
       const subscriptions = await getCustomerSubscriptions(authUser.stripeCustomerId);
-      
+
       if (subscriptions.length > 0) {
         // User has an active subscription - update it (Stripe handles proration)
         const currentSubscription = subscriptions[0];
         const targetPriceId = TIER_PRICES[targetTier].priceId;
-        
+
         // Update subscription to new price (Stripe automatically prorates)
-        const updatedSubscription = await stripe().subscriptions.update(
-          currentSubscription.id,
-          {
-            items: [{
+        const updatedSubscription = await stripe().subscriptions.update(currentSubscription.id, {
+          items: [
+            {
               id: currentSubscription.items.data[0].id,
-              price: targetPriceId
-            }],
-            proration_behavior: 'always_invoice', // Charge immediately for the difference
-            payment_behavior: 'pending_if_incomplete'
-          }
-        );
-        
+              price: targetPriceId,
+            },
+          ],
+          proration_behavior: 'always_invoice', // Charge immediately for the difference
+          payment_behavior: 'pending_if_incomplete',
+        });
+
         // If payment is required, create a checkout session to collect it
         if (updatedSubscription.status === 'incomplete') {
           const session = await stripe().checkout.sessions.create({
@@ -376,21 +387,21 @@ export function registerStripeRoutes(app: Express) {
             metadata: {
               userId: authUser.id.toString(),
               upgradeFrom: authUser.tier,
-              upgradeTo: targetTier
-            }
+              upgradeTo: targetTier,
+            },
           });
-          
-          res.json({ 
+
+          res.json({
             sessionId: session.id,
             url: session.url,
-            message: 'Payment required for upgrade'
+            message: 'Payment required for upgrade',
           });
         } else {
           // Upgrade successful without additional payment
-          res.json({ 
+          res.json({
             success: true,
             message: 'Subscription upgraded successfully',
-            subscription: updatedSubscription
+            subscription: updatedSubscription,
           });
         }
       } else {
@@ -401,34 +412,33 @@ export function registerStripeRoutes(app: Express) {
           priceId,
           successUrl: `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&tier=${targetTier}`,
           cancelUrl: `${req.headers.origin}/subscription-cancel`,
-          userId: authUser.id.toString()
+          userId: authUser.id.toString(),
         });
-        
-        res.json({ 
+
+        res.json({
           sessionId: session.id,
           url: session.url,
-          message: 'Redirecting to checkout'
+          message: 'Redirecting to checkout',
         });
       }
-
     } catch (error) {
-      console.error("Upgrade session creation failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to create upgrade session"
+      console.error('Upgrade session creation failed:', error);
+      res.status(400).json({
+        message: error instanceof Error ? error.message : 'Failed to create upgrade session',
       });
     }
   });
 
   // Create customer portal session
-  app.post("/api/stripe/create-portal", requireAuth, apiLimiter, async (req, res) => {
+  app.post('/api/stripe/create-portal', requireAuth, apiLimiter, async (req, res) => {
     try {
       const authUser = req.user;
       if (!authUser) {
-        return res.status(401).json({ message: "Authentication required" });
+        return res.status(401).json({ message: 'Authentication required' });
       }
 
       if (!authUser.stripeCustomerId) {
-        return res.status(400).json({ message: "No Stripe customer found" });
+        return res.status(400).json({ message: 'No Stripe customer found' });
       }
 
       const session = await createPortalSession(
@@ -437,21 +447,20 @@ export function registerStripeRoutes(app: Express) {
       );
 
       res.json({ url: session.url });
-
     } catch (error) {
-      console.error("Portal session creation failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Failed to create portal session"
+      console.error('Portal session creation failed:', error);
+      res.status(400).json({
+        message: error instanceof Error ? error.message : 'Failed to create portal session',
       });
     }
   });
 
   // Get subscription status
-  app.get("/api/stripe/subscription-status", requireAuth, async (req, res) => {
+  app.get('/api/stripe/subscription-status', requireAuth, async (req, res) => {
     try {
       const authUser = req.user;
       if (!authUser) {
-        return res.status(401).json({ message: "Authentication required" });
+        return res.status(401).json({ message: 'Authentication required' });
       }
 
       // Return authenticated user's tier and credits directly from auth_users table
@@ -460,23 +469,22 @@ export function registerStripeRoutes(app: Express) {
         subscriptionStatus: null, // TODO: Add subscription status to auth_users if needed
         hasActiveSubscription: ['growth', 'scale'].includes(authUser.tier),
         creditsRemaining: authUser.creditsRemaining || 0,
-        subscriptions: [] // TODO: Link subscriptions to auth_users if needed
+        subscriptions: [], // TODO: Link subscriptions to auth_users if needed
       });
-
     } catch (error) {
-      console.error("Failed to get subscription status:", error);
-      res.status(500).json({ message: "Failed to get subscription status" });
+      console.error('Failed to get subscription status:', error);
+      res.status(500).json({ message: 'Failed to get subscription status' });
     }
   });
 
   // Stripe webhook handler
-  app.post("/api/stripe/webhook", async (req, res) => {
+  app.post('/api/stripe/webhook', async (req, res) => {
     try {
       const signature = req.headers['stripe-signature'] as string;
       const payload = req.body;
 
       if (!signature) {
-        return res.status(400).json({ message: "Missing stripe signature" });
+        return res.status(400).json({ message: 'Missing stripe signature' });
       }
 
       // Validate webhook signature
@@ -491,42 +499,41 @@ export function registerStripeRoutes(app: Express) {
           await handleCheckoutCompleted(session);
           break;
         }
-        
+
         case 'customer.subscription.created':
         case 'customer.subscription.updated': {
           const subscription = event.data.object as any;
           await handleSubscriptionUpdate(subscription);
           break;
         }
-        
+
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as any;
           await handleSubscriptionCancelled(subscription);
           break;
         }
-        
+
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as any;
           await handlePaymentSucceeded(invoice);
           break;
         }
-        
+
         case 'invoice.payment_failed': {
           const invoice = event.data.object as any;
           await handlePaymentFailed(invoice);
           break;
         }
-        
+
         default:
           console.log(`Unhandled webhook event: ${event.type}`);
       }
 
       res.json({ received: true });
-
     } catch (error) {
-      console.error("Webhook processing failed:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Webhook processing failed"
+      console.error('Webhook processing failed:', error);
+      res.status(400).json({
+        message: error instanceof Error ? error.message : 'Webhook processing failed',
       });
     }
   });
@@ -538,21 +545,23 @@ async function handleCheckoutCompleted(session: any) {
     const userId = session.metadata?.userId;
     const paymentType = session.metadata?.paymentType;
     const productType = session.metadata?.productType;
-    
+
     if (!userId) {
-      console.error("No userId in checkout session metadata");
+      console.error('No userId in checkout session metadata');
       return;
     }
 
-    console.log(`Checkout completed for user: ${userId}, payment type: ${paymentType || 'subscription'}`);
-    
+    console.log(
+      `Checkout completed for user: ${userId}, payment type: ${paymentType || 'subscription'}`
+    );
+
     if (paymentType === 'one_time' && productType === 'coffee') {
       // Handle one-time coffee purchase
       console.log(`Processing coffee purchase for user: ${userId}`);
-      
+
       // Get customer email from Stripe session
       const customerEmail = session.customer_details?.email || session.customer_email;
-      
+
       // Create credit record
       await storage.createOneTimeCredit({
         userId: parseInt(userId), // Convert to number for database
@@ -560,18 +569,18 @@ async function handleCheckoutCompleted(session: any) {
         creditsTotal: COFFEE_TIER_CREDITS,
         productType: 'coffee',
         priceId: session.metadata?.priceId,
-        stripePaymentIntentId: session.payment_intent
+        stripePaymentIntentId: session.payment_intent,
       });
-      
+
       // Update user profile with credits
       const currentProfile = await storage.getUserProfile(userId);
       const currentCredits = currentProfile?.creditsRemaining || 0;
-      
+
       await storage.updateUserProfile(userId, {
         creditsRemaining: currentCredits + COFFEE_TIER_CREDITS,
-        tier: 'coffee' // Update tier to coffee
+        tier: 'coffee', // Update tier to coffee
       });
-      
+
       // CRITICAL FIX: Update emailCaptures table with Coffee tier
       if (customerEmail) {
         try {
@@ -585,7 +594,7 @@ async function handleCheckoutCompleted(session: any) {
             await storage.createEmailCapture({
               email: customerEmail,
               tier: 'coffee',
-              websiteUrl: null
+              websiteUrl: null,
             });
             console.log(`Created email capture for ${customerEmail} as Coffee tier`);
           }
@@ -593,17 +602,17 @@ async function handleCheckoutCompleted(session: any) {
           console.error(`Failed to update email capture for ${customerEmail}:`, error);
         }
       }
-      
+
       // NEW: Create or update auth_users table for auto-login functionality
       if (customerEmail) {
         try {
           let authUser = await authStorage.getUserByEmail(customerEmail);
-          
+
           if (authUser) {
             // Update existing authenticated user's tier and credits
             await authStorage.updateUser(authUser.id, {
               tier: 'coffee',
-              creditsRemaining: (authUser.creditsRemaining || 0) + COFFEE_TIER_CREDITS
+              creditsRemaining: (authUser.creditsRemaining || 0) + COFFEE_TIER_CREDITS,
             });
             console.log(`Updated authenticated user ${customerEmail} to Coffee tier with credits`);
           } else {
@@ -612,17 +621,17 @@ async function handleCheckoutCompleted(session: any) {
             const tempPassword = Math.random().toString(36).slice(-12);
             const { hashPassword } = await import('../services/auth');
             const passwordHash = await hashPassword(tempPassword);
-            
+
             authUser = await authStorage.createUser({
               email: customerEmail,
               passwordHash,
               emailVerified: false, // They'll need to verify later
               tier: 'coffee',
-              creditsRemaining: COFFEE_TIER_CREDITS
+              creditsRemaining: COFFEE_TIER_CREDITS,
             });
-            
+
             console.log(`Created new auth user ${customerEmail} with Coffee tier for auto-login`);
-            
+
             // TODO: Send welcome email with account setup instructions
             // For now, the user can use auto-login from coffee-success page
           }
@@ -630,33 +639,33 @@ async function handleCheckoutCompleted(session: any) {
           console.error(`Failed to create/update authenticated user for ${customerEmail}:`, error);
         }
       }
-      
+
       console.log(`Added ${COFFEE_TIER_CREDITS} coffee credits to user: ${userId}`);
-      
     } else if (session.subscription) {
       // Handle subscription signup (Growth and Scale tiers)
       console.log(`Processing subscription checkout for user: ${userId}`);
-      
+
       // Get customer email and tier from session
       const customerEmail = session.customer_details?.email || session.customer_email;
-      const tier = session.metadata?.tier || getTierFromPriceId(session.metadata?.priceId) || 'starter';
+      const tier =
+        session.metadata?.tier || getTierFromPriceId(session.metadata?.priceId) || 'starter';
       const encodedPassword = session.metadata?.password; // Base64 encoded password from signup flow
-      
+
       await storage.updateUserProfile(userId, {
         subscriptionId: session.subscription,
-        subscriptionStatus: 'active'
+        subscriptionStatus: 'active',
       });
-      
+
       // CRITICAL FIX: Create or update auth_users for Growth/Scale subscription
       if (customerEmail) {
         try {
           let authUser = await authStorage.getUserByEmail(customerEmail);
-          
+
           if (authUser) {
             // Update existing authenticated user's tier for subscription
             await authStorage.updateUser(authUser.id, {
               tier: tier as any,
-              stripeCustomerId: session.customer
+              stripeCustomerId: session.customer,
             });
             console.log(`Updated authenticated user ${customerEmail} to ${tier} tier`);
           } else if (encodedPassword) {
@@ -664,26 +673,30 @@ async function handleCheckoutCompleted(session: any) {
             const { hashPassword } = await import('../services/auth');
             const password = Buffer.from(encodedPassword, 'base64').toString();
             const passwordHash = await hashPassword(password);
-            
+
             authUser = await authStorage.createUser({
               email: customerEmail,
               passwordHash,
               emailVerified: false, // Will be verified later
               tier: tier as any,
               creditsRemaining: 0, // Not used for subscription tiers
-              stripeCustomerId: session.customer
+              stripeCustomerId: session.customer,
             });
-            console.log(`Created authenticated user ${customerEmail} as ${tier} tier with subscription`);
-            
+            console.log(
+              `Created authenticated user ${customerEmail} as ${tier} tier with subscription`
+            );
+
             // Send verification email
             const { sendVerificationEmail } = await import('../services/auth');
-            sendVerificationEmail(authUser).catch(error => {
+            sendVerificationEmail(authUser).catch((error) => {
               console.error('Failed to send verification email:', error);
             });
           } else {
-            console.warn(`No auth user exists for ${customerEmail} and no password provided to create one`);
+            console.warn(
+              `No auth user exists for ${customerEmail} and no password provided to create one`
+            );
           }
-          
+
           // Update email capture
           const existingCapture = await storage.getEmailCapture(customerEmail);
           if (existingCapture) {
@@ -693,7 +706,7 @@ async function handleCheckoutCompleted(session: any) {
             await storage.createEmailCapture({
               email: customerEmail,
               tier: tier as any,
-              websiteUrl: null
+              websiteUrl: null,
             });
             console.log(`Created email capture for ${customerEmail} as ${tier} tier`);
           }
@@ -701,11 +714,13 @@ async function handleCheckoutCompleted(session: any) {
           console.error(`Failed to update auth/email for subscription ${customerEmail}:`, error);
         }
       } else {
-        console.error(`No customer email found in subscription checkout session for user ${userId}`);
+        console.error(
+          `No customer email found in subscription checkout session for user ${userId}`
+        );
       }
     }
   } catch (error) {
-    console.error("Failed to handle checkout completion:", error);
+    console.error('Failed to handle checkout completion:', error);
   }
 }
 
@@ -713,19 +728,21 @@ async function handleSubscriptionUpdate(subscription: any) {
   try {
     const userId = subscription.metadata?.userId;
     if (!userId) {
-      console.error("No userId in subscription metadata");
+      console.error('No userId in subscription metadata');
       return;
     }
 
     const priceId = subscription.items?.data[0]?.price?.id;
     const tier = getTierFromPriceId(priceId) || 'starter';
 
-    console.log(`Subscription updated for user: ${userId}, tier: ${tier}, status: ${subscription.status}`);
+    console.log(
+      `Subscription updated for user: ${userId}, tier: ${tier}, status: ${subscription.status}`
+    );
 
     await storage.updateUserProfile(userId, {
       tier: tier as any,
       subscriptionId: subscription.id,
-      subscriptionStatus: subscription.status
+      subscriptionStatus: subscription.status,
     });
 
     // CRITICAL FIX: Get customer email and update both auth_users and emailCaptures
@@ -734,18 +751,18 @@ async function handleSubscriptionUpdate(subscription: any) {
       // Get customer email from Stripe
       const customer = await getStripeCustomer(subscription.customer);
       customerEmail = customer?.email;
-      
+
       if (customerEmail) {
         // Update auth_users table
         const authUser = await authStorage.getUserByEmail(customerEmail);
         if (authUser) {
           await authStorage.updateUser(authUser.id, {
             tier: tier as any,
-            stripeCustomerId: subscription.customer
+            stripeCustomerId: subscription.customer,
           });
           console.log(`Updated auth_users for ${customerEmail} to ${tier} tier`);
         }
-        
+
         // Update email captures
         const existingCapture = await storage.getEmailCapture(customerEmail);
         if (existingCapture) {
@@ -755,7 +772,7 @@ async function handleSubscriptionUpdate(subscription: any) {
           await storage.createEmailCapture({
             email: customerEmail,
             tier: tier as any,
-            websiteUrl: null
+            websiteUrl: null,
           });
           console.log(`Created emailCaptures for ${customerEmail} as ${tier} tier`);
         }
@@ -763,7 +780,10 @@ async function handleSubscriptionUpdate(subscription: any) {
         console.error(`No email found for Stripe customer ${subscription.customer}`);
       }
     } catch (customerError) {
-      console.error(`Failed to get customer email for subscription ${subscription.id}:`, customerError);
+      console.error(
+        `Failed to get customer email for subscription ${subscription.id}:`,
+        customerError
+      );
     }
 
     // Record payment history if subscription is active
@@ -774,12 +794,11 @@ async function handleSubscriptionUpdate(subscription: any) {
         amount: subscription.items?.data[0]?.price?.unit_amount || 0,
         currency: subscription.items?.data[0]?.price?.currency || 'usd',
         status: 'paid',
-        tier: tier as any
+        tier: tier as any,
       });
     }
-
   } catch (error) {
-    console.error("Failed to handle subscription update:", error);
+    console.error('Failed to handle subscription update:', error);
   }
 }
 
@@ -787,7 +806,7 @@ async function handleSubscriptionCancelled(subscription: any) {
   try {
     const userId = subscription.metadata?.userId;
     if (!userId) {
-      console.error("No userId in subscription metadata");
+      console.error('No userId in subscription metadata');
       return;
     }
 
@@ -795,7 +814,7 @@ async function handleSubscriptionCancelled(subscription: any) {
 
     await storage.updateUserProfile(userId, {
       tier: 'starter',
-      subscriptionStatus: 'cancelled'
+      subscriptionStatus: 'cancelled',
     });
 
     // CRITICAL FIX: Downgrade both auth_users and emailCaptures when subscription is cancelled
@@ -804,32 +823,40 @@ async function handleSubscriptionCancelled(subscription: any) {
       // Get customer email from Stripe
       const customer = await getStripeCustomer(subscription.customer);
       customerEmail = customer?.email;
-      
+
       if (customerEmail) {
         // Downgrade auth_users table
         const authUser = await authStorage.getUserByEmail(customerEmail);
         if (authUser) {
           await authStorage.updateUser(authUser.id, {
-            tier: 'starter'
+            tier: 'starter',
           });
-          console.log(`Downgraded auth_users for ${customerEmail} to starter tier (subscription cancelled)`);
+          console.log(
+            `Downgraded auth_users for ${customerEmail} to starter tier (subscription cancelled)`
+          );
         }
-        
+
         // Downgrade emailCaptures
         const existingCapture = await storage.getEmailCapture(customerEmail);
         if (existingCapture) {
           await storage.updateEmailCapture(customerEmail, { tier: 'starter' });
-          console.log(`Downgraded emailCaptures for ${customerEmail} to starter tier (subscription cancelled)`);
+          console.log(
+            `Downgraded emailCaptures for ${customerEmail} to starter tier (subscription cancelled)`
+          );
         }
       } else {
-        console.error(`No email found for cancelled subscription customer ${subscription.customer}`);
+        console.error(
+          `No email found for cancelled subscription customer ${subscription.customer}`
+        );
       }
     } catch (customerError) {
-      console.error(`Failed to get customer email for cancelled subscription ${subscription.id}:`, customerError);
+      console.error(
+        `Failed to get customer email for cancelled subscription ${subscription.id}:`,
+        customerError
+      );
     }
-
   } catch (error) {
-    console.error("Failed to handle subscription cancellation:", error);
+    console.error('Failed to handle subscription cancellation:', error);
   }
 }
 
@@ -839,37 +866,40 @@ async function handlePaymentSucceeded(invoice: any) {
     if (!subscriptionId) return;
 
     console.log(`Payment succeeded for subscription: ${subscriptionId}`);
-    
+
     // Get the customer email from the invoice
     const customerEmail = invoice.customer_email;
-    
+
     // Check if this is a renewal (not the first payment)
     // billing_reason: 'subscription_cycle' means it's a renewal
     // billing_reason: 'subscription_create' means it's the first payment
     if (invoice.billing_reason === 'subscription_cycle') {
       console.log(`Subscription renewal detected for: ${customerEmail}`);
-      
+
       // Get the user from auth_users table
       const authUser = await authStorage.getUserByEmail(customerEmail);
-      
+
       if (authUser && authUser.tier === 'coffee') {
         // Reset credits to 100 for Coffee tier renewal
         await authStorage.updateUser(authUser.id, {
-          creditsRemaining: COFFEE_TIER_CREDITS
+          creditsRemaining: COFFEE_TIER_CREDITS,
         });
-        console.log(`[RENEWAL] Reset credits to ${COFFEE_TIER_CREDITS} for Coffee tier user: ${customerEmail}`);
-        
+        console.log(
+          `[RENEWAL] Reset credits to ${COFFEE_TIER_CREDITS} for Coffee tier user: ${customerEmail}`
+        );
+
         // Also call the handleSubscriptionRenewal function from usage.ts
         const { handleSubscriptionRenewal } = await import('../services/usage');
         await handleSubscriptionRenewal(authUser.id);
       }
     }
-    
+
     // Add payment history tracking
-    console.log(`Payment recorded: ${invoice.amount_paid / 100} ${invoice.currency.toUpperCase()} for ${customerEmail}`);
-    
+    console.log(
+      `Payment recorded: ${invoice.amount_paid / 100} ${invoice.currency.toUpperCase()} for ${customerEmail}`
+    );
   } catch (error) {
-    console.error("Failed to handle payment success:", error);
+    console.error('Failed to handle payment success:', error);
   }
 }
 
@@ -879,10 +909,9 @@ async function handlePaymentFailed(invoice: any) {
     if (!subscriptionId) return;
 
     console.log(`Payment failed for subscription: ${subscriptionId}`);
-    
+
     // Could add failed payment handling here (e.g., notifications, grace period)
-    
   } catch (error) {
-    console.error("Failed to handle payment failure:", error);
+    console.error('Failed to handle payment failure:', error);
   }
 }

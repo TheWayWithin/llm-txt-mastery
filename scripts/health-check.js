@@ -2,12 +2,12 @@
 
 /**
  * Health Check Script
- * 
+ *
  * Validates that all systems are working correctly:
  * - Database connectivity
  * - API endpoints
  * - External integrations
- * 
+ *
  * Usage:
  *   npm run health-check
  */
@@ -27,7 +27,7 @@ async function testEndpoint(url, description) {
   try {
     console.log(`🔍 Testing ${description}...`);
     const response = await fetch(url);
-    
+
     if (response.ok) {
       console.log(`✅ ${description}: OK (${response.status})`);
       return true;
@@ -44,7 +44,7 @@ async function testEndpoint(url, description) {
 // Test database connectivity
 async function testDatabase() {
   console.log('🔍 Testing database connectivity...');
-  
+
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     console.log('⚠️  DATABASE_URL not set - skipping database test');
@@ -55,7 +55,7 @@ async function testDatabase() {
     const pool = new Pool({ connectionString });
     await pool.query('SELECT 1');
     await pool.end();
-    
+
     console.log('✅ Database: Connected successfully');
     return true;
   } catch (error) {
@@ -67,26 +67,26 @@ async function testDatabase() {
 // Test API server
 async function testAPI() {
   const baseUrl = `http://localhost:${process.env.PORT || 3000}`;
-  
+
   console.log('\n🌐 Testing API endpoints...');
-  
+
   let apiWorking = true;
-  
+
   // Test basic health
   apiWorking &= await testEndpoint(`${baseUrl}/api/usage/test@example.com`, 'Usage endpoint');
-  
+
   // Test ConvertKit integration
   apiWorking &= await testEndpoint(`${baseUrl}/api/convertkit/status`, 'ConvertKit status');
-  
+
   return apiWorking;
 }
 
 // Test external integrations
 async function testIntegrations() {
   console.log('\n🔌 Testing external integrations...');
-  
+
   let integrationsWorking = true;
-  
+
   // Test OpenAI (if configured)
   if (process.env.OPENAI_API_KEY) {
     console.log('🔍 Testing OpenAI integration...');
@@ -106,7 +106,7 @@ async function testIntegrations() {
   } else {
     console.log('⚠️  OpenAI: API key not configured (optional)');
   }
-  
+
   // Test Supabase (if configured)
   if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
     console.log('🔍 Testing Supabase integration...');
@@ -114,11 +114,11 @@ async function testIntegrations() {
       const url = process.env.SUPABASE_URL;
       const response = await fetch(`${url}/rest/v1/`, {
         headers: {
-          'apikey': process.env.SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`
-        }
+          apikey: process.env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
       });
-      
+
       if (response.status === 200 || response.status === 404) {
         console.log('✅ Supabase: Connection successful');
       } else {
@@ -132,7 +132,7 @@ async function testIntegrations() {
   } else {
     console.log('⚠️  Supabase: Not configured (optional)');
   }
-  
+
   // Test ConvertKit (if configured)
   if (process.env.CONVERTKIT_API_KEY && process.env.CONVERTKIT_API_SECRET) {
     console.log('🔍 Testing ConvertKit integration...');
@@ -152,7 +152,7 @@ async function testIntegrations() {
   } else {
     console.log('⚠️  ConvertKit: Not configured (optional)');
   }
-  
+
   return integrationsWorking;
 }
 
@@ -162,7 +162,7 @@ async function main() {
     // Test database
     const dbHealthy = await testDatabase();
     hasErrors = hasErrors || !dbHealthy;
-    
+
     // Test API (only if server is likely running)
     try {
       const apiHealthy = await testAPI();
@@ -170,14 +170,14 @@ async function main() {
     } catch (error) {
       console.log('\n⚠️  API server not running - start with: npm run dev');
     }
-    
+
     // Test integrations
     const integrationsHealthy = await testIntegrations();
     hasErrors = hasErrors || !integrationsHealthy;
-    
+
     // Summary
     console.log('\n📊 Health Check Summary:');
-    
+
     if (hasErrors) {
       console.log('❌ Some systems have issues');
       console.log('\n🔧 Recommended actions:');
@@ -189,24 +189,23 @@ async function main() {
       console.log('✅ All systems healthy!');
       console.log('\n🎉 LLM.txt Mastery is ready to use');
     }
-    
+
     console.log('\n📚 Documentation:');
     console.log('   - docs/database-setup.md - Database configuration');
     console.log('   - docs/supabase-setup.md - Authentication setup');
     console.log('   - docs/convertkit-integration.md - Email automation');
-    
   } catch (error) {
     console.error('❌ Health check failed:', error.message);
     hasErrors = true;
   }
-  
+
   if (hasErrors) {
     process.exit(1);
   }
 }
 
 // Run health check
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Health check error:', error.message);
   process.exit(1);
 });

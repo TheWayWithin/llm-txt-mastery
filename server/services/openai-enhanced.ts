@@ -1,58 +1,58 @@
-import OpenAI from "openai";
-import * as cheerio from "cheerio";
+import OpenAI from 'openai';
+import * as cheerio from 'cheerio';
 
 // Embedding Models Configuration
 export const EMBEDDING_MODELS = {
-  "text-embedding-3-small": {
-    name: "text-embedding-3-small",
+  'text-embedding-3-small': {
+    name: 'text-embedding-3-small',
     dimensions: 1536,
     pricing: 0.00002, // per 1K tokens
     maxTokens: 8192,
-    recommended: true
+    recommended: true,
   },
-  "text-embedding-3-large": {
-    name: "text-embedding-3-large", 
+  'text-embedding-3-large': {
+    name: 'text-embedding-3-large',
     dimensions: 3072,
     pricing: 0.00013, // per 1K tokens
     maxTokens: 8192,
-    recommended: false
+    recommended: false,
   },
-  "text-embedding-ada-002": {
-    name: "text-embedding-ada-002",
+  'text-embedding-ada-002': {
+    name: 'text-embedding-ada-002',
     dimensions: 1536,
     pricing: 0.0001, // per K tokens
     maxTokens: 8192,
-    recommended: false // Legacy model
-  }
+    recommended: false, // Legacy model
+  },
 };
 
 // Model configuration with pricing (as of Jan 2025)
 export const OPENAI_MODELS = {
-  "gpt-4o": {
-    name: "gpt-4o",
-    description: "Most capable, highest quality",
-    pricing: { input: 2.50, output: 10.00 }, // per 1M tokens
+  'gpt-4o': {
+    name: 'gpt-4o',
+    description: 'Most capable, highest quality',
+    pricing: { input: 2.5, output: 10.0 }, // per 1M tokens
     maxTokens: 128000,
-    recommended: false
+    recommended: false,
   },
-  "gpt-4o-mini": {
-    name: "gpt-4o-mini",
-    description: "Best value, 93% cheaper than gpt-4o",
-    pricing: { input: 0.15, output: 0.60 }, // per 1M tokens
+  'gpt-4o-mini': {
+    name: 'gpt-4o-mini',
+    description: 'Best value, 93% cheaper than gpt-4o',
+    pricing: { input: 0.15, output: 0.6 }, // per 1M tokens
     maxTokens: 128000,
-    recommended: true // RECOMMENDED for production
+    recommended: true, // RECOMMENDED for production
   },
-  "gpt-3.5-turbo": {
-    name: "gpt-3.5-turbo",
-    description: "Legacy model, being phased out",
-    pricing: { input: 0.50, output: 1.50 }, // per 1M tokens
+  'gpt-3.5-turbo': {
+    name: 'gpt-3.5-turbo',
+    description: 'Legacy model, being phased out',
+    pricing: { input: 0.5, output: 1.5 }, // per 1M tokens
     maxTokens: 16385,
-    recommended: false
-  }
+    recommended: false,
+  },
 };
 
 // Get model from environment or use recommended default
-const DEFAULT_MODEL = "gpt-4o-mini"; // Changed from gpt-4o for cost efficiency
+const DEFAULT_MODEL = 'gpt-4o-mini'; // Changed from gpt-4o for cost efficiency
 const selectedModel = process.env.OPENAI_MODEL || DEFAULT_MODEL;
 
 // Initialize OpenAI client
@@ -87,8 +87,8 @@ export interface ContentAnalysisResult {
 }
 
 export async function analyzePageContentWithModel(
-  url: string, 
-  htmlContent: string, 
+  url: string,
+  htmlContent: string,
   useAI: boolean = false,
   modelOverride?: string
 ): Promise<ContentAnalysisResult> {
@@ -96,17 +96,17 @@ export async function analyzePageContentWithModel(
   if (!htmlContent || htmlContent.trim().length === 0) {
     throw new Error(`Empty HTML content received for ${url}`);
   }
-  
+
   if (!url || !url.startsWith('http')) {
     throw new Error(`Invalid URL provided: ${url}`);
   }
-  
+
   const model = modelOverride || selectedModel;
-  
+
   console.log(`[AI Analysis] Processing ${url}:`);
   console.log(`  - Model: ${model}`);
   console.log(`  - Use AI: ${useAI}`);
-  
+
   try {
     if (useAI && apiKey) {
       return await generateAIAnalysisWithModel(url, htmlContent, model);
@@ -120,18 +120,22 @@ export async function analyzePageContentWithModel(
 }
 
 async function generateAIAnalysisWithModel(
-  url: string, 
+  url: string,
   htmlContent: string,
   model: string
 ): Promise<ContentAnalysisResult> {
   if (!openai) {
-    throw new Error("OpenAI client not initialized");
+    throw new Error('OpenAI client not initialized');
   }
 
   const $ = cheerio.load(htmlContent);
   const title = $('title').text() || 'Untitled';
   const metaDescription = $('meta[name="description"]').attr('content') || '';
-  const headings = $('h1, h2, h3').map((_, el) => $(el).text()).get().slice(0, 10).join(', ');
+  const headings = $('h1, h2, h3')
+    .map((_, el) => $(el).text())
+    .get()
+    .slice(0, 10)
+    .join(', ');
   const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
   const contentPreview = bodyText.substring(0, 2000);
 
@@ -156,43 +160,47 @@ Respond in JSON format with these exact keys: title, description, qualityScore, 
       model,
       messages: [
         {
-          role: "system",
-          content: "You are an expert at evaluating web content quality for LLM training data. Focus on technical accuracy, content depth, and usefulness for AI understanding. Respond only with valid JSON."
+          role: 'system',
+          content:
+            'You are an expert at evaluating web content quality for LLM training data. Focus on technical accuracy, content depth, and usefulness for AI understanding. Respond only with valid JSON.',
         },
         {
-          role: "user",
-          content: prompt
-        }
+          role: 'user',
+          content: prompt,
+        },
       ],
       temperature: 0.3,
       max_tokens: 400,
-      response_format: { type: "json_object" }
+      response_format: { type: 'json_object' },
     });
 
     const result = JSON.parse(response.choices[0].message.content || '{}');
     const usage = response.usage;
-    
+
     // Calculate precise cost
     let estimatedCost = 0;
     let actualCostUSD = 0;
     const tokensUsed = {
       prompt: usage?.prompt_tokens || 0,
       completion: usage?.completion_tokens || 0,
-      total: (usage?.prompt_tokens || 0) + (usage?.completion_tokens || 0)
+      total: (usage?.prompt_tokens || 0) + (usage?.completion_tokens || 0),
     };
-    
+
     if (usage && OPENAI_MODELS[model]) {
       const pricing = OPENAI_MODELS[model].pricing;
       // Calculate precise cost in USD
-      actualCostUSD = (usage.prompt_tokens / 1_000_000) * pricing.input + 
-                      (usage.completion_tokens / 1_000_000) * pricing.output;
+      actualCostUSD =
+        (usage.prompt_tokens / 1_000_000) * pricing.input +
+        (usage.completion_tokens / 1_000_000) * pricing.output;
       estimatedCost = actualCostUSD; // Keep for backward compatibility
     }
-    
+
     const processingTime = Date.now() - startTime;
     console.log(`✅ AI analysis complete for ${url}`);
     console.log(`   - Model: ${model}`);
-    console.log(`   - Tokens: ${tokensUsed.prompt} in, ${tokensUsed.completion} out (${tokensUsed.total} total)`);
+    console.log(
+      `   - Tokens: ${tokensUsed.prompt} in, ${tokensUsed.completion} out (${tokensUsed.total} total)`
+    );
     console.log(`   - Cost: $${actualCostUSD.toFixed(6)} USD`);
     console.log(`   - Time: ${processingTime}ms`);
     console.log(`   - Quality Score: ${result.qualityScore || 0}/10`);
@@ -206,7 +214,7 @@ Respond in JSON format with these exact keys: title, description, qualityScore, 
       model,
       estimatedCost,
       tokensUsed,
-      actualCostUSD
+      actualCostUSD,
     };
   } catch (error) {
     console.error(`AI analysis error for ${url}:`, error);
@@ -216,17 +224,19 @@ Respond in JSON format with these exact keys: title, description, qualityScore, 
 
 function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysisResult {
   const $ = cheerio.load(htmlContent);
-  
-  const title = $('title').text() || 
-                $('h1').first().text() || 
-                $('meta[property="og:title"]').attr('content') || 
-                'Untitled Page';
-  
-  const description = $('meta[name="description"]').attr('content') || 
-                     $('meta[property="og:description"]').attr('content') ||
-                     $('p').first().text().substring(0, 200) ||
-                     `Content from ${url}`;
-  
+
+  const title =
+    $('title').text() ||
+    $('h1').first().text() ||
+    $('meta[property="og:title"]').attr('content') ||
+    'Untitled Page';
+
+  const description =
+    $('meta[name="description"]').attr('content') ||
+    $('meta[property="og:description"]').attr('content') ||
+    $('p').first().text().substring(0, 200) ||
+    `Content from ${url}`;
+
   // Basic quality scoring based on HTML structure
   let qualityScore = 5;
   if ($('h1').length > 0) qualityScore++;
@@ -234,14 +244,14 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   if ($('article, main').length > 0) qualityScore++;
   if ($('code, pre').length > 0) qualityScore++;
   if ($('nav').length > 0) qualityScore--;
-  
+
   qualityScore = Math.min(Math.max(qualityScore, 1), 10);
-  
+
   // Detect category from HTML structure
   let category = 'Other';
   const urlLower = url.toLowerCase();
   const titleLower = title.toLowerCase();
-  
+
   if (urlLower.includes('/docs/') || urlLower.includes('/documentation/')) {
     category = 'Documentation';
   } else if (urlLower.includes('/api/') || titleLower.includes('api')) {
@@ -253,7 +263,7 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   } else if ($('.product, .pricing').length > 0) {
     category = 'Product Page';
   }
-  
+
   return {
     title: title.substring(0, 100),
     description: description.substring(0, 300),
@@ -261,7 +271,7 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
     category,
     relevance: qualityScore, // Use quality score as relevance for HTML extraction
     model: 'html-extraction',
-    estimatedCost: 0
+    estimatedCost: 0,
   };
 }
 
@@ -269,30 +279,33 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
 export const analyzePageContent = analyzePageContentWithModel;
 
 // Utility function to estimate costs for batch processing
-export function estimateBatchCost(pageCount: number, model: string = selectedModel): {
+export function estimateBatchCost(
+  pageCount: number,
+  model: string = selectedModel
+): {
   estimated: number;
   breakdown: { input: number; output: number };
   comparison: Record<string, number>;
 } {
   const avgTokensPerPage = { input: 400, output: 100 }; // Based on testing
-  
+
   const modelPricing = OPENAI_MODELS[model]?.pricing || OPENAI_MODELS[DEFAULT_MODEL].pricing;
-  
-  const inputCost = (pageCount * avgTokensPerPage.input / 1_000_000) * modelPricing.input;
-  const outputCost = (pageCount * avgTokensPerPage.output / 1_000_000) * modelPricing.output;
-  
+
+  const inputCost = ((pageCount * avgTokensPerPage.input) / 1_000_000) * modelPricing.input;
+  const outputCost = ((pageCount * avgTokensPerPage.output) / 1_000_000) * modelPricing.output;
+
   // Compare with other models
   const comparison: Record<string, number> = {};
   for (const [modelName, config] of Object.entries(OPENAI_MODELS)) {
-    const modelInput = (pageCount * avgTokensPerPage.input / 1_000_000) * config.pricing.input;
-    const modelOutput = (pageCount * avgTokensPerPage.output / 1_000_000) * config.pricing.output;
+    const modelInput = ((pageCount * avgTokensPerPage.input) / 1_000_000) * config.pricing.input;
+    const modelOutput = ((pageCount * avgTokensPerPage.output) / 1_000_000) * config.pricing.output;
     comparison[modelName] = modelInput + modelOutput;
   }
-  
+
   return {
     estimated: inputCost + outputCost,
     breakdown: { input: inputCost, output: outputCost },
-    comparison
+    comparison,
   };
 }
 
@@ -346,7 +359,7 @@ const RATE_LIMIT_CONFIG: RateLimitConfig = {
   tokens_per_minute: 1000000, // OpenAI limit
   max_retries: 3,
   base_delay_ms: 1000,
-  max_delay_ms: 60000
+  max_delay_ms: 60000,
 };
 
 // In-memory rate limiter and usage tracking
@@ -355,7 +368,7 @@ class APIMonitor {
   private tokenCount = 0;
   private windowStart = Date.now();
   private readonly windowMs = 60000; // 1 minute
-  
+
   private usage: APIUsageStats = {
     total_requests: 0,
     total_tokens: 0,
@@ -366,12 +379,12 @@ class APIMonitor {
     chat_tokens: 0,
     last_reset: new Date(),
     rate_limit_hits: 0,
-    error_count: 0
+    error_count: 0,
   };
 
   async checkRateLimit(estimatedTokens: number = 1000): Promise<void> {
     const now = Date.now();
-    
+
     // Reset window if needed
     if (now - this.windowStart >= this.windowMs) {
       this.requestCount = 0;
@@ -382,12 +395,16 @@ class APIMonitor {
     // Check limits
     if (this.requestCount >= RATE_LIMIT_CONFIG.requests_per_minute) {
       const waitTime = this.windowMs - (now - this.windowStart);
-      throw new Error(`Rate limit exceeded: ${this.requestCount} requests. Wait ${Math.ceil(waitTime / 1000)}s`);
+      throw new Error(
+        `Rate limit exceeded: ${this.requestCount} requests. Wait ${Math.ceil(waitTime / 1000)}s`
+      );
     }
 
     if (this.tokenCount + estimatedTokens > RATE_LIMIT_CONFIG.tokens_per_minute) {
       const waitTime = this.windowMs - (now - this.windowStart);
-      throw new Error(`Token limit exceeded: ${this.tokenCount + estimatedTokens} tokens. Wait ${Math.ceil(waitTime / 1000)}s`);
+      throw new Error(
+        `Token limit exceeded: ${this.tokenCount + estimatedTokens} tokens. Wait ${Math.ceil(waitTime / 1000)}s`
+      );
     }
 
     this.requestCount++;
@@ -398,7 +415,7 @@ class APIMonitor {
     this.usage.total_requests++;
     this.usage.total_tokens += tokens;
     this.usage.total_cost_usd += cost;
-    
+
     if (type === 'embedding') {
       this.usage.embedding_requests++;
       this.usage.embedding_tokens += tokens;
@@ -406,7 +423,7 @@ class APIMonitor {
       this.usage.chat_requests++;
       this.usage.chat_tokens += tokens;
     }
-    
+
     console.log(`[API Monitor] ${type} usage: ${tokens} tokens, $${cost.toFixed(6)}`);
   }
 
@@ -433,7 +450,7 @@ class APIMonitor {
       chat_tokens: 0,
       last_reset: new Date(),
       rate_limit_hits: 0,
-      error_count: 0
+      error_count: 0,
     };
     console.log('[API Monitor] Usage stats reset');
   }
@@ -442,40 +459,37 @@ class APIMonitor {
 const apiMonitor = new APIMonitor();
 
 // Utility functions
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function estimateTokens(text: string): number {
   // More accurate token estimation: ~4 chars per token
   return Math.ceil(text.length / 4);
 }
 
-async function withRetry<T>(
-  operation: () => Promise<T>,
-  context: string = 'API call'
-): Promise<T> {
+async function withRetry<T>(operation: () => Promise<T>, context: string = 'API call'): Promise<T> {
   let lastError: Error;
-  
+
   for (let attempt = 1; attempt <= RATE_LIMIT_CONFIG.max_retries; attempt++) {
     try {
       return await operation();
     } catch (error: any) {
       lastError = error;
-      
+
       console.error(`[OpenAI Enhanced] ${context} attempt ${attempt} failed:`, error.message);
-      
+
       // Don't retry on certain errors
       if (error.status === 401 || error.status === 403) {
         throw error; // Auth errors
       }
-      
+
       if (error.status === 400 && !error.message.includes('rate limit')) {
         throw error; // Bad request (not rate limit)
       }
-      
+
       if (attempt === RATE_LIMIT_CONFIG.max_retries) {
         throw error; // Final attempt
       }
-      
+
       // Exponential backoff with jitter
       const baseDelay = Math.min(
         RATE_LIMIT_CONFIG.base_delay_ms * Math.pow(2, attempt - 1),
@@ -483,16 +497,16 @@ async function withRetry<T>(
       );
       const jitter = Math.random() * 1000;
       const delay = baseDelay + jitter;
-      
+
       console.log(`[OpenAI Enhanced] Retrying ${context} in ${Math.round(delay)}ms...`);
       await sleep(delay);
-      
+
       if (error.message.includes('rate limit')) {
         apiMonitor.recordRateLimitHit();
       }
     }
   }
-  
+
   throw lastError!;
 }
 
@@ -509,21 +523,23 @@ export async function generateEmbeddings(
 
   const model = options.model || EMBEDDING_MODEL;
   const inputs = Array.isArray(input) ? input : [input];
-  
+
   // Validate inputs
-  if (inputs.some(text => !text || typeof text !== 'string' || text.trim().length === 0)) {
+  if (inputs.some((text) => !text || typeof text !== 'string' || text.trim().length === 0)) {
     throw new Error('All inputs must be non-empty strings');
   }
-  
+
   const totalText = inputs.join(' ');
   const estimatedTokens = estimateTokens(totalText);
-  
-  console.log(`[OpenAI Enhanced] Generating embeddings for ${inputs.length} inputs (${estimatedTokens} tokens)`);
-  
+
+  console.log(
+    `[OpenAI Enhanced] Generating embeddings for ${inputs.length} inputs (${estimatedTokens} tokens)`
+  );
+
   try {
     // Check rate limits
     await apiMonitor.checkRateLimit(estimatedTokens);
-    
+
     // Make API call with retry logic
     const response = await withRetry(async () => {
       return await openai!.embeddings.create({
@@ -532,16 +548,16 @@ export async function generateEmbeddings(
         dimensions: options.dimensions || EMBEDDING_DIMENSIONS,
       });
     }, 'embeddings generation');
-    
+
     // Calculate cost
     const actualTokens = response.usage.total_tokens;
     const modelConfig = EMBEDDING_MODELS[model as keyof typeof EMBEDDING_MODELS];
     const costPerToken = modelConfig ? modelConfig.pricing / 1000 : 0.00002 / 1000;
     const totalCost = actualTokens * costPerToken;
-    
+
     // Record usage
     apiMonitor.recordUsage('embedding', actualTokens, totalCost);
-    
+
     // Transform response
     const results: EmbeddingResult[] = response.data.map((item, index) => ({
       content: inputs[index],
@@ -550,12 +566,13 @@ export async function generateEmbeddings(
       dimensions: item.embedding.length,
       created_at: new Date(),
       tokens_used: Math.ceil(actualTokens / inputs.length),
-      cost_usd: totalCost / inputs.length
+      cost_usd: totalCost / inputs.length,
     }));
-    
-    console.log(`[OpenAI Enhanced] Generated ${results.length} embeddings ($${totalCost.toFixed(6)})`);
+
+    console.log(
+      `[OpenAI Enhanced] Generated ${results.length} embeddings ($${totalCost.toFixed(6)})`
+    );
     return results;
-    
   } catch (error: any) {
     apiMonitor.recordError();
     console.error('[OpenAI Enhanced] Embedding generation failed:', error);
@@ -581,21 +598,21 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) {
     throw new Error(`Embedding dimensions must match: ${a.length} vs ${b.length}`);
   }
-  
+
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
-  
+
   for (let i = 0; i < a.length; i++) {
     dotProduct += a[i] * b[i];
     normA += a[i] * a[i];
     normB += b[i] * b[i];
   }
-  
+
   if (normA === 0 || normB === 0) {
     return 0;
   }
-  
+
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
@@ -611,11 +628,11 @@ export function findMostSimilar(
   const similarities = embeddings.map((item, index) => ({
     similarity: cosineSimilarity(queryEmbedding, item.embedding),
     index,
-    metadata: item.metadata
+    metadata: item.metadata,
   }));
-  
+
   return similarities
-    .filter(item => item.similarity >= threshold)
+    .filter((item) => item.similarity >= threshold)
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, topK);
 }
@@ -643,15 +660,15 @@ export function estimateEmbeddingCost(
 ): { tokens: number; cost_usd: number; model: string } {
   const texts = Array.isArray(text) ? text : [text];
   const totalTokens = texts.reduce((sum, t) => sum + estimateTokens(t), 0);
-  
+
   const modelConfig = EMBEDDING_MODELS[model as keyof typeof EMBEDDING_MODELS];
   const costPerToken = modelConfig ? modelConfig.pricing / 1000 : 0.00002 / 1000;
   const cost = totalTokens * costPerToken;
-  
+
   return {
     tokens: totalTokens,
     cost_usd: cost,
-    model
+    model,
   };
 }
 
@@ -680,28 +697,28 @@ export async function testAPIConnection(): Promise<{
     return {
       success: false,
       message: 'OpenAI client not initialized',
-      error: 'OPENAI_API_KEY not configured'
+      error: 'OPENAI_API_KEY not configured',
     };
   }
-  
-  const testText = "This is a test to verify OpenAI API connection and performance.";
+
+  const testText = 'This is a test to verify OpenAI API connection and performance.';
   const results: any = { success: true, message: 'API connection successful' };
-  
+
   try {
     // Test embeddings
     console.log('[Test] Testing embeddings API...');
     const embeddingStart = Date.now();
     const embeddingResult = await generateEmbedding(testText);
     const embeddingTime = Date.now() - embeddingStart;
-    
+
     results.embeddings = {
       response_time_ms: embeddingTime,
       tokens_used: embeddingResult.tokens_used,
       cost_usd: embeddingResult.cost_usd,
       dimensions: embeddingResult.dimensions,
-      model: embeddingResult.model
+      model: embeddingResult.model,
     };
-    
+
     // Test chat completion
     console.log('[Test] Testing chat completion API...');
     const chatStart = Date.now();
@@ -711,23 +728,22 @@ export async function testAPIConnection(): Promise<{
       true
     );
     const chatTime = Date.now() - chatStart;
-    
+
     results.chat = {
       response_time_ms: chatTime,
       tokens_used: 0, // Would need to track from the actual call
       cost_usd: chatResult.estimatedCost || 0,
-      model: chatResult.model || selectedModel
+      model: chatResult.model || selectedModel,
     };
-    
+
     console.log('[Test] ✅ Both APIs working correctly');
     return results;
-    
   } catch (error: any) {
     console.error('[Test] API test failed:', error);
     return {
       success: false,
       message: 'API test failed',
-      error: error.message
+      error: error.message,
     };
   }
 }

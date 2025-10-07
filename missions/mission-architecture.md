@@ -1,4 +1,5 @@
 # Mission: ARCHITECTURE 📐
+
 ## Create or Update System Architecture Documentation
 
 **Mission Code**: ARCHITECTURE  
@@ -11,17 +12,20 @@
 ### Ready to Document Your Architecture? (2 minutes)
 
 **Step 1**: Copy the vision template
+
 ```bash
 cp templates/mission-inputs/vision.md ./architecture-vision.md
 ```
 
 **Step 2**: Fill key sections
+
 - **Technical Approach**: Your current or planned tech stack
 - **Core Features**: What the system needs to support
 - **Technical Principles**: Scalability, security, performance goals
 - **Resource Requirements**: Infrastructure and team needs
 
 **Step 3**: Execute mission
+
 ```bash
 /coord architecture architecture-vision.md
 ```
@@ -48,11 +52,14 @@ Transform your system design into comprehensive architecture documentation that 
 **Objective**: Understand system requirements and architectural needs
 
 **COORDINATOR PROTOCOL**:
+
 1. **UPDATE project-plan.md** with Phase 1 tasks:
+
    ```markdown
    ## Mission: ARCHITECTURE Documentation
-   
+
    ### Phase 1: Requirements Analysis (In Progress)
+
    - [ ] Analyze existing system or requirements (assigned to @strategist)
    - [ ] Identify key architectural characteristics (assigned to @strategist)
    - [ ] Define system boundaries and scope (assigned to @strategist)
@@ -76,6 +83,7 @@ Transform your system design into comprehensive architecture documentation that 
 5. **LOG TO progress.md** any issues encountered during this phase
 
 **Deliverables**:
+
 - System requirements summary
 - Architectural characteristics matrix
 - Stakeholder concerns documented
@@ -102,6 +110,7 @@ Transform your system design into comprehensive architecture documentation that 
 **WAIT FOR @architect RESPONSE** before proceeding to Phase 3
 
 **Deliverables**:
+
 - System architecture diagrams
 - Infrastructure design
 - Data model specifications
@@ -126,6 +135,7 @@ Transform your system design into comprehensive architecture documentation that 
 ```
 
 **Deliverables**:
+
 - Feasibility assessment
 - Risk identification
 - Technology validation
@@ -149,6 +159,7 @@ Transform your system design into comprehensive architecture documentation that 
 ```
 
 **Deliverables**:
+
 - Complete architecture.md document
 - All supporting diagrams
 - Decision log
@@ -171,6 +182,7 @@ Transform your system design into comprehensive architecture documentation that 
 ```
 
 **Deliverables**:
+
 - Reviewed and approved architecture.md
 - List of future considerations
 - Recommendations for updates
@@ -189,18 +201,21 @@ Transform your system design into comprehensive architecture documentation that 
 ## Common Variations
 
 ### Greenfield Project
+
 - More emphasis on technology selection
 - Greater focus on architectural patterns
 - More time in design phase
 - Include proof-of-concept validation
 
 ### Legacy System Documentation
+
 - Focus on current state documentation
 - Include technical debt assessment
 - Document migration strategies
 - Emphasize incremental improvement paths
 
 ### Microservices Architecture
+
 - Service boundaries definition
 - Inter-service communication patterns
 - Distributed system considerations
@@ -209,18 +224,21 @@ Transform your system design into comprehensive architecture documentation that 
 ## Special Considerations
 
 ### Stakeholder Communication
+
 - Use appropriate level of technical detail for audience
 - Include executive summary for non-technical stakeholders
 - Provide clear diagrams and visualizations
 - Document business value of architectural choices
 
 ### Living Documentation
+
 - Architecture should be versioned
 - Include change log for major updates
 - Plan for regular review cycles
 - Keep synchronized with implementation
 
 ### Compliance Requirements
+
 - Address relevant compliance standards early
 - Document data residency requirements
 - Include security and privacy considerations
@@ -237,18 +255,21 @@ Transform your system design into comprehensive architecture documentation that 
 ## Common Patterns
 
 ### Technology Stack Selection
+
 - Evaluate against requirements
 - Consider team expertise
 - Factor in licensing costs
 - Plan for long-term support
 
 ### Integration Challenges
+
 - Document all external dependencies
 - Plan for service failures
 - Include retry and fallback strategies
 - Consider rate limiting and quotas
 
 ### Performance Bottlenecks
+
 - Identify potential bottlenecks early
 - Document performance requirements
 - Plan for monitoring and profiling
@@ -256,6 +277,6 @@ Transform your system design into comprehensive architecture documentation that 
 
 ---
 
-*Transform your system design into a living blueprint that guides development, ensures quality, and accelerates onboarding. Your architecture documentation becomes the single source of truth for technical decisions.*
+_Transform your system design into a living blueprint that guides development, ensures quality, and accelerates onboarding. Your architecture documentation becomes the single source of truth for technical decisions._
 
-*Begin with `/coord architecture [requirements]`*
+_Begin with `/coord architecture [requirements]`_

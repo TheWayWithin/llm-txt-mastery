@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Search, CheckCircle, Info } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Search, CheckCircle, Info } from 'lucide-react';
 
 interface UrlInputProps {
   onAnalysisStart: (url: string) => void;
@@ -12,7 +12,7 @@ interface UrlInputProps {
 }
 
 export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: UrlInputProps) {
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState(false);
 
   // Set pre-filled URL if provided
@@ -26,12 +26,12 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
   const normalizeUrl = (value: string) => {
     // Return empty if no value
     if (!value.trim()) return value;
-    
+
     // If already has protocol, return as-is
     if (/^https?:\/\//.test(value)) {
       return value;
     }
-    
+
     // Auto-prepend https:// for URLs without protocol
     return `https://${value}`;
   };
@@ -39,7 +39,7 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
   const validateUrl = (value: string) => {
     // Normalize the URL first
     const normalizedUrl = normalizeUrl(value);
-    
+
     // Updated pattern to accept URLs with or without protocol
     // Accepts: https://example.com, http://example.com, www.example.com, example.com
     const urlPattern = /^https?:\/\/.+\..+/;
@@ -75,7 +75,7 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
             </div>
             <h3 className="text-xl font-semibold text-framework-black">Enter Your Website URL</h3>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="website-url" className="text-sm font-medium text-framework-black">
@@ -97,7 +97,8 @@ export default function UrlInput({ onAnalysisStart, isVisible, prefilledUrl }: U
                 )}
               </div>
               <p className="mt-2 text-sm text-ai-silver">
-                Enter your website's main URL. Protocol (https://) is optional - we'll add it automatically.
+                Enter your website's main URL. Protocol (https://) is optional - we'll add it
+                automatically.
               </p>
             </div>
 

@@ -10,7 +10,7 @@ const isRedisAvailable = () => {
   }
 };
 
-export type FeatureFlagName = 
+export type FeatureFlagName =
   | 'clustering'
   | 'semantic_tags'
   | 'enhanced_descriptions'
@@ -71,9 +71,9 @@ class FeatureFlagService {
         enabled: false,
         rolloutPercentage: 0,
         environmentOverrides: {
-          'development': true,
-          'staging': false,
-          'production': false
+          development: true,
+          staging: false,
+          production: false,
         },
         userOverrides: {},
         metadata: {
@@ -82,17 +82,17 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: [],
-          tags: ['semantic', 'core']
-        }
+          tags: ['semantic', 'core'],
+        },
       },
       {
         name: 'semantic_tags',
         enabled: false,
         rolloutPercentage: 0,
         environmentOverrides: {
-          'development': true,
-          'staging': false,
-          'production': false
+          development: true,
+          staging: false,
+          production: false,
         },
         userOverrides: {},
         metadata: {
@@ -101,17 +101,17 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: [],
-          tags: ['semantic', 'ai']
-        }
+          tags: ['semantic', 'ai'],
+        },
       },
       {
         name: 'enhanced_descriptions',
         enabled: false,
         rolloutPercentage: 0,
         environmentOverrides: {
-          'development': true,
-          'staging': false,
-          'production': false
+          development: true,
+          staging: false,
+          production: false,
         },
         userOverrides: {},
         metadata: {
@@ -120,17 +120,17 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: [],
-          tags: ['semantic', 'content']
-        }
+          tags: ['semantic', 'content'],
+        },
       },
       {
         name: 'multi_sequencing',
         enabled: false,
         rolloutPercentage: 0,
         environmentOverrides: {
-          'development': true,
-          'staging': false,
-          'production': false
+          development: true,
+          staging: false,
+          production: false,
         },
         userOverrides: {},
         metadata: {
@@ -139,17 +139,17 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: ['clustering'],
-          tags: ['semantic', 'ux']
-        }
+          tags: ['semantic', 'ux'],
+        },
       },
       {
         name: 'blockquote_summaries',
         enabled: false,
         rolloutPercentage: 0,
         environmentOverrides: {
-          'development': true,
-          'staging': false,
-          'production': false
+          development: true,
+          staging: false,
+          production: false,
         },
         userOverrides: {},
         metadata: {
@@ -158,17 +158,17 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: ['semantic_tags'],
-          tags: ['semantic', 'ai', 'generation']
-        }
+          tags: ['semantic', 'ai', 'generation'],
+        },
       },
       {
         name: 'admin_dashboard',
         enabled: false,
         rolloutPercentage: 0,
         environmentOverrides: {
-          'development': true,
-          'staging': true,
-          'production': false
+          development: true,
+          staging: true,
+          production: false,
         },
         userOverrides: {},
         metadata: {
@@ -177,8 +177,8 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: [],
-          tags: ['admin', 'infrastructure']
-        }
+          tags: ['admin', 'infrastructure'],
+        },
       },
       {
         name: 'performance_metrics',
@@ -192,9 +192,9 @@ class FeatureFlagService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dependencies: [],
-          tags: ['monitoring', 'performance']
-        }
-      }
+          tags: ['monitoring', 'performance'],
+        },
+      },
     ];
 
     // Initialize flags if they don't exist
@@ -235,7 +235,7 @@ class FeatureFlagService {
 
     // Use consistent hashing for percentage rollout
     const hash = userId ? this.hashUserId(userId) : Math.random();
-    return (hash * 100) < flag.rolloutPercentage;
+    return hash * 100 < flag.rolloutPercentage;
   }
 
   /**
@@ -263,8 +263,8 @@ class FeatureFlagService {
       // Check local cache first
       const cacheKey = `flag_${flagName}`;
       const now = Date.now();
-      
-      if (this.localCache.has(cacheKey) && (now - this.lastCacheUpdate) < this.cacheExpiry * 1000) {
+
+      if (this.localCache.has(cacheKey) && now - this.lastCacheUpdate < this.cacheExpiry * 1000) {
         return this.localCache.get(cacheKey) || null;
       }
 
@@ -273,7 +273,7 @@ class FeatureFlagService {
       if (!flagData) return null;
 
       const flag: FeatureFlag = JSON.parse(flagData);
-      
+
       // Update local cache
       this.localCache.set(cacheKey, flag);
       this.lastCacheUpdate = now;
@@ -323,15 +323,15 @@ class FeatureFlagService {
         metadata: {
           ...existingFlag.metadata,
           ...updates.metadata,
-          updatedAt: new Date().toISOString()
-        }
+          updatedAt: new Date().toISOString(),
+        },
       };
 
       await this.redis.hset(this.cacheKey, flagName, JSON.stringify(updatedFlag));
-      
+
       // Clear local cache
       this.localCache.delete(`flag_${flagName}`);
-      
+
       return true;
     } catch (error) {
       console.error(`Error updating feature flag ${flagName}:`, error);
@@ -342,7 +342,11 @@ class FeatureFlagService {
   /**
    * Enable/disable flag for specific user
    */
-  async setUserOverride(flagName: FeatureFlagName, userId: string, enabled: boolean): Promise<boolean> {
+  async setUserOverride(
+    flagName: FeatureFlagName,
+    userId: string,
+    enabled: boolean
+  ): Promise<boolean> {
     const flag = await this.getFlag(flagName);
     if (!flag) return false;
 
@@ -375,19 +379,23 @@ class FeatureFlagService {
     userOverrides: number;
   }> {
     const flags = await this.getAllFlags();
-    
+
     return {
       totalFlags: flags.length,
-      enabledFlags: flags.filter(f => f.enabled).length,
-      rolloutFlags: flags.filter(f => f.rolloutPercentage > 0 && f.rolloutPercentage < 100).length,
-      userOverrides: flags.reduce((sum, f) => sum + Object.keys(f.userOverrides).length, 0)
+      enabledFlags: flags.filter((f) => f.enabled).length,
+      rolloutFlags: flags.filter((f) => f.rolloutPercentage > 0 && f.rolloutPercentage < 100)
+        .length,
+      userOverrides: flags.reduce((sum, f) => sum + Object.keys(f.userOverrides).length, 0),
     };
   }
 
   /**
    * Check feature dependencies
    */
-  async checkDependencies(flagName: FeatureFlagName, userContext?: UserContext): Promise<{
+  async checkDependencies(
+    flagName: FeatureFlagName,
+    userContext?: UserContext
+  ): Promise<{
     canEnable: boolean;
     missingDependencies: FeatureFlagName[];
   }> {
@@ -397,7 +405,7 @@ class FeatureFlagService {
     }
 
     const missingDependencies: FeatureFlagName[] = [];
-    
+
     for (const dependency of flag.metadata.dependencies) {
       const dependencyEnabled = await this.isEnabled(dependency, userContext);
       if (!dependencyEnabled) {
@@ -407,7 +415,7 @@ class FeatureFlagService {
 
     return {
       canEnable: missingDependencies.length === 0,
-      missingDependencies
+      missingDependencies,
     };
   }
 
@@ -418,7 +426,7 @@ class FeatureFlagService {
     let hash = 0;
     for (let i = 0; i < userId.length; i++) {
       const char = userId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash) / 2147483647; // Normalize to 0-1
@@ -439,23 +447,23 @@ class FeatureFlagService {
     try {
       await this.redis.ping();
       const stats = await this.getStats();
-      
+
       return {
         status: 'healthy',
         details: {
           redis: 'connected',
           cacheSize: this.localCache.size,
           lastCacheUpdate: new Date(this.lastCacheUpdate).toISOString(),
-          stats
-        }
+          stats,
+        },
       };
     } catch (error) {
       return {
         status: 'unhealthy',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error',
-          redis: 'disconnected'
-        }
+          redis: 'disconnected',
+        },
       };
     }
   }

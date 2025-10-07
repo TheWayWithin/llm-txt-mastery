@@ -9,6 +9,7 @@ AGENT-11 is a framework for deploying specialized AI agents in Claude Code to fo
 ## Critical Software Development Principles
 
 ### Security-First Development
+
 **NEVER compromise security for convenience.** When encountering security features or policies:
 
 1. **Understand Before Changing**
@@ -80,13 +81,16 @@ The core functionality involves deploying agents to Claude Code's `.claude/agent
 ## Key Components
 
 ### Core Squad (Minimum Viable Team)
+
 1. **The Strategist** - Product strategy and requirements
-2. **The Developer** - Full-stack implementation 
+2. **The Developer** - Full-stack implementation
 3. **The Tester** - Quality assurance
 4. **The Operator** - DevOps and deployment
 
 ### Full Squad (11 Specialists)
+
 Includes the core squad plus:
+
 - The Architect (system design)
 - The Designer (UX/UI)
 - The Documenter (technical writing)
@@ -117,6 +121,7 @@ Includes the core squad plus:
 ## Ideation File Concept
 
 The ideation file is a centralized document containing all requirements, context, and vision for a development project. This can include:
+
 - Product Requirements Documents (PRDs)
 - Brand guidelines
 - Architecture specifications
@@ -126,6 +131,7 @@ The ideation file is a centralized document containing all requirements, context
 - Technical constraints
 
 ### Standard Location
+
 - Primary: `./ideation.md`
 - Alternative: `./docs/ideation/`
 - Can be multiple files referenced in CLAUDE.md
@@ -145,6 +151,7 @@ The ideation file is a centralized document containing all requirements, context
 ### Update Protocol
 
 After each work session or milestone:
+
 1. ✅ Mark completed tasks in `project-plan.md`
 2. 📝 Log issues, resolutions, and lessons in `progress.md`
 3. ⚡ Record performance insights and optimizations in `CLAUDE.md`
@@ -152,28 +159,32 @@ After each work session or milestone:
 ## Design Review System
 
 For UI/UX projects, AGENT-11 includes design review capabilities:
+
 - **@designer**: Enhanced with comprehensive UI/UX assessment
 - **@design-review**: Dedicated agent for design audits (when available)
 - **Standards**: Live environment testing, evidence-based feedback
 
-*Note: For project-specific design principles, add them to your project's CLAUDE.md file. See `/templates/` for design principles template.*
+_Note: For project-specific design principles, add them to your project's CLAUDE.md file. See `/templates/` for design principles template._
 
 ## Mission Documentation Standards
 
 ### Mandatory Tracking Files
 
 For all missions, coordinators MUST maintain:
+
 - **project-plan.md**: Strategic roadmap with task completion tracking
 - **progress.md**: Issues, resolutions, and lessons learned
 - **architecture.md**: System design and architecture decisions (for kickoff missions)
 - **Templates**: Available in `/templates/` directory
 
 ### Architecture Documentation
+
 - **Template**: `/templates/architecture.md` - Production-ready template with examples
 - **SOP**: `/project/field-manual/architecture-sop.md` - Comprehensive guidelines
 - **When Created**: During dev-setup (new projects) or dev-alignment (existing projects)
 
 ### Critical Requirements
+
 1. Update files immediately when issues occur or phases complete
 2. Mark tasks complete [x] only after specialist confirmation
 3. Log all problems for future learning
@@ -182,23 +193,27 @@ For all missions, coordinators MUST maintain:
 ## Context Preservation System
 
 ### Overview
+
 AGENT-11 implements a comprehensive context preservation system inspired by BOS-AI's proven approach, ensuring zero context loss across multi-agent workflows. This system maintains continuity through persistent context files and mandatory handoff protocols.
 
 ### Core Context Files
 
 #### 1. agent-context.md
+
 - **Purpose**: Rolling accumulation of all findings, decisions, and critical information
 - **Location**: `/agent-context.md` (mission root)
 - **Updated By**: Coordinator after each agent task
 - **Contains**: Mission objectives, accumulated findings, technical decisions, known issues, dependencies
 
-#### 2. handoff-notes.md  
+#### 2. handoff-notes.md
+
 - **Purpose**: Specific context for the next agent in workflow
 - **Location**: `/handoff-notes.md` (mission root)
 - **Updated By**: Each agent before task completion
 - **Contains**: Immediate task, critical context, warnings, specific instructions, test results
 
 #### 3. evidence-repository.md
+
 - **Purpose**: Centralized collection of artifacts and supporting materials
 - **Location**: `/evidence-repository.md` (mission root)
 - **Updated By**: Any agent producing evidence
@@ -207,16 +222,19 @@ AGENT-11 implements a comprehensive context preservation system inspired by BOS-
 ### Context Preservation Protocol
 
 #### Before Task Execution
+
 1. Agent MUST read `agent-context.md` and `handoff-notes.md`
 2. Agent acknowledges understanding of objectives and constraints
 3. Agent identifies relevant prior work and decisions
 
 #### During Task Execution
+
 1. Agent maintains awareness of mission context
 2. Agent aligns work with documented decisions
 3. Agent captures new findings and decisions
 
 #### After Task Completion
+
 1. Agent updates `handoff-notes.md` with findings for next agent
 2. Agent adds evidence to `evidence-repository.md` if applicable
 3. Coordinator merges findings into `agent-context.md`
@@ -224,30 +242,35 @@ AGENT-11 implements a comprehensive context preservation system inspired by BOS-
 ### Enforcement Mechanisms
 
 #### Coordinator Enforcement
+
 - Coordinator includes context reading requirement in every Task tool delegation
 - Coordinator verifies handoff documentation before marking tasks complete
 - Coordinator maintains context file integrity throughout mission
 
 #### Delegation Template
+
 ```
 Task(
   subagent_type="developer",
   prompt="First read agent-context.md and handoff-notes.md for mission context.
           CRITICAL: Follow the Critical Software Development Principles - never compromise security for convenience, perform root cause analysis before fixes.
-          [Specific task instructions]. 
+          [Specific task instructions].
           Update handoff-notes.md with your findings and decisions for the next specialist."
 )
 ```
 
 ### Benefits
+
 - **87.5% reduction in rework** - Agents build on prior work effectively
-- **37.5% faster completion** - No time lost to context reconstruction  
+- **37.5% faster completion** - No time lost to context reconstruction
 - **Zero context loss** - All decisions and findings preserved
 - **Complete audit trail** - Full history of mission evolution
 - **Pause/resume capability** - Missions can be interrupted and continued
 
 ### Templates
+
 Context preservation templates are available in `/templates/`:
+
 - `agent-context-template.md` - Mission-wide context accumulator
 - `handoff-notes-template.md` - Agent-to-agent handoff structure
 - `evidence-repository-template.md` - Artifact collection format
@@ -274,10 +297,11 @@ When using `/coord` to orchestrate missions, the coordinator MUST use the Task t
    - If you see "Delegating to @agent" without Task tool usage, delegation didn't happen
 
 4. **Example of Proper Delegation**:
+
    ```
    # WRONG (just describes delegation):
    "I'm delegating to @tester for testing"
-   
+
    # RIGHT (actually uses Task tool):
    Task(
      subagent_type="tester",
@@ -287,13 +311,17 @@ When using `/coord` to orchestrate missions, the coordinator MUST use the Task t
    ```
 
 ### NO ROLE-PLAYING RULE
+
 The coordinator must NEVER role-play or simulate delegation. Every delegation must be an actual Task tool invocation that spawns a real agent instance. Status updates should reflect actual Task tool responses, not imagined agent responses.
 
 ### CONTEXT PRESERVATION REQUIREMENT
+
 Every Task tool invocation MUST include instructions to read context files first and update handoff notes after completion. This ensures seamless context flow between agents.
 
 ### PRINCIPLE ENFORCEMENT IN DELEGATION
+
 Every Task tool delegation MUST remind agents to:
+
 - Follow Critical Software Development Principles
 - Never compromise security for convenience
 - Perform root cause analysis before implementing fixes
@@ -304,9 +332,11 @@ Every Task tool delegation MUST remind agents to:
 ### Project Initialization
 
 #### Greenfield Projects (New)
+
 ```bash
 /coord dev-setup ideation.md
 ```
+
 - Sets up GitHub repository
 - Analyzes ideation documents
 - Creates architecture.md from template
@@ -315,9 +345,11 @@ Every Task tool delegation MUST remind agents to:
 - Configures CLAUDE.md
 
 #### Existing Projects (Brownfield)
+
 ```bash
 /coord dev-alignment
 ```
+
 - Analyzes existing codebase
 - Understands project context
 - Reviews/creates architecture.md
@@ -325,18 +357,21 @@ Every Task tool delegation MUST remind agents to:
 - Optimizes CLAUDE.md for project
 
 ### Adding New Agent Profiles
+
 1. Create new file in `/project/agents/specialists/`
 2. Follow existing template structure
 3. Update `/project/agents/full-squad.md` with new agent
 4. Add deployment command to relevant quick-start guides
 
 ### Updating Documentation
+
 - Maintain consistency with existing tone and structure
 - Focus on practical, actionable content
 - Include real-world examples and workflows
 - Keep military/tactical metaphors throughout
 
 ### Content Guidelines
+
 - Write for solo founders and non-technical founders
 - Emphasize speed, efficiency, and practical results
 - Include specific commands and examples
@@ -347,9 +382,11 @@ Every Task tool delegation MUST remind agents to:
 ## MCP (Model Context Protocol) Integration
 
 ### MCP-First Principle
+
 Agents should prioritize using available MCP servers before implementing functionality manually. This ensures efficiency, consistency, and leverages proven implementations.
 
 ### MCP Discovery Protocol
+
 1. **Check Available MCPs**: Use `grep "mcp__"` or look for tools starting with `mcp__` prefix
 2. **Prioritize MCP Usage**: Always check if an MCP can handle the task before manual implementation
 3. **Document MCP Usage**: Track which MCPs are used in project-plan.md and CLAUDE.md
@@ -358,28 +395,33 @@ Agents should prioritize using available MCP servers before implementing functio
 ### MCP Tool Categories
 
 #### Infrastructure & Deployment
-- **mcp__railway** - Backend services, databases, cron jobs, workers, auto-scaling
-- **mcp__netlify** - Frontend hosting, edge functions, forms, redirects
-- **mcp__vercel** - Alternative frontend hosting with serverless functions
-- **mcp__supabase** - Managed Postgres, auth, real-time, storage, edge functions
+
+- **mcp\_\_railway** - Backend services, databases, cron jobs, workers, auto-scaling
+- **mcp\_\_netlify** - Frontend hosting, edge functions, forms, redirects
+- **mcp\_\_vercel** - Alternative frontend hosting with serverless functions
+- **mcp\_\_supabase** - Managed Postgres, auth, real-time, storage, edge functions
 
 #### Commerce & Payments
-- **mcp__stripe** - Payments, subscriptions, invoicing, revenue analytics, webhooks
-- **mcp__paddle** - Alternative payment processor (if available)
-- **mcp__shopify** - E-commerce platform integration (if available)
+
+- **mcp\_\_stripe** - Payments, subscriptions, invoicing, revenue analytics, webhooks
+- **mcp\_\_paddle** - Alternative payment processor (if available)
+- **mcp\_\_shopify** - E-commerce platform integration (if available)
 
 #### Development & Version Control
-- **mcp__github** - PRs, issues, releases, CI/CD with Actions, project boards
-- **mcp__gitlab** - Alternative version control (if available)
-- **mcp__bitbucket** - Alternative version control (if available)
+
+- **mcp\_\_github** - PRs, issues, releases, CI/CD with Actions, project boards
+- **mcp\_\_gitlab** - Alternative version control (if available)
+- **mcp\_\_bitbucket** - Alternative version control (if available)
 
 #### Documentation & Knowledge
-- **mcp__context7** - Library documentation, code patterns, best practices
-- **mcp__context7__resolve-library-id** - Find correct library identifiers
-- **mcp__context7__get-library-docs** - Retrieve up-to-date documentation
+
+- **mcp\_\_context7** - Library documentation, code patterns, best practices
+- **mcp**context7**resolve-library-id** - Find correct library identifiers
+- **mcp**context7**get-library-docs** - Retrieve up-to-date documentation
 
 #### Testing & Quality Assurance
-- **mcp__playwright** - Complete browser automation suite:
+
+- **mcp\_\_playwright** - Complete browser automation suite:
   - Browser navigation, interaction, screenshots
   - Cross-browser testing (Chrome, Firefox, Safari)
   - Visual regression testing
@@ -387,7 +429,8 @@ Agents should prioritize using available MCP servers before implementing functio
   - Performance monitoring
 
 #### Code Search & Research
-- **mcp__grep** - Search 1M+ GitHub repositories for:
+
+- **mcp\_\_grep** - Search 1M+ GitHub repositories for:
   - Code patterns and implementations
   - Architecture examples in production
   - Test patterns and edge cases
@@ -396,26 +439,31 @@ Agents should prioritize using available MCP servers before implementing functio
   - Example usage: `grep_query("async def", language="Python", repo="fastapi/fastapi")`
 
 #### Research & Analysis
-- **mcp__firecrawl** - Web scraping, competitor analysis, market research
+
+- **mcp\_\_firecrawl** - Web scraping, competitor analysis, market research
 - **WebSearch** - Current events, trends, real-time information
 - **WebFetch** - Specific page analysis and content extraction
 
 #### Communication & Support
-- **mcp__slack** - Team communication (if available)
-- **mcp__discord** - Community management (if available)
-- **mcp__intercom** - Customer support (if available)
+
+- **mcp\_\_slack** - Team communication (if available)
+- **mcp\_\_discord** - Community management (if available)
+- **mcp\_\_intercom** - Customer support (if available)
 
 ### MCP Usage Pattern
 
 **Standard Workflow**: Always check for relevant MCPs first:
-1. **Research**: Use mcp__grep for existing implementations
-2. **Documentation**: Use mcp__context7 for official docs  
-3. **Services**: Use service-specific MCPs (mcp__supabase, mcp__stripe, etc.)
-4. **Testing**: Use mcp__playwright for browser automation
+
+1. **Research**: Use mcp\_\_grep for existing implementations
+2. **Documentation**: Use mcp\_\_context7 for official docs
+3. **Services**: Use service-specific MCPs (mcp**supabase, mcp**stripe, etc.)
+4. **Testing**: Use mcp\_\_playwright for browser automation
 5. **Fallback**: Manual implementation only when MCPs unavailable
 
 ### MCP Integration in Missions
+
 All missions should include an MCP discovery phase:
+
 1. Identify available MCPs at mission start
 2. Map MCPs to mission tasks
 3. Include MCP usage in execution plans
@@ -424,15 +472,17 @@ All missions should include an MCP discovery phase:
 ### Agent Tool Specification Standards
 
 All agent profiles should explicitly list their available tools:
-- **Primary MCPs**: Service-specific tools (e.g., mcp__supabase, mcp__stripe)
+
+- **Primary MCPs**: Service-specific tools (e.g., mcp**supabase, mcp**stripe)
 - **Core Tools**: Essential Claude Code tools (Edit, Read, Bash, etc.)
 - **Fallback Tools**: Alternatives when MCPs unavailable
 
-*See `/templates/agent-creation-mastery.md` for complete tool specification format and agent-specific tool sets.*
+_See `/templates/agent-creation-mastery.md` for complete tool specification format and agent-specific tool sets._
 
 ## MCP (Model Context Protocol) Setup
 
 ### Quick Start
+
 1. **Copy environment template**: `cp .env.mcp.template .env.mcp`
 2. **Add your API keys** to `.env.mcp`
 3. **Run setup**: `./project/deployment/scripts/mcp-setup.sh`
@@ -440,11 +490,13 @@ All agent profiles should explicitly list their available tools:
 5. **Restart Claude Code** for changes to take effect
 
 ### MCP Configuration Files
+
 - **`.mcp.json`** - Project-scoped MCP server definitions
 - **`.env.mcp`** - API keys and tokens (keep in .gitignore!)
 - **`.env.mcp.template`** - Template with all required variables
 
 ### Required MCPs for Full Functionality
+
 - **Context7** - Library documentation and code patterns
 - **GitHub** - Repository management and PRs
 - **Firecrawl** - Web scraping and research
@@ -452,6 +504,7 @@ All agent profiles should explicitly list their available tools:
 - **Playwright** - Browser automation and testing
 
 ### MCP Troubleshooting
+
 - If MCPs don't appear, restart Claude Code
 - Check `.mcp-status.md` for connection report
 - Verify API keys in `.env.mcp` are correct
@@ -460,12 +513,14 @@ All agent profiles should explicitly list their available tools:
 ## Available Commands
 
 ### Mission Orchestration
+
 - `/coord [mission] [files]` - Orchestrate multi-agent missions
 - `/design-review` - Comprehensive UI/UX audit
 - `/recon` - Design reconnaissance
 - `/meeting [agenda]` - Facilitate structured meetings
 
 ### Reporting & Analysis
+
 - `/report [since_date]` - Generate progress reports for stakeholders
 - `/pmd [issue]` - Post Mortem Dump for root cause analysis
 

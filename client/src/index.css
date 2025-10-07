@@ -23,7 +23,7 @@
   --destructive-foreground: hsl(210, 40%, 98%);
   --ring: hsl(215, 16%, 47%);
   --radius: 0.5rem;
-  
+
   /* Custom brand colors */
   --mastery-blue: hsl(225, 68%, 33%);
   --authority-white: hsl(0, 0%, 100%);
@@ -68,27 +68,27 @@
   .mastery-blue {
     background-color: var(--mastery-blue);
   }
-  
+
   .text-mastery-blue {
     color: var(--mastery-blue);
   }
-  
+
   .text-innovation-teal {
     color: var(--innovation-teal);
   }
-  
+
   .bg-innovation-teal {
     background-color: var(--innovation-teal);
   }
-  
+
   .text-ai-silver {
     color: var(--ai-silver);
   }
-  
+
   .text-framework-black {
     color: var(--framework-black);
   }
-  
+
   .bg-framework-black {
     background-color: var(--framework-black);
   }

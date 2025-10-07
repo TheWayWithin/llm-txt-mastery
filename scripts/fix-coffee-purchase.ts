@@ -31,12 +31,14 @@ async function fixCoffeePurchase() {
     console.log(`  Days Since Purchase: ${p.days_since_purchase} days`);
     console.log(`  Credits: ${p.credits_remaining}/${p.credits_total}`);
     console.log(`  Refunded: ${p.refunded}`);
-    console.log(`  Eligible for 30-day guarantee: ${parseFloat(p.days_since_purchase) <= 30 ? 'YES ✅' : 'NO ❌'}`);
+    console.log(
+      `  Eligible for 30-day guarantee: ${parseFloat(p.days_since_purchase) <= 30 ? 'YES ✅' : 'NO ❌'}`
+    );
     console.log('');
   });
 
   // Find the most recent non-refunded purchase
-  const recentPurchase = purchases.find(p => !p.refunded);
+  const recentPurchase = purchases.find((p) => !p.refunded);
 
   if (!recentPurchase) {
     console.log('❌ No non-refunded purchase found');
@@ -68,7 +70,7 @@ async function fixCoffeePurchase() {
   if (purchases.length > 1) {
     console.log(`\n⚠️  Found ${purchases.length} total purchases - cleaning up old ones...`);
 
-    const oldPurchases = purchases.filter(p => p.id !== recentPurchase.id);
+    const oldPurchases = purchases.filter((p) => p.id !== recentPurchase.id);
 
     for (const old of oldPurchases) {
       await sql`
@@ -110,7 +112,7 @@ async function fixCoffeePurchase() {
 
 fixCoffeePurchase()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Error:', error);
     process.exit(1);
   });

@@ -17,44 +17,44 @@ declare global {
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
     const token = extractTokenFromHeader(req.headers.authorization);
-    
+
     if (!token) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Authentication required',
-        code: 'NO_TOKEN' 
+        code: 'NO_TOKEN',
       });
     }
 
     // Verify JWT token
     const payload: JWTPayload | null = verifyAccessToken(token);
     if (!payload) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Invalid or expired token',
-        code: 'INVALID_TOKEN' 
+        code: 'INVALID_TOKEN',
       });
     }
 
     // Get user with session validation
     const tokenHash = hashToken(token);
     const result = await authStorage.getUserWithSession(tokenHash);
-    
+
     if (!result) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Session not found or expired',
-        code: 'SESSION_EXPIRED' 
+        code: 'SESSION_EXPIRED',
       });
     }
 
     // Attach user to request
     req.user = result.user;
     req.session = result.session;
-    
+
     next();
   } catch (error) {
     console.error('Authentication middleware error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Authentication service error',
-      code: 'AUTH_ERROR' 
+      code: 'AUTH_ERROR',
     });
   }
 }
@@ -63,7 +63,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const token = extractTokenFromHeader(req.headers.authorization);
-    
+
     if (!token) {
       return next(); // Continue without user
     }
@@ -75,12 +75,12 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
 
     const tokenHash = hashToken(token);
     const result = await authStorage.getUserWithSession(tokenHash);
-    
+
     if (result) {
       req.user = result.user;
       req.session = result.session;
     }
-    
+
     next();
   } catch (error) {
     console.error('Optional auth middleware error:', error);
@@ -94,14 +94,14 @@ export function requireTier(minTier: UserTier) {
     starter: 0,
     coffee: 1,
     growth: 2,
-    scale: 3
+    scale: 3,
   };
 
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Authentication required',
-        code: 'NO_AUTH' 
+        code: 'NO_AUTH',
       });
     }
 
@@ -109,11 +109,11 @@ export function requireTier(minTier: UserTier) {
     const requiredTierLevel = tierLevels[minTier];
 
     if (userTierLevel < requiredTierLevel) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: `${minTier} tier or higher required`,
         code: 'INSUFFICIENT_TIER',
         userTier: req.user.tier,
-        requiredTier: minTier
+        requiredTier: minTier,
       });
     }
 
@@ -124,16 +124,16 @@ export function requireTier(minTier: UserTier) {
 // Require email verification middleware
 export function requireEmailVerified(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       error: 'Authentication required',
-      code: 'NO_AUTH' 
+      code: 'NO_AUTH',
     });
   }
 
   if (!req.user.emailVerified) {
-    return res.status(403).json({ 
+    return res.status(403).json({
       error: 'Email verification required',
-      code: 'EMAIL_NOT_VERIFIED' 
+      code: 'EMAIL_NOT_VERIFIED',
     });
   }
 
@@ -144,20 +144,20 @@ export function requireEmailVerified(req: Request, res: Response, next: NextFunc
 export function requireCredits(minCredits: number = 1) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Authentication required',
-        code: 'NO_AUTH' 
+        code: 'NO_AUTH',
       });
     }
 
     const userCredits = req.user.creditsRemaining || 0;
-    
+
     if (userCredits < minCredits) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Insufficient credits',
         code: 'INSUFFICIENT_CREDITS',
         creditsRemaining: userCredits,
-        creditsRequired: minCredits
+        creditsRequired: minCredits,
       });
     }
 
@@ -168,17 +168,18 @@ export function requireCredits(minCredits: number = 1) {
 // Admin only middleware
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       error: 'Authentication required',
-      code: 'NO_AUTH' 
+      code: 'NO_AUTH',
     });
   }
 
   // Check if user is admin (you may want to add an isAdmin field to the user schema)
-  if (req.user.tier !== 'scale') { // For now, scale tier = admin
-    return res.status(403).json({ 
+  if (req.user.tier !== 'scale') {
+    // For now, scale tier = admin
+    return res.status(403).json({
       error: 'Admin access required',
-      code: 'ADMIN_REQUIRED' 
+      code: 'ADMIN_REQUIRED',
     });
   }
 
@@ -200,14 +201,14 @@ export function handleAuthError(error: any, req: Request, res: Response, next: N
   if (error.name === 'JsonWebTokenError') {
     return res.status(401).json({
       error: 'Invalid token',
-      code: 'INVALID_TOKEN'
+      code: 'INVALID_TOKEN',
     });
   }
 
   if (error.name === 'TokenExpiredError') {
     return res.status(401).json({
       error: 'Token expired',
-      code: 'TOKEN_EXPIRED'
+      code: 'TOKEN_EXPIRED',
     });
   }
 

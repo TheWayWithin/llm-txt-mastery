@@ -2,7 +2,7 @@
 
 /**
  * Performance Benchmark Runner
- * 
+ *
  * Usage:
  *   npm run benchmark:performance           # Run all benchmarks
  *   npm run benchmark:clustering            # Run clustering benchmarks only
@@ -34,7 +34,7 @@ class BenchmarkRunner {
       verbose: false,
       iterations: 1,
       output: 'console',
-      ...options
+      ...options,
     };
   }
 
@@ -51,7 +51,7 @@ class BenchmarkRunner {
       console.log('✅ Environment verified\n');
 
       const results = await this.runBenchmarks();
-      
+
       const endTime = performance.now();
       const totalDuration = Math.round(endTime - startTime);
 
@@ -59,15 +59,14 @@ class BenchmarkRunner {
       await this.outputResults(results, totalDuration);
 
       // Check overall health
-      const overallPassed = results.every(suite => suite.summary.overallPassed);
+      const overallPassed = results.every((suite) => suite.summary.overallPassed);
       const exitCode = overallPassed ? 0 : 1;
 
       console.log('\n==========================================');
       console.log(`🏁 Benchmarks completed in ${this.formatDuration(totalDuration)}`);
       console.log(`${overallPassed ? '✅ All benchmarks passed' : '❌ Some benchmarks failed'}`);
-      
-      process.exit(exitCode);
 
+      process.exit(exitCode);
     } catch (error) {
       console.error('❌ Benchmark execution failed:', error);
       process.exit(1);
@@ -77,7 +76,7 @@ class BenchmarkRunner {
   private async verifyEnvironment(): Promise<void> {
     // Check required environment variables
     const requiredVars = ['DATABASE_URL'];
-    const missingVars = requiredVars.filter(varName => !process.env[varName]);
+    const missingVars = requiredVars.filter((varName) => !process.env[varName]);
 
     if (missingVars.length > 0) {
       throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
@@ -85,10 +84,12 @@ class BenchmarkRunner {
 
     // Check optional but recommended variables
     const optionalVars = ['OPENAI_API_KEY', 'REDIS_HOST'];
-    const missingOptional = optionalVars.filter(varName => !process.env[varName]);
-    
+    const missingOptional = optionalVars.filter((varName) => !process.env[varName]);
+
     if (missingOptional.length > 0) {
-      console.log(`⚠️  Missing optional variables (some benchmarks may be skipped): ${missingOptional.join(', ')}`);
+      console.log(
+        `⚠️  Missing optional variables (some benchmarks may be skipped): ${missingOptional.join(', ')}`
+      );
     }
 
     // Verify service health
@@ -113,28 +114,28 @@ class BenchmarkRunner {
         case 'clustering':
           suiteResults.push({
             suite: 'clustering',
-            benchmarks: await performanceBenchmarks.runClusteringBenchmarks()
+            benchmarks: await performanceBenchmarks.runClusteringBenchmarks(),
           });
           break;
 
         case 'embeddings':
           suiteResults.push({
             suite: 'embeddings',
-            benchmarks: await performanceBenchmarks.runEmbeddingBenchmarks()
+            benchmarks: await performanceBenchmarks.runEmbeddingBenchmarks(),
           });
           break;
 
         case 'database':
           suiteResults.push({
             suite: 'database',
-            benchmarks: await performanceBenchmarks.runDatabaseBenchmarks()
+            benchmarks: await performanceBenchmarks.runDatabaseBenchmarks(),
           });
           break;
 
         case 'integration':
           suiteResults.push({
             suite: 'integration',
-            benchmarks: await performanceBenchmarks.runIntegrationBenchmarks()
+            benchmarks: await performanceBenchmarks.runIntegrationBenchmarks(),
           });
           break;
 
@@ -168,11 +169,11 @@ class BenchmarkRunner {
     // Average each suite
     return Object.entries(groupedResults).map(([suite, suiteResults]: [string, any]) => {
       const averaged = suiteResults[0]; // Start with first result structure
-      
+
       // Average the benchmarks
       averaged.benchmarks = averaged.benchmarks.map((benchmark: any, index: number) => {
         const values = suiteResults.map((r: any) => r.benchmarks[index]);
-        
+
         return {
           ...benchmark,
           duration: this.average(values.map((v: any) => v.duration)),
@@ -180,9 +181,11 @@ class BenchmarkRunner {
           results: {
             ...benchmark.results,
             avgResponseTime: this.average(values.map((v: any) => v.results.avgResponseTime)),
-            operationsPerSecond: this.average(values.map((v: any) => v.results.operationsPerSecond)),
-            memoryPeak: this.average(values.map((v: any) => v.results.memoryPeak))
-          }
+            operationsPerSecond: this.average(
+              values.map((v: any) => v.results.operationsPerSecond)
+            ),
+            memoryPeak: this.average(values.map((v: any) => v.results.memoryPeak)),
+          },
         };
       });
 
@@ -214,11 +217,13 @@ class BenchmarkRunner {
       const suite = suiteResult.suite;
       const benchmarks = suiteResult.benchmarks || [];
       const passedCount = benchmarks.filter((b: any) => b.passed).length;
-      
+
       console.log(`\n📊 ${suite.toUpperCase()} SUITE RESULTS`);
       console.log('─'.repeat(50));
-      console.log(`Benchmarks: ${benchmarks.length} | Passed: ${passedCount} | Failed: ${benchmarks.length - passedCount}`);
-      
+      console.log(
+        `Benchmarks: ${benchmarks.length} | Passed: ${passedCount} | Failed: ${benchmarks.length - passedCount}`
+      );
+
       if (this.options.verbose) {
         console.log('\nDetailed Results:');
         for (const benchmark of benchmarks) {
@@ -257,9 +262,12 @@ class BenchmarkRunner {
     console.log('\n📈 OVERALL SUMMARY');
     console.log('─'.repeat(50));
     const totalBenchmarks = results.reduce((sum, r) => sum + (r.benchmarks?.length || 0), 0);
-    const totalPassed = results.reduce((sum, r) => sum + (r.benchmarks?.filter((b: any) => b.passed).length || 0), 0);
+    const totalPassed = results.reduce(
+      (sum, r) => sum + (r.benchmarks?.filter((b: any) => b.passed).length || 0),
+      0
+    );
     const totalFailed = totalBenchmarks - totalPassed;
-    
+
     console.log(`Total Benchmarks: ${totalBenchmarks}`);
     console.log(`Passed: ${totalPassed} (${((totalPassed / totalBenchmarks) * 100).toFixed(1)}%)`);
     console.log(`Failed: ${totalFailed} (${((totalFailed / totalBenchmarks) * 100).toFixed(1)}%)`);
@@ -274,9 +282,14 @@ class BenchmarkRunner {
       results,
       summary: {
         totalBenchmarks: results.reduce((sum, r) => sum + (r.benchmarks?.length || 0), 0),
-        totalPassed: results.reduce((sum, r) => sum + (r.benchmarks?.filter((b: any) => b.passed).length || 0), 0),
-        overallHealth: results.every(r => r.summary?.overallPassed !== false) ? 'healthy' : 'degraded'
-      }
+        totalPassed: results.reduce(
+          (sum, r) => sum + (r.benchmarks?.filter((b: any) => b.passed).length || 0),
+          0
+        ),
+        overallHealth: results.every((r) => r.summary?.overallPassed !== false)
+          ? 'healthy'
+          : 'degraded',
+      },
     };
 
     console.log(JSON.stringify(output, null, 2));
@@ -290,28 +303,28 @@ class BenchmarkRunner {
     for (const suiteResult of results) {
       const suite = suiteResult.suite;
       const benchmarks = suiteResult.benchmarks || [];
-      
+
       markdown += `## ${suite.charAt(0).toUpperCase() + suite.slice(1)} Suite\n\n`;
-      
+
       markdown += '| Benchmark | Status | Duration | Throughput | Memory |\n';
       markdown += '|-----------|--------|----------|------------|--------|\n';
-      
+
       for (const benchmark of benchmarks) {
         const status = benchmark.passed ? '✅' : '❌';
         const duration = this.formatDuration(benchmark.duration);
         const throughput = `${benchmark.throughput.toFixed(1)} ops/sec`;
         const memory = `${benchmark.results.memoryPeak}MB`;
-        
+
         markdown += `| ${benchmark.name} | ${status} | ${duration} | ${throughput} | ${memory} |\n`;
       }
-      
+
       if (suiteResult.summary?.recommendations?.length > 0) {
         markdown += '\n### Recommendations\n\n';
         for (const recommendation of suiteResult.summary.recommendations) {
           markdown += `- ${recommendation}\n`;
         }
       }
-      
+
       markdown += '\n';
     }
 
@@ -338,7 +351,7 @@ function parseArgs(): BenchmarkOptions {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     switch (arg) {
       case '--suite':
       case '-s':

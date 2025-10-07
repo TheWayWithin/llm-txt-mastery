@@ -1,4 +1,5 @@
 # Mission: FIX 🐛
+
 ## Emergency Bug Resolution
 
 **Mission Code**: FIX  
@@ -25,11 +26,14 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 **Objective**: Understand the bug's impact and root cause
 
 **COORDINATOR PROTOCOL**:
+
 1. **UPDATE project-plan.md** with emergency fix tasks:
+
    ```markdown
    ## Mission: FIX [Bug Description]
-   
+
    ### Phase 1: Triage & Analysis (URGENT - In Progress)
+
    - [ ] Assess severity and user impact (assigned to @analyst)
    - [ ] Identify affected components (assigned to @analyst)
    - [ ] Review recent changes that might be related (assigned to @analyst)
@@ -53,6 +57,7 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 5. **LOG TO progress.md** any urgent issues or complications found
 
 **Deliverables**:
+
 - Impact assessment
 - Affected components list
 - Reproduction confirmation
@@ -74,6 +79,7 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 ```
 
 **Deliverables**:
+
 - Root cause documentation
 - Code analysis results
 - Proposed fix approach
@@ -94,6 +100,7 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 ```
 
 **Deliverables**:
+
 - Bug fix implementation
 - Regression tests
 - Side effect analysis
@@ -115,12 +122,13 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 ```
 
 **Deliverables**:
+
 - Test results
 - Regression report
 - Performance metrics
 - Sign-off for deployment
 
-### Phase 5: Post-Mortem (15-20 minutes) *[For Severity 1-2 bugs]*
+### Phase 5: Post-Mortem (15-20 minutes) _[For Severity 1-2 bugs]_
 
 **Lead**: @analyst  
 **Support**: @developer, @tester  
@@ -136,6 +144,7 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 ```
 
 **Deliverables**:
+
 - Post-mortem document
 - Prevention recommendations
 - Process improvements
@@ -153,29 +162,34 @@ Rapid response protocol for bug diagnosis and resolution. This mission prioritiz
 ## Severity Classifications
 
 ### Severity 1: Critical (Production Down)
+
 - Immediate response required
 - All hands on deck
 - Hotfix deployment process
 - Executive communication
 
 ### Severity 2: High (Major Feature Broken)
+
 - Response within 2 hours
 - Dedicated team assigned
 - Standard deployment process
 - Stakeholder updates
 
 ### Severity 3: Medium (Feature Degraded)
+
 - Response within 24 hours
 - Normal fix process
 - Bundled with next release
 
 ### Severity 4: Low (Minor Issue)
+
 - Scheduled fix
 - Bundled with related work
 
 ## Quick Fix Protocol (30 minutes)
 
 For simple, obvious bugs:
+
 1. Developer identifies and fixes (15 min)
 2. Tester verifies (10 min)
 3. Deploy (5 min)
@@ -190,20 +204,23 @@ For simple, obvious bugs:
 ## Common Patterns
 
 ### Data Corruption Fix
+
 - Include data repair scripts
 - Audit affected records
 - Implement data validation
 
 ### Performance Bug Fix
+
 - Baseline metrics first
 - Multiple fix approaches
 - Load test verification
 
 ### Security Bug Fix
+
 - Private fix development
 - Security team review
 - Coordinated disclosure
 
 ---
 
-*Swift action saves user satisfaction. Begin with `/coord fix [bug-report.md]`*
+_Swift action saves user satisfaction. Begin with `/coord fix [bug-report.md]`_

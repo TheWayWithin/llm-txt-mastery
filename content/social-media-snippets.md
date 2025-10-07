@@ -53,6 +53,7 @@ Same website analyzed:
 HTML scraping treats all content equally. Privacy policies get the same weight as product documentation. AI analysis understands content value and optimizes accordingly.
 
 **For businesses serious about AI optimization:**
+
 - Unlimited usage is non-negotiable
 - AI-powered quality assessment is essential
 - Advanced discovery finds content others miss
@@ -69,15 +70,17 @@ Full analysis and migration guide: [link]
 ## Twitter Single Posts
 
 ### Hook Post
-🚨 BREAKING: We tested all 4 LLMs.txt generators. 
 
-Only 2 actually work. 
+🚨 BREAKING: We tested all 4 LLMs.txt generators.
+
+Only 2 actually work.
 
 One has a 3-use daily limit.
 
 Thread below with shocking details 👇
 
 ### Stats Post
+
 Mind-blowing difference in LLMs.txt generators:
 
 Basic HTML scraping: 42 pages found
@@ -88,6 +91,7 @@ Same website. 3.5x more content discovered.
 This is why AI optimization matters.
 
 ### Problem Post
+
 Writesonic's LLMs.txt generator: 3 uses per day maximum.
 
 Imagine if:
@@ -98,6 +102,7 @@ Imagine if:
 That's not a tool. That's a demo.
 
 ### Solution Post
+
 What you need in an LLMs.txt generator:
 
 ❌ Daily usage limits
@@ -114,6 +119,7 @@ Only 1 tool delivers all 4.
 ## Instagram/Visual Posts
 
 ### Carousel Post Concept
+
 **Slide 1:** "We Tested All LLMs.txt Generators"
 **Slide 2:** Results table showing status of each tool
 **Slide 3:** "The Quality Gap" - 42 vs 147 pages comparison
@@ -121,6 +127,7 @@ Only 1 tool delivers all 4.
 **Slide 5:** "Only 1 Tool Works" - call to action
 
 ### Story Series
+
 **Story 1:** "Testing LLMs.txt tools..." (process shot)
 **Story 2:** "Results are in..." (results preview)
 **Story 3:** "75% don't work!" (shocking stat)
@@ -141,6 +148,7 @@ Only 1 tool delivers all 4.
 ## Reddit Posts
 
 ### r/webdev
+
 **Title:** "I tested all 4 LLMs.txt generators - here's what actually works"
 
 Been seeing a lot of questions about LLMs.txt optimization lately, so I did the testing for everyone.
@@ -148,12 +156,14 @@ Been seeing a lot of questions about LLMs.txt optimization lately, so I did the 
 Spent 2 weeks rigorously testing every available generator. Results were... disappointing.
 
 **TL;DR:**
+
 - Writesonic: 3 uses/day limit (dealbreaker)
 - LiveChatAI: Broken (100% failure rate)
 - SiteSpeakAI: Works but basic HTML scraping only
 - LLM.txt Mastery: Actually works with AI analysis
 
 **The quality difference is huge.** Same website:
+
 - HTML scraping: 42 pages
 - AI-powered: 147 pages with quality scores
 
@@ -162,16 +172,19 @@ Full methodology and results: [link]
 If you're implementing LLMs.txt, don't waste time with broken tools.
 
 ### r/artificial
+
 **Title:** "Testing revealed: 75% of LLMs.txt generators either don't work or have crippling limitations"
 
 With AI optimization becoming critical, I tested every LLMs.txt generator available.
 
 **Shocking results:**
+
 - Only 2 out of 4 actually function
 - Most miss 60%+ of valuable content
 - Arbitrary usage limits make tools unusable
 
 **The AI vs HTML scraping gap is massive:**
+
 - HTML: Treats privacy policies = product docs
 - AI: Understands content value and relevance
 
@@ -182,11 +195,13 @@ This space needs better tools. Most current options aren't ready for production 
 ## Email Campaign Subject Lines
 
 **For Blog Subscribers:**
+
 - "EXPOSED: Why 75% of LLMs.txt tools don't work"
 - "We tested every LLMs.txt generator - shocking results inside"
 - "The $0 tool that beats $50/month competitors"
 
 **For Competitor Tool Users:**
+
 - "[Name] user? We found something better (unlimited + AI-powered)"
 - "Escape the 3-use daily limit trap"
 - "Why your LLMs.txt tool is missing 60% of your content"
@@ -206,6 +221,7 @@ Hi [Name],
 I know you've been covering AI optimization tools lately. We just completed the most comprehensive analysis of LLMs.txt generators available.
 
 **The results were shocking:**
+
 - 75% either don't work or have dealbreaker limitations
 - Only 1 provides true AI-powered analysis
 - Quality gaps of 3x+ between tools
@@ -220,12 +236,14 @@ Best,
 ## Campaign Tracking
 
 **UTM Parameters:**
+
 - utm_source=social
 - utm_medium=[platform]
 - utm_campaign=competitor_analysis
 - utm_content=[post_type]
 
 **KPIs to Track:**
+
 - Article page views
 - Social engagement rates
 - Free trial signups from article
@@ -233,6 +251,7 @@ Best,
 - Brand mention increases
 
 **Success Metrics:**
+
 - 10,000+ article views in first week
 - 500+ social shares across platforms
 - 100+ new trial signups from campaign

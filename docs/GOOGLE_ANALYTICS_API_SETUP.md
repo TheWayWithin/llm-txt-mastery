@@ -5,8 +5,9 @@ This guide walks you through setting up Google Analytics Data API v1 for the LLM
 ## Overview
 
 The Google Analytics Data API v1 allows you to:
+
 - Extract website traffic patterns for content optimization
-- Identify high-performing content for prioritization 
+- Identify high-performing content for prioritization
 - Get user behavior insights to improve semantic clustering
 - Track content performance metrics for Business Objective mode
 
@@ -21,11 +22,12 @@ The Google Analytics Data API v1 allows you to:
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
 2. Select or create a project
 3. Enable the Google Analytics Data API:
+
    ```bash
    # Via gcloud CLI
    gcloud services enable analyticsdata.googleapis.com
    ```
-   
+
    Or navigate to **APIs & Services > Library** and search for "Google Analytics Data API"
 
 ## Step 2: Create Service Account
@@ -94,15 +96,18 @@ npm install @google-analytics/data
 ## API Quotas and Limits
 
 **Free Tier Limits (per day):**
+
 - Core Reporting API: 25,000 requests
-- Real-time Reporting API: 10,000 requests  
+- Real-time Reporting API: 10,000 requests
 - Data retention: 14 months (standard)
 
 **Rate Limits:**
+
 - 10 queries per second per project
 - 100 concurrent requests per project
 
 **Cost Estimation:**
+
 - Standard Analytics properties: FREE up to limits
 - Analytics 360 properties: May have different limits
 - Typical usage for semantic enhancement: ~100-500 requests/day
@@ -116,6 +121,7 @@ node scripts/test-google-analytics.js
 ```
 
 This will test:
+
 - Authentication with service account
 - Property access permissions
 - Basic data retrieval
@@ -126,18 +132,21 @@ This will test:
 The API provides access to:
 
 ### Audience Data
+
 - User demographics
 - Technology (devices, browsers)
 - Geographic data
 - User behavior flow
 
-### Acquisition Data  
+### Acquisition Data
+
 - Traffic sources
 - Campaign performance
 - Social media referrals
 - Search terms
 
 ### Behavior Data
+
 - Page views and sessions
 - Bounce rates
 - Time on page
@@ -145,6 +154,7 @@ The API provides access to:
 - Event tracking
 
 ### Conversion Data
+
 - Goal completions
 - E-commerce metrics
 - Custom events
@@ -155,7 +165,7 @@ The API provides access to:
 When Analytics is configured, Business Objective mode can:
 
 1. **Content Prioritization**: Identify high-traffic pages for priority semantic analysis
-2. **Performance Correlation**: Link content quality scores with traffic metrics  
+2. **Performance Correlation**: Link content quality scores with traffic metrics
 3. **User Journey Analysis**: Understand how users interact with different content types
 4. **ROI Optimization**: Focus semantic improvements on pages that drive business value
 
@@ -183,33 +193,41 @@ When Analytics is configured, Business Objective mode can:
 ### Common Issues
 
 **Authentication Failed**:
+
 ```
 Error: Could not load the default credentials
 ```
+
 - Check `GOOGLE_APPLICATION_CREDENTIALS` path
 - Verify service account key JSON format
 - Ensure service account has Analytics access
 
 **Property Access Denied**:
+
 ```
 Error: User does not have sufficient permissions
 ```
+
 - Verify Property ID is correct
 - Check service account has Viewer role in Analytics
 - Ensure you're using GA4 (not Universal Analytics)
 
 **API Not Enabled**:
+
 ```
 Error: Google Analytics Data API has not been used
 ```
+
 - Enable the API in Google Cloud Console
 - Wait a few minutes for propagation
 - Verify correct project is selected
 
 **Quota Exceeded**:
+
 ```
 Error: Quota exceeded for quota metric
 ```
+
 - Implement caching to reduce API calls
 - Add request throttling
 - Consider upgrading to Analytics 360 if needed

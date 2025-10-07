@@ -25,20 +25,26 @@ export default function ForgotPasswordPage() {
     setMessage('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/request-password-reset`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim()
-        })
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/request-password-reset`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message || 'If an account exists with this email, a password reset link has been sent.');
+        setMessage(
+          data.message ||
+            'If an account exists with this email, a password reset link has been sent.'
+        );
         setEmailSent(true);
       } else {
         setError(data.error || 'Failed to send password reset email');
@@ -73,17 +79,16 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div className="space-y-2 pt-4">
-              <Button
-                onClick={() => setEmailSent(false)}
-                variant="outline"
-                className="w-full"
-              >
+              <Button onClick={() => setEmailSent(false)} variant="outline" className="w-full">
                 <Mail className="w-4 h-4 mr-2" />
                 Send another email
               </Button>
 
               <Link href="/login">
-                <Button variant="ghost" className="w-full text-ai-silver hover:text-framework-black">
+                <Button
+                  variant="ghost"
+                  className="w-full text-ai-silver hover:text-framework-black"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to login
                 </Button>
@@ -109,17 +114,13 @@ export default function ForgotPasswordPage() {
         <CardContent>
           {message && (
             <Alert className="mb-4 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">
-                {message}
-              </AlertDescription>
+              <AlertDescription className="text-green-800">{message}</AlertDescription>
             </Alert>
           )}
 
           {error && (
             <Alert className="mb-4 border-red-200 bg-red-50">
-              <AlertDescription className="text-red-800">
-                {error}
-              </AlertDescription>
+              <AlertDescription className="text-red-800">{error}</AlertDescription>
             </Alert>
           )}
 
@@ -138,8 +139,8 @@ export default function ForgotPasswordPage() {
               />
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-mastery-blue hover:bg-mastery-blue/90"
               disabled={isLoading || !email.trim()}
             >

@@ -2,7 +2,7 @@ import { Page, expect } from '@playwright/test';
 
 /**
  * PAYMENT TESTING UTILITIES
- * 
+ *
  * Shared helpers for Growth/Scale tier payment flow testing
  * Author: THE TESTER - AGENT-11
  */
@@ -17,13 +17,13 @@ export const PAYMENT_CONFIGS: Record<'growth' | 'scale', PaymentTestConfig> = {
   growth: {
     tier: 'growth',
     expectedPrice: '$9.95',
-    expectedEndpoint: '/api/stripe/create-growth-checkout'
+    expectedEndpoint: '/api/stripe/create-growth-checkout',
   },
   scale: {
-    tier: 'scale', 
+    tier: 'scale',
     expectedPrice: '$19.95',
-    expectedEndpoint: '/api/stripe/create-scale-checkout'
-  }
+    expectedEndpoint: '/api/stripe/create-scale-checkout',
+  },
 };
 
 export class PaymentFlowTester {
@@ -34,29 +34,33 @@ export class PaymentFlowTester {
    */
   async completeSignupFlow(email: string, tier: 'growth' | 'scale') {
     console.log(`🔄 Starting signup flow for ${tier} tier with email: ${email}`);
-    
+
     // Navigate to signup
     await this.page.goto('/signup', { waitUntil: 'networkidle' });
     await expect(this.page).toHaveTitle(/Sign Up|Create Account|LLM/);
-    
+
     // Select tier
     const tierSelect = this.page.locator('select#tier, #tier, [name="tier"]');
     await expect(tierSelect).toBeVisible({ timeout: 10000 });
     await tierSelect.selectOption(tier);
-    
+
     // Verify tier selection UI
-    const tierInfo = this.page.locator(`text=${tier.toUpperCase()}, text=${PAYMENT_CONFIGS[tier].expectedPrice}`);
+    const tierInfo = this.page.locator(
+      `text=${tier.toUpperCase()}, text=${PAYMENT_CONFIGS[tier].expectedPrice}`
+    );
     await expect(tierInfo).toBeVisible({ timeout: 5000 });
-    
+
     // Fill form
     await this.page.fill('input[type="email"], input[name="email"]', email);
     await this.page.fill('input[type="password"], input[name="password"]', 'TestPassword123!');
-    
-    const confirmPasswordField = this.page.locator('input[placeholder*="confirm"], input[name="confirmPassword"]');
+
+    const confirmPasswordField = this.page.locator(
+      'input[placeholder*="confirm"], input[name="confirmPassword"]'
+    );
     if (await confirmPasswordField.isVisible()) {
       await confirmPasswordField.fill('TestPassword123!');
     }
-    
+
     return this;
   }
 
@@ -65,27 +69,28 @@ export class PaymentFlowTester {
    */
   async submitAndValidateAPI(email: string, tier: 'growth' | 'scale') {
     const config = PAYMENT_CONFIGS[tier];
-    
+
     // Set up API call interception
-    const checkoutRequestPromise = this.page.waitForRequest(req => 
-      req.url().includes(config.expectedEndpoint) &&
-      req.method() === 'POST'
+    const checkoutRequestPromise = this.page.waitForRequest(
+      (req) => req.url().includes(config.expectedEndpoint) && req.method() === 'POST'
     );
-    
-    const submitButton = this.page.locator('button[type="submit"], button:has-text("Create Account")');
+
+    const submitButton = this.page.locator(
+      'button[type="submit"], button:has-text("Create Account")'
+    );
     await expect(submitButton).toBeEnabled();
-    
+
     await submitButton.click();
-    
+
     // Validate API call
     const checkoutRequest = await checkoutRequestPromise;
     console.log(`✅ ${tier} checkout API called: ${config.expectedEndpoint}`);
-    
+
     // Validate request body
     const requestBody = JSON.parse(checkoutRequest.postData() || '{}');
     expect(requestBody.email).toBe(email);
     console.log(`✅ Correct email sent to ${tier} checkout API`);
-    
+
     return this;
   }
 
@@ -96,22 +101,27 @@ export class PaymentFlowTester {
     // Wait for Stripe redirect
     await this.page.waitForURL(/stripe|checkout/, { timeout: 30000 });
     console.log('✅ Redirected to Stripe checkout');
-    
+
     // Validate Stripe form loads
-    await this.page.waitForSelector('form, .StripeElement, iframe, [data-testid="hosted-payment-page"]', { 
-      timeout: 15000 
-    });
-    
+    await this.page.waitForSelector(
+      'form, .StripeElement, iframe, [data-testid="hosted-payment-page"]',
+      {
+        timeout: 15000,
+      }
+    );
+
     // Check for expected pricing
     const config = PAYMENT_CONFIGS[tier];
-    const priceElements = this.page.locator(`text=${config.expectedPrice}, text=${config.expectedPrice.replace('$', '')}`);
-    
-    if (await priceElements.count() > 0) {
+    const priceElements = this.page.locator(
+      `text=${config.expectedPrice}, text=${config.expectedPrice.replace('$', '')}`
+    );
+
+    if ((await priceElements.count()) > 0) {
       console.log(`✅ ${tier} tier pricing (${config.expectedPrice}) visible on Stripe`);
     } else {
       console.log(`⚠️  ${tier} tier pricing not clearly visible`);
     }
-    
+
     return this;
   }
 
@@ -120,43 +130,41 @@ export class PaymentFlowTester {
    */
   async validateUpgradeFlow(targetTier: 'growth' | 'scale') {
     console.log(`🔄 Testing upgrade to ${targetTier} tier`);
-    
+
     await this.page.goto('/dashboard', { waitUntil: 'networkidle' });
-    
+
     // Look for upgrade button
     const upgradeButton = this.page.locator(
       `button:has-text("Upgrade to ${targetTier.charAt(0).toUpperCase() + targetTier.slice(1)}"), ` +
-      `button:has-text("${targetTier.charAt(0).toUpperCase() + targetTier.slice(1)}"), ` +
-      `a:has-text("Upgrade to ${targetTier.charAt(0).toUpperCase() + targetTier.slice(1)}")`
+        `button:has-text("${targetTier.charAt(0).toUpperCase() + targetTier.slice(1)}"), ` +
+        `a:has-text("Upgrade to ${targetTier.charAt(0).toUpperCase() + targetTier.slice(1)}")`
     );
-    
-    const upgradeVisible = await upgradeButton.count() > 0;
-    
+
+    const upgradeVisible = (await upgradeButton.count()) > 0;
+
     if (upgradeVisible) {
       console.log(`✅ ${targetTier} upgrade option found`);
-      
+
       // Intercept upgrade API call
-      const upgradeRequestPromise = this.page.waitForRequest(req => 
-        req.url().includes('/api/stripe/create-upgrade-session') &&
-        req.method() === 'POST'
+      const upgradeRequestPromise = this.page.waitForRequest(
+        (req) => req.url().includes('/api/stripe/create-upgrade-session') && req.method() === 'POST'
       );
-      
+
       await upgradeButton.first().click();
-      
+
       // Validate API call
       const upgradeRequest = await upgradeRequestPromise;
       const requestBody = JSON.parse(upgradeRequest.postData() || '{}');
       expect(requestBody.targetTier).toBe(targetTier);
       console.log('✅ Upgrade API called with correct target tier');
-      
+
       // Should redirect for payment
       await this.page.waitForURL(/stripe|checkout|upgrade/, { timeout: 15000 });
       console.log('✅ Redirected to upgrade payment page');
-      
     } else {
       console.log(`⚠️  ${targetTier} upgrade option not found`);
     }
-    
+
     return upgradeVisible;
   }
 
@@ -169,45 +177,44 @@ export class PaymentFlowTester {
     upgrade: boolean;
   }> {
     console.log('🔧 Testing API endpoints directly...');
-    
+
     const results = {
       growth: false,
       scale: false,
-      upgrade: false
+      upgrade: false,
     };
-    
+
     try {
       // Test Growth checkout
       const growthResponse = await page.request.post('/api/stripe/create-growth-checkout', {
         data: { email: 'test@example.com' },
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
-      
+
       results.growth = [401, 400].includes(growthResponse.status());
       console.log(`Growth API: ${results.growth ? '✅' : '❌'} (${growthResponse.status()})`);
-      
+
       // Test Scale checkout
       const scaleResponse = await page.request.post('/api/stripe/create-scale-checkout', {
         data: { email: 'test@example.com' },
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
-      
+
       results.scale = [401, 400].includes(scaleResponse.status());
       console.log(`Scale API: ${results.scale ? '✅' : '❌'} (${scaleResponse.status()})`);
-      
+
       // Test Upgrade session
       const upgradeResponse = await page.request.post('/api/stripe/create-upgrade-session', {
         data: { targetTier: 'growth' },
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
-      
+
       results.upgrade = upgradeResponse.status() === 401;
       console.log(`Upgrade API: ${results.upgrade ? '✅' : '❌'} (${upgradeResponse.status()})`);
-      
     } catch (error) {
       console.error('API endpoint testing error:', error);
     }
-    
+
     return results;
   }
 
@@ -221,13 +228,15 @@ export class PaymentFlowTester {
     edgeCases: { invalidEmail: boolean; cancellation: boolean; coffeeRegression: boolean };
   }): string {
     const timestamp = new Date().toISOString();
-    const passCount = Object.values(results).reduce((total, category) => 
-      total + Object.values(category).filter(Boolean).length, 0
+    const passCount = Object.values(results).reduce(
+      (total, category) => total + Object.values(category).filter(Boolean).length,
+      0
     );
-    const totalTests = Object.values(results).reduce((total, category) => 
-      total + Object.values(category).length, 0
+    const totalTests = Object.values(results).reduce(
+      (total, category) => total + Object.values(category).length,
+      0
     );
-    
+
     return `
 # 💳 GROWTH & SCALE PAYMENT TESTING REPORT
 Generated: ${timestamp}
@@ -252,9 +261,10 @@ Tests Passed: ${passCount}/${totalTests}
 - Coffee Tier Regression: ${results.edgeCases.coffeeRegression ? '✅ PASS' : '❌ FAIL'}
 
 ## 🎯 Overall Assessment
-${passCount === totalTests ? 
-  '🎉 ALL TESTS PASSED - Growth & Scale payment processing is fully functional!' :
-  `⚠️  ${totalTests - passCount} test(s) failed - Review and fix issues before deployment.`
+${
+  passCount === totalTests
+    ? '🎉 ALL TESTS PASSED - Growth & Scale payment processing is fully functional!'
+    : `⚠️  ${totalTests - passCount} test(s) failed - Review and fix issues before deployment.`
 }
 
 ## 🔍 Critical Areas Tested
@@ -280,23 +290,23 @@ export const STRIPE_TEST_DATA = {
     visaDebit: '4000056655665556',
     mastercard: '5555555555554444',
     amex: '378282246310005',
-    declined: '4000000000000002'
+    declined: '4000000000000002',
   },
-  
+
   // Test customer data
   customer: {
     email: 'test@example.com',
     name: 'Test User',
-    phone: '+1234567890'
+    phone: '+1234567890',
   },
-  
+
   // Expected webhook events
   webhookEvents: [
     'checkout.session.completed',
     'customer.subscription.created',
     'customer.subscription.updated',
-    'invoice.payment_succeeded'
-  ]
+    'invoice.payment_succeeded',
+  ],
 };
 
 /**
@@ -323,6 +333,10 @@ export const ValidationHelpers = {
    * Check if URL is Stripe checkout
    */
   isStripeCheckoutURL(url: string): boolean {
-    return url.includes('stripe.com') || url.includes('checkout.stripe.com') || url.includes('js.stripe.com');
-  }
+    return (
+      url.includes('stripe.com') ||
+      url.includes('checkout.stripe.com') ||
+      url.includes('js.stripe.com')
+    );
+  },
 };

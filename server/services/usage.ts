@@ -1,59 +1,68 @@
-import { storage } from "../storage";
-import { db } from "../db";
-import { UserTier, UsageTracking, emailCaptures, usageTracking, users, authUsers } from "@shared/schema";
-import { authStorage } from "../services/auth-storage";
-import { TIER_LIMITS } from "./cache";
-import { eq, and } from "drizzle-orm";
+import { storage } from '../storage';
+import { db } from '../db';
+import {
+  UserTier,
+  UsageTracking,
+  emailCaptures,
+  usageTracking,
+  users,
+  authUsers,
+} from '@shared/schema';
+import { authStorage } from '../services/auth-storage';
+import { TIER_LIMITS } from './cache';
+import { eq, and } from 'drizzle-orm';
 
 // CRITICAL FIX: Shared user resolution logic to prevent race conditions
 // Both trackUsage() and getTodayUsage() use this to ensure consistent behavior
 export async function resolveUserFromEmail(userEmail: string): Promise<number | null> {
   try {
     console.log(`🔍 [USER RESOLUTION] Starting for: ${userEmail}`);
-    
+
     // First, check if emailCapture exists and has a linked user
     const emailCaptureResult = await db
       .select({ id: emailCaptures.id, userId: emailCaptures.userId })
       .from(emailCaptures)
       .where(eq(emailCaptures.email, userEmail))
       .limit(1);
-    
+
     if (!emailCaptureResult[0]) {
       console.log(`⚠️ [USER RESOLUTION] No emailCapture found for: ${userEmail}`);
       return null;
     }
-    
+
     const emailCaptureId = emailCaptureResult[0].id;
     let actualUserId = emailCaptureResult[0].userId;
-    
+
     // If emailCapture already has a userId, return it
     if (actualUserId) {
       console.log(`✅ [USER RESOLUTION] Found existing user ID: ${actualUserId} for ${userEmail}`);
       return actualUserId;
     }
-    
+
     // Check if a user with this email as username already exists (from previous attempts)
     const existingUser = await db
       .select({ id: users.id })
       .from(users)
       .where(eq(users.username, userEmail))
       .limit(1);
-    
+
     if (existingUser[0]) {
       // User exists but wasn't linked to emailCapture - link it now
-      console.log(`🔗 [USER RESOLUTION] Found existing user ${existingUser[0].id}, linking to emailCapture`);
-      
+      console.log(
+        `🔗 [USER RESOLUTION] Found existing user ${existingUser[0].id}, linking to emailCapture`
+      );
+
       await db
         .update(emailCaptures)
         .set({ userId: existingUser[0].id })
         .where(eq(emailCaptures.id, emailCaptureId));
-      
+
       return existingUser[0].id;
     }
-    
+
     // Otherwise, create a placeholder user and link it atomically
     console.log(`🔧 [USER RESOLUTION] Creating placeholder user for: ${userEmail}`);
-    
+
     // TRANSACTION SAFETY: Execute user creation and emailCaptures update atomically
     const result = await db.transaction(async (tx) => {
       // Create a placeholder user in users table for usage tracking
@@ -61,24 +70,23 @@ export async function resolveUserFromEmail(userEmail: string): Promise<number | 
         .insert(users)
         .values({
           username: userEmail, // Use email as username for placeholder
-          password: 'placeholder' // This won't be used for login
+          password: 'placeholder', // This won't be used for login
         })
         .returning({ id: users.id });
-      
+
       const userId = newUser[0].id;
-      
+
       // Update emailCaptures to reference this user
       await tx
         .update(emailCaptures)
         .set({ userId: userId })
         .where(eq(emailCaptures.id, emailCaptureId));
-      
+
       return userId;
     });
-    
+
     console.log(`✅ [USER RESOLUTION] Created and linked user ID: ${result} for ${userEmail}`);
     return result;
-    
   } catch (error) {
     console.error(`🚨 [USER RESOLUTION] Error for ${userEmail}:`, error);
     // Log additional details for debugging
@@ -86,7 +94,7 @@ export async function resolveUserFromEmail(userEmail: string): Promise<number | 
       console.error(`🚨 [USER RESOLUTION] Error details:`, {
         message: error.message,
         stack: error.stack,
-        email: userEmail
+        email: userEmail,
       });
     }
     return null;
@@ -116,7 +124,7 @@ export async function getUserTier(userEmail: string): Promise<UserTier> {
       console.log(`Manual override: ${userEmail} set to Coffee tier`);
       return 'coffee';
     }
-    
+
     // Check emailCaptures table directly (where Coffee tier is stored)
     const emailCapture = await storage.getEmailCapture(userEmail);
     const tier = emailCapture?.tier || 'starter';
@@ -133,31 +141,30 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
   try {
     console.log(`🔍 [GET USAGE] Checking today's usage for: ${userEmail}`);
     const today = new Date().toISOString().split('T')[0];
-    
+
     // CRITICAL FIX: Use shared user resolution to ensure consistency with trackUsage()
     const actualUserId = await resolveUserFromEmail(userEmail);
     if (!actualUserId) {
       console.log(`⚠️ [GET USAGE] Failed to resolve user for: ${userEmail}`);
       return null;
     }
-    
+
     // Get today's usage from database using Drizzle ORM
     const usageResult = await db
       .select()
       .from(usageTracking)
-      .where(and(
-        eq(usageTracking.userId, actualUserId),
-        eq(usageTracking.date, today)
-      ))
+      .where(and(eq(usageTracking.userId, actualUserId), eq(usageTracking.date, today)))
       .limit(1);
-    
+
     const usage = usageResult[0];
     if (!usage) {
       console.log(`ℹ️ [GET USAGE] No usage record found for user ${actualUserId} on ${today}`);
       return null;
     }
-    console.log(`📊 [GET USAGE] Found usage: ${usage.analysesCount} analyses for user ${actualUserId}`);
-    
+    console.log(
+      `📊 [GET USAGE] Found usage: ${usage.analysesCount} analyses for user ${actualUserId}`
+    );
+
     // Return usage data (already in correct format from Drizzle)
     return usage;
   } catch (error) {
@@ -165,16 +172,15 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
     console.error('🚨 [GET USAGE] Error details:', {
       message: error.message,
       code: error.code,
-      detail: error.detail
+      detail: error.detail,
     });
     return null;
   }
 }
 
-
 // Check if user can perform analysis
 export async function checkUsageLimits(
-  userEmail: string, 
+  userEmail: string,
   requestedPages: number
 ): Promise<UsageCheckResult> {
   // Note: Development bypass removed to restore proper usage tracking
@@ -184,14 +190,15 @@ export async function checkUsageLimits(
     const tier = await getUserTier(userEmail);
     const limits = TIER_LIMITS[tier];
     const todayUsage = await getTodayUsage(userEmail);
-    
+
     const analysesToday = todayUsage?.analysesCount || 0;
     const pagesProcessedToday = todayUsage?.pagesProcessed || 0;
-    
+
     // Check daily analysis limit
     if (analysesToday >= limits.dailyAnalyses) {
-      const suggestedUpgrade = tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
-      
+      const suggestedUpgrade =
+        tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
+
       // Create user-friendly messaging based on tier
       let reason: string;
       if (tier === 'starter') {
@@ -199,7 +206,7 @@ export async function checkUsageLimits(
       } else {
         reason = `Daily limit reached. ${tier} tier allows ${limits.dailyAnalyses} analysis${limits.dailyAnalyses > 1 ? 'es' : ''} per day. Resets at midnight.`;
       }
-      
+
       return {
         allowed: false,
         reason,
@@ -207,30 +214,29 @@ export async function checkUsageLimits(
         limits: {
           dailyAnalyses: limits.dailyAnalyses,
           maxPagesPerAnalysis: limits.maxPagesPerAnalysis,
-          aiPagesLimit: limits.aiPagesLimit
+          aiPagesLimit: limits.aiPagesLimit,
         },
-        suggestedUpgrade
+        suggestedUpgrade,
       };
     }
-    
+
     // Note: Page limit per analysis is handled in the analysis pipeline (sitemap-enhanced.ts)
     // The tier-based page limiting happens there, not in usage validation
     // This allows free tier to analyze any website but only process the top N pages
-    
+
     return {
       allowed: true,
       currentUsage: { analysesToday, pagesProcessedToday },
       limits: {
         dailyAnalyses: limits.dailyAnalyses,
         maxPagesPerAnalysis: limits.maxPagesPerAnalysis,
-        aiPagesLimit: limits.aiPagesLimit
-      }
+        aiPagesLimit: limits.aiPagesLimit,
+      },
     };
-    
   } catch (error) {
     console.error(`❌ [USAGE LIMITS] ERROR checking limits for ${userEmail}:`, error);
     console.error(`   Error details:`, error instanceof Error ? error.message : 'Unknown error');
-    
+
     // CRITICAL FIX: Default to DENYING on error for starter tier to prevent abuse
     // Only allow if we can't determine the tier (network issues, etc)
     try {
@@ -238,29 +244,32 @@ export async function checkUsageLimits(
       if (tier === 'starter') {
         return {
           allowed: false,
-          reason: 'Unable to verify usage limits. Please try again or contact support if the issue persists.',
+          reason:
+            'Unable to verify usage limits. Please try again or contact support if the issue persists.',
           currentUsage: { analysesToday: 0, pagesProcessedToday: 0 },
           limits: {
             dailyAnalyses: 3,
             maxPagesPerAnalysis: 20,
-            aiPagesLimit: 0
-          }
+            aiPagesLimit: 0,
+          },
         };
       }
     } catch (tierError) {
       console.error(`❌ [USAGE LIMITS] Cannot determine tier:`, tierError);
     }
-    
+
     // For paid tiers or unknown cases, allow but log the issue
-    console.warn(`⚠️ [USAGE LIMITS] Allowing analysis for ${userEmail} despite error (fail-open for non-starter)`);
+    console.warn(
+      `⚠️ [USAGE LIMITS] Allowing analysis for ${userEmail} despite error (fail-open for non-starter)`
+    );
     return {
       allowed: true,
       currentUsage: { analysesToday: 0, pagesProcessedToday: 0 },
       limits: {
         dailyAnalyses: 3,
         maxPagesPerAnalysis: 20,
-        aiPagesLimit: 0
-      }
+        aiPagesLimit: 0,
+      },
     };
   }
 }
@@ -279,18 +288,24 @@ export async function trackUsage(
   costCapWouldTrigger: boolean = false
 ): Promise<void> {
   try {
-    console.log(`✅ [USAGE TRACKING] Called successfully for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`);
+    console.log(
+      `✅ [USAGE TRACKING] Called successfully for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls`
+    );
     const today = new Date().toISOString().split('T')[0];
-    
+
     // CRITICAL FIX: Use shared user resolution to ensure consistency with getTodayUsage()
     const actualUserId = await resolveUserFromEmail(userEmail);
     if (!actualUserId) {
-      console.error(`❌ [USAGE TRACKING] CRITICAL: Cannot resolve user for ${userEmail} - usage will not be tracked!`);
+      console.error(
+        `❌ [USAGE TRACKING] CRITICAL: Cannot resolve user for ${userEmail} - usage will not be tracked!`
+      );
       // Try to create a minimal tracking record using email
       try {
         const emailCapture = await storage.getEmailCapture(userEmail);
         if (emailCapture?.userId) {
-          console.log(`🔧 [USAGE TRACKING] Found userId from email capture: ${emailCapture.userId}`);
+          console.log(
+            `🔧 [USAGE TRACKING] Found userId from email capture: ${emailCapture.userId}`
+          );
           // Continue with the found userId
           const foundUserId = emailCapture.userId;
           await storage.createUsageTracking({
@@ -301,7 +316,7 @@ export async function trackUsage(
             aiCallsCount: aiCallsCount,
             htmlExtractionsCount: htmlExtractionsCount,
             cacheHits: cacheHits,
-            totalCost: Math.round(estimatedCost * 100)
+            totalCost: Math.round(estimatedCost * 100),
           });
           console.log(`✅ [USAGE TRACKING] Successfully tracked via email capture fallback`);
           return;
@@ -311,15 +326,12 @@ export async function trackUsage(
       }
       return;
     }
-    
+
     // Try to get existing usage record first
     const existingUsage = await db
       .select()
       .from(usageTracking)
-      .where(and(
-        eq(usageTracking.userId, actualUserId),
-        eq(usageTracking.date, today)
-      ))
+      .where(and(eq(usageTracking.userId, actualUserId), eq(usageTracking.date, today)))
       .limit(1);
 
     if (existingUsage.length > 0) {
@@ -338,12 +350,15 @@ export async function trackUsage(
           actualAiCost: (existingUsage[0].actualAiCost || 0) + Math.round(actualAiCostUSD * 100), // Convert to cents
           modelUsed: modelUsed || existingUsage[0].modelUsed,
           costCapWouldTrigger: costCapWouldTrigger || existingUsage[0].costCapWouldTrigger,
-          costCapTriggeredAt: costCapWouldTrigger && !existingUsage[0].costCapWouldTrigger ? new Date() : existingUsage[0].costCapTriggeredAt,
-          updatedAt: new Date()
+          costCapTriggeredAt:
+            costCapWouldTrigger && !existingUsage[0].costCapWouldTrigger
+              ? new Date()
+              : existingUsage[0].costCapTriggeredAt,
+          updatedAt: new Date(),
         })
         .where(eq(usageTracking.id, existingUsage[0].id))
         .returning();
-        
+
       console.log(`🔄 [USAGE TRACKING] UPDATED existing record for ${userEmail}:`, updateResult[0]);
     } else {
       // Insert new record with cost tracking fields
@@ -363,15 +378,16 @@ export async function trackUsage(
           actualAiCost: Math.round(actualAiCostUSD * 100), // Convert to cents
           modelUsed: modelUsed,
           costCapWouldTrigger: costCapWouldTrigger,
-          costCapTriggeredAt: costCapWouldTrigger ? new Date() : null
+          costCapTriggeredAt: costCapWouldTrigger ? new Date() : null,
         })
         .returning();
-        
+
       console.log(`➕ [USAGE TRACKING] INSERTED new record for ${userEmail}:`, insertResult[0]);
     }
-    
-    console.log(`🎉 [USAGE TRACKING] SUCCESS for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls, ${cacheHits} cache hits`);
-    
+
+    console.log(
+      `🎉 [USAGE TRACKING] SUCCESS for ${userEmail}: ${pagesProcessed} pages, ${aiCallsCount} AI calls, ${cacheHits} cache hits`
+    );
   } catch (error) {
     console.error('🚨 [USAGE TRACKING] ERROR:', error);
     console.error('🚨 [USAGE TRACKING] Error details:', {
@@ -380,7 +396,7 @@ export async function trackUsage(
       detail: error.detail,
       table: error.table,
       column: error.column,
-      constraint: error.constraint
+      constraint: error.constraint,
     });
   }
 }
@@ -397,28 +413,25 @@ export async function getMonthlyAiCost(userEmail: string): Promise<{
     if (!actualUserId) {
       return { monthlyTotal: 0, dailyAverage: 0, tokensUsed: 0, daysActive: 0 };
     }
-    
+
     // Get current month's start date
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    
+
     // Query usage tracking for this month
     const monthUsage = await db
       .select({
         actualAiCost: usageTracking.actualAiCost,
-        actualTokensUsed: usageTracking.actualTokensUsed
+        actualTokensUsed: usageTracking.actualTokensUsed,
       })
       .from(usageTracking)
-      .where(and(
-        eq(usageTracking.userId, actualUserId),
-        gt(usageTracking.date, monthStart)
-      ));
-    
+      .where(and(eq(usageTracking.userId, actualUserId), gt(usageTracking.date, monthStart)));
+
     const monthlyTotal = monthUsage.reduce((sum, day) => sum + (day.actualAiCost || 0), 0) / 100; // Convert cents to USD
     const tokensUsed = monthUsage.reduce((sum, day) => sum + (day.actualTokensUsed || 0), 0);
     const daysActive = monthUsage.length;
     const dailyAverage = daysActive > 0 ? monthlyTotal / daysActive : 0;
-    
+
     return { monthlyTotal, dailyAverage, tokensUsed, daysActive };
   } catch (error) {
     console.error('Error getting monthly AI cost:', error);
@@ -427,7 +440,10 @@ export async function getMonthlyAiCost(userEmail: string): Promise<{
 }
 
 // Check if AI usage should be allowed based on cost caps
-export async function checkAiCostCap(userEmail: string, tier: UserTier): Promise<{
+export async function checkAiCostCap(
+  userEmail: string,
+  tier: UserTier
+): Promise<{
   allowed: boolean;
   reason?: string;
   monthlyBudget: number;
@@ -437,57 +453,61 @@ export async function checkAiCostCap(userEmail: string, tier: UserTier): Promise
 }> {
   // Check if cost caps are enabled
   const enableCostCaps = process.env.ENABLE_AI_COST_CAPS === 'true';
-  
+
   // Get tier-specific budget
   const monthlyBudgets = {
     starter: 0, // No AI for starter tier
-    coffee: 3.00, // Conservative limit for coffee tier
+    coffee: 3.0, // Conservative limit for coffee tier
     growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
-    scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00')
+    scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00'),
   };
-  
+
   const monthlyBudget = monthlyBudgets[tier];
   const alertThreshold = parseFloat(process.env.AI_COST_ALERT_THRESHOLD || '0.7');
-  
+
   // Get current monthly spending
   const { monthlyTotal } = await getMonthlyAiCost(userEmail);
-  const percentUsed = monthlyBudget > 0 ? (monthlyTotal / monthlyBudget) : 0;
-  
+  const percentUsed = monthlyBudget > 0 ? monthlyTotal / monthlyBudget : 0;
+
   // Check if cap would be triggered
   const wouldTrigger = monthlyTotal >= monthlyBudget;
-  
+
   // Log warning if approaching limit
   if (percentUsed >= alertThreshold) {
-    console.warn(`⚠️ [AI COST WARNING] User ${userEmail} has used ${(percentUsed * 100).toFixed(1)}% of monthly AI budget`);
+    console.warn(
+      `⚠️ [AI COST WARNING] User ${userEmail} has used ${(percentUsed * 100).toFixed(1)}% of monthly AI budget`
+    );
     console.warn(`   Budget: $${monthlyBudget.toFixed(2)}, Spent: $${monthlyTotal.toFixed(2)}`);
   }
-  
+
   // Log when cap would trigger (monitoring mode)
   if (wouldTrigger && !enableCostCaps) {
     console.log(`🔍 [AI COST MONITOR] Cap WOULD trigger for ${userEmail} (monitoring mode)`);
     console.log(`   Budget: $${monthlyBudget.toFixed(2)}, Spent: $${monthlyTotal.toFixed(2)}`);
   }
-  
+
   // Determine if AI should be allowed
   const allowed = !enableCostCaps || !wouldTrigger;
-  
+
   return {
     allowed,
-    reason: wouldTrigger ? 
-      `Monthly AI budget of $${monthlyBudget.toFixed(2)} exceeded. Current spend: $${monthlyTotal.toFixed(2)}` :
-      undefined,
+    reason: wouldTrigger
+      ? `Monthly AI budget of $${monthlyBudget.toFixed(2)} exceeded. Current spend: $${monthlyTotal.toFixed(2)}`
+      : undefined,
     monthlyBudget,
     monthlySpent: monthlyTotal,
     percentUsed,
-    wouldTrigger
+    wouldTrigger,
   };
 }
 
 // Coffee tier credit management
-export async function checkCoffeeCredits(userId: string): Promise<{ hasCredits: boolean; creditsRemaining: number }> {
+export async function checkCoffeeCredits(
+  userId: string
+): Promise<{ hasCredits: boolean; creditsRemaining: number }> {
   try {
     console.log(`[DEBUG] Checking coffee credits for userId: ${userId}`);
-    
+
     const numericUserId = parseInt(userId);
     if (isNaN(numericUserId)) {
       console.error(`[ERROR] Invalid userId format: ${userId}`);
@@ -495,25 +515,28 @@ export async function checkCoffeeCredits(userId: string): Promise<{ hasCredits: 
     }
 
     // Query auth_users table directly for creditsRemaining
-    const [authUser] = await db.select({
-      creditsRemaining: authUsers.creditsRemaining,
-      email: authUsers.email,
-      tier: authUsers.tier
-    })
-    .from(authUsers)
-    .where(eq(authUsers.id, numericUserId));
-    
+    const [authUser] = await db
+      .select({
+        creditsRemaining: authUsers.creditsRemaining,
+        email: authUsers.email,
+        tier: authUsers.tier,
+      })
+      .from(authUsers)
+      .where(eq(authUsers.id, numericUserId));
+
     if (!authUser) {
       console.error(`[ERROR] No auth_user found for userId: ${userId}`);
       return { hasCredits: false, creditsRemaining: 0 };
     }
-    
+
     const creditsRemaining = authUser.creditsRemaining;
-    console.log(`[DEBUG] Found user ${authUser.email} with ${creditsRemaining} credits (tier: ${authUser.tier})`);
-    
+    console.log(
+      `[DEBUG] Found user ${authUser.email} with ${creditsRemaining} credits (tier: ${authUser.tier})`
+    );
+
     return {
       hasCredits: creditsRemaining > 0,
-      creditsRemaining
+      creditsRemaining,
     };
   } catch (error) {
     console.error(`[ERROR] Failed to check coffee credits for userId ${userId}:`, error);
@@ -524,7 +547,7 @@ export async function checkCoffeeCredits(userId: string): Promise<{ hasCredits: 
 export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
   try {
     console.log(`[DEBUG] Attempting to consume credit for userId: ${userId}`);
-    
+
     const numericUserId = parseInt(userId);
     if (isNaN(numericUserId)) {
       console.error(`[ERROR] Invalid userId format: ${userId}`);
@@ -532,25 +555,31 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
     }
 
     // Get current credits directly from auth_users table
-    const [authUser] = await db.select({
-      creditsRemaining: authUsers.creditsRemaining,
-      email: authUsers.email
-    })
-    .from(authUsers)
-    .where(eq(authUsers.id, numericUserId));
-    
+    const [authUser] = await db
+      .select({
+        creditsRemaining: authUsers.creditsRemaining,
+        email: authUsers.email,
+      })
+      .from(authUsers)
+      .where(eq(authUsers.id, numericUserId));
+
     if (!authUser || authUser.creditsRemaining <= 0) {
-      console.log(`[DEBUG] User ${authUser?.email || 'unknown'} has ${authUser?.creditsRemaining || 0} credits - cannot consume`);
+      console.log(
+        `[DEBUG] User ${authUser?.email || 'unknown'} has ${authUser?.creditsRemaining || 0} credits - cannot consume`
+      );
       return false;
     }
-    
+
     // Consume one credit directly in auth_users table
     const newCredits = authUser.creditsRemaining - 1;
-    await db.update(authUsers)
+    await db
+      .update(authUsers)
       .set({ creditsRemaining: newCredits })
       .where(eq(authUsers.id, numericUserId));
-    
-    console.log(`[DEBUG] Consumed 1 coffee credit for user ${authUser.email}. Remaining: ${newCredits}`);
+
+    console.log(
+      `[DEBUG] Consumed 1 coffee credit for user ${authUser.email}. Remaining: ${newCredits}`
+    );
     return true;
   } catch (error) {
     console.error(`[ERROR] Failed to consume coffee credit for userId ${userId}:`, error);
@@ -558,7 +587,10 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
   }
 }
 
-export async function getUserTierFromAuth(user: { id: string; email: string; tier: UserTier } | undefined, email?: string): Promise<UserTier> {
+export async function getUserTierFromAuth(
+  user: { id: string; email: string; tier: UserTier } | undefined,
+  email?: string
+): Promise<UserTier> {
   if (user) {
     // Get tier from authenticated user profile
     const userProfile = await storage.getUserProfile(user.id);
@@ -575,23 +607,20 @@ export async function getUserTierFromAuth(user: { id: string; email: string; tie
 export async function resetMonthlyCredits(): Promise<void> {
   try {
     console.log('[CREDIT RESET] Starting monthly credit reset for Coffee tier users');
-    
+
     // Get all Coffee tier users from auth_users table
-    const coffeeTierUsers = await db
-      .select()
-      .from(authUsers)
-      .where(eq(authUsers.tier, 'coffee'));
-    
+    const coffeeTierUsers = await db.select().from(authUsers).where(eq(authUsers.tier, 'coffee'));
+
     console.log(`[CREDIT RESET] Found ${coffeeTierUsers.length} Coffee tier users`);
-    
+
     // Reset credits to 100 for each user
     for (const user of coffeeTierUsers) {
       await authStorage.updateUser(user.id, {
-        creditsRemaining: 100 // Reset to full monthly allocation
+        creditsRemaining: 100, // Reset to full monthly allocation
       });
       console.log(`[CREDIT RESET] Reset credits to 100 for user ${user.email}`);
     }
-    
+
     console.log('[CREDIT RESET] Monthly credit reset completed');
   } catch (error) {
     console.error('[CREDIT RESET] Failed to reset monthly credits:', error);
@@ -604,9 +633,11 @@ export async function handleSubscriptionRenewal(userId: number): Promise<void> {
     const user = await authStorage.getUserById(userId);
     if (user && user.tier === 'coffee') {
       await authStorage.updateUser(userId, {
-        creditsRemaining: 100 // Reset to full credits on renewal
+        creditsRemaining: 100, // Reset to full credits on renewal
       });
-      console.log(`[SUBSCRIPTION] Reset credits to 100 for renewed Coffee subscription: ${user.email}`);
+      console.log(
+        `[SUBSCRIPTION] Reset credits to 100 for renewed Coffee subscription: ${user.email}`
+      );
     }
   } catch (error) {
     console.error(`[SUBSCRIPTION] Failed to handle renewal for user ${userId}:`, error);
@@ -618,8 +649,9 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
   try {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    
-    const result = await db.execute(`
+
+    const result = await db.execute(
+      `
       SELECT 
         COUNT(*) as days_active,
         SUM(analyses_count) as total_analyses,
@@ -632,19 +664,22 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
       FROM usage_tracking 
       WHERE user_id = (SELECT id FROM email_captures WHERE email = $1 LIMIT 1)
       AND date >= $2
-    `, [userEmail, startDate.toISOString().split('T')[0]]);
-    
-    return result.rows?.[0] || {
-      days_active: 0,
-      total_analyses: 0,
-      total_pages: 0,
-      total_ai_calls: 0,
-      total_cache_hits: 0,
-      total_cost: 0,
-      avg_analyses_per_day: 0,
-      avg_pages_per_day: 0
-    };
-    
+    `,
+      [userEmail, startDate.toISOString().split('T')[0]]
+    );
+
+    return (
+      result.rows?.[0] || {
+        days_active: 0,
+        total_analyses: 0,
+        total_pages: 0,
+        total_ai_calls: 0,
+        total_cache_hits: 0,
+        total_cost: 0,
+        avg_analyses_per_day: 0,
+        avg_pages_per_day: 0,
+      }
+    );
   } catch (error) {
     console.error('Error getting user usage stats:', error);
     return null;
@@ -659,16 +694,16 @@ export function estimateAnalysisCost(
 ): number {
   const limits = TIER_LIMITS[tier];
   const uncachedPages = Math.max(0, pagesCount - cacheHits);
-  
+
   // Calculate how many pages will use AI
   const aiPages = tier === 'starter' ? 0 : Math.min(uncachedPages, limits.aiPagesLimit);
   const htmlPages = uncachedPages - aiPages;
-  
+
   // Cost estimates
   const aiCostPerPage = 0.03; // GPT-4 approximate cost
   const htmlCostPerPage = 0.001; // Basic processing cost
-  
-  return (aiPages * aiCostPerPage) + (htmlPages * htmlCostPerPage);
+
+  return aiPages * aiCostPerPage + htmlPages * htmlCostPerPage;
 }
 
 // Get next tier suggestion

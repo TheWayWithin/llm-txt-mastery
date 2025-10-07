@@ -8,11 +8,10 @@ export const DocsPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">
-            LLMs.txt Documentation
-          </h1>
+          <h1 className="text-4xl font-bold mb-4">LLMs.txt Documentation</h1>
           <p className="text-xl text-gray-600">
-            Everything you need to know about the llms.txt specification and how to use it effectively
+            Everything you need to know about the llms.txt specification and how to use it
+            effectively
           </p>
         </div>
 
@@ -27,22 +26,24 @@ export const DocsPage: React.FC = () => {
           <CardContent>
             <div className="space-y-4 text-gray-700">
               <p>
-                The llms.txt file is a proposed standard for websites to communicate with Large Language Models (LLMs) 
-                about how their content should be used, referenced, and attributed. Similar to robots.txt for search 
-                engines, llms.txt provides guidelines for AI systems accessing your content.
+                The llms.txt file is a proposed standard for websites to communicate with Large
+                Language Models (LLMs) about how their content should be used, referenced, and
+                attributed. Similar to robots.txt for search engines, llms.txt provides guidelines
+                for AI systems accessing your content.
               </p>
-              
+
               <p>
-                It's placed at the root of your domain (e.g., <code className="bg-gray-100 px-2 py-1 rounded">
-                https://yoursite.com/llms.txt</code>) and contains structured information about your content, 
-                licensing, and attribution preferences.
+                It's placed at the root of your domain (e.g.,{' '}
+                <code className="bg-gray-100 px-2 py-1 rounded">https://yoursite.com/llms.txt</code>
+                ) and contains structured information about your content, licensing, and attribution
+                preferences.
               </p>
-              
+
               <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mt-4">
                 <p className="font-semibold">Official Specification:</p>
-                <a 
-                  href="https://llmstxt.org" 
-                  target="_blank" 
+                <a
+                  href="https://llmstxt.org"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
                 >
@@ -66,24 +67,25 @@ export const DocsPage: React.FC = () => {
               <div className="border-l-4 border-purple-600 pl-4">
                 <h3 className="font-semibold mb-2">Get Proper Attribution</h3>
                 <p>
-                  AI systems are consuming your content but not giving you credit. A properly structured 
-                  llms.txt file helps ensure AI systems reference and link to your original content.
+                  AI systems are consuming your content but not giving you credit. A properly
+                  structured llms.txt file helps ensure AI systems reference and link to your
+                  original content.
                 </p>
               </div>
-              
+
               <div className="border-l-4 border-green-600 pl-4">
                 <h3 className="font-semibold mb-2">Control Your Content</h3>
                 <p>
-                  Specify how AI systems should use your content, what they can and cannot do with it, 
-                  and how they should attribute it when referencing your expertise.
+                  Specify how AI systems should use your content, what they can and cannot do with
+                  it, and how they should attribute it when referencing your expertise.
                 </p>
               </div>
-              
+
               <div className="border-l-4 border-blue-600 pl-4">
                 <h3 className="font-semibold mb-2">Early Adopter Advantage</h3>
                 <p>
-                  As AI systems evolve to respect content preferences, early adopters of llms.txt will 
-                  be better positioned to maintain traffic and authority in the AI-first world.
+                  As AI systems evolve to respect content preferences, early adopters of llms.txt
+                  will be better positioned to maintain traffic and authority in the AI-first world.
                 </p>
               </div>
             </div>
@@ -103,10 +105,10 @@ export const DocsPage: React.FC = () => {
               <p className="text-gray-700">
                 A typical llms.txt file contains several key sections:
               </p>
-              
+
               <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
                 <pre className="text-sm">
-{`# LLMs.txt - AI Content Guidelines
+                  {`# LLMs.txt - AI Content Guidelines
 
 ## About This Site
 [Brief description of your site and expertise]
@@ -182,9 +184,10 @@ Website: https://yoursite.com
           <CardContent>
             <div className="space-y-4 text-gray-700">
               <p>
-                LLM.txt Mastery doesn't just generate generic llms.txt files. Our AI-powered analysis:
+                LLM.txt Mastery doesn't just generate generic llms.txt files. Our AI-powered
+                analysis:
               </p>
-              
+
               <ul className="space-y-2 ml-4">
                 <li className="flex items-start">
                   <ArrowRight className="mr-2 text-blue-600 flex-shrink-0 mt-1" size={16} />
@@ -192,7 +195,9 @@ Website: https://yoursite.com
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="mr-2 text-blue-600 flex-shrink-0 mt-1" size={16} />
-                  <span>Creates strategic descriptions that help AI systems understand your value</span>
+                  <span>
+                    Creates strategic descriptions that help AI systems understand your value
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="mr-2 text-blue-600 flex-shrink-0 mt-1" size={16} />
@@ -203,10 +208,10 @@ Website: https://yoursite.com
                   <span>Maximizes the likelihood of proper attribution and linking</span>
                 </li>
               </ul>
-              
+
               <p className="font-semibold mt-4">
-                The difference between a generic llms.txt and one that actually works lies in understanding 
-                how AI systems make decisions about what to reference and link to.
+                The difference between a generic llms.txt and one that actually works lies in
+                understanding how AI systems make decisions about what to reference and link to.
               </p>
             </div>
           </CardContent>
@@ -220,9 +225,9 @@ Website: https://yoursite.com
           <CardContent>
             <ul className="space-y-3">
               <li>
-                <a 
-                  href="https://llmstxt.org" 
-                  target="_blank" 
+                <a
+                  href="https://llmstxt.org"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline flex items-center"
                 >
@@ -231,9 +236,9 @@ Website: https://yoursite.com
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://github.com/llmstxt/llmstxt" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/llmstxt/llmstxt"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline flex items-center"
                 >
@@ -242,10 +247,7 @@ Website: https://yoursite.com
                 </a>
               </li>
               <li>
-                <a 
-                  href="/about" 
-                  className="text-blue-600 hover:underline flex items-center"
-                >
+                <a href="/about" className="text-blue-600 hover:underline flex items-center">
                   Why I Built LLM.txt Mastery
                   <ArrowRight className="ml-1" size={16} />
                 </a>
@@ -257,9 +259,7 @@ Website: https://yoursite.com
         {/* CTA Section */}
         <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
           <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">
-              Ready to Create Your LLMs.txt File?
-            </h2>
+            <h2 className="text-2xl font-bold mb-4">Ready to Create Your LLMs.txt File?</h2>
             <p className="mb-6">
               Start getting proper attribution for your content in the AI-first world.
             </p>
