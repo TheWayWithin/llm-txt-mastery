@@ -1,4 +1,5 @@
 # Refund Infrastructure Assessment Report
+
 **Date**: October 2, 2025
 **Architect**: THE ARCHITECT @ AGENT-11
 **Mission**: Assess instant refund button implementation approach
@@ -20,6 +21,7 @@
 #### **Backend Services (PRODUCTION READY)**
 
 **File**: `/server/services/cancellation.ts`
+
 - ✅ **30-day guarantee logic**: `isEligibleFor30DayGuarantee()` - automated eligibility checking
 - ✅ **Refund calculation**: `calculateRefundAmount()` - handles Coffee ($4.95), Growth ($9.95), Scale ($19.95)
 - ✅ **Stripe integration**: `processCoffeeTierRefund()`, `processSubscriptionCancellation()`
@@ -27,6 +29,7 @@
 - ✅ **Database tracking**: All refunds logged with status tracking
 
 **Key Functions Available**:
+
 ```typescript
 // Already implemented and tested:
 - isEligibleFor30DayGuarantee(purchaseDate: Date): boolean
@@ -70,6 +73,7 @@
 **File**: `/shared/schema.ts`
 
 **Table: `cancellations`** ✅
+
 ```typescript
 {
   id: serial,
@@ -89,6 +93,7 @@
 ```
 
 **Table: `refund_requests`** ✅
+
 ```typescript
 {
   id: serial,
@@ -105,6 +110,7 @@
 ```
 
 **Table: `one_time_credits`** ✅
+
 ```typescript
 {
   id: serial,
@@ -126,6 +132,7 @@
 **File**: `/server/services/stripe.ts`
 
 **Currently Used Stripe APIs**:
+
 - ✅ `stripe.customers.create()` - Customer creation
 - ✅ `stripe.checkout.sessions.create()` - Payment sessions
 - ✅ `stripe.subscriptions.create()` - Subscription management
@@ -135,10 +142,12 @@
 - ✅ `stripe.webhooks.constructEvent()` - Webhook validation
 
 **Refund-Specific APIs Already Implemented**:
+
 - ✅ `stripe.refunds.create()` - Full and partial refunds (in cancellation.ts:270)
 - ✅ Webhook event handling for `charge.refunded` (ready for implementation)
 
 **Webhook Events Currently Handled**:
+
 1. ✅ `checkout.session.completed` - Payment completion
 2. ✅ `customer.subscription.created` - Subscription creation
 3. ✅ `customer.subscription.updated` - Subscription changes
@@ -147,6 +156,7 @@
 6. ✅ `invoice.payment_failed` - Failed payment handling
 
 **Refund Webhooks Needed** (Not yet configured):
+
 - ⚠️ `charge.refunded` - Refund completion confirmation (handler exists, needs webhook registration)
 
 ### 1.3 Frontend Components Analysis
@@ -156,6 +166,7 @@
 **File**: `/client/src/components/CancellationModal.tsx` ✅
 
 **Complete 3-Step Cancellation Flow**:
+
 1. **Confirm Step**:
    - Shows refund eligibility via `/api/refund/eligibility`
    - Displays refund amount prominently
@@ -173,6 +184,7 @@
    - Next steps guidance
 
 **Key Features Already Implemented**:
+
 - ✅ Real-time refund eligibility checking
 - ✅ 30-day guarantee badge display
 - ✅ Formatted refund amounts ($4.95 display)
@@ -184,6 +196,7 @@
 **File**: `/client/src/components/subscription-management.tsx` ✅
 
 **Subscription Management Panel**:
+
 - ✅ Tier display with badges
 - ✅ Credit balance for Coffee tier
 - ✅ Subscription status tracking
@@ -227,6 +240,7 @@ GROWTH/SCALE TIER (Subscriptions):
 ```
 
 **Payment Objects Tracked**:
+
 - ✅ Coffee tier: `stripePaymentIntentId` in `one_time_credits` table
 - ✅ Growth/Scale: `subscriptionId` in `cancellations` table
 - ✅ Customer ID: `stripeCustomerId` in `auth_users` table
@@ -240,16 +254,19 @@ GROWTH/SCALE TIER (Subscriptions):
 **ISSUE**: Refund functionality exists but is hidden in cancellation flow
 
 **Current User Journey**:
+
 ```
 Dashboard → Click "Cancel Subscription" → 3-step modal → Refund processed
 ```
 
 **Ideal User Journey** (Per Business Requirement):
+
 ```
 Dashboard → Click "Instant Refund" button → Confirm → Refund processed
 ```
 
 **What Needs to Be Built**:
+
 1. **Prominent Refund Button**: Add instant-access refund button to dashboard
 2. **Simplified Modal**: One-click refund confirmation (skip reason step for instant flow)
 3. **Eligibility Display**: Show "30-day guarantee - Get instant refund" badge
@@ -260,6 +277,7 @@ Dashboard → Click "Instant Refund" button → Confirm → Refund processed
 **ISSUE**: `charge.refunded` webhook not configured in Stripe dashboard
 
 **Required Action**:
+
 - Add `charge.refunded` to Stripe webhook configuration
 - Point to existing `/api/stripe/webhook` endpoint
 - Update webhook handler to process refund confirmation events
@@ -299,15 +317,18 @@ Dashboard → Click "Instant Refund" button → Confirm → Refund processed
 #### **Option A: Instant Refund Button (RECOMMENDED)**
 
 **Components to Create**:
+
 1. **`InstantRefundButton.tsx`** - New component for dashboard
 2. **`InstantRefundModal.tsx`** - Simplified one-click confirmation modal
 
 **Integration Points**:
+
 - Existing `/api/refund/eligibility` endpoint
 - Existing `/api/cancel` endpoint with `processRefund: true`
 - Existing `useAuth()` context for user data
 
 **User Flow**:
+
 ```
 1. Dashboard loads → Fetch `/api/refund/eligibility`
 2. If eligible && guaranteeApplies → Show "Instant Refund ($4.95)" button
@@ -322,6 +343,7 @@ Dashboard → Click "Instant Refund" button → Confirm → Refund processed
 ```
 
 **Code Estimate**:
+
 - `InstantRefundButton.tsx`: ~80 lines
 - `InstantRefundModal.tsx`: ~120 lines
 - Integration into `dashboard.tsx`: ~15 lines
@@ -333,11 +355,13 @@ Dashboard → Click "Instant Refund" button → Confirm → Refund processed
 **Approach**: Improve existing `CancellationModal.tsx` with express refund option
 
 **Changes Required**:
+
 - Add "Instant Refund" quick path at top of existing modal
 - Keep existing 3-step flow for users who want to provide feedback
 - Dual-path modal: "Quick Refund" vs "Cancel with Feedback"
 
 **Code Estimate**:
+
 - Modify `CancellationModal.tsx`: ~50 line changes
 - Add new "express" mode prop
 - **Total**: ~50 lines changed
@@ -380,6 +404,7 @@ Response: {
 **NONE REQUIRED** ✅
 
 Existing tables handle all necessary tracking:
+
 - `cancellations` - refund records
 - `refund_requests` - refund status
 - `one_time_credits` - Coffee tier tracking with `refunded` flag
@@ -390,6 +415,7 @@ Existing tables handle all necessary tracking:
 **Recommended Locations**:
 
 1. **Primary**: Top of `/client/src/pages/dashboard.tsx`
+
    ```tsx
    <div className="mb-6">
      {/* Instant Refund Button here if eligible */}
@@ -410,35 +436,39 @@ Existing tables handle all necessary tracking:
 
 ### 4.1 Technical Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Double Refund** | Low | High | `one_time_credits.refunded` flag prevents. Add idempotency check in endpoint. |
-| **Webhook Race Condition** | Low | Medium | Existing transaction handling in cancellation service. Add retry logic. |
-| **Stripe API Failure** | Low | High | Existing error handling. Add manual retry queue for failed refunds. |
-| **User Regret** | Medium | Low | Provide clear "Are you sure?" confirmation. Cannot be undone messaging. |
-| **Payment Intent Not Found** | Low | High | Validate `stripePaymentIntentId` exists before calling Stripe. Error gracefully. |
+| Risk                         | Likelihood | Impact | Mitigation                                                                       |
+| ---------------------------- | ---------- | ------ | -------------------------------------------------------------------------------- |
+| **Double Refund**            | Low        | High   | `one_time_credits.refunded` flag prevents. Add idempotency check in endpoint.    |
+| **Webhook Race Condition**   | Low        | Medium | Existing transaction handling in cancellation service. Add retry logic.          |
+| **Stripe API Failure**       | Low        | High   | Existing error handling. Add manual retry queue for failed refunds.              |
+| **User Regret**              | Medium     | Low    | Provide clear "Are you sure?" confirmation. Cannot be undone messaging.          |
+| **Payment Intent Not Found** | Low        | High   | Validate `stripePaymentIntentId` exists before calling Stripe. Error gracefully. |
 
 ### 4.2 Business Logic Edge Cases
 
 **Case 1: Multiple Coffee Purchases**
+
 - **Scenario**: User buys Coffee tier twice (unusual but possible)
 - **Current Behavior**: Refunds only first non-refunded purchase
 - **Recommendation**: Document that most recent purchase is refunded
 - **Code Impact**: No change needed
 
 **Case 2: Partial Credit Usage**
+
 - **Scenario**: User uses 50 of 100 Coffee credits, requests refund
 - **Current Behavior**: Full $4.95 refund within 30 days
 - **Business Decision Needed**: Should this be partial refund?
 - **Recommendation**: Keep full refund (30-day guarantee = no questions asked)
 
 **Case 3: Subscription Downgrade to Coffee, Then Refund**
+
 - **Scenario**: Growth → Coffee → Refund Coffee within 30 days
 - **Current Behavior**: Refunds $4.95, downgrades to Starter
 - **Risk**: User could game system (get Growth benefits, downgrade, refund)
 - **Mitigation**: Track original subscription start date, deny refund if came from downgrade
 
 **Case 4: Failed Refund Recovery**
+
 - **Scenario**: Stripe API times out during refund processing
 - **Current Behavior**: Error logged, no retry
 - **Recommendation**: Add manual admin review queue for failed refunds
@@ -447,24 +477,29 @@ Existing tables handle all necessary tracking:
 ### 4.3 Security Considerations
 
 **Authentication** ✅
+
 - All refund endpoints require `requireAuth` middleware
 - JWT token validation ensures user can only refund their own purchases
 
 **Authorization** ✅
+
 - Refund eligibility checks tied to authenticated user ID
 - Cannot refund another user's purchase
 
 **Idempotency** ⚠️
+
 - Current: `one_time_credits.refunded` flag prevents double refunds
 - Enhancement needed: Add idempotency key to refund requests
 - Recommendation: Use `cancellationId` as idempotency key
 
 **Data Validation** ✅
+
 - Input validation via Zod schemas
 - Amount validation before Stripe API call
 - Payment intent validation before refund creation
 
 **Audit Trail** ✅
+
 - All refunds logged in `cancellations` and `refund_requests` tables
 - Timestamps: `requestedAt`, `processedAt`
 - Stripe refund ID stored for reconciliation
@@ -472,6 +507,7 @@ Existing tables handle all necessary tracking:
 ### 4.4 Error Handling Strategy
 
 **Frontend Error States**:
+
 ```tsx
 // Already implemented in CancellationModal.tsx
 - Network error: "Failed to connect. Please try again."
@@ -481,6 +517,7 @@ Existing tables handle all necessary tracking:
 ```
 
 **Backend Error Handling**:
+
 ```typescript
 // Already implemented in cancellation.ts
 try {
@@ -495,6 +532,7 @@ try {
 ```
 
 **Recommended Additions**:
+
 1. **Retry Queue**: Store failed refunds for manual processing
 2. **Admin Dashboard**: View and manually process failed refunds
 3. **Email Alerts**: Notify admin team of refund failures
@@ -508,31 +546,32 @@ try {
 
 **Option A: Instant Refund Button (RECOMMENDED)**
 
-| Task | Complexity | Estimated Time | Developer |
-|------|-----------|---------------|-----------|
-| Create `InstantRefundButton.tsx` | Low | 2 hours | Frontend Dev |
-| Create `InstantRefundModal.tsx` | Low | 3 hours | Frontend Dev |
-| Integrate into dashboard | Low | 1 hour | Frontend Dev |
-| Add eligibility badge styling | Low | 1 hour | Frontend Dev |
-| Write unit tests | Medium | 2 hours | Frontend Dev |
-| Write integration tests | Medium | 2 hours | QA |
-| Manual QA testing | Low | 2 hours | QA |
-| Update documentation | Low | 1 hour | Dev |
-| **Total** | | **14 hours** | **~2 days** |
+| Task                             | Complexity | Estimated Time | Developer    |
+| -------------------------------- | ---------- | -------------- | ------------ |
+| Create `InstantRefundButton.tsx` | Low        | 2 hours        | Frontend Dev |
+| Create `InstantRefundModal.tsx`  | Low        | 3 hours        | Frontend Dev |
+| Integrate into dashboard         | Low        | 1 hour         | Frontend Dev |
+| Add eligibility badge styling    | Low        | 1 hour         | Frontend Dev |
+| Write unit tests                 | Medium     | 2 hours        | Frontend Dev |
+| Write integration tests          | Medium     | 2 hours        | QA           |
+| Manual QA testing                | Low        | 2 hours        | QA           |
+| Update documentation             | Low        | 1 hour         | Dev          |
+| **Total**                        |            | **14 hours**   | **~2 days**  |
 
 **Option B: Enhanced Cancellation Flow**
 
-| Task | Complexity | Estimated Time | Developer |
-|------|-----------|---------------|-----------|
-| Modify `CancellationModal.tsx` | Low | 2 hours | Frontend Dev |
-| Add express mode logic | Low | 1 hour | Frontend Dev |
-| Update tests | Low | 1 hour | Frontend Dev |
-| Manual QA testing | Low | 1 hour | QA |
-| **Total** | | **5 hours** | **~1 day** |
+| Task                           | Complexity | Estimated Time | Developer    |
+| ------------------------------ | ---------- | -------------- | ------------ |
+| Modify `CancellationModal.tsx` | Low        | 2 hours        | Frontend Dev |
+| Add express mode logic         | Low        | 1 hour         | Frontend Dev |
+| Update tests                   | Low        | 1 hour         | Frontend Dev |
+| Manual QA testing              | Low        | 1 hour         | QA           |
+| **Total**                      |            | **5 hours**    | **~1 day**   |
 
 ### 5.2 Required Changes by Layer
 
 **Frontend** (Primary Work):
+
 - ✅ **New Files**:
   - `InstantRefundButton.tsx` (~80 lines)
   - `InstantRefundModal.tsx` (~120 lines)
@@ -542,17 +581,20 @@ try {
 - **Total**: ~315 lines new/modified
 
 **Backend** (NO CHANGES):
+
 - ✅ All endpoints exist
 - ✅ All business logic complete
 - ✅ All database tables ready
 - **Total**: 0 lines changed
 
 **Database** (NO CHANGES):
+
 - ✅ Schema complete
 - ✅ Migrations already run
 - **Total**: 0 migrations needed
 
 **Infrastructure** (MINOR UPDATE):
+
 - ⚠️ Add `charge.refunded` webhook to Stripe dashboard (5 minutes)
 - ✅ No deployment changes needed
 - **Total**: 1 configuration change
@@ -560,6 +602,7 @@ try {
 ### 5.3 Testing Requirements
 
 **Unit Tests** (New):
+
 ```typescript
 // InstantRefundButton.test.tsx
 - Should show button when eligible and within 30 days
@@ -578,6 +621,7 @@ try {
 ```
 
 **Integration Tests** (New):
+
 ```typescript
 // refund-flow.test.tsx
 - Full flow: Dashboard → Refund button → Confirm → Success
@@ -587,6 +631,7 @@ try {
 ```
 
 **Manual QA Test Cases**:
+
 1. ✅ Coffee tier user within 30 days sees button
 2. ✅ Coffee tier user beyond 30 days does NOT see button
 3. ✅ Growth/Scale tier users see appropriate messaging
@@ -603,12 +648,14 @@ try {
 **Deployment Risk**: **LOW** ✅
 
 **Reasoning**:
+
 - Frontend-only changes (no backend deployment needed)
 - Existing API endpoints already in production
 - No database migrations required
 - No infrastructure changes needed
 
 **Deployment Strategy**:
+
 1. **Development**:
    - Create feature branch `feature/instant-refund-button`
    - Develop and test locally against production API
@@ -624,6 +671,7 @@ try {
    - Monitor refund processing for 24 hours
 
 **Rollback Plan**:
+
 - Revert frontend deployment (Netlify 1-click rollback)
 - Backend endpoints remain unchanged (safe to keep)
 - Zero data migration rollback needed
@@ -635,6 +683,7 @@ try {
 ### Phase 1: Frontend Component Development (2 days)
 
 **Day 1: Component Creation**
+
 - [ ] Create `InstantRefundButton.tsx` component
 - [ ] Create `InstantRefundModal.tsx` simplified modal
 - [ ] Add eligibility checking logic with `useEffect` hook
@@ -642,6 +691,7 @@ try {
 - [ ] Add proper TypeScript types
 
 **Day 2: Integration & Testing**
+
 - [ ] Integrate button into `dashboard.tsx`
 - [ ] Write unit tests for both components
 - [ ] Write integration test for full refund flow
@@ -659,11 +709,13 @@ try {
 ### Phase 3: Edge Case Handling (1 day)
 
 **Morning: Code Improvements**
+
 - [ ] Add idempotency check to `/api/cancel` endpoint
 - [ ] Enhance error messaging for edge cases
 - [ ] Add admin dashboard view for failed refunds (optional)
 
 **Afternoon: Documentation**
+
 - [ ] Update API documentation
 - [ ] Create user-facing refund policy page
 - [ ] Update support documentation
@@ -671,16 +723,19 @@ try {
 ### Phase 4: Deployment & Monitoring (0.5 day)
 
 **Pre-Deployment**:
+
 - [ ] Code review by senior developer
 - [ ] Final QA sign-off
 - [ ] Prepare rollback plan
 
 **Deployment**:
+
 - [ ] Merge to main branch
 - [ ] Netlify auto-deploy to production
 - [ ] Smoke test in production environment
 
 **Post-Deployment Monitoring** (24 hours):
+
 - [ ] Monitor refund request volume
 - [ ] Check for error rates in `/api/refund/eligibility`
 - [ ] Verify Stripe refunds are processing
@@ -689,12 +744,14 @@ try {
 ### Phase 5: Post-Launch Enhancements (1 week)
 
 **Week 1**:
+
 - [ ] Collect user feedback on refund experience
 - [ ] Monitor refund completion rates
 - [ ] Analyze any failed refund cases
 - [ ] Gather business metrics (refund rate, reasons, timing)
 
 **Week 2**:
+
 - [ ] Add email confirmation for refund initiation
 - [ ] Create admin analytics dashboard for refunds
 - [ ] Optimize refund messaging based on user data
@@ -733,6 +790,7 @@ try {
 ### 8.1 Architecture Decision: **Option A - Instant Refund Button**
 
 **Rationale**:
+
 1. ✅ **Minimal Code**: Reuses 100% of existing backend infrastructure
 2. ✅ **User-Centric**: Surfaces guarantee prominently (business requirement met)
 3. ✅ **Low Risk**: Frontend-only changes, zero backend deployment risk
@@ -742,6 +800,7 @@ try {
 ### 8.2 Implementation Priority: **P1 - High Priority**
 
 **Business Impact**:
+
 - Directly supports core value proposition (30-day money-back guarantee)
 - Builds customer trust through transparency
 - Reduces support burden
@@ -753,6 +812,7 @@ try {
 ### 8.3 Key Decisions for Developer
 
 **Frontend Developer Should**:
+
 1. ✅ Create `InstantRefundButton` and `InstantRefundModal` components
 2. ✅ Integrate into dashboard above main content area
 3. ✅ Use existing `/api/refund/eligibility` and `/api/cancel` endpoints
@@ -763,18 +823,21 @@ try {
 8. ✅ Write comprehensive tests
 
 **Backend Developer Should**:
+
 1. ✅ **NO CODE CHANGES** - existing endpoints are production-ready
 2. ⚠️ Configure `charge.refunded` webhook in Stripe dashboard
 3. ✅ Monitor refund processing logs for anomalies
 4. ✅ Review edge case handling in `cancellation.ts` (optional enhancement)
 
 **Operator Should**:
+
 1. ✅ Deploy frontend changes to Netlify
 2. ✅ Monitor error rates post-deployment
 3. ✅ Set up alerts for failed refund processing
 4. ✅ Prepare Stripe webhook configuration credentials
 
 **Tester Should**:
+
 1. ✅ Test eligibility logic across all tiers
 2. ✅ Verify 30-day window calculation accuracy
 3. ✅ Test refund processing end-to-end
@@ -786,18 +849,21 @@ try {
 ## 9. Handoff Deliverables
 
 ### For Developer:
+
 - ✅ **Component Specifications**: Section 3.2 provides detailed component requirements
 - ✅ **API Documentation**: Section 3.3 documents existing endpoints (no new endpoints needed)
 - ✅ **Code Estimates**: Section 5.1 provides line-of-code estimates
 - ✅ **Test Requirements**: Section 5.3 provides comprehensive test cases
 
 ### For Coordinator:
+
 - ✅ **Effort Estimate**: 14 hours (~2 days) frontend development
 - ✅ **Risk Assessment**: LOW - frontend-only, reuses production backend
 - ✅ **Dependencies**: None (all infrastructure exists)
 - ✅ **Deployment Strategy**: Section 5.4 provides deployment approach
 
 ### For Stakeholders:
+
 - ✅ **Business Value**: Instant refund access improves trust and UX
 - ✅ **Implementation Cost**: 2-3 days development time
 - ✅ **Technical Debt**: None (leverages existing infrastructure)
@@ -826,7 +892,7 @@ export function InstantRefundButton() {
     try {
       const token = getAccessToken();
       const response = await fetch('/api/refund/eligibility', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       setEligibility(data);
@@ -847,9 +913,7 @@ export function InstantRefundButton() {
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-medium text-green-800">
-              30-Day Money-Back Guarantee
-            </h3>
+            <h3 className="font-medium text-green-800">30-Day Money-Back Guarantee</h3>
             <p className="text-sm text-green-600">
               Not satisfied? Get your {eligibility.amountFormatted} back instantly
             </p>
@@ -889,13 +953,13 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }) {
       const response = await fetch('/api/cancel', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           reason: 'Instant refund via 30-day guarantee',
-          processRefund: true
-        })
+          processRefund: true,
+        }),
       });
 
       const data = await response.json();
@@ -928,7 +992,8 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }) {
 
             <Alert>
               <AlertDescription>
-                This action cannot be undone. Your account will be downgraded to the free Starter tier.
+                This action cannot be undone. Your account will be downgraded to the free Starter
+                tier.
               </AlertDescription>
             </Alert>
 
@@ -936,11 +1001,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }) {
               <Button variant="outline" onClick={onClose}>
                 Keep Subscription
               </Button>
-              <Button
-                variant="destructive"
-                onClick={handleRefund}
-                disabled={processing}
-              >
+              <Button variant="destructive" onClick={handleRefund} disabled={processing}>
                 {processing ? 'Processing...' : 'Confirm Refund'}
               </Button>
             </DialogFooter>
@@ -975,12 +1036,13 @@ const refund = await stripe().refunds.create({
   metadata: {
     userId: userId.toString(),
     cancellationId: cancellationId.toString(),
-    tier: 'coffee'
-  }
+    tier: 'coffee',
+  },
 });
 ```
 
 **Stripe Refund Object Properties**:
+
 - `id`: Unique refund identifier
 - `amount`: Amount refunded in cents
 - `status`: `pending`, `succeeded`, `failed`, `canceled`
@@ -990,6 +1052,7 @@ const refund = await stripe().refunds.create({
 - `reason`: `duplicate`, `fraudulent`, `requested_by_customer`
 
 **Webhook Event Structure**:
+
 ```json
 {
   "type": "charge.refunded",
@@ -999,11 +1062,13 @@ const refund = await stripe().refunds.create({
       "amount": 495,
       "refunded": true,
       "refunds": {
-        "data": [{
-          "id": "re_xxx",
-          "amount": 495,
-          "status": "succeeded"
-        }]
+        "data": [
+          {
+            "id": "re_xxx",
+            "amount": 495,
+            "status": "succeeded"
+          }
+        ]
       }
     }
   }

@@ -1,12 +1,15 @@
 # LLM.txt Mastery - Image Asset Specification Document
-*Version 1.0 - August 8, 2025*
+
+_Version 1.0 - August 8, 2025_
 
 ## Executive Summary
+
 This document specifies the visual assets required to transform LLM.txt Mastery from an MVP to a professional-grade application. All assets must align with the established brand identity and technical requirements.
 
 ## Brand Guidelines
 
 ### Core Brand Identity
+
 - **Brand Name**: LLM.txt Mastery
 - **Tagline**: "Expert-Crafted AI Content Accessibility"
 - **Brand Personality**: Professional, Trustworthy, Technical, Innovative
@@ -15,6 +18,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### Color Palette
 
 #### Primary Colors
+
 - **Mastery Blue**: `HSL(225, 68%, 33%)` | `#2A3F7F` | RGB(42, 63, 127)
   - Usage: Primary CTAs, headers, brand elements
 - **Authority White**: `HSL(0, 0%, 100%)` | `#FFFFFF` | RGB(255, 255, 255)
@@ -23,12 +27,14 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
   - Usage: Accent elements, success states, highlights
 
 #### Secondary Colors
+
 - **AI Silver**: `HSL(215, 16%, 47%)` | `#64748B` | RGB(100, 116, 139)
   - Usage: Secondary text, subtle elements
 - **Framework Black**: `HSL(222, 84%, 5%)` | `#020817` | RGB(2, 8, 23)
   - Usage: Primary text, high contrast elements
 
 #### Tier-Specific Colors
+
 - **Coffee Orange**: `#EA580C` | RGB(234, 88, 12)
   - Usage: Coffee tier branding
 - **Growth Teal**: Same as Innovation Teal
@@ -41,6 +47,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 1. Logo Suite
 
 #### 1.1 Primary Logo
+
 - **Filename**: `logo-primary.svg`
 - **Dimensions**: 200x50px (base), scalable vector
 - **Format**: SVG (primary), PNG fallback with transparency
@@ -48,12 +55,13 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
   - Full color (Mastery Blue + Innovation Teal accent)
   - White version for dark backgrounds
   - Dark version for light backgrounds
-- **Design Elements**: 
+- **Design Elements**:
   - Brain/neural network icon integrated with "LLM" text
   - Modern, geometric style
   - Clear at 16px favicon size
 
 #### 1.2 Logo Mark (Icon Only)
+
 - **Filename**: `logo-mark.svg`
 - **Dimensions**: 40x40px (base), scalable
 - **Format**: SVG, PNG with transparency
@@ -61,6 +69,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 - **Design**: Simplified brain/network symbol
 
 #### 1.3 Favicon Set
+
 - **Files Required**:
   - `favicon-16x16.png`
   - `favicon-32x32.png`
@@ -73,6 +82,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 2. Hero Section Assets
 
 #### 2.1 Hero Illustration
+
 - **Filename**: `hero-illustration.svg`
 - **Dimensions**: 800x400px
 - **Format**: SVG with CSS animation hooks
@@ -85,6 +95,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 - **Style**: Isometric or 2.5D perspective
 
 #### 2.2 Background Pattern
+
 - **Filename**: `pattern-neural-network.svg`
 - **Dimensions**: 400x400px (tileable)
 - **Format**: SVG
@@ -95,6 +106,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 3. Tier Illustrations
 
 #### 3.1 Free Tier Icon
+
 - **Filename**: `tier-free.svg`
 - **Dimensions**: 120x120px
 - **Color Scheme**: Green accent (#10B981)
@@ -102,6 +114,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 - **Style**: Flat design with subtle depth
 
 #### 3.2 Coffee Tier Illustration
+
 - **Filename**: `tier-coffee.svg`
 - **Dimensions**: 120x120px
 - **Color Scheme**: Coffee Orange (#EA580C)
@@ -109,6 +122,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 - **Style**: Warm, inviting, premium feel
 
 #### 3.3 Growth Tier Illustration
+
 - **Filename**: `tier-growth.svg`
 - **Dimensions**: 120x120px
 - **Color Scheme**: Innovation Teal
@@ -116,6 +130,7 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 - **Style**: Dynamic, professional
 
 #### 3.4 Scale Tier Illustration
+
 - **Filename**: `tier-scale.svg`
 - **Dimensions**: 120x120px
 - **Color Scheme**: Mastery Blue with gold accent
@@ -125,24 +140,28 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 4. Process Step Icons
 
 #### 4.1 URL Input Icon
+
 - **Filename**: `process-url-input.svg`
 - **Dimensions**: 64x64px
 - **Color**: Innovation Teal
 - **Concept**: Globe with input field
 
 #### 4.2 Analysis Icon
+
 - **Filename**: `process-analysis.svg`
 - **Dimensions**: 64x64px
 - **Color**: Mastery Blue
 - **Concept**: Magnifying glass with data points
 
 #### 4.3 Review Icon
+
 - **Filename**: `process-review.svg`
 - **Dimensions**: 64x64px
 - **Color**: Innovation Teal
 - **Concept**: Checklist with AI sparkle
 
 #### 4.4 Generation Icon
+
 - **Filename**: `process-generation.svg`
 - **Dimensions**: 64x64px
 - **Color**: Green success (#10B981)
@@ -151,18 +170,21 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 5. Empty State Illustrations
 
 #### 5.1 No Analysis Yet
+
 - **Filename**: `empty-no-analysis.svg`
 - **Dimensions**: 300x200px
 - **Style**: Light, friendly illustration
 - **Concept**: Robot waiting to analyze, holding magnifying glass
 
 #### 5.2 Daily Limit Reached
+
 - **Filename**: `empty-limit-reached.svg`
 - **Dimensions**: 300x200px
 - **Style**: Informative but encouraging
 - **Concept**: Clock with coffee cup suggestion
 
 #### 5.3 Error State
+
 - **Filename**: `empty-error.svg`
 - **Dimensions**: 300x200px
 - **Style**: Helpful, not alarming
@@ -171,18 +193,21 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 6. Feature Highlight Images
 
 #### 6.1 AI-Powered Analysis
+
 - **Filename**: `feature-ai-analysis.png`
 - **Dimensions**: 600x400px
 - **Format**: PNG with rounded corners
 - **Content**: Screenshot or illustration of AI analysis in action
 
 #### 6.2 Smart Caching
+
 - **Filename**: `feature-caching.png`
 - **Dimensions**: 600x400px
 - **Format**: PNG
 - **Content**: Visualization of cache efficiency
 
 #### 6.3 Professional Output
+
 - **Filename**: `feature-output.png`
 - **Dimensions**: 600x400px
 - **Format**: PNG
@@ -191,12 +216,14 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ### 7. Social Proof Assets
 
 #### 7.1 Customer Avatar Placeholders
+
 - **Filenames**: `avatar-1.jpg` through `avatar-5.jpg`
 - **Dimensions**: 80x80px
 - **Format**: JPG (optimized)
 - **Style**: Professional headshots, diverse representation
 
 #### 7.2 Company Logo Placeholders
+
 - **Filenames**: `company-logo-1.svg` through `company-logo-5.svg`
 - **Dimensions**: 120x40px
 - **Format**: SVG, grayscale
@@ -205,24 +232,28 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ## Technical Requirements
 
 ### File Formats
+
 - **Vector Graphics**: SVG preferred for all icons and illustrations
 - **Raster Fallbacks**: PNG with transparency for complex illustrations
 - **Optimization**: All SVGs must be optimized (SVGO)
 - **Photos**: WebP with JPG fallback
 
 ### Responsive Considerations
+
 - All hero images need @2x and @3x versions for retina displays
 - SVGs should use viewBox for proper scaling
 - Critical images should have loading="eager" attribute
 - Non-critical images should use loading="lazy"
 
 ### Performance Targets
+
 - Hero images: < 100KB
 - Icons: < 5KB each
 - Illustrations: < 50KB
 - Total page weight from images: < 500KB
 
 ### Accessibility Requirements
+
 - All images must have descriptive alt text
 - Decorative images should use alt=""
 - Icons need aria-label when used as buttons
@@ -266,16 +297,19 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ## Implementation Priority
 
 ### Phase 1 - Critical (Week 1)
+
 1. Primary logo and favicon set
 2. Tier illustrations (especially Coffee tier)
 3. Hero illustration
 
 ### Phase 2 - High Impact (Week 2)
+
 1. Process step icons
 2. Empty state illustrations
 3. Background pattern
 
 ### Phase 3 - Polish (Week 3)
+
 1. Feature highlight images
 2. Social proof assets
 3. Additional decorative elements
@@ -283,12 +317,14 @@ This document specifies the visual assets required to transform LLM.txt Mastery 
 ## Design Tools & Resources
 
 ### Recommended Tools
+
 - **Vector Design**: Figma, Adobe Illustrator, or Affinity Designer
 - **SVG Optimization**: SVGO, SVG OMG
 - **Icon Libraries**: Consider starting with Lucide icons as base
 - **Illustration Style References**: UnDraw, Humaaans, or custom
 
 ### Inspiration & References
+
 - **Similar Products**: Stripe, Linear, Vercel (clean, technical aesthetic)
 - **Illustration Style**: Abstract, geometric, avoid overly playful
 - **Icon Style**: Consistent 2px stroke weight, rounded corners
@@ -310,6 +346,7 @@ Before delivery, ensure each asset meets these criteria:
 ## Delivery Requirements
 
 ### File Package Structure
+
 ```
 llm-txt-mastery-assets/
 ├── final/           # Production-ready optimized files
@@ -319,6 +356,7 @@ llm-txt-mastery-assets/
 ```
 
 ### Documentation Required
+
 - Color values used for each asset
 - Any custom fonts (if applicable)
 - Animation specifications (if applicable)
@@ -327,11 +365,13 @@ llm-txt-mastery-assets/
 ## Contact & Approval Process
 
 ### Review Stages
+
 1. **Concept Review**: Rough sketches/wireframes
 2. **Design Review**: Full fidelity designs
 3. **Implementation Review**: Optimized final files
 
 ### Success Metrics
+
 - Page load time improvement < 3s
 - User engagement increase (measured by completion rate)
 - Professional appearance scoring 8+/10 in user feedback
@@ -339,4 +379,4 @@ llm-txt-mastery-assets/
 
 ---
 
-*This specification ensures the transformation from MVP to professional product while maintaining performance and brand consistency.*
+_This specification ensures the transformation from MVP to professional product while maintaining performance and brand consistency._

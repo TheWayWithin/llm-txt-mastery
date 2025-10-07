@@ -5,7 +5,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Content-Type': 'text/plain',
-    'Content-Disposition': 'attachment; filename="llms.txt"'
+    'Content-Disposition': 'attachment; filename="llms.txt"',
   };
 
   // Handle preflight requests
@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: ''
+      body: '',
     };
   }
 
@@ -23,9 +23,9 @@ exports.handler = async (event, context) => {
       statusCode: 405,
       headers: {
         ...headers,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message: 'Method not allowed' })
+      body: JSON.stringify({ message: 'Method not allowed' }),
     };
   }
 
@@ -33,15 +33,15 @@ exports.handler = async (event, context) => {
     // Extract file ID from path (e.g., /api/download/3258)
     const pathParts = event.path.split('/');
     const fileId = pathParts[pathParts.length - 1];
-    
+
     if (!fileId || fileId === 'download') {
       return {
         statusCode: 400,
         headers: {
           ...headers,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: 'File ID required' })
+        body: JSON.stringify({ message: 'File ID required' }),
       };
     }
 
@@ -94,23 +94,23 @@ Track your health and fitness goals with our health calculators including BMI, c
 
 ---
 `;
-    
+
     return {
       statusCode: 200,
       headers,
-      body: downloadContent
+      body: downloadContent,
     };
   } catch (error) {
-    console.error("Download error:", error);
+    console.error('Download error:', error);
     return {
       statusCode: 500,
       headers: {
         ...headers,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        message: error instanceof Error ? error.message : "Failed to download file"
-      })
+      body: JSON.stringify({
+        message: error instanceof Error ? error.message : 'Failed to download file',
+      }),
     };
   }
 };

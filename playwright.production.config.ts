@@ -13,9 +13,9 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report-production' }],
     ['list'],
-    ['json', { outputFile: 'test-results-production.json' }]
+    ['json', { outputFile: 'test-results-production.json' }],
   ],
-  
+
   use: {
     baseURL: 'https://www.llmtxtmastery.com',
     trace: 'on-first-retry',
@@ -28,14 +28,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium-production',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
       },
     },
     {
       name: 'firefox-production',
-      use: { 
+      use: {
         ...devices['Desktop Firefox'],
         viewport: { width: 1280, height: 720 },
       },

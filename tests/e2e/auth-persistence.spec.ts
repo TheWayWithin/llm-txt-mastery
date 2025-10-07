@@ -2,16 +2,15 @@ import { test, expect, type Page, type BrowserContext } from '@playwright/test';
 
 /**
  * Authentication Persistence Test Suite
- * 
+ *
  * This test suite validates the critical authentication persistence fix that ensures
  * returning users bypass email capture properly.
- * 
- * Critical Fix Tested: State machine AUTH_RESOLVED handler now properly routes 
+ *
+ * Critical Fix Tested: State machine AUTH_RESOLVED handler now properly routes
  * authenticated users, eliminating email re-entry loops.
  */
 
 test.describe('Authentication Persistence Tests', () => {
-  
   test.describe.configure({ mode: 'serial' });
 
   let sharedContext: BrowserContext;
@@ -21,7 +20,7 @@ test.describe('Authentication Persistence Tests', () => {
     // Create a persistent context to simulate returning user behavior
     sharedContext = await browser.newContext({
       // Store data to simulate returning user
-      storageState: undefined // We'll build this state during the test
+      storageState: undefined, // We'll build this state during the test
     });
     sharedPage = await sharedContext.newPage();
   });
@@ -32,10 +31,10 @@ test.describe('Authentication Persistence Tests', () => {
 
   /**
    * Test 1: Primary Returning User Flow (Most Critical)
-   * 
+   *
    * This is the most important test as it validates the core fix:
    * - Complete first analysis as new user (email capture should work)
-   * - Browser should store authentication tokens  
+   * - Browser should store authentication tokens
    * - Close browser completely (test persistence)
    * - Return and start second analysis
    * - EXPECTED: URL input → Direct to analysis or usage display ("2/3 analyses remaining")
@@ -46,13 +45,13 @@ test.describe('Authentication Persistence Tests', () => {
 
     // Step 1: First visit - new user experience
     await sharedPage.goto('/');
-    
+
     // Wait for the page to load and look for key elements
     await sharedPage.waitForLoadState('networkidle');
-    
+
     // Look for the main application content (this might be a React app loading)
     await expect(sharedPage.locator('#root')).toBeVisible();
-    
+
     // Wait a bit more for React to initialize
     await sharedPage.waitForTimeout(3000);
 
@@ -60,7 +59,7 @@ test.describe('Authentication Persistence Tests', () => {
     const urlInput = sharedPage.getByPlaceholder(/enter.*url/i);
     await expect(urlInput).toBeVisible();
     await urlInput.fill('https://example.com');
-    
+
     const startButton = sharedPage.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
@@ -72,11 +71,11 @@ test.describe('Authentication Persistence Tests', () => {
     const emailInput = sharedPage.getByPlaceholder(/email/i);
     await expect(emailInput).toBeVisible();
     await emailInput.fill('test@example.com');
-    
+
     // Select starter tier and proceed
     const starterButton = sharedPage.getByRole('button', { name: /starter|free/i });
     await starterButton.click();
-    
+
     // Wait for authentication to complete and analysis to start
     await expect(sharedPage.getByText(/analyzing/i)).toBeVisible({ timeout: 15000 });
     console.log('✅ Analysis started successfully');
@@ -86,14 +85,14 @@ test.describe('Authentication Persistence Tests', () => {
       return {
         accessToken: localStorage.getItem('auth_access_token'),
         refreshToken: localStorage.getItem('auth_refresh_token'),
-        user: localStorage.getItem('auth_user')
+        user: localStorage.getItem('auth_user'),
       };
     });
 
     console.log('🔐 Auth tokens stored:', {
       hasAccessToken: !!authTokens.accessToken,
       hasRefreshToken: !!authTokens.refreshToken,
-      hasUser: !!authTokens.user
+      hasUser: !!authTokens.user,
     });
 
     // Wait for analysis to complete or get far enough to establish auth state
@@ -101,54 +100,62 @@ test.describe('Authentication Persistence Tests', () => {
 
     // Step 2: Simulate browser close and return (new session)
     console.log('🔄 Simulating browser close and return...');
-    
+
     // Save the storage state
     const storageState = await sharedContext.storageState();
-    
+
     // Create a new context with the saved storage state
     const newContext = await sharedPage.context().browser()!.newContext({
-      storageState
+      storageState,
     });
     const newPage = await newContext.newPage();
 
     // Step 3: Return visit - should bypass email capture
     await newPage.goto('/');
-    
+
     // Enter URL again (second analysis)
     const urlInput2 = newPage.getByPlaceholder(/enter.*url/i);
     await expect(urlInput2).toBeVisible();
     await urlInput2.fill('https://another-example.com');
-    
+
     const startButton2 = newPage.getByRole('button', { name: /analyze|start/i });
     await startButton2.click();
 
     // CRITICAL TEST: Should NOT see email capture
     // Should either see usage limits OR go directly to analysis
-    
+
     // Wait for state resolution
     await newPage.waitForTimeout(3000);
 
     // Check for email capture (should NOT be present)
-    const emailCapturePresent = await newPage.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
-    
+    const emailCapturePresent = await newPage
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
+
     if (emailCapturePresent) {
       console.error('❌ CRITICAL FAILURE: Returning user still sees email capture');
-      
+
       // Capture debug info
-      await newPage.screenshot({ path: 'test-results/auth-persistence-failure.png', fullPage: true });
-      
+      await newPage.screenshot({
+        path: 'test-results/auth-persistence-failure.png',
+        fullPage: true,
+      });
+
       const consoleMessages = await newPage.evaluate(() => {
         return window.console.history || [];
       });
       console.log('Console messages:', consoleMessages);
-      
-      throw new Error('Authentication persistence failed - returning user forced to re-enter email');
+
+      throw new Error(
+        'Authentication persistence failed - returning user forced to re-enter email'
+      );
     }
 
     // Should see either usage limits or direct analysis
     const usageDisplay = newPage.getByText(/analyses remaining|analyzing/i);
     await expect(usageDisplay).toBeVisible({ timeout: 10000 });
-    
+
     console.log('✅ SUCCESS: Returning user bypassed email capture');
 
     await newContext.close();
@@ -156,7 +163,7 @@ test.describe('Authentication Persistence Tests', () => {
 
   /**
    * Test 2: Coffee Tier User Flow
-   * 
+   *
    * Coffee tier users should have the smoothest experience:
    * - Test Coffee tier user returning for second analysis
    * - EXPECTED: URL input → Direct to premium analysis
@@ -179,9 +186,9 @@ test.describe('Authentication Persistence Tests', () => {
         tier: 'coffee',
         creditsRemaining: 5,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'mock-coffee-token');
       localStorage.setItem('auth_refresh_token', 'mock-coffee-refresh');
       localStorage.setItem('auth_user', JSON.stringify(coffeeUser));
@@ -195,7 +202,7 @@ test.describe('Authentication Persistence Tests', () => {
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await expect(urlInput).toBeVisible();
     await urlInput.fill('https://coffee-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
@@ -203,16 +210,22 @@ test.describe('Authentication Persistence Tests', () => {
     await page.waitForTimeout(3000);
 
     // Should NOT see email capture
-    const emailCapturePresent = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+    const emailCapturePresent = await page
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
     expect(emailCapturePresent).toBe(false);
 
     // Should NOT see tier limits
-    const tierLimitsPresent = await page.getByText(/analyses remaining/i).isVisible().catch(() => false);
+    const tierLimitsPresent = await page
+      .getByText(/analyses remaining/i)
+      .isVisible()
+      .catch(() => false);
     // Note: Coffee users might see usage display briefly, but should proceed to analysis
-    
+
     // Should see analysis starting (premium features)
     await expect(page.getByText(/analyzing|ai.*enhanced/i)).toBeVisible({ timeout: 10000 });
-    
+
     console.log('✅ SUCCESS: Coffee tier user proceeded directly to premium analysis');
 
     await context.close();
@@ -220,7 +233,7 @@ test.describe('Authentication Persistence Tests', () => {
 
   /**
    * Test 3: New User Flow (Regression Test)
-   * 
+   *
    * Ensure the fix doesn't break new user onboarding:
    * - Test completely new user (no stored auth)
    * - EXPECTED: URL input → Email capture → Analysis
@@ -238,7 +251,7 @@ test.describe('Authentication Persistence Tests', () => {
     const authState = await page.evaluate(() => {
       return {
         accessToken: localStorage.getItem('auth_access_token'),
-        user: localStorage.getItem('auth_user')
+        user: localStorage.getItem('auth_user'),
       };
     });
     expect(authState.accessToken).toBeNull();
@@ -248,7 +261,7 @@ test.describe('Authentication Persistence Tests', () => {
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await expect(urlInput).toBeVisible();
     await urlInput.fill('https://new-user-test.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
@@ -260,7 +273,7 @@ test.describe('Authentication Persistence Tests', () => {
     const emailInput = page.getByPlaceholder(/email/i);
     await expect(emailInput).toBeVisible();
     await emailInput.fill('newuser@example.com');
-    
+
     const starterButton = page.getByRole('button', { name: /starter|free/i });
     await starterButton.click();
 
@@ -273,22 +286,30 @@ test.describe('Authentication Persistence Tests', () => {
 
   /**
    * Test 4: Authentication State Management
-   * 
+   *
    * Check browser storage for auth tokens and verify AuthContext loading:
    * - Verify tokens are properly stored
    * - Verify AuthContext loads stored user data
    * - Confirm state machine receives AUTH_RESOLVED with user data
    */
-  test('Authentication State Management - Verify token storage and loading', async ({ browser, page }) => {
+  test('Authentication State Management - Verify token storage and loading', async ({
+    browser,
+    page,
+  }) => {
     console.log('🔐 Testing Authentication State Management');
 
     await page.goto('/');
 
     // Monitor console messages for auth debugging
     const consoleMessages: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       const text = msg.text();
-      if (text.includes('AUTH') || text.includes('auth') || text.includes('🔐') || text.includes('✅')) {
+      if (
+        text.includes('AUTH') ||
+        text.includes('auth') ||
+        text.includes('🔐') ||
+        text.includes('✅')
+      ) {
         consoleMessages.push(text);
       }
     });
@@ -301,9 +322,9 @@ test.describe('Authentication Persistence Tests', () => {
         tier: 'starter',
         creditsRemaining: 3,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'mock-state-token');
       localStorage.setItem('auth_refresh_token', 'mock-state-refresh');
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -319,7 +340,7 @@ test.describe('Authentication Persistence Tests', () => {
       return {
         hasAccessToken: !!localStorage.getItem('auth_access_token'),
         hasRefreshToken: !!localStorage.getItem('auth_refresh_token'),
-        user: user ? JSON.parse(user) : null
+        user: user ? JSON.parse(user) : null,
       };
     });
 
@@ -334,13 +355,16 @@ test.describe('Authentication Persistence Tests', () => {
     // Test state machine behavior
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://statetest.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
     // Should skip email capture due to auth state
     await page.waitForTimeout(2000);
-    const emailCapturePresent = await page.getByText(/choose.*analysis.*type/i).isVisible().catch(() => false);
+    const emailCapturePresent = await page
+      .getByText(/choose.*analysis.*type/i)
+      .isVisible()
+      .catch(() => false);
     expect(emailCapturePresent).toBe(false);
 
     console.log('✅ State machine correctly handled AUTH_RESOLVED with user data');
@@ -348,7 +372,7 @@ test.describe('Authentication Persistence Tests', () => {
 
   /**
    * Test 5: Console Log Analysis
-   * 
+   *
    * Examine console logs for expected authentication resolution messages:
    * - Look for "✅ Auth resolved with user, proceeding to limits"
    * - Look for "☕ Coffee tier user detected - proceeding directly to analysis"
@@ -362,12 +386,12 @@ test.describe('Authentication Persistence Tests', () => {
 
     // Capture all console messages
     const consoleMessages: { type: string; text: string; timestamp: number }[] = [];
-    
-    page.on('console', msg => {
+
+    page.on('console', (msg) => {
       consoleMessages.push({
         type: msg.type(),
         text: msg.text(),
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     });
 
@@ -381,9 +405,9 @@ test.describe('Authentication Persistence Tests', () => {
         tier: 'coffee',
         creditsRemaining: 10,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'mock-console-token');
       localStorage.setItem('auth_refresh_token', 'mock-console-refresh');
       localStorage.setItem('auth_user', JSON.stringify(coffeeUser));
@@ -395,19 +419,20 @@ test.describe('Authentication Persistence Tests', () => {
     // Trigger state machine
     const urlInput = page.getByPlaceholder(/enter.*url/i);
     await urlInput.fill('https://consoletest.com');
-    
+
     const startButton = page.getByRole('button', { name: /analyze|start/i });
     await startButton.click();
 
     await page.waitForTimeout(3000);
 
-    // Analyze console messages for expected patterns  
-    const authMessages = consoleMessages.filter(msg => 
-      msg.text.includes('AUTH') || 
-      msg.text.includes('auth') ||
-      msg.text.includes('🔐') ||
-      msg.text.includes('✅') ||
-      msg.text.includes('☕')
+    // Analyze console messages for expected patterns
+    const authMessages = consoleMessages.filter(
+      (msg) =>
+        msg.text.includes('AUTH') ||
+        msg.text.includes('auth') ||
+        msg.text.includes('🔐') ||
+        msg.text.includes('✅') ||
+        msg.text.includes('☕')
     );
 
     console.log('🔍 Auth-related console messages:');
@@ -416,19 +441,16 @@ test.describe('Authentication Persistence Tests', () => {
     });
 
     // Look for key success indicators
-    const hasAuthResolvedMessage = authMessages.some(msg => 
-      msg.text.includes('Auth resolved') || 
-      msg.text.includes('AUTH_RESOLVED')
+    const hasAuthResolvedMessage = authMessages.some(
+      (msg) => msg.text.includes('Auth resolved') || msg.text.includes('AUTH_RESOLVED')
     );
 
-    const hasCoffeeUserMessage = authMessages.some(msg =>
-      msg.text.includes('Coffee tier') || 
-      msg.text.includes('☕')
+    const hasCoffeeUserMessage = authMessages.some(
+      (msg) => msg.text.includes('Coffee tier') || msg.text.includes('☕')
     );
 
-    const hasStateTransitionMessage = authMessages.some(msg =>
-      msg.text.includes('State transition') ||
-      msg.text.includes('🔄')
+    const hasStateTransitionMessage = authMessages.some(
+      (msg) => msg.text.includes('State transition') || msg.text.includes('🔄')
     );
 
     // Verify expected log patterns
@@ -458,7 +480,7 @@ test.describe('Authentication Persistence Tests', () => {
 
   /**
    * Test 6: Race Condition Prevention
-   * 
+   *
    * Test that authentication loading states don't cause race conditions:
    * - Fast authentication resolution
    * - Slow authentication resolution
@@ -472,8 +494,8 @@ test.describe('Authentication Persistence Tests', () => {
 
     // Setup to monitor race conditions
     let raceConditionDetected = false;
-    
-    page.on('console', msg => {
+
+    page.on('console', (msg) => {
       const text = msg.text();
       if (text.includes('race') || text.includes('Race') || text.includes('concurrent')) {
         raceConditionDetected = true;
@@ -490,11 +512,14 @@ test.describe('Authentication Persistence Tests', () => {
         setTimeout(() => {
           if (i % 2 === 0) {
             localStorage.setItem('auth_access_token', `token-${i}`);
-            localStorage.setItem('auth_user', JSON.stringify({
-              id: i,
-              email: `race${i}@example.com`,
-              tier: 'starter'
-            }));
+            localStorage.setItem(
+              'auth_user',
+              JSON.stringify({
+                id: i,
+                email: `race${i}@example.com`,
+                tier: 'starter',
+              })
+            );
           } else {
             localStorage.removeItem('auth_access_token');
             localStorage.removeItem('auth_user');
@@ -514,9 +539,9 @@ test.describe('Authentication Persistence Tests', () => {
         tier: 'starter',
         creditsRemaining: 3,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       localStorage.setItem('auth_access_token', 'final-token');
       localStorage.setItem('auth_user', JSON.stringify(user));
     });
@@ -534,14 +559,14 @@ test.describe('Authentication Persistence Tests', () => {
 
 /**
  * SUCCESS CRITERIA VALIDATION
- * 
+ *
  * This test suite validates all success criteria:
  * ✅ Authenticated users never see email capture on return
- * ✅ Usage tracking shows correct remaining analyses  
+ * ✅ Usage tracking shows correct remaining analyses
  * ✅ Coffee tier users get direct premium access
  * ✅ New users still have proper onboarding flow
  * ✅ No JavaScript errors or race conditions
- * 
+ *
  * FAILURE INDICATORS that would fail these tests:
  * ❌ Returning users still see "Choose Your Analysis Type"
  * ❌ Users forced to re-enter email address

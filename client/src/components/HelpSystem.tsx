@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle, Info, Book, MessageCircle, ExternalLink, CheckCircle } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { HelpCircle, Info, Book, MessageCircle, ExternalLink, CheckCircle } from 'lucide-react';
 
 interface HelpProps {
   context?: 'url-input' | 'email-capture' | 'analysis' | 'review' | 'generation' | 'error';
@@ -29,23 +35,23 @@ const HELP_CONTENT: Record<string, HelpContent> = {
       'Enter a complete URL including https:// (e.g., https://example.com)',
       'Make sure the website is publicly accessible',
       'The URL should point to your main website, not a specific page',
-      'Click "Start Analysis" to begin the process'
+      'Click "Start Analysis" to begin the process',
     ],
     tips: [
       'Use your main domain URL for best results',
       'Avoid URLs with query parameters or fragments',
-      'Ensure the website has public content to analyze'
+      'Ensure the website has public content to analyze',
     ],
     troubleshooting: [
       {
         problem: 'Invalid URL error',
-        solution: 'Make sure to include https:// and use a valid domain format'
+        solution: 'Make sure to include https:// and use a valid domain format',
       },
       {
         problem: 'Website not accessible',
-        solution: 'Check if the website is publicly available and not behind authentication'
-      }
-    ]
+        solution: 'Check if the website is publicly available and not behind authentication',
+      },
+    ],
   },
   'email-capture': {
     title: 'Account Setup & Tier Selection',
@@ -55,52 +61,54 @@ const HELP_CONTENT: Record<string, HelpContent> = {
       'Choose between Quick Start or Create Account',
       'Enter your email address',
       'For paid tiers, complete the payment process',
-      'Click "Start Analysis" or "Continue to Payment"'
+      'Click "Start Analysis" or "Continue to Payment"',
     ],
     tips: [
       'Coffee tier ($4.95/month) provides 100 monthly analyses',
       'Create Account gives you dashboard access and analysis history',
       'Quick Start is fastest for immediate results',
-      'Check your email for payment confirmations'
+      'Check your email for payment confirmations',
     ],
     troubleshooting: [
       {
         problem: 'Email already exists',
-        solution: 'Use the "Login Instead" button or try a different email'
+        solution: 'Use the "Login Instead" button or try a different email',
       },
       {
         problem: 'Payment issues',
-        solution: 'Check your card details and try again, or contact support'
-      }
-    ]
+        solution: 'Check your card details and try again, or contact support',
+      },
+    ],
   },
-  'analysis': {
+  analysis: {
     title: 'Website Analysis Process',
     description: 'Your website is being analyzed to discover pages and assess content quality.',
     steps: [
       'Sitemap discovery: Finding your website structure',
       'Content fetching: Downloading page content',
       'AI analysis: Evaluating content quality and relevance',
-      'Results compilation: Preparing your data for review'
+      'Results compilation: Preparing your data for review',
     ],
     tips: [
       'Analysis typically takes 30-60 seconds',
       'Larger websites may take longer to process',
       'AI-enhanced analysis provides better quality scoring',
-      'You can see real-time progress updates'
+      'You can see real-time progress updates',
     ],
     troubleshooting: [
       {
         problem: 'Analysis taking too long',
-        solution: 'Large websites can take up to 2 minutes. Please wait or try a smaller site first'
+        solution:
+          'Large websites can take up to 2 minutes. Please wait or try a smaller site first',
       },
       {
         problem: 'Analysis failed',
-        solution: 'Try again or check if your website is accessible. Contact support if issues persist'
-      }
-    ]
+        solution:
+          'Try again or check if your website is accessible. Contact support if issues persist',
+      },
+    ],
   },
-  'review': {
+  review: {
     title: 'Content Review & Selection',
     description: 'Review discovered pages and select which ones to include in your llms.txt file.',
     steps: [
@@ -108,52 +116,52 @@ const HELP_CONTENT: Record<string, HelpContent> = {
       'Check quality scores (higher is better)',
       'Select/deselect pages using checkboxes',
       'Add custom descriptions if needed',
-      'Click "Generate LLMs.txt File" when ready'
+      'Click "Generate LLMs.txt File" when ready',
     ],
     tips: [
       'Focus on high-quality, relevant pages',
       'Include key pages like About, Services, and main content',
       'Remove low-quality or irrelevant pages',
-      'Custom descriptions help AI systems understand your content better'
+      'Custom descriptions help AI systems understand your content better',
     ],
     troubleshooting: [
       {
         problem: 'No pages found',
-        solution: 'Try a different URL or check if your sitemap is accessible'
+        solution: 'Try a different URL or check if your sitemap is accessible',
       },
       {
         problem: 'Low quality scores',
-        solution: 'This is normal for some pages. Select the most important ones manually'
-      }
-    ]
+        solution: 'This is normal for some pages. Select the most important ones manually',
+      },
+    ],
   },
-  'generation': {
+  generation: {
     title: 'File Generation & Download',
     description: 'Your llms.txt file has been generated and is ready for download.',
     steps: [
       'Download the generated llms.txt file',
-      'Upload it to your website\'s root directory',
+      "Upload it to your website's root directory",
       'Test accessibility at yourdomain.com/llms.txt',
-      'Monitor AI system interactions'
+      'Monitor AI system interactions',
     ],
     tips: [
       'Place the file in your website root directory',
       'Keep the filename exactly as "llms.txt"',
       'Update the file when you add new content',
-      'Test the URL in your browser to ensure it works'
+      'Test the URL in your browser to ensure it works',
     ],
     troubleshooting: [
       {
         problem: 'Download not working',
-        solution: 'Try right-clicking the download button and selecting "Save Link As"'
+        solution: 'Try right-clicking the download button and selecting "Save Link As"',
       },
       {
         problem: 'File not accessible after upload',
-        solution: 'Check file permissions and ensure it\'s in the correct directory'
-      }
-    ]
+        solution: "Check file permissions and ensure it's in the correct directory",
+      },
+    ],
   },
-  'error': {
+  error: {
     title: 'Error Recovery',
     description: 'Something went wrong, but there are several ways to get back on track.',
     steps: [
@@ -161,38 +169,40 @@ const HELP_CONTENT: Record<string, HelpContent> = {
       'Try the suggested recovery actions',
       'Check your internet connection',
       'Refresh the page if needed',
-      'Contact support if problems persist'
+      'Contact support if problems persist',
     ],
     tips: [
       'Most errors are temporary and resolve with a retry',
       'Network errors often resolve by waiting a moment',
-      'Start over if you\'re completely stuck',
-      'Save any important information before refreshing'
+      "Start over if you're completely stuck",
+      'Save any important information before refreshing',
     ],
     troubleshooting: [
       {
         problem: 'Stuck in error loop',
-        solution: 'Use the "Start Over" button to reset everything'
+        solution: 'Use the "Start Over" button to reset everything',
       },
       {
         problem: 'Payment errors',
-        solution: 'Check with your bank and try again, or contact support'
-      }
-    ]
-  }
+        solution: 'Check with your bank and try again, or contact support',
+      },
+    ],
+  },
 };
 
-export function HelpTooltip({ children, content, side = "top" }: { 
-  children: React.ReactNode; 
-  content: string; 
-  side?: "top" | "right" | "bottom" | "left" 
+export function HelpTooltip({
+  children,
+  content,
+  side = 'top',
+}: {
+  children: React.ReactNode;
+  content: string;
+  side?: 'top' | 'right' | 'bottom' | 'left';
 }) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          {children}
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent side={side} className="max-w-xs">
           <p className="text-sm">{content}</p>
         </TooltipContent>
@@ -226,10 +236,10 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
             {content.title}
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           <p className="text-slate-600">{content.description}</p>
-          
+
           {content.steps && (
             <div>
               <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
@@ -248,7 +258,7 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
               </ol>
             </div>
           )}
-          
+
           {content.tips && (
             <div>
               <h4 className="font-semibold text-slate-800 mb-3">💡 Pro Tips</h4>
@@ -262,7 +272,7 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
               </ul>
             </div>
           )}
-          
+
           {content.troubleshooting && (
             <div>
               <h4 className="font-semibold text-slate-800 mb-3">🔧 Troubleshooting</h4>
@@ -276,7 +286,7 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
               </div>
             </div>
           )}
-          
+
           <div className="border-t pt-4">
             <p className="text-sm text-slate-600 mb-3">
               Still need help? We're here to support you!
@@ -290,11 +300,7 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Contact Support
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open('/docs', '_blank')}
-              >
+              <Button variant="outline" size="sm" onClick={() => window.open('/docs', '_blank')}>
                 <Book className="h-4 w-4 mr-2" />
                 Documentation
               </Button>
@@ -306,28 +312,31 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
   );
 }
 
-export function InlineHelp({ content, variant = 'info' }: { 
-  content: string; 
-  variant?: 'info' | 'warning' | 'success' 
+export function InlineHelp({
+  content,
+  variant = 'info',
+}: {
+  content: string;
+  variant?: 'info' | 'warning' | 'success';
 }) {
   const bgColor = {
     info: 'bg-blue-50 border-blue-200',
     warning: 'bg-orange-50 border-orange-200',
-    success: 'bg-green-50 border-green-200'
+    success: 'bg-green-50 border-green-200',
   }[variant];
-  
+
   const textColor = {
     info: 'text-blue-800',
     warning: 'text-orange-800',
-    success: 'text-green-800'
+    success: 'text-green-800',
   }[variant];
-  
+
   const iconColor = {
     info: 'text-blue-600',
     warning: 'text-orange-600',
-    success: 'text-green-600'
+    success: 'text-green-600',
   }[variant];
-  
+
   return (
     <div className={`${bgColor} border rounded-lg p-3 text-sm`}>
       <div className="flex items-start">

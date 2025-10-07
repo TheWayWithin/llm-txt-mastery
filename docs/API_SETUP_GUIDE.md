@@ -5,6 +5,7 @@ This guide walks you through configuring all API integrations needed for LLM.txt
 ## Overview
 
 The semantic enhancement features require:
+
 - **OpenAI API** (Required) - For embeddings and content analysis
 - **Google Analytics API** (Optional) - For Business Objective mode insights
 - **API Key Management** (Built-in) - For security and monitoring
@@ -12,11 +13,13 @@ The semantic enhancement features require:
 ## Quick Start
 
 1. **Copy environment template:**
+
    ```bash
    cp .env.example .env
    ```
 
 2. **Configure OpenAI API (Required):**
+
    ```bash
    # Add to .env file
    OPENAI_API_KEY=your_openai_api_key_here
@@ -25,6 +28,7 @@ The semantic enhancement features require:
    ```
 
 3. **Test OpenAI integration:**
+
    ```bash
    node scripts/test-openai-simple.js
    ```
@@ -54,7 +58,7 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-small  # Recommended: most cost-effectiv
 EMBEDDING_DIMENSIONS=1536                       # Standard dimensions
 EMBEDDING_RATE_LIMIT_PER_MINUTE=3000          # Conservative rate limit
 
-# Chat Model Configuration  
+# Chat Model Configuration
 OPENAI_MODEL=gpt-4o-mini                       # Recommended: 93% cheaper than gpt-4o
 
 # Rate Limiting and Retry
@@ -66,11 +70,13 @@ ENABLE_API_ALERTS=true                         # Monitor usage and errors
 ### Step 3: Verify Setup
 
 Run the test script:
+
 ```bash
 node scripts/test-openai-simple.js
 ```
 
 Expected output:
+
 ```
 ✅ All Tests Passed!
 🚀 OpenAI APIs are ready for semantic enhancement features
@@ -78,25 +84,25 @@ Expected output:
 
 ### OpenAI Pricing (2024)
 
-| Model | Type | Price per 1K tokens | Use Case |
-|-------|------|-------------------|----------|
-| text-embedding-3-small | Embeddings | $0.00002 | **Recommended** - Semantic analysis |
-| text-embedding-3-large | Embeddings | $0.00013 | Higher accuracy (not needed for most cases) |
-| gpt-4o-mini | Chat | $0.00015 input / $0.0006 output | **Recommended** - Content analysis |
-| gpt-4o | Chat | $0.005 input / $0.015 output | Premium quality (expensive) |
+| Model                  | Type       | Price per 1K tokens             | Use Case                                    |
+| ---------------------- | ---------- | ------------------------------- | ------------------------------------------- |
+| text-embedding-3-small | Embeddings | $0.00002                        | **Recommended** - Semantic analysis         |
+| text-embedding-3-large | Embeddings | $0.00013                        | Higher accuracy (not needed for most cases) |
+| gpt-4o-mini            | Chat       | $0.00015 input / $0.0006 output | **Recommended** - Content analysis          |
+| gpt-4o                 | Chat       | $0.005 input / $0.015 output    | Premium quality (expensive)                 |
 
 ### Cost Estimates
 
 Typical costs for semantic enhancement:
 
-| Site Size | Embeddings | AI Analysis | Total |
-|-----------|------------|-------------|-------|
-| 50 pages | $0.001 | $0.002 | **$0.003** |
-| 200 pages | $0.004 | $0.008 | **$0.012** |
-| 500 pages | $0.010 | $0.020 | **$0.030** |
-| 1000 pages | $0.020 | $0.040 | **$0.060** |
+| Site Size  | Embeddings | AI Analysis | Total      |
+| ---------- | ---------- | ----------- | ---------- |
+| 50 pages   | $0.001     | $0.002      | **$0.003** |
+| 200 pages  | $0.004     | $0.008      | **$0.012** |
+| 500 pages  | $0.010     | $0.020      | **$0.030** |
+| 1000 pages | $0.020     | $0.040      | **$0.060** |
 
-*Note: Caching reduces repeat costs significantly*
+_Note: Caching reduces repeat costs significantly_
 
 ## Google Analytics API (Optional)
 
@@ -165,11 +171,13 @@ ALERT_WEBHOOK_URL=https://hooks.slack.com/... # Slack/Discord webhooks
 ## Testing & Verification
 
 ### 1. Basic OpenAI Test
+
 ```bash
 node scripts/test-openai-simple.js
 ```
 
 ### 2. Comprehensive API Test
+
 ```bash
 # Note: This requires TypeScript compilation
 npm run build
@@ -192,25 +200,31 @@ Verify these items before production:
 ### OpenAI API Issues
 
 **Authentication Error (401):**
+
 ```bash
 Error: Incorrect API key provided
 ```
+
 - Check your API key in .env file
 - Ensure key starts with 'sk-'
 - Verify key is active on OpenAI platform
 
 **Rate Limit Error (429):**
+
 ```bash
 Error: Rate limit reached
 ```
+
 - Reduce EMBEDDING_RATE_LIMIT_PER_MINUTE
 - Implement request batching
 - Add delays between requests
 
 **Quota Exceeded:**
+
 ```bash
 Error: You exceeded your current quota
 ```
+
 - Check usage on OpenAI platform
 - Add payment method if needed
 - Upgrade plan if necessary
@@ -218,33 +232,41 @@ Error: You exceeded your current quota
 ### Google Analytics Issues
 
 **Property Access Error:**
+
 ```bash
 Error: User does not have sufficient permissions
 ```
+
 - Verify service account has Viewer role in GA4
 - Check Property ID is correct
 - Ensure you're using GA4 (not Universal Analytics)
 
 **API Not Enabled:**
+
 ```bash
 Error: Google Analytics Data API has not been used
 ```
+
 - Enable API in Google Cloud Console
 - Wait a few minutes for propagation
 
 ### General Issues
 
 **Module Import Errors:**
+
 ```bash
 Cannot find module 'openai'
 ```
+
 - Run `npm install` to install dependencies
 - Check package.json includes required packages
 
 **Environment Variables Not Loading:**
+
 ```bash
 API Key configured: ❌ No
 ```
+
 - Verify .env file exists in project root
 - Check file name is exactly `.env` (not `.env.txt`)
 - Restart application after changes
@@ -256,15 +278,18 @@ API Key configured: ❌ No
 For production deployment, ensure these environment variables are set:
 
 **Required:**
+
 - `OPENAI_API_KEY` - Your OpenAI API key
 - `NODE_ENV=production` - Enable production mode
 
 **Recommended:**
+
 - `OPENAI_MODEL=gpt-4o-mini` - Cost-effective model
 - `EMBEDDING_RATE_LIMIT_PER_MINUTE=3000` - Conservative rate limiting
 - `ENABLE_API_ALERTS=true` - Monitor API health
 
 **Optional (Enhanced Features):**
+
 - `GA4_PROPERTY_ID` - Google Analytics integration
 - `GOOGLE_APPLICATION_CREDENTIALS` - GA service account
 - `ALERT_EMAIL_TO` - Alert notifications
@@ -296,6 +321,7 @@ Once your APIs are configured:
 4. 🚀 Deploy to production with confidence
 
 For detailed implementation guides, see:
+
 - [Semantic Analysis Implementation](./SEMANTIC_SETUP_GUIDE.md)
 - [Google Analytics Integration](./GOOGLE_ANALYTICS_API_SETUP.md)
 - [Production Deployment](./DEPLOYMENT.md)

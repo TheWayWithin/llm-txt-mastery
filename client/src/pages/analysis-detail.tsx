@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Activity,
   Globe,
   Calendar,
@@ -18,7 +18,7 @@ import {
   ArrowLeft,
   BarChart3,
   FileText,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -125,12 +125,15 @@ export default function AnalysisDetailPage() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/my-analyses/${analysisId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/my-analyses/${analysisId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -188,9 +191,7 @@ export default function AnalysisDetailPage() {
           <Card>
             <CardContent className="text-center py-12">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {error}
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{error}</h3>
               <p className="text-gray-600 mb-6">
                 The analysis you're looking for could not be found or accessed.
               </p>
@@ -224,22 +225,16 @@ export default function AnalysisDetailPage() {
               Back to Dashboard
             </a>
           </Link>
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-framework-black mb-2">
-                Analysis Details
-              </h1>
-              <p className="text-gray-600">
-                {new URL(analysis.url).hostname}
-              </p>
+              <h1 className="text-2xl font-bold text-framework-black mb-2">Analysis Details</h1>
+              <p className="text-gray-600">{new URL(analysis.url).hostname}</p>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               {getStatusIcon(analysis.status)}
-              <Badge className={getStatusColor(analysis.status)}>
-                {analysis.status}
-              </Badge>
+              <Badge className={getStatusColor(analysis.status)}>{analysis.status}</Badge>
               <Badge className={getTierColor(analysis.analysisMetadata.tier)}>
                 {analysis.analysisMetadata.tier}
               </Badge>
@@ -260,16 +255,16 @@ export default function AnalysisDetailPage() {
               <div>
                 <h4 className="font-medium text-gray-900">Website URL</h4>
                 <p className="text-sm text-gray-600 break-all">{analysis.url}</p>
-                <a 
-                  href={analysis.url} 
-                  target="_blank" 
+                <a
+                  href={analysis.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-innovation-teal hover:text-innovation-teal/80 text-sm inline-flex items-center mt-1"
                 >
                   Visit site <ExternalLink className="h-3 w-3 ml-1" />
                 </a>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-gray-900">Site Type</h4>
                 <p className="text-sm text-gray-600 capitalize">
@@ -279,7 +274,7 @@ export default function AnalysisDetailPage() {
                   {analysis.analysisMetadata.analysisMethod}
                 </p>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-gray-900">Pages Found</h4>
                 <p className="text-sm text-gray-600">
@@ -289,7 +284,7 @@ export default function AnalysisDetailPage() {
                   {analysis.discoveredPages.length} analyzed
                 </p>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-gray-900">Created</h4>
                 <p className="text-sm text-gray-600">
@@ -303,9 +298,7 @@ export default function AnalysisDetailPage() {
 
             {analysis.analysisMetadata.message && (
               <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-sm text-blue-800">
-                  {analysis.analysisMetadata.message}
-                </p>
+                <p className="text-sm text-blue-800">{analysis.analysisMetadata.message}</p>
               </div>
             )}
           </CardContent>
@@ -329,7 +322,7 @@ export default function AnalysisDetailPage() {
                   </div>
                   <div className="text-xs text-green-600">Processing Time</div>
                 </div>
-                
+
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <Activity className="h-6 w-6 text-blue-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-blue-700">
@@ -337,7 +330,7 @@ export default function AnalysisDetailPage() {
                   </div>
                   <div className="text-xs text-blue-600">AI Calls Used</div>
                 </div>
-                
+
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <FileText className="h-6 w-6 text-purple-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-purple-700">
@@ -345,7 +338,7 @@ export default function AnalysisDetailPage() {
                   </div>
                   <div className="text-xs text-purple-600">Cached Pages</div>
                 </div>
-                
+
                 <div className="text-center p-4 bg-orange-50 rounded-lg">
                   <Clock className="h-6 w-6 text-orange-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-orange-700">
@@ -354,11 +347,11 @@ export default function AnalysisDetailPage() {
                   <div className="text-xs text-orange-600">Estimated Cost</div>
                 </div>
               </div>
-              
+
               {analysis.analysisMetadata.metrics.cacheHit && (
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
                   <p className="text-sm text-green-800">
-                    🚀 Cache hit! Saved ${analysis.analysisMetadata.metrics.costSaved.toFixed(3)} 
+                    🚀 Cache hit! Saved ${analysis.analysisMetadata.metrics.costSaved.toFixed(3)}
                     and {analysis.analysisMetadata.metrics.timeSaved}s processing time.
                   </p>
                 </div>
@@ -395,16 +388,14 @@ export default function AnalysisDetailPage() {
                         <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                           {page.description || 'No description available'}
                         </p>
-                        <p className="text-xs text-innovation-teal break-all">
-                          {page.url}
-                        </p>
+                        <p className="text-xs text-innovation-teal break-all">{page.url}</p>
                         {page.lastModified && (
                           <p className="text-xs text-gray-500 mt-1">
                             Last modified: {new Date(page.lastModified).toLocaleDateString()}
                           </p>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center space-x-2 ml-4">
                         <Badge variant="outline" className="text-xs">
                           {page.category}
@@ -413,9 +404,7 @@ export default function AnalysisDetailPage() {
                           <div className="text-lg font-semibold text-green-600">
                             {page.qualityScore}
                           </div>
-                          <div className="text-xs text-gray-500">
-                            Quality
-                          </div>
+                          <div className="text-xs text-gray-500">Quality</div>
                         </div>
                       </div>
                     </div>
@@ -429,7 +418,7 @@ export default function AnalysisDetailPage() {
         {/* Actions */}
         <div className="flex items-center justify-center space-x-4">
           {analysis.status === 'completed' && (
-            <Button 
+            <Button
               onClick={() => handleRerunAnalysis(analysis.url)}
               className="bg-innovation-teal hover:bg-innovation-teal/90"
             >
@@ -437,7 +426,7 @@ export default function AnalysisDetailPage() {
               Re-run Analysis
             </Button>
           )}
-          
+
           <Link href="/dashboard">
             <a>
               <Button variant="outline">

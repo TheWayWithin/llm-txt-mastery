@@ -3,6 +3,7 @@
 ## Overview
 
 LLM.txt Mastery supports multiple database configurations:
+
 - **Local PostgreSQL** (via Docker)
 - **Supabase** (for authentication and user management)
 - **Neon/Railway** (for production hosting)
@@ -10,6 +11,7 @@ LLM.txt Mastery supports multiple database configurations:
 ## Quick Start
 
 ### 1. Development Setup
+
 ```bash
 # Install dependencies and run setup
 npm install
@@ -23,6 +25,7 @@ npm run migrate
 ```
 
 ### 2. Production Setup
+
 ```bash
 # Set DATABASE_URL in your .env file
 # Run migrations
@@ -69,11 +72,13 @@ supabase/migrations/         # Supabase-specific migrations
 ### Local Development (Docker)
 
 1. **Start PostgreSQL**:
+
    ```bash
    docker-compose up -d
    ```
 
 2. **Set environment variables**:
+
    ```env
    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/llm_txt_mastery
    ```
@@ -91,11 +96,12 @@ supabase/migrations/         # Supabase-specific migrations
    - Note your project URL and keys
 
 2. **Set environment variables**:
+
    ```env
    SUPABASE_URL=https://your-project.supabase.co
    SUPABASE_ANON_KEY=your-anon-key
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   
+
    # Frontend variables
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -109,6 +115,7 @@ supabase/migrations/         # Supabase-specific migrations
 ### Production (Neon/Railway)
 
 1. **Set production DATABASE_URL**:
+
    ```env
    DATABASE_URL=postgresql://user:password@host:5432/database
    ```
@@ -121,21 +128,25 @@ supabase/migrations/         # Supabase-specific migrations
 ## Migration System Features
 
 ### 1. Automatic Tracking
+
 - Migrations are tracked in `schema_migrations` table
 - Each migration records filename, timestamp, and checksum
 - Prevents duplicate execution
 
 ### 2. Multi-Database Support
+
 - PostgreSQL (main application database)
 - Supabase (authentication and user profiles)
 - Different migration directories for each system
 
 ### 3. Safety Features
+
 - Checksum validation prevents corruption
 - Transaction support for rollback safety
 - Clear error reporting and logging
 
 ### 4. Development Tools
+
 - Status checking before running migrations
 - Reset functionality for development
 - Comprehensive logging and error handling
@@ -220,23 +231,29 @@ git commit -m "Add new feature migration"
 ### Common Issues
 
 1. **Connection Refused**
+
    ```
    Error: connect ECONNREFUSED 127.0.0.1:5432
    ```
+
    - Ensure PostgreSQL is running (`docker-compose up -d`)
    - Check DATABASE_URL in .env file
 
 2. **Migration Already Applied**
+
    ```
    Error: duplicate key value violates unique constraint
    ```
+
    - Check migration status: `npm run migrate:status`
    - Skip if already applied, or reset for development
 
 3. **Supabase Connection Failed**
+
    ```
    Error: Invalid API key
    ```
+
    - Verify SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
    - Check Supabase dashboard for correct credentials
 
@@ -244,6 +261,7 @@ git commit -m "Add new feature migration"
    ```
    Error: syntax error at or near "..."
    ```
+
    - Validate SQL in migration file
    - Test individual statements manually
 
@@ -275,6 +293,7 @@ docker exec -it llm-txt-mastery-postgres-1 psql -U postgres -d llm_txt_mastery
 ## Production Deployment
 
 ### 1. Environment Setup
+
 ```bash
 # Set production environment
 export NODE_ENV=production
@@ -285,6 +304,7 @@ npm run migrate
 ```
 
 ### 2. Automated Deployment
+
 ```yaml
 # Example GitHub Actions
 - name: Run Database Migrations
@@ -296,6 +316,7 @@ npm run migrate
 ```
 
 ### 3. Monitoring
+
 - Monitor migration execution in production logs
 - Set up alerts for migration failures
 - Keep migration logs for debugging
@@ -303,12 +324,14 @@ npm run migrate
 ## Future Enhancements
 
 ### Planned Features
+
 - **Migration rollback**: Ability to rollback migrations
 - **Seed data**: Initial data loading scripts
 - **Schema validation**: Automatic schema validation
 - **Migration testing**: Automated migration testing
 
 ### Integration Ideas
+
 - **CI/CD integration**: Automatic migration on deploy
 - **Schema documentation**: Auto-generated schema docs
 - **Performance monitoring**: Migration performance tracking

@@ -2,10 +2,10 @@
 
 /**
  * Development Environment Setup Script
- * 
+ *
  * This script helps set up the LLM.txt Mastery development environment
  * by checking dependencies, running migrations, and validating configuration.
- * 
+ *
  * Usage:
  *   npm run setup
  */
@@ -97,18 +97,18 @@ async function main() {
   console.log('   Core Configuration:');
   checkEnvVar('NODE_ENV', false);
   checkEnvVar('PORT', false);
-  
+
   console.log('   Database:');
   const hasDatabase = checkEnvVar('DATABASE_URL', false);
-  
+
   console.log('   OpenAI (optional):');
   checkEnvVar('OPENAI_API_KEY', false);
-  
+
   console.log('   Supabase (optional):');
   checkEnvVar('SUPABASE_URL', false);
   checkEnvVar('SUPABASE_ANON_KEY', false);
   checkEnvVar('SUPABASE_SERVICE_ROLE_KEY', false);
-  
+
   console.log('   ConvertKit (optional):');
   checkEnvVar('CONVERTKIT_API_KEY', false);
   checkEnvVar('CONVERTKIT_API_SECRET', false);
@@ -144,7 +144,7 @@ async function main() {
 
   // 7. Summary and next steps
   console.log('\n🎉 Setup Summary:');
-  
+
   if (hasErrors) {
     console.log('❌ Setup completed with errors');
     console.log('\n📋 Action Required:');
@@ -184,7 +184,7 @@ process.on('unhandledRejection', (error) => {
 });
 
 // Run setup
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Setup failed:', error.message);
   process.exit(1);
 });

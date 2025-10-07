@@ -48,7 +48,7 @@ async function testRefundEligibility() {
   process.exit(0);
 }
 
-testRefundEligibility().catch(err => {
+testRefundEligibility().catch((err) => {
   console.error('Error:', err);
   process.exit(1);
 });

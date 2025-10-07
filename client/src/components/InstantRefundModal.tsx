@@ -83,17 +83,18 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
         throw new Error('Authentication required');
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+      const apiUrl =
+        import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
       const response = await fetch(`${apiUrl}/api/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           processRefund: true,
-          reason: 'Instant refund via 30-day money-back guarantee'
-        })
+          reason: 'Instant refund via 30-day money-back guarantee',
+        }),
       });
 
       const data = await response.json();
@@ -113,7 +114,6 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
         onClose();
         window.location.reload();
       }, 3000);
-
     } catch (err) {
       console.error('Refund processing failed:', err);
       setError(err instanceof Error ? err.message : 'Failed to process refund');
@@ -150,9 +150,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
               {/* Refund Amount */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <h4 className="font-medium text-green-800 mb-1">Refund Amount</h4>
-                <p className="text-2xl font-bold text-green-700">
-                  {eligibility.amountFormatted}
-                </p>
+                <p className="text-2xl font-bold text-green-700">{eligibility.amountFormatted}</p>
                 <p className="text-sm text-green-600 mt-1">
                   Refunded to your original payment method within 5-7 business days
                 </p>
@@ -178,8 +176,8 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>This action cannot be undone.</strong> Your account will be
-                  downgraded to the Starter tier immediately.
+                  <strong>This action cannot be undone.</strong> Your account will be downgraded to
+                  the Starter tier immediately.
                 </AlertDescription>
               </Alert>
 
@@ -192,18 +190,10 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
             </div>
 
             <DialogFooter className="flex justify-between">
-              <Button
-                variant="outline"
-                onClick={handleClose}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={handleClose} disabled={loading}>
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={handleConfirmRefund}
-                disabled={loading}
-              >
+              <Button variant="destructive" onClick={handleConfirmRefund} disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -247,9 +237,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
             </div>
 
             <DialogFooter>
-              <Button onClick={handleClose}>
-                Close
-              </Button>
+              <Button onClick={handleClose}>Close</Button>
             </DialogFooter>
           </>
         )}

@@ -1,7 +1,7 @@
 import React, { Component, ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, RotateCcw, Home, Mail, RefreshCw } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, RotateCcw, Home, Mail, RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -35,7 +35,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: any) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
@@ -59,7 +59,7 @@ class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
     });
-    
+
     if (this.props.onReset) {
       this.props.onReset();
     }
@@ -90,14 +90,12 @@ class ErrorBoundary extends Component<Props, State> {
                   <AlertTriangle className="text-white text-2xl" />
                 </div>
               </div>
-              <CardTitle className="text-2xl text-red-700">
-                Oops! Something went wrong
-              </CardTitle>
+              <CardTitle className="text-2xl text-red-700">Oops! Something went wrong</CardTitle>
               <p className="text-red-600 mt-2">
                 We encountered an unexpected error while processing your request.
               </p>
             </CardHeader>
-            
+
             <CardContent className="p-8">
               <div className="space-y-6">
                 {/* Error Details (for development) */}
@@ -124,16 +122,19 @@ class ErrorBoundary extends Component<Props, State> {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                   <h4 className="font-semibold text-blue-800 mb-3">What happened?</h4>
                   <p className="text-blue-700 mb-4">
-                    The application encountered an unexpected error that prevented it from continuing normally. 
-                    This is likely a temporary issue that can be resolved by trying again.
+                    The application encountered an unexpected error that prevented it from
+                    continuing normally. This is likely a temporary issue that can be resolved by
+                    trying again.
                   </p>
-                  
+
                   <h4 className="font-semibold text-blue-800 mb-3">What can you do?</h4>
                   <ul className="text-blue-700 space-y-2 text-sm">
                     <li>• Try refreshing the page to see if the issue resolves</li>
                     <li>• Start over with a fresh session</li>
                     <li>• Check your internet connection</li>
-                    <li>• If the problem persists, please contact support with the time this occurred</li>
+                    <li>
+                      • If the problem persists, please contact support with the time this occurred
+                    </li>
                   </ul>
                 </div>
 
@@ -147,7 +148,7 @@ class ErrorBoundary extends Component<Props, State> {
                     <RotateCcw className="mr-2 h-5 w-5" />
                     Try Again
                   </Button>
-                  
+
                   <Button
                     onClick={this.handleReload}
                     variant="outline"
@@ -157,7 +158,7 @@ class ErrorBoundary extends Component<Props, State> {
                     <RefreshCw className="mr-2 h-5 w-5" />
                     Reload Page
                   </Button>
-                  
+
                   <Button
                     onClick={this.handleStartOver}
                     variant="outline"
@@ -171,12 +172,16 @@ class ErrorBoundary extends Component<Props, State> {
 
                 {/* Contact Support */}
                 <div className="border-t pt-6 text-center">
-                  <p className="text-slate-600 mb-4">
-                    Still having trouble? We're here to help!
-                  </p>
+                  <p className="text-slate-600 mb-4">Still having trouble? We're here to help!</p>
                   <Button
                     variant="outline"
-                    onClick={() => window.open('mailto:support@llmtxtmastery.com?subject=Application Error&body=I encountered an error at ' + new Date().toISOString(), '_blank')}
+                    onClick={() =>
+                      window.open(
+                        'mailto:support@llmtxtmastery.com?subject=Application Error&body=I encountered an error at ' +
+                          new Date().toISOString(),
+                        '_blank'
+                      )
+                    }
                     className="border-slate-300 hover:bg-slate-50"
                   >
                     <Mail className="mr-2 h-4 w-4" />

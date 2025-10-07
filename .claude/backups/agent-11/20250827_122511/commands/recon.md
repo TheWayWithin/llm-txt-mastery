@@ -11,21 +11,25 @@ You are now executing a UI/UX reconnaissance mission using the RECON Protocol (R
 ## OPERATIONAL CONTEXT
 
 ### GIT STATUS:
+
 ```
 !`git status`
 ```
 
 ### FILES MODIFIED:
+
 ```
 !`git diff --name-only origin/HEAD...`
 ```
 
 ### RECENT OPERATIONS:
+
 ```
 !`git log --no-decorate --oneline -10 origin/HEAD...`
 ```
 
 ### CHANGE ANALYSIS:
+
 ```
 !`git diff --merge-base origin/HEAD`
 ```
@@ -58,6 +62,7 @@ Review the complete diff above containing all UI/UX changes. Execute the RECON P
 ## OUTPUT REQUIREMENTS
 
 Your final response must contain:
+
 1. The complete RECON REPORT in markdown format
 2. Evidence screenshots where applicable
 3. Prioritized recommendations

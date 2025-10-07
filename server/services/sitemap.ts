@@ -1,23 +1,27 @@
-import { parseStringPromise } from "xml2js";
-import fetch from "node-fetch";
-import * as cheerio from "cheerio";
-import { DiscoveredPage } from "@shared/schema";
-import { analyzePageContent } from "./openai";
-import { connectionPool } from "./connection-pool";
+import { parseStringPromise } from 'xml2js';
+import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
+import { DiscoveredPage } from '@shared/schema';
+import { analyzePageContent } from './openai';
+import { connectionPool } from './connection-pool';
 
 // Helper function to implement fetch with timeout using AbortController
-async function fetchWithTimeout(url: string, options: any = {}, timeoutMs: number = 10000): Promise<any> {
+async function fetchWithTimeout(
+  url: string,
+  options: any = {},
+  timeoutMs: number = 10000
+): Promise<any> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  
+
   try {
     // Use connection pool for HTTPS URLs if not already specified
     let fetchOptions = { ...options, signal: controller.signal };
-    
+
     if (url.startsWith('https') && !options.agent) {
       fetchOptions.agent = connectionPool.getAgent(url);
     }
-    
+
     const response = await fetch(url, fetchOptions);
     clearTimeout(timeoutId);
     return response;
@@ -40,7 +44,7 @@ export interface SitemapEntry {
 export interface SitemapResult {
   entries: SitemapEntry[];
   sitemapFound: boolean;
-  analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl";
+  analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
   message: string;
 }
 
@@ -54,44 +58,43 @@ export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
   });
 
   try {
-    return await Promise.race([
-      performSitemapDiscovery(baseUrl),
-      timeoutPromise
-    ]);
+    return await Promise.race([performSitemapDiscovery(baseUrl), timeoutPromise]);
   } catch (error) {
     console.error('Sitemap discovery failed:', error);
-    
+
     // CRITICAL FIX: Instead of returning empty results on error/timeout,
     // attempt basic crawling as a fallback to discover pages
     console.log('Attempting fallback crawling due to sitemap discovery failure...');
-    
+
     try {
       // Extract root domain for crawling
       const urlObj = new URL(baseUrl);
       const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
-      
+
       // Use basic crawling as ultimate fallback
       const fallbackEntries = await basicCrawlFallback(rootDomain);
-      
+
       if (fallbackEntries.length > 0) {
-        console.log(`Fallback crawling discovered ${fallbackEntries.length} pages after sitemap failure`);
+        console.log(
+          `Fallback crawling discovered ${fallbackEntries.length} pages after sitemap failure`
+        );
         return {
           entries: fallbackEntries,
           sitemapFound: false,
-          analysisMethod: "fallback-crawl",
-          message: `Sitemap discovery failed (${error.message}). Found ${fallbackEntries.length} pages through fallback crawling.`
+          analysisMethod: 'fallback-crawl',
+          message: `Sitemap discovery failed (${error.message}). Found ${fallbackEntries.length} pages through fallback crawling.`,
         };
       }
     } catch (crawlError) {
       console.error('Fallback crawling also failed:', crawlError);
     }
-    
+
     // Only return empty if both sitemap discovery AND fallback crawling fail
     return {
       entries: [],
       sitemapFound: false,
-      analysisMethod: "fallback-crawl",
-      message: `Sitemap discovery failed: ${error.message}. Fallback crawling also failed. No pages could be discovered.`
+      analysisMethod: 'fallback-crawl',
+      message: `Sitemap discovery failed: ${error.message}. Fallback crawling also failed. No pages could be discovered.`,
     };
   }
 }
@@ -100,23 +103,37 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
   // Extract root domain for sitemap discovery
   const urlObj = new URL(baseUrl);
   const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
-  
+
   console.log(`Searching for sitemap for baseUrl: ${baseUrl}, rootDomain: ${rootDomain}`);
-  
+
   // Check if we need to handle redirects first
   let redirectPath = '';
   try {
-    const rootResponse = await fetchWithTimeout(`${rootDomain}/sitemap.xml`, {
-      method: 'HEAD',
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-    }, 5000);
-    
+    const rootResponse = await fetchWithTimeout(
+      `${rootDomain}/sitemap.xml`,
+      {
+        method: 'HEAD',
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        },
+      },
+      5000
+    );
+
     if (!rootResponse.ok) {
       // Try to detect redirect pattern by checking the homepage
-      const homepageResponse = await fetchWithTimeout(rootDomain, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-      }, 5000);
-      
+      const homepageResponse = await fetchWithTimeout(
+        rootDomain,
+        {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          },
+        },
+        5000
+      );
+
       if (homepageResponse.ok) {
         const html = await homepageResponse.text();
         const redirectMatch = html.match(/window\.location\.href\s*=\s*["']([^"']+)["']/);
@@ -129,7 +146,7 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
   } catch (error) {
     console.log('Error checking for redirects:', error.message);
   }
-  
+
   const sitemapUrls = [
     `${rootDomain}/sitemap.xml`,
     `${rootDomain}/sitemap_index.xml`,
@@ -137,12 +154,14 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
     `${rootDomain}/sitemaps/sitemap.xml`,
     `${rootDomain}/wp-sitemap.xml`,
     `${rootDomain}/sitemap-index.xml`,
-    `${rootDomain}/post-sitemap.xml`
+    `${rootDomain}/post-sitemap.xml`,
   ];
-  
+
   // Add redirect-based sitemap URLs if we found a redirect
   if (redirectPath) {
-    const redirectBase = redirectPath.startsWith('/') ? `${rootDomain}${redirectPath}` : `${rootDomain}/${redirectPath}`;
+    const redirectBase = redirectPath.startsWith('/')
+      ? `${rootDomain}${redirectPath}`
+      : `${rootDomain}/${redirectPath}`;
     sitemapUrls.unshift(
       `${redirectBase}/sitemap.xml`,
       `${redirectBase}/sitemap_index.xml`,
@@ -154,22 +173,27 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
   for (const sitemapUrl of sitemapUrls) {
     try {
       console.log(`Trying sitemap URL: ${sitemapUrl}`);
-      const response = await fetchWithTimeout(sitemapUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      }, 15000); // Increased timeout to 15 seconds for slow sites
+      const response = await fetchWithTimeout(
+        sitemapUrl,
+        {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          },
+        },
+        15000
+      ); // Increased timeout to 15 seconds for slow sites
 
       if (response.ok) {
         console.log(`Successfully fetched sitemap from: ${sitemapUrl}`);
         const xml = await response.text();
-        
+
         // Log first 200 characters to debug content
         console.log(`Sitemap content preview: ${xml.substring(0, 200)}...`);
-        
+
         const entries = await parseSitemap(xml);
         console.log(`Parsed ${entries.length} entries from sitemap`);
-        
+
         // If we got 0 entries from a successful response, something is wrong
         if (entries.length === 0) {
           console.log(`Warning: Sitemap returned 0 entries, likely HTML redirect or invalid XML`);
@@ -177,21 +201,21 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
         } else {
           // Ensure homepage is always included in the entries
           const homepageUrl = rootDomain.endsWith('/') ? rootDomain : rootDomain + '/';
-          const hasHomepage = entries.some(entry => {
+          const hasHomepage = entries.some((entry) => {
             const entryUrl = entry.url.endsWith('/') ? entry.url : entry.url + '/';
             return entryUrl === homepageUrl;
           });
-          
+
           if (!hasHomepage) {
             console.log(`Adding missing homepage to sitemap entries: ${homepageUrl}`);
             entries.unshift({ url: homepageUrl, lastmod: new Date().toISOString() });
           }
-          
+
           return {
             entries,
             sitemapFound: true,
-            analysisMethod: "sitemap",
-            message: `Found sitemap with ${entries.length} pages (including homepage)`
+            analysisMethod: 'sitemap',
+            message: `Found sitemap with ${entries.length} pages (including homepage)`,
           };
         }
       } else {
@@ -211,11 +235,16 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
       if (sitemapMatch) {
         const sitemapUrl = sitemapMatch[1].trim();
         console.log(`Found sitemap in robots.txt: ${sitemapUrl}`);
-        const response = await fetchWithTimeout(sitemapUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          }
-        }, 10000);
+        const response = await fetchWithTimeout(
+          sitemapUrl,
+          {
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            },
+          },
+          10000
+        );
         if (response.ok) {
           const xml = await response.text();
           const entries = await parseSitemap(xml);
@@ -223,66 +252,72 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
           return {
             entries,
             sitemapFound: true,
-            analysisMethod: "robots.txt",
-            message: `Found sitemap via robots.txt with ${entries.length} pages`
+            analysisMethod: 'robots.txt',
+            message: `Found sitemap via robots.txt with ${entries.length} pages`,
           };
         }
       }
     }
   } catch (error) {
-    console.log("Robots.txt fallback failed:", error.message);
+    console.log('Robots.txt fallback failed:', error.message);
   }
 
   // Check if this is a single-page site by analyzing the homepage
   const homepageAnalysis = await analyzeHomepage(baseUrl);
   if (homepageAnalysis.isSinglePage) {
-    console.log("Detected single-page site, analyzing homepage only");
+    console.log('Detected single-page site, analyzing homepage only');
     return {
       entries: [{ url: baseUrl, lastmod: new Date().toISOString() }],
       sitemapFound: false,
-      analysisMethod: "homepage-only",
-      message: "No sitemap found. This appears to be a single-page site. Analysis includes homepage only."
+      analysisMethod: 'homepage-only',
+      message:
+        'No sitemap found. This appears to be a single-page site. Analysis includes homepage only.',
     };
   }
 
   // Final fallback: basic page crawling for multi-page sites
-  console.log("No sitemap found, using aggressive crawling fallback");
+  console.log('No sitemap found, using aggressive crawling fallback');
   const fallbackEntries = await basicCrawlFallback(rootDomain);
-  
+
   // CRITICAL: If fallback only found 1-2 pages, try a more aggressive crawl
   if (fallbackEntries.length <= 2) {
     console.log(`Only found ${fallbackEntries.length} pages, trying deeper crawl...`);
-    
+
     // Try crawling each found page for more links
     const secondLevelUrls = new Set<string>();
     for (const entry of fallbackEntries) {
       try {
         const moreLinks = await crawlPageForLinks(entry.url, rootDomain);
-        moreLinks.forEach(link => secondLevelUrls.add(link));
+        moreLinks.forEach((link) => secondLevelUrls.add(link));
       } catch (error) {
         console.log(`Failed to deep crawl ${entry.url}: ${error.message}`);
       }
     }
-    
+
     // Validate second level URLs
     const additionalPages = [];
-    for (const url of Array.from(secondLevelUrls).slice(0, 50)) { // Limit to 50 for performance
-      if (!fallbackEntries.find(e => e.url === url)) {
+    for (const url of Array.from(secondLevelUrls).slice(0, 50)) {
+      // Limit to 50 for performance
+      if (!fallbackEntries.find((e) => e.url === url)) {
         try {
-          const response = await fetchWithTimeout(url, {
-            method: 'GET',
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-            }
-          }, 5000);
-          
+          const response = await fetchWithTimeout(
+            url,
+            {
+              method: 'GET',
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              },
+            },
+            5000
+          );
+
           if (response.ok) {
             additionalPages.push({
               url: url,
               lastmod: response.headers.get('last-modified') || undefined,
               changefreq: 'weekly',
-              priority: '0.6'
+              priority: '0.6',
             });
           }
         } catch (error) {
@@ -290,26 +325,35 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
         }
       }
     }
-    
+
     fallbackEntries.push(...additionalPages);
-    console.log(`Deep crawl found ${additionalPages.length} additional pages, total: ${fallbackEntries.length}`);
+    console.log(
+      `Deep crawl found ${additionalPages.length} additional pages, total: ${fallbackEntries.length}`
+    );
   }
-  
+
   return {
     entries: fallbackEntries,
     sitemapFound: false,
-    analysisMethod: "fallback-crawl",
-    message: `No sitemap found. Discovered ${fallbackEntries.length} pages through deep crawling. Some pages may be missing.`
+    analysisMethod: 'fallback-crawl',
+    message: `No sitemap found. Discovered ${fallbackEntries.length} pages through deep crawling. Some pages may be missing.`,
   };
 }
 
-async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, indicators: string[] }> {
+async function analyzeHomepage(
+  url: string
+): Promise<{ isSinglePage: boolean; indicators: string[] }> {
   try {
-    const response = await fetchWithTimeout(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
-    }, 10000);
+    const response = await fetchWithTimeout(
+      url,
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        },
+      },
+      10000
+    );
 
     if (!response.ok) {
       return { isSinglePage: false, indicators: ['failed-to-fetch'] };
@@ -317,16 +361,16 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
 
     const html = await response.text();
     const $ = cheerio.load(html);
-    
+
     const indicators: string[] = [];
     let singlePageScore = 0;
-    
+
     // Check for single-page app indicators
     const reactIndicators = $('#root, [data-reactroot], .react-app').length;
     const vueIndicators = $('#app, [data-v-], .vue-app').length;
     const angularIndicators = $('[ng-app], [data-ng-app], .angular-app').length;
     const nextjsIndicators = $('#__next, [data-nextjs-page]').length;
-    
+
     if (reactIndicators > 0) {
       indicators.push('react-app');
       singlePageScore += 2;
@@ -343,12 +387,12 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
       indicators.push('nextjs-app');
       singlePageScore += 1; // Next.js can be multi-page
     }
-    
+
     // Check for navigation complexity
     const navLinks = $('nav a, .nav a, .navigation a, header a').length;
     const footerLinks = $('footer a, .footer a').length;
     const internalLinks = $('a[href^="/"], a[href^="./"], a[href^="../"]').length;
-    
+
     if (navLinks <= 3) {
       indicators.push('minimal-navigation');
       singlePageScore += 1;
@@ -357,11 +401,11 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
       indicators.push('few-internal-links');
       singlePageScore += 1;
     }
-    
+
     // Check for traditional multi-page indicators
     const breadcrumbs = $('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"]').length;
     const pagination = $('.pagination, .pager, .page-numbers').length;
-    
+
     if (breadcrumbs > 0) {
       indicators.push('has-breadcrumbs');
       singlePageScore -= 1;
@@ -370,25 +414,26 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
       indicators.push('has-pagination');
       singlePageScore -= 1;
     }
-    
+
     // Check meta tags and title for SPA indicators
     const title = $('title').text().toLowerCase();
     const description = $('meta[name="description"]').attr('content')?.toLowerCase() || '';
-    
+
     if (title.includes('app') || description.includes('app')) {
       indicators.push('app-terminology');
       singlePageScore += 1;
     }
-    
-    console.log(`Homepage analysis for ${url}: score=${singlePageScore}, indicators=[${indicators.join(', ')}]`);
-    
+
+    console.log(
+      `Homepage analysis for ${url}: score=${singlePageScore}, indicators=[${indicators.join(', ')}]`
+    );
+
     // Be more conservative - only mark as single-page if strong indicators present
     // Require score of 4+ to avoid false positives on content-rich sites
     return {
       isSinglePage: singlePageScore >= 4,
-      indicators
+      indicators,
     };
-    
   } catch (error) {
     console.log(`Homepage analysis failed for ${url}:`, error.message);
     return { isSinglePage: false, indicators: ['analysis-failed'] };
@@ -397,43 +442,69 @@ async function analyzeHomepage(url: string): Promise<{ isSinglePage: boolean, in
 
 async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
   console.log(`Starting enhanced crawling fallback for ${baseUrl}`);
-  
+
   const discoveredUrls = new Set<string>();
   const pages: SitemapEntry[] = [];
-  
+
   // Step 1: Extract root domain for consistent URL handling
   const urlObj = new URL(baseUrl);
   const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
-  
+
   // Step 2: Crawl the homepage first to discover internal links
   try {
     const homepageUrls = await crawlPageForLinks(baseUrl, rootDomain);
-    homepageUrls.forEach(url => discoveredUrls.add(url));
+    homepageUrls.forEach((url) => discoveredUrls.add(url));
     console.log(`Discovered ${homepageUrls.length} links from homepage`);
   } catch (error) {
     console.log(`Homepage crawling failed: ${error.message}`);
   }
-  
+
   // Step 3: Try common paths
   const commonPaths = [
     '/',
-    '/docs', '/documentation', '/doc',
-    '/api', '/api-docs', '/api/docs',
-    '/guides', '/guide', '/tutorials', '/tutorial',
-    '/help', '/support', '/faq',
-    '/about', '/about-us',
-    '/getting-started', '/quickstart', '/start',
-    '/reference', '/refs',
-    '/examples', '/example', '/demos', '/demo',
-    '/blog', '/posts', '/articles',
-    '/news', '/updates',
-    '/changelog', '/releases',
-    '/roadmap', '/plans',
-    '/contact', '/contacts',
-    '/team', '/company',
-    '/pricing', '/plans',
-    '/features', '/capabilities',
-    '/download', '/downloads'
+    '/docs',
+    '/documentation',
+    '/doc',
+    '/api',
+    '/api-docs',
+    '/api/docs',
+    '/guides',
+    '/guide',
+    '/tutorials',
+    '/tutorial',
+    '/help',
+    '/support',
+    '/faq',
+    '/about',
+    '/about-us',
+    '/getting-started',
+    '/quickstart',
+    '/start',
+    '/reference',
+    '/refs',
+    '/examples',
+    '/example',
+    '/demos',
+    '/demo',
+    '/blog',
+    '/posts',
+    '/articles',
+    '/news',
+    '/updates',
+    '/changelog',
+    '/releases',
+    '/roadmap',
+    '/plans',
+    '/contact',
+    '/contacts',
+    '/team',
+    '/company',
+    '/pricing',
+    '/plans',
+    '/features',
+    '/capabilities',
+    '/download',
+    '/downloads',
   ];
 
   for (const path of commonPaths) {
@@ -442,41 +513,49 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
       discoveredUrls.add(url);
     }
   }
-  
+
   console.log(`Total URLs to check: ${discoveredUrls.size}`);
-  
+
   // Step 4: Validate discovered URLs (increased limit for better coverage)
   const maxUrlsToValidate = 500; // Increased to handle sites with many pages like calculator sites
-  const validationPromises = Array.from(discoveredUrls).slice(0, maxUrlsToValidate).map(async (url) => {
-    try {
-      // CRITICAL FIX: Use GET instead of HEAD for better compatibility
-      // Many sites block HEAD requests or return different status codes
-      const response = await fetchWithTimeout(url, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        }
-      }, 8000); // Increased timeout since GET takes longer than HEAD
+  const validationPromises = Array.from(discoveredUrls)
+    .slice(0, maxUrlsToValidate)
+    .map(async (url) => {
+      try {
+        // CRITICAL FIX: Use GET instead of HEAD for better compatibility
+        // Many sites block HEAD requests or return different status codes
+        const response = await fetchWithTimeout(
+          url,
+          {
+            method: 'GET',
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+              Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            },
+          },
+          8000
+        ); // Increased timeout since GET takes longer than HEAD
 
-      // Accept 200-299 (OK) and 206 (Partial Content) as valid responses
-      if ((response.status >= 200 && response.status < 300) || response.status === 206) {
-        return {
-          url: url,
-          lastmod: response.headers.get('last-modified') || undefined,
-          changefreq: 'weekly',
-          priority: url === baseUrl || url === rootDomain || url === `${rootDomain}/` ? '1.0' : '0.8'
-        };
+        // Accept 200-299 (OK) and 206 (Partial Content) as valid responses
+        if ((response.status >= 200 && response.status < 300) || response.status === 206) {
+          return {
+            url: url,
+            lastmod: response.headers.get('last-modified') || undefined,
+            changefreq: 'weekly',
+            priority:
+              url === baseUrl || url === rootDomain || url === `${rootDomain}/` ? '1.0' : '0.8',
+          };
+        }
+      } catch (error) {
+        // Log but ignore errors for individual pages - might be transient
+        console.log(`Failed to validate ${url}: ${error.message}`);
       }
-    } catch (error) {
-      // Log but ignore errors for individual pages - might be transient
-      console.log(`Failed to validate ${url}: ${error.message}`);
-    }
-    return null;
-  });
+      return null;
+    });
 
   const validationResults = await Promise.all(validationPromises);
-  const validPages = validationResults.filter(page => page !== null);
+  const validPages = validationResults.filter((page) => page !== null);
   pages.push(...validPages);
 
   console.log(`Enhanced crawling found ${pages.length} valid pages`);
@@ -488,10 +567,12 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
       url: baseUrl,
       lastmod: new Date().toISOString(),
       changefreq: 'weekly',
-      priority: '1.0'
+      priority: '1.0',
     });
   } else if (pages.length < 5) {
-    console.log(`WARNING: Only found ${pages.length} pages - site may have JavaScript-rendered content or access restrictions`);
+    console.log(
+      `WARNING: Only found ${pages.length} pages - site may have JavaScript-rendered content or access restrictions`
+    );
   }
 
   return pages;
@@ -499,11 +580,16 @@ async function basicCrawlFallback(baseUrl: string): Promise<SitemapEntry[]> {
 
 async function crawlPageForLinks(url: string, rootDomain: string): Promise<string[]> {
   try {
-    const response = await fetchWithTimeout(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
-    }, 10000);
+    const response = await fetchWithTimeout(
+      url,
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        },
+      },
+      10000
+    );
 
     if (!response.ok) {
       return [];
@@ -519,7 +605,7 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
       if (href) {
         try {
           let fullUrl: string;
-          
+
           if (href.startsWith('http')) {
             // Absolute URL - only include if same domain
             const linkUrl = new URL(href);
@@ -531,7 +617,13 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
           } else if (href.startsWith('/')) {
             // Relative to root
             fullUrl = `${rootDomain}${href}`;
-          } else if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:') || href.startsWith('data:')) {
+          } else if (
+            href.startsWith('#') ||
+            href.startsWith('mailto:') ||
+            href.startsWith('tel:') ||
+            href.startsWith('javascript:') ||
+            href.startsWith('data:')
+          ) {
             // Skip anchors and non-HTTP links
             return;
           } else {
@@ -539,18 +631,22 @@ async function crawlPageForLinks(url: string, rootDomain: string): Promise<strin
             const baseUrl = new URL(url);
             fullUrl = new URL(href, baseUrl.href).href;
           }
-          
+
           // Clean up URL (remove fragments, normalize)
           const cleanUrl = new URL(fullUrl);
           cleanUrl.hash = '';
           const finalUrl = cleanUrl.href;
-          
+
           // Filter out unwanted file types and paths
-          if (!finalUrl.match(/\.(jpg|jpeg|png|gif|pdf|zip|doc|docx|xls|xlsx|ppt|pptx|mp3|mp4|avi|mov)$/i) &&
-              !finalUrl.includes('/wp-admin/') &&
-              !finalUrl.includes('/admin/') &&
-              !finalUrl.includes('/login') &&
-              !finalUrl.includes('/logout')) {
+          if (
+            !finalUrl.match(
+              /\.(jpg|jpeg|png|gif|pdf|zip|doc|docx|xls|xlsx|ppt|pptx|mp3|mp4|avi|mov)$/i
+            ) &&
+            !finalUrl.includes('/wp-admin/') &&
+            !finalUrl.includes('/admin/') &&
+            !finalUrl.includes('/login') &&
+            !finalUrl.includes('/logout')
+          ) {
             links.push(finalUrl);
           }
         } catch (error) {
@@ -575,14 +671,14 @@ export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
       console.log('Received HTML instead of XML sitemap, likely a redirect');
       return [];
     }
-    
+
     const result = await parseStringPromise(xml);
     const entries: SitemapEntry[] = [];
 
     // Handle sitemap index
     if (result.sitemapindex && result.sitemapindex.sitemap) {
-      const sitemaps = Array.isArray(result.sitemapindex.sitemap) 
-        ? result.sitemapindex.sitemap 
+      const sitemaps = Array.isArray(result.sitemapindex.sitemap)
+        ? result.sitemapindex.sitemap
         : [result.sitemapindex.sitemap];
 
       for (const sitemap of sitemaps) {
@@ -602,16 +698,14 @@ export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
 
     // Handle regular sitemap
     if (result.urlset && result.urlset.url) {
-      const urls = Array.isArray(result.urlset.url) 
-        ? result.urlset.url 
-        : [result.urlset.url];
+      const urls = Array.isArray(result.urlset.url) ? result.urlset.url : [result.urlset.url];
 
       for (const url of urls) {
         entries.push({
           url: url.loc[0],
           lastmod: url.lastmod?.[0],
           changefreq: url.changefreq?.[0],
-          priority: url.priority?.[0]
+          priority: url.priority?.[0],
         });
       }
     }
@@ -628,7 +722,7 @@ export async function fetchPageContent(url: string): Promise<string> {
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   ];
 
   const maxRetries = 3;
@@ -642,30 +736,35 @@ export async function fetchPageContent(url: string): Promise<string> {
       // Progressive delay between retries (exponential backoff)
       if (attempt > 0) {
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         console.log(`Retry attempt ${attempt + 1} for ${url} after ${delay}ms delay`);
       }
 
       // Rotate user agents to appear more natural
       const userAgent = userAgents[attempt % userAgents.length];
-      
-      const response = await fetchWithTimeout(url, {
-        agent, // Use connection pool agent for HTTPS, undefined for HTTP
-        headers: {
-          'User-Agent': userAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'Sec-Fetch-Dest': 'document',
-          'Sec-Fetch-Mode': 'navigate',
-          'Sec-Fetch-Site': 'none',
-          'Sec-Fetch-User': '?1',
-          'Upgrade-Insecure-Requests': '1',
-          'Connection': 'keep-alive'
-        }
-      }, 15000); // Increased timeout to 15 seconds
+
+      const response = await fetchWithTimeout(
+        url,
+        {
+          agent, // Use connection pool agent for HTTPS, undefined for HTTP
+          headers: {
+            'User-Agent': userAgent,
+            Accept:
+              'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
+            Connection: 'keep-alive',
+          },
+        },
+        15000
+      ); // Increased timeout to 15 seconds
 
       if (!response.ok) {
         // Handle rate limiting specifically
@@ -673,31 +772,34 @@ export async function fetchPageContent(url: string): Promise<string> {
           const retryAfter = response.headers.get('retry-after');
           const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000;
           console.log(`Rate limited (429) for ${url}, waiting ${waitTime}ms before retry`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
           throw new Error(`Rate limited (HTTP ${response.status})`);
         }
-        
+
         // For other 4xx/5xx errors, still retry as they might be temporary
         throw new Error(`HTTP ${response.status}`);
       }
 
       const content = await response.text();
-      
+
       // Success - log if this was a retry or connection pool usage
       if (attempt > 0) {
-        console.log(`Successfully fetched ${url} on attempt ${attempt + 1} ${agent ? '(with connection pool)' : '(standard fetch)'}`);
+        console.log(
+          `Successfully fetched ${url} on attempt ${attempt + 1} ${agent ? '(with connection pool)' : '(standard fetch)'}`
+        );
       } else if (agent) {
         // Only log connection pool usage on first attempt to avoid spam
         const hostname = new URL(url).hostname;
         console.log(`Fetched ${hostname} using connection pool`);
       }
-      
+
       return content;
-      
     } catch (error) {
       lastError = error as Error;
-      console.log(`Fetch attempt ${attempt + 1} failed for ${url}: ${error.message} ${agent ? '(with connection pool)' : '(standard fetch)'}`);
-      
+      console.log(
+        `Fetch attempt ${attempt + 1} failed for ${url}: ${error.message} ${agent ? '(with connection pool)' : '(standard fetch)'}`
+      );
+
       // Don't retry on certain errors that won't be fixed by retrying
       if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
         break;
@@ -706,13 +808,15 @@ export async function fetchPageContent(url: string): Promise<string> {
   }
 
   // All retries failed
-  throw new Error(`Failed to fetch ${url} after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
+  throw new Error(
+    `Failed to fetch ${url} after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`
+  );
 }
 
 export function filterRelevantPages(entries: SitemapEntry[], tier?: string): SitemapEntry[] {
   // For paid tiers, use less aggressive filtering
   const isPaidTier = tier && ['coffee', 'growth', 'scale'].includes(tier);
-  
+
   const excludePatterns = [
     /\.(jpg|jpeg|png|gif|pdf|zip|xml|json|css|js|woff|woff2|ttf|eot|ico|svg)$/i,
     /\/wp-admin\//i,
@@ -737,9 +841,9 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     /\/css\//i,
     /\/js\//i,
     /\/fonts\//i,
-    /\/media\//i
+    /\/media\//i,
   ];
-  
+
   // Only apply /search/ filter for free tier
   if (!isPaidTier) {
     excludePatterns.push(/\/search/i);
@@ -776,7 +880,7 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     /\/cli/i,
     /\/quickstart/i,
     /\/overview/i,
-    /\/introduction/i
+    /\/introduction/i,
   ];
 
   const mediumPriorityPatterns = [
@@ -807,14 +911,14 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     /\/team/i,
     /\/mission/i,
     /\/vision/i,
-    /\/values/i
+    /\/values/i,
   ];
 
-  const filtered = entries.filter(entry => {
+  const filtered = entries.filter((entry) => {
     const url = entry.url.toLowerCase();
-    
+
     // Exclude unwanted patterns
-    if (excludePatterns.some(pattern => pattern.test(url))) {
+    if (excludePatterns.some((pattern) => pattern.test(url))) {
       return false;
     }
 
@@ -825,7 +929,7 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
 
     return true;
   });
-  
+
   // For paid tiers, return all filtered pages without prioritization
   if (isPaidTier) {
     console.log(`🎯 Paid tier (${tier}): returning all ${filtered.length} filtered pages`);
@@ -836,34 +940,36 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
   const isHomepage = (url: string): boolean => {
     const urlLower = url.toLowerCase();
     // Root domain or root domain with trailing slash
-    return urlLower === urlLower.match(/^https?:\/\/[^\/]+/)?.[0] || 
-           urlLower === urlLower.match(/^https?:\/\/[^\/]+/)?.[0] + '/';
+    return (
+      urlLower === urlLower.match(/^https?:\/\/[^\/]+/)?.[0] ||
+      urlLower === urlLower.match(/^https?:\/\/[^\/]+/)?.[0] + '/'
+    );
   };
-  
+
   // Sort by priority: homepage first, then high priority, then medium, then others
   const prioritized = filtered.sort((a, b) => {
     const urlA = a.url.toLowerCase();
     const urlB = b.url.toLowerCase();
-    
+
     // Homepage always comes first (highest priority)
     const isHomepageA = isHomepage(a.url);
     const isHomepageB = isHomepage(b.url);
-    
+
     if (isHomepageA && !isHomepageB) return -1;
     if (!isHomepageA && isHomepageB) return 1;
-    
-    const isHighPriorityA = highPriorityPatterns.some(pattern => pattern.test(urlA));
-    const isHighPriorityB = highPriorityPatterns.some(pattern => pattern.test(urlB));
-    
+
+    const isHighPriorityA = highPriorityPatterns.some((pattern) => pattern.test(urlA));
+    const isHighPriorityB = highPriorityPatterns.some((pattern) => pattern.test(urlB));
+
     if (isHighPriorityA && !isHighPriorityB) return -1;
     if (!isHighPriorityA && isHighPriorityB) return 1;
-    
-    const isMediumPriorityA = mediumPriorityPatterns.some(pattern => pattern.test(urlA));
-    const isMediumPriorityB = mediumPriorityPatterns.some(pattern => pattern.test(urlB));
-    
+
+    const isMediumPriorityA = mediumPriorityPatterns.some((pattern) => pattern.test(urlA));
+    const isMediumPriorityB = mediumPriorityPatterns.some((pattern) => pattern.test(urlB));
+
     if (isMediumPriorityA && !isMediumPriorityB) return -1;
     if (!isMediumPriorityA && isMediumPriorityB) return 1;
-    
+
     return 0;
   });
 
@@ -871,7 +977,7 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
 }
 
 export async function analyzeDiscoveredPages(
-  entries: SitemapEntry[], 
+  entries: SitemapEntry[],
   useAI: boolean = false,
   maxPagesLimit: number = 200,
   tier?: string
@@ -893,12 +999,12 @@ export async function analyzeDiscoveredPages(
   const batchSize = 20;
   for (let i = 0; i < pagesToAnalyze.length; i += batchSize) {
     const batch = pagesToAnalyze.slice(i, i + batchSize);
-    
+
     const batchPromises = batch.map(async (entry) => {
       try {
         const content = await fetchPageContent(entry.url);
         const analysis = await analyzePageContent(entry.url, content, useAI);
-        
+
         return {
           url: entry.url,
           title: analysis.title,
@@ -906,30 +1012,30 @@ export async function analyzeDiscoveredPages(
           qualityScore: analysis.qualityScore,
           category: analysis.category,
           lastModified: entry.lastmod,
-          success: true
+          success: true,
         };
       } catch (error) {
         console.log(`Failed to analyze ${entry.url}:`, error.message);
         return {
           url: entry.url,
-          title: "Analysis Failed",
-          description: "Unable to analyze this page",
+          title: 'Analysis Failed',
+          description: 'Unable to analyze this page',
           qualityScore: 1,
-          category: "Error",
+          category: 'Error',
           lastModified: entry.lastmod,
-          success: false
+          success: false,
         };
       }
     });
 
     const batchResults = await Promise.allSettled(batchPromises);
-    
+
     let batchFailures = 0;
     batchResults.forEach((result) => {
-      if (result.status === "fulfilled") {
+      if (result.status === 'fulfilled') {
         const { success, ...pageData } = result.value;
         pages.push(pageData);
-        
+
         if (!success) {
           batchFailures++;
           consecutiveFailures++;
@@ -941,13 +1047,15 @@ export async function analyzeDiscoveredPages(
 
     // Early exit if we detect bot protection (all pages failing)
     if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-      console.log(`Detected potential bot protection (${consecutiveFailures} consecutive failures). Stopping analysis.`);
+      console.log(
+        `Detected potential bot protection (${consecutiveFailures} consecutive failures). Stopping analysis.`
+      );
       break;
     }
 
     // Reduced delay between batches
     if (i + batchSize < pagesToAnalyze.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 

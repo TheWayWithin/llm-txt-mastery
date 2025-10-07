@@ -9,16 +9,16 @@ interface OptimizedImageProps {
   sizes?: string;
 }
 
-export function OptimizedImage({ 
-  src, 
-  alt, 
-  className = '', 
+export function OptimizedImage({
+  src,
+  alt,
+  className = '',
   loading = 'lazy',
-  sizes = '100vw' 
+  sizes = '100vw',
 }: OptimizedImageProps) {
   // Extract base name and extension
   const basename = src.replace(/\.png$/, '').replace('/images/', '/images/optimized/');
-  
+
   return (
     <picture>
       {/* AVIF for modern browsers */}
@@ -31,7 +31,7 @@ export function OptimizedImage({
         `}
         sizes={sizes}
       />
-      
+
       {/* WebP for good browser support */}
       <source
         type="image/webp"
@@ -42,7 +42,7 @@ export function OptimizedImage({
         `}
         sizes={sizes}
       />
-      
+
       {/* PNG fallback */}
       <img
         src={src}

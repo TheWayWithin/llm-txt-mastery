@@ -425,9 +425,9 @@ CREATE INDEX idx_sitemap_analysis_user ON sitemapAnalysis(user_id);
 CREATE INDEX idx_llm_files_user ON llmTextFiles(user_id);
 
 -- Add constraints for data integrity
-ALTER TABLE subscriptions ADD CONSTRAINT chk_subscription_status 
+ALTER TABLE subscriptions ADD CONSTRAINT chk_subscription_status
   CHECK (status IN ('active', 'canceled', 'past_due', 'unpaid', 'incomplete'));
-ALTER TABLE users ADD CONSTRAINT chk_subscription_tier 
+ALTER TABLE users ADD CONSTRAINT chk_subscription_tier
   CHECK (subscription_tier IN ('free', 'professional', 'enterprise'));
 ```
 
@@ -473,10 +473,7 @@ interface PremiumOptionsProps {
   userTier: SubscriptionTier;
 }
 
-const PremiumAnalysisOptions: React.FC<PremiumOptionsProps> = ({
-  onOptionsChange,
-  userTier
-}) => {
+const PremiumAnalysisOptions: React.FC<PremiumOptionsProps> = ({ onOptionsChange, userTier }) => {
   // Implementation with feature toggles, tier-based availability, upgrade prompts
 };
 
@@ -486,10 +483,7 @@ interface SubscriptionDashboardProps {
   usage: UsageDetails;
 }
 
-const SubscriptionDashboard: React.FC<SubscriptionDashboardProps> = ({
-  subscription,
-  usage
-}) => {
+const SubscriptionDashboard: React.FC<SubscriptionDashboardProps> = ({ subscription, usage }) => {
   // Implementation with usage charts, plan comparison, upgrade/downgrade options
 };
 ```
@@ -766,4 +760,3 @@ Success depends on executing the completion roadmap efficiently while maintainin
 The production deployment strategy balances cost-effectiveness with scalability requirements, enabling sustainable operations while supporting growth to significant user bases. The monitoring and success metrics provide the visibility needed to optimize performance and guide business decisions as the product scales.
 
 This completion PRD provides the comprehensive guidance needed to transform the impressive technical foundation into a successful SaaS product that serves the growing market need for AI content accessibility optimization.
-

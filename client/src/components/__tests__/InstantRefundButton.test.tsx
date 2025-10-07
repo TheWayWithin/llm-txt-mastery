@@ -10,21 +10,20 @@ const mockUser = {
   email: 'test@example.com',
   tier: 'coffee' as const,
   creditsRemaining: 5,
-  username: 'testuser'
+  username: 'testuser',
 };
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: mockUser,
-    getAccessToken: mockGetAccessToken
-  })
+    getAccessToken: mockGetAccessToken,
+  }),
 }));
 
 // Mock InstantRefundModal to avoid rendering complexity
 vi.mock('../InstantRefundModal', () => ({
-  InstantRefundModal: ({ isOpen }: { isOpen: boolean }) => (
-    isOpen ? <div data-testid="refund-modal">Mock Refund Modal</div> : null
-  )
+  InstantRefundModal: ({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? <div data-testid="refund-modal">Mock Refund Modal</div> : null,
 }));
 
 describe('InstantRefundButton', () => {
@@ -51,12 +50,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -77,12 +76,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$0.00',
       reason: 'Beyond 30-day guarantee period',
       guaranteeApplies: false,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -99,12 +98,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Beyond 30-day guarantee period',
       guaranteeApplies: false, // Key: guarantee doesn't apply
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -121,12 +120,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$9.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'growth'
+      tier: 'growth',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -156,12 +155,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -169,8 +168,8 @@ describe('InstantRefundButton', () => {
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith('/api/refund/eligibility', {
         headers: {
-          'Authorization': 'Bearer mock-token'
-        }
+          Authorization: 'Bearer mock-token',
+        },
       });
     });
   });
@@ -183,12 +182,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -213,12 +212,12 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);

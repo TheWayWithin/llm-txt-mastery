@@ -1,16 +1,15 @@
-import { DiscoveredPage, UserTier } from "@shared/schema";
-import { fetchPageContent, filterRelevantPages, SitemapEntry } from "./sitemap";
-import { analyzePageContent } from "./openai";
-import { 
-  getCachedAnalysis, 
-  hasPageChanged, 
-  cacheAnalysis, 
+import { DiscoveredPage, UserTier } from '@shared/schema';
+import { fetchPageContent, filterRelevantPages, SitemapEntry } from './sitemap';
+import { analyzePageContent } from './openai';
+import {
+  getCachedAnalysis,
+  hasPageChanged,
+  cacheAnalysis,
   generateContentHash,
   trackCacheSavings,
-  TIER_LIMITS
-} from "./cache";
-import * as cheerio from "cheerio";
-
+  TIER_LIMITS,
+} from './cache';
+import * as cheerio from 'cheerio';
 
 export interface AnalysisMetrics {
   totalPages: number;
@@ -34,7 +33,7 @@ export async function analyzeDiscoveredPagesWithCache(
   entries: SitemapEntry[],
   userEmail: string,
   tier: UserTier
-): Promise<{ pages: DiscoveredPage[], metrics: AnalysisMetrics }> {
+): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   // Add timeout protection to prevent infinite hanging during page analysis
   const PAGE_ANALYSIS_TIMEOUT = 8 * 60 * 1000; // 8 minutes maximum for page analysis
   const timeoutPromise = new Promise<never>((_, reject) => {
@@ -46,7 +45,7 @@ export async function analyzeDiscoveredPagesWithCache(
   try {
     return await Promise.race([
       performPageAnalysisWithCache(entries, userEmail, tier),
-      timeoutPromise
+      timeoutPromise,
     ]);
   } catch (error) {
     console.error('Page analysis failed or timed out:', error);
@@ -67,8 +66,8 @@ export async function analyzeDiscoveredPagesWithCache(
         costSaved: 0,
         totalTokensUsed: 0,
         actualAiCostUSD: 0,
-        modelUsed: ''
-      }
+        modelUsed: '',
+      },
     };
   }
 }
@@ -77,37 +76,41 @@ async function performPageAnalysisWithCache(
   entries: SitemapEntry[],
   userEmail: string,
   tier: UserTier
-): Promise<{ pages: DiscoveredPage[], metrics: AnalysisMetrics }> {
+): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   const relevantPages = filterRelevantPages(entries, tier);
   const tierLimits = TIER_LIMITS[tier];
-  
+
   // Enhanced logging for transparency
   const totalDiscovered = entries.length;
   const afterFiltering = relevantPages.length;
   const filteredOut = totalDiscovered - afterFiltering;
-  
+
   console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
   console.log(`   • Found ${totalDiscovered} total pages from sitemap/crawl`);
-  console.log(`   • Filtered out ${filteredOut} pages (${tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`);
+  console.log(
+    `   • Filtered out ${filteredOut} pages (${tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
+  );
   console.log(`   • ${afterFiltering} pages passed filter`);
   console.log(`   • Tier limit: ${tierLimits.maxPagesPerAnalysis} pages max`);
-  
+
   // Log sample of filtered URLs for debugging
   if (filteredOut > 0 && entries.length <= 50) {
     const filteredUrls = entries
-      .filter(e => !relevantPages.includes(e))
+      .filter((e) => !relevantPages.includes(e))
       .slice(0, 5)
-      .map(e => e.url);
+      .map((e) => e.url);
     console.log(`   • Sample filtered URLs:`, filteredUrls);
   }
-  
+
   // Apply tier-based page limit (bypass in development)
   let pagesToAnalyze: SitemapEntry[];
-  
+
   if (process.env.NODE_ENV === 'development') {
     // Development mode: analyze all relevant pages (no tier limits)
     pagesToAnalyze = relevantPages;
-    console.log(`🚀 [DEV MODE] Analyzing ALL ${pagesToAnalyze.length} pages - bypassing tier limit of ${tierLimits.maxPagesPerAnalysis}`);
+    console.log(
+      `🚀 [DEV MODE] Analyzing ALL ${pagesToAnalyze.length} pages - bypassing tier limit of ${tierLimits.maxPagesPerAnalysis}`
+    );
   } else {
     // Production mode: respect tier limits
     // IMPORTANT: Analyze 25% extra pages to account for post-analysis filtering
@@ -116,18 +119,22 @@ async function performPageAnalysisWithCache(
     const pagesWithBuffer = Math.ceil(tierLimits.maxPagesPerAnalysis * bufferMultiplier);
     const maxPages = Math.min(pagesWithBuffer, relevantPages.length);
     pagesToAnalyze = relevantPages.slice(0, maxPages);
-    
-    console.log(`   • 🎯 ANALYZING: ${pagesToAnalyze.length} pages (includes buffer for post-filtering)`);
+
+    console.log(
+      `   • 🎯 ANALYZING: ${pagesToAnalyze.length} pages (includes buffer for post-filtering)`
+    );
     console.log(`   • 📋 TARGET: ${tierLimits.maxPagesPerAnalysis} pages after deduplication`);
-    
+
     if (afterFiltering > maxPages) {
       const tierLimited = afterFiltering - maxPages;
-      console.log(`   • ⚠️ Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages available beyond buffer)`);
+      console.log(
+        `   • ⚠️ Tier limit applied: analyzing ${maxPages} pages (${tierLimited} pages available beyond buffer)`
+      );
     } else {
       console.log(`   • ✅ Within limit: analyzing all ${pagesToAnalyze.length} pages`);
     }
   }
-  
+
   const pages: DiscoveredPage[] = [];
   const startTime = Date.now();
   const metrics: AnalysisMetrics = {
@@ -144,35 +151,39 @@ async function performPageAnalysisWithCache(
     costSaved: 0,
     totalTokensUsed: 0,
     actualAiCostUSD: 0,
-    modelUsed: ''
+    modelUsed: '',
   };
-  
+
   // Track consecutive failures for bot protection
   let consecutiveFailures = 0;
   let totalAttempts = 0;
   const MAX_CONSECUTIVE_FAILURES = Math.max(25, Math.floor(pagesToAnalyze.length * 0.3)); // At least 25, or 30% of total pages
-  
-  console.log(`🛡️ Bot protection threshold: ${MAX_CONSECUTIVE_FAILURES} consecutive failures (${pagesToAnalyze.length} total pages to analyze)`);
-  
+
+  console.log(
+    `🛡️ Bot protection threshold: ${MAX_CONSECUTIVE_FAILURES} consecutive failures (${pagesToAnalyze.length} total pages to analyze)`
+  );
+
   // Process pages in batches
   const BATCH_SIZE = 20;
   const CONCURRENT_BATCHES = 2;
-  
+
   for (let i = 0; i < pagesToAnalyze.length; i += BATCH_SIZE * CONCURRENT_BATCHES) {
     const batchPromises = [];
-    
+
     // Create concurrent batches
     for (let j = 0; j < CONCURRENT_BATCHES && i + j * BATCH_SIZE < pagesToAnalyze.length; j++) {
       const batchStart = i + j * BATCH_SIZE;
       const batchEnd = Math.min(batchStart + BATCH_SIZE, pagesToAnalyze.length);
       const batch = pagesToAnalyze.slice(batchStart, batchEnd);
-      
-      batchPromises.push(processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics));
+
+      batchPromises.push(
+        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics)
+      );
     }
-    
+
     // Wait for all concurrent batches to complete
     const batchResults = await Promise.all(batchPromises);
-    
+
     // Collect results and check for failures
     for (const batchResult of batchResults) {
       for (const result of batchResult) {
@@ -185,42 +196,50 @@ async function performPageAnalysisWithCache(
         }
       }
     }
-    
+
     // Enhanced bot protection detection with success rate analysis
     const successRate = totalAttempts > 0 ? (pages.length / totalAttempts) * 100 : 0;
     const shouldStopDueToConsecutiveFailures = consecutiveFailures >= MAX_CONSECUTIVE_FAILURES;
     const shouldStopDueToLowSuccessRate = totalAttempts >= 50 && successRate < 5; // Less than 5% success after 50 attempts
-    
+
     if (shouldStopDueToConsecutiveFailures || shouldStopDueToLowSuccessRate) {
-      const reason = shouldStopDueToConsecutiveFailures ? 'consecutive failures' : 'low success rate';
+      const reason = shouldStopDueToConsecutiveFailures
+        ? 'consecutive failures'
+        : 'low success rate';
       console.log(`⚠️ Bot protection detected (${reason}). Stopping analysis early.`);
       console.log(`   • Successfully analyzed: ${pages.length} pages`);
       console.log(`   • Total attempts: ${totalAttempts}`);
       console.log(`   • Success rate: ${successRate.toFixed(1)}%`);
       console.log(`   • Consecutive failures: ${consecutiveFailures}/${MAX_CONSECUTIVE_FAILURES}`);
-      console.log(`   • Progress: ${i + BATCH_SIZE * CONCURRENT_BATCHES}/${pagesToAnalyze.length} pages attempted`);
-      console.log(`   • Remaining: ${pagesToAnalyze.length - (i + BATCH_SIZE * CONCURRENT_BATCHES)} pages`);
-      
+      console.log(
+        `   • Progress: ${i + BATCH_SIZE * CONCURRENT_BATCHES}/${pagesToAnalyze.length} pages attempted`
+      );
+      console.log(
+        `   • Remaining: ${pagesToAnalyze.length - (i + BATCH_SIZE * CONCURRENT_BATCHES)} pages`
+      );
+
       // If we have some successful pages, continue with what we have
       if (pages.length > 0) {
         console.log(`   • ✅ Proceeding with ${pages.length} successfully analyzed pages`);
       } else {
-        console.log(`   • ❌ No pages successfully analyzed - likely site has bot protection or connectivity issues`);
+        console.log(
+          `   • ❌ No pages successfully analyzed - likely site has bot protection or connectivity issues`
+        );
       }
       break;
     }
-    
+
     // Brief delay between batch groups
     if (i + BATCH_SIZE * CONCURRENT_BATCHES < pagesToAnalyze.length) {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
   }
-  
+
   // Track cache savings
   if (metrics.cachedPages > 0) {
     await trackCacheSavings(userEmail, metrics.cachedPages, tier);
   }
-  
+
   // Apply smart deduplication and filtering
   const { uniquePages, duplicatesRemoved } = await import('./link-utils').then(
     ({ deduplicateAndFilterPages, removeAffiliateAndLowValueLinks }) => {
@@ -230,42 +249,50 @@ async function performPageAnalysisWithCache(
       return deduplicateAndFilterPages(cleanedPages);
     }
   );
-  
+
   // Enhanced final analysis summary
   const finalAnalyzed = uniquePages.length;
   const totalAttempted = pagesToAnalyze.length;
   const skippedPages = totalAttempted - pages.length;
   const postFilteringRemoved = pages.length - finalAnalyzed;
-  
+
   console.log(`📈 Analysis Complete for ${userEmail}:`);
   console.log(`   • Successfully analyzed: ${finalAnalyzed} pages`);
   if (skippedPages > 0) {
-    console.log(`   • Skipped during analysis: ${skippedPages} pages (bot protection, errors, timeouts)`);
+    console.log(
+      `   • Skipped during analysis: ${skippedPages} pages (bot protection, errors, timeouts)`
+    );
   }
   if (postFilteringRemoved > 0) {
-    console.log(`   • Removed post-analysis: ${postFilteringRemoved} pages (duplicates, low-value content)`);
+    console.log(
+      `   • Removed post-analysis: ${postFilteringRemoved} pages (duplicates, low-value content)`
+    );
   }
   console.log(`   • Processing time: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
-  console.log(`   • Cache hits: ${metrics.cachedPages}, AI calls: ${metrics.aiCallsUsed}, HTML extractions: ${metrics.htmlExtractionsUsed}`);
-  
+  console.log(
+    `   • Cache hits: ${metrics.cachedPages}, AI calls: ${metrics.aiCallsUsed}, HTML extractions: ${metrics.htmlExtractionsUsed}`
+  );
+
   // Sort by quality score
   uniquePages.sort((a, b) => b.qualityScore - a.qualityScore);
-  
+
   // IMPORTANT: Enforce the exact tier limit on final output
   // We analyzed extra pages with buffer, now trim to exact limit
   const finalPages = uniquePages.slice(0, tierLimits.maxPagesPerAnalysis);
-  
+
   if (uniquePages.length > finalPages.length) {
     const trimmedCount = uniquePages.length - finalPages.length;
-    console.log(`   • 🎯 Final trim: Keeping top ${finalPages.length} pages (removed ${trimmedCount} lowest quality)`);
+    console.log(
+      `   • 🎯 Final trim: Keeping top ${finalPages.length} pages (removed ${trimmedCount} lowest quality)`
+    );
   }
-  
+
   // Update final metrics
   metrics.processingTime = (Date.now() - startTime) / 1000;
   metrics.cacheHit = metrics.cachedPages > 0;
   metrics.apiCalls = metrics.aiCallsUsed + metrics.htmlExtractionsUsed;
   metrics.costSaved = metrics.timeSaved * 0.01; // Rough estimate
-  
+
   return { pages: finalPages, metrics };
 }
 
@@ -275,20 +302,20 @@ async function processBatchWithCache(
   tier: UserTier,
   aiPagesLimit: number,
   metrics: AnalysisMetrics
-): Promise<Array<{ page: DiscoveredPage, success: boolean }>> {
+): Promise<Array<{ page: DiscoveredPage; success: boolean }>> {
   const results = [];
-  
+
   for (const entry of batch) {
     try {
       const startTime = Date.now();
-      
+
       // Check cache first
       const cached = await getCachedAnalysis(entry.url, tier);
-      
+
       if (cached && cached.expiresAt > new Date()) {
         // Check if content has changed
         const changed = await hasPageChanged(entry.url, cached);
-        
+
         if (!changed) {
           // Use cached result - it's already parsed from jsonb
           const analysisResult = cached.analysisResult;
@@ -299,47 +326,47 @@ async function processBatchWithCache(
               ...pageData,
               url: entry.url,
               lastModified: entry.lastmod,
-              cached: true
+              cached: true,
             },
-            success: true
+            success: true,
           });
-          
+
           metrics.cachedPages++;
           metrics.timeSaved += 3; // Average 3 seconds saved per cached page
           continue;
         }
       }
-      
+
       // Fetch and analyze content
       const content = await fetchPageContent(entry.url);
       const contentHash = generateContentHash(content);
-      
+
       // Extract HTTP caching headers
       const $ = cheerio.load(content);
       const lastModified = $('meta[http-equiv="last-modified"]').attr('content');
       const etag = $('meta[name="etag"]').attr('content');
-      
+
       // Determine if we should use AI based on tier, current usage, and cost caps
       // First check basic conditions
       let shouldUseAI = !!process.env.OPENAI_API_KEY && metrics.aiCallsUsed < aiPagesLimit;
-      
+
       // Then check cost caps if AI would be used
       if (shouldUseAI && tier !== 'starter') {
         // Import checkAiCostCap dynamically to avoid circular dependency
         const { checkAiCostCap } = await import('./usage');
         const costCheck = await checkAiCostCap(userEmail, tier);
-        
+
         if (!costCheck.allowed) {
           console.log(`💰 [AI COST CAP] AI disabled for ${userEmail}: ${costCheck.reason}`);
           shouldUseAI = false;
         }
-        
+
         // Store if cap would trigger for tracking
         if (costCheck.wouldTrigger) {
           metrics['costCapWouldTrigger'] = true;
         }
       }
-      
+
       // Debug logging for AI usage
       console.log(`[AI DECISION] For ${entry.url}:`);
       console.log(`  - Tier: ${tier}`);
@@ -347,10 +374,10 @@ async function processBatchWithCache(
       console.log(`  - aiPagesLimit: ${aiPagesLimit}`);
       console.log(`  - metrics.aiCallsUsed: ${metrics.aiCallsUsed}`);
       console.log(`  - shouldUseAI: ${shouldUseAI}`);
-      
+
       // Analyze the page
       const analysis = await analyzePageContent(entry.url, content, shouldUseAI);
-      
+
       // Update metrics
       metrics.analyzedPages++;
       if (shouldUseAI) {
@@ -372,28 +399,20 @@ async function processBatchWithCache(
         metrics.htmlExtractionsUsed++;
         metrics.estimatedCost += 0.001; // Basic processing cost
       }
-      
+
       const page: DiscoveredPage = {
         url: entry.url,
         title: analysis.title,
         description: analysis.description,
         qualityScore: analysis.qualityScore,
         category: analysis.category,
-        lastModified: entry.lastmod
+        lastModified: entry.lastmod,
       };
-      
+
       // Cache the result
-      await cacheAnalysis(
-        entry.url,
-        [page],
-        tier,
-        contentHash,
-        lastModified,
-        etag
-      );
-      
+      await cacheAnalysis(entry.url, [page], tier, contentHash, lastModified, etag);
+
       results.push({ page, success: true });
-      
     } catch (error) {
       console.error(`🚨 ANALYSIS FAILURE for ${entry.url}:`, {
         error: error.message,
@@ -401,42 +420,45 @@ async function processBatchWithCache(
         type: error.constructor.name,
         url: entry.url,
         userEmail,
-        tier
+        tier,
       });
-      
+
       // Try one more time with basic HTML extraction only (no AI analysis)
       try {
         console.log(`🔄 Attempting fallback HTML extraction for ${entry.url}`);
         const content = await fetchPageContent(entry.url);
         const analysis = await analyzePageContent(entry.url, content, false); // Force HTML analysis only
-        
+
         const page: DiscoveredPage = {
           url: entry.url,
           title: analysis.title,
           description: analysis.description,
           qualityScore: analysis.qualityScore,
           category: analysis.category,
-          lastModified: entry.lastmod
+          lastModified: entry.lastmod,
         };
-        
+
         results.push({ page, success: true });
         metrics.htmlExtractionsUsed++;
         metrics.analyzedPages++;
-        
+
         console.log(`✅ Fallback HTML extraction succeeded for ${entry.url}`);
       } catch (fallbackError) {
-        console.error(`❌ Even fallback HTML extraction failed for ${entry.url}:`, fallbackError.message);
+        console.error(
+          `❌ Even fallback HTML extraction failed for ${entry.url}:`,
+          fallbackError.message
+        );
         // Only now mark as failure - this allows real bot protection detection
         results.push({ page: null as any, success: false });
       }
     }
   }
-  
+
   return results;
 }
 
 // Export the db import for cache cleanup
-import { db } from "../db";
+import { db } from '../db';
 
 // Periodic cache cleanup job
 export async function runCacheCleanup(): Promise<void> {
@@ -446,7 +468,7 @@ export async function runCacheCleanup(): Promise<void> {
       WHERE expires_at < NOW()
       RETURNING id, url
     `);
-    
+
     if (result.rows && result.rows.length > 0) {
       console.log(`Cleaned up ${result.rows.length} expired cache entries`);
     }

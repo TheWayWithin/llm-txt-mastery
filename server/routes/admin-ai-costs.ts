@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { db } from "../db";
-import { usageTracking, emailCaptures, users } from "@shared/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
-import { getMonthlyAiCost } from "../services/usage";
+import { Router } from 'express';
+import { db } from '../db';
+import { usageTracking, emailCaptures, users } from '@shared/schema';
+import { eq, and, desc, sql } from 'drizzle-orm';
+import { getMonthlyAiCost } from '../services/usage';
 
 const router = Router();
 
@@ -24,7 +24,7 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
     monthStart.setDate(1);
     monthStart.setHours(0, 0, 0, 0);
     const monthStartStr = monthStart.toISOString().split('T')[0];
-    
+
     // Get monthly summary
     const summary = await db.execute(sql`
       SELECT 
@@ -41,7 +41,7 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
       GROUP BY ec.tier
       ORDER BY total_ai_cost_usd DESC
     `);
-    
+
     // Get overall stats
     const overallStats = await db.execute(sql`
       SELECT 
@@ -52,7 +52,7 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
       FROM usage_tracking
       WHERE date >= ${monthStartStr}
     `);
-    
+
     // Get top spenders
     const topSpenders = await db.execute(sql`
       SELECT 
@@ -70,7 +70,7 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
       ORDER BY total_cost DESC
       LIMIT 10
     `);
-    
+
     res.json({
       month: monthStart.toISOString().substring(0, 7),
       overall: overallStats.rows[0] || {},
@@ -79,8 +79,8 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
       costCapsEnabled: process.env.ENABLE_AI_COST_CAPS === 'true',
       budgets: {
         growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
-        scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00')
-      }
+        scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00'),
+      },
     });
   } catch (error) {
     console.error('Error getting AI cost summary:', error);
@@ -92,29 +92,29 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
 router.get('/ai-costs/user/:email', requireAdmin, async (req, res) => {
   try {
     const { email } = req.params;
-    
+
     // Get user and tier
     const emailCapture = await db
       .select()
       .from(emailCaptures)
       .where(eq(emailCaptures.email, email))
       .limit(1);
-    
+
     if (!emailCapture[0]) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     const userId = emailCapture[0].userId;
     const tier = emailCapture[0].tier;
-    
+
     // Get monthly costs
     const monthlyCosts = await getMonthlyAiCost(email);
-    
+
     // Get daily breakdown for current month
     const monthStart = new Date();
     monthStart.setDate(1);
     const monthStartStr = monthStart.toISOString().split('T')[0];
-    
+
     const dailyBreakdown = await db
       .select({
         date: usageTracking.date,
@@ -123,26 +123,23 @@ router.get('/ai-costs/user/:email', requireAdmin, async (req, res) => {
         actualTokensUsed: usageTracking.actualTokensUsed,
         actualAiCost: usageTracking.actualAiCost,
         modelUsed: usageTracking.modelUsed,
-        costCapWouldTrigger: usageTracking.costCapWouldTrigger
+        costCapWouldTrigger: usageTracking.costCapWouldTrigger,
       })
       .from(usageTracking)
-      .where(and(
-        eq(usageTracking.userId, userId!),
-        sql`${usageTracking.date} >= ${monthStartStr}`
-      ))
+      .where(and(eq(usageTracking.userId, userId!), sql`${usageTracking.date} >= ${monthStartStr}`))
       .orderBy(desc(usageTracking.date));
-    
+
     // Calculate budget status
     const monthlyBudgets = {
       starter: 0,
-      coffee: 3.00,
+      coffee: 3.0,
       growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
-      scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00')
+      scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00'),
     };
-    
+
     const budget = monthlyBudgets[tier as keyof typeof monthlyBudgets];
     const percentUsed = budget > 0 ? (monthlyCosts.monthlyTotal / budget) * 100 : 0;
-    
+
     res.json({
       email,
       tier,
@@ -152,17 +149,17 @@ router.get('/ai-costs/user/:email', requireAdmin, async (req, res) => {
         dailyAverage: monthlyCosts.dailyAverage,
         tokensUsed: monthlyCosts.tokensUsed,
         daysActive: monthlyCosts.daysActive,
-        percentOfBudget: percentUsed
+        percentOfBudget: percentUsed,
       },
-      dailyBreakdown: dailyBreakdown.map(day => ({
+      dailyBreakdown: dailyBreakdown.map((day) => ({
         ...day,
-        actualAiCostUSD: (day.actualAiCost || 0) / 100
+        actualAiCostUSD: (day.actualAiCost || 0) / 100,
       })),
       warnings: {
         approachingLimit: percentUsed >= 70,
         wouldTriggerCap: monthlyCosts.monthlyTotal >= budget,
-        costCapsEnabled: process.env.ENABLE_AI_COST_CAPS === 'true'
-      }
+        costCapsEnabled: process.env.ENABLE_AI_COST_CAPS === 'true',
+      },
     });
   } catch (error) {
     console.error('Error getting user AI costs:', error);
@@ -173,12 +170,12 @@ router.get('/ai-costs/user/:email', requireAdmin, async (req, res) => {
 // Simulation endpoint - what would happen if caps were enabled
 router.post('/ai-costs/simulation', requireAdmin, async (req, res) => {
   try {
-    const { enableCaps = true, growthBudget = 8.00, scaleBudget = 16.00 } = req.body;
-    
+    const { enableCaps = true, growthBudget = 8.0, scaleBudget = 16.0 } = req.body;
+
     const monthStart = new Date();
     monthStart.setDate(1);
     const monthStartStr = monthStart.toISOString().split('T')[0];
-    
+
     // Simulate impact
     const simulation = await db.execute(sql`
       WITH monthly_costs AS (
@@ -209,16 +206,16 @@ router.post('/ai-costs/simulation', requireAdmin, async (req, res) => {
       WHERE tier IN ('growth', 'scale')
       GROUP BY tier
     `);
-    
+
     res.json({
       simulation: {
         enabled: enableCaps,
         budgets: { growth: growthBudget, scale: scaleBudget },
         impact: simulation.rows,
-        recommendation: simulation.rows.some((r: any) => r.users_affected > 0) 
+        recommendation: simulation.rows.some((r: any) => r.users_affected > 0)
           ? 'Some users would be affected. Consider gradual rollout or user notifications.'
-          : 'No users currently exceed proposed budgets. Safe to enable.'
-      }
+          : 'No users currently exceed proposed budgets. Safe to enable.',
+      },
     });
   } catch (error) {
     console.error('Error running simulation:', error);

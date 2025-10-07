@@ -33,13 +33,13 @@ router.get('/api/simple-usage/:email', async (req, res) => {
   try {
     const email = req.params.email.toLowerCase();
     const today = new Date().toISOString().split('T')[0];
-    
+
     console.log(`📊 [SIMPLE-USAGE] Checking usage for ${email} on ${today}`);
-    
+
     // First, check auth_users table for tier and credits
     let actualTier = 'starter';
     let creditsRemaining: number | undefined;
-    
+
     try {
       const authUser = await authStorage.getUserByEmail(email);
       if (authUser) {
@@ -52,7 +52,7 @@ router.get('/api/simple-usage/:email', async (req, res) => {
     } catch (authError) {
       console.warn(`[SIMPLE-USAGE] Could not fetch auth user for ${email}:`, authError);
     }
-    
+
     // Get or create today's usage record (use actual tier from auth_users)
     const result = await db.execute(sql`
       INSERT INTO simple_usage (email, date, count, tier)
@@ -63,33 +63,35 @@ router.get('/api/simple-usage/:email', async (req, res) => {
         tier = ${actualTier}  -- Update tier to match auth_users
       RETURNING *
     `);
-    
+
     const usage = result.rows[0];
-    
+
     // Determine tier limits
     const tierLimits = {
       starter: 3,
       coffee: 999,
       growth: 999,
-      scale: 999
+      scale: 999,
     };
-    
+
     const response: any = {
       tier: actualTier, // Use tier from auth_users, not simple_usage
       usage: {
-        analysesToday: usage.count || 0
+        analysesToday: usage.count || 0,
       },
       limits: {
-        dailyAnalyses: tierLimits[actualTier] || 3
-      }
+        dailyAnalyses: tierLimits[actualTier] || 3,
+      },
     };
-    
+
     // Add credits for Coffee tier users
     if (actualTier === 'coffee' && creditsRemaining !== undefined) {
       response.creditsRemaining = creditsRemaining;
     }
-    
-    console.log(`✅ [SIMPLE-USAGE] ${email}: ${response.usage.analysesToday}/${response.limits.dailyAnalyses}${creditsRemaining !== undefined ? ` (${creditsRemaining} credits)` : ''}`);
+
+    console.log(
+      `✅ [SIMPLE-USAGE] ${email}: ${response.usage.analysesToday}/${response.limits.dailyAnalyses}${creditsRemaining !== undefined ? ` (${creditsRemaining} credits)` : ''}`
+    );
     res.json(response);
   } catch (error) {
     console.error('[SIMPLE-USAGE] Error:', error);
@@ -97,7 +99,7 @@ router.get('/api/simple-usage/:email', async (req, res) => {
     res.json({
       tier: 'starter',
       usage: { analysesToday: 0 },
-      limits: { dailyAnalyses: 3 }
+      limits: { dailyAnalyses: 3 },
     });
   }
 });
@@ -109,12 +111,12 @@ router.post('/api/simple-usage/track', async (req, res) => {
     if (!email) {
       return res.status(400).json({ error: 'Email required' });
     }
-    
+
     const normalizedEmail = email.toLowerCase();
     const today = new Date().toISOString().split('T')[0];
-    
+
     console.log(`📈 [SIMPLE-USAGE] Incrementing usage for ${normalizedEmail} (tier: ${tier})`);
-    
+
     // Increment the counter and update tier
     const result = await db.execute(sql`
       INSERT INTO simple_usage (email, date, count, tier)
@@ -125,14 +127,16 @@ router.post('/api/simple-usage/track', async (req, res) => {
         tier = ${tier}
       RETURNING *
     `);
-    
+
     const usage = result.rows[0];
-    console.log(`✅ [SIMPLE-USAGE] ${normalizedEmail} now at ${usage.count} analyses today (tier: ${usage.tier})`);
-    
+    console.log(
+      `✅ [SIMPLE-USAGE] ${normalizedEmail} now at ${usage.count} analyses today (tier: ${usage.tier})`
+    );
+
     res.json({
       success: true,
       count: usage.count,
-      tier: usage.tier
+      tier: usage.tier,
     });
   } catch (error) {
     console.error('[SIMPLE-USAGE] Track error:', error);

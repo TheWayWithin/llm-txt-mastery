@@ -1,10 +1,10 @@
 /**
  * GET USER TIER VALIDATION TESTS
- * 
+ *
  * These tests validate that getUserTier() function returns the correct tier
  * after webhook processing updates the emailCaptures table. This is the
  * CRITICAL function that determines user permissions and revenue protection.
- * 
+ *
  * THE CORE ISSUE: When webhooks only updated userProfiles but not emailCaptures,
  * getUserTier() would read from emailCaptures and return outdated tier information.
  */
@@ -49,11 +49,11 @@ const mockStorage: IStorage = {
   consumeCredit: vi.fn(),
   deleteAnalysesForUser: vi.fn(),
   deleteLlmFilesForUser: vi.fn(),
-  deleteUsageForUser: vi.fn()
+  deleteUsageForUser: vi.fn(),
 };
 
 vi.mock('../../server/storage', () => ({
-  storage: mockStorage
+  storage: mockStorage,
 }));
 
 describe('getUserTier() Validation After Webhook Processing', () => {
@@ -71,7 +71,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'coffee', // Updated by webhook
         websiteUrl: 'https://test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(updatedEmailCapture);
@@ -93,7 +93,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'coffee',
         websiteUrl: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(coffeeCapture);
@@ -120,7 +120,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'growth', // Updated by subscription webhook
         websiteUrl: 'https://growth-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(growthCapture);
@@ -143,7 +143,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'starter',
         websiteUrl: 'https://progression-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(currentCapture);
@@ -172,7 +172,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'scale',
         websiteUrl: 'https://scale-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(scaleCapture);
@@ -195,7 +195,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'growth',
         websiteUrl: 'https://upgrade-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(currentCapture);
@@ -224,7 +224,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'starter', // Downgraded by cancellation webhook
         websiteUrl: 'https://cancelled-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(downgradedCapture);
@@ -247,7 +247,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'starter',
         websiteUrl: 'https://lifecycle-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(currentCapture);
@@ -284,7 +284,9 @@ describe('getUserTier() Validation After Webhook Processing', () => {
     it('should return starter tier when database query fails', async () => {
       // Arrange - Database error scenario
       const testEmail = 'db-error@example.com';
-      (mockStorage.getEmailCapture as Mock).mockRejectedValue(new Error('Database connection failed'));
+      (mockStorage.getEmailCapture as Mock).mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       // Act
       const tier = await getUserTier(testEmail);
@@ -302,7 +304,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: null, // Invalid tier value
         websiteUrl: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(malformedCapture);
@@ -336,7 +338,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
       const scenarios = [
         { email: 'coffee-user@example.com', expectedTier: 'coffee' },
         { email: 'growth-user@example.com', expectedTier: 'growth' },
-        { email: 'scale-user@example.com', expectedTier: 'scale' }
+        { email: 'scale-user@example.com', expectedTier: 'scale' },
       ];
 
       for (const scenario of scenarios) {
@@ -347,7 +349,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
           tier: scenario.expectedTier,
           websiteUrl: 'https://paid-user-test.com',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
 
         (mockStorage.getEmailCapture as Mock).mockResolvedValue(paidCapture);
@@ -370,7 +372,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'growth',
         websiteUrl: 'https://persistent-test.com',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(persistentCapture);
@@ -393,7 +395,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
         tier: 'coffee',
         websiteUrl: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue(emailCapture);
@@ -412,7 +414,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
       const authUser = {
         id: 'auth_123',
         email: testEmail,
-        tier: 'scale' as const
+        tier: 'scale' as const,
       };
 
       // Act - Auth user provided, should use auth tier

@@ -18,7 +18,7 @@ const demoAnalyses = [
         description: 'This domain is for use in illustrative examples in documents.',
         qualityScore: 0.85,
         category: 'informational',
-        lastModified: '2024-01-15T10:00:00Z'
+        lastModified: '2024-01-15T10:00:00Z',
       },
       {
         url: 'https://example.com/about',
@@ -26,7 +26,7 @@ const demoAnalyses = [
         description: 'Learn more about this example domain and its purpose.',
         qualityScore: 0.72,
         category: 'about',
-        lastModified: '2024-01-15T09:30:00Z'
+        lastModified: '2024-01-15T09:30:00Z',
       },
       {
         url: 'https://example.com/contact',
@@ -34,8 +34,8 @@ const demoAnalyses = [
         description: 'Get in touch with the Example domain team.',
         qualityScore: 0.68,
         category: 'contact',
-        lastModified: '2024-01-15T09:45:00Z'
-      }
+        lastModified: '2024-01-15T09:45:00Z',
+      },
     ] as DiscoveredPage[],
     analysisMetadata: {
       siteType: 'multi-page' as const,
@@ -53,10 +53,10 @@ const demoAnalyses = [
         analyzedPages: 3,
         cachedPages: 0,
         aiCallsUsed: 3,
-        htmlExtractionsUsed: 0
+        htmlExtractionsUsed: 0,
       },
-      processingTime: 2500
-    }
+      processingTime: 2500,
+    },
   },
   {
     url: 'https://demo-site.com',
@@ -68,7 +68,7 @@ const demoAnalyses = [
         description: 'Welcome to our demonstration website showcasing various features.',
         qualityScore: 0.92,
         category: 'homepage',
-        lastModified: '2024-01-20T14:30:00Z'
+        lastModified: '2024-01-20T14:30:00Z',
       },
       {
         url: 'https://demo-site.com/features',
@@ -76,7 +76,7 @@ const demoAnalyses = [
         description: 'Comprehensive overview of all available features and capabilities.',
         qualityScore: 0.88,
         category: 'features',
-        lastModified: '2024-01-20T14:00:00Z'
+        lastModified: '2024-01-20T14:00:00Z',
       },
       {
         url: 'https://demo-site.com/documentation',
@@ -84,7 +84,7 @@ const demoAnalyses = [
         description: 'Complete documentation for developers and users.',
         qualityScore: 0.95,
         category: 'documentation',
-        lastModified: '2024-01-20T13:45:00Z'
+        lastModified: '2024-01-20T13:45:00Z',
       },
       {
         url: 'https://demo-site.com/api-reference',
@@ -92,7 +92,7 @@ const demoAnalyses = [
         description: 'Detailed API documentation with examples and usage guides.',
         qualityScore: 0.91,
         category: 'documentation',
-        lastModified: '2024-01-20T13:30:00Z'
+        lastModified: '2024-01-20T13:30:00Z',
       },
       {
         url: 'https://demo-site.com/blog',
@@ -100,8 +100,8 @@ const demoAnalyses = [
         description: 'Latest updates, insights, and technical articles from our team.',
         qualityScore: 0.78,
         category: 'blog',
-        lastModified: '2024-01-20T12:00:00Z'
-      }
+        lastModified: '2024-01-20T12:00:00Z',
+      },
     ] as DiscoveredPage[],
     analysisMetadata: {
       siteType: 'multi-page' as const,
@@ -119,11 +119,11 @@ const demoAnalyses = [
         analyzedPages: 5,
         cachedPages: 0,
         aiCallsUsed: 5,
-        htmlExtractionsUsed: 0
+        htmlExtractionsUsed: 0,
       },
-      processingTime: 4200
-    }
-  }
+      processingTime: 4200,
+    },
+  },
 ];
 
 /**
@@ -136,7 +136,7 @@ export async function ensureDemoData(): Promise<void> {
 
     // Check if demo data already exists
     const existingAnalyses = await authStorage.getUserAnalyses(DEMO_USER_EMAIL);
-    
+
     if (existingAnalyses.length > 0) {
       console.log(`✅ Demo data already exists (${existingAnalyses.length} analyses found)`);
       return;
@@ -152,7 +152,7 @@ export async function ensureDemoData(): Promise<void> {
           userId: DEMO_USER_ID,
           email: DEMO_USER_EMAIL,
           websiteUrl: 'https://example.com',
-          tier: 'coffee'
+          tier: 'coffee',
         });
         console.log(`  ✅ Created email capture for demo user`);
       }
@@ -162,7 +162,7 @@ export async function ensureDemoData(): Promise<void> {
 
     // Create demo analyses
     const createdAnalyses = [];
-    
+
     for (const demoAnalysis of demoAnalyses) {
       try {
         const analysis = await storage.createAnalysis({
@@ -171,9 +171,9 @@ export async function ensureDemoData(): Promise<void> {
           sitemapContent: null,
           discoveredPages: demoAnalysis.discoveredPages,
           status: demoAnalysis.status,
-          analysisMetadata: demoAnalysis.analysisMetadata
+          analysisMetadata: demoAnalysis.analysisMetadata,
         });
-        
+
         createdAnalyses.push(analysis);
         console.log(`  ✅ Created analysis for ${demoAnalysis.url} (ID: ${analysis.id})`);
       } catch (error) {
@@ -184,26 +184,27 @@ export async function ensureDemoData(): Promise<void> {
     // Create demo LLM.txt file for the first analysis (example.com)
     if (createdAnalyses.length > 0) {
       const firstAnalysis = createdAnalyses[0];
-      
+
       try {
-        const selectedPages = firstAnalysis.discoveredPages?.map(page => ({
-          url: page.url,
-          title: page.title,
-          description: page.description,
-          selected: page.qualityScore > 0.7, // Select high-quality pages
-          category: page.category,
-          qualityScore: page.qualityScore
-        })) || [];
+        const selectedPages =
+          firstAnalysis.discoveredPages?.map((page) => ({
+            url: page.url,
+            title: page.title,
+            description: page.description,
+            selected: page.qualityScore > 0.7, // Select high-quality pages
+            category: page.category,
+            qualityScore: page.qualityScore,
+          })) || [];
 
         const llmFileContent = generateLLMFileContent(firstAnalysis.url, selectedPages);
-        
+
         const llmFile = await storage.createLlmFile({
           userId: DEMO_USER_ID,
           analysisId: firstAnalysis.id,
           selectedPages,
-          content: llmFileContent
+          content: llmFileContent,
         });
-        
+
         console.log(`  ✅ Created LLM.txt file for ${firstAnalysis.url} (ID: ${llmFile.id})`);
       } catch (error) {
         console.error(`  ❌ Failed to create LLM.txt file:`, error);
@@ -213,28 +214,31 @@ export async function ensureDemoData(): Promise<void> {
     // Create usage tracking entry showing demo activity
     try {
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-      
-      const totalPages = createdAnalyses.reduce((total, analysis) => 
-        total + (analysis.discoveredPages?.length || 0), 0);
-      const totalAICalls = createdAnalyses.reduce((total, analysis) => 
-        total + (analysis.analysisMetadata?.metrics?.aiCallsUsed || 0), 0);
-      
+
+      const totalPages = createdAnalyses.reduce(
+        (total, analysis) => total + (analysis.discoveredPages?.length || 0),
+        0
+      );
+      const totalAICalls = createdAnalyses.reduce(
+        (total, analysis) => total + (analysis.analysisMetadata?.metrics?.aiCallsUsed || 0),
+        0
+      );
+
       await trackUsage(
         DEMO_USER_EMAIL,
         totalPages, // pagesProcessed
         totalAICalls, // aiCallsCount
         0, // htmlExtractionsCount
         0, // cacheHits
-        0  // estimatedCost
+        0 // estimatedCost
       );
-      
+
       console.log(`  ✅ Created usage tracking for ${today}`);
     } catch (error) {
       console.error(`  ❌ Failed to create usage tracking:`, error);
     }
 
     console.log('🎉 Demo data creation completed successfully!');
-    
   } catch (error) {
     console.error('❌ Failed to ensure demo data:', error);
     // Don't throw - demo data creation failure shouldn't block login
@@ -245,9 +249,9 @@ export async function ensureDemoData(): Promise<void> {
  * Generates LLM.txt file content from selected pages
  */
 function generateLLMFileContent(url: string, selectedPages: any[]): string {
-  const selectedPagesOnly = selectedPages.filter(page => page.selected);
+  const selectedPagesOnly = selectedPages.filter((page) => page.selected);
   const domain = new URL(url).hostname;
-  
+
   const header = `# ${domain} - LLM.txt
 
 This file contains information about ${domain} to help large language models understand and interact with this website.
@@ -264,15 +268,17 @@ The following pages have been selected based on their content quality and releva
 
 `;
 
-  const pagesList = selectedPagesOnly.map(page => {
-    return `### ${page.title}
+  const pagesList = selectedPagesOnly
+    .map((page) => {
+      return `### ${page.title}
 - **URL**: ${page.url}
 - **Description**: ${page.description}
 - **Category**: ${page.category || 'general'}
 - **Quality Score**: ${page.qualityScore?.toFixed(2) || 'N/A'}
 
 `;
-  }).join('');
+    })
+    .join('');
 
   const footer = `
 ## Usage Guidelines
@@ -298,11 +304,10 @@ Generated by LLM.txt Mastery (https://llmtxtmastery.com)
 export async function cleanupDemoData(): Promise<void> {
   try {
     console.log('🧹 Cleaning up demo data...');
-    
+
     // Note: This would require implementing deletion methods in storage
     // For now, just log the intent
     console.log('Demo data cleanup would remove analyses and files for demo user');
-    
   } catch (error) {
     console.error('❌ Failed to cleanup demo data:', error);
   }

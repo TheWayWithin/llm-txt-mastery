@@ -193,8 +193,6 @@ The integration strategy focuses on seamless connectivity with popular content m
 
 **Enterprise API Management** provides advanced API features including custom rate limiting, dedicated infrastructure, priority support, and comprehensive analytics for enterprise customers. The management system includes SLA guarantees and dedicated support channels.
 
-
-
 ## Updated Technical Architecture (Aligned with Preferred Stack)
 
 ### System Architecture Overview
@@ -230,6 +228,7 @@ Environment management supports multiple deployment environments including devel
 ### Technology Stack Specifications
 
 **Frontend Technology Stack**
+
 - **React 18**: Modern React with concurrent features, hooks, and suspense for optimal performance and developer experience
 - **Node.js**: JavaScript runtime with npm ecosystem for comprehensive package management and build tooling
 - **Vite**: Fast build tool with hot module replacement, optimized bundling, and excellent developer experience
@@ -238,6 +237,7 @@ Environment management supports multiple deployment environments including devel
 - **React Query**: Data fetching and state management for server state with caching and synchronization
 
 **Backend Technology Stack**
+
 - **Supabase**: Backend-as-a-service providing PostgreSQL database, authentication, real-time features, and edge functions
 - **PostgreSQL**: Advanced relational database with JSON support, full-text search, and comprehensive query capabilities
 - **Supabase Edge Functions**: Serverless JavaScript functions for AI processing, web scraping, and business logic
@@ -245,11 +245,13 @@ Environment management supports multiple deployment environments including devel
 - **Row-Level Security**: Database-level security policies for data protection and access control
 
 **External Services Integration**
+
 - **OpenAI API**: GPT-4 integration for content analysis and description generation with cost optimization
 - **Web Scraping Libraries**: Cheerio and Playwright for reliable content extraction and website analysis
 - **File Storage**: Supabase Storage for generated files with CDN distribution and access control
 
 **Deployment and Operations**
+
 - **Netlify**: Static site hosting with global CDN, automatic builds, and serverless function support
 - **Netlify Functions**: Serverless functions for API endpoints and background processing
 - **GitHub Integration**: Automatic deployment from Git repositories with branch previews and rollback capabilities
@@ -336,8 +338,8 @@ CREATE POLICY "Users can access own generated files" ON generated_files
 CREATE POLICY "Users can access content through jobs" ON content_pages
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM analysis_jobs 
-            WHERE analysis_jobs.id = content_pages.job_id 
+            SELECT 1 FROM analysis_jobs
+            WHERE analysis_jobs.id = content_pages.job_id
             AND analysis_jobs.user_id = auth.uid()
         )
     );
@@ -350,100 +352,102 @@ CREATE POLICY "Users can access content through jobs" ON content_pages
 ```javascript
 // Website Analysis Function
 export async function analyzeWebsite(request) {
-    const { url, options } = await request.json();
-    
-    // Create analysis job
-    const job = await supabase
-        .from('analysis_jobs')
-        .insert({
-            url,
-            status: 'processing',
-            options,
-            user_id: user.id
-        })
-        .select()
-        .single();
-    
-    // Queue background processing
-    await queueAnalysis(job.id, url, options);
-    
-    return new Response(JSON.stringify({
-        job_id: job.id,
-        status: 'processing',
-        estimated_duration: 300
-    }));
+  const { url, options } = await request.json();
+
+  // Create analysis job
+  const job = await supabase
+    .from('analysis_jobs')
+    .insert({
+      url,
+      status: 'processing',
+      options,
+      user_id: user.id,
+    })
+    .select()
+    .single();
+
+  // Queue background processing
+  await queueAnalysis(job.id, url, options);
+
+  return new Response(
+    JSON.stringify({
+      job_id: job.id,
+      status: 'processing',
+      estimated_duration: 300,
+    })
+  );
 }
 
 // Content Processing Function
 export async function processContent(jobId, pages) {
-    const results = [];
-    
-    for (const page of pages) {
-        const analysis = await analyzePageContent(page.url);
-        
-        const contentPage = await supabase
-            .from('content_pages')
-            .insert({
-                job_id: jobId,
-                url: page.url,
-                title: analysis.title,
-                description: analysis.description,
-                category: analysis.category,
-                quality_score: analysis.quality_score
-            });
-        
-        results.push(contentPage);
-    }
-    
-    return results;
+  const results = [];
+
+  for (const page of pages) {
+    const analysis = await analyzePageContent(page.url);
+
+    const contentPage = await supabase.from('content_pages').insert({
+      job_id: jobId,
+      url: page.url,
+      title: analysis.title,
+      description: analysis.description,
+      category: analysis.category,
+      quality_score: analysis.quality_score,
+    });
+
+    results.push(contentPage);
+  }
+
+  return results;
 }
 
 // File Generation Function
 export async function generateLLMFile(jobId, userEdits) {
-    const pages = await supabase
-        .from('content_pages')
-        .select('*')
-        .eq('job_id', jobId)
-        .eq('include_in_output', true);
-    
-    const content = generateLLMTxtContent(pages, userEdits);
-    
-    const file = await supabase
-        .from('generated_files')
-        .insert({
-            job_id: jobId,
-            content,
-            format: 'llms.txt',
-            size_bytes: content.length,
-            user_id: user.id
-        })
-        .select()
-        .single();
-    
-    return file;
+  const pages = await supabase
+    .from('content_pages')
+    .select('*')
+    .eq('job_id', jobId)
+    .eq('include_in_output', true);
+
+  const content = generateLLMTxtContent(pages, userEdits);
+
+  const file = await supabase
+    .from('generated_files')
+    .insert({
+      job_id: jobId,
+      content,
+      format: 'llms.txt',
+      size_bytes: content.length,
+      user_id: user.id,
+    })
+    .select()
+    .single();
+
+  return file;
 }
 ```
 
 ### Cost Optimization for Solo Entrepreneur
 
 **Supabase Pricing Optimization**
+
 - Free tier provides 500MB database, 1GB file storage, and 500,000 edge function invocations monthly
 - Pro tier ($25/month) supports significant growth with 8GB database and 100GB storage
 - Usage-based scaling ensures costs align with actual usage rather than fixed infrastructure costs
 
 **Netlify Deployment Benefits**
+
 - Free tier includes 100GB bandwidth and 300 build minutes monthly
 - Automatic CDN distribution reduces server costs and improves performance
 - Serverless functions eliminate server management overhead and provide cost-effective scaling
 
 **OpenAI API Cost Management**
+
 - Implement content batching to reduce API calls by 40-60%
 - Use GPT-3.5-turbo for initial analysis with GPT-4 for final quality enhancement
 - Cache analysis results to avoid redundant processing costs
 - Estimated cost: $2-5 per website analysis (50-100 pages)
 
 This updated architecture provides excellent alignment with solo entrepreneur constraints while delivering enterprise-grade capabilities through managed services and cost-effective scaling patterns.
-
 
 ## Brand-Aligned Product Strategy
 
@@ -478,12 +482,14 @@ The tool provides marketing professionals with a systematic, repeatable process 
 ### Visual Identity Integration
 
 **Color Palette Application**
+
 - **MASTERY Blue (#1E3A8A)**: Primary brand color for headers, navigation, key CTAs, and tool branding elements
 - **AI Silver (#64748B)**: Secondary color for supporting text, form labels, and subtle interface accents
 - **Innovation Teal (#0891B2)**: Interactive elements, progress indicators, and action buttons
 - **Authority White (#FFFFFF)**: Clean backgrounds with Framework Black (#0F172A) for optimal text contrast
 
 **Typography Implementation**
+
 - **Inter (Semibold/Bold)**: Tool name, section headers, and key messaging elements
 - **Source Sans Pro (Regular)**: Body text, descriptions, and instructional content
 - **JetBrains Mono**: Code snippets, file previews, and technical content display
@@ -494,18 +500,21 @@ The interface reflects the brand's sophisticated, professional aesthetic through
 ### Messaging Framework Integration
 
 **Core Messages**
+
 - "Expert-crafted automation for professional results"
-- "Systematic approach to AI content accessibility" 
+- "Systematic approach to AI content accessibility"
 - "Precision-engineered for optimal AI system compatibility"
 - "Built by the creator of advanced AI optimization methodologies"
 
 **Proof Points**
+
 - Created by developer of MASTERY-AI Framework v2.1 Enhanced Edition
 - Systematic, methodical approach based on 132 atomic factors methodology
 - Professional-grade quality assurance and specification compliance
 - Comprehensive optimization based on real-world AI system requirements
 
 **Differentiators**
+
 - Expert methodology application to LLM.txt creation
 - Systematic quality assurance processes beyond basic generation
 - Professional-grade automation with expert oversight and validation
@@ -514,12 +523,14 @@ The interface reflects the brand's sophisticated, professional aesthetic through
 ### Content Strategy Alignment
 
 **Educational Content Development**
+
 - "The Complete Guide to LLM.txt Optimization" - comprehensive methodology explanation
 - "Why Systematic Approach Matters for AI Accessibility" - framework-based thinking application
 - "Expert Best Practices for LLM.txt Implementation" - professional guidance and recommendations
 - "Advanced Techniques for AI Content Optimization" - thought leadership and innovation
 
 **Thought Leadership Positioning**
+
 - Industry insights on AI content accessibility trends and developments
 - Technical analysis of LLM.txt specification evolution and best practices
 - Expert commentary on AI system requirements and optimization strategies
@@ -535,16 +546,17 @@ The interface reflects the brand's sophisticated, professional aesthetic through
 "Created by Jamie Watters, developer of the MASTERY-AI Framework v2.1 Enhanced Edition with 132 atomic factors. Apply the same systematic precision to your LLM.txt optimization."
 
 **Feature Positioning**
+
 - "Systematic Content Discovery" - methodical approach to identifying valuable content
 - "Expert-Guided Quality Assurance" - professional validation and optimization
 - "Precision-Engineered Generation" - specification compliance and AI system compatibility
 - "Professional-Grade Automation" - advanced capabilities with expert oversight
 
 **Social Proof Integration**
+
 - Testimonials emphasizing systematic approach and professional results
 - Usage statistics demonstrating quality and reliability
 - Industry recognition connecting to broader AI Search Mastery authority
 - Professional endorsements highlighting expertise and methodology
 
 This brand integration ensures the LLM.txt Mastery tool serves as a natural extension of the AI Search Mastery brand while maintaining consistency with established positioning, voice, and visual identity. The tool reinforces brand authority in AI optimization while providing practical value that supports the brand's mission of making advanced AI strategies accessible to business owners and marketing professionals.
-

@@ -1,9 +1,11 @@
 # LLM.txt Mastery - Implementation Plan
-*Last Updated: January 13, 2025*
+
+_Last Updated: January 13, 2025_
 
 ## Current Mission: Solopreneur Pivot & Admin Features
 
 ### Strategic Direction
+
 - **Target**: Solopreneurs, founders, small business owners
 - **Positioning**: "Built by a solopreneur, for solopreneurs"
 - **Core Message**: "Get Found by ChatGPT, Claude & Perplexity"
@@ -12,6 +14,7 @@
 ## Phase 1: Landing Page Solopreneur Pivot ⏳ IN PROGRESS
 
 ### Hero Section ✅ PARTIAL
+
 - [x] Update headline: "Get Found by ChatGPT, Claude & Perplexity"
 - [x] Add personal story: "I escaped corporate to build this..."
 - [x] Remove corporate references: "AI Search Mastery" → "Built by Jamie Watters"
@@ -20,6 +23,7 @@
 - [ ] Update all remaining corporate references
 
 ### Trust Building (No fake numbers!)
+
 - [ ] Replace any "300% increase" claims with verified facts
 - [ ] Add: "Based on the official llms.txt specification"
 - [ ] Add: "Following Google's structured data best practices"
@@ -29,29 +33,35 @@
 ## Phase 2: Tier Restructuring ⏳ IN PROGRESS
 
 ### Backend Changes ✅ PARTIAL
+
 - [x] Enable AI for Free Tier (starter.aiAnalysis = true)
 - [x] Set aiPagesLimit to 20 for free tier
 - [ ] Update tier display components
 - [ ] Move API feature documentation to Scale tier only
 
 ### New Tier Structure
+
 **FREE TIER** (Test Drive)
+
 - 3 analyses/day
 - 20 pages WITH AI analysis ✅
 - "See exactly what you'll get"
 
 **COFFEE TIER** ($4.95 one-time)
+
 - Unlimited analyses forever
 - 200 pages per analysis
 - "Buy once, use forever - no subscriptions"
 
 **GROWTH TIER** ($25/mo)
+
 - 1000 pages per analysis
 - Team features & file history
 - Priority support
 - (Remove API access - move to Scale)
 
 **SCALE TIER** ($99/mo)
+
 - Unlimited everything
 - Full API access (moved from Growth)
 - White-label options
@@ -59,6 +69,7 @@
 ## Phase 3: MVP Pages Creation 🔴 TODO
 
 ### Essential Pages to Create
+
 1. **/about**
    - Personal story: "I'm Jamie, escaped corporate after 20+ years"
    - Why I built this tool
@@ -92,10 +103,12 @@
 ## Phase 4: Demo Login Enhancement 🔴 TODO
 
 ### Current Demo
+
 - Credentials: demo@llmtxtmastery.com / DemoAccess2025!
 - Basic functionality working
 
 ### Enhancements Needed
+
 1. **UI Improvements**
    - Add "Try Demo" button on login page
    - Auto-fill credentials when clicked
@@ -114,12 +127,15 @@
 ## Phase 5: Admin Dashboard Implementation 🔴 TODO
 
 ### Access Control
+
 - **Super Admin**: jamie.watters.mail@gmail.com only
 - Password protected /admin route
 - Secure authentication check
 
 ### Dashboard Features
+
 **Metrics Section**
+
 ```
 Total Users: [count]
 Active Today: [count]
@@ -128,6 +144,7 @@ Revenue This Month: $[amount]
 ```
 
 **Recent Signups Table**
+
 - Email
 - Tier
 - Signup Date
@@ -135,12 +152,14 @@ Revenue This Month: $[amount]
 - Last Active
 
 **System Health**
+
 - API Status: [green/red]
 - Database Connections: [count]
 - Error Rate: [percentage]
 - Cache Hit Rate: [percentage]
 
 **Admin Actions**
+
 - Export user data (CSV)
 - Reset user limits
 - View detailed logs
@@ -150,6 +169,7 @@ Revenue This Month: $[amount]
 ## Implementation Timeline
 
 ### Week 1 (Current)
+
 - [x] Enable AI for free tier
 - [x] Update hero messaging
 - [ ] Complete landing page updates
@@ -157,12 +177,14 @@ Revenue This Month: $[amount]
 - [ ] Enhance demo login
 
 ### Week 2
+
 - [ ] Build admin dashboard
 - [ ] Add user metrics
 - [ ] Implement admin actions
 - [ ] Test all features
 
 ### Week 3
+
 - [ ] Polish and refinement
 - [ ] User testing
 - [ ] Performance optimization
@@ -172,19 +194,22 @@ Revenue This Month: $[amount]
 
 ### Before vs After
 
-**BEFORE**: 
+**BEFORE**:
+
 - "Transform Your Website's AI Accessibility"
 - "AI Search Mastery"
 - "300% increase in traffic"
 - Corporate, generic messaging
 
 **AFTER**:
+
 - "Get Found by ChatGPT, Claude & Perplexity"
 - "Built by Jamie Watters"
 - "Join 500+ solopreneurs" (verifiable)
 - Personal, authentic, anti-corporate
 
 ### Core Messages
+
 - "I built this because I needed it myself"
 - "No VC funding, no corporate BS"
 - "Tools built by someone who uses them daily"
@@ -193,18 +218,21 @@ Revenue This Month: $[amount]
 ## Success Metrics
 
 ### Immediate (Week 1)
+
 - [ ] Free tier users get full AI experience
 - [ ] Landing page reflects solopreneur positioning
 - [ ] All corporate references removed
 - [ ] Trust indicators use verified facts only
 
 ### Short-term (Month 1)
+
 - [ ] 50+ demo account trials
 - [ ] 20% free-to-coffee conversion
 - [ ] Admin dashboard operational
 - [ ] All MVP pages live
 
 ### Long-term (Quarter 1)
+
 - [ ] 500+ registered users
 - [ ] $1000+ MRR
 - [ ] Community engagement on social
@@ -213,11 +241,13 @@ Revenue This Month: $[amount]
 ## Technical Debt & Risks
 
 ### Current Issues
+
 - Tier limits page stuck issue (FIXED)
 - Demo login needs UI enhancement
 - Missing essential pages (privacy, terms, etc.)
 
 ### Mitigation
+
 - Comprehensive testing after each change
 - Gradual rollout of features
 - User feedback loops
@@ -250,4 +280,4 @@ Revenue This Month: $[amount]
 
 ---
 
-*This plan aligns with the marketing strategy in docs/Complete Marketing Package Summary.md*
+_This plan aligns with the marketing strategy in docs/Complete Marketing Package Summary.md_

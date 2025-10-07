@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -14,11 +14,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html', 'lcov'],
       reportOnFailure: true,
       all: true,
-      include: [
-        'client/src/**/*.{ts,tsx}',
-        'server/**/*.{ts,js}',
-        'shared/**/*.{ts,js}'
-      ],
+      include: ['client/src/**/*.{ts,tsx}', 'server/**/*.{ts,js}', 'shared/**/*.{ts,js}'],
       exclude: [
         'node_modules/**',
         'dist/**',
@@ -33,29 +29,29 @@ export default defineConfig({
         'client/src/main.tsx',
         'server/index.ts',
         'scripts/**',
-        'migrations/**'
+        'migrations/**',
       ],
       thresholds: {
         global: {
           branches: 80,
           functions: 80,
           lines: 80,
-          statements: 80
+          statements: 80,
         },
         // Specific thresholds for semantic enhancement modules
         'server/services/semantic-*.ts': {
           branches: 85,
           functions: 85,
           lines: 85,
-          statements: 85
+          statements: 85,
         },
         'client/src/hooks/use*.ts': {
           branches: 85,
           functions: 85,
           lines: 85,
-          statements: 85
-        }
-      }
+          statements: 85,
+        },
+      },
     },
     // Performance settings for large test suites
     testTimeout: 30000,
@@ -65,16 +61,16 @@ export default defineConfig({
     poolOptions: {
       forks: {
         singleFork: false,
-        isolate: true
-      }
-    }
+        isolate: true,
+      },
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './client/src'),
       '@shared': path.resolve(__dirname, './shared'),
       '@server': path.resolve(__dirname, './server'),
-      '@test-data': path.resolve(__dirname, './test-data')
+      '@test-data': path.resolve(__dirname, './test-data'),
     },
   },
-})
+});

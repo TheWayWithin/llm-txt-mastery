@@ -21,10 +21,7 @@
           "outputFolder": "playwright-report-growth-scale-payments"
         }
       ],
-      [
-        "list",
-        null
-      ],
+      ["list", null],
       [
         "json",
         {
@@ -49,9 +46,7 @@
         "name": "chromium-growth-scale-payments",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 120000
       },
       {
@@ -65,9 +60,7 @@
         "name": "firefox-growth-scale-payments",
         "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 120000
       }
     ],

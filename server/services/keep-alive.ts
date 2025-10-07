@@ -1,6 +1,6 @@
 /**
  * Keep-Alive Service
- * 
+ *
  * Prevents Railway container hibernation by pinging the /health endpoint every 4 hours.
  * This eliminates the 4-5 minute cold start delays that occur when containers
  * hibernate after 7+ days of inactivity.
@@ -16,9 +16,9 @@ export class KeepAliveService {
 
   constructor() {
     // Determine base URL from environment
-    this.baseUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
+    this.baseUrl = process.env.RAILWAY_PUBLIC_DOMAIN
       ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-      : process.env.PORT 
+      : process.env.PORT
         ? `http://localhost:${process.env.PORT}`
         : 'http://localhost:3000';
   }
@@ -32,8 +32,10 @@ export class KeepAliveService {
       return;
     }
 
-    console.log(`⚡ Starting keep-alive service - pinging ${this.baseUrl}${this.healthEndpoint} every 4 hours`);
-    
+    console.log(
+      `⚡ Starting keep-alive service - pinging ${this.baseUrl}${this.healthEndpoint} every 4 hours`
+    );
+
     // Ping immediately on start (after a short delay to ensure server is ready)
     setTimeout(() => {
       this.ping();
@@ -63,15 +65,15 @@ export class KeepAliveService {
     try {
       const startTime = Date.now();
       const url = `${this.baseUrl}${this.healthEndpoint}`;
-      
+
       console.log(`⚡ Keep-alive ping starting: ${url}`);
-      
+
       const response = await fetch(url, {
         method: 'GET',
         timeout: 30000, // 30 second timeout
         headers: {
-          'User-Agent': 'Keep-Alive-Service/1.0'
-        }
+          'User-Agent': 'Keep-Alive-Service/1.0',
+        },
       });
 
       const duration = Date.now() - startTime;
@@ -79,7 +81,9 @@ export class KeepAliveService {
       if (response.ok) {
         console.log(`✅ Keep-alive ping successful (${duration}ms): ${response.status}`);
       } else {
-        console.warn(`⚠️ Keep-alive ping returned non-200 status (${duration}ms): ${response.status}`);
+        console.warn(
+          `⚠️ Keep-alive ping returned non-200 status (${duration}ms): ${response.status}`
+        );
       }
     } catch (error) {
       console.error('❌ Keep-alive ping failed:', error instanceof Error ? error.message : error);
@@ -93,7 +97,7 @@ export class KeepAliveService {
     return {
       running: this.intervalId !== null,
       baseUrl: this.baseUrl,
-      nextPing: this.intervalId ? new Date(Date.now() + this.pingInterval) : undefined
+      nextPing: this.intervalId ? new Date(Date.now() + this.pingInterval) : undefined,
     };
   }
 }

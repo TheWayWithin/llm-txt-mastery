@@ -7,6 +7,7 @@ LLM.txt is a standardized format for providing structured information about webs
 ## Format Structure
 
 ### File Header
+
 Every LLM.txt file begins with metadata about the website and generation process:
 
 ```
@@ -16,6 +17,7 @@ Every LLM.txt file begins with metadata about the website and generation process
 ```
 
 ### Analysis Summary
+
 Key statistics about the content analysis:
 
 ```
@@ -27,12 +29,15 @@ Key statistics about the content analysis:
 ```
 
 ### Content Entries
+
 Each page is represented in the format:
+
 ```
 URL: Page Title - Brief Description
 ```
 
 Example:
+
 ```
 https://example.com/docs/api: API Documentation - Complete REST API reference with authentication and endpoints
 https://example.com/tutorials/getting-started: Getting Started Guide - Step-by-step tutorial for new users
@@ -49,16 +54,19 @@ LLM.txt Mastery enhances the standard format by including quality-based selectio
 ## Use Cases
 
 ### For AI Training
+
 - Provide comprehensive website context to language models
 - Enable better understanding of your site's structure and content
 - Improve AI-generated responses about your organization
 
 ### for Chatbots and Virtual Assistants
+
 - Give chatbots detailed knowledge about your products/services
 - Enable accurate responses to customer questions
 - Provide context for support automation
 
 ### For Content Management
+
 - Create a master index of your website's valuable content
 - Identify content gaps and optimization opportunities
 - Track content quality over time
@@ -66,18 +74,21 @@ LLM.txt Mastery enhances the standard format by including quality-based selectio
 ## Best Practices
 
 ### Content Selection
+
 1. **Focus on evergreen content** rather than time-sensitive information
 2. **Include comprehensive documentation** for technical sites
 3. **Prioritize user-facing content** over internal pages
 4. **Consider your audience** - what would be most valuable for AI to know?
 
 ### File Maintenance
+
 1. **Update regularly** as your content changes
 2. **Review excluded pages** to ensure nothing important was missed
 3. **Monitor quality scores** to identify content improvement opportunities
 4. **Version control** your LLM.txt files to track changes
 
 ### Integration Tips
+
 1. **Host at `/llms.txt`** on your domain root for standard discovery
 2. **Include in your sitemap** for better discoverability
 3. **Reference in robots.txt** to help AI crawlers find it
@@ -86,16 +97,19 @@ LLM.txt Mastery enhances the standard format by including quality-based selectio
 ## Technical Specifications
 
 ### File Encoding
+
 - **Character Set**: UTF-8
 - **Line Endings**: Unix-style (LF)
 - **Maximum File Size**: Recommended under 1MB for optimal processing
 
 ### URL Format
+
 - **Protocol**: Include full URLs with https:// or http://
 - **Canonicalization**: Use canonical URLs when possible
 - **Parameters**: Avoid URLs with session parameters or tracking codes
 
 ### Description Guidelines
+
 - **Length**: 50-200 characters per description
 - **Style**: Clear, concise, and informative
 - **Keywords**: Include relevant terms for better AI understanding
@@ -104,6 +118,7 @@ LLM.txt Mastery enhances the standard format by including quality-based selectio
 ## Advanced Features
 
 ### Exclusion Documentation
+
 LLM.txt Mastery automatically documents excluded pages:
 
 ```
@@ -117,13 +132,17 @@ LLM.txt Mastery automatically documents excluded pages:
 ```
 
 ### Quality Metrics
+
 Each generated file includes quality insights:
+
 - Total content discovery statistics
 - Processing time and efficiency metrics
 - Cache utilization for faster subsequent analyses
 
 ### Reference Links
+
 Files include links to detailed documentation:
+
 - Quality scoring methodology
 - Format specifications
 - Best practices guides
@@ -131,6 +150,7 @@ Files include links to detailed documentation:
 ## Future Enhancements
 
 The LLM.txt format is evolving to include:
+
 - **Semantic tagging** for content categorization
 - **Update frequencies** for content freshness tracking
 - **Access levels** for public vs. private content

@@ -1,6 +1,6 @@
 /**
  * Generic async operation handler hook
- * 
+ *
  * Provides consistent loading, error, and data states for async operations
  * with automatic error handling and retry mechanism.
  */
@@ -72,7 +72,7 @@ export function useAsync<T, Args extends any[] = []>(
     isRetryable = (error) => error.isRetryable(),
     onSuccess,
     onError,
-    onComplete
+    onComplete,
   } = options;
 
   // State
@@ -80,7 +80,7 @@ export function useAsync<T, Args extends any[] = []>(
     data: initialData,
     error: null,
     loading: false,
-    retryCount: 0
+    retryCount: 0,
   });
 
   // Refs for cancellation and latest args
@@ -98,90 +98,92 @@ export function useAsync<T, Args extends any[] = []>(
   }, []);
 
   // Execute with retry logic
-  const executeWithRetry = useCallback(async (
-    args: Args,
-    currentRetryCount = 0
-  ): Promise<T> => {
-    if (!isMountedRef.current) {
-      throw new Error('Component unmounted');
-    }
-
-    try {
-      // Create cancellation mechanism
-      let isCancelled = false;
-      cancelRef.current = () => {
-        isCancelled = true;
-      };
-
-      // Set loading state
-      setState(prev => ({
-        ...prev,
-        loading: true,
-        error: null
-      }));
-
-      // Execute the async function
-      const result = await asyncFunction(...args);
-
-      // Check if cancelled before setting result
-      if (isCancelled || !isMountedRef.current) {
-        throw new Error('Operation cancelled');
-      }
-
-      // Success
-      setState(prev => ({
-        ...prev,
-        data: result,
-        loading: false,
-        error: null,
-        retryCount: currentRetryCount
-      }));
-
-      onSuccess?.(result);
-      onComplete?.();
-      
-      return result;
-
-    } catch (error) {
+  const executeWithRetry = useCallback(
+    async (args: Args, currentRetryCount = 0): Promise<T> => {
       if (!isMountedRef.current) {
-        return Promise.reject(error);
+        throw new Error('Component unmounted');
       }
 
-      const appError = AppError.fromError(error);
-      
-      // Check if we should retry
-      const shouldRetry = currentRetryCount < maxRetries && isRetryable(appError);
-      
-      if (shouldRetry) {
-        // Wait before retry
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        
-        // Recursive retry
-        return executeWithRetry(args, currentRetryCount + 1);
-      } else {
-        // Final failure
-        setState(prev => ({
+      try {
+        // Create cancellation mechanism
+        let isCancelled = false;
+        cancelRef.current = () => {
+          isCancelled = true;
+        };
+
+        // Set loading state
+        setState((prev) => ({
           ...prev,
-          loading: false,
-          error: appError,
-          retryCount: currentRetryCount
+          loading: true,
+          error: null,
         }));
 
-        onError?.(appError);
+        // Execute the async function
+        const result = await asyncFunction(...args);
+
+        // Check if cancelled before setting result
+        if (isCancelled || !isMountedRef.current) {
+          throw new Error('Operation cancelled');
+        }
+
+        // Success
+        setState((prev) => ({
+          ...prev,
+          data: result,
+          loading: false,
+          error: null,
+          retryCount: currentRetryCount,
+        }));
+
+        onSuccess?.(result);
         onComplete?.();
-        
-        throw appError;
+
+        return result;
+      } catch (error) {
+        if (!isMountedRef.current) {
+          return Promise.reject(error);
+        }
+
+        const appError = AppError.fromError(error);
+
+        // Check if we should retry
+        const shouldRetry = currentRetryCount < maxRetries && isRetryable(appError);
+
+        if (shouldRetry) {
+          // Wait before retry
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+
+          // Recursive retry
+          return executeWithRetry(args, currentRetryCount + 1);
+        } else {
+          // Final failure
+          setState((prev) => ({
+            ...prev,
+            loading: false,
+            error: appError,
+            retryCount: currentRetryCount,
+          }));
+
+          onError?.(appError);
+          onComplete?.();
+
+          throw appError;
+        }
+      } finally {
+        cancelRef.current = null;
       }
-    } finally {
-      cancelRef.current = null;
-    }
-  }, [asyncFunction, maxRetries, retryDelay, isRetryable, onSuccess, onError, onComplete]);
+    },
+    [asyncFunction, maxRetries, retryDelay, isRetryable, onSuccess, onError, onComplete]
+  );
 
   // Main execute function
-  const execute = useCallback(async (...args: Args): Promise<T> => {
-    latestArgsRef.current = args;
-    return executeWithRetry(args, 0);
-  }, [executeWithRetry]);
+  const execute = useCallback(
+    async (...args: Args): Promise<T> => {
+      latestArgsRef.current = args;
+      return executeWithRetry(args, 0);
+    },
+    [executeWithRetry]
+  );
 
   // Retry function
   const retry = useCallback(async (): Promise<T> => {
@@ -198,7 +200,7 @@ export function useAsync<T, Args extends any[] = []>(
       data: initialData,
       error: null,
       loading: false,
-      retryCount: 0
+      retryCount: 0,
     });
     latestArgsRef.current = null;
   }, [initialData]);
@@ -206,27 +208,27 @@ export function useAsync<T, Args extends any[] = []>(
   // Cancel function
   const cancel = useCallback(() => {
     cancelRef.current?.();
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      loading: false
+      loading: false,
     }));
   }, []);
 
   // Manual data setter
   const setData = useCallback((data: T | undefined) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       data,
-      error: null
+      error: null,
     }));
   }, []);
 
   // Manual error setter
   const setError = useCallback((error: AppError | null) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       error,
-      data: undefined
+      data: undefined,
     }));
   }, []);
 
@@ -247,7 +249,7 @@ export function useAsync<T, Args extends any[] = []>(
     reset,
     cancel,
     setData,
-    setError
+    setError,
   };
 }
 
@@ -259,10 +261,10 @@ export function useAsyncOperation<T>(
   options?: UseAsyncOptions<T>
 ): Omit<UseAsyncReturn<T>, 'execute'> & { execute: () => Promise<T> } {
   const result = useAsync(asyncFunction, options);
-  
+
   return {
     ...result,
-    execute: () => result.execute()
+    execute: () => result.execute(),
   };
 }
 
@@ -274,9 +276,9 @@ export function useAsyncEffect<T>(
   dependencies: any[] = [],
   options?: Omit<UseAsyncOptions<T>, 'immediate'>
 ): Omit<UseAsyncReturn<T>, 'execute'> {
-  const { execute, ...rest } = useAsync(asyncFunction, { 
-    ...options, 
-    immediate: false 
+  const { execute, ...rest } = useAsync(asyncFunction, {
+    ...options,
+    immediate: false,
   });
 
   useEffect(() => {

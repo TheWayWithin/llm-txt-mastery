@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Check, Coffee, Zap, Crown, ArrowLeft } from "lucide-react";
-import { Link } from "wouter";
-import { useAuth } from "@/contexts/AuthContext";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Check, Coffee, Zap, Crown, ArrowLeft } from 'lucide-react';
+import { Link } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionManagement from '@/components/subscription-management';
 
 export default function Pricing() {
@@ -13,9 +13,9 @@ export default function Pricing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/images/logo-primary.png" 
-                alt="LLM.txt Mastery" 
+              <img
+                src="/images/logo-primary.png"
+                alt="LLM.txt Mastery"
                 className="h-16 md:h-20 w-auto"
               />
             </div>

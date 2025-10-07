@@ -1,37 +1,42 @@
-import { useState, useEffect } from "react"
-import { useAuth } from "@/contexts/AuthContext"
-import { authApi } from "@/lib/auth-api"
-import { validatePasswordClient } from "@/lib/auth-utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, User, Check, X, Loader2 } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { authApi } from '@/lib/auth-api';
+import { validatePasswordClient } from '@/lib/auth-utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Eye, EyeOff, Mail, Lock, User, Check, X, Loader2 } from 'lucide-react';
 
 interface SignupFormProps {
-  onSwitchToLogin: () => void
-  onSuccess?: () => void
-  defaultEmail?: string
-  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale'
+  onSwitchToLogin: () => void;
+  onSuccess?: () => void;
+  defaultEmail?: string;
+  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale';
 }
 
-export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defaultTier = 'starter' }: SignupFormProps) {
-  const { signUp } = useAuth()
-  const [email, setEmail] = useState(defaultEmail)
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+export function SignupForm({
+  onSwitchToLogin,
+  onSuccess,
+  defaultEmail = '',
+  defaultTier = 'starter',
+}: SignupFormProps) {
+  const { signUp } = useAuth();
+  const [email, setEmail] = useState(defaultEmail);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState<{
     valid: boolean;
     errors: string[];
     requirements: string[];
-  } | null>(null)
-  const [emailChecking, setEmailChecking] = useState(false)
-  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null)
+  } | null>(null);
+  const [emailChecking, setEmailChecking] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
   // Validate password strength as user types
   useEffect(() => {
@@ -39,10 +44,11 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
       // Use client-side validation immediately for instant feedback
       const clientValidation = validatePasswordClient(password);
       setPasswordValidation(clientValidation);
-      
+
       // Also try API validation for consistency, but don't rely on it
-      authApi.validatePassword(password)
-        .then(apiValidation => {
+      authApi
+        .validatePassword(password)
+        .then((apiValidation) => {
           // Only update if API returns a different result
           if (apiValidation.valid !== clientValidation.valid) {
             setPasswordValidation(apiValidation);
@@ -62,7 +68,8 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
     if (email.includes('@') && email.includes('.')) {
       setEmailChecking(true);
       const timeoutId = setTimeout(() => {
-        authApi.checkEmailAvailability(email)
+        authApi
+          .checkEmailAvailability(email)
           .then(setEmailAvailable)
           .catch(() => setEmailAvailable(null))
           .finally(() => setEmailChecking(false));
@@ -76,53 +83,53 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
   }, [email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     // Enhanced validation
     if (emailAvailable === false) {
-      setError("Email address is already registered")
-      setLoading(false)
-      return
+      setError('Email address is already registered');
+      setLoading(false);
+      return;
     }
 
     // Use client-side validation as fallback if passwordValidation is not set
     const validation = passwordValidation || validatePasswordClient(password);
     if (!validation.valid) {
-      setError("Password does not meet requirements")
-      setLoading(false)
-      return
+      setError('Password does not meet requirements');
+      setLoading(false);
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setLoading(false)
-      return
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
     }
 
     try {
-      await signUp(email, password, confirmPassword, defaultTier)
+      await signUp(email, password, confirmPassword, defaultTier);
       // Successfully registered and logged in
       if (onSuccess) {
-        onSuccess()
+        onSuccess();
       }
     } catch (err) {
       console.error('SignupForm: Registration error:', err);
-      const errorMessage = err instanceof Error ? err.message : "Signup failed";
-      
+      const errorMessage = err instanceof Error ? err.message : 'Signup failed';
+
       // Handle rate limiting specifically
       if (errorMessage.includes('Too many registration attempts')) {
-        setError("Too many registration attempts. Please wait a few minutes and try again.");
+        setError('Too many registration attempts. Please wait a few minutes and try again.');
       } else if (errorMessage.includes('429')) {
-        setError("Registration temporarily limited. Please try again in a few minutes.");
+        setError('Registration temporarily limited. Please try again in a few minutes.');
       } else {
         setError(errorMessage);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -139,7 +146,7 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
@@ -151,8 +158,11 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 className={`pl-10 pr-10 ${
-                  emailAvailable === false ? 'border-red-500' : 
-                  emailAvailable === true ? 'border-green-500' : ''
+                  emailAvailable === false
+                    ? 'border-red-500'
+                    : emailAvailable === true
+                      ? 'border-green-500'
+                      : ''
                 }`}
                 required
               />
@@ -180,13 +190,16 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
                 className={`pl-10 pr-10 ${
-                  passwordValidation && !passwordValidation.valid ? 'border-red-500' : 
-                  passwordValidation?.valid ? 'border-green-500' : ''
+                  passwordValidation && !passwordValidation.valid
+                    ? 'border-red-500'
+                    : passwordValidation?.valid
+                      ? 'border-green-500'
+                      : ''
                 }`}
                 required
               />
@@ -216,13 +229,16 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
+                type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm your password"
                 className={`pl-10 pr-10 ${
-                  confirmPassword && password !== confirmPassword ? 'border-red-500' : 
-                  confirmPassword && password === confirmPassword && password.length > 0 ? 'border-green-500' : ''
+                  confirmPassword && password !== confirmPassword
+                    ? 'border-red-500'
+                    : confirmPassword && password === confirmPassword && password.length > 0
+                      ? 'border-green-500'
+                      : ''
                 }`}
                 required
               />
@@ -260,13 +276,13 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
               !confirmPassword
             }
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? 'Creating account...' : 'Create Account'}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Already have an account?{" "}
+            Already have an account?{' '}
             <button
               onClick={onSwitchToLogin}
               className="text-blue-600 hover:text-blue-800 font-medium min-h-[44px] px-2 py-2"
@@ -277,5 +293,5 @@ export function SignupForm({ onSwitchToLogin, onSuccess, defaultEmail = "", defa
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

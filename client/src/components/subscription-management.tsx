@@ -5,14 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Loader2, CreditCard, ExternalLink, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { CancellationModal } from './CancellationModal';
-import { 
+import {
   createCheckoutSession,
   createUpgradeSession,
-  createCoffeeCheckoutSession, 
-  createPortalSession, 
-  getSubscriptionStatus, 
+  createCoffeeCheckoutSession,
+  createPortalSession,
+  getSubscriptionStatus,
   TIER_PRICING,
-  type SubscriptionStatus 
+  type SubscriptionStatus,
 } from '@/lib/stripe';
 
 interface SubscriptionManagementProps {
@@ -60,11 +60,11 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       // Use upgrade session if user has an active subscription (handles proration)
       // Otherwise use regular checkout
       const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription || false;
-      
+
       if (hasActiveSubscription) {
         // Use upgrade endpoint which handles proration
         const result = await createUpgradeSession(tier, token);
-        
+
         if (result.url) {
           // Redirect to Stripe for payment if needed
           window.location.href = result.url;
@@ -76,7 +76,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       } else {
         // No existing subscription - use regular checkout
         const { url } = await createCheckoutSession(tier, token);
-        
+
         if (url) {
           window.location.href = url;
         }
@@ -101,7 +101,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       }
 
       const { url } = await createCoffeeCheckoutSession(token);
-      
+
       if (url) {
         // Redirect to Stripe Checkout
         window.location.href = url;
@@ -125,7 +125,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       }
 
       const { url } = await createPortalSession(token);
-      
+
       if (url) {
         // Open customer portal in new tab
         window.open(url, '_blank');
@@ -193,7 +193,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <p>100 analyses per month • AI-enhanced analysis included</p>
               </div>
               {creditsRemaining > 0 && (
-                <Button 
+                <Button
                   onClick={() => setShowCancellation(true)}
                   variant="ghost"
                   className="w-full min-h-[44px] text-sm text-gray-500 hover:text-red-600 hover:bg-red-50"
@@ -214,12 +214,17 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               </div>
               {subscriptionStatus?.subscriptions && subscriptionStatus.subscriptions.length > 0 && (
                 <div className="text-sm text-slate-600">
-                  <p>Next billing: {new Date(subscriptionStatus.subscriptions[0].currentPeriodEnd * 1000).toLocaleDateString()}</p>
+                  <p>
+                    Next billing:{' '}
+                    {new Date(
+                      subscriptionStatus.subscriptions[0].currentPeriodEnd * 1000
+                    ).toLocaleDateString()}
+                  </p>
                   <p>Status: {subscriptionStatus.subscriptions[0].status}</p>
                 </div>
               )}
               <div className="space-y-2">
-                <Button 
+                <Button
                   onClick={handleManageSubscription}
                   variant="outline"
                   className="w-full min-h-[48px] px-6 py-3"
@@ -229,7 +234,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                   Manage Billing
                   <ExternalLink className="h-5 w-5 ml-2" />
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowCancellation(true)}
                   variant="ghost"
                   className="w-full min-h-[48px] px-6 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -243,11 +248,11 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           ) : (
             <div className="space-y-4">
               <p className="text-slate-600">
-                {currentTier === 'starter' 
-                  ? 'You are currently on the free Starter plan (20 pages).' 
+                {currentTier === 'starter'
+                  ? 'You are currently on the free Starter plan (20 pages).'
                   : currentTier === 'coffee'
-                  ? `You have coffee credits for premium analysis.`
-                  : 'No active subscription found.'}
+                    ? `You have coffee credits for premium analysis.`
+                    : 'No active subscription found.'}
               </p>
               {currentTier === 'starter' && (
                 <div className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
@@ -256,9 +261,10 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                     <span className="text-lg font-bold text-orange-600">$4.95</span>
                   </div>
                   <p className="text-sm text-orange-700 mb-3">
-                    Get professional-grade AI analysis • 200 pages • No subscription, just one coffee!
+                    Get professional-grade AI analysis • 200 pages • No subscription, just one
+                    coffee!
                   </p>
-                  <Button 
+                  <Button
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
                     className="w-full bg-orange-600 hover:bg-orange-700 text-white min-h-[48px] px-6 py-3"
@@ -281,7 +287,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                   <p className="text-sm text-orange-700 mb-3">
                     Each coffee gets you one premium analysis, or go unlimited for continuous access
                   </p>
-                  <Button 
+                  <Button
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
                     variant="outline"
@@ -332,7 +338,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                     </li>
                   ))}
                 </ul>
-                <Button 
+                <Button
                   onClick={() => handleUpgrade('growth')}
                   disabled={upgrading}
                   className="w-full min-h-[48px] px-6 py-3"
@@ -371,7 +377,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                     </li>
                   ))}
                 </ul>
-                <Button 
+                <Button
                   onClick={() => handleUpgrade('scale')}
                   disabled={upgrading}
                   className="w-full bg-purple-600 hover:bg-purple-700 min-h-[48px] px-6 py-3"
@@ -406,9 +412,9 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           </CardContent>
         </Card>
       )}
-      
+
       {/* Cancellation Modal */}
-      <CancellationModal 
+      <CancellationModal
         isOpen={showCancellation}
         onClose={() => setShowCancellation(false)}
         onSuccess={() => {

@@ -3,7 +3,7 @@ import { TemporaryEmailService } from './temp-email-service';
 
 /**
  * Production Test Helpers
- * 
+ *
  * Specialized utilities for testing the double-increment bug fix
  * and email verification flow against the production site.
  */
@@ -23,7 +23,7 @@ export class ProductionTestHelpers {
   generateTestData() {
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 8);
-    
+
     return {
       testUrl: 'https://example.com',
       uniqueId: `${timestamp}-${randomId}`,
@@ -57,10 +57,10 @@ export class ProductionTestHelpers {
     // Fill signup form
     await this.page.fill('input[type="email"]', email);
     await this.page.fill('input[type="password"]', password);
-    
+
     // Submit form
     await this.page.click('button[type="submit"]');
-    
+
     return email;
   }
 
@@ -70,11 +70,11 @@ export class ProductionTestHelpers {
   async validateCheckEmailPage() {
     // Wait for redirect to check-email page
     await this.page.waitForURL('**/check-email', { timeout: 15000 });
-    
+
     // Validate page content
     await expect(this.page.locator('h1, h2')).toContainText(/check.*email/i);
     await expect(this.page.locator('text=verification')).toBeVisible();
-    
+
     // Ensure we're not on analyze page
     expect(this.page.url()).not.toContain('/analyze');
   }
@@ -94,13 +94,13 @@ export class ProductionTestHelpers {
     // Enter URL and start analysis
     await this.page.fill('input[placeholder*="URL"]', url);
     await this.page.click('button:has-text("Analyze")');
-    
+
     // Wait for analysis to start
     await this.page.waitForSelector('text=Analysis in progress', { timeout: 15000 });
-    
+
     // Wait for analysis to complete (up to 2 minutes)
     await this.page.waitForSelector('text=Analysis Complete', { timeout: 120000 });
-    
+
     // Extract analysis ID from URL or page content
     const url_current = this.page.url();
     const analysisIdMatch = url_current.match(/analysis[\/=]([a-f0-9-]+)/i);
@@ -110,22 +110,22 @@ export class ProductionTestHelpers {
   /**
    * Check usage counter display and extract current count
    */
-  async getCurrentUsageCount(): Promise<{ current: number, total: number }> {
+  async getCurrentUsageCount(): Promise<{ current: number; total: number }> {
     // Look for usage counter patterns like "2/3" or "2 of 3"
     const counterElement = this.page.locator('text=/\\d+\s*[\/of]\s*\\d+/');
     await expect(counterElement).toBeVisible({ timeout: 10000 });
-    
+
     const counterText = await counterElement.textContent();
-    
+
     // Parse counter text (supports "2/3" or "2 of 3" formats)
     const match = counterText?.match(/(\d+)\s*[\/of]\s*(\d+)/);
     if (!match) {
       throw new Error(`Could not parse usage counter: ${counterText}`);
     }
-    
+
     return {
       current: parseInt(match[1]),
-      total: parseInt(match[2])
+      total: parseInt(match[2]),
     };
   }
 
@@ -134,10 +134,10 @@ export class ProductionTestHelpers {
    */
   async validateUsageProgression(expectedCurrent: number, expectedTotal: number = 3) {
     const usage = await this.getCurrentUsageCount();
-    
+
     expect(usage.current).toBe(expectedCurrent);
     expect(usage.total).toBe(expectedTotal);
-    
+
     console.log(`✓ Usage counter correctly shows: ${usage.current}/${usage.total}`);
   }
 
@@ -169,7 +169,7 @@ export class ProductionTestHelpers {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     await this.page.screenshot({
       path: `debug-${name}-${timestamp}.png`,
-      fullPage: true
+      fullPage: true,
     });
     console.log(`📸 Debug screenshot saved: debug-${name}-${timestamp}.png`);
   }
@@ -179,11 +179,11 @@ export class ProductionTestHelpers {
    */
   async loginWithCredentials(email: string, password: string) {
     await this.page.goto('/login', { waitUntil: 'networkidle' });
-    
+
     await this.page.fill('input[type="email"]', email);
     await this.page.fill('input[type="password"]', password);
     await this.page.click('button[type="submit"]');
-    
+
     // Wait for successful login redirect
     await this.page.waitForURL('**/analyze', { timeout: 15000 });
   }
@@ -193,7 +193,9 @@ export class ProductionTestHelpers {
    */
   async logout() {
     // Look for logout button or menu
-    const logoutButton = this.page.locator('button:has-text("Logout"), a:has-text("Logout"), button:has-text("Sign Out"), a:has-text("Sign Out")');
+    const logoutButton = this.page.locator(
+      'button:has-text("Logout"), a:has-text("Logout"), button:has-text("Sign Out"), a:has-text("Sign Out")'
+    );
     if (await logoutButton.isVisible()) {
       await logoutButton.click();
       await this.page.waitForURL('**/', { timeout: 10000 });
@@ -240,23 +242,23 @@ export class ProductionTestHelpers {
   async getDebugInfo() {
     const url = this.page.url();
     const title = await this.page.title();
-    
+
     let localStorage = {};
     let sessionStorage = {};
-    
+
     try {
       localStorage = await this.page.evaluate(() => ({ ...localStorage }));
       sessionStorage = await this.page.evaluate(() => ({ ...sessionStorage }));
     } catch (error) {
       console.log('Storage access restricted for debug info');
     }
-    
+
     return {
       url,
       title,
       localStorage,
       sessionStorage,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }
@@ -278,19 +280,19 @@ export async function retryOperation<T>(
   delayMs: number = 1000
 ): Promise<T> {
   let lastError: Error;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await operation();
     } catch (error) {
       lastError = error as Error;
       console.warn(`Operation failed (attempt ${i + 1}/${maxRetries}):`, error.message);
-      
+
       if (i < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
   }
-  
+
   throw lastError!;
 }

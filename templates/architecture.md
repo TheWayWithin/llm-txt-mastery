@@ -5,6 +5,7 @@
 LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates optimized `llms.txt` files for AI systems. The system implements a freemium SaaS model with AI-enhanced analysis for premium users, deployed using a split architecture across Railway (backend) and Netlify (frontend) for optimal performance and scalability.
 
 **Key Architecture Characteristics:**
+
 - **Split Deployment Architecture**: Frontend on Netlify CDN, Backend on Railway with PostgreSQL
 - **AI-Enhanced Analysis**: OpenAI integration for premium content quality scoring
 - **Freemium Business Model**: Free HTML extraction, premium AI-powered analysis
@@ -90,16 +91,18 @@ Production Environment:
 ### Infrastructure Components
 
 #### Frontend Infrastructure (Netlify)
+
 - **Platform**: Netlify Global CDN
 - **Domain**: www.llmtxtmastery.com
 - **Build**: Automatic deployment from GitHub (`client/` directory)
-- **Features**: 
+- **Features**:
   - Global edge caching
   - Automatic SSL/TLS certificates
   - Branch-based preview deployments
   - Form handling for contact/feedback
 
 #### Backend Infrastructure (Railway)
+
 - **Platform**: Railway Container Platform
 - **API Endpoint**: llm-txt-mastery-production.up.railway.app
 - **Deploy**: Automatic from GitHub (`server/` directory)
@@ -110,6 +113,7 @@ Production Environment:
   - Integrated logging and metrics
 
 #### Database Infrastructure (Neon)
+
 - **Provider**: Neon Tech (Managed PostgreSQL)
 - **Configuration**: Pooled connections with SSL enforcement
 - **Connection String**: `postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
@@ -157,6 +161,7 @@ Client Application (Netlify)
 ```
 
 **Technology Stack:**
+
 - **React**: 18.x with functional components and hooks
 - **TypeScript**: Strict type checking enabled
 - **Styling**: Tailwind CSS with shadcn/ui component library
@@ -207,6 +212,7 @@ Server Application (Railway)
 ```
 
 **Technology Stack:**
+
 - **Runtime**: Node.js with Express.js framework
 - **Language**: TypeScript with strict type checking
 - **ORM**: Drizzle ORM for type-safe database operations
@@ -216,6 +222,7 @@ Server Application (Railway)
 ### Shared Architecture
 
 **Shared Schema System:**
+
 ```typescript
 // shared/schema.ts - Single source of truth for data structures
 export const sitemapAnalysis = pgTable('sitemapAnalysis', { ... });
@@ -283,6 +290,7 @@ The system uses PostgreSQL with a normalized schema design optimized for the fre
 ### Key Data Models
 
 #### SitemapAnalysis
+
 - **Purpose**: Stores website analysis results and discovered pages
 - **Key Fields**:
   - `url`: Target website URL
@@ -292,6 +300,7 @@ The system uses PostgreSQL with a normalized schema design optimized for the fre
   - `status`: Analysis status (pending, completed, failed)
 
 #### LlmTextFiles
+
 - **Purpose**: Generated LLM.txt files with selected pages
 - **Key Fields**:
   - `content`: Final generated LLM.txt file content
@@ -299,6 +308,7 @@ The system uses PostgreSQL with a normalized schema design optimized for the fre
   - `analysis_id`: Foreign key to related analysis
 
 #### Usage Tracking System
+
 - **Purpose**: Enforce freemium model limits and track usage
 - **Implementation**: Daily usage counters with tier-based limits
 - **Critical**: Uses atomic transactions to prevent race conditions
@@ -321,11 +331,13 @@ User Request → Analysis Pipeline → Storage → Generation → Download
 ### Authentication & Authorization
 
 **Current Implementation:**
+
 - **Email-based Identity**: Users identified by email address
 - **Tier-based Access**: Free/Coffee/Growth/Scale tiers with different limits
 - **Session Management**: Minimal session state, primarily email-based
 
 **Authorization Matrix:**
+
 ```
 Feature/Tier        │ Free │ Coffee │ Growth │ Scale
 ───────────────────┼──────┼────────┼────────┼───────
@@ -338,18 +350,21 @@ Priority Support   │  ❌  │   ❌   │   ❌   │   ✅
 ### Security Measures
 
 #### API Security
+
 - **CORS Configuration**: Strict origin control for cross-domain requests
 - **Rate Limiting**: Prevents abuse and ensures fair usage
 - **Input Validation**: All user inputs sanitized and validated
 - **Error Handling**: Prevents information leakage through error messages
 
 #### Data Protection
+
 - **Database Encryption**: SSL/TLS required for all database connections
 - **Sensitive Data**: API keys and secrets stored in environment variables
 - **User Data**: Email addresses and usage patterns only, minimal PII
 - **Content Security**: Generated files contain only public website content
 
 #### Infrastructure Security
+
 - **Network Security**: HTTPS enforcement across all communications
 - **Container Security**: Railway managed containers with security updates
 - **Database Security**: Neon managed PostgreSQL with automated patching
@@ -358,6 +373,7 @@ Priority Support   │  ❌  │   ❌   │   ❌   │   ✅
 ### Bot Protection & Abuse Prevention
 
 **Multi-layer Protection:**
+
 1. **Consecutive Failure Tracking**: Detects and blocks suspicious analysis attempts
 2. **Daily Usage Limits**: Prevents resource exhaustion attacks
 3. **Content Size Limits**: Maximum 200 pages per analysis to prevent abuse
@@ -368,6 +384,7 @@ Priority Support   │  ❌  │   ❌   │   ❌   │   ✅
 ### External Service Integration
 
 #### OpenAI Integration
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                 OpenAI Integration Layer                     │
@@ -391,6 +408,7 @@ Priority Support   │  ❌  │   ❌   │   ❌   │   ✅
 ```
 
 #### Stripe Integration
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                  Stripe Payment Integration                  │
@@ -418,6 +436,7 @@ Priority Support   │  ❌  │   ❌   │   ❌   │   ✅
 ```
 
 #### Website Content Analysis
+
 ```
 Multi-Strategy Sitemap Discovery Pipeline:
 
@@ -481,12 +500,14 @@ Development Environment
 ### Build System Architecture
 
 #### Frontend Build (Vite)
+
 - **Tool**: Vite 4.x for optimal development experience
 - **Features**: Hot Module Replacement, optimized production bundles
 - **Output**: Static assets deployable to any CDN
 - **TypeScript**: Strict type checking with shared schema validation
 
 #### Backend Build (ESBuild)
+
 - **Tool**: ESBuild for fast TypeScript compilation
 - **Target**: Node.js runtime compatible with Railway
 - **Features**: Tree shaking, module bundling, environment variable injection
@@ -547,6 +568,7 @@ Git Repository (GitHub) → Platform Deployments
 #### Production Environment Variables
 
 **Frontend (Netlify):**
+
 ```bash
 VITE_API_URL=https://llm-txt-mastery-production.up.railway.app
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
@@ -555,6 +577,7 @@ VITE_SUPABASE_ANON_KEY=eyJ...
 ```
 
 **Backend (Railway):**
+
 ```bash
 # Database
 DATABASE_URL=postgresql://neondb_owner:npg_...@ep-dark-fire...
@@ -577,11 +600,13 @@ PORT=3000
 ### Operational Monitoring
 
 #### Health Checks
+
 - **Backend**: `/api/health` endpoint with database connectivity test
 - **Frontend**: Netlify built-in uptime monitoring
 - **Database**: Neon managed service monitoring
 
 #### Logging Strategy
+
 - **Railway**: Integrated logging with log aggregation
 - **Error Tracking**: Console error logging with stack traces
 - **Business Metrics**: Usage tracking, conversion funnel analytics
@@ -591,12 +616,14 @@ PORT=3000
 ### Performance Characteristics
 
 #### Response Time Targets
+
 - **API Endpoints**: < 200ms for simple operations
 - **Website Analysis**: 10-30 seconds depending on site size
 - **File Generation**: < 5 seconds for typical LLM.txt files
 - **Payment Processing**: < 3 seconds for Stripe checkout creation
 
 #### Scalability Metrics
+
 ```
 Current Performance Baselines:
 ┌─────────────────────────────────────┐
@@ -613,12 +640,14 @@ Current Performance Baselines:
 #### Optimization Strategies
 
 **Frontend Optimizations:**
+
 - Vite bundle splitting for faster initial loads
 - Image optimization and lazy loading
 - Service worker for offline capability (planned)
 - CDN caching for static assets
 
 **Backend Optimizations:**
+
 - Database connection pooling (implemented)
 - Batch processing for OpenAI requests
 - Response caching for repeated analyses
@@ -627,12 +656,14 @@ Current Performance Baselines:
 ### Error Handling & Recovery
 
 #### Error Classification
+
 1. **User Errors**: Invalid URLs, tier limit exceeded
-2. **System Errors**: Database connection, API timeouts  
+2. **System Errors**: Database connection, API timeouts
 3. **Integration Errors**: OpenAI API failures, Stripe webhook issues
 4. **Infrastructure Errors**: Railway deployment, Neon connectivity
 
 #### Recovery Mechanisms
+
 - **Retry Logic**: Exponential backoff for transient failures
 - **Circuit Breakers**: Prevent cascade failures in external integrations
 - **Graceful Degradation**: Free tier analysis when AI service unavailable
@@ -643,19 +674,22 @@ Current Performance Baselines:
 ### Horizontal Scaling Plan
 
 #### Phase 1: Current Architecture (0-1K users)
+
 - **Status**: ✅ Implemented
 - **Capacity**: Railway auto-scaling, Neon connection pooling
 - **Monitoring**: Basic health checks and usage tracking
 
 #### Phase 2: Enhanced Monitoring (1K-5K users)
+
 - **Timeline**: Q1 2025
-- **Additions**: 
+- **Additions**:
   - Application Performance Monitoring (APM)
   - Advanced error tracking and alerting
   - Database query optimization
   - Redis caching layer
 
 #### Phase 3: Microservices Transition (5K-25K users)
+
 - **Timeline**: Q2-Q3 2025
 - **Architecture Changes**:
   - Separate analysis service
@@ -664,6 +698,7 @@ Current Performance Baselines:
   - CDN for generated files
 
 #### Phase 4: Multi-region Deployment (25K+ users)
+
 - **Timeline**: Q4 2025
 - **Infrastructure**:
   - Multi-region Railway deployment
@@ -703,7 +738,8 @@ Scaling Progression:
 #### 1. Split Deployment Architecture ✅
 
 **Decision**: Deploy frontend to Netlify CDN, backend to Railway
-**Reasoning**: 
+**Reasoning**:
+
 - Optimal performance for static content delivery
 - Cost-effective scaling (CDN for frontend, compute for backend)
 - Independent scaling and deployment cycles
@@ -714,6 +750,7 @@ Scaling Progression:
 
 **Decision**: Single repository with shared type definitions
 **Reasoning**:
+
 - Type safety across frontend and backend
 - Single source of truth for data structures
 - Simplified development and deployment
@@ -724,6 +761,7 @@ Scaling Progression:
 
 **Decision**: Use Drizzle ORM for database operations
 **Reasoning**:
+
 - Better TypeScript integration
 - More control over generated SQL
 - Lighter runtime footprint
@@ -736,6 +774,7 @@ Scaling Progression:
 #### 1. Database Driver Compatibility (Critical Fix)
 
 **Issue**: Neon WebSocket driver incompatible with Railway containers
+
 ```typescript
 // Problem: WebSocket driver
 import { neon } from '@neondatabase/serverless';
@@ -744,11 +783,13 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pkg from 'pg';
 ```
+
 **Learning**: Always verify database drivers work in target deployment environment
 
 #### 2. Usage Tracking Race Conditions (August 1, 2025)
 
 **Issue**: Read and write functions used different user resolution logic
+
 ```typescript
 // Problem: Inconsistent user resolution
 async function getTodayUsage(email) {
@@ -763,11 +804,13 @@ async function resolveUserFromEmail(email) {
   // Single source of truth for user lookup
 }
 ```
+
 **Learning**: Ensure read and write operations use identical data access patterns
 
 #### 3. Import.meta.dirname Bundling Failures
 
 **Issue**: ES modules syntax caused Railway deployment crashes
+
 ```typescript
 // Problem: Not supported in all bundling contexts
 const dirname = import.meta.dirname;
@@ -775,20 +818,23 @@ const dirname = import.meta.dirname;
 // Solution: Node.js compatible approach
 const dirname = process.cwd();
 ```
+
 **Learning**: Test production bundling early, avoid cutting-edge ES module features
 
 #### 4. Foreign Key Constraint Violations
 
 **Issue**: Code referenced wrong table relationships
+
 ```sql
 -- Problem: usageTracking.userId → users.id (but code used emailCaptures.id)
-ALTER TABLE usageTracking ADD CONSTRAINT fk_user_id 
+ALTER TABLE usageTracking ADD CONSTRAINT fk_user_id
 FOREIGN KEY (userId) REFERENCES users(id);
 
 -- Solution: Align schema with application logic
-ALTER TABLE usageTracking ADD CONSTRAINT fk_user_id 
+ALTER TABLE usageTracking ADD CONSTRAINT fk_user_id
 FOREIGN KEY (userId) REFERENCES emailCaptures(id);
 ```
+
 **Learning**: Verify database relationships match application code before deployment
 
 #### 5. Customer Journey Optimization (July 27, 2025)
@@ -806,6 +852,7 @@ FOREIGN KEY (userId) REFERENCES emailCaptures(id);
 **Future**: Microservices with event-driven architecture
 
 **Migration Process:**
+
 1. ✅ Split codebase into client/server directories
 2. ✅ Configure CORS for cross-origin requests
 3. ✅ Environment-based API URL configuration
@@ -821,18 +868,21 @@ FOREIGN KEY (userId) REFERENCES emailCaptures(id);
 ### Performance Optimization History
 
 #### Frontend Optimizations Implemented
+
 - Vite build system for faster development and production builds
 - Tree shaking to reduce bundle size
 - Lazy loading for non-critical components
 - Optimized image handling and compression
 
 #### Backend Optimizations Implemented
+
 - Connection pooling for database efficiency
 - Batch processing for OpenAI API calls
 - Response compression for faster data transfer
 - Proper error handling to prevent resource leaks
 
 #### Infrastructure Optimizations
+
 - CDN deployment for static assets
 - Auto-scaling containers for backend processing
 - Database query optimization and indexing
@@ -841,12 +891,14 @@ FOREIGN KEY (userId) REFERENCES emailCaptures(id);
 ### Security Evolution
 
 #### Authentication Progression
+
 - **V1**: No authentication (MVP)
 - **V2**: Email-based identification (current)
 - **V3**: JWT tokens with refresh mechanism (planned)
 - **V4**: OAuth integration (Google, GitHub) (planned)
 
 #### Security Hardening Implemented
+
 - CORS configuration for production domains
 - Input validation and sanitization
 - Rate limiting to prevent abuse
@@ -856,12 +908,14 @@ FOREIGN KEY (userId) REFERENCES emailCaptures(id);
 ### Operational Maturity
 
 #### Current State: Level 2 (Managed)
+
 - Automated deployments
 - Basic monitoring and health checks
 - Error logging and basic analytics
 - Manual incident response
 
 #### Target State: Level 4 (Self-Healing)
+
 - Automated incident response
 - Predictive scaling
 - Comprehensive observability

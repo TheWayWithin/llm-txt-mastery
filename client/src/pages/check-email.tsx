@@ -1,10 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft, RefreshCw } from "lucide-react";
-import { Link } from "wouter";
-import { useState } from "react";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Link } from 'wouter';
+import { useState } from 'react';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CheckEmailPage() {
   const [isResending, setIsResending] = useState(false);
@@ -14,9 +14,9 @@ export default function CheckEmailPage() {
   const handleResendEmail = async () => {
     if (!email) {
       toast({
-        title: "Error",
-        description: "No email address found. Please sign up again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'No email address found. Please sign up again.',
+        variant: 'destructive',
       });
       return;
     }
@@ -24,25 +24,25 @@ export default function CheckEmailPage() {
     setIsResending(true);
     try {
       const response = await apiRequest('POST', '/api/auth/resend-verification', { email });
-      
+
       if (response.ok) {
         toast({
-          title: "Email sent!",
+          title: 'Email sent!',
           description: "We've sent another verification email. Please check your inbox.",
         });
       } else {
         const error = await response.json();
         toast({
-          title: "Failed to resend email",
-          description: error.message || "Please try again later.",
-          variant: "destructive"
+          title: 'Failed to resend email',
+          description: error.message || 'Please try again later.',
+          variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to resend verification email. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to resend verification email. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsResending(false);
@@ -61,12 +61,8 @@ export default function CheckEmailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center space-y-2">
-              <p className="text-ai-silver">
-                We've sent a verification link to:
-              </p>
-              <p className="font-semibold text-framework-black">
-                {email || 'your email address'}
-              </p>
+              <p className="text-ai-silver">We've sent a verification link to:</p>
+              <p className="font-semibold text-framework-black">{email || 'your email address'}</p>
             </div>
 
             <div className="bg-innovation-teal/5 rounded-lg p-4 space-y-2">
@@ -117,9 +113,7 @@ export default function CheckEmailPage() {
               <p>
                 Already verified?{' '}
                 <Link href="/login">
-                  <a className="text-innovation-teal hover:underline">
-                    Sign in here
-                  </a>
+                  <a className="text-innovation-teal hover:underline">Sign in here</a>
                 </Link>
               </p>
             </div>

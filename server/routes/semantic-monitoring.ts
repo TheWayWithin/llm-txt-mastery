@@ -11,13 +11,13 @@ const router = Router();
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
     }
 
-    const timeRange = req.query.timeRange as '1h' | '6h' | '24h' | '7d' || '24h';
+    const timeRange = (req.query.timeRange as '1h' | '6h' | '24h' | '7d') || '24h';
     const metrics = await semanticMonitoring.getDashboardMetrics(timeRange);
 
     res.json(metrics);
@@ -34,15 +34,15 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
 router.get('/feature/:feature', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
     }
 
     const feature = req.params.feature;
-    const timeRange = req.query.timeRange as '1h' | '6h' | '24h' | '7d' || '24h';
-    
+    const timeRange = (req.query.timeRange as '1h' | '6h' | '24h' | '7d') || '24h';
+
     const metrics = await semanticMonitoring.getFeatureMetrics(feature, timeRange);
 
     res.json(metrics);
@@ -59,11 +59,11 @@ router.get('/feature/:feature', authenticate, async (req: Request, res: Response
 router.post('/log', authenticate, async (req: Request, res: Response) => {
   try {
     const logEntry = req.body;
-    
+
     // Validate required fields
     if (!logEntry.feature || !logEntry.operation || !logEntry.status) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: feature, operation, status' 
+      return res.status(400).json({
+        error: 'Missing required fields: feature, operation, status',
       });
     }
 
@@ -83,11 +83,11 @@ router.post('/log', authenticate, async (req: Request, res: Response) => {
 router.post('/metrics', authenticate, async (req: Request, res: Response) => {
   try {
     const metric = req.body;
-    
+
     // Validate required fields
     if (!metric.feature || !metric.operation || !metric.metric || metric.value === undefined) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: feature, operation, metric, value' 
+      return res.status(400).json({
+        error: 'Missing required fields: feature, operation, metric, value',
       });
     }
 
@@ -110,14 +110,14 @@ router.post('/metrics', authenticate, async (req: Request, res: Response) => {
 router.get('/realtime/:feature', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
     }
 
     const feature = req.params.feature;
-    
+
     // Get real-time metrics from Redis (implementation depends on specific needs)
     // For now, return a placeholder structure
     res.json({
@@ -126,9 +126,9 @@ router.get('/realtime/:feature', authenticate, async (req: Request, res: Respons
         currentRequests: 0,
         averageResponseTime: 0,
         errorRate: 0,
-        throughput: 0
+        throughput: 0,
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   } catch (error) {
     console.error('Error getting real-time metrics:', error);
@@ -144,14 +144,14 @@ router.get('/health', async (req: Request, res: Response) => {
   try {
     const healthCheck = await semanticMonitoring.healthCheck();
     const status = healthCheck.status === 'healthy' ? 200 : 503;
-    
+
     res.status(status).json(healthCheck);
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
       details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
     });
   }
 });
@@ -163,7 +163,7 @@ router.get('/health', async (req: Request, res: Response) => {
 router.get('/alerts', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
@@ -174,7 +174,7 @@ router.get('/alerts', authenticate, async (req: Request, res: Response) => {
     res.json({
       alerts: [],
       count: 0,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   } catch (error) {
     console.error('Error getting alerts:', error);

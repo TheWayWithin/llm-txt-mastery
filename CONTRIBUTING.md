@@ -13,11 +13,13 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 ## 🛠️ Development Setup
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL database
 - OpenAI API key
 
 ### Local Development
+
 1. Fork the repository
 2. Clone your fork:
    ```bash
@@ -45,6 +47,7 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 ## 📝 Code Style
 
 ### Frontend (React/TypeScript)
+
 - Use TypeScript for all new code
 - Follow React best practices and hooks patterns
 - Use Tailwind CSS for styling
@@ -52,6 +55,7 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 - Use TanStack Query for server state management
 
 ### Backend (Express/TypeScript)
+
 - Use TypeScript with strict mode
 - Follow RESTful API conventions
 - Use Drizzle ORM for database operations
@@ -59,6 +63,7 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 - Add input validation with Zod schemas
 
 ### Database
+
 - Use Drizzle ORM for all database operations
 - Run `npm run db:push` to apply schema changes
 - Never write raw SQL migrations
@@ -67,12 +72,14 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 ## 🔍 Testing
 
 ### Manual Testing
+
 - Test all user flows from URL input to file generation
 - Verify sitemap discovery works with various websites
 - Check content analysis quality and accuracy
 - Test file generation and download functionality
 
 ### Automated Testing
+
 - Unit tests for utility functions
 - Integration tests for API endpoints
 - Component tests for React components
@@ -80,6 +87,7 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 ## 📋 Pull Request Process
 
 1. **Create a Branch**: Create a feature branch from main
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -95,11 +103,13 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
    - Verify no TypeScript errors
 
 4. **Commit Changes**: Use descriptive commit messages
+
    ```bash
    git commit -m "feat: add support for XML sitemap parsing"
    ```
 
 5. **Push Branch**: Push to your fork
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -113,6 +123,7 @@ We welcome contributions to make LLM.txt Mastery even better! This document outl
 ## 🐛 Bug Reports
 
 When reporting bugs, please include:
+
 - **Description**: Clear description of the issue
 - **Steps to Reproduce**: Detailed steps to recreate the bug
 - **Expected Behavior**: What should happen
@@ -123,6 +134,7 @@ When reporting bugs, please include:
 ## 💡 Feature Requests
 
 For feature requests, please provide:
+
 - **Problem**: What problem does this solve?
 - **Solution**: Describe your proposed solution
 - **Alternatives**: Any alternative solutions considered
@@ -131,6 +143,7 @@ For feature requests, please provide:
 ## 📚 Documentation
 
 Help improve our documentation:
+
 - Fix typos or unclear instructions
 - Add examples or use cases
 - Update API documentation
@@ -146,18 +159,21 @@ Help improve our documentation:
 ## 🔧 Architecture Overview
 
 ### Frontend (`/client`)
+
 - React 18 with TypeScript
 - Tailwind CSS + shadcn/ui
 - TanStack Query for state management
 - Wouter for routing
 
 ### Backend (`/server`)
+
 - Express.js with TypeScript
 - RESTful API design
 - Drizzle ORM for database
 - OpenAI integration
 
 ### Shared (`/shared`)
+
 - Common schemas and types
 - Shared validation logic
 - Database schema definitions
@@ -165,6 +181,7 @@ Help improve our documentation:
 ## 🚀 Deployment
 
 The project is designed for Replit deployment:
+
 - Single command deployment
 - Environment variable management
 - PostgreSQL database integration

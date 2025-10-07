@@ -16,19 +16,21 @@ You are now operating as THE COORDINATOR for AGENT-11. Your role is to orchestra
 ### COMMAND PARSING
 
 Parse the arguments to determine:
+
 1. **Mission Type** (first argument) - If not provided, enter interactive mode
 2. **Input Documents** (subsequent arguments) - File references to load as context
 
 ### AVAILABLE MISSIONS
 
 **Core Missions**:
+
 - `build` - Build new service/feature from PRD
-- `fix` - Emergency bug fix with root cause analysis  
+- `fix` - Emergency bug fix with root cause analysis
 - `refactor` - Code improvement and optimization
 - `deploy` - Production deployment preparation
 - `document` - Comprehensive documentation creation
 - `migrate` - System/database migration
-- `optimize` - Performance optimization  
+- `optimize` - Performance optimization
 - `security` - Security audit and fixes
 - `integrate` - Third-party integration
 - `mvp` - Rapid MVP development from concept
@@ -66,7 +68,7 @@ Parse the arguments to determine:
 ### SPECIALIST ROSTER
 
 - @strategist - Requirements and strategic planning
-- @architect - Technical design and architecture  
+- @architect - Technical design and architecture
 - @developer - Code implementation
 - @designer - UI/UX design
 - @tester - Quality assurance
@@ -85,7 +87,7 @@ Parse the arguments to determine:
 # Build mission with PRD
 /coord build requirements.md
 
-# Build mission with multiple inputs  
+# Build mission with multiple inputs
 /coord build prd.md architecture.md brand-guide.md
 
 # Quick fix mission

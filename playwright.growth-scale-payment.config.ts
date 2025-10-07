@@ -13,13 +13,14 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report-growth-scale-payments' }],
     ['list'],
-    ['json', { outputFile: 'test-results-growth-scale-payments.json' }]
+    ['json', { outputFile: 'test-results-growth-scale-payments.json' }],
   ],
-  
+
   use: {
-    baseURL: process.env.TEST_ENV === 'production' 
-      ? 'https://www.llmtxtmastery.com' 
-      : 'http://localhost:8080',
+    baseURL:
+      process.env.TEST_ENV === 'production'
+        ? 'https://www.llmtxtmastery.com'
+        : 'http://localhost:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -30,14 +31,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium-growth-scale-payments',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
       },
     },
     {
       name: 'firefox-growth-scale-payments',
-      use: { 
+      use: {
         ...devices['Desktop Firefox'],
         viewport: { width: 1280, height: 720 },
       },
@@ -45,10 +46,13 @@ export default defineConfig({
   ],
 
   // Auto-start dev server for local testing
-  webServer: process.env.TEST_ENV === 'production' ? undefined : {
-    command: 'npm run dev',
-    url: 'http://localhost:8080',
-    reuseExistingServer: true,
-    timeout: 120 * 1000,
-  },
+  webServer:
+    process.env.TEST_ENV === 'production'
+      ? undefined
+      : {
+          command: 'npm run dev',
+          url: 'http://localhost:8080',
+          reuseExistingServer: true,
+          timeout: 120 * 1000,
+        },
 });

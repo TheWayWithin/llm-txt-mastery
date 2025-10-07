@@ -5,7 +5,7 @@ async function initAuthTables() {
     // Drop existing tables if they exist (to fix column name mismatch)
     await pool.query('DROP TABLE IF EXISTS user_sessions CASCADE');
     await pool.query('DROP TABLE IF EXISTS auth_users CASCADE');
-    
+
     // Create auth_users table with correct column names
     await pool.query(`
       CREATE TABLE auth_users (
@@ -41,9 +41,15 @@ async function initAuthTables() {
 
     // Create indexes
     await pool.query('CREATE INDEX IF NOT EXISTS idx_auth_users_email ON auth_users(email)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_user_sessions_refresh_token_hash ON user_sessions(refresh_token_hash)');
+    await pool.query(
+      'CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id)'
+    );
+    await pool.query(
+      'CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash)'
+    );
+    await pool.query(
+      'CREATE INDEX IF NOT EXISTS idx_user_sessions_refresh_token_hash ON user_sessions(refresh_token_hash)'
+    );
     console.log('✅ Created indexes');
 
     console.log('✅ Auth tables initialized successfully');

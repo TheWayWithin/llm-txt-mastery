@@ -1,4 +1,4 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { QueryClient, QueryFunction } from '@tanstack/react-query';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -10,48 +10,46 @@ async function throwIfResNotOk(res: Response) {
 export async function apiRequest(
   method: string,
   url: string,
-  data?: unknown | undefined,
+  data?: unknown | undefined
 ): Promise<Response> {
   // Use VITE_API_URL for backend requests, fallback to relative URLs for development
   const baseUrl = import.meta.env.VITE_API_URL || '';
   const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
-  
+
   // Get JWT token from sessionStorage for authenticated requests
   const token = sessionStorage.getItem('auth_access_token');
-  
+
   const res = await fetch(fullUrl, {
     method,
     headers: {
-      ...(data ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      ...(data ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
+    credentials: 'include',
   });
 
   await throwIfResNotOk(res);
   return res;
 }
 
-type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
-  on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
+type UnauthorizedBehavior = 'returnNull' | 'throw';
+export const getQueryFn: <T>(options: { on401: UnauthorizedBehavior }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const baseUrl = import.meta.env.VITE_API_URL || '';
-    const url = queryKey.join("/") as string;
+    const url = queryKey.join('/') as string;
     const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
-    
+
     // Get JWT token from sessionStorage for authenticated requests
     const token = sessionStorage.getItem('auth_access_token');
-    
+
     const res = await fetch(fullUrl, {
-      headers: token ? { "Authorization": `Bearer ${token}` } : {},
-      credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
     });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    if (unauthorizedBehavior === 'returnNull' && res.status === 401) {
       return null;
     }
 
@@ -62,7 +60,7 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
+      queryFn: getQueryFn({ on401: 'throw' }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,

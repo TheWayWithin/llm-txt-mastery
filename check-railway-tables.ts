@@ -8,7 +8,10 @@ async function checkTables() {
     WHERE table_schema = 'public' 
     ORDER BY table_name
   `);
-  console.log('Railway database tables:', result.rows.map(r => r.table_name));
+  console.log(
+    'Railway database tables:',
+    result.rows.map((r) => r.table_name)
+  );
   process.exit(0);
 }
 

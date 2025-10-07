@@ -1,81 +1,64 @@
-import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import { 
-  User, 
-  Coffee, 
-  Crown, 
-  Zap, 
-  Star, 
-  LogOut, 
-  Settings,
-  CreditCard,
-  Search
-} from 'lucide-react'
-import { useLocation } from 'wouter'
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import { User, Coffee, Crown, Zap, Star, LogOut, Settings, CreditCard, Search } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 export function AuthNav() {
-  const { user, signOut, loading } = useAuth()
-  const [location, setLocation] = useLocation()
+  const { user, signOut, loading } = useAuth();
+  const [location, setLocation] = useLocation();
 
   if (loading) {
     return (
       <div className="flex items-center space-x-2">
         <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
       </div>
-    )
+    );
   }
 
   const getTierIcon = (tier?: string) => {
     switch (tier) {
       case 'coffee':
-        return <Coffee className="h-3 w-3" />
+        return <Coffee className="h-3 w-3" />;
       case 'growth':
-        return <Zap className="h-3 w-3" />
+        return <Zap className="h-3 w-3" />;
       case 'scale':
-        return <Crown className="h-3 w-3" />
+        return <Crown className="h-3 w-3" />;
       default:
-        return <Star className="h-3 w-3" />
+        return <Star className="h-3 w-3" />;
     }
-  }
+  };
 
   const getTierColor = (tier?: string) => {
     switch (tier) {
       case 'coffee':
-        return 'bg-orange-100 text-orange-800 border-orange-200'
+        return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'growth':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'scale':
-        return 'bg-purple-100 text-purple-800 border-purple-200'
+        return 'bg-purple-100 text-purple-800 border-purple-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  }
+  };
 
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
-        <Button 
-          variant="outline"
-          onClick={() => setLocation('/login')}
-        >
+        <Button variant="outline" onClick={() => setLocation('/login')}>
           Sign In
         </Button>
-        <Button 
-          onClick={() => setLocation('/signup')}
-        >
-          Get Started
-        </Button>
+        <Button onClick={() => setLocation('/signup')}>Get Started</Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -108,46 +91,38 @@ export function AuthNav() {
               <span className="hidden sm:inline-block">{user.email?.split('@')[0]}</span>
             </Button>
           </DropdownMenuTrigger>
-          
+
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div>
                 <div className="font-medium">{user.email}</div>
-                <div className="text-xs text-gray-500 capitalize">
-                  {user.tier} tier
-                </div>
+                <div className="text-xs text-gray-500 capitalize">{user.tier} tier</div>
               </div>
             </DropdownMenuLabel>
-            
+
             <DropdownMenuSeparator />
-            
-            <DropdownMenuItem 
-              onClick={() => setLocation('/analyze')}
-              className="cursor-pointer"
-            >
+
+            <DropdownMenuItem onClick={() => setLocation('/analyze')} className="cursor-pointer">
               <Search className="mr-2 h-4 w-4" />
               New Analysis
             </DropdownMenuItem>
-            
-            <DropdownMenuItem 
-              onClick={() => setLocation('/dashboard')}
-              className="cursor-pointer"
-            >
+
+            <DropdownMenuItem onClick={() => setLocation('/dashboard')} className="cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               Dashboard
             </DropdownMenuItem>
-            
-            <DropdownMenuItem 
+
+            <DropdownMenuItem
               onClick={() => setLocation('/dashboard?tab=analyses')}
               className="cursor-pointer"
             >
               <CreditCard className="mr-2 h-4 w-4" />
               My Analyses
             </DropdownMenuItem>
-            
+
             <DropdownMenuSeparator />
-            
-            <DropdownMenuItem 
+
+            <DropdownMenuItem
               onClick={signOut}
               className="cursor-pointer text-red-600 focus:text-red-600"
             >
@@ -158,5 +133,5 @@ export function AuthNav() {
         </DropdownMenu>
       </div>
     </>
-  )
+  );
 }

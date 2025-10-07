@@ -7,35 +7,43 @@ Your privacy policy has been updated to be GDPR-compliant and the Enzuzo integra
 ## Steps to Complete Setup:
 
 ### 1. Create Enzuzo Account
+
 - Go to https://www.enzuzo.com/
 - Sign up for **Pro plan** ($9/month) - Required for GTM integration
 - Verify your email
 
 ### 2. Add Your Website in Enzuzo Dashboard
+
 - Click "Add Website"
 - Enter domain: `www.llmtxtmastery.com`
 - Business type: "SaaS/Technology"
 - Installation method: **"Google Tag Manager"**
 
 ### 3. Configure GDPR Settings
+
 **Cookie Categories to Enable:**
+
 - ✅ Necessary (always required)
 - ✅ Analytics (for Google Analytics 4)
 - ✅ Marketing (for future tools)
 
 **Banner Settings:**
+
 - Position: Bottom-center
 - Theme: Light
 - Language: English
 - Privacy Policy URL: https://www.llmtxtmastery.com/privacy
 
 ### 4. Get Your Website ID
+
 After setup, Enzuzo will show you a **Website ID** like: `enz_abc123def456`
 
 ### 5. Activate Integration (I'll help with this)
+
 Once you have the Website ID:
 
 1. **Update .env file:**
+
    ```
    VITE_ENZUZO_WEBSITE_ID=enz_your_actual_website_id_here
    ```
@@ -51,7 +59,7 @@ Once you have the Website ID:
 ✅ **GDPR Compliant**: Cookie consent banner and preference management  
 ✅ **GTM Integration**: Automatic consent mode for Google Analytics  
 ✅ **Privacy Controls**: Users can opt-out of analytics while keeping essential functions  
-✅ **Legal Protection**: EU-compliant data processing and consent logging  
+✅ **Legal Protection**: EU-compliant data processing and consent logging
 
 ## Quick Questions:
 

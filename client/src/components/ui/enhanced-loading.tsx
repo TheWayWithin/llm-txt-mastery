@@ -1,8 +1,8 @@
-import { Loader2, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { Loader2, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 export interface LoadingState {
   type: 'loading' | 'success' | 'error' | 'warning';
@@ -52,58 +52,52 @@ export function EnhancedLoading({ state, className, animated = true }: EnhancedL
   const getCardStyles = () => {
     switch (state.type) {
       case 'success':
-        return "border-green-200 bg-green-50";
+        return 'border-green-200 bg-green-50';
       case 'error':
-        return "border-red-200 bg-red-50";
+        return 'border-red-200 bg-red-50';
       case 'warning':
-        return "border-yellow-200 bg-yellow-50";
+        return 'border-yellow-200 bg-yellow-50';
       default:
-        return "border-slate-200 bg-white";
+        return 'border-slate-200 bg-white';
     }
   };
 
   const getTitleStyles = () => {
     switch (state.type) {
       case 'success':
-        return "text-green-800";
+        return 'text-green-800';
       case 'error':
-        return "text-red-800";
+        return 'text-red-800';
       case 'warning':
-        return "text-yellow-800";
+        return 'text-yellow-800';
       default:
-        return "text-framework-black";
+        return 'text-framework-black';
     }
   };
 
   const getMessageStyles = () => {
     switch (state.type) {
       case 'success':
-        return "text-green-700";
+        return 'text-green-700';
       case 'error':
-        return "text-red-700";
+        return 'text-red-700';
       case 'warning':
-        return "text-yellow-700";
+        return 'text-yellow-700';
       default:
-        return "text-ai-silver";
+        return 'text-ai-silver';
     }
   };
 
   return (
-    <Card className={cn("w-full max-w-2xl mx-auto", getCardStyles(), className)}>
+    <Card className={cn('w-full max-w-2xl mx-auto', getCardStyles(), className)}>
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0 mt-1">
-            {getIcon()}
-          </div>
-          
+          <div className="flex-shrink-0 mt-1">{getIcon()}</div>
+
           <div className="flex-1 min-w-0">
-            <h3 className={cn("text-lg font-semibold mb-2", getTitleStyles())}>
-              {state.title}
-            </h3>
-            
-            <p className={cn("text-sm mb-4", getMessageStyles())}>
-              {state.message}
-            </p>
+            <h3 className={cn('text-lg font-semibold mb-2', getTitleStyles())}>{state.title}</h3>
+
+            <p className={cn('text-sm mb-4', getMessageStyles())}>{state.message}</p>
 
             {/* Time Estimate */}
             {state.timeEstimate && (
@@ -120,10 +114,7 @@ export function EnhancedLoading({ state, className, animated = true }: EnhancedL
                   <span>Progress</span>
                   <span>{Math.round(animatedProgress)}%</span>
                 </div>
-                <Progress 
-                  value={animatedProgress} 
-                  className="h-2"
-                />
+                <Progress value={animatedProgress} className="h-2" />
               </div>
             )}
 
@@ -152,19 +143,19 @@ export const LOADING_STATES = {
     title: 'Verifying Access',
     message: 'Checking your authentication status and tier permissions...',
     timeEstimate: 'Usually takes a few seconds',
-    showProgress: false
+    showProgress: false,
   },
-  
+
   SITEMAP_DISCOVERY: {
     type: 'loading' as const,
     title: 'Discovering Content Structure',
-    message: 'Analyzing your website\'s sitemap and content organization...',
+    message: "Analyzing your website's sitemap and content organization...",
     timeEstimate: 'Typically takes 15-30 seconds',
     details: [
       'Checking for sitemap.xml',
-      'Analyzing robots.txt directives', 
-      'Discovering page hierarchy'
-    ] as string[]
+      'Analyzing robots.txt directives',
+      'Discovering page hierarchy',
+    ] as string[],
   },
 
   CONTENT_ANALYSIS: {
@@ -172,7 +163,7 @@ export const LOADING_STATES = {
     title: 'AI-Powered Content Analysis',
     message: 'Our AI is analyzing your pages for quality and relevance...',
     timeEstimate: 'Usually takes 1-2 minutes',
-    showProgress: true
+    showProgress: true,
   },
 
   FILE_GENERATION: {
@@ -183,8 +174,8 @@ export const LOADING_STATES = {
     details: [
       'Formatting selected pages',
       'Generating descriptions',
-      'Validating compliance'
-    ] as string[]
+      'Validating compliance',
+    ] as string[],
   },
 
   COFFEE_TIER_LOADING: {
@@ -195,7 +186,7 @@ export const LOADING_STATES = {
     details: [
       'Applying premium analysis algorithms',
       'Accessing enhanced AI models',
-      'Generating detailed insights'
-    ] as string[]
-  }
+      'Generating detailed insights',
+    ] as string[],
+  },
 };

@@ -1,146 +1,164 @@
-import { useState, useEffect } from "react"
-import { useLocation } from "wouter"
-import { useAuth } from "@/contexts/AuthContext"
-import { authApi } from "@/lib/auth-api"
-import { validatePasswordClient, isValidEmail } from "@/lib/auth-utils"
-import { getTierDisplayName, getTierDescription, getTierColorClass } from "@/lib/tier-utils"
-import { trackEvent } from "@/lib/analytics"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Eye, EyeOff, Mail, Lock, User, Check, X, Loader2, Shield, Zap, Coffee, ArrowRight } from "lucide-react"
-import { Link } from "wouter"
-import Footer from "@/components/footer"
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
+import { authApi } from '@/lib/auth-api';
+import { validatePasswordClient, isValidEmail } from '@/lib/auth-utils';
+import { getTierDisplayName, getTierDescription, getTierColorClass } from '@/lib/tier-utils';
+import { trackEvent } from '@/lib/analytics';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  Check,
+  X,
+  Loader2,
+  Shield,
+  Zap,
+  Coffee,
+  ArrowRight,
+} from 'lucide-react';
+import { Link } from 'wouter';
+import Footer from '@/components/footer';
 
 export default function SignupPage() {
-  const [, navigate] = useLocation()
-  const { signUp, isAuthenticated, user } = useAuth()
-  
+  const [, navigate] = useLocation();
+  const { signUp, isAuthenticated, user } = useAuth();
+
   // URL parameters
-  const urlParams = new URLSearchParams(window.location.search)
-  const emailParam = urlParams.get('email') || ''
-  const tierParam = urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale' || 'coffee'
-  const websiteUrlParam = urlParams.get('websiteUrl') || ''
-  
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailParam = urlParams.get('email') || '';
+  const tierParam =
+    (urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale') || 'coffee';
+  const websiteUrlParam = urlParams.get('websiteUrl') || '';
+
   // Form state
-  const [email, setEmail] = useState(emailParam)
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [selectedTier, setSelectedTier] = useState(tierParam)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  
+  const [email, setEmail] = useState(emailParam);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedTier, setSelectedTier] = useState(tierParam);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
   // Validation state
   const [passwordValidation, setPasswordValidation] = useState<{
     valid: boolean;
     errors: string[];
     requirements: string[];
-  } | null>(null)
-  const [emailChecking, setEmailChecking] = useState(false)
-  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null)
+  } | null>(null);
+  const [emailChecking, setEmailChecking] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
   // Redirect authenticated users
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('✅ User already authenticated, redirecting to analyze page')
-      const targetUrl = websiteUrlParam 
+      console.log('✅ User already authenticated, redirecting to analyze page');
+      const targetUrl = websiteUrlParam
         ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
-        : '/analyze'
-      navigate(targetUrl)
+        : '/analyze';
+      navigate(targetUrl);
     }
-  }, [isAuthenticated, user, navigate, websiteUrlParam])
+  }, [isAuthenticated, user, navigate, websiteUrlParam]);
 
   // Validate password strength as user types
   useEffect(() => {
     if (password.length > 0) {
-      const clientValidation = validatePasswordClient(password)
-      setPasswordValidation(clientValidation)
-      
+      const clientValidation = validatePasswordClient(password);
+      setPasswordValidation(clientValidation);
+
       // Also try API validation for consistency
-      authApi.validatePassword(password)
-        .then(apiValidation => {
+      authApi
+        .validatePassword(password)
+        .then((apiValidation) => {
           if (apiValidation.valid !== clientValidation.valid) {
-            setPasswordValidation(apiValidation)
+            setPasswordValidation(apiValidation);
           }
         })
         .catch(() => {
           // Keep client-side validation if API fails
-        })
+        });
     } else {
-      setPasswordValidation(null)
+      setPasswordValidation(null);
     }
-  }, [password])
+  }, [password]);
 
   // Check email availability as user types
   useEffect(() => {
     if (email && isValidEmail(email)) {
-      setEmailChecking(true)
+      setEmailChecking(true);
       const timeoutId = setTimeout(() => {
-        authApi.checkEmailAvailability(email)
+        authApi
+          .checkEmailAvailability(email)
           .then(setEmailAvailable)
           .catch(() => setEmailAvailable(null))
-          .finally(() => setEmailChecking(false))
-      }, 500) // Debounce for 500ms
+          .finally(() => setEmailChecking(false));
+      }, 500); // Debounce for 500ms
 
-      return () => clearTimeout(timeoutId)
+      return () => clearTimeout(timeoutId);
     } else {
-      setEmailAvailable(null)
-      setEmailChecking(false)
+      setEmailAvailable(null);
+      setEmailChecking(false);
     }
-  }, [email])
+  }, [email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     // Track signup attempt
     trackEvent('signup_attempt', {
       tier_selected: selectedTier,
       website_url: websiteUrlParam,
-      event_category: 'auth'
+      event_category: 'auth',
     });
 
     try {
       // Enhanced validation
       if (!isValidEmail(email)) {
-        throw new Error("Please enter a valid email address")
+        throw new Error('Please enter a valid email address');
       }
 
       if (emailAvailable === false) {
-        throw new Error("Email address is already registered")
+        throw new Error('Email address is already registered');
       }
 
-      const validation = passwordValidation || validatePasswordClient(password)
+      const validation = passwordValidation || validatePasswordClient(password);
       if (!validation.valid) {
-        throw new Error("Password does not meet security requirements")
+        throw new Error('Password does not meet security requirements');
       }
 
       if (password !== confirmPassword) {
-        throw new Error("Passwords do not match")
+        throw new Error('Passwords do not match');
       }
 
       // Handle paid tier checkouts BEFORE creating user (Coffee, Growth, Scale)
       if (selectedTier === 'coffee' || selectedTier === 'growth' || selectedTier === 'scale') {
-        console.log(`💳 ${selectedTier} tier selected, redirecting to Stripe checkout WITHOUT creating user first`)
-        
+        console.log(
+          `💳 ${selectedTier} tier selected, redirecting to Stripe checkout WITHOUT creating user first`
+        );
+
         // Track signup attempt (not complete yet since payment pending)
         trackEvent('signup_stripe_redirect', {
           tier_selected: selectedTier,
           website_url: websiteUrlParam,
-          event_category: 'auth'
+          event_category: 'auth',
         });
-        
+
         // Store credentials temporarily for after payment
         sessionStorage.setItem('pendingSignupEmail', email);
         sessionStorage.setItem('pendingSignupPassword', btoa(password)); // Basic encoding for session storage
         sessionStorage.setItem('pendingSignupTier', selectedTier);
-        
+
         // Determine the correct endpoint based on tier
         let endpoint = '';
         if (selectedTier === 'coffee') {
@@ -150,7 +168,7 @@ export default function SignupPage() {
         } else if (selectedTier === 'scale') {
           endpoint = '/api/stripe/create-scale-checkout';
         }
-        
+
         // Create Stripe checkout session
         const response = await fetch(`${import.meta.env.VITE_API_URL || ''}${endpoint}`, {
           method: 'POST',
@@ -162,13 +180,13 @@ export default function SignupPage() {
             ...(websiteUrlParam && { websiteUrl: websiteUrlParam }), // Only include if not empty
             metadata: {
               password: btoa(password), // Will be used by webhook to create user
-              tier: selectedTier
-            }
-          })
+              tier: selectedTier,
+            },
+          }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.url) {
           // Redirect to Stripe checkout
           window.location.href = data.url;
@@ -177,101 +195,103 @@ export default function SignupPage() {
           throw new Error('Failed to create checkout session');
         }
       }
-      
+
       // Only create user account for starter tier
-      await signUp(email, password, confirmPassword, selectedTier)
-      
-      console.log('✅ Registration successful')
-      
+      await signUp(email, password, confirmPassword, selectedTier);
+
+      console.log('✅ Registration successful');
+
       // Track successful signup
       trackEvent('signup_complete', {
         tier_selected: selectedTier,
         website_url: websiteUrlParam,
-        event_category: 'auth'
+        event_category: 'auth',
       });
-      
+
       // Store email and website URL for after verification
-      localStorage.setItem('pendingVerificationEmail', email)
+      localStorage.setItem('pendingVerificationEmail', email);
       if (websiteUrlParam) {
-        localStorage.setItem('pendingAnalysisUrl', websiteUrlParam)
+        localStorage.setItem('pendingAnalysisUrl', websiteUrlParam);
       }
-      
+
       // Redirect to check-email page instead of analyze
-      console.log('Redirecting to check-email page')
-      window.location.href = '/check-email'
-      
+      console.log('Redirecting to check-email page');
+      window.location.href = '/check-email';
     } catch (err) {
-      console.error('Signup error:', err)
-      const errorMessage = err instanceof Error ? err.message : "Signup failed"
-      
+      console.error('Signup error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Signup failed';
+
       // Handle specific error types
       if (errorMessage.includes('Too many registration attempts') || errorMessage.includes('429')) {
-        setError("Too many registration attempts. Please wait a few minutes and try again.")
-      } else if (errorMessage.includes('Email already exists') || errorMessage.includes('already registered')) {
-        setError("An account with this email already exists. Please sign in instead.")
+        setError('Too many registration attempts. Please wait a few minutes and try again.');
+      } else if (
+        errorMessage.includes('Email already exists') ||
+        errorMessage.includes('already registered')
+      ) {
+        setError('An account with this email already exists. Please sign in instead.');
       } else {
-        setError(errorMessage)
+        setError(errorMessage);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
       case 'starter':
-        return <Shield className="h-5 w-5" />
+        return <Shield className="h-5 w-5" />;
       case 'coffee':
-        return <Coffee className="h-5 w-5" />
+        return <Coffee className="h-5 w-5" />;
       case 'growth':
-        return <Zap className="h-5 w-5" />
+        return <Zap className="h-5 w-5" />;
       case 'scale':
-        return <Zap className="h-5 w-5" />
+        return <Zap className="h-5 w-5" />;
       default:
-        return <User className="h-5 w-5" />
+        return <User className="h-5 w-5" />;
     }
-  }
+  };
 
   const getTierBenefits = (tier: string) => {
     switch (tier) {
       case 'starter':
         return [
-          "❌ Only 3 analyses per day (then locked out)",
-          "❌ Severely limited to 20 pages only",
-          "❌ No AI quality scoring (missing critical content)",
-          "❌ Basic HTML extraction only",
-          "⚠️ WARNING: AI will only see 20 pages - missing your pricing, features, case studies, and 90% of what makes you unique!"
-        ]
+          '❌ Only 3 analyses per day (then locked out)',
+          '❌ Severely limited to 20 pages only',
+          '❌ No AI quality scoring (missing critical content)',
+          '❌ Basic HTML extraction only',
+          '⚠️ WARNING: AI will only see 20 pages - missing your pricing, features, case studies, and 90% of what makes you unique!',
+        ];
       case 'coffee':
         return [
-          "✅ 100 monthly analysis credits",
-          "✅ 200 pages per analysis (10x more than free)",
-          "✅ AI-powered content scoring for all pages",
-          "✅ Priority processing and support",
-          "✅ 30-day money-back guarantee"
-        ]
+          '✅ 100 monthly analysis credits',
+          '✅ 200 pages per analysis (10x more than free)',
+          '✅ AI-powered content scoring for all pages',
+          '✅ Priority processing and support',
+          '✅ 30-day money-back guarantee',
+        ];
       case 'growth':
         return [
-          "✅ 100 monthly analyses (3x Coffee tier capacity)",
-          "✅ 1,000 pages per analysis (perfect for large sites)",
-          "✅ Bulk website processing - analyze multiple sites",
-          "✅ Export to CSV/JSON for data analysis",
-          "✅ Skip the queue - priority processing",
-          "🚀 Handle enterprise websites competitors can't touch"
-        ]
+          '✅ 100 monthly analyses (3x Coffee tier capacity)',
+          '✅ 1,000 pages per analysis (perfect for large sites)',
+          '✅ Bulk website processing - analyze multiple sites',
+          '✅ Export to CSV/JSON for data analysis',
+          '✅ Skip the queue - priority processing',
+          "🚀 Handle enterprise websites competitors can't touch",
+        ];
       case 'scale':
         return [
-          "✅ Everything in Growth tier",
-          "✅ Unlimited pages per analysis",
-          "✅ Full AI analysis (capped at $19.95 cost)",
-          "✅ API access for integrations",
-          "✅ Multi-site management",
-          "✅ Direct email support line"
-        ]
+          '✅ Everything in Growth tier',
+          '✅ Unlimited pages per analysis',
+          '✅ Full AI analysis (capped at $19.95 cost)',
+          '✅ API access for integrations',
+          '✅ Multi-site management',
+          '✅ Direct email support line',
+        ];
       default:
-        return []
+        return [];
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -281,9 +301,9 @@ export default function SignupPage() {
           <div className="flex items-center justify-between">
             <Link href="/">
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                <img 
-                  src="/images/logo-primary.png" 
-                  alt="LLM.txt Mastery" 
+                <img
+                  src="/images/logo-primary.png"
+                  alt="LLM.txt Mastery"
                   className="h-16 md:h-20 w-auto"
                 />
               </a>
@@ -299,7 +319,6 @@ export default function SignupPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          
           {/* Signup Form */}
           <div>
             <Card className="w-full max-w-md mx-auto lg:mx-0">
@@ -316,7 +335,7 @@ export default function SignupPage() {
                       <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
-                  
+
                   {/* Tier Selection Dropdown */}
                   <div className="space-y-2">
                     <Label htmlFor="tier">Select Your Plan</Label>
@@ -327,81 +346,101 @@ export default function SignupPage() {
                       onChange={(e) => {
                         const newTier = e.target.value as typeof selectedTier;
                         const previousTier = selectedTier;
-                        
+
                         // Track tier selection event
                         trackEvent('tier_selected', {
                           tier_selected: newTier,
                           previous_tier: previousTier,
                           page: 'signup',
                           website_url: websiteUrlParam,
-                          event_category: 'engagement'
+                          event_category: 'engagement',
                         });
-                        
+
                         setSelectedTier(newTier);
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
-                      <option value="starter" data-testid="tier-option-starter">⚠️ FREE - 3 daily (20 pages max)</option>
-                      <option value="coffee" data-testid="tier-option-coffee">☕ COFFEE - 100 monthly ($4.95/month)</option>
-                      <option value="growth" data-testid="tier-option-growth">💼 GROWTH - Go Pro ($9.95/month)</option>
-                      <option value="scale" data-testid="tier-option-scale">🚀 SCALE - Enterprise ($19.95/month)</option>
+                      <option value="starter" data-testid="tier-option-starter">
+                        ⚠️ FREE - 3 daily (20 pages max)
+                      </option>
+                      <option value="coffee" data-testid="tier-option-coffee">
+                        ☕ COFFEE - 100 monthly ($4.95/month)
+                      </option>
+                      <option value="growth" data-testid="tier-option-growth">
+                        💼 GROWTH - Go Pro ($9.95/month)
+                      </option>
+                      <option value="scale" data-testid="tier-option-scale">
+                        🚀 SCALE - Enterprise ($19.95/month)
+                      </option>
                     </select>
-                    
+
                     {/* Selected Tier Details */}
-                    <div className={`rounded-lg p-4 border-2 mt-2 ${
-                      selectedTier === 'starter' ? 'bg-red-50 border-red-300' :
-                      selectedTier === 'coffee' ? 'bg-green-50 border-green-400' :
-                      'bg-blue-50 border-blue-300'
-                    }`}>
+                    <div
+                      className={`rounded-lg p-4 border-2 mt-2 ${
+                        selectedTier === 'starter'
+                          ? 'bg-red-50 border-red-300'
+                          : selectedTier === 'coffee'
+                            ? 'bg-green-50 border-green-400'
+                            : 'bg-blue-50 border-blue-300'
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
                         <Badge className={getTierColorClass(selectedTier)}>
                           {getTierIcon(selectedTier)}
                           <span className="ml-1">{getTierDisplayName(selectedTier)}</span>
                         </Badge>
                       </div>
-                      <p className={`text-sm font-medium mt-2 ${
-                        selectedTier === 'starter' ? 'text-red-700' :
-                        selectedTier === 'coffee' ? 'text-green-700' :
-                        'text-blue-700'
-                      }`}>
+                      <p
+                        className={`text-sm font-medium mt-2 ${
+                          selectedTier === 'starter'
+                            ? 'text-red-700'
+                            : selectedTier === 'coffee'
+                              ? 'text-green-700'
+                              : 'text-blue-700'
+                        }`}
+                      >
                         {getTierDescription(selectedTier)}
                       </p>
-                      
+
                       {/* Dramatic messaging for each tier */}
                       {selectedTier === 'starter' && (
                         <div className="mt-3 p-3 bg-red-100 border border-red-300 rounded">
                           <p className="text-xs font-bold text-red-800">
-                            ⚠️ WARNING: You'll miss critical pages and your competitors will outrank you with better llms.txt files!
+                            ⚠️ WARNING: You'll miss critical pages and your competitors will outrank
+                            you with better llms.txt files!
                           </p>
                         </div>
                       )}
-                      
+
                       {selectedTier === 'coffee' && (
                         <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded">
                           <p className="text-xs font-bold text-green-800">
-                            🚀 SMART CHOICE! 100 monthly analyses + 30-day guarantee + cancel instantly. After signup, secure Stripe payment ($4.95/month)
+                            🚀 SMART CHOICE! 100 monthly analyses + 30-day guarantee + cancel
+                            instantly. After signup, secure Stripe payment ($4.95/month)
                           </p>
                         </div>
                       )}
-                      
+
                       {selectedTier === 'growth' && (
                         <div className="mt-3 p-3 bg-blue-100 border border-blue-300 rounded">
                           <p className="text-xs font-bold text-blue-800">
-                            🚀 DOMINATE LARGE SITES: While competitors fail at 50+ pages, you'll analyze 1,000 pages effortlessly!
+                            🚀 DOMINATE LARGE SITES: While competitors fail at 50+ pages, you'll
+                            analyze 1,000 pages effortlessly!
                           </p>
                         </div>
                       )}
-                      
+
                       {selectedTier === 'scale' && (
                         <div className="mt-3 p-3 bg-purple-100 border border-purple-300 rounded">
                           <p className="text-xs font-bold text-purple-800">
-                            👑 ENTERPRISE POWER: Unlimited everything + white-label options for agencies
+                            👑 ENTERPRISE POWER: Unlimited everything + white-label options for
+                            agencies
                           </p>
                         </div>
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Email Field */}
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
@@ -415,8 +454,11 @@ export default function SignupPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="your@email.com"
                         className={`pl-10 pr-10 ${
-                          emailAvailable === false ? 'border-red-500' : 
-                          emailAvailable === true ? 'border-green-500' : ''
+                          emailAvailable === false
+                            ? 'border-red-500'
+                            : emailAvailable === true
+                              ? 'border-green-500'
+                              : ''
                         }`}
                         required
                       />
@@ -446,13 +488,16 @@ export default function SignupPage() {
                       <Input
                         id="password"
                         data-testid="password-input"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Create a secure password"
                         className={`pl-10 pr-10 ${
-                          passwordValidation && !passwordValidation.valid ? 'border-red-500' : 
-                          passwordValidation?.valid ? 'border-green-500' : ''
+                          passwordValidation && !passwordValidation.valid
+                            ? 'border-red-500'
+                            : passwordValidation?.valid
+                              ? 'border-green-500'
+                              : ''
                         }`}
                         required
                       />
@@ -460,12 +505,16 @@ export default function SignupPage() {
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
-                    
+
                     {/* Password Strength Indicator */}
                     {password.length > 0 && (
                       <div className="space-y-2">
@@ -497,13 +546,16 @@ export default function SignupPage() {
                       <Input
                         id="confirmPassword"
                         data-testid="confirm-password-input"
-                        type={showConfirmPassword ? "text" : "password"}
+                        type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirm your password"
                         className={`pl-10 pr-10 ${
-                          confirmPassword && password !== confirmPassword ? 'border-red-500' : 
-                          confirmPassword && password === confirmPassword && password.length > 0 ? 'border-green-500' : ''
+                          confirmPassword && password !== confirmPassword
+                            ? 'border-red-500'
+                            : confirmPassword && password === confirmPassword && password.length > 0
+                              ? 'border-green-500'
+                              : ''
                         }`}
                         required
                       />
@@ -511,9 +563,13 @@ export default function SignupPage() {
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                       >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                     {confirmPassword && password !== confirmPassword && (
@@ -532,11 +588,13 @@ export default function SignupPage() {
 
                   {/* Terms Agreement */}
                   <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
-                    By creating an account, you agree to our{" "}
+                    By creating an account, you agree to our{' '}
                     <Link href="/terms">
-                      <a className="text-blue-600 hover:text-blue-800 underline">Terms of Service</a>
-                    </Link>{" "}
-                    and{" "}
+                      <a className="text-blue-600 hover:text-blue-800 underline">
+                        Terms of Service
+                      </a>
+                    </Link>{' '}
+                    and{' '}
                     <Link href="/privacy">
                       <a className="text-blue-600 hover:text-blue-800 underline">Privacy Policy</a>
                     </Link>
@@ -575,11 +633,9 @@ export default function SignupPage() {
                 {/* Login Link */}
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
-                    Already have an account?{" "}
+                    Already have an account?{' '}
                     <Link href="/login">
-                      <a className="text-blue-600 hover:text-blue-800 font-medium">
-                        Sign in
-                      </a>
+                      <a className="text-blue-600 hover:text-blue-800 font-medium">Sign in</a>
                     </Link>
                   </p>
                 </div>
@@ -589,7 +645,6 @@ export default function SignupPage() {
 
           {/* Tier Benefits & Trust Signals */}
           <div className="space-y-6">
-            
             {/* Selected Tier Benefits */}
             <Card>
               <CardHeader>
@@ -607,10 +662,15 @@ export default function SignupPage() {
                       ) : (
                         <Check className="h-4 w-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                       )}
-                      <span className={`text-sm font-medium ${
-                        selectedTier === 'starter' ? 'text-red-700' : 
-                        selectedTier === 'coffee' ? 'text-green-700' : 'text-gray-700'
-                      }`}>
+                      <span
+                        className={`text-sm font-medium ${
+                          selectedTier === 'starter'
+                            ? 'text-red-700'
+                            : selectedTier === 'coffee'
+                              ? 'text-green-700'
+                              : 'text-gray-700'
+                        }`}
+                      >
                         {benefit}
                       </span>
                     </li>
@@ -622,44 +682,59 @@ export default function SignupPage() {
             {/* Dramatic Trust Signals */}
             <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
               <CardHeader>
-                <CardTitle className="text-green-800">🛡️ ZERO RISK - We Remove ALL Your Fears</CardTitle>
+                <CardTitle className="text-green-800">
+                  🛡️ ZERO RISK - We Remove ALL Your Fears
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <Shield className="h-6 w-6 text-green-600 mt-0.5" />
                   <div>
                     <h4 className="font-bold text-green-800">💰 30-Day Money Back Guarantee</h4>
-                    <p className="text-sm text-green-700">Don't like the results? Get every penny back. No questions asked. No hoops to jump through.</p>
+                    <p className="text-sm text-green-700">
+                      Don't like the results? Get every penny back. No questions asked. No hoops to
+                      jump through.
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <Zap className="h-6 w-6 text-blue-600 mt-0.5" />
                   <div>
                     <h4 className="font-bold text-blue-800">⚡ Cancel Instantly Anytime</h4>
-                    <p className="text-sm text-blue-700">One click cancellation. No phone calls. No retention tactics. Cancel in 10 seconds flat.</p>
+                    <p className="text-sm text-blue-700">
+                      One click cancellation. No phone calls. No retention tactics. Cancel in 10
+                      seconds flat.
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <User className="h-6 w-6 text-purple-600 mt-0.5" />
                   <div>
                     <h4 className="font-bold text-purple-800">🏆 Results in 24 Hours or Refund</h4>
-                    <p className="text-sm text-purple-700">See dramatic improvements within 24 hours or get a full refund immediately.</p>
+                    <p className="text-sm text-purple-700">
+                      See dramatic improvements within 24 hours or get a full refund immediately.
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <Coffee className="h-6 w-6 text-orange-600 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-orange-800">🚀 Outperform Competitors or Refund</h4>
-                    <p className="text-sm text-orange-700">We find 3x more pages than competitors or you get your money back. Guaranteed.</p>
+                    <h4 className="font-bold text-orange-800">
+                      🚀 Outperform Competitors or Refund
+                    </h4>
+                    <p className="text-sm text-orange-700">
+                      We find 3x more pages than competitors or you get your money back. Guaranteed.
+                    </p>
                   </div>
                 </div>
 
                 <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
                   <p className="text-center text-sm font-bold text-green-800">
-                    ✅ Built by Expert Solopreneur • ✅ Not VC-Funded BS • ✅ Real Results for Real Businesses
+                    ✅ Built by Expert Solopreneur • ✅ Not VC-Funded BS • ✅ Real Results for Real
+                    Businesses
                   </p>
                 </div>
               </CardContent>
@@ -673,8 +748,8 @@ export default function SignupPage() {
                   <div>
                     <h4 className="font-medium text-blue-900">Secure & Private</h4>
                     <p className="text-sm text-blue-700">
-                      Your data is encrypted and never shared. We only analyze public content 
-                      and generate files you control.
+                      Your data is encrypted and never shared. We only analyze public content and
+                      generate files you control.
                     </p>
                   </div>
                 </div>
@@ -687,5 +762,5 @@ export default function SignupPage() {
       {/* Footer */}
       <Footer />
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-import { stripe } from "./stripe";
-import { authStorage } from "./auth-storage";
-import { storage } from "../storage";
-import { db } from "../db";
-import { cancellations, refundRequests, oneTimeCredits } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
-import type { AuthUser } from "@shared/schema";
+import { stripe } from './stripe';
+import { authStorage } from './auth-storage';
+import { storage } from '../storage';
+import { db } from '../db';
+import { cancellations, refundRequests, oneTimeCredits } from '@shared/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import type { AuthUser } from '@shared/schema';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -42,14 +42,17 @@ export async function calculateRefundAmount(
 
     // Get user details
     const user = await authStorage.getUserById(userId);
-    console.log(`[REFUND DEBUG] User lookup result:`, user ? `found (id: ${user.id})` : 'NOT FOUND');
+    console.log(
+      `[REFUND DEBUG] User lookup result:`,
+      user ? `found (id: ${user.id})` : 'NOT FOUND'
+    );
 
     if (!user) {
       return {
         eligible: false,
         amount: 0,
-        reason: "User not found",
-        guaranteeApplies: false
+        reason: 'User not found',
+        guaranteeApplies: false,
       };
     }
 
@@ -76,14 +79,16 @@ export async function calculateRefundAmount(
         return {
           eligible: false,
           amount: 0,
-          reason: "No coffee tier purchase found",
-          guaranteeApplies: false
+          reason: 'No coffee tier purchase found',
+          guaranteeApplies: false,
         };
       }
 
       const purchase = coffeeCredits[0];
       const purchaseDate = new Date(purchase.purchasedAt);
-      const daysSincePurchase = Math.floor((Date.now() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysSincePurchase = Math.floor(
+        (Date.now() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
       const guaranteeApplies = isEligibleFor30DayGuarantee(purchaseDate);
 
       console.log(`[REFUND DEBUG] Purchase date: ${purchaseDate.toISOString()}`);
@@ -94,16 +99,16 @@ export async function calculateRefundAmount(
         return {
           eligible: true,
           amount: 495, // $4.95 in cents
-          reason: "30-day money-back guarantee",
-          guaranteeApplies: true
+          reason: '30-day money-back guarantee',
+          guaranteeApplies: true,
         };
       } else {
         // Coffee tier credits never expire, so no refund after 30 days
         return {
           eligible: false,
           amount: 0,
-          reason: "Coffee credits never expire. 30-day guarantee period has passed.",
-          guaranteeApplies: false
+          reason: 'Coffee credits never expire. 30-day guarantee period has passed.',
+          guaranteeApplies: false,
         };
       }
     }
@@ -115,8 +120,8 @@ export async function calculateRefundAmount(
         return {
           eligible: false,
           amount: 0,
-          reason: "No Stripe customer found",
-          guaranteeApplies: false
+          reason: 'No Stripe customer found',
+          guaranteeApplies: false,
         };
       }
 
@@ -125,15 +130,15 @@ export async function calculateRefundAmount(
         const subscriptions = await stripe().subscriptions.list({
           customer: user.stripeCustomerId,
           status: 'active',
-          limit: 1
+          limit: 1,
         });
 
         if (!subscriptions.data.length) {
           return {
             eligible: false,
             amount: 0,
-            reason: "No active subscription found",
-            guaranteeApplies: false
+            reason: 'No active subscription found',
+            guaranteeApplies: false,
           };
         }
 
@@ -147,19 +152,19 @@ export async function calculateRefundAmount(
           return {
             eligible: true,
             amount: amountPaid,
-            reason: "30-day money-back guarantee",
-            guaranteeApplies: true
+            reason: '30-day money-back guarantee',
+            guaranteeApplies: true,
           };
         } else {
           // Calculate prorated refund for unused time
           const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
           const currentPeriodStart = new Date(subscription.current_period_start * 1000);
           const now = new Date();
-          
+
           const totalPeriodMs = currentPeriodEnd.getTime() - currentPeriodStart.getTime();
           const usedPeriodMs = now.getTime() - currentPeriodStart.getTime();
           const unusedPeriodMs = totalPeriodMs - usedPeriodMs;
-          
+
           const amountPaid = subscription.items.data[0].price.unit_amount || 0;
           const proratedAmount = Math.round((unusedPeriodMs / totalPeriodMs) * amountPaid);
 
@@ -167,16 +172,16 @@ export async function calculateRefundAmount(
             eligible: true,
             amount: proratedAmount,
             reason: `Prorated refund for unused subscription time`,
-            guaranteeApplies: false
+            guaranteeApplies: false,
           };
         }
       } catch (error) {
-        console.error("Error fetching subscription from Stripe:", error);
+        console.error('Error fetching subscription from Stripe:', error);
         return {
           eligible: false,
           amount: 0,
-          reason: "Error calculating refund amount",
-          guaranteeApplies: false
+          reason: 'Error calculating refund amount',
+          guaranteeApplies: false,
         };
       }
     }
@@ -184,18 +189,21 @@ export async function calculateRefundAmount(
     return {
       eligible: false,
       amount: 0,
-      reason: "Invalid tier",
-      guaranteeApplies: false
+      reason: 'Invalid tier',
+      guaranteeApplies: false,
     };
   } catch (error) {
-    console.error("❌ [REFUND ERROR] Error calculating refund:", error);
-    console.error("❌ [REFUND ERROR] Stack:", error instanceof Error ? error.stack : 'No stack trace');
-    console.error("❌ [REFUND ERROR] UserId:", userId, "Tier:", tier);
+    console.error('❌ [REFUND ERROR] Error calculating refund:', error);
+    console.error(
+      '❌ [REFUND ERROR] Stack:',
+      error instanceof Error ? error.stack : 'No stack trace'
+    );
+    console.error('❌ [REFUND ERROR] UserId:', userId, 'Tier:', tier);
     return {
       eligible: false,
       amount: 0,
-      reason: "Error calculating refund amount",
-      guaranteeApplies: false
+      reason: 'Error calculating refund amount',
+      guaranteeApplies: false,
     };
   }
 }
@@ -212,7 +220,7 @@ export async function requestCancellation(
     // Get user details
     const user = await authStorage.getUserById(userId);
     if (!user) {
-      return { success: false, message: "User not found" };
+      return { success: false, message: 'User not found' };
     }
 
     // Calculate refund amount
@@ -227,10 +235,10 @@ export async function requestCancellation(
         reason,
         subscriptionId: user.stripeCustomerId || undefined,
         refundAmount: refundCalc.amount,
-        refundStatus: refundCalc.eligible ? "pending" : "not_eligible",
-        daysSincePurchase: refundCalc.guaranteeApplies ? 
-          Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)) : 
-          null,
+        refundStatus: refundCalc.eligible ? 'pending' : 'not_eligible',
+        daysSincePurchase: refundCalc.guaranteeApplies
+          ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+          : null,
       })
       .returning();
 
@@ -240,13 +248,13 @@ export async function requestCancellation(
       if (refundCalc.eligible && immediateRefund) {
         await processCoffeeTierRefund(userId, cancellationRecord.id, refundCalc.amount);
       }
-      
+
       // Mark credits as refunded
       await db
         .update(oneTimeCredits)
-        .set({ 
-          refunded: true, 
-          refundedAt: new Date() 
+        .set({
+          refunded: true,
+          refundedAt: new Date(),
         })
         .where(
           and(
@@ -258,12 +266,11 @@ export async function requestCancellation(
 
       // Update user tier back to starter
       await authStorage.updateUser(userId, { tier: 'starter' });
-    } 
-    else if (user.tier === 'growth' || user.tier === 'scale') {
+    } else if (user.tier === 'growth' || user.tier === 'scale') {
       // Handle subscription cancellation
       if (user.stripeCustomerId) {
         await processSubscriptionCancellation(
-          user.stripeCustomerId, 
+          user.stripeCustomerId,
           cancellationRecord.id,
           refundCalc,
           immediateRefund
@@ -277,24 +284,24 @@ export async function requestCancellation(
     // Update cancellation as processed
     await db
       .update(cancellations)
-      .set({ 
+      .set({
         processedAt: new Date(),
-        refundStatus: refundCalc.eligible ? "processing" : "not_eligible"
+        refundStatus: refundCalc.eligible ? 'processing' : 'not_eligible',
       })
       .where(eq(cancellations.id, cancellationRecord.id));
 
     return {
       success: true,
-      message: refundCalc.eligible 
+      message: refundCalc.eligible
         ? `Cancellation processed. Refund of $${(refundCalc.amount / 100).toFixed(2)} is being processed.`
-        : "Cancellation processed. No refund applicable.",
-      cancellationId: cancellationRecord.id
+        : 'Cancellation processed. No refund applicable.',
+      cancellationId: cancellationRecord.id,
     };
   } catch (error) {
-    console.error("Error processing cancellation:", error);
+    console.error('Error processing cancellation:', error);
     return {
       success: false,
-      message: "Failed to process cancellation. Please contact support."
+      message: 'Failed to process cancellation. Please contact support.',
     };
   }
 }
@@ -322,7 +329,7 @@ async function processCoffeeTierRefund(
       .limit(1);
 
     if (!credit || !credit.stripePaymentIntentId) {
-      throw new Error("Payment intent not found for coffee purchase");
+      throw new Error('Payment intent not found for coffee purchase');
     }
 
     // Create refund in Stripe
@@ -333,8 +340,8 @@ async function processCoffeeTierRefund(
       metadata: {
         userId: userId.toString(),
         cancellationId: cancellationId.toString(),
-        guarantee: "30-day money-back"
-      }
+        guarantee: '30-day money-back',
+      },
     });
 
     // Update cancellation record
@@ -342,36 +349,32 @@ async function processCoffeeTierRefund(
       .update(cancellations)
       .set({
         refundStripeId: refund.id,
-        refundStatus: "completed"
+        refundStatus: 'completed',
       })
       .where(eq(cancellations.id, cancellationId));
 
     // Create refund request record
-    await db
-      .insert(refundRequests)
-      .values({
-        userId,
-        cancellationId,
-        amount: amountInCents,
-        reason: "30-day money-back guarantee",
-        status: "completed",
-        stripeRefundId: refund.id,
-        processedAt: new Date()
-      });
+    await db.insert(refundRequests).values({
+      userId,
+      cancellationId,
+      amount: amountInCents,
+      reason: '30-day money-back guarantee',
+      status: 'completed',
+      stripeRefundId: refund.id,
+      processedAt: new Date(),
+    });
   } catch (error) {
-    console.error("Error processing coffee tier refund:", error);
-    
+    console.error('Error processing coffee tier refund:', error);
+
     // Log failed refund
-    await db
-      .insert(refundRequests)
-      .values({
-        userId,
-        cancellationId,
-        amount: amountInCents,
-        reason: "30-day money-back guarantee",
-        status: "failed",
-        errorMessage: error instanceof Error ? error.message : "Unknown error"
-      });
+    await db.insert(refundRequests).values({
+      userId,
+      cancellationId,
+      amount: amountInCents,
+      reason: '30-day money-back guarantee',
+      status: 'failed',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
 
     throw error;
   }
@@ -391,23 +394,20 @@ async function processSubscriptionCancellation(
     const subscriptions = await stripe().subscriptions.list({
       customer: stripeCustomerId,
       status: 'active',
-      limit: 1
+      limit: 1,
     });
 
     if (!subscriptions.data.length) {
-      throw new Error("No active subscription found");
+      throw new Error('No active subscription found');
     }
 
     const subscription = subscriptions.data[0];
 
     // Cancel subscription immediately
-    const canceledSubscription = await stripe().subscriptions.cancel(
-      subscription.id,
-      {
-        prorate: true, // This creates a credit, not a refund
-        invoice_now: false // Don't create a final invoice
-      }
-    );
+    const canceledSubscription = await stripe().subscriptions.cancel(subscription.id, {
+      prorate: true, // This creates a credit, not a refund
+      invoice_now: false, // Don't create a final invoice
+    });
 
     // Process refund if eligible
     if (refundCalc.eligible && immediateRefund && refundCalc.amount > 0) {
@@ -416,13 +416,14 @@ async function processSubscriptionCancellation(
         customer: stripeCustomerId,
         subscription: subscription.id,
         status: 'paid',
-        limit: 1
+        limit: 1,
       });
 
       if (invoices.data.length && invoices.data[0].payment_intent) {
-        const paymentIntentId = typeof invoices.data[0].payment_intent === 'string' 
-          ? invoices.data[0].payment_intent 
-          : invoices.data[0].payment_intent.id;
+        const paymentIntentId =
+          typeof invoices.data[0].payment_intent === 'string'
+            ? invoices.data[0].payment_intent
+            : invoices.data[0].payment_intent.id;
 
         // Create refund
         const refund = await stripe().refunds.create({
@@ -431,8 +432,8 @@ async function processSubscriptionCancellation(
           reason: 'requested_by_customer',
           metadata: {
             cancellationId: cancellationId.toString(),
-            guarantee: refundCalc.guaranteeApplies ? "30-day" : "prorated"
-          }
+            guarantee: refundCalc.guaranteeApplies ? '30-day' : 'prorated',
+          },
         });
 
         // Update cancellation record
@@ -440,27 +441,26 @@ async function processSubscriptionCancellation(
           .update(cancellations)
           .set({
             refundStripeId: refund.id,
-            refundStatus: "completed"
+            refundStatus: 'completed',
           })
           .where(eq(cancellations.id, cancellationId));
 
         // Create refund request record
-        await db
-          .insert(refundRequests)
-          .values({
-            userId: canceledSubscription.metadata?.userId ? 
-              parseInt(canceledSubscription.metadata.userId) : 0,
-            cancellationId,
-            amount: refundCalc.amount,
-            reason: refundCalc.reason,
-            status: "completed",
-            stripeRefundId: refund.id,
-            processedAt: new Date()
-          });
+        await db.insert(refundRequests).values({
+          userId: canceledSubscription.metadata?.userId
+            ? parseInt(canceledSubscription.metadata.userId)
+            : 0,
+          cancellationId,
+          amount: refundCalc.amount,
+          reason: refundCalc.reason,
+          status: 'completed',
+          stripeRefundId: refund.id,
+          processedAt: new Date(),
+        });
       }
     }
   } catch (error) {
-    console.error("Error processing subscription cancellation:", error);
+    console.error('Error processing subscription cancellation:', error);
     throw error;
   }
 }
@@ -494,10 +494,10 @@ export async function getCancellationStatus(
     return {
       hasCancelled: true,
       cancellation,
-      refund
+      refund,
     };
   } catch (error) {
-    console.error("Error getting cancellation status:", error);
+    console.error('Error getting cancellation status:', error);
     return { hasCancelled: false };
   }
 }
@@ -505,28 +505,26 @@ export async function getCancellationStatus(
 /**
  * Check refund eligibility without processing
  */
-export async function checkRefundEligibility(
-  userId: number
-): Promise<RefundCalculation> {
+export async function checkRefundEligibility(userId: number): Promise<RefundCalculation> {
   try {
     const user = await authStorage.getUserById(userId);
     if (!user) {
       return {
         eligible: false,
         amount: 0,
-        reason: "User not found",
-        guaranteeApplies: false
+        reason: 'User not found',
+        guaranteeApplies: false,
       };
     }
 
     return await calculateRefundAmount(userId, user.tier);
   } catch (error) {
-    console.error("Error checking refund eligibility:", error);
+    console.error('Error checking refund eligibility:', error);
     return {
       eligible: false,
       amount: 0,
-      reason: "Error checking eligibility",
-      guaranteeApplies: false
+      reason: 'Error checking eligibility',
+      guaranteeApplies: false,
     };
   }
 }

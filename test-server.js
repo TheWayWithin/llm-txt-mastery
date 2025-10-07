@@ -15,10 +15,10 @@ app.use(express.static(path.join(__dirname, 'dist/public')));
 
 // Test route
 app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: 'Test server is working!', 
+  res.json({
+    message: 'Test server is working!',
     timestamp: new Date().toISOString(),
-    port: port
+    port: port,
   });
 });
 

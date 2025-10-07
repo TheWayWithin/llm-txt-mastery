@@ -26,15 +26,15 @@ let mockUserState = {
   email: 'test@example.com',
   tier: 'coffee' as const,
   creditsRemaining: 5,
-  username: 'testuser'
+  username: 'testuser',
 };
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: mockUserState,
     getAccessToken: mockGetAccessToken,
-    refreshUser: mockRefreshUser
-  })
+    refreshUser: mockRefreshUser,
+  }),
 }));
 
 // Use actual InstantRefundModal for integration test
@@ -55,7 +55,7 @@ describe('Full Refund Flow Integration', () => {
       email: 'test@example.com',
       tier: 'coffee' as const,
       creditsRemaining: 5,
-      username: 'testuser'
+      username: 'testuser',
     };
   });
 
@@ -73,24 +73,24 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     // Mock successful refund
     const mockRefundResponse = {
       success: true,
       message: 'Refund processed successfully',
-      cancellationId: 123
+      cancellationId: 123,
     };
 
     (global.fetch as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => mockEligibility
+        json: async () => mockEligibility,
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => mockRefundResponse
+        json: async () => mockRefundResponse,
       });
 
     // Step 1: Render component (simulates dashboard load)
@@ -126,12 +126,12 @@ describe('Full Refund Flow Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer mock-token'
+          Authorization: 'Bearer mock-token',
         },
         body: JSON.stringify({
           processRefund: true,
-          reason: 'Instant refund via 30-day money-back guarantee'
-        })
+          reason: 'Instant refund via 30-day money-back guarantee',
+        }),
       });
     });
 
@@ -160,12 +160,12 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -185,13 +185,13 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => mockEligibility
+        json: async () => mockEligibility,
       })
       .mockRejectedValueOnce(new Error('Network error'));
 
@@ -221,22 +221,22 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     const mockErrorResponse = {
       success: false,
-      message: 'You have already cancelled your subscription'
+      message: 'You have already cancelled your subscription',
     };
 
     (global.fetch as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => mockEligibility
+        json: async () => mockEligibility,
       })
       .mockResolvedValueOnce({
         ok: false,
-        json: async () => mockErrorResponse
+        json: async () => mockErrorResponse,
       });
 
     render(<InstantRefundButton />);
@@ -263,12 +263,12 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee'
+      tier: 'coffee',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);
@@ -295,12 +295,12 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$9.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'growth'
+      tier: 'growth',
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => mockEligibility
+      json: async () => mockEligibility,
     });
 
     render(<InstantRefundButton />);

@@ -4,7 +4,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
 
   // Handle preflight requests
@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: ''
+      body: '',
     };
   }
 
@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ message: 'Method not allowed' })
+      body: JSON.stringify({ message: 'Method not allowed' }),
     };
   }
 
@@ -29,7 +29,7 @@ exports.handler = async (event, context) => {
     // Extract email from path params
     const pathParts = event.path.split('/');
     const email = decodeURIComponent(pathParts[pathParts.length - 1]);
-    
+
     // Return simplified usage data for coffee tier
     return {
       statusCode: 200,
@@ -40,26 +40,26 @@ exports.handler = async (event, context) => {
           analysesToday: 0,
           pagesProcessedToday: 0,
           cacheHitsToday: 0,
-          costToday: 0
+          costToday: 0,
         },
         limits: {
           dailyAnalyses: 1,
           maxPagesPerAnalysis: 200,
-          aiPagesLimit: 200
+          aiPagesLimit: 200,
         },
         features: {
           aiEnhanced: true,
           prioritySupport: false,
-          customIntegrations: false
-        }
-      })
+          customIntegrations: false,
+        },
+      }),
     };
   } catch (error) {
-    console.error("Get usage error:", error);
+    console.error('Get usage error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ message: "Failed to get usage data" })
+      body: JSON.stringify({ message: 'Failed to get usage data' }),
     };
   }
 };

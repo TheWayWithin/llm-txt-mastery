@@ -33,32 +33,41 @@ description: Generate progress report for stakeholders
 ## REPORT SECTIONS
 
 ### 1. Executive Summary
+
 Brief overview of progress and current status
 
 ### 2. Tasks Completed
+
 Table of completed tasks with dates and business impact
 
 ### 3. Issues & Resolutions
+
 Documentation of problems encountered and how they were resolved
 
 ### 4. Current Status
+
 Overall project health and active phase
 
 ### 5. Metrics
+
 Key performance indicators and trends
 
 ### 6. Next Milestones
+
 Upcoming deliverables and target dates
 
 ### 7. Resource Needs
+
 Decisions, resources, or clarifications needed from stakeholders
 
 ### 8. Business Alignment (BOS-AI Integration)
+
 How development aligns with business vision and requirements
 
 ## OUTPUT
 
 Generates `progress-report.md` with:
+
 - Structured markdown format
 - Tables for easy scanning
 - Visual indicators (✅, ⚠️, 📈, 📉)
@@ -76,6 +85,7 @@ Generates `progress-report.md` with:
 ## INTEGRATION WITH BOS-AI
 
 When BOS-AI documents are present in the ideation folder:
+
 - Reports PRD requirement coverage percentage
 - Shows alignment with Vision and Mission.md
 - References Strategic Roadmap milestones
@@ -99,6 +109,7 @@ When BOS-AI documents are present in the ideation folder:
 ## CUSTOMIZATION
 
 The report format can be customized by modifying the command to:
+
 - Add project-specific metrics
 - Include additional sections
 - Adjust formatting for different stakeholders
@@ -106,4 +117,4 @@ The report format can be customized by modifying the command to:
 
 ---
 
-*The /report command ensures stakeholders stay informed with minimal manual effort, creating a consistent communication channel between development and business teams.*
+_The /report command ensures stakeholders stay informed with minimal manual effort, creating a consistent communication channel between development and business teams._

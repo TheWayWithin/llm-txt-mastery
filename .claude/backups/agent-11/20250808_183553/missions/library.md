@@ -7,13 +7,15 @@ This library contains standardized mission protocols for common development scen
 ### Core Development Missions
 
 #### 🏗️ BUILD - New Feature Development
+
 **File**: `mission-build.md`  
 **Purpose**: Transform requirements into production-ready features  
 **Duration**: 4-8 hours  
 **Required**: PRD or requirements document  
 **Squad**: Full team engagement
 
-#### 🐛 FIX - Emergency Bug Resolution  
+#### 🐛 FIX - Emergency Bug Resolution
+
 **File**: `mission-fix.md`  
 **Purpose**: Rapid bug diagnosis and resolution  
 **Duration**: 1-3 hours  
@@ -21,6 +23,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Developer, Tester, Analyst
 
 #### ♻️ REFACTOR - Code Improvement
+
 **File**: `mission-refactor.md`  
 **Purpose**: Improve code quality without changing functionality  
 **Duration**: 2-4 hours  
@@ -28,6 +31,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Architect, Developer, Tester
 
 #### 🚀 DEPLOY - Production Deployment
+
 **File**: `mission-deploy.md`  
 **Purpose**: Prepare and execute production deployment  
 **Duration**: 1-2 hours  
@@ -35,6 +39,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Operator, Tester, Developer
 
 #### 📚 DOCUMENT - Documentation Creation
+
 **File**: `mission-document.md`  
 **Purpose**: Create comprehensive documentation  
 **Duration**: 2-4 hours  
@@ -44,6 +49,7 @@ This library contains standardized mission protocols for common development scen
 ### Strategic Missions
 
 #### 💡 MVP - Minimum Viable Product
+
 **File**: `mission-mvp.md`  
 **Purpose**: Rapid prototype to production MVP  
 **Duration**: 1-3 days  
@@ -51,6 +57,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Full team engagement
 
 #### 🔄 MIGRATE - System Migration
+
 **File**: `mission-migrate.md`  
 **Purpose**: Migrate systems, databases, or platforms  
 **Duration**: 4-8 hours  
@@ -58,6 +65,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Architect, Developer, Operator
 
 #### ⚡ OPTIMIZE - Performance Optimization
+
 **File**: `mission-optimize.md`  
 **Purpose**: Improve system performance  
 **Duration**: 3-6 hours  
@@ -65,6 +73,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Architect, Developer, Analyst
 
 #### 🔒 SECURITY - Security Audit & Fixes
+
 **File**: `mission-security.md`  
 **Purpose**: Security assessment and remediation  
 **Duration**: 4-6 hours  
@@ -72,6 +81,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Architect, Developer, Tester
 
 #### 🔌 INTEGRATE - Third-Party Integration
+
 **File**: `mission-integrate.md`  
 **Purpose**: Integrate external services or APIs  
 **Duration**: 3-6 hours  
@@ -79,6 +89,7 @@ This library contains standardized mission protocols for common development scen
 **Squad**: Architect, Developer, Tester
 
 #### 🎯 RELEASE - Version Release Management
+
 **File**: `mission-release.md`  
 **Purpose**: Coordinate complete product release process  
 **Duration**: 2-4 hours  
@@ -110,6 +121,7 @@ All missions follow a standard phase structure:
 ### Success Criteria
 
 Each mission includes:
+
 - Clear objectives
 - Required inputs
 - Phase breakdown with time estimates
@@ -136,4 +148,4 @@ To create a new mission:
 
 ---
 
-*Your mission, should you choose to accept it, begins with `/coord`*
+_Your mission, should you choose to accept it, begins with `/coord`_

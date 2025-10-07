@@ -39,7 +39,7 @@ export function DemoModeBanner({ onLogin }: DemoModeBannerProps) {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               onClick={onLogin}
@@ -49,7 +49,7 @@ export function DemoModeBanner({ onLogin }: DemoModeBannerProps) {
               <User className="h-3 w-3 mr-1" />
               Login with Real Account
             </Button>
-            
+
             <button
               onClick={handleDismiss}
               className="text-yellow-600 hover:text-yellow-800 p-1 rounded-md hover:bg-yellow-200 transition-colors"

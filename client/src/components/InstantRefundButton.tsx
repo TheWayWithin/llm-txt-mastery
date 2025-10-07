@@ -52,11 +52,12 @@ export function InstantRefundButton() {
         throw new Error('Authentication required');
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+      const apiUrl =
+        import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
       const response = await fetch(`${apiUrl}/api/refund/eligibility`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
@@ -94,10 +95,11 @@ export function InstantRefundButton() {
           <div className="flex-1">
             <div className="flex items-center mb-2">
               <Shield className="h-5 w-5 text-green-600 mr-2" />
-              <h3 className="font-semibold text-green-800 text-lg">
-                30-Day Money-Back Guarantee
-              </h3>
-              <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700 border-green-300">
+              <h3 className="font-semibold text-green-800 text-lg">30-Day Money-Back Guarantee</h3>
+              <Badge
+                variant="secondary"
+                className="ml-2 bg-green-100 text-green-700 border-green-300"
+              >
                 Active
               </Badge>
             </div>

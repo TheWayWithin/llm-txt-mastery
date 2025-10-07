@@ -1,13 +1,18 @@
 /**
  * Generic form validation hook with Zod
- * 
+ *
  * Provides comprehensive form state management with field-level validation,
  * error handling, and submission state tracking.
  */
 
 import { useState, useCallback, useMemo } from 'react';
 import { z } from 'zod';
-import { ValidationError, FormFieldError, ValidationResult, validateForm } from '@/lib/validation-utils';
+import {
+  ValidationError,
+  FormFieldError,
+  ValidationResult,
+  validateForm,
+} from '@/lib/validation-utils';
 import { AppError } from '@/lib/error-utils';
 
 export interface UseFormValidationOptions<T> {
@@ -66,7 +71,7 @@ export interface UseFormValidationReturn<T> {
   isSubmitted: boolean;
   /** Submit error */
   submitError: string | null;
-  
+
   /** Get field state */
   getFieldState: (name: keyof T) => FieldState;
   /** Get field props for input components */
@@ -76,7 +81,7 @@ export interface UseFormValidationReturn<T> {
     onBlur: () => void;
     error: string | null;
   };
-  
+
   /** Set field value */
   setValue: (name: keyof T, value: any) => void;
   /** Set multiple values */
@@ -89,14 +94,14 @@ export interface UseFormValidationReturn<T> {
   clearFieldError: (name: keyof T) => void;
   /** Clear all errors */
   clearErrors: () => void;
-  
+
   /** Mark field as touched */
   setFieldTouched: (name: keyof T, touched?: boolean) => void;
   /** Validate single field */
   validateField: (name: keyof T) => ValidationResult;
   /** Validate entire form */
   validateForm: () => ValidationResult;
-  
+
   /** Submit form */
   handleSubmit: (e?: React.FormEvent) => Promise<void>;
   /** Reset form */
@@ -123,7 +128,7 @@ export function useFormValidation<T extends Record<string, any>>(
     onSubmit,
     onSuccess,
     onError,
-    resetOnSuccess = false
+    resetOnSuccess = false,
   } = options;
 
   // Form state
@@ -135,123 +140,131 @@ export function useFormValidation<T extends Record<string, any>>(
     isValid: false,
     isSubmitting: false,
     isSubmitted: false,
-    submitError: null
+    submitError: null,
   });
 
   // Validate a single field
-  const validateField = useCallback((name: keyof T): ValidationResult => {
-    const value = state.values[name];
-    
-    try {
-      // Create a temporary schema for this field
-      const fieldSchema = schema.pick({ [name]: true } as any);
-      const result = validateForm(fieldSchema, { [name]: value });
-      
-      if (result.errors?.length) {
+  const validateField = useCallback(
+    (name: keyof T): ValidationResult => {
+      const value = state.values[name];
+
+      try {
+        // Create a temporary schema for this field
+        const fieldSchema = schema.pick({ [name]: true } as any);
+        const result = validateForm(fieldSchema, { [name]: value });
+
+        if (result.errors?.length) {
+          return {
+            isValid: false,
+            errors: result.errors,
+            firstError: result.errors[0],
+          };
+        }
+
+        return {
+          isValid: true,
+          errors: [],
+        };
+      } catch (error) {
         return {
           isValid: false,
-          errors: result.errors,
-          firstError: result.errors[0]
+          errors: [{ field: String(name), message: 'Validation failed' }],
+          firstError: { field: String(name), message: 'Validation failed' },
         };
       }
-      
-      return {
-        isValid: true,
-        errors: []
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        errors: [{ field: String(name), message: 'Validation failed' }],
-        firstError: { field: String(name), message: 'Validation failed' }
-      };
-    }
-  }, [schema, state.values]);
+    },
+    [schema, state.values]
+  );
 
   // Validate entire form
   const validateFormFn = useCallback((): ValidationResult => {
     const result = validateForm(schema, state.values);
-    
+
     if (result.errors?.length) {
       return {
         isValid: false,
         errors: result.errors,
-        firstError: result.errors[0]
+        firstError: result.errors[0],
       };
     }
-    
+
     return {
       isValid: true,
-      errors: []
+      errors: [],
     };
   }, [schema, state.values]);
 
   // Update form validity when values or errors change
   const isValid = useMemo(() => {
-    const hasErrors = Object.keys(state.errors).some(key => state.errors[key]);
+    const hasErrors = Object.keys(state.errors).some((key) => state.errors[key]);
     if (hasErrors) return false;
-    
+
     const validation = validateFormFn();
     return validation.isValid;
   }, [state.errors, validateFormFn]);
 
   // Set field value
-  const setValue = useCallback((name: keyof T, value: any) => {
-    setState(prev => {
-      const newState = {
-        ...prev,
-        values: { ...prev.values, [name]: value },
-        dirty: { ...prev.dirty, [name]: true }
-      };
+  const setValue = useCallback(
+    (name: keyof T, value: any) => {
+      setState((prev) => {
+        const newState = {
+          ...prev,
+          values: { ...prev.values, [name]: value },
+          dirty: { ...prev.dirty, [name]: true },
+        };
 
-      // Validate on change if enabled
-      if (validateOnChange) {
-        const validation = validateField(name);
-        if (!validation.isValid && validation.firstError) {
-          newState.errors = { ...prev.errors, [String(name)]: validation.firstError.message };
-        } else {
-          const newErrors = { ...prev.errors };
-          delete newErrors[String(name)];
-          newState.errors = newErrors;
+        // Validate on change if enabled
+        if (validateOnChange) {
+          const validation = validateField(name);
+          if (!validation.isValid && validation.firstError) {
+            newState.errors = { ...prev.errors, [String(name)]: validation.firstError.message };
+          } else {
+            const newErrors = { ...prev.errors };
+            delete newErrors[String(name)];
+            newState.errors = newErrors;
+          }
         }
-      }
 
-      return newState;
-    });
-  }, [validateOnChange, validateField]);
+        return newState;
+      });
+    },
+    [validateOnChange, validateField]
+  );
 
   // Set multiple values
   const setValues = useCallback((values: Partial<T>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       values: { ...prev.values, ...values },
-      dirty: Object.keys(values).reduce((acc, key) => ({ ...acc, [key]: true }), prev.dirty)
+      dirty: Object.keys(values).reduce((acc, key) => ({ ...acc, [key]: true }), prev.dirty),
     }));
   }, []);
 
   // Set field error
   const setFieldError = useCallback((name: keyof T, error: string | null) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      errors: error ? { ...prev.errors, [String(name)]: error } : (() => {
-        const newErrors = { ...prev.errors };
-        delete newErrors[String(name)];
-        return newErrors;
-      })()
+      errors: error
+        ? { ...prev.errors, [String(name)]: error }
+        : (() => {
+            const newErrors = { ...prev.errors };
+            delete newErrors[String(name)];
+            return newErrors;
+          })(),
     }));
   }, []);
 
   // Set multiple errors
   const setErrors = useCallback((errors: Record<string, string>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      errors: { ...prev.errors, ...errors }
+      errors: { ...prev.errors, ...errors },
     }));
   }, []);
 
   // Clear field error
   const clearFieldError = useCallback((name: keyof T) => {
-    setState(prev => {
+    setState((prev) => {
       const newErrors = { ...prev.errors };
       delete newErrors[String(name)];
       return { ...prev, errors: newErrors };
@@ -260,108 +273,116 @@ export function useFormValidation<T extends Record<string, any>>(
 
   // Clear all errors
   const clearErrors = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       errors: {},
-      submitError: null
+      submitError: null,
     }));
   }, []);
 
   // Set field touched
-  const setFieldTouched = useCallback((name: keyof T, touched = true) => {
-    setState(prev => ({
-      ...prev,
-      touched: { ...prev.touched, [String(name)]: touched }
-    }));
+  const setFieldTouched = useCallback(
+    (name: keyof T, touched = true) => {
+      setState((prev) => ({
+        ...prev,
+        touched: { ...prev.touched, [String(name)]: touched },
+      }));
 
-    // Validate on blur if enabled and field is being touched
-    if (validateOnBlur && touched) {
-      const validation = validateField(name);
-      if (!validation.isValid && validation.firstError) {
-        setFieldError(name, validation.firstError.message);
-      } else {
-        clearFieldError(name);
+      // Validate on blur if enabled and field is being touched
+      if (validateOnBlur && touched) {
+        const validation = validateField(name);
+        if (!validation.isValid && validation.firstError) {
+          setFieldError(name, validation.firstError.message);
+        } else {
+          clearFieldError(name);
+        }
       }
-    }
-  }, [validateOnBlur, validateField, setFieldError, clearFieldError]);
+    },
+    [validateOnBlur, validateField, setFieldError, clearFieldError]
+  );
 
   // Handle form submission
-  const handleSubmit = useCallback(async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleSubmit = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
 
-    setState(prev => ({
-      ...prev,
-      isSubmitting: true,
-      submitError: null
-    }));
+      setState((prev) => ({
+        ...prev,
+        isSubmitting: true,
+        submitError: null,
+      }));
 
-    try {
-      // Validate entire form
-      const validation = validateFormFn();
-      
-      if (!validation.isValid) {
-        const errorMap: Record<string, string> = {};
-        validation.errors.forEach(error => {
-          errorMap[error.field] = error.message;
-        });
+      try {
+        // Validate entire form
+        const validation = validateFormFn();
 
-        setState(prev => ({
+        if (!validation.isValid) {
+          const errorMap: Record<string, string> = {};
+          validation.errors.forEach((error) => {
+            errorMap[error.field] = error.message;
+          });
+
+          setState((prev) => ({
+            ...prev,
+            errors: { ...prev.errors, ...errorMap },
+            isSubmitting: false,
+            isSubmitted: true,
+          }));
+
+          const validationError = new ValidationError(validation.errors);
+          onError?.(validationError);
+          return;
+        }
+
+        // Submit form
+        if (onSubmit) {
+          await onSubmit(validation.data || (state.values as T));
+        }
+
+        setState((prev) => ({
           ...prev,
-          errors: { ...prev.errors, ...errorMap },
           isSubmitting: false,
-          isSubmitted: true
+          isSubmitted: true,
         }));
 
-        const validationError = new ValidationError(validation.errors);
-        onError?.(validationError);
-        return;
+        onSuccess?.(validation.data || (state.values as T));
+
+        // Reset form if requested
+        if (resetOnSuccess) {
+          reset();
+        }
+      } catch (error) {
+        const appError = AppError.fromError(error);
+
+        setState((prev) => ({
+          ...prev,
+          isSubmitting: false,
+          isSubmitted: true,
+          submitError: appError.message,
+        }));
+
+        onError?.(appError);
       }
-
-      // Submit form
-      if (onSubmit) {
-        await onSubmit(validation.data || state.values as T);
-      }
-
-      setState(prev => ({
-        ...prev,
-        isSubmitting: false,
-        isSubmitted: true
-      }));
-
-      onSuccess?.(validation.data || state.values as T);
-
-      // Reset form if requested
-      if (resetOnSuccess) {
-        reset();
-      }
-
-    } catch (error) {
-      const appError = AppError.fromError(error);
-      
-      setState(prev => ({
-        ...prev,
-        isSubmitting: false,
-        isSubmitted: true,
-        submitError: appError.message
-      }));
-
-      onError?.(appError);
-    }
-  }, [validateFormFn, onSubmit, onSuccess, onError, resetOnSuccess, state.values]);
+    },
+    [validateFormFn, onSubmit, onSuccess, onError, resetOnSuccess, state.values]
+  );
 
   // Reset form
-  const reset = useCallback((newValues?: Partial<T>) => {
-    setState({
-      values: newValues || initialValues,
-      errors: {},
-      touched: {},
-      dirty: {},
-      isValid: false,
-      isSubmitting: false,
-      isSubmitted: false,
-      submitError: null
-    });
-  }, [initialValues]);
+  const reset = useCallback(
+    (newValues?: Partial<T>) => {
+      setState({
+        values: newValues || initialValues,
+        errors: {},
+        touched: {},
+        dirty: {},
+        isValid: false,
+        isSubmitting: false,
+        isSubmitted: false,
+        submitError: null,
+      });
+    },
+    [initialValues]
+  );
 
   // Check if form is dirty
   const isDirty = useCallback(() => {
@@ -369,9 +390,12 @@ export function useFormValidation<T extends Record<string, any>>(
   }, [state.dirty]);
 
   // Check if field has error
-  const hasFieldError = useCallback((name: keyof T) => {
-    return Boolean(state.errors[String(name)]);
-  }, [state.errors]);
+  const hasFieldError = useCallback(
+    (name: keyof T) => {
+      return Boolean(state.errors[String(name)]);
+    },
+    [state.errors]
+  );
 
   // Get first error
   const getFirstError = useCallback(() => {
@@ -380,25 +404,31 @@ export function useFormValidation<T extends Record<string, any>>(
   }, [state.errors]);
 
   // Get field state
-  const getFieldState = useCallback((name: keyof T): FieldState => ({
-    value: state.values[name],
-    error: state.errors[String(name)] || null,
-    touched: state.touched[String(name)] || false,
-    dirty: state.dirty[String(name)] || false
-  }), [state]);
+  const getFieldState = useCallback(
+    (name: keyof T): FieldState => ({
+      value: state.values[name],
+      error: state.errors[String(name)] || null,
+      touched: state.touched[String(name)] || false,
+      dirty: state.dirty[String(name)] || false,
+    }),
+    [state]
+  );
 
   // Get field props for easy integration with input components
-  const getFieldProps = useCallback((name: keyof T) => ({
-    value: state.values[name] || '',
-    onChange: (value: any) => setValue(name, value),
-    onBlur: () => setFieldTouched(name, true),
-    error: state.errors[String(name)] || null
-  }), [state, setValue, setFieldTouched]);
+  const getFieldProps = useCallback(
+    (name: keyof T) => ({
+      value: state.values[name] || '',
+      onChange: (value: any) => setValue(name, value),
+      onBlur: () => setFieldTouched(name, true),
+      error: state.errors[String(name)] || null,
+    }),
+    [state, setValue, setFieldTouched]
+  );
 
   return {
     state: {
       ...state,
-      isValid
+      isValid,
     },
     values: state.values,
     errors: state.errors,
@@ -408,7 +438,7 @@ export function useFormValidation<T extends Record<string, any>>(
     isSubmitting: state.isSubmitting,
     isSubmitted: state.isSubmitted,
     submitError: state.submitError,
-    
+
     getFieldState,
     getFieldProps,
     setValue,
@@ -424,7 +454,7 @@ export function useFormValidation<T extends Record<string, any>>(
     reset,
     isDirty,
     hasFieldError,
-    getFirstError
+    getFirstError,
   };
 }
 
@@ -441,6 +471,6 @@ export function useSimpleForm<T extends Record<string, any>>(
     onSubmit,
     initialValues,
     validateOnBlur: true,
-    resetOnSuccess: false
+    resetOnSuccess: false,
   });
 }

@@ -1,12 +1,38 @@
-import { 
-  users, sitemapAnalysis, llmTextFiles, emailCaptures, subscriptions, paymentHistory, usageTracking, analysisCache, oneTimeCredits, userProfiles, authUsers,
-  type User, type InsertUser, type SitemapAnalysis, type LlmTextFile, type InsertSitemapAnalysis, type InsertLlmTextFile, 
-  type EmailCapture, type InsertEmailCapture, type Subscription, type InsertSubscription, type PaymentHistory, type InsertPaymentHistory,
-  type UsageTrackingDb, type InsertUsageTracking, type AnalysisCacheDb, type InsertAnalysisCache,
-  type OneTimeCredit, type InsertOneTimeCredit, type UserProfile, type InsertUserProfile
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import {
+  users,
+  sitemapAnalysis,
+  llmTextFiles,
+  emailCaptures,
+  subscriptions,
+  paymentHistory,
+  usageTracking,
+  analysisCache,
+  oneTimeCredits,
+  userProfiles,
+  authUsers,
+  type User,
+  type InsertUser,
+  type SitemapAnalysis,
+  type LlmTextFile,
+  type InsertSitemapAnalysis,
+  type InsertLlmTextFile,
+  type EmailCapture,
+  type InsertEmailCapture,
+  type Subscription,
+  type InsertSubscription,
+  type PaymentHistory,
+  type InsertPaymentHistory,
+  type UsageTrackingDb,
+  type InsertUsageTracking,
+  type AnalysisCacheDb,
+  type InsertAnalysisCache,
+  type OneTimeCredit,
+  type InsertOneTimeCredit,
+  type UserProfile,
+  type InsertUserProfile,
+} from '@shared/schema';
+import { db } from './db';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 // modify the interface with any CRUD methods
 // you might need
@@ -17,52 +43,58 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Analysis methods
   getAnalysisByUrl(url: string): Promise<SitemapAnalysis | undefined>;
   createAnalysis(analysis: InsertSitemapAnalysis): Promise<SitemapAnalysis>;
   getAnalysis(id: number): Promise<SitemapAnalysis | undefined>;
-  updateAnalysis(id: number, updates: Partial<SitemapAnalysis>): Promise<SitemapAnalysis | undefined>;
-  
+  updateAnalysis(
+    id: number,
+    updates: Partial<SitemapAnalysis>
+  ): Promise<SitemapAnalysis | undefined>;
+
   // LLM file methods
   createLlmFile(llmFile: InsertLlmTextFile): Promise<LlmTextFile>;
   getLlmFile(id: number): Promise<LlmTextFile | undefined>;
-  
+
   // Email capture methods
   createEmailCapture(emailCapture: InsertEmailCapture): Promise<EmailCapture>;
   getEmailCapture(email: string): Promise<EmailCapture | undefined>;
-  updateEmailCapture(email: string, updates: Partial<EmailCapture>): Promise<EmailCapture | undefined>;
-  
+  updateEmailCapture(
+    email: string,
+    updates: Partial<EmailCapture>
+  ): Promise<EmailCapture | undefined>;
+
   // Subscription methods
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   getSubscription(userId: number): Promise<Subscription | undefined>;
   getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | undefined>;
   updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription | undefined>;
-  
+
   // Payment history methods
   createPaymentHistory(payment: InsertPaymentHistory): Promise<PaymentHistory>;
   getPaymentHistory(userId: number): Promise<PaymentHistory[]>;
-  
+
   // Usage tracking methods
   createOrUpdateUsage(usage: InsertUsageTracking): Promise<UsageTrackingDb>;
   getUsageByDate(userId: number, date: string): Promise<UsageTrackingDb | undefined>;
-  
+
   // Cache methods
   createCacheEntry(cache: InsertAnalysisCache): Promise<AnalysisCacheDb>;
   getCacheEntry(urlHash: string, tier: string): Promise<AnalysisCacheDb | undefined>;
   updateCacheHitCount(id: number): Promise<void>;
-  
+
   // User profile methods
   createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
   getUserProfile(id: string): Promise<UserProfile | undefined>;
   getUserProfileByEmail(email: string): Promise<UserProfile | undefined>;
   updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined>;
-  
+
   // One-time credit methods
   createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit>;
   getUserCredits(userId: number): Promise<OneTimeCredit[]>;
   consumeCredit(userId: number, amount?: number): Promise<boolean>;
-  
+
   // Demo data cleanup methods
   deleteAnalysesForUser(userId: number): Promise<number>;
   deleteLlmFilesForUser(userId: number): Promise<number>;
@@ -117,9 +149,7 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    return Array.from(this.users.values()).find((user) => user.username === username);
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
@@ -140,9 +170,7 @@ export class MemStorage implements IStorage {
 
   // Analysis methods
   async getAnalysisByUrl(url: string): Promise<SitemapAnalysis | undefined> {
-    return Array.from(this.analyses.values()).find(
-      (analysis) => analysis.url === url,
-    );
+    return Array.from(this.analyses.values()).find((analysis) => analysis.url === url);
   }
 
   async createAnalysis(insertAnalysis: InsertSitemapAnalysis): Promise<SitemapAnalysis> {
@@ -151,7 +179,7 @@ export class MemStorage implements IStorage {
       id,
       userId: insertAnalysis.userId || null,
       url: insertAnalysis.url,
-      status: insertAnalysis.status || "pending",
+      status: insertAnalysis.status || 'pending',
       sitemapContent: insertAnalysis.sitemapContent || null,
       discoveredPages: insertAnalysis.discoveredPages || null,
       analysisMetadata: insertAnalysis.analysisMetadata || null,
@@ -165,10 +193,13 @@ export class MemStorage implements IStorage {
     return this.analyses.get(id);
   }
 
-  async updateAnalysis(id: number, updates: Partial<SitemapAnalysis>): Promise<SitemapAnalysis | undefined> {
+  async updateAnalysis(
+    id: number,
+    updates: Partial<SitemapAnalysis>
+  ): Promise<SitemapAnalysis | undefined> {
     const existing = this.analyses.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...updates };
     this.analyses.set(id, updated);
     return updated;
@@ -201,7 +232,7 @@ export class MemStorage implements IStorage {
       userId: insertEmailCapture.userId || null,
       email: insertEmailCapture.email,
       websiteUrl: insertEmailCapture.websiteUrl,
-      tier: insertEmailCapture.tier || "starter",
+      tier: insertEmailCapture.tier || 'starter',
       createdAt: new Date(),
     };
     this.emailCaptures.set(insertEmailCapture.email, emailCapture);
@@ -212,7 +243,10 @@ export class MemStorage implements IStorage {
     return this.emailCaptures.get(email);
   }
 
-  async updateEmailCapture(email: string, updates: Partial<EmailCapture>): Promise<EmailCapture | undefined> {
+  async updateEmailCapture(
+    email: string,
+    updates: Partial<EmailCapture>
+  ): Promise<EmailCapture | undefined> {
     const existing = this.emailCaptures.get(email);
     if (existing) {
       const updated = { ...existing, ...updates, updatedAt: new Date() };
@@ -230,8 +264,8 @@ export class MemStorage implements IStorage {
       userId: insertSubscription.userId,
       stripeCustomerId: insertSubscription.stripeCustomerId || null,
       stripeSubscriptionId: insertSubscription.stripeSubscriptionId || null,
-      tier: insertSubscription.tier || "starter",
-      status: insertSubscription.status || "active",
+      tier: insertSubscription.tier || 'starter',
+      status: insertSubscription.status || 'active',
       currentPeriodStart: insertSubscription.currentPeriodStart || null,
       currentPeriodEnd: insertSubscription.currentPeriodEnd || null,
       cancelAtPeriodEnd: insertSubscription.cancelAtPeriodEnd || false,
@@ -244,20 +278,23 @@ export class MemStorage implements IStorage {
 
   async getSubscription(userId: number): Promise<Subscription | undefined> {
     return Array.from(this.subscriptions.values()).find(
-      (subscription) => subscription.userId === userId,
+      (subscription) => subscription.userId === userId
     );
   }
 
   async getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | undefined> {
     return Array.from(this.subscriptions.values()).find(
-      (subscription) => subscription.stripeSubscriptionId === stripeSubscriptionId,
+      (subscription) => subscription.stripeSubscriptionId === stripeSubscriptionId
     );
   }
 
-  async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription | undefined> {
+  async updateSubscription(
+    id: number,
+    updates: Partial<Subscription>
+  ): Promise<Subscription | undefined> {
     const existing = this.subscriptions.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...updates, updatedAt: new Date() };
     this.subscriptions.set(id, updated);
     return updated;
@@ -272,7 +309,7 @@ export class MemStorage implements IStorage {
       subscriptionId: insertPayment.subscriptionId || null,
       stripePaymentIntentId: insertPayment.stripePaymentIntentId || null,
       amount: insertPayment.amount,
-      currency: insertPayment.currency || "usd",
+      currency: insertPayment.currency || 'usd',
       status: insertPayment.status,
       createdAt: new Date(),
     };
@@ -281,23 +318,22 @@ export class MemStorage implements IStorage {
   }
 
   async getPaymentHistory(userId: number): Promise<PaymentHistory[]> {
-    return Array.from(this.paymentHistory.values()).filter(
-      (payment) => payment.userId === userId,
-    );
+    return Array.from(this.paymentHistory.values()).filter((payment) => payment.userId === userId);
   }
 
   // Usage tracking methods
   async createOrUpdateUsage(insertUsage: InsertUsageTracking): Promise<UsageTrackingDb> {
     const key = `${insertUsage.userId}:${insertUsage.date}`;
     const existing = this.usageTracking.get(key);
-    
+
     if (existing) {
       const updated: UsageTrackingDb = {
         ...existing,
         analysesCount: existing.analysesCount + (insertUsage.analysesCount || 0),
         pagesProcessed: existing.pagesProcessed + (insertUsage.pagesProcessed || 0),
         aiCallsCount: existing.aiCallsCount + (insertUsage.aiCallsCount || 0),
-        htmlExtractionsCount: existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
+        htmlExtractionsCount:
+          existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
         cacheHits: existing.cacheHits + (insertUsage.cacheHits || 0),
         totalCost: existing.totalCost + (insertUsage.totalCost || 0),
         updatedAt: new Date(),
@@ -358,7 +394,7 @@ export class MemStorage implements IStorage {
   }
 
   async updateCacheHitCount(id: number): Promise<void> {
-    const entry = Array.from(this.cacheEntries.values()).find(e => e.id === id);
+    const entry = Array.from(this.cacheEntries.values()).find((e) => e.id === id);
     if (entry) {
       entry.hitCount++;
       this.cacheEntries.set(entry.urlHash, entry);
@@ -370,7 +406,7 @@ export class MemStorage implements IStorage {
     const newProfile: UserProfile = {
       ...profile,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     this.userProfiles.set(profile.id, newProfile);
     return newProfile;
@@ -390,7 +426,10 @@ export class MemStorage implements IStorage {
     return undefined;
   }
 
-  async updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined> {
+  async updateUserProfile(
+    id: string,
+    updates: Partial<UserProfile>
+  ): Promise<UserProfile | undefined> {
     const existing = this.userProfiles.get(id);
     if (existing) {
       const updated = { ...existing, ...updates, updatedAt: new Date() };
@@ -407,39 +446,38 @@ export class MemStorage implements IStorage {
       id,
       ...credit,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     this.oneTimeCredits.set(id, newCredit);
     return newCredit;
   }
 
   async getUserCredits(userId: number): Promise<OneTimeCredit[]> {
-    return Array.from(this.oneTimeCredits.values())
-      .filter(credit => credit.userId === userId);
+    return Array.from(this.oneTimeCredits.values()).filter((credit) => credit.userId === userId);
   }
 
   async consumeCredit(userId: number, amount = 1): Promise<boolean> {
     const userCredits = await this.getUserCredits(userId);
-    const availableCredit = userCredits.find(credit => credit.creditsRemaining > 0);
-    
+    const availableCredit = userCredits.find((credit) => credit.creditsRemaining > 0);
+
     if (availableCredit && availableCredit.creditsRemaining >= amount) {
       availableCredit.creditsRemaining -= amount;
       availableCredit.updatedAt = new Date();
       this.oneTimeCredits.set(availableCredit.id, availableCredit);
-      
+
       // Update user profile credits
       const profile = await this.getUserProfile(userId.toString());
       if (profile) {
         await this.updateUserProfile(userId.toString(), {
-          creditsRemaining: (profile.creditsRemaining || 0) - amount
+          creditsRemaining: (profile.creditsRemaining || 0) - amount,
         });
       }
-      
+
       return true;
     }
     return false;
   }
-  
+
   // Demo data cleanup methods
   async deleteAnalysesForUser(userId: number): Promise<number> {
     let deleted = 0;
@@ -494,15 +532,12 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(emailCaptures, eq(users.id, emailCaptures.userId))
       .where(eq(emailCaptures.email, email))
       .limit(1);
-    
+
     return result[0]?.user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
@@ -524,21 +559,21 @@ export class DatabaseStorage implements IStorage {
         status: insertAnalysis.status,
         sitemapContent: insertAnalysis.sitemapContent,
         discoveredPages: insertAnalysis.discoveredPages,
-        analysisMetadata: insertAnalysis.analysisMetadata
+        analysisMetadata: insertAnalysis.analysisMetadata,
       })
       .returning();
     return analysis;
   }
 
   async getAnalysis(id: number): Promise<SitemapAnalysis | undefined> {
-    const [analysis] = await db
-      .select()
-      .from(sitemapAnalysis)
-      .where(eq(sitemapAnalysis.id, id));
+    const [analysis] = await db.select().from(sitemapAnalysis).where(eq(sitemapAnalysis.id, id));
     return analysis || undefined;
   }
 
-  async updateAnalysis(id: number, updates: Partial<SitemapAnalysis>): Promise<SitemapAnalysis | undefined> {
+  async updateAnalysis(
+    id: number,
+    updates: Partial<SitemapAnalysis>
+  ): Promise<SitemapAnalysis | undefined> {
     const [analysis] = await db
       .update(sitemapAnalysis)
       .set(updates)
@@ -554,17 +589,14 @@ export class DatabaseStorage implements IStorage {
         userId: insertLlmFile.userId,
         analysisId: insertLlmFile.analysisId,
         selectedPages: insertLlmFile.selectedPages,
-        content: insertLlmFile.content
+        content: insertLlmFile.content,
       })
       .returning();
     return llmFile;
   }
 
   async getLlmFile(id: number): Promise<LlmTextFile | undefined> {
-    const [llmFile] = await db
-      .select()
-      .from(llmTextFiles)
-      .where(eq(llmTextFiles.id, id));
+    const [llmFile] = await db.select().from(llmTextFiles).where(eq(llmTextFiles.id, id));
     return llmFile || undefined;
   }
 
@@ -576,7 +608,7 @@ export class DatabaseStorage implements IStorage {
         userId: insertEmailCapture.userId,
         email: insertEmailCapture.email,
         websiteUrl: insertEmailCapture.websiteUrl,
-        tier: insertEmailCapture.tier || "starter"
+        tier: insertEmailCapture.tier || 'starter',
       })
       .returning();
     return emailCapture;
@@ -590,14 +622,17 @@ export class DatabaseStorage implements IStorage {
     return emailCapture || undefined;
   }
 
-  async updateEmailCapture(email: string, updates: Partial<EmailCapture>): Promise<EmailCapture | undefined> {
+  async updateEmailCapture(
+    email: string,
+    updates: Partial<EmailCapture>
+  ): Promise<EmailCapture | undefined> {
     const [updated] = await db
       .update(emailCaptures)
       .set({
         tier: updates.tier,
         websiteUrl: updates.websiteUrl,
         userId: updates.userId,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(emailCaptures.email, email))
       .returning();
@@ -606,10 +641,7 @@ export class DatabaseStorage implements IStorage {
 
   // Subscription methods
   async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
-    const [subscription] = await db
-      .insert(subscriptions)
-      .values(insertSubscription)
-      .returning();
+    const [subscription] = await db.insert(subscriptions).values(insertSubscription).returning();
     return subscription;
   }
 
@@ -631,7 +663,10 @@ export class DatabaseStorage implements IStorage {
     return subscription || undefined;
   }
 
-  async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription | undefined> {
+  async updateSubscription(
+    id: number,
+    updates: Partial<Subscription>
+  ): Promise<Subscription | undefined> {
     const [subscription] = await db
       .update(subscriptions)
       .set({ ...updates, updatedAt: new Date() })
@@ -642,10 +677,7 @@ export class DatabaseStorage implements IStorage {
 
   // Payment history methods
   async createPaymentHistory(insertPayment: InsertPaymentHistory): Promise<PaymentHistory> {
-    const [payment] = await db
-      .insert(paymentHistory)
-      .values(insertPayment)
-      .returning();
+    const [payment] = await db.insert(paymentHistory).values(insertPayment).returning();
     return payment;
   }
 
@@ -662,7 +694,7 @@ export class DatabaseStorage implements IStorage {
   async createOrUpdateUsage(insertUsage: InsertUsageTracking): Promise<UsageTrackingDb> {
     // For PostgreSQL, we'll implement upsert manually
     const existing = await this.getUsageByDate(insertUsage.userId, insertUsage.date);
-    
+
     if (existing) {
       const [usage] = await db
         .update(usageTracking)
@@ -670,7 +702,8 @@ export class DatabaseStorage implements IStorage {
           analysesCount: existing.analysesCount + (insertUsage.analysesCount || 0),
           pagesProcessed: existing.pagesProcessed + (insertUsage.pagesProcessed || 0),
           aiCallsCount: existing.aiCallsCount + (insertUsage.aiCallsCount || 0),
-          htmlExtractionsCount: existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
+          htmlExtractionsCount:
+            existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
           cacheHits: existing.cacheHits + (insertUsage.cacheHits || 0),
           totalCost: existing.totalCost + (insertUsage.totalCost || 0),
           updatedAt: new Date(),
@@ -679,10 +712,7 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return usage;
     } else {
-      const [usage] = await db
-        .insert(usageTracking)
-        .values(insertUsage)
-        .returning();
+      const [usage] = await db.insert(usageTracking).values(insertUsage).returning();
       return usage;
     }
   }
@@ -697,10 +727,7 @@ export class DatabaseStorage implements IStorage {
 
   // Cache methods
   async createCacheEntry(insertCache: InsertAnalysisCache): Promise<AnalysisCacheDb> {
-    const [cache] = await db
-      .insert(analysisCache)
-      .values(insertCache)
-      .returning();
+    const [cache] = await db.insert(analysisCache).values(insertCache).returning();
     return cache;
   }
 
@@ -724,11 +751,11 @@ export class DatabaseStorage implements IStorage {
   async getUserProfile(id: string): Promise<UserProfile | undefined> {
     const userId = parseInt(id);
     if (isNaN(userId)) return undefined;
-    
+
     // Get user from auth_users table where creditsRemaining is stored
     const [authUser] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
     if (!authUser) return undefined;
-    
+
     // Map authUser to UserProfile format
     return {
       id: authUser.id.toString(),
@@ -737,17 +764,17 @@ export class DatabaseStorage implements IStorage {
       tier: authUser.tier,
       creditsRemaining: authUser.creditsRemaining, // Correctly from auth_users table
       createdAt: authUser.createdAt || new Date(),
-      updatedAt: authUser.updatedAt || new Date()
+      updatedAt: authUser.updatedAt || new Date(),
     };
   }
 
   async getUserProfileByEmail(email: string): Promise<UserProfile | undefined> {
     const emailCapture = await this.getEmailCapture(email);
     if (!emailCapture || !emailCapture.userId) return undefined;
-    
+
     const [user] = await db.select().from(users).where(eq(users.id, emailCapture.userId));
     if (!user) return undefined;
-    
+
     return {
       id: user.id.toString(),
       username: user.username,
@@ -755,25 +782,28 @@ export class DatabaseStorage implements IStorage {
       tier: emailCapture.tier || 'starter',
       creditsRemaining: emailCapture.creditsRemaining || 0,
       createdAt: user.createdAt || new Date(),
-      updatedAt: user.updatedAt || new Date()
+      updatedAt: user.updatedAt || new Date(),
     };
   }
 
-  async updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | undefined> {
+  async updateUserProfile(
+    id: string,
+    updates: Partial<UserProfile>
+  ): Promise<UserProfile | undefined> {
     const userId = parseInt(id);
     if (isNaN(userId)) return undefined;
-    
+
     // Update email capture if tier or credits changed
     if (updates.tier || updates.creditsRemaining !== undefined) {
       const emailCapture = await this.getEmailCaptureByUserId(userId);
       if (emailCapture) {
         await this.updateEmailCapture(emailCapture.email, {
           tier: updates.tier,
-          creditsRemaining: updates.creditsRemaining
+          creditsRemaining: updates.creditsRemaining,
         });
       }
     }
-    
+
     return this.getUserProfile(id);
   }
 
@@ -789,7 +819,7 @@ export class DatabaseStorage implements IStorage {
 
   // Placeholder one-time credit methods
   async createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit> {
-    throw new Error("One-time credits not implemented in DatabaseStorage");
+    throw new Error('One-time credits not implemented in DatabaseStorage');
   }
 
   async getUserCredits(userId: number): Promise<OneTimeCredit[]> {
@@ -799,31 +829,26 @@ export class DatabaseStorage implements IStorage {
   async consumeCredit(userId: number, amount?: number): Promise<boolean> {
     return false;
   }
-  
+
   // Demo data cleanup methods
   async deleteAnalysesForUser(userId: number): Promise<number> {
-    const result = await db
-      .delete(sitemapAnalysis)
-      .where(eq(sitemapAnalysis.userId, userId));
+    const result = await db.delete(sitemapAnalysis).where(eq(sitemapAnalysis.userId, userId));
     return result.rowCount || 0;
   }
 
   async deleteLlmFilesForUser(userId: number): Promise<number> {
-    const result = await db
-      .delete(llmTextFiles)
-      .where(eq(llmTextFiles.userId, userId));
+    const result = await db.delete(llmTextFiles).where(eq(llmTextFiles.userId, userId));
     return result.rowCount || 0;
   }
 
   async deleteUsageForUser(userId: number): Promise<number> {
-    const result = await db
-      .delete(usageTracking)
-      .where(eq(usageTracking.userId, userId));
+    const result = await db.delete(usageTracking).where(eq(usageTracking.userId, userId));
     return result.rowCount || 0;
   }
 }
 
 // Use in-memory storage if DATABASE_URL is not properly configured
-export const storage = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes("localhost:5432/test") 
-  ? new DatabaseStorage() 
-  : new MemStorage();
+export const storage =
+  process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost:5432/test')
+    ? new DatabaseStorage()
+    : new MemStorage();

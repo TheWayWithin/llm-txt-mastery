@@ -24,7 +24,7 @@ const testResults = {
   openai_chat: { status: 'pending', details: {} },
   google_analytics: { status: 'pending', details: {} },
   api_key_management: { status: 'pending', details: {} },
-  cost_estimates: { status: 'pending', details: {} }
+  cost_estimates: { status: 'pending', details: {} },
 };
 
 let totalCost = 0;
@@ -32,29 +32,29 @@ let totalCost = 0;
 async function testOpenAIEmbeddings() {
   console.log('🧠 Testing OpenAI Embeddings API...');
   console.log('──────────────────────────────────────');
-  
+
   try {
-    const { 
+    const {
       generateEmbedding,
       generateEmbeddings,
       cosineSimilarity,
       testAPIConnection,
       getAPIUsageStats,
       estimateEmbeddingCost,
-      EMBEDDING_MODELS
+      EMBEDDING_MODELS,
     } = await import('../server/services/openai-enhanced.js');
 
     // Test 1: API Connection
     console.log('1. Testing API connection...');
     const connectionTest = await testAPIConnection();
-    
+
     if (!connectionTest.success) {
       testResults.openai_embeddings.status = 'failed';
       testResults.openai_embeddings.details = { error: connectionTest.error };
       console.log('❌ Connection failed:', connectionTest.error);
       return;
     }
-    
+
     console.log('✅ Connection successful');
     if (connectionTest.embeddings) {
       console.log(`   - Response time: ${connectionTest.embeddings.response_time_ms}ms`);
@@ -65,9 +65,10 @@ async function testOpenAIEmbeddings() {
 
     // Test 2: Single embedding
     console.log('\n2. Testing single embedding generation...');
-    const sampleText = "Advanced machine learning techniques for semantic analysis and natural language processing";
+    const sampleText =
+      'Advanced machine learning techniques for semantic analysis and natural language processing';
     const embedding = await generateEmbedding(sampleText);
-    
+
     console.log('✅ Single embedding generated');
     console.log(`   - Model: ${embedding.model}`);
     console.log(`   - Dimensions: ${embedding.dimensions}`);
@@ -78,25 +79,33 @@ async function testOpenAIEmbeddings() {
     // Test 3: Batch embeddings
     console.log('\n3. Testing batch embedding generation...');
     const batchTexts = [
-      "React component architecture and state management",
-      "Node.js server optimization and performance tuning", 
-      "Database design patterns for scalable applications",
-      "API security best practices and authentication",
-      "Frontend performance optimization techniques"
+      'React component architecture and state management',
+      'Node.js server optimization and performance tuning',
+      'Database design patterns for scalable applications',
+      'API security best practices and authentication',
+      'Frontend performance optimization techniques',
     ];
-    
+
     const batchEmbeddings = await generateEmbeddings(batchTexts);
     console.log('✅ Batch embeddings generated');
     console.log(`   - Count: ${batchEmbeddings.length}`);
     console.log(`   - Total tokens: ${batchEmbeddings.reduce((sum, e) => sum + e.tokens_used, 0)}`);
-    console.log(`   - Total cost: $${batchEmbeddings.reduce((sum, e) => sum + e.cost_usd, 0).toFixed(6)}`);
+    console.log(
+      `   - Total cost: $${batchEmbeddings.reduce((sum, e) => sum + e.cost_usd, 0).toFixed(6)}`
+    );
     totalCost += batchEmbeddings.reduce((sum, e) => sum + e.cost_usd, 0);
 
     // Test 4: Similarity calculation
     console.log('\n4. Testing similarity calculations...');
-    const similarity1 = cosineSimilarity(batchEmbeddings[0].embedding, batchEmbeddings[4].embedding); // React vs Frontend
-    const similarity2 = cosineSimilarity(batchEmbeddings[1].embedding, batchEmbeddings[2].embedding); // Node vs Database
-    
+    const similarity1 = cosineSimilarity(
+      batchEmbeddings[0].embedding,
+      batchEmbeddings[4].embedding
+    ); // React vs Frontend
+    const similarity2 = cosineSimilarity(
+      batchEmbeddings[1].embedding,
+      batchEmbeddings[2].embedding
+    ); // Node vs Database
+
     console.log('✅ Similarity calculations working');
     console.log(`   - React ↔ Frontend optimization: ${similarity1.toFixed(4)}`);
     console.log(`   - Node.js ↔ Database design: ${similarity2.toFixed(4)}`);
@@ -107,7 +116,7 @@ async function testOpenAIEmbeddings() {
     console.log('✅ Cost estimation working');
     console.log(`   - Estimated tokens: ${costEstimate.tokens}`);
     console.log(`   - Estimated cost: $${costEstimate.cost_usd.toFixed(6)}`);
-    
+
     const usageStats = getAPIUsageStats();
     console.log('\n📊 Usage Statistics:');
     console.log(`   - Total requests: ${usageStats.total_requests}`);
@@ -119,9 +128,8 @@ async function testOpenAIEmbeddings() {
       connection_time_ms: connectionTest.embeddings?.response_time_ms,
       dimensions: embedding.dimensions,
       batch_count: batchEmbeddings.length,
-      total_cost: usageStats.total_cost_usd
+      total_cost: usageStats.total_cost_usd,
     };
-
   } catch (error) {
     console.log('❌ OpenAI Embeddings test failed:', error.message);
     testResults.openai_embeddings.status = 'failed';
@@ -132,7 +140,7 @@ async function testOpenAIEmbeddings() {
 async function testOpenAIChat() {
   console.log('\n💬 Testing OpenAI Chat Completions API...');
   console.log('───────────────────────────────────────────');
-  
+
   try {
     const { analyzePageContent } = await import('../server/services/openai-enhanced.js');
 
@@ -162,7 +170,11 @@ async function testOpenAIChat() {
     `;
 
     const startTime = Date.now();
-    const analysis = await analyzePageContent('https://example.com/react-patterns', sampleHTML, true);
+    const analysis = await analyzePageContent(
+      'https://example.com/react-patterns',
+      sampleHTML,
+      true
+    );
     const responseTime = Date.now() - startTime;
 
     console.log('✅ Chat completion analysis successful');
@@ -172,7 +184,7 @@ async function testOpenAIChat() {
     console.log(`   - Response Time: ${responseTime}ms`);
     console.log(`   - Model: ${analysis.model}`);
     console.log(`   - Cost: $${(analysis.estimatedCost || 0).toFixed(6)}`);
-    
+
     if (analysis.estimatedCost) {
       totalCost += analysis.estimatedCost;
     }
@@ -182,9 +194,8 @@ async function testOpenAIChat() {
       response_time_ms: responseTime,
       quality_score: analysis.qualityScore,
       model: analysis.model,
-      cost: analysis.estimatedCost || 0
+      cost: analysis.estimatedCost || 0,
     };
-
   } catch (error) {
     console.log('❌ OpenAI Chat test failed:', error.message);
     testResults.openai_chat.status = 'failed';
@@ -195,14 +206,10 @@ async function testOpenAIChat() {
 async function testGoogleAnalytics() {
   console.log('\n📊 Testing Google Analytics Integration...');
   console.log('──────────────────────────────────────────');
-  
+
   try {
-    const { 
-      testAnalyticsConnection,
-      isAnalyticsAvailable,
-      getHighPriorityUrls,
-      AnalyticsConfig
-    } = await import('../server/services/google-analytics.js');
+    const { testAnalyticsConnection, isAnalyticsAvailable, getHighPriorityUrls, AnalyticsConfig } =
+      await import('../server/services/google-analytics.js');
 
     console.log('1. Checking Analytics configuration...');
     console.log(`   - Enabled: ${AnalyticsConfig.enabled}`);
@@ -211,7 +218,7 @@ async function testGoogleAnalytics() {
 
     if (!isAnalyticsAvailable()) {
       console.log('⚠️ Google Analytics not configured (optional feature)');
-      console.log('   This is expected if you haven\'t set up Analytics yet');
+      console.log("   This is expected if you haven't set up Analytics yet");
       testResults.google_analytics.status = 'skipped';
       testResults.google_analytics.details = { reason: 'Not configured' };
       return;
@@ -219,33 +226,36 @@ async function testGoogleAnalytics() {
 
     console.log('\n2. Testing Analytics API connection...');
     const connectionTest = await testAnalyticsConnection();
-    
+
     if (connectionTest.success) {
       console.log('✅ Analytics connection successful');
       console.log(`   - Property ID: ${connectionTest.property_id}`);
       if (connectionTest.sample_data) {
-        console.log(`   - Sample data: ${connectionTest.sample_data.total_sessions} sessions, ${connectionTest.sample_data.total_pages} pages`);
+        console.log(
+          `   - Sample data: ${connectionTest.sample_data.total_sessions} sessions, ${connectionTest.sample_data.total_pages} pages`
+        );
       }
 
       console.log('\n3. Testing high-priority URL detection...');
       const priorityUrls = await getHighPriorityUrls(10);
       console.log(`✅ Retrieved ${priorityUrls.length} priority URLs`);
       priorityUrls.slice(0, 3).forEach((item, i) => {
-        console.log(`   ${i + 1}. ${item.url} (score: ${item.priority_score.toFixed(1)}) - ${item.reason}`);
+        console.log(
+          `   ${i + 1}. ${item.url} (score: ${item.priority_score.toFixed(1)}) - ${item.reason}`
+        );
       });
 
       testResults.google_analytics.status = 'passed';
       testResults.google_analytics.details = {
         property_id: connectionTest.property_id,
         sample_sessions: connectionTest.sample_data?.total_sessions || 0,
-        priority_urls_count: priorityUrls.length
+        priority_urls_count: priorityUrls.length,
       };
     } else {
       console.log('❌ Analytics connection failed:', connectionTest.error);
       testResults.google_analytics.status = 'failed';
       testResults.google_analytics.details = { error: connectionTest.error };
     }
-
   } catch (error) {
     console.log('❌ Google Analytics test failed:', error.message);
     testResults.google_analytics.status = 'failed';
@@ -256,18 +266,14 @@ async function testGoogleAnalytics() {
 async function testAPIKeyManagement() {
   console.log('\n🔐 Testing API Key Management System...');
   console.log('─────────────────────────────────────────');
-  
+
   try {
-    const {
-      testKeyManagement,
-      getSecurityDashboard,
-      checkAllKeysRotation,
-      monitorQuotaUsage
-    } = await import('../server/services/api-key-manager.js');
+    const { testKeyManagement, getSecurityDashboard, checkAllKeysRotation, monitorQuotaUsage } =
+      await import('../server/services/api-key-manager.js');
 
     console.log('1. Testing key management system...');
     const managementTest = testKeyManagement();
-    
+
     if (managementTest.success) {
       console.log('✅ Key management system operational');
       console.log(`   - Message: ${managementTest.message}`);
@@ -283,7 +289,7 @@ async function testAPIKeyManagement() {
       console.log('✅ All keys are up to date');
     } else {
       console.log(`⚠️ ${rotationStatus.length} keys need attention:`);
-      rotationStatus.forEach(status => {
+      rotationStatus.forEach((status) => {
         const icon = status.status === 'overdue' ? '🔴' : '🟡';
         console.log(`   ${icon} ${status.service}: ${status.message}`);
       });
@@ -308,9 +314,8 @@ async function testAPIKeyManagement() {
     testResults.api_key_management.details = {
       active_keys: managementTest.stats.active_keys,
       rotation_warnings: rotationStatus.length,
-      active_alerts: dashboard.active_alerts.length
+      active_alerts: dashboard.active_alerts.length,
     };
-
   } catch (error) {
     console.log('❌ API Key Management test failed:', error.message);
     testResults.api_key_management.status = 'failed';
@@ -321,28 +326,42 @@ async function testAPIKeyManagement() {
 async function generateCostEstimates() {
   console.log('\n💰 Generating Cost Estimates...');
   console.log('──────────────────────────────────────');
-  
+
   try {
-    const { estimateEmbeddingCost, estimateBatchCost } = await import('../server/services/openai-enhanced.js');
+    const { estimateEmbeddingCost, estimateBatchCost } = await import(
+      '../server/services/openai-enhanced.js'
+    );
 
     console.log('Typical usage scenarios:');
-    
+
     // Scenario 1: Small website (50 pages)
-    const small = estimateEmbeddingCost(Array(50).fill("Average webpage content with about 500 words including titles, descriptions, headings and body text that would be analyzed for semantic clustering and content organization"));
+    const small = estimateEmbeddingCost(
+      Array(50).fill(
+        'Average webpage content with about 500 words including titles, descriptions, headings and body text that would be analyzed for semantic clustering and content organization'
+      )
+    );
     console.log(`1. Small website (50 pages): $${small.cost_usd.toFixed(4)}`);
-    
-    // Scenario 2: Medium website (200 pages)  
-    const medium = estimateEmbeddingCost(Array(200).fill("Average webpage content with about 500 words including titles, descriptions, headings and body text that would be analyzed for semantic clustering and content organization"));
+
+    // Scenario 2: Medium website (200 pages)
+    const medium = estimateEmbeddingCost(
+      Array(200).fill(
+        'Average webpage content with about 500 words including titles, descriptions, headings and body text that would be analyzed for semantic clustering and content organization'
+      )
+    );
     console.log(`2. Medium website (200 pages): $${medium.cost_usd.toFixed(4)}`);
-    
+
     // Scenario 3: Large website (1000 pages)
-    const large = estimateEmbeddingCost(Array(1000).fill("Average webpage content with about 500 words including titles, descriptions, headings and body text that would be analyzed for semantic clustering and content organization"));
+    const large = estimateEmbeddingCost(
+      Array(1000).fill(
+        'Average webpage content with about 500 words including titles, descriptions, headings and body text that would be analyzed for semantic clustering and content organization'
+      )
+    );
     console.log(`3. Large website (1000 pages): $${large.cost_usd.toFixed(2)}`);
 
     // Chat completion costs
     const chatCost = estimateBatchCost(50); // 50 pages analyzed with AI
     console.log(`4. AI analysis (50 pages): $${chatCost.estimated.toFixed(4)}`);
-    
+
     console.log('\nModel comparison for 100 pages:');
     const comparison = estimateBatchCost(100);
     Object.entries(comparison.comparison).forEach(([model, cost]) => {
@@ -355,15 +374,14 @@ async function generateCostEstimates() {
     console.log('   - Use gpt-4o-mini for content analysis (93% cheaper than gpt-4o)');
     console.log('   - Cache embeddings to avoid regeneration');
     console.log('   - Batch process pages for better efficiency');
-    
+
     testResults.cost_estimates.status = 'passed';
     testResults.cost_estimates.details = {
       small_site: small.cost_usd,
-      medium_site: medium.cost_usd, 
+      medium_site: medium.cost_usd,
       large_site: large.cost_usd,
-      ai_analysis_50_pages: chatCost.estimated
+      ai_analysis_50_pages: chatCost.estimated,
     };
-
   } catch (error) {
     console.log('❌ Cost estimation failed:', error.message);
     testResults.cost_estimates.status = 'failed';
@@ -374,41 +392,40 @@ async function generateCostEstimates() {
 // Run all tests
 async function runAllTests() {
   const startTime = Date.now();
-  
+
   await testOpenAIEmbeddings();
   await testOpenAIChat();
-  await testGoogleAnalytics();  
+  await testGoogleAnalytics();
   await testAPIKeyManagement();
   await generateCostEstimates();
-  
+
   const totalTime = Date.now() - startTime;
-  
+
   // Print final summary
   console.log('\n📋 Test Summary');
   console.log('===============');
-  
+
   const testCount = Object.keys(testResults).length;
-  const passedCount = Object.values(testResults).filter(r => r.status === 'passed').length;
-  const failedCount = Object.values(testResults).filter(r => r.status === 'failed').length;
-  const skippedCount = Object.values(testResults).filter(r => r.status === 'skipped').length;
-  
+  const passedCount = Object.values(testResults).filter((r) => r.status === 'passed').length;
+  const failedCount = Object.values(testResults).filter((r) => r.status === 'failed').length;
+  const skippedCount = Object.values(testResults).filter((r) => r.status === 'skipped').length;
+
   console.log(`Total tests: ${testCount}`);
   console.log(`✅ Passed: ${passedCount}`);
   console.log(`❌ Failed: ${failedCount}`);
   console.log(`⚠️ Skipped: ${skippedCount}`);
   console.log(`⏱️ Total time: ${totalTime}ms`);
   console.log(`💰 Total API cost: $${totalCost.toFixed(6)}`);
-  
+
   console.log('\nDetailed Results:');
   Object.entries(testResults).forEach(([test, result]) => {
-    const icon = result.status === 'passed' ? '✅' : 
-                 result.status === 'failed' ? '❌' : '⚠️';
+    const icon = result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⚠️';
     console.log(`${icon} ${test}: ${result.status}`);
     if (result.details.error) {
       console.log(`   Error: ${result.details.error}`);
     }
   });
-  
+
   console.log('\n🚀 Next Steps:');
   if (passedCount === testCount - skippedCount) {
     console.log('   ✅ All tests passed! APIs are ready for production');
@@ -418,18 +435,18 @@ async function runAllTests() {
     console.log('   🔧 Fix failed tests before proceeding to production');
     console.log('   📖 Check the setup documentation for configuration help');
   }
-  
+
   if (skippedCount > 0) {
     console.log('   📊 Google Analytics is optional but provides enhanced insights');
     console.log('   📚 See GOOGLE_ANALYTICS_API_SETUP.md for configuration');
   }
-  
+
   // Exit with appropriate code
   process.exit(failedCount > 0 ? 1 : 0);
 }
 
 // Run the test suite
-runAllTests().catch(error => {
+runAllTests().catch((error) => {
   console.error('💥 Test suite crashed:', error);
   process.exit(1);
 });

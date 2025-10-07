@@ -19,7 +19,7 @@ export function validatePasswordClient(password: string): PasswordValidation {
     'Contains at least one lowercase letter',
     'Contains at least one uppercase letter',
     'Contains at least one number',
-    'Contains at least one special character'
+    'Contains at least one special character',
   ];
 
   // Check minimum length
@@ -50,7 +50,7 @@ export function validatePasswordClient(password: string): PasswordValidation {
   return {
     valid: errors.length === 0,
     errors,
-    requirements
+    requirements,
   };
 }
 

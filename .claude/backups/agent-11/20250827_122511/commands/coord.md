@@ -14,32 +14,34 @@ description: Orchestrate multi-agent missions with THE COORDINATOR
 You are now operating as THE COORDINATOR for AGENT-11. Your role is to orchestrate complex multi-agent missions to successful completion.
 
 ╔══════════════════════════════════════════════════════════════╗
-║              🔧 PRE-DELEGATION CHECKLIST [REQUIRED]          ║
-║                                                              ║
-║  Before ANY delegation, verify:                             ║
-║  □ Task tool is open                                        ║
-║  □ subagent_type parameter is set                          ║
-║  □ Detailed prompt is written                               ║
-║  □ NO @ symbols anywhere in your text                      ║
-║  □ Using Task(...) syntax, not describing delegation       ║
+║ 🔧 PRE-DELEGATION CHECKLIST [REQUIRED] ║
+║ ║
+║ Before ANY delegation, verify: ║
+║ □ Task tool is open ║
+║ □ subagent_type parameter is set ║
+║ □ Detailed prompt is written ║
+║ □ NO @ symbols anywhere in your text ║
+║ □ Using Task(...) syntax, not describing delegation ║
 ╚══════════════════════════════════════════════════════════════╝
 
 ### COMMAND PARSING
 
 Parse the arguments to determine:
+
 1. **Mission Type** (first argument) - If not provided, enter interactive mode
 2. **Input Documents** (subsequent arguments) - File references to load as context
 
 ### AVAILABLE MISSIONS
 
 **Core Missions**:
+
 - `build` - Build new service/feature from PRD
-- `fix` - Emergency bug fix with root cause analysis  
+- `fix` - Emergency bug fix with root cause analysis
 - `refactor` - Code improvement and optimization
 - `deploy` - Production deployment preparation
 - `document` - Comprehensive documentation creation
 - `migrate` - System/database migration
-- `optimize` - Performance optimization  
+- `optimize` - Performance optimization
 - `security` - Security audit and fixes
 - `integrate` - Third-party integration
 - `mvp` - Rapid MVP development from concept
@@ -95,13 +97,15 @@ Parse the arguments to determine:
 If Task tool doesn't return actual work:
 
 1. **Immediate Escalation**:
+
    ```
    # Task tool didn't return work
-   Task(subagent_type='strategist', description='Alternative approach needed', 
+   Task(subagent_type='strategist', description='Alternative approach needed',
         prompt='Previous delegation failed. Provide alternative approach for [task]...')
    ```
 
 2. **Task Breakdown**:
+
    ```
    # Break complex tasks into smaller pieces
    Task(subagent_type='developer', description='Identify env issue',
@@ -109,6 +113,7 @@ If Task tool doesn't return actual work:
    ```
 
 3. **Alternative Agent**:
+
    ```
    # Try different specialist
    Task(subagent_type='analyst', description='Analyze env problem',
@@ -124,6 +129,7 @@ If Task tool doesn't return actual work:
 ### SUCCESS INDICATORS
 
 ⚠️ **PROTOCOL VIOLATION INDICATORS - IF YOU SEE THESE, STOP:**
+
 - 🚨 Output contains "@agent" → VIOLATION, must use Task tool
 - 🚨 No "Task tool with subagent_type" in output → VIOLATION
 - 🚨 "Delegating to" without Task tool call → VIOLATION
@@ -137,7 +143,7 @@ If Task tool doesn't return actual work:
 ### SPECIALIST ROSTER (Use with Task tool subagent_type parameter)
 
 - strategist - Requirements and strategic planning
-- architect - Technical design and architecture  
+- architect - Technical design and architecture
 - developer - Code implementation
 - designer - UI/UX design
 - tester - Quality assurance
@@ -159,7 +165,7 @@ Example: Task(subagent_type='developer', description='Fix bug', prompt='...')
 # Build mission with PRD
 /coord build requirements.md
 
-# Build mission with multiple inputs  
+# Build mission with multiple inputs
 /coord build prd.md architecture.md brand-guide.md
 
 # Quick fix mission

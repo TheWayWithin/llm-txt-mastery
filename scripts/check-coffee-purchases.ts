@@ -8,12 +8,7 @@ async function checkCoffeePurchases() {
   const purchases = await db
     .select()
     .from(oneTimeCredits)
-    .where(
-      and(
-        eq(oneTimeCredits.userId, 24),
-        eq(oneTimeCredits.productType, 'coffee')
-      )
-    )
+    .where(and(eq(oneTimeCredits.userId, 24), eq(oneTimeCredits.productType, 'coffee')))
     .orderBy(oneTimeCredits.purchasedAt);
 
   console.log(`Found ${purchases.length} purchase(s):\n`);
@@ -25,7 +20,9 @@ async function checkCoffeePurchases() {
     console.log(`  Credits: ${p.creditsRemaining}/${p.creditsTotal}`);
     console.log(`  Refunded: ${p.refunded}`);
     console.log(`  Created At: ${p.createdAt}`);
-    console.log(`  Days since purchase: ${Math.floor((Date.now() - new Date(p.purchasedAt).getTime()) / (1000 * 60 * 60 * 24))}`);
+    console.log(
+      `  Days since purchase: ${Math.floor((Date.now() - new Date(p.purchasedAt).getTime()) / (1000 * 60 * 60 * 24))}`
+    );
     console.log('');
   });
 
@@ -46,7 +43,9 @@ async function checkCoffeePurchases() {
   console.log('🐛 BUGGY QUERY (oldest first):');
   if (buggyQuery.length) {
     const p = buggyQuery[0];
-    console.log(`  Returns: ${p.purchasedAt} (${Math.floor((Date.now() - new Date(p.purchasedAt).getTime()) / (1000 * 60 * 60 * 24))} days old)`);
+    console.log(
+      `  Returns: ${p.purchasedAt} (${Math.floor((Date.now() - new Date(p.purchasedAt).getTime()) / (1000 * 60 * 60 * 24))} days old)`
+    );
   }
 
   process.exit(0);

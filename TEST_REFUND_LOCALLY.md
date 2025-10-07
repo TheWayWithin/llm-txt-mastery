@@ -69,6 +69,7 @@ npx tsx test-refund.ts
 ## Expected Output
 
 If the fix works, you should see:
+
 ```
 Found 1 coffee purchases
 
@@ -88,17 +89,19 @@ Then the backend code is correct and we just need to wait for Railway to deploy 
 ## Next Steps After Railway Deploys
 
 1. Check health endpoint shows new version:
+
    ```bash
    curl https://llm-txt-mastery-production.up.railway.app/health | jq '.version'
    ```
 
 2. Test eligibility API in browser console:
+
    ```javascript
    fetch('https://llm-txt-mastery-production.up.railway.app/api/refund/eligibility', {
-     headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_access_token') }
+     headers: { Authorization: 'Bearer ' + sessionStorage.getItem('auth_access_token') },
    })
-   .then(r => r.json())
-   .then(d => console.log(d));
+     .then((r) => r.json())
+     .then((d) => console.log(d));
    ```
 
 3. Hard refresh dashboard (Cmd+Shift+R) to clear cache

@@ -2,7 +2,7 @@
 
 /**
  * TIER UPGRADE VALIDATION REPORT GENERATOR
- * 
+ *
  * Generates a comprehensive report validating that the tier upgrade fixes
  * are working correctly. This report provides evidence that revenue protection
  * is functioning properly.
@@ -148,15 +148,17 @@ The tier upgrade validation tests confirm that the critical revenue protection f
 
 function generateReport() {
   console.log('🧪 Generating Tier Upgrade Validation Report...');
-  
+
   // Create test-results directory if it doesn't exist
   const resultsDir = path.join(__dirname, 'test-results');
   if (!fs.existsSync(resultsDir)) {
     fs.mkdirSync(resultsDir, { recursive: true });
   }
-  
+
   // Generate the report
-  const reportContent = REPORT_TEMPLATE.replace('{{TEST_RESULTS_PLACEHOLDER}}', `
+  const reportContent = REPORT_TEMPLATE.replace(
+    '{{TEST_RESULTS_PLACEHOLDER}}',
+    `
 ### Automated Test Execution
 - **Unit Tests:** ${getTestStatus('unit')} 
 - **Integration Tests:** ${getTestStatus('integration')}
@@ -172,14 +174,15 @@ function generateReport() {
 - [x] Error handling robust and graceful
 
 **All critical paths validated successfully.**
-  `);
-  
+  `
+  );
+
   // Write the report
   const reportPath = path.join(resultsDir, 'TIER_UPGRADE_VALIDATION_REPORT.md');
   fs.writeFileSync(reportPath, reportContent);
-  
+
   console.log(`✅ Report generated: ${reportPath}`);
-  
+
   // Also create a summary for quick reference
   const summaryPath = path.join(resultsDir, 'validation-summary.json');
   const summary = {
@@ -190,13 +193,13 @@ function generateReport() {
     revenueProtection: 'ACTIVE',
     criticalFixes: [
       'handleCheckoutCompleted() updates emailCaptures table',
-      'handleSubscriptionUpdate() updates emailCaptures table', 
+      'handleSubscriptionUpdate() updates emailCaptures table',
       'handleSubscriptionCancelled() downgrades emailCaptures tier',
-      'getUserTier() returns accurate tier information'
+      'getUserTier() returns accurate tier information',
     ],
-    deploymentReady: true
+    deploymentReady: true,
   };
-  
+
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
   console.log(`📋 Summary generated: ${summaryPath}`);
 }

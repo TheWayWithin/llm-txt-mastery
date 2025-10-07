@@ -2,7 +2,7 @@
 
 /**
  * Coffee Credits Admin Endpoint Demo
- * 
+ *
  * Demonstrates how the admin credit reset endpoint should work
  * once properly implemented in the Railway backend.
  */
@@ -14,43 +14,43 @@ const ADMIN_KEY = process.env.ADMIN_KEY;
 async function demonstrateAdminEndpoint() {
   console.log('🔧 Admin Credit Reset Endpoint Demonstration');
   console.log('==========================================\n');
-  
+
   if (!ADMIN_KEY) {
     console.log('❌ ADMIN_KEY environment variable is required');
     console.log('Please set it before running this demo:');
     console.log('export ADMIN_KEY="your_admin_key_here"\n');
     return;
   }
-  
+
   console.log('✅ ADMIN_KEY configured');
   console.log(`Backend: ${PRODUCTION_BACKEND}`);
   console.log(`Test User: ${JAMIE_EMAIL}\n`);
-  
+
   // Test 1: Valid admin request
   console.log('🧪 Test 1: Valid Admin Credit Reset Request');
   console.log('--------------------------------------------');
-  
+
   try {
     const response = await fetch(`${PRODUCTION_BACKEND}/api/auth/admin/reset-coffee-credits`, {
       method: 'POST',
       headers: {
         'x-admin-key': ADMIN_KEY,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: JAMIE_EMAIL
-      })
+        email: JAMIE_EMAIL,
+      }),
     });
 
     console.log(`Response Status: ${response.status}`);
     console.log('Response Headers:', Object.fromEntries(response.headers().entries()));
-    
+
     const contentType = response.headers.get('content-type') || '';
-    
+
     if (contentType.includes('application/json')) {
       const data = await response.json();
       console.log('Response Data:', JSON.stringify(data, null, 2));
-      
+
       if (response.ok && data.success) {
         console.log('✅ EXPECTED: Admin reset successful');
       } else {
@@ -61,73 +61,70 @@ async function demonstrateAdminEndpoint() {
       const text = await response.text();
       console.log('Response preview:', text.substring(0, 100) + '...');
     }
-    
   } catch (error) {
     console.log('❌ Request failed:', error.message);
   }
-  
+
   console.log('\n');
-  
+
   // Test 2: Unauthorized request (no admin key)
   console.log('🧪 Test 2: Unauthorized Request (No Admin Key)');
   console.log('----------------------------------------------');
-  
+
   try {
     const response = await fetch(`${PRODUCTION_BACKEND}/api/auth/admin/reset-coffee-credits`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: JAMIE_EMAIL
-      })
+        email: JAMIE_EMAIL,
+      }),
     });
 
     console.log(`Response Status: ${response.status}`);
-    
+
     if (response.status === 401) {
       console.log('✅ EXPECTED: Properly rejected unauthorized request');
     } else {
       console.log('❌ CURRENT: Should return 401 for unauthorized requests');
     }
-    
   } catch (error) {
     console.log('❌ Request failed:', error.message);
   }
-  
+
   console.log('\n');
-  
+
   // Test 3: Wrong admin key
   console.log('🧪 Test 3: Wrong Admin Key');
   console.log('---------------------------');
-  
+
   try {
     const response = await fetch(`${PRODUCTION_BACKEND}/api/auth/admin/reset-coffee-credits`, {
       method: 'POST',
       headers: {
         'x-admin-key': 'wrong-key',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: JAMIE_EMAIL
-      })
+        email: JAMIE_EMAIL,
+      }),
     });
 
     console.log(`Response Status: ${response.status}`);
-    
+
     if (response.status === 401) {
       console.log('✅ EXPECTED: Properly rejected wrong admin key');
     } else {
       console.log('❌ CURRENT: Should return 401 for wrong admin key');
     }
-    
   } catch (error) {
     console.log('❌ Request failed:', error.message);
   }
-  
+
   console.log('\n📋 EXPECTED IMPLEMENTATION SPECIFICATION');
   console.log('========================================\n');
-  
+
   console.log('Endpoint: POST /api/auth/admin/reset-coffee-credits');
   console.log('');
   console.log('Headers Required:');

@@ -1,6 +1,6 @@
 /**
  * COMPETITOR CONFIGURATION
- * 
+ *
  * Centralized configuration for competitor analysis tests.
  * This file contains all the selectors, expectations, and test data
  * needed to analyze different LLMs.txt generator competitors.
@@ -45,7 +45,7 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         'input[name="website"]',
         'input[id*="url"]',
         'input[class*="url"]',
-        'textarea[placeholder*="website"]'
+        'textarea[placeholder*="website"]',
       ],
       submitButton: [
         'button:has-text("Generate")',
@@ -55,7 +55,7 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         'button[type="submit"]',
         '.btn-primary',
         '.generate-btn',
-        'input[type="submit"]'
+        'input[type="submit"]',
       ],
       loadingIndicator: [
         '.loading',
@@ -64,11 +64,11 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         '.progress',
         '.generating',
         '[aria-label*="loading"]',
-        '.loader'
+        '.loader',
       ],
       output: [
         'pre',
-        'code', 
+        'code',
         '.bg-gray-50 pre',
         '.rounded-md pre',
         '.p-4 pre',
@@ -80,39 +80,39 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         '.llms-txt-output',
         '[data-testid*="output"]',
         '.code-block',
-        'textarea[readonly]'
+        'textarea[readonly]',
       ],
       downloadButton: [
         'button:has-text("Download")',
         'a:has-text("Download")',
         '.download-btn',
         '[download]',
-        'button[aria-label*="download"]'
+        'button[aria-label*="download"]',
       ],
       errorMessage: [
         '.error',
         '.alert-error',
         '[role="alert"]',
         '.notification-error',
-        '.message-error'
+        '.message-error',
       ],
       cookieAccept: [
         'button:has-text("Accept")',
         'button:has-text("OK")',
         'button:has-text("Agree")',
         '.cookie-accept',
-        '[data-cy="accept-cookies"]'
-      ]
+        '[data-cy="accept-cookies"]',
+      ],
     },
     expectations: {
       maxWaitTime: 90000, // 90 seconds for generation
       expectedElements: ['urlInput', 'submitButton'],
-      requiredHeaders: ['User-Agent']
+      requiredHeaders: ['User-Agent'],
     },
     specialHandling: {
       needsCookieAccept: true,
-      needsScrollToSubmit: false
-    }
+      needsScrollToSubmit: false,
+    },
   },
   {
     name: 'Writesonic',
@@ -126,7 +126,7 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         'input[name="website"]',
         'input[id*="url"]',
         'textarea[placeholder*="website"]',
-        'input[aria-label*="URL"]'
+        'input[aria-label*="URL"]',
       ],
       submitButton: [
         'button:has-text("Generate")',
@@ -136,7 +136,7 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         'button[type="submit"]',
         '.btn-primary',
         '.generate-btn',
-        '.cta-button'
+        '.cta-button',
       ],
       loadingIndicator: [
         '.loading',
@@ -145,7 +145,7 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         '.progress',
         '.generating',
         '.processing',
-        '[aria-label*="loading"]'
+        '[aria-label*="loading"]',
       ],
       output: [
         'textarea[readonly]',
@@ -155,36 +155,31 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         '.result',
         '.generated-content',
         '.response-content',
-        '[data-testid*="output"]'
+        '[data-testid*="output"]',
       ],
       downloadButton: [
         'button:has-text("Download")',
         'a:has-text("Download")',
         '.download-btn',
-        '[download]'
+        '[download]',
       ],
-      errorMessage: [
-        '.error',
-        '.alert-error',
-        '[role="alert"]',
-        '.notification-error'
-      ],
+      errorMessage: ['.error', '.alert-error', '[role="alert"]', '.notification-error'],
       cookieAccept: [
         'button:has-text("Accept")',
         'button:has-text("OK")',
         'button:has-text("Agree")',
-        '.cookie-consent button'
-      ]
+        '.cookie-consent button',
+      ],
     },
     expectations: {
       maxWaitTime: 120000, // 120 seconds - Writesonic might be slower
       expectedElements: ['urlInput', 'submitButton'],
-      requiredHeaders: ['User-Agent']
+      requiredHeaders: ['User-Agent'],
     },
     specialHandling: {
       needsCookieAccept: true,
-      requiresRegistration: false // Some tools might require this
-    }
+      requiresRegistration: false, // Some tools might require this
+    },
   },
   {
     name: 'LiveChatAI',
@@ -197,7 +192,7 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         'input[name="url"]',
         'input[name="website"]',
         'input[id*="url"]',
-        'textarea[placeholder*="website"]'
+        'textarea[placeholder*="website"]',
       ],
       submitButton: [
         'button:has-text("Generate")',
@@ -206,14 +201,14 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         'button:has-text("Start")',
         'button[type="submit"]',
         '.btn-primary',
-        '.generate-btn'
+        '.generate-btn',
       ],
       loadingIndicator: [
         '.loading',
         '.spinner',
         '[data-loading="true"]',
         '.progress',
-        '.generating'
+        '.generating',
       ],
       output: [
         'textarea[readonly]',
@@ -222,34 +217,29 @@ export const COMPETITOR_CONFIGS: CompetitorTestConfig[] = [
         '.output',
         '.result',
         '.generated-content',
-        '[data-testid*="output"]'
+        '[data-testid*="output"]',
       ],
       downloadButton: [
         'button:has-text("Download")',
         'a:has-text("Download")',
         '.download-btn',
-        '[download]'
+        '[download]',
       ],
-      errorMessage: [
-        '.error',
-        '.alert-error',
-        '[role="alert"]',
-        '.notification-error'
-      ],
+      errorMessage: ['.error', '.alert-error', '[role="alert"]', '.notification-error'],
       cookieAccept: [
         'button:has-text("Accept")',
         'button:has-text("OK")',
-        'button:has-text("Agree")'
-      ]
+        'button:has-text("Agree")',
+      ],
     },
     expectations: {
       maxWaitTime: 90000,
-      expectedElements: ['urlInput', 'submitButton']
+      expectedElements: ['urlInput', 'submitButton'],
     },
     specialHandling: {
-      needsCookieAccept: true
-    }
-  }
+      needsCookieAccept: true,
+    },
+  },
 ];
 
 export const TEST_URLS = [
@@ -257,39 +247,40 @@ export const TEST_URLS = [
     url: 'https://freecalchub.com',
     description: 'Primary test site - calculator tools website',
     expectedPages: 20, // Rough estimate
-    complexity: 'medium'
+    complexity: 'medium',
   },
   {
     url: 'https://example.com',
     description: 'Simple fallback site',
     expectedPages: 1,
-    complexity: 'simple'
+    complexity: 'simple',
   },
   {
     url: 'https://httpbin.org',
     description: 'HTTP testing service',
     expectedPages: 5,
-    complexity: 'simple'
+    complexity: 'simple',
   },
   {
     url: 'https://jsonplaceholder.typicode.com',
     description: 'JSON API testing service',
     expectedPages: 10,
-    complexity: 'medium'
-  }
+    complexity: 'medium',
+  },
 ];
 
 export const BROWSER_CONFIG = {
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  userAgent:
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   viewport: { width: 1280, height: 720 },
   extraHTTPHeaders: {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     'Accept-Language': 'en-US,en;q=0.5',
     'Accept-Encoding': 'gzip, deflate, br',
-    'DNT': '1',
-    'Connection': 'keep-alive',
-    'Upgrade-Insecure-Requests': '1'
-  }
+    DNT: '1',
+    Connection: 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+  },
 };
 
 /**
@@ -297,33 +288,33 @@ export const BROWSER_CONFIG = {
  */
 export const CONTENT_PATTERNS = {
   metadata: [
-    /^#\s+/m,           // Markdown headers
-    /^##\s+/m,          // Markdown subheaders
-    /^---/m,            // YAML front matter
-    /^[A-Z][a-z]+:/m,   // Key-value pairs like "Website:"
+    /^#\s+/m, // Markdown headers
+    /^##\s+/m, // Markdown subheaders
+    /^---/m, // YAML front matter
+    /^[A-Z][a-z]+:/m, // Key-value pairs like "Website:"
   ],
-  
+
   pageList: [
-    /https?:\/\/[^\s\n]+/g,  // HTTP/HTTPS URLs
-    /www\.[^\s\n]+/g,        // www. URLs
-    /\/[^\s\n]+/g,           // Relative paths
+    /https?:\/\/[^\s\n]+/g, // HTTP/HTTPS URLs
+    /www\.[^\s\n]+/g, // www. URLs
+    /\/[^\s\n]+/g, // Relative paths
   ],
-  
+
   structure: [
-    /^#\s+(.+)$/gm,     // Main headers
-    /^##\s+(.+)$/gm,    // Sub headers
-    /^\*\s+(.+)$/gm,    // Bullet points
+    /^#\s+(.+)$/gm, // Main headers
+    /^##\s+(.+)$/gm, // Sub headers
+    /^\*\s+(.+)$/gm, // Bullet points
     /^\d+\.\s+(.+)$/gm, // Numbered lists
   ],
-  
+
   qualityIndicators: [
     /pages?\s+found/i,
     /total\s+pages/i,
     /website\s+structure/i,
     /content\s+summary/i,
     /navigation/i,
-    /sitemap/i
-  ]
+    /sitemap/i,
+  ],
 };
 
 /**
@@ -331,22 +322,22 @@ export const CONTENT_PATTERNS = {
  */
 export const BENCHMARKS = {
   processingTime: {
-    fast: 30000,      // Under 30 seconds
-    medium: 90000,    // 30-90 seconds
-    slow: 180000      // Over 90 seconds
+    fast: 30000, // Under 30 seconds
+    medium: 90000, // 30-90 seconds
+    slow: 180000, // Over 90 seconds
   },
-  
+
   contentSize: {
-    minimal: 500,     // Under 500 characters
-    small: 2000,      // 500-2000 characters
-    medium: 5000,     // 2000-5000 characters
-    large: 10000      // Over 5000 characters
+    minimal: 500, // Under 500 characters
+    small: 2000, // 500-2000 characters
+    medium: 5000, // 2000-5000 characters
+    large: 10000, // Over 5000 characters
   },
-  
+
   pageCount: {
-    few: 5,           // Under 5 pages
-    some: 20,         // 5-20 pages
-    many: 50,         // 20-50 pages
-    extensive: 100    // Over 50 pages
-  }
+    few: 5, // Under 5 pages
+    some: 20, // 5-20 pages
+    many: 50, // 20-50 pages
+    extensive: 100, // Over 50 pages
+  },
 };

@@ -15,12 +15,12 @@ router.get('/', async (req: Request, res: Response) => {
       userId: (req as any).user?.userId,
       email: (req as any).user?.email,
       tier: (req as any).user?.tier,
-      environment: process.env.NODE_ENV
+      environment: process.env.NODE_ENV,
     };
 
     // Get enabled features for this user
     const enabledFeatures = await featureFlagService.getEnabledFeatures(userContext);
-    
+
     // Create flags object
     const flags: Record<FeatureFlagName, boolean> = {
       clustering: false,
@@ -29,7 +29,7 @@ router.get('/', async (req: Request, res: Response) => {
       multi_sequencing: false,
       blockquote_summaries: false,
       admin_dashboard: false,
-      performance_metrics: false
+      performance_metrics: false,
     };
 
     // Set enabled flags
@@ -43,8 +43,8 @@ router.get('/', async (req: Request, res: Response) => {
       userContext: {
         userId: userContext.userId,
         tier: userContext.tier,
-        environment: userContext.environment
-      }
+        environment: userContext.environment,
+      },
     });
   } catch (error) {
     console.error('Error fetching feature flags:', error);
@@ -57,9 +57,9 @@ router.get('/', async (req: Request, res: Response) => {
         multi_sequencing: false,
         blockquote_summaries: false,
         admin_dashboard: false,
-        performance_metrics: process.env.NODE_ENV === 'development'
+        performance_metrics: process.env.NODE_ENV === 'development',
       },
-      enabledFeatures: []
+      enabledFeatures: [],
     });
   }
 });
@@ -71,12 +71,12 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:flag', async (req: Request, res: Response) => {
   try {
     const flagName = req.params.flag as FeatureFlagName;
-    
+
     const userContext = {
       userId: (req as any).user?.userId,
       email: (req as any).user?.email,
       tier: (req as any).user?.tier,
-      environment: process.env.NODE_ENV
+      environment: process.env.NODE_ENV,
     };
 
     const isEnabled = await featureFlagService.isEnabled(flagName, userContext);
@@ -85,14 +85,14 @@ router.get('/:flag', async (req: Request, res: Response) => {
     res.json({
       flag: flagName,
       enabled: isEnabled,
-      dependencies
+      dependencies,
     });
   } catch (error) {
     console.error('Error checking feature flag:', error);
     res.status(500).json({
       error: 'Failed to check feature flag',
       flag: req.params.flag,
-      enabled: false
+      enabled: false,
     });
   }
 });
@@ -107,7 +107,7 @@ router.get('/admin/all', authenticate, async (req: Request, res: Response) => {
   try {
     // Check if user has admin privileges (you may want to add admin role check)
     const user = (req as any).user;
-    
+
     // For now, allow any authenticated user to view flags in development
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
@@ -120,7 +120,7 @@ router.get('/admin/all', authenticate, async (req: Request, res: Response) => {
     res.json({
       flags,
       stats,
-      health: healthCheck
+      health: healthCheck,
     });
   } catch (error) {
     console.error('Error fetching admin flags:', error);
@@ -135,7 +135,7 @@ router.get('/admin/all', authenticate, async (req: Request, res: Response) => {
 router.put('/admin/:flag', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
@@ -146,13 +146,19 @@ router.put('/admin/:flag', authenticate, async (req: Request, res: Response) => 
 
     // Validate updates
     if (updates.rolloutPercentage !== undefined) {
-      if (typeof updates.rolloutPercentage !== 'number' || updates.rolloutPercentage < 0 || updates.rolloutPercentage > 100) {
-        return res.status(400).json({ error: 'rolloutPercentage must be a number between 0 and 100' });
+      if (
+        typeof updates.rolloutPercentage !== 'number' ||
+        updates.rolloutPercentage < 0 ||
+        updates.rolloutPercentage > 100
+      ) {
+        return res
+          .status(400)
+          .json({ error: 'rolloutPercentage must be a number between 0 and 100' });
       }
     }
 
     const success = await featureFlagService.updateFlag(flagName, updates);
-    
+
     if (!success) {
       return res.status(404).json({ error: 'Feature flag not found' });
     }
@@ -172,7 +178,7 @@ router.put('/admin/:flag', authenticate, async (req: Request, res: Response) => 
 router.put('/admin/:flag/users/:userId', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
@@ -187,7 +193,7 @@ router.put('/admin/:flag/users/:userId', authenticate, async (req: Request, res:
     }
 
     const success = await featureFlagService.setUserOverride(flagName, userId, enabled);
-    
+
     if (!success) {
       return res.status(404).json({ error: 'Feature flag not found' });
     }
@@ -206,7 +212,7 @@ router.put('/admin/:flag/users/:userId', authenticate, async (req: Request, res:
 router.delete('/admin/:flag/users/:userId', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });
@@ -216,7 +222,7 @@ router.delete('/admin/:flag/users/:userId', authenticate, async (req: Request, r
     const userId = req.params.userId;
 
     const success = await featureFlagService.removeUserOverride(flagName, userId);
-    
+
     if (!success) {
       return res.status(404).json({ error: 'Feature flag not found' });
     }
@@ -236,14 +242,14 @@ router.get('/health', async (req: Request, res: Response) => {
   try {
     const healthCheck = await featureFlagService.healthCheck();
     const status = healthCheck.status === 'healthy' ? 200 : 503;
-    
+
     res.status(status).json(healthCheck);
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
       details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
     });
   }
 });
@@ -255,7 +261,7 @@ router.get('/health', async (req: Request, res: Response) => {
 router.post('/admin/cache/clear', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Check admin privileges
     if (process.env.NODE_ENV !== 'development' && user.tier !== 'scale') {
       return res.status(403).json({ error: 'Admin privileges required' });

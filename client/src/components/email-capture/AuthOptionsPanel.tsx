@@ -1,12 +1,12 @@
 /**
  * AuthOptionsPanel - Extracted authentication options component
- * 
+ *
  * Displays Sign In/Sign Up buttons and related messaging.
  * Focused on presentation only - business logic handled by parent.
  */
 
-import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { LogIn, UserPlus } from 'lucide-react';
 import { UserTier } from '@shared/schema';
 
 export interface AuthOptionsPanelProps {
@@ -17,21 +17,19 @@ export interface AuthOptionsPanelProps {
   disabled?: boolean;
 }
 
-export function AuthOptionsPanel({ 
-  selectedTier, 
-  onSignIn, 
-  onSignUp, 
-  loading = false, 
-  disabled = false 
+export function AuthOptionsPanel({
+  selectedTier,
+  onSignIn,
+  onSignUp,
+  loading = false,
+  disabled = false,
 }: AuthOptionsPanelProps) {
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">
-          Ready to get started?
-        </h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to get started?</h3>
         <p className="text-sm text-slate-600 mb-6">
-          Choose how you'd like to continue with your{" "}
+          Choose how you'd like to continue with your{' '}
           <span className="font-medium capitalize">{selectedTier}</span> tier analysis.
         </p>
       </div>
@@ -56,9 +54,9 @@ export function AuthOptionsPanel({
           onClick={onSignUp}
           disabled={disabled || loading}
           className={`min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 disabled:opacity-50 ${
-            selectedTier === 'coffee' 
-              ? "bg-orange-600 hover:bg-orange-700" 
-              : "bg-mastery-blue hover:bg-mastery-blue/90"
+            selectedTier === 'coffee'
+              ? 'bg-orange-600 hover:bg-orange-700'
+              : 'bg-mastery-blue hover:bg-mastery-blue/90'
           }`}
           size="default"
         >

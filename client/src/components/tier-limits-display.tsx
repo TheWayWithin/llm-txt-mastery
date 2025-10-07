@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useState, useEffect } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 interface TierLimitsDisplayProps {
   url: string;
@@ -12,13 +12,18 @@ interface TierLimitsDisplayProps {
   isVisible: boolean;
 }
 
-export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: TierLimitsDisplayProps) {
+export default function TierLimitsDisplay({
+  url,
+  email,
+  onProceed,
+  isVisible,
+}: TierLimitsDisplayProps) {
   const [limitsData, setLimitsData] = useState<any>(null);
 
   const checkLimitsMutation = useMutation({
     mutationFn: async () => {
       console.log('🔍 TierLimitsDisplay: Checking limits for', { email, url });
-      const response = await apiRequest("POST", "/api/check-limits", { email, url });
+      const response = await apiRequest('POST', '/api/check-limits', { email, url });
       return response.json();
     },
     onSuccess: (data) => {
@@ -45,7 +50,10 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
       }
     },
     onError: (error) => {
-      console.error('❌ TierLimitsDisplay: API call failed, auto-proceeding to prevent user getting stuck', error);
+      console.error(
+        '❌ TierLimitsDisplay: API call failed, auto-proceeding to prevent user getting stuck',
+        error
+      );
       // CRITICAL FIX: Auto-proceed after API failure to prevent blocking users
       setTimeout(() => {
         console.log('🚨 TierLimitsDisplay: Auto-proceeding after error (1s delay)');
@@ -58,22 +66,24 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
     if (isVisible && url && email && !checkLimitsMutation.isSuccess) {
       console.log('🎯 TierLimitsDisplay: Starting limits check...');
       checkLimitsMutation.mutate();
-      
+
       // CRITICAL FALLBACK: If component stays null for too long, auto-proceed
       const fallbackTimeout = setTimeout(() => {
         if (!limitsData && isVisible) {
-          console.warn('🚨 TierLimitsDisplay: Fallback timeout triggered - auto-proceeding after 5s');
+          console.warn(
+            '🚨 TierLimitsDisplay: Fallback timeout triggered - auto-proceeding after 5s'
+          );
           onProceed();
         }
       }, 5000);
-      
+
       return () => clearTimeout(fallbackTimeout);
     }
   }, [isVisible, url, email]);
 
   // CRITICAL: Show loading state instead of null to avoid blocking users
   if (!isVisible) return null;
-  
+
   if (!limitsData) {
     // Show minimal loading UI while API call is in progress
     return (
@@ -91,10 +101,19 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
     );
   }
 
-  const { allowed, reason, pageCount, tier, limits, currentUsage, estimatedCost, suggestedUpgrade } = limitsData;
+  const {
+    allowed,
+    reason,
+    pageCount,
+    tier,
+    limits,
+    currentUsage,
+    estimatedCost,
+    suggestedUpgrade,
+  } = limitsData;
 
   return (
-    <Alert className={allowed ? "border-green-200" : "border-red-200"}>
+    <Alert className={allowed ? 'border-green-200' : 'border-red-200'}>
       <div className="flex items-start space-x-3">
         {allowed ? (
           <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
@@ -102,8 +121,8 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
           <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
         )}
         <div className="flex-1">
-          <AlertTitle className={allowed ? "text-green-900" : "text-red-900"}>
-            {allowed ? "🎯 Ready to Analyze" : "⏰ Daily Limit Reached"}
+          <AlertTitle className={allowed ? 'text-green-900' : 'text-red-900'}>
+            {allowed ? '🎯 Ready to Analyze' : '⏰ Daily Limit Reached'}
           </AlertTitle>
           <AlertDescription className="mt-2 space-y-2">
             {allowed ? (
@@ -116,11 +135,15 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                   </div>
                   <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Pages to analyze:</span>
-                    <span className="ml-1 font-medium">{Math.min(pageCount, limits.maxPagesPerAnalysis)}</span>
+                    <span className="ml-1 font-medium">
+                      {Math.min(pageCount, limits.maxPagesPerAnalysis)}
+                    </span>
                   </div>
                   <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Analyses today:</span>
-                    <span className="ml-1 font-medium">{currentUsage.analysesToday} / {limits.dailyAnalyses}</span>
+                    <span className="ml-1 font-medium">
+                      {currentUsage.analysesToday} / {limits.dailyAnalyses}
+                    </span>
                   </div>
                   <div className="flex justify-between sm:block">
                     <span className="text-ai-silver">Est. cost:</span>
@@ -128,11 +151,11 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                   </div>
                 </div>
                 <p className="text-sm text-green-700 pt-1">
-                  {tier === 'coffee' 
-                    ? '☕ Premium AI analysis launching - your investment at work!' 
+                  {tier === 'coffee'
+                    ? '☕ Premium AI analysis launching - your investment at work!'
                     : tier === 'growth' || tier === 'scale'
-                    ? '🚀 Unlimited power engaged - full speed ahead!'
-                    : '✨ Free analysis starting - experience our quality!'}
+                      ? '🚀 Unlimited power engaged - full speed ahead!'
+                      : '✨ Free analysis starting - experience our quality!'}
                 </p>
               </>
             ) : (
@@ -150,18 +173,22 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                 </div>
                 {suggestedUpgrade && (
                   <div className="pt-2">
-                    <Button 
-                      size="default" 
-                      variant="outline" 
+                    <Button
+                      size="default"
+                      variant="outline"
                       className="text-mastery-blue border-mastery-blue min-h-[48px] px-6 py-3 w-full sm:w-auto"
                       onClick={async () => {
                         if (suggestedUpgrade === 'coffee') {
                           // Trigger coffee tier purchase via API
                           try {
-                            const response = await apiRequest("POST", "/api/stripe/create-coffee-checkout", {
-                              email,
-                              websiteUrl: url
-                            });
+                            const response = await apiRequest(
+                              'POST',
+                              '/api/stripe/create-coffee-checkout',
+                              {
+                                email,
+                                websiteUrl: url,
+                              }
+                            );
                             const data = await response.json();
                             if (data.url) {
                               window.location.href = data.url;
@@ -175,7 +202,9 @@ export default function TierLimitsDisplay({ url, email, onProceed, isVisible }: 
                         }
                       }}
                     >
-                      {suggestedUpgrade === 'coffee' ? '☕ Buy Me Coffee ($4.95)' : `🚀 Upgrade to ${suggestedUpgrade.charAt(0).toUpperCase() + suggestedUpgrade.slice(1)}`}
+                      {suggestedUpgrade === 'coffee'
+                        ? '☕ Buy Me Coffee ($4.95)'
+                        : `🚀 Upgrade to ${suggestedUpgrade.charAt(0).toUpperCase() + suggestedUpgrade.slice(1)}`}
                     </Button>
                   </div>
                 )}

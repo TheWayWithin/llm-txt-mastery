@@ -5,11 +5,11 @@ import fetch from 'node-fetch';
 async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
     clearTimeout(timeoutId);
     return response;
@@ -25,12 +25,12 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
 // Test the timeout and Promise.race logic specifically
 async function testProductionTimeoutLogic() {
   console.log('=== Testing Production Timeout Logic ===\n');
-  
+
   const baseUrl = 'https://freecalchub.com';
-  
+
   try {
     console.log('Testing with actual timeout wrapper...');
-    
+
     // Simulate the exact fetchSitemap logic
     const SITEMAP_TIMEOUT = 90 * 1000; // 90 seconds maximum for sitemap discovery
     const timeoutPromise = new Promise((_, reject) => {
@@ -43,41 +43,51 @@ async function testProductionTimeoutLogic() {
     async function testSitemapDiscovery(baseUrl) {
       const urlObj = new URL(baseUrl);
       const rootDomain = `${urlObj.protocol}//${urlObj.hostname}`;
-      
+
       console.log(`Testing sitemap discovery for: ${rootDomain}`);
-      
+
       const sitemapUrl = `${rootDomain}/sitemap.xml`;
       console.log(`Trying sitemap URL: ${sitemapUrl}`);
-      
+
       try {
-        const response = await fetchWithTimeout(sitemapUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          }
-        }, 15000); // 15 seconds timeout
+        const response = await fetchWithTimeout(
+          sitemapUrl,
+          {
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            },
+          },
+          15000
+        ); // 15 seconds timeout
 
         if (response.ok) {
           console.log(`✅ Successfully fetched sitemap from: ${sitemapUrl}`);
           const xml = await response.text();
           console.log(`XML content length: ${xml.length}`);
-          
+
           // Quick parse test
           if (xml.includes('<urlset') || xml.includes('<sitemapindex')) {
             console.log(`✅ Valid XML sitemap structure detected`);
-            
+
             // Estimate URL count
             const urlCount = (xml.match(/<loc>/g) || []).length;
             console.log(`Estimated URLs in sitemap: ${urlCount}`);
-            
+
             return {
               entries: new Array(urlCount).fill(0).map((_, i) => ({ url: `example-${i}` })), // Mock entries
               sitemapFound: true,
-              analysisMethod: "sitemap",
-              message: `Found sitemap with ${urlCount} pages`
+              analysisMethod: 'sitemap',
+              message: `Found sitemap with ${urlCount} pages`,
             };
           } else {
             console.log(`❌ Invalid XML content`);
-            return { entries: [], sitemapFound: false, analysisMethod: "error", message: "Invalid XML" };
+            return {
+              entries: [],
+              sitemapFound: false,
+              analysisMethod: 'error',
+              message: 'Invalid XML',
+            };
           }
         } else {
           console.log(`❌ HTTP ${response.status} for ${sitemapUrl}`);
@@ -90,28 +100,24 @@ async function testProductionTimeoutLogic() {
     }
 
     console.log('\n--- Testing Promise.race with timeout ---');
-    const result = await Promise.race([
-      testSitemapDiscovery(baseUrl),
-      timeoutPromise
-    ]);
+    const result = await Promise.race([testSitemapDiscovery(baseUrl), timeoutPromise]);
 
     console.log('\n=== PRODUCTION FLOW RESULT ===');
     console.log(`Analysis Method: ${result.analysisMethod}`);
     console.log(`Sitemap Found: ${result.sitemapFound}`);
     console.log(`Pages Discovered: ${result.entries.length}`);
     console.log(`Message: ${result.message}`);
-    
+
     if (result.entries.length === 0) {
       console.log('❌ CRITICAL: Production flow returns 0 pages!');
     } else {
       console.log('✅ Production flow correctly discovers pages');
     }
-    
   } catch (error) {
     console.error('❌ Production flow error:');
     console.error(`Message: ${error.message}`);
     console.error(`Stack: ${error.stack}`);
-    
+
     console.log('\n--- This error would trigger fallback crawling ---');
   }
 }
@@ -119,9 +125,9 @@ async function testProductionTimeoutLogic() {
 // Test with a shorter timeout to see if timeout is the issue
 async function testWithShortTimeout() {
   console.log('\n\n=== Testing With Short Timeout (5s) ===\n');
-  
+
   const baseUrl = 'https://freecalchub.com';
-  
+
   try {
     const SHORT_TIMEOUT = 5 * 1000; // 5 seconds to force timeout
     const timeoutPromise = new Promise((_, reject) => {
@@ -132,11 +138,10 @@ async function testWithShortTimeout() {
 
     const result = await Promise.race([
       fetch('https://freecalchub.com/sitemap.xml'),
-      timeoutPromise
+      timeoutPromise,
     ]);
 
     console.log('✅ Request completed within 5s timeout');
-    
   } catch (error) {
     console.log(`❌ Request timed out or failed: ${error.message}`);
     console.log('This suggests the production timeout might be the issue');

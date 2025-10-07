@@ -4,7 +4,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
 
   // Handle preflight requests
@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: ''
+      body: '',
     };
   }
 
@@ -21,18 +21,18 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ message: 'Method not allowed' })
+      body: JSON.stringify({ message: 'Method not allowed' }),
     };
   }
 
   try {
     const { email, url } = JSON.parse(event.body);
-    
+
     if (!email) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ message: "Email required" })
+        body: JSON.stringify({ message: 'Email required' }),
       };
     }
 
@@ -42,26 +42,26 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({
         allowed: true,
-        reason: "Coffee tier analysis approved",
+        reason: 'Coffee tier analysis approved',
         pageCount: 200, // Simulate found pages
         tier: 'coffee',
         limits: {
           dailyAnalyses: 1,
-          maxPagesPerAnalysis: 200
+          maxPagesPerAnalysis: 200,
         },
         currentUsage: {
           analysesToday: 0,
-          pagesProcessedToday: 0
+          pagesProcessedToday: 0,
         },
-        estimatedCost: 4.95
-      })
+        estimatedCost: 4.95,
+      }),
     };
   } catch (error) {
-    console.error("Limit check error:", error);
+    console.error('Limit check error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ message: "Failed to check limits" })
+      body: JSON.stringify({ message: 'Failed to check limits' }),
     };
   }
 };

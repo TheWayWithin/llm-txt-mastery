@@ -24,12 +24,12 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const resetToken = urlParams.get('token');
-    
+
     if (!resetToken) {
       setError('Invalid or missing reset token. Please request a new password reset.');
       return;
     }
-    
+
     setToken(resetToken);
   }, []);
 
@@ -56,13 +56,13 @@ export default function ResetPasswordPage() {
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
       errors.push('Contains at least one special character');
     }
-    
+
     setValidationErrors(errors);
   }, [password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!token) {
       setError('Invalid reset token. Please request a new password reset.');
       return;
@@ -83,16 +83,19 @@ export default function ResetPasswordPage() {
     setMessage('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          newPassword: password
-        })
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/reset-password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token,
+            newPassword: password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -101,7 +104,7 @@ export default function ResetPasswordPage() {
         setResetComplete(true);
       } else {
         setError(data.error || 'Failed to reset password');
-        
+
         // Handle specific error cases
         if (data.code === 'INVALID_TOKEN' || data.code === 'EXPIRED_TOKEN') {
           setError('Reset link has expired or is invalid. Please request a new password reset.');
@@ -149,24 +152,18 @@ export default function ResetPasswordPage() {
           <CardTitle className="text-2xl font-bold text-center text-framework-black">
             Set new password
           </CardTitle>
-          <p className="text-center text-ai-silver mt-2">
-            Enter your new password below.
-          </p>
+          <p className="text-center text-ai-silver mt-2">Enter your new password below.</p>
         </CardHeader>
         <CardContent>
           {message && (
             <Alert className="mb-4 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">
-                {message}
-              </AlertDescription>
+              <AlertDescription className="text-green-800">{message}</AlertDescription>
             </Alert>
           )}
 
           {error && (
             <Alert className="mb-4 border-red-200 bg-red-50">
-              <AlertDescription className="text-red-800">
-                {error}
-              </AlertDescription>
+              <AlertDescription className="text-red-800">{error}</AlertDescription>
             </Alert>
           )}
 
@@ -202,7 +199,7 @@ export default function ResetPasswordPage() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                
+
                 {validationErrors.length > 0 && (
                   <div className="text-sm text-red-600 space-y-1">
                     <p>Password must have:</p>
@@ -233,19 +230,29 @@ export default function ResetPasswordPage() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-ai-silver hover:text-framework-black"
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
-                
+
                 {confirmPassword && password !== confirmPassword && (
                   <p className="text-sm text-red-600">Passwords do not match</p>
                 )}
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-mastery-blue hover:bg-mastery-blue/90"
-                disabled={isLoading || !password || !confirmPassword || password !== confirmPassword || validationErrors.length > 0}
+                disabled={
+                  isLoading ||
+                  !password ||
+                  !confirmPassword ||
+                  password !== confirmPassword ||
+                  validationErrors.length > 0
+                }
               >
                 {isLoading ? (
                   <>

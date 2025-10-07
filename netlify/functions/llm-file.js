@@ -4,7 +4,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
 
   // Handle preflight requests
@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: ''
+      body: '',
     };
   }
 
@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ message: 'Method not allowed' })
+      body: JSON.stringify({ message: 'Method not allowed' }),
     };
   }
 
@@ -29,12 +29,12 @@ exports.handler = async (event, context) => {
     // Extract file ID from path (e.g., /api/llm-file/3258)
     const pathParts = event.path.split('/');
     const fileId = pathParts[pathParts.length - 1];
-    
+
     if (!fileId || fileId === 'llm-file') {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ message: 'File ID required' })
+        body: JSON.stringify({ message: 'File ID required' }),
       };
     }
 
@@ -88,7 +88,7 @@ Track your health and fitness goals with our health calculators including BMI, c
 
 ---
 `;
-    
+
     return {
       statusCode: 200,
       headers,
@@ -99,17 +99,17 @@ Track your health and fitness goals with our health calculators including BMI, c
         websiteUrl: 'https://freecalchub.com',
         generatedAt: new Date().toISOString(),
         selectedPages: 4,
-        totalPages: 5
-      })
+        totalPages: 5,
+      }),
     };
   } catch (error) {
-    console.error("File retrieval error:", error);
+    console.error('File retrieval error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        message: error instanceof Error ? error.message : "Failed to retrieve file"
-      })
+      body: JSON.stringify({
+        message: error instanceof Error ? error.message : 'Failed to retrieve file',
+      }),
     };
   }
 };

@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, Copy, Download, FileText, BarChart3 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { EnhancedLoading, LOADING_STATES } from "@/components/ui/enhanced-loading";
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Copy, Download, FileText, BarChart3 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { EnhancedLoading, LOADING_STATES } from '@/components/ui/enhanced-loading';
 
 interface FileGenerationProps {
   fileId: number;
@@ -14,17 +14,23 @@ interface FileGenerationProps {
   onViewAnalysis?: () => void;
 }
 
-export default function FileGeneration({ fileId, analysisId, onStartOver, onStartNewAnalysis, onViewAnalysis }: FileGenerationProps) {
+export default function FileGeneration({
+  fileId,
+  analysisId,
+  onStartOver,
+  onStartNewAnalysis,
+  onViewAnalysis,
+}: FileGenerationProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   const { data: fileData, isLoading } = useQuery({
-    queryKey: ["/api/llm-file", fileId],
+    queryKey: ['/api/llm-file', fileId],
     queryFn: async () => {
       const baseUrl = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${baseUrl}/api/llm-file/${fileId}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch file data");
+        throw new Error('Failed to fetch file data');
       }
       return response.json();
     },
@@ -36,15 +42,15 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
         await navigator.clipboard.writeText(fileData.content);
         setCopied(true);
         toast({
-          title: "Copied to clipboard",
-          description: "LLM.txt content has been copied to your clipboard.",
+          title: 'Copied to clipboard',
+          description: 'LLM.txt content has been copied to your clipboard.',
         });
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
         toast({
-          title: "Copy failed",
-          description: "Failed to copy content to clipboard.",
-          variant: "destructive",
+          title: 'Copy failed',
+          description: 'Failed to copy content to clipboard.',
+          variant: 'destructive',
         });
       }
     }
@@ -106,9 +112,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
               </div>
               <div className="flex items-center space-x-2">
                 <FileText className="h-4 w-4" />
-                <span>
-                  {fileData?.fileSize ? formatFileSize(fileData.fileSize) : "N/A"}
-                </span>
+                <span>{fileData?.fileSize ? formatFileSize(fileData.fileSize) : 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -118,14 +122,17 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
                 📋 Preview Limitation Notice
               </div>
               <div className="text-xs text-blue-700">
-                This preview shows only the first portion of your llms.txt file due to display constraints. 
-                The complete file contains <span className="font-bold">{fileData?.pageCount || 0} pages</span> and 
-                is <span className="font-bold">{fileData?.fileSize ? formatFileSize(fileData.fileSize) : "N/A"}</span>. 
-                Use the download button below to get the full file.
+                This preview shows only the first portion of your llms.txt file due to display
+                constraints. The complete file contains{' '}
+                <span className="font-bold">{fileData?.pageCount || 0} pages</span> and is{' '}
+                <span className="font-bold">
+                  {fileData?.fileSize ? formatFileSize(fileData.fileSize) : 'N/A'}
+                </span>
+                . Use the download button below to get the full file.
               </div>
             </div>
             <pre className="text-sm text-framework-black font-mono whitespace-pre-wrap">
-              <code>{fileData?.content || "No content available"}</code>
+              <code>{fileData?.content || 'No content available'}</code>
             </pre>
           </div>
         </div>
@@ -154,7 +161,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
           <div className="text-sm text-ai-silver">
             <p>Ready for implementation on your website</p>
             <p className="text-xs">
-              Place this file in your website's root directory as{" "}
+              Place this file in your website's root directory as{' '}
               <code className="bg-slate-100 px-1 rounded">llms.txt</code>
             </p>
           </div>
@@ -175,7 +182,7 @@ export default function FileGeneration({ fileId, analysisId, onStartOver, onStar
               className="bg-slate-100 hover:bg-slate-200 text-framework-black"
             >
               <Copy className="h-4 w-4 mr-2" />
-              {copied ? "Copied!" : "Copy to Clipboard"}
+              {copied ? 'Copied!' : 'Copy to Clipboard'}
             </Button>
             <Button
               onClick={handleDownloadFile}

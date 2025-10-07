@@ -2,9 +2,9 @@
 
 /**
  * Test script for ConvertKit integration
- * 
+ *
  * Usage: node scripts/test-convertkit.js
- * 
+ *
  * This script tests the ConvertKit integration without making real API calls
  * by checking configuration and providing setup validation.
  */
@@ -47,7 +47,9 @@ console.log(`   Tags configured:`);
 console.log(`     - Starter: ${kitConfig.tagsConfigured.starter ? '✅' : '❌'}`);
 console.log(`     - Growth: ${kitConfig.tagsConfigured.growth ? '✅' : '❌'}`);
 console.log(`     - Scale: ${kitConfig.tagsConfigured.scale ? '✅' : '❌'}`);
-console.log(`     - Analysis completed: ${kitConfig.tagsConfigured.analysisCompleted ? '✅' : '❌'}`);
+console.log(
+  `     - Analysis completed: ${kitConfig.tagsConfigured.analysisCompleted ? '✅' : '❌'}`
+);
 console.log(`     - Limit reached: ${kitConfig.tagsConfigured.limitReached ? '✅' : '❌'}`);
 
 // Test 3: Setup recommendations
@@ -58,7 +60,11 @@ if (!kitConfig.configured) {
   recommendations.push('Add CONVERTKIT_API_KEY and CONVERTKIT_API_SECRET to .env');
 }
 
-if (!kitConfig.formsConfigured.starter || !kitConfig.formsConfigured.growth || !kitConfig.formsConfigured.scale) {
+if (
+  !kitConfig.formsConfigured.starter ||
+  !kitConfig.formsConfigured.growth ||
+  !kitConfig.formsConfigured.scale
+) {
   recommendations.push('Create forms in ConvertKit dashboard for each tier');
 }
 
@@ -70,7 +76,11 @@ if (!kitConfig.sequencesConfigured.growthUpgrade || !kitConfig.sequencesConfigur
   recommendations.push('Create upgrade sequences for tier conversion');
 }
 
-if (!kitConfig.tagsConfigured.starter || !kitConfig.tagsConfigured.growth || !kitConfig.tagsConfigured.scale) {
+if (
+  !kitConfig.tagsConfigured.starter ||
+  !kitConfig.tagsConfigured.growth ||
+  !kitConfig.tagsConfigured.scale
+) {
   recommendations.push('Create tier tags for subscriber segmentation');
 }
 
@@ -100,13 +110,17 @@ const envVars = [
   'CONVERTKIT_GROWTH_TAG_ID',
   'CONVERTKIT_SCALE_TAG_ID',
   'CONVERTKIT_ANALYSIS_COMPLETED_TAG_ID',
-  'CONVERTKIT_LIMIT_REACHED_TAG_ID'
+  'CONVERTKIT_LIMIT_REACHED_TAG_ID',
 ];
 
-envVars.forEach(varName => {
+envVars.forEach((varName) => {
   const value = process.env[varName];
   const status = value ? '✅' : '❌';
-  const displayValue = value ? (value.length > 20 ? `${value.substring(0, 20)}...` : value) : 'Not set';
+  const displayValue = value
+    ? value.length > 20
+      ? `${value.substring(0, 20)}...`
+      : value
+    : 'Not set';
   console.log(`   ${status} ${varName}: ${displayValue}`);
 });
 

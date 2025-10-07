@@ -5,7 +5,7 @@ test.describe('Live Email Verification Flow', () => {
   const TEST_DOMAIN = 'fxavaj.com';
   const TEST_PASSWORD = 'TestPassword123!';
   const LIVE_URL = 'https://llmtxtmastery.com';
-  
+
   // Generate unique email for each test
   function generateTestEmail() {
     const timestamp = Date.now();
@@ -24,48 +24,52 @@ test.describe('Live Email Verification Flow', () => {
     await page.click('text="Sign up"');
     await page.waitForTimeout(1000); // Wait for form transition
     await page.fill('input[type="email"]', email);
-    
+
     // Find password fields more specifically
     const passwordFields = page.locator('input[type="password"]');
     await passwordFields.nth(0).fill(password); // First password field
     await passwordFields.nth(1).fill(password); // Confirm password field
-    
+
     // Monitor for network response
     const responsePromise = page.waitForResponse(
-      response => response.url().includes('/api/auth/register') && response.status() !== 404,
+      (response) => response.url().includes('/api/auth/register') && response.status() !== 404,
       { timeout: 10000 }
     );
-    
+
     await page.click('button:has-text("Create Account")');
-    
+
     // Wait for response and check result
     const response = await responsePromise;
     const responseData = await response.json();
-    
+
     if (response.status() === 429) {
-      console.warn('⚠️ Rate limit hit, but this is expected behavior - rate limiting is working correctly');
+      console.warn(
+        '⚠️ Rate limit hit, but this is expected behavior - rate limiting is working correctly'
+      );
       console.log('Registration blocked due to rate limiting:', responseData);
       // For rate limit tests, this is actually a success - the system is protecting itself
       throw new Error(`Rate limit encountered (this is expected): ${responseData.error}`);
     }
-    
+
     if (response.status() !== 201) {
       console.error('Registration failed:', response.status(), responseData);
-      throw new Error(`Registration failed with status ${response.status()}: ${responseData.error}`);
+      throw new Error(
+        `Registration failed with status ${response.status()}: ${responseData.error}`
+      );
     }
-    
+
     console.log('Registration success:', responseData);
-    
+
     // Wait for modal to close
     await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 10000 });
   }
 
   test('should complete registration and show email verification banner', async ({ page }) => {
     console.log('🧪 Testing live email verification flow...');
-    
+
     const testEmail = generateTestEmail();
     console.log('📧 Using test email:', testEmail);
-    
+
     // Step 1: Register user
     await registerUser(page, testEmail, TEST_PASSWORD);
     console.log('✅ User registered successfully');
@@ -96,7 +100,7 @@ test.describe('Live Email Verification Flow', () => {
 
     // Step 2: Monitor for API response
     const resendPromise = page.waitForResponse(
-      response => response.url().includes('/api/auth/resend-verification'),
+      (response) => response.url().includes('/api/auth/resend-verification'),
       { timeout: 15000 }
     );
 
@@ -107,7 +111,7 @@ test.describe('Live Email Verification Flow', () => {
     // Step 4: Wait for API response and verify success
     const response = await resendPromise;
     const responseData = await response.json();
-    
+
     expect(response.status()).toBe(200);
     expect(responseData.success).toBe(true);
     console.log('✅ Email resend API call successful');
@@ -178,21 +182,21 @@ test.describe('Live Email Verification Flow', () => {
     // Monitor API calls
     page.on('response', async (response) => {
       const url = response.url();
-      
+
       if (url.includes('/api/auth/register')) {
         registrationResponse = {
           status: response.status(),
-          data: await response.json().catch(() => null)
+          data: await response.json().catch(() => null),
         };
       } else if (url.includes('/api/auth/email-health')) {
         emailHealthResponse = {
           status: response.status(),
-          data: await response.json().catch(() => null)
+          data: await response.json().catch(() => null),
         };
       } else if (url.includes('/api/auth/resend-verification')) {
         resendResponse = {
           status: response.status(),
-          data: await response.json().catch(() => null)
+          data: await response.json().catch(() => null),
         };
       }
     });
@@ -203,7 +207,7 @@ test.describe('Live Email Verification Flow', () => {
     await page.fill('input[placeholder*="password"]', TEST_PASSWORD);
     await page.fill('input[placeholder*="Confirm"]', TEST_PASSWORD);
     await page.click('button:has-text("Create Account")');
-    
+
     // Wait for registration to complete
     await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 10000 });
 
@@ -227,10 +231,12 @@ test.describe('Live Email Verification Flow', () => {
 
     // Check email health endpoint manually
     const healthResponse = await page.evaluate(async () => {
-      const response = await fetch('https://llm-txt-mastery-production.up.railway.app/api/auth/email-health');
+      const response = await fetch(
+        'https://llm-txt-mastery-production.up.railway.app/api/auth/email-health'
+      );
       return {
         status: response.status,
-        data: await response.json()
+        data: await response.json(),
       };
     });
 
@@ -251,7 +257,7 @@ test.describe('Live Email Verification Flow', () => {
     await page.fill('input[placeholder*="password"]', TEST_PASSWORD);
     await page.fill('input[placeholder*="Confirm"]', TEST_PASSWORD);
     await page.click('button:has-text("Create Account")');
-    
+
     // Should succeed
     await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 10000 });
     console.log('✅ First registration succeeded');
@@ -272,46 +278,46 @@ test.describe('Live Email Verification Flow', () => {
 
     // Try registering multiple accounts quickly to test rate limiting
     const attempts = [];
-    for (let i = 1; i <= 25; i++) { // Try more than the 20 limit
+    for (let i = 1; i <= 25; i++) {
+      // Try more than the 20 limit
       const email = `rate-test-${Date.now()}-${i}@fxavaj.com`;
-      
+
       try {
         await page.click('button:has-text("Get Started")');
         await page.fill('input[type="email"]', email);
         await page.fill('input[placeholder*="password"]', TEST_PASSWORD);
         await page.fill('input[placeholder*="Confirm"]', TEST_PASSWORD);
-        
+
         const response = await page.waitForResponse(
-          response => response.url().includes('/api/auth/register'),
+          (response) => response.url().includes('/api/auth/register'),
           { timeout: 5000 }
         );
-        
+
         attempts.push({
           attempt: i,
           status: response.status(),
-          email: email
+          email: email,
         });
-        
+
         // Close any modal that might be open
         await page.keyboard.press('Escape');
-        
+
         if (response.status() === 429) {
           console.log(`✅ Rate limit hit at attempt ${i}`);
           break;
         }
-        
       } catch (error) {
         attempts.push({
           attempt: i,
           status: 'error',
-          error: error.message
+          error: error.message,
         });
         break;
       }
     }
 
     // Verify that rate limiting kicked in
-    const rateLimited = attempts.some(attempt => attempt.status === 429);
+    const rateLimited = attempts.some((attempt) => attempt.status === 429);
     expect(rateLimited).toBeTruthy();
     console.log('✅ Rate limiting is working correctly');
     console.log(`📊 Total attempts: ${attempts.length}, Rate limited: ${rateLimited}`);

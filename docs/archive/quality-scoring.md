@@ -7,26 +7,31 @@ LLM.txt Mastery uses an advanced AI-powered quality scoring system to evaluate w
 ## Scoring Criteria
 
 ### Content Relevance and Depth (30%)
+
 - **Technical accuracy** - Is the information correct and up-to-date?
 - **Content depth** - Does the page provide comprehensive information?
 - **Relevance to AI** - How useful is this content for AI training or context?
 
 ### Technical Documentation Quality (25%)
+
 - **Structure and organization** - Is the content well-organized with clear headings?
 - **Code examples** - Are there practical examples and implementations?
 - **API documentation** - Is technical information clearly documented?
 
 ### SEO Optimization and Structure (20%)
+
 - **Meta information** - Quality of titles, descriptions, and meta tags
 - **Content structure** - Proper use of headers, lists, and formatting
 - **Internal linking** - How well the page connects to other relevant content
 
 ### Information Architecture (15%)
+
 - **Navigation clarity** - How easy is it to understand the page's purpose?
 - **Content hierarchy** - Is information presented in a logical order?
 - **Categorization** - Is the content properly categorized and tagged?
 
 ### User Experience Indicators (10%)
+
 - **Page loading** - Technical accessibility and performance
 - **Content completeness** - Is the page complete or still under construction?
 - **Error handling** - Are there broken links or missing content?
@@ -34,18 +39,21 @@ LLM.txt Mastery uses an advanced AI-powered quality scoring system to evaluate w
 ## Score Ranges
 
 ### 🟢 High Quality (8-10)
+
 - Comprehensive, accurate, and highly relevant content
 - Excellent technical documentation with examples
 - Well-structured and optimized for both humans and AI
 - **Recommendation**: Auto-selected for inclusion
 
 ### 🟡 Medium Quality (6-7)
+
 - Good content with minor issues or gaps
 - Decent structure but may lack depth or examples
 - Generally useful but not exceptional
 - **Recommendation**: Review for inclusion based on specific needs
 
 ### 🔴 Low Quality (1-5)
+
 - Incomplete, outdated, or irrelevant content
 - Poor structure or organization
 - Limited value for AI understanding
@@ -65,11 +73,13 @@ Pages may be excluded from the final LLM.txt file for several reasons:
 ## Analysis Limitations
 
 ### Page Discovery Limits
+
 - **Starter Tier**: Up to 50 pages analyzed
-- **Growth Tier**: Up to 200 pages analyzed  
+- **Growth Tier**: Up to 200 pages analyzed
 - **Scale Tier**: Up to 500 pages analyzed
 
 ### Processing Constraints
+
 - Pages may be skipped if they're inaccessible or require authentication
 - Very large websites may have only the most important pages analyzed
 - Bot protection may prevent analysis of some pages
@@ -77,6 +87,7 @@ Pages may be excluded from the final LLM.txt file for several reasons:
 ## Best Practices
 
 ### For Content Creators
+
 1. **Use clear, descriptive titles** that indicate the page's purpose
 2. **Structure content with proper headings** (H1, H2, H3)
 3. **Include practical examples** and code snippets where relevant
@@ -84,6 +95,7 @@ Pages may be excluded from the final LLM.txt file for several reasons:
 5. **Use meta descriptions** that accurately summarize the page content
 
 ### for LLM.txt Users
+
 1. **Review the quality scores** before generating your file
 2. **Consider your specific use case** - sometimes lower-scored pages may be relevant
 3. **Check excluded pages** to ensure nothing important was missed

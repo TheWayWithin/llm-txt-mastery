@@ -11,14 +11,16 @@ export default function VerifyEmailPage() {
   const [, setLocation] = useLocation();
   const { refreshUser } = useAuth();
   const { actions } = useFlowStateMachine();
-  const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'already-verified'>('loading');
+  const [verificationState, setVerificationState] = useState<
+    'loading' | 'success' | 'error' | 'already-verified'
+  >('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-    
+
     if (!token) {
       setVerificationState('error');
       setErrorMessage('No verification token provided');
@@ -31,12 +33,15 @@ export default function VerifyEmailPage() {
 
   const verifyEmail = async (token: string) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/verify-email?token=${token}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/verify-email?token=${token}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       const data = await response.json();
 
@@ -47,12 +52,12 @@ export default function VerifyEmailPage() {
           setVerificationState('success');
         }
         setEmail(data.email || '');
-        
+
         // Refresh the user data in the auth context to update emailVerified status
         try {
           const updatedUser = await refreshUser();
           console.log('✅ User data refreshed after email verification');
-          
+
           // Force update the stored user data to ensure emailVerified is true
           const storedUser = sessionStorage.getItem('auth_user');
           if (storedUser) {
@@ -61,25 +66,25 @@ export default function VerifyEmailPage() {
             sessionStorage.setItem('auth_user', JSON.stringify(userData));
             console.log('✅ Updated stored user emailVerified status');
           }
-          
+
           // Trigger EMAIL_VERIFIED event to update flow state machine
           if (updatedUser) {
             console.log('🔄 Triggering EMAIL_VERIFIED event for smooth transition to URL input');
             actions.verifyEmail(updatedUser);
           }
-          
+
           // Auto-redirect to analyze page after successful verification
           setTimeout(() => {
             // Check if there's a pending analysis URL
             const pendingUrl = localStorage.getItem('pendingAnalysisUrl');
-            const targetUrl = pendingUrl 
+            const targetUrl = pendingUrl
               ? `/analyze?url=${encodeURIComponent(pendingUrl)}`
               : '/analyze';
-            
+
             // Clean up localStorage
             localStorage.removeItem('pendingVerificationEmail');
             localStorage.removeItem('pendingAnalysisUrl');
-            
+
             console.log('✅ Auto-redirecting to:', targetUrl);
             window.location.href = targetUrl;
           }, 2000); // Wait 2 seconds to show success message
@@ -135,19 +140,20 @@ export default function VerifyEmailPage() {
               </div>
             )}
           </div>
-          
+
           <CardTitle className="text-2xl font-bold">
             {verificationState === 'loading' && 'Verifying Your Email...'}
             {verificationState === 'success' && 'Email Verified!'}
             {verificationState === 'already-verified' && 'Already Verified'}
             {verificationState === 'error' && 'Verification Failed'}
           </CardTitle>
-          
+
           <CardDescription className="mt-2">
             {verificationState === 'loading' && 'Please wait while we verify your email address'}
-            {verificationState === 'success' && `Your email ${email} has been successfully verified`}
+            {verificationState === 'success' &&
+              `Your email ${email} has been successfully verified`}
             {verificationState === 'already-verified' && 'Your email address was already verified'}
-            {verificationState === 'error' && 'We couldn\'t verify your email address'}
+            {verificationState === 'error' && "We couldn't verify your email address"}
           </CardDescription>
         </CardHeader>
 
@@ -156,10 +162,9 @@ export default function VerifyEmailPage() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                {errorMessage === 'Invalid or expired verification token' 
+                {errorMessage === 'Invalid or expired verification token'
                   ? 'This verification link has expired or is invalid. Please request a new verification email.'
-                  : errorMessage
-                }
+                  : errorMessage}
               </AlertDescription>
             </Alert>
           )}
@@ -184,7 +189,7 @@ export default function VerifyEmailPage() {
 
           <div className="space-y-3">
             {(verificationState === 'success' || verificationState === 'already-verified') && (
-              <Button 
+              <Button
                 onClick={handleContinue}
                 className="w-full bg-gradient-to-r from-ai-purple to-ai-orange text-white"
               >
@@ -194,7 +199,7 @@ export default function VerifyEmailPage() {
 
             {verificationState === 'error' && (
               <>
-                <Button 
+                <Button
                   onClick={handleLogin}
                   className="w-full bg-gradient-to-r from-ai-purple to-ai-orange text-white"
                 >

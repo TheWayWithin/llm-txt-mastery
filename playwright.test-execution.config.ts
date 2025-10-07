@@ -9,9 +9,9 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['list'],
-    ['json', { outputFile: 'test-results/results.json' }]
+    ['json', { outputFile: 'test-results/results.json' }],
   ],
-  
+
   use: {
     // Use port 8080 to match server default
     baseURL: 'http://localhost:8080',
@@ -27,8 +27,11 @@ export default defineConfig({
     {
       name: 'conversion-tests',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: ['**/conversion-validation-tests.spec.ts', '**/diagnostic-conversion-test.spec.ts']
-    }
+      testMatch: [
+        '**/conversion-validation-tests.spec.ts',
+        '**/diagnostic-conversion-test.spec.ts',
+      ],
+    },
   ],
 
   // Server should be manually started before running tests

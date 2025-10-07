@@ -1,4 +1,5 @@
 # Mission: DEPLOY 🚀
+
 ## Production Deployment Preparation and Execution
 
 **Mission Code**: DEPLOY  
@@ -19,10 +20,12 @@ Execute a safe, systematic production deployment with proper validation, monitor
 ## Mission Phases
 
 ### Phase 1: Pre-Deployment Validation (15-20 minutes)
+
 **Lead**: @tester  
 **Objective**: Ensure deployment readiness
 
 **Tasks**:
+
 - Run complete test suite and validate all tests pass
 - Verify build process completes successfully
 - Check environment configuration and secrets
@@ -30,16 +33,19 @@ Execute a safe, systematic production deployment with proper validation, monitor
 - Review deployment checklist
 
 **Success Criteria**:
+
 - All tests passing
 - Build artifacts generated successfully
 - Environment variables configured
 - Migration scripts validated
 
 ### Phase 2: Deployment Planning (20-30 minutes)
+
 **Lead**: @operator  
 **Objective**: Plan deployment strategy and rollback procedures
 
 **Tasks**:
+
 - Review deployment target (staging → production)
 - Plan deployment windows and user communication
 - Prepare rollback procedures and scripts
@@ -47,17 +53,20 @@ Execute a safe, systematic production deployment with proper validation, monitor
 - Configure deployment pipeline
 
 **Success Criteria**:
+
 - Deployment strategy documented
 - Rollback procedures ready
 - Monitoring configured
 - Pipeline ready for execution
 
 ### Phase 3: Staging Deployment (15-25 minutes)
+
 **Lead**: @operator  
 **Support**: @developer, @tester  
 **Objective**: Deploy to staging for final validation
 
 **Tasks**:
+
 - Deploy to staging environment
 - Run smoke tests on staging
 - Validate all features working correctly
@@ -65,17 +74,20 @@ Execute a safe, systematic production deployment with proper validation, monitor
 - Verify integrations and external services
 
 **Success Criteria**:
+
 - Staging deployment successful
 - All smoke tests passing
 - Performance metrics within acceptable range
 - No critical errors detected
 
 ### Phase 4: Production Deployment (20-30 minutes)
+
 **Lead**: @operator  
 **Support**: @developer, @tester  
 **Objective**: Execute production deployment
 
 **Tasks**:
+
 - Deploy to production environment
 - Monitor deployment process and metrics
 - Run immediate health checks
@@ -83,17 +95,20 @@ Execute a safe, systematic production deployment with proper validation, monitor
 - Monitor error rates and performance
 
 **Success Criteria**:
+
 - Production deployment successful
 - Health checks passing
 - Critical flows working
 - Error rates normal
 
 ### Phase 5: Post-Deployment Monitoring (10-15 minutes)
+
 **Lead**: @operator  
 **Support**: @analyst  
 **Objective**: Ensure deployment stability
 
 **Tasks**:
+
 - Monitor application performance
 - Track user error reports
 - Validate monitoring and alerting
@@ -101,6 +116,7 @@ Execute a safe, systematic production deployment with proper validation, monitor
 - Communicate deployment success
 
 **Success Criteria**:
+
 - Performance metrics stable
 - No increase in error rates
 - Monitoring systems active
@@ -109,21 +125,25 @@ Execute a safe, systematic production deployment with proper validation, monitor
 ## Common Variations
 
 ### Hotfix Deployment
+
 - **Duration**: 30-45 minutes
 - **Focus**: Rapid deployment with minimal testing
 - **Phases**: Skip staging, focus on critical path validation
 
 ### Blue-Green Deployment
+
 - **Duration**: 2-3 hours
 - **Focus**: Zero-downtime deployment with traffic switching
 - **Phases**: Add traffic switching and gradual rollout
 
 ### Database Migration Deployment
+
 - **Duration**: 2-4 hours
 - **Focus**: Database changes with backward compatibility
 - **Phases**: Add migration validation and rollback testing
 
 ### Microservice Deployment
+
 - **Duration**: 1-3 hours
 - **Focus**: Service-by-service deployment coordination
 - **Phases**: Add service dependency validation
@@ -139,6 +159,7 @@ Execute a safe, systematic production deployment with proper validation, monitor
 ## Emergency Procedures
 
 ### Deployment Failure
+
 1. **Immediate**: Stop deployment process
 2. **Assess**: Determine failure cause and impact
 3. **Rollback**: Execute rollback procedures if needed
@@ -146,6 +167,7 @@ Execute a safe, systematic production deployment with proper validation, monitor
 5. **Post-Mortem**: Document failure and prevention
 
 ### Production Issues Post-Deployment
+
 1. **Monitor**: Track error rates and performance
 2. **Triage**: Determine if rollback is necessary
 3. **Fix**: Apply hotfix if issue is minor
@@ -163,4 +185,4 @@ Execute a safe, systematic production deployment with proper validation, monitor
 
 **Mission Command**: `/coord deploy [tested-codebase] [deployment-config] [release-notes]`
 
-*"Deployment is not the end, it's the beginning of your code's journey to users."*
+_"Deployment is not the end, it's the beginning of your code's journey to users."_

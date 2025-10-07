@@ -14,13 +14,13 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report-password-reset-focused' }],
     ['list'],
-    ['json', { outputFile: 'test-results-password-reset-focused.json' }]
+    ['json', { outputFile: 'test-results-password-reset-focused.json' }],
   ],
-  
+
   use: {
     baseURL: 'https://www.llmtxtmastery.com',
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure', 
+    screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 10000, // 10 second timeout for actions
     navigationTimeout: 20000, // 20 second timeout for navigation
@@ -29,14 +29,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium-focused',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
       },
     },
     {
       name: 'firefox-focused',
-      use: { 
+      use: {
         ...devices['Desktop Firefox'],
         viewport: { width: 1280, height: 720 },
       },

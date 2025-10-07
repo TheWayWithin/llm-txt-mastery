@@ -13,8 +13,9 @@
 This document provides comprehensive technical specifications for implementing the refund retention system designed in `refund-retention-mission.md`. The system transforms binary cancellation flows into intelligent retention opportunities through pause/downgrade/offer mechanisms while maintaining ethical standards.
 
 **Key Deliverables**:
+
 - Complete database schema updates with migration scripts
-- Full REST API specification with OpenAPI documentation  
+- Full REST API specification with OpenAPI documentation
 - Comprehensive testing strategy with automated test suites
 - Sprint-by-sprint implementation roadmap
 - Production deployment and rollback procedures
@@ -26,20 +27,22 @@ This document provides comprehensive technical specifications for implementing t
 ### 🏗️ System Architecture Updates
 
 #### **Current Architecture Integration**
+
 ```
 Frontend (Netlify) ↔ Backend (Railway) ↔ Database (Neon PostgreSQL)
 ├── React 18 + TypeScript + Tailwind CSS
-├── Express.js + JWT Authentication  
+├── Express.js + JWT Authentication
 ├── Stripe Integration (Webhooks + API)
 ├── Drizzle ORM + PostgreSQL
 └── SendGrid Email Service
 ```
 
 #### **New Retention System Components**
+
 ```
 Retention Flow Controller
 ├── Cancellation Intent Capture
-├── Dynamic Intervention Engine  
+├── Dynamic Intervention Engine
 ├── Alternative Offer Presentation
 ├── Subscription Modification API
 └── Win-Back Campaign Automation
@@ -62,6 +65,7 @@ API Layer Additions
 ### 🔧 Technology Stack Requirements
 
 #### **Core Technologies (Existing)**
+
 - **Runtime**: Node.js 18+ with TypeScript 4.9+
 - **Framework**: Express.js 4.18+ with CORS middleware
 - **Database**: PostgreSQL 14+ via Neon with Drizzle ORM
@@ -70,6 +74,7 @@ API Layer Additions
 - **Email Service**: SendGrid API v3 with template support
 
 #### **Additional Requirements**
+
 - **Campaign Scheduling**: node-cron for automated email sequences
 - **Template Engine**: Handlebars.js for dynamic email content
 - **Rate Limiting**: express-rate-limit for retention flow protection
@@ -79,18 +84,21 @@ API Layer Additions
 ### 🚀 Performance Requirements
 
 #### **Response Time Targets**
+
 - Cancellation flow pages: < 1.5 seconds load time
 - Subscription modification API: < 2 seconds processing
 - Retention offer generation: < 500ms calculation time
 - Win-back email delivery: < 30 seconds queue processing
 
-#### **Throughput Requirements**  
+#### **Throughput Requirements**
+
 - Support 1,000+ concurrent retention flow sessions
 - Process 500+ subscription modifications per hour
 - Handle 10,000+ win-back emails per day
 - Maintain 99.9% uptime for retention endpoints
 
 #### **Scalability Considerations**
+
 - Horizontal scaling via Railway auto-scaling
 - Database connection pooling (10-50 connections)
 - Redis caching for offer calculations (future enhancement)
@@ -99,18 +107,21 @@ API Layer Additions
 ### 🔒 Security Requirements
 
 #### **Data Protection**
+
 - Encrypt PII data in retention_flows table
 - Secure storage of cancellation reasons (GDPR compliance)
 - Audit logging for all subscription modifications
 - Rate limiting on retention endpoints (max 5 attempts/hour)
 
 #### **Authentication & Authorization**
+
 - JWT token validation for all retention endpoints
 - Role-based access (user can only modify own subscriptions)
 - Stripe webhook signature verification
 - SQL injection prevention via parameterized queries
 
 #### **Privacy Compliance**
+
 - GDPR-compliant data retention (90-day deletion)
 - User consent tracking for win-back campaigns
 - Right-to-be-forgotten implementation
@@ -119,18 +130,21 @@ API Layer Additions
 ### 🔗 Integration Points
 
 #### **Stripe Integration Extensions**
+
 - Subscription modification API (pause/resume/downgrade)
 - Prorated billing calculations
 - Credit preservation during downgrades
 - Webhook handling for retention events
 
 #### **Email Service Integration**
+
 - SendGrid template management for win-back campaigns
 - Dynamic content injection (user name, tier, offers)
 - Unsubscribe management and compliance
 - Campaign performance tracking
 
 #### **Frontend Integration Points**
+
 - New React components for retention flow
 - JWT-authenticated API calls
 - State management for multi-step flows
@@ -143,6 +157,7 @@ API Layer Additions
 ### 📊 New Tables with Complete Field Definitions
 
 #### **1. retention_flows Table**
+
 ```sql
 CREATE TABLE retention_flows (
     id SERIAL PRIMARY KEY,
@@ -150,7 +165,7 @@ CREATE TABLE retention_flows (
     session_id UUID NOT NULL DEFAULT gen_random_uuid(),
     subscription_id TEXT,
     original_tier TEXT NOT NULL CHECK (original_tier IN ('coffee', 'growth', 'scale')),
-    
+
     -- Flow State Management
     current_step TEXT NOT NULL DEFAULT 'intent_capture' CHECK (
         current_step IN ('intent_capture', 'offer_presentation', 'final_attempt', 'completed', 'cancelled')
@@ -158,36 +173,36 @@ CREATE TABLE retention_flows (
     flow_status TEXT NOT NULL DEFAULT 'active' CHECK (
         flow_status IN ('active', 'completed', 'abandoned', 'converted')
     ),
-    
+
     -- Intent Capture Data (Encrypted)
     cancellation_reason TEXT CHECK (
-        cancellation_reason IN ('cost_concerns', 'not_seeing_results', 'technical_difficulties', 
+        cancellation_reason IN ('cost_concerns', 'not_seeing_results', 'technical_difficulties',
                                 'switching_competitor', 'business_changes', 'temporary_pause', 'other')
     ),
     experience_rating INTEGER CHECK (experience_rating >= 1 AND experience_rating <= 5),
     additional_feedback TEXT,
-    
+
     -- Offer Tracking
     offers_presented JSONB DEFAULT '[]'::jsonb, -- Array of offer objects
     selected_offer JSONB, -- Selected offer details
     declined_offers JSONB DEFAULT '[]'::jsonb, -- Declined offer tracking
-    
+
     -- Outcome Tracking
     retention_outcome TEXT CHECK (
         retention_outcome IN ('paused', 'downgraded', 'enhanced_support', 'cancelled', 'no_action')
     ),
     final_tier TEXT CHECK (final_tier IN ('coffee', 'growth', 'scale')),
     savings_amount INTEGER DEFAULT 0, -- Cents saved through retention
-    
+
     -- Timestamps
     started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMP WITH TIME ZONE,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (NOW() + INTERVAL '24 hours'),
-    
+
     -- Analytics
     page_views INTEGER DEFAULT 1,
     time_spent_seconds INTEGER DEFAULT 0,
-    
+
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -201,47 +216,48 @@ CREATE INDEX idx_retention_flows_outcome ON retention_flows(retention_outcome);
 ```
 
 #### **2. subscription_pauses Table**
+
 ```sql
 CREATE TABLE subscription_pauses (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
     subscription_id TEXT NOT NULL,
     retention_flow_id INTEGER REFERENCES retention_flows(id),
-    
+
     -- Pause Configuration
     pause_type TEXT NOT NULL CHECK (
         pause_type IN ('free_pause', 'discounted_pause', 'seasonal_pause')
     ),
     original_tier TEXT NOT NULL CHECK (original_tier IN ('coffee', 'growth', 'scale')),
     pause_tier TEXT CHECK (pause_tier IN ('coffee', 'growth', 'scale')), -- For discounted pauses
-    
+
     -- Billing Details
     original_amount INTEGER NOT NULL, -- Original subscription amount in cents
     pause_amount INTEGER DEFAULT 0, -- Amount charged during pause (cents)
     savings_amount INTEGER NOT NULL, -- Amount saved (cents)
-    
+
     -- Schedule
     pause_start_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     pause_end_date TIMESTAMP WITH TIME ZONE NOT NULL,
     auto_resume BOOLEAN NOT NULL DEFAULT true,
-    
+
     -- Status Tracking
     status TEXT NOT NULL DEFAULT 'active' CHECK (
         status IN ('active', 'resumed', 'cancelled', 'expired')
     ),
     resumed_at TIMESTAMP WITH TIME ZONE,
     cancellation_reason TEXT,
-    
+
     -- Stripe Integration
     stripe_subscription_id TEXT NOT NULL,
     stripe_pause_behavior TEXT DEFAULT 'pause_collection', -- Stripe pause behavior
     original_stripe_price_id TEXT,
     pause_stripe_price_id TEXT,
-    
+
     -- Notifications
     reminder_sent_at TIMESTAMP WITH TIME ZONE,
     resume_notification_sent BOOLEAN DEFAULT false,
-    
+
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -255,38 +271,39 @@ CREATE INDEX idx_subscription_pauses_auto_resume ON subscription_pauses(auto_res
 ```
 
 #### **3. downgrade_history Table**
+
 ```sql
 CREATE TABLE downgrade_history (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
     subscription_id TEXT NOT NULL,
     retention_flow_id INTEGER REFERENCES retention_flows(id),
-    
+
     -- Downgrade Details
     from_tier TEXT NOT NULL CHECK (from_tier IN ('growth', 'scale')),
     to_tier TEXT NOT NULL CHECK (to_tier IN ('coffee', 'growth')),
     downgrade_reason TEXT,
-    
+
     -- Billing Impact
     original_amount INTEGER NOT NULL, -- Original subscription amount (cents)
     new_amount INTEGER NOT NULL, -- New subscription amount (cents)
     prorated_credit INTEGER DEFAULT 0, -- Prorated credit applied (cents)
     savings_per_month INTEGER NOT NULL, -- Monthly savings (cents)
-    
+
     -- Feature Preservation
     preserved_features JSONB DEFAULT '{}'::jsonb, -- Features temporarily preserved
     feature_expiry_date TIMESTAMP WITH TIME ZONE, -- When preserved features expire
-    
+
     -- Stripe Integration
     stripe_subscription_id TEXT NOT NULL,
     original_stripe_price_id TEXT NOT NULL,
     new_stripe_price_id TEXT NOT NULL,
     stripe_invoice_id TEXT, -- Prorated adjustment invoice
-    
+
     -- Upgrade Tracking
     upgrade_offered_at TIMESTAMP WITH TIME ZONE, -- When user was offered upgrade back
     upgrade_accepted_at TIMESTAMP WITH TIME ZONE, -- If they upgraded back
-    
+
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -299,51 +316,52 @@ CREATE INDEX idx_downgrade_history_created_at ON downgrade_history(created_at);
 ```
 
 #### **4. win_back_campaigns Table**
+
 ```sql
 CREATE TABLE win_back_campaigns (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
     cancellation_id INTEGER REFERENCES cancellations(id),
-    
+
     -- Campaign Configuration
     campaign_type TEXT NOT NULL CHECK (
         campaign_type IN ('post_cancellation', 'seasonal', 'feature_announcement', 'success_story')
     ),
     sequence_step INTEGER NOT NULL DEFAULT 1, -- Which email in sequence (1-12)
-    
+
     -- Targeting Data
     original_tier TEXT NOT NULL CHECK (original_tier IN ('coffee', 'growth', 'scale')),
     cancellation_reason TEXT,
     days_since_cancellation INTEGER NOT NULL,
-    
+
     -- Email Details
     email_template TEXT NOT NULL, -- Template identifier
     subject_line TEXT NOT NULL,
     personalization_data JSONB DEFAULT '{}'::jsonb, -- Dynamic content data
-    
+
     -- Scheduling
     scheduled_for TIMESTAMP WITH TIME ZONE NOT NULL,
     sent_at TIMESTAMP WITH TIME ZONE,
     delivery_status TEXT DEFAULT 'scheduled' CHECK (
         delivery_status IN ('scheduled', 'sent', 'delivered', 'bounced', 'failed')
     ),
-    
+
     -- Engagement Tracking
     opened_at TIMESTAMP WITH TIME ZONE,
     clicked_at TIMESTAMP WITH TIME ZONE,
     clicked_url TEXT,
     replied_at TIMESTAMP WITH TIME ZONE,
     unsubscribed_at TIMESTAMP WITH TIME ZONE,
-    
+
     -- Conversion Tracking
     conversion_event TEXT, -- 'reactivated', 'upgraded', 'downloaded'
     conversion_value INTEGER DEFAULT 0, -- Revenue impact (cents)
     converted_at TIMESTAMP WITH TIME ZONE,
-    
+
     -- SendGrid Integration
     sendgrid_message_id TEXT,
     sendgrid_template_id TEXT,
-    
+
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -357,48 +375,49 @@ CREATE INDEX idx_win_back_campaigns_conversion ON win_back_campaigns(conversion_
 ```
 
 #### **5. retention_metrics Table**
+
 ```sql
 CREATE TABLE retention_metrics (
     id SERIAL PRIMARY KEY,
-    
+
     -- Time Dimension
     metric_date DATE NOT NULL DEFAULT CURRENT_DATE,
     metric_type TEXT NOT NULL CHECK (
         metric_type IN ('daily', 'weekly', 'monthly')
     ),
-    
+
     -- Retention Flow Metrics
     flows_started INTEGER DEFAULT 0,
     flows_completed INTEGER DEFAULT 0,
     flows_abandoned INTEGER DEFAULT 0,
     flows_converted INTEGER DEFAULT 0, -- Successful retentions
-    
+
     -- Outcome Metrics by Tier
     coffee_retentions INTEGER DEFAULT 0,
     growth_retentions INTEGER DEFAULT 0,
     scale_retentions INTEGER DEFAULT 0,
-    
+
     -- Action Metrics
     pauses_created INTEGER DEFAULT 0,
     downgrades_created INTEGER DEFAULT 0,
     enhanced_support_selected INTEGER DEFAULT 0,
-    
+
     -- Financial Impact
     revenue_saved INTEGER DEFAULT 0, -- Total revenue retained (cents)
     mrr_impact INTEGER DEFAULT 0, -- Monthly recurring revenue impact (cents)
     average_savings_per_retention INTEGER DEFAULT 0, -- Average offer value (cents)
-    
+
     -- Win-Back Metrics
     emails_sent INTEGER DEFAULT 0,
     emails_opened INTEGER DEFAULT 0,
     emails_clicked INTEGER DEFAULT 0,
     reactivations INTEGER DEFAULT 0,
-    
+
     -- Performance Metrics
     average_flow_duration_minutes INTEGER DEFAULT 0,
     bounce_rate_percentage DECIMAL(5,2) DEFAULT 0, -- Percentage who left immediately
     conversion_rate_percentage DECIMAL(5,2) DEFAULT 0, -- Successful retentions / total flows
-    
+
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -414,6 +433,7 @@ CREATE INDEX idx_retention_metrics_type ON retention_metrics(metric_type);
 ### 🔄 Migration Scripts
 
 #### **Migration 001: Create Retention System Tables**
+
 ```sql
 -- File: /server/migrations/001_create_retention_system.sql
 
@@ -427,7 +447,7 @@ CREATE TABLE retention_flows (
     -- [Full table definition from above]
 );
 
--- Create subscription_pauses table  
+-- Create subscription_pauses table
 CREATE TABLE subscription_pauses (
     -- [Full table definition from above]
 );
@@ -448,20 +468,21 @@ CREATE TABLE retention_metrics (
 );
 
 -- Insert initial metrics record
-INSERT INTO retention_metrics (metric_date, metric_type) 
+INSERT INTO retention_metrics (metric_date, metric_type)
 VALUES (CURRENT_DATE, 'daily');
 
 COMMIT;
 ```
 
 #### **Migration 002: Update Existing Tables**
+
 ```sql
 -- File: /server/migrations/002_update_existing_tables.sql
 
 BEGIN;
 
 -- Add retention tracking to cancellations table
-ALTER TABLE cancellations 
+ALTER TABLE cancellations
 ADD COLUMN retention_flow_id INTEGER REFERENCES retention_flows(id),
 ADD COLUMN retention_attempted BOOLEAN DEFAULT false,
 ADD COLUMN final_retention_outcome TEXT;
@@ -482,6 +503,7 @@ COMMIT;
 ### 📈 Backup and Data Retention Policies
 
 #### **Backup Strategy**
+
 ```sql
 -- Daily automated backups via Neon
 -- Retention: 7 daily, 4 weekly, 12 monthly backups
@@ -492,15 +514,16 @@ pg_dump $DATABASE_URL > retention_system_backup_$(date +%Y%m%d).sql
 ```
 
 #### **Data Retention Policy**
+
 ```sql
 -- Cleanup script: /server/scripts/cleanup_retention_data.sql
 
 -- Archive completed retention flows after 1 year
-DELETE FROM retention_flows 
-WHERE completed_at < NOW() - INTERVAL '1 year' 
+DELETE FROM retention_flows
+WHERE completed_at < NOW() - INTERVAL '1 year'
 AND flow_status = 'completed';
 
--- Archive win-back campaigns after 2 years  
+-- Archive win-back campaigns after 2 years
 DELETE FROM win_back_campaigns
 WHERE sent_at < NOW() - INTERVAL '2 years';
 
@@ -517,6 +540,7 @@ AND metric_type = 'daily';
 ### 🔗 Complete REST API Documentation
 
 #### **OpenAPI 3.0 Specification Header**
+
 ```yaml
 openapi: 3.0.0
 info:
@@ -535,6 +559,7 @@ security:
 #### **1. Retention Flow Endpoints**
 
 ##### **POST /api/retention/start**
+
 ```yaml
 /retention/start:
   post:
@@ -553,8 +578,16 @@ security:
                 description: Stripe subscription ID
               reason:
                 type: string
-                enum: [cost_concerns, not_seeing_results, technical_difficulties, 
-                       switching_competitor, business_changes, temporary_pause, other]
+                enum:
+                  [
+                    cost_concerns,
+                    not_seeing_results,
+                    technical_difficulties,
+                    switching_competitor,
+                    business_changes,
+                    temporary_pause,
+                    other,
+                  ]
               experienceRating:
                 type: integer
                 minimum: 1
@@ -592,6 +625,7 @@ security:
 ```
 
 ##### **GET /api/retention/flow/{flowId}**
+
 ```yaml
 /retention/flow/{flowId}:
   get:
@@ -633,6 +667,7 @@ security:
 ```
 
 ##### **POST /api/retention/flow/{flowId}/select-offer**
+
 ```yaml
 /retention/flow/{flowId}/select-offer:
   post:
@@ -681,6 +716,7 @@ security:
 #### **2. Subscription Management Endpoints**
 
 ##### **POST /api/subscriptions/{subscriptionId}/pause**
+
 ```yaml
 /subscriptions/{subscriptionId}/pause:
   post:
@@ -740,6 +776,7 @@ security:
 ```
 
 ##### **POST /api/subscriptions/{subscriptionId}/resume**
+
 ```yaml
 /subscriptions/{subscriptionId}/resume:
   post:
@@ -772,6 +809,7 @@ security:
 ```
 
 ##### **POST /api/subscriptions/{subscriptionId}/downgrade**
+
 ```yaml
 /subscriptions/{subscriptionId}/downgrade:
   post:
@@ -830,6 +868,7 @@ security:
 #### **3. Win-Back Campaign Endpoints**
 
 ##### **GET /api/win-back/campaigns/{userId}**
+
 ```yaml
 /win-back/campaigns/{userId}:
   get:
@@ -862,6 +901,7 @@ security:
 ```
 
 ##### **POST /api/win-back/unsubscribe**
+
 ```yaml
 /win-back/unsubscribe:
   post:
@@ -900,8 +940,9 @@ security:
 All retention endpoints require JWT authentication via `Authorization: Bearer <token>` header.
 
 **Rate Limiting**:
+
 - Retention flow endpoints: 5 requests per hour per user
-- Subscription management: 10 requests per hour per user  
+- Subscription management: 10 requests per hour per user
 - Win-back endpoints: 20 requests per hour per user
 
 ### 📊 Error Responses
@@ -923,7 +964,7 @@ components:
               code:
                 type: string
                 enum: [INVALID_REQUEST, VALIDATION_ERROR]
-    
+
     Unauthorized:
       description: Authentication required
       content:
@@ -933,11 +974,11 @@ components:
             properties:
               error:
                 type: string
-                example: "Unauthorized"
+                example: 'Unauthorized'
               message:
                 type: string
-                example: "Valid JWT token required"
-    
+                example: 'Valid JWT token required'
+
     RateLimit:
       description: Rate limit exceeded
       content:
@@ -947,7 +988,7 @@ components:
             properties:
               error:
                 type: string
-                example: "Rate limit exceeded"
+                example: 'Rate limit exceeded'
               retryAfter:
                 type: integer
                 description: Seconds until retry allowed
@@ -967,6 +1008,7 @@ components:
 ### 🧪 Comprehensive Testing Framework
 
 #### **Testing Stack**
+
 - **Unit Testing**: Jest 29+ with TypeScript support
 - **Integration Testing**: Supertest for API endpoint testing
 - **End-to-End Testing**: Playwright for complete user flows
@@ -974,6 +1016,7 @@ components:
 - **Database Testing**: Docker PostgreSQL for isolated testing
 
 #### **Test Coverage Requirements**
+
 - **Unit Tests**: 90%+ code coverage for business logic
 - **Integration Tests**: 100% API endpoint coverage
 - **E2E Tests**: Critical user journeys (5 main flows)
@@ -982,6 +1025,7 @@ components:
 ### 🔬 Unit Test Requirements
 
 #### **Core Business Logic Tests**
+
 ```typescript
 // /server/tests/unit/retention-engine.test.ts
 
@@ -991,39 +1035,39 @@ describe('RetentionEngine', () => {
       const offers = retentionEngine.generateOffers({
         tier: 'growth',
         reason: 'cost_concerns',
-        monthsActive: 3
+        monthsActive: 3,
       });
-      
+
       expect(offers).toContainEqual({
         type: 'pause',
         duration: 90,
         savings: 2985, // 3 months * $9.95
-        conditions: expect.any(Object)
+        conditions: expect.any(Object),
       });
     });
-    
+
     test('should generate downgrade offer for growth tier', () => {
       const offers = retentionEngine.generateOffers({
-        tier: 'growth', 
-        reason: 'cost_concerns'
+        tier: 'growth',
+        reason: 'cost_concerns',
       });
-      
+
       expect(offers).toContainEqual({
         type: 'downgrade',
         fromTier: 'growth',
         toTier: 'coffee',
-        monthlySavings: 495 // $9.95 - $4.95
+        monthlySavings: 495, // $9.95 - $4.95
       });
     });
   });
-  
+
   describe('calculateSavings', () => {
     test('should calculate correct pause savings', () => {
       const savings = retentionEngine.calculatePauseSavings({
         tier: 'scale',
-        pauseDays: 180
+        pauseDays: 180,
       });
-      
+
       expect(savings).toBe(11970); // 6 months * $19.95
     });
   });
@@ -1031,6 +1075,7 @@ describe('RetentionEngine', () => {
 ```
 
 #### **Database Model Tests**
+
 ```typescript
 // /server/tests/unit/models/retention-flow.test.ts
 
@@ -1039,23 +1084,25 @@ describe('RetentionFlow Model', () => {
     const flowData = {
       userId: 1,
       originalTier: 'growth',
-      cancellationReason: 'cost_concerns'
+      cancellationReason: 'cost_concerns',
     };
-    
+
     const flow = await RetentionFlow.create(flowData);
-    
+
     expect(flow.id).toBeDefined();
-    expect(flow.sessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    expect(flow.sessionId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    );
     expect(flow.currentStep).toBe('intent_capture');
   });
-  
+
   test('should expire flow after 24 hours', async () => {
     const flow = await RetentionFlow.create({
       userId: 1,
       originalTier: 'growth',
-      expiresAt: new Date(Date.now() - 1000) // 1 second ago
+      expiresAt: new Date(Date.now() - 1000), // 1 second ago
     });
-    
+
     const isExpired = await flow.isExpired();
     expect(isExpired).toBe(true);
   });
@@ -1065,18 +1112,19 @@ describe('RetentionFlow Model', () => {
 ### 🔗 Integration Test Scenarios
 
 #### **Retention Flow API Tests**
+
 ```typescript
 // /server/tests/integration/retention-api.test.ts
 
 describe('Retention API Integration', () => {
   let authToken: string;
   let testUser: AuthUser;
-  
+
   beforeEach(async () => {
     testUser = await createTestUser();
     authToken = generateJWT(testUser.id);
   });
-  
+
   describe('POST /api/retention/start', () => {
     test('should initialize retention flow successfully', async () => {
       const response = await request(app)
@@ -1085,47 +1133,47 @@ describe('Retention API Integration', () => {
         .send({
           subscriptionId: 'sub_test123',
           reason: 'cost_concerns',
-          experienceRating: 4
+          experienceRating: 4,
         });
-        
+
       expect(response.status).toBe(201);
       expect(response.body.flowId).toMatch(/^[0-9a-f-]{36}$/);
       expect(response.body.offers).toHaveLength(3);
     });
-    
+
     test('should reject invalid cancellation reason', async () => {
       const response = await request(app)
         .post('/api/retention/start')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           subscriptionId: 'sub_test123',
-          reason: 'invalid_reason'
+          reason: 'invalid_reason',
         });
-        
+
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('VALIDATION_ERROR');
     });
   });
-  
+
   describe('POST /api/subscriptions/:id/pause', () => {
     test('should pause subscription successfully', async () => {
       const mockStripe = jest.spyOn(stripeService, 'pauseSubscription');
       mockStripe.mockResolvedValue({ status: 'paused' });
-      
+
       const response = await request(app)
         .post('/api/subscriptions/sub_test123/pause')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           pauseType: 'free_pause',
           duration: 90,
-          autoResume: true
+          autoResume: true,
         });
-        
+
       expect(response.status).toBe(200);
       expect(response.body.monthlySavings).toBe(995);
       expect(mockStripe).toHaveBeenCalledWith('sub_test123', {
         behavior: 'pause_collection',
-        resumes_at: expect.any(Number)
+        resumes_at: expect.any(Number),
       });
     });
   });
@@ -1133,6 +1181,7 @@ describe('Retention API Integration', () => {
 ```
 
 #### **Stripe Integration Tests**
+
 ```typescript
 // /server/tests/integration/stripe-retention.test.ts
 
@@ -1144,23 +1193,23 @@ describe('Stripe Retention Integration', () => {
         object: {
           id: 'sub_test123',
           customer: 'cus_test123',
-          status: 'paused'
-        }
-      }
+          status: 'paused',
+        },
+      },
     };
-    
+
     const signature = stripeWebhook.generateSignature(webhookPayload);
-    
+
     const response = await request(app)
       .post('/api/stripe/webhook')
       .set('stripe-signature', signature)
       .send(webhookPayload);
-      
+
     expect(response.status).toBe(200);
-    
+
     // Verify database updated
     const pauseRecord = await db.query.subscriptionPauses.findFirst({
-      where: eq(subscriptionPauses.stripeSubscriptionId, 'sub_test123')
+      where: eq(subscriptionPauses.stripeSubscriptionId, 'sub_test123'),
     });
     expect(pauseRecord.status).toBe('active');
   });
@@ -1170,6 +1219,7 @@ describe('Stripe Retention Integration', () => {
 ### 🎭 End-to-End Test Flows
 
 #### **Complete Retention Journey Tests**
+
 ```typescript
 // /tests/e2e/retention-flow.spec.ts
 
@@ -1180,43 +1230,48 @@ test.describe('Retention Flow E2E', () => {
     await page.fill('[data-testid=email]', 'growth-user@test.com');
     await page.fill('[data-testid=password]', 'testpass123');
     await page.click('[data-testid=login-button]');
-    
+
     // Navigate to cancellation
     await page.goto('/account/subscription');
     await page.click('[data-testid=cancel-subscription]');
-    
+
     // Step 1: Intent Capture
-    await expect(page.locator('h1')).toContainText('We\'re sorry to see you considering cancellation');
+    await expect(page.locator('h1')).toContainText(
+      "We're sorry to see you considering cancellation"
+    );
     await page.selectOption('[data-testid=cancellation-reason]', 'cost_concerns');
     await page.click('[data-testid=rating-4]');
     await page.click('[data-testid=continue-button]');
-    
+
     // Step 2: Offer Presentation
     await expect(page.locator('[data-testid=pause-offer]')).toBeVisible();
     await expect(page.locator('[data-testid=downgrade-offer]')).toBeVisible();
     await expect(page.locator('[data-testid=support-offer]')).toBeVisible();
-    
+
     await page.click('[data-testid=select-pause-offer]');
-    
+
     // Step 3: Pause Configuration
     await page.selectOption('[data-testid=pause-duration]', '90');
     await page.check('[data-testid=auto-resume]');
     await page.click('[data-testid=confirm-pause]');
-    
+
     // Verify success
     await expect(page.locator('[data-testid=pause-confirmation]')).toBeVisible();
     await expect(page.locator('[data-testid=savings-amount]')).toContainText('$29.85');
-    
+
     // Verify database state
-    const pauseRecord = await testDb.query(`
+    const pauseRecord = await testDb.query(
+      `
       SELECT * FROM subscription_pauses 
       WHERE user_id = $1 AND status = 'active'
-    `, [testUser.id]);
-    
+    `,
+      [testUser.id]
+    );
+
     expect(pauseRecord.length).toBe(1);
     expect(pauseRecord[0].pause_type).toBe('free_pause');
   });
-  
+
   test('complete downgrade flow - Scale tier user', async ({ page }) => {
     // Similar comprehensive test for downgrade flow
     // Including Stripe webhook verification
@@ -1229,6 +1284,7 @@ test.describe('Retention Flow E2E', () => {
 ### ⚡ Performance Testing Plans
 
 #### **Load Testing Configuration**
+
 ```javascript
 // /tests/performance/retention-endpoints.js
 
@@ -1251,32 +1307,37 @@ export let options = {
 
 export default function () {
   // Test retention flow initialization
-  const startResponse = http.post(`${BASE_URL}/api/retention/start`, {
-    subscriptionId: 'sub_test123',
-    reason: 'cost_concerns',
-    experienceRating: 4
-  }, {
-    headers: {
-      'Authorization': `Bearer ${AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
+  const startResponse = http.post(
+    `${BASE_URL}/api/retention/start`,
+    {
+      subscriptionId: 'sub_test123',
+      reason: 'cost_concerns',
+      experienceRating: 4,
     },
-  });
-  
+    {
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
   check(startResponse, {
     'retention flow starts successfully': (r) => r.status === 201,
     'response time under 1.5s': (r) => r.timings.duration < 1500,
   });
-  
+
   sleep(1);
 }
 ```
 
 #### **Database Performance Tests**
+
 ```sql
 -- Performance validation queries
 
 -- Test retention flow query performance
-EXPLAIN ANALYZE 
+EXPLAIN ANALYZE
 SELECT rf.*, sp.status as pause_status, dh.to_tier as downgrade_tier
 FROM retention_flows rf
 LEFT JOIN subscription_pauses sp ON rf.id = sp.retention_flow_id
@@ -1287,7 +1348,7 @@ WHERE rf.user_id = $1 AND rf.flow_status = 'active';
 
 -- Test metrics aggregation performance
 EXPLAIN ANALYZE
-SELECT 
+SELECT
   metric_date,
   SUM(flows_started) as total_flows,
   SUM(flows_converted) as total_converted,
@@ -1303,41 +1364,40 @@ ORDER BY metric_date;
 ### 🔒 Security Testing Requirements
 
 #### **Authentication Security Tests**
+
 ```typescript
 // /server/tests/security/retention-auth.test.ts
 
 describe('Retention Security Tests', () => {
   test('should reject requests without JWT token', async () => {
-    const response = await request(app)
-      .post('/api/retention/start')
-      .send({
-        subscriptionId: 'sub_test123',
-        reason: 'cost_concerns'
-      });
-      
+    const response = await request(app).post('/api/retention/start').send({
+      subscriptionId: 'sub_test123',
+      reason: 'cost_concerns',
+    });
+
     expect(response.status).toBe(401);
   });
-  
+
   test('should prevent user from accessing others retention flows', async () => {
     const user1Token = generateJWT(1);
     const user2Token = generateJWT(2);
-    
+
     // User 1 creates flow
     const createResponse = await request(app)
       .post('/api/retention/start')
       .set('Authorization', `Bearer ${user1Token}`)
       .send({
         subscriptionId: 'sub_test123',
-        reason: 'cost_concerns'
+        reason: 'cost_concerns',
       });
-      
+
     const flowId = createResponse.body.flowId;
-    
+
     // User 2 tries to access User 1's flow
     const accessResponse = await request(app)
       .get(`/api/retention/flow/${flowId}`)
       .set('Authorization', `Bearer ${user2Token}`);
-      
+
     expect(accessResponse.status).toBe(403);
   });
 });
@@ -1346,6 +1406,7 @@ describe('Retention Security Tests', () => {
 ### 📝 User Acceptance Criteria
 
 #### **Retention Flow Acceptance Tests**
+
 ```gherkin
 Feature: Subscription Retention Flow
 
@@ -1362,7 +1423,7 @@ Scenario: Growth tier user selects pause option
 Scenario: Scale tier user downgrades to Growth
   Given I am logged in as a Scale tier user
   And I have an active subscription
-  When I navigate to cancel my subscription  
+  When I navigate to cancel my subscription
   And I select "not seeing results" as my reason
   And I choose to downgrade to Growth tier
   Then I should see prorated billing adjustment
@@ -1378,19 +1439,21 @@ Scenario: Scale tier user downgrades to Growth
 ### 🗓️ Sprint-by-Sprint Implementation Plan
 
 #### **Sprint 1 (Weeks 1-2): Foundation & Database**
+
 **Sprint Goal**: Establish retention system database foundation and basic API structure
 
 **Developer Tasks**:
+
 ```
 Week 1:
 - [ ] Create retention system database schema (8 hours)
-- [ ] Write and test database migration scripts (4 hours)  
+- [ ] Write and test database migration scripts (4 hours)
 - [ ] Set up basic retention API routes structure (4 hours)
 - [ ] Create RetentionFlow model with CRUD operations (6 hours)
 - [ ] Implement SubscriptionPause model (4 hours)
 - [ ] Write unit tests for database models (6 hours)
 
-Week 2:  
+Week 2:
 - [ ] Create DowngradeHistory model (4 hours)
 - [ ] Implement WinBackCampaign model (4 hours)
 - [ ] Set up RetentionMetrics model (4 hours)
@@ -1400,6 +1463,7 @@ Week 2:
 ```
 
 **Success Criteria**:
+
 - ✅ All 5 new database tables created and tested
 - ✅ CRUD operations working for all retention models
 - ✅ Database migrations run successfully on staging
@@ -1411,14 +1475,16 @@ Week 2:
 **Risks**: Database schema complexity, migration conflicts with existing tables
 
 #### **Sprint 2 (Weeks 3-4): Core Retention Flow API**
+
 **Sprint Goal**: Implement complete retention flow API with offer generation
 
 **Developer Tasks**:
+
 ```
 Week 3:
 - [ ] Implement POST /api/retention/start endpoint (8 hours)
 - [ ] Create offer generation engine (12 hours)
-- [ ] Build GET /api/retention/flow/{id} endpoint (4 hours)  
+- [ ] Build GET /api/retention/flow/{id} endpoint (4 hours)
 - [ ] Implement retention flow state management (6 hours)
 - [ ] Add offer selection logic (6 hours)
 - [ ] Write API integration tests (8 hours)
@@ -1433,6 +1499,7 @@ Week 4:
 ```
 
 **Success Criteria**:
+
 - ✅ Complete retention flow API functional
 - ✅ Offer generation works for all tier combinations
 - ✅ Flow expiration and cleanup automated
@@ -1444,9 +1511,11 @@ Week 4:
 **Risks**: Complex offer logic, state management complexity
 
 #### **Sprint 3 (Weeks 5-6): Subscription Management Integration**
+
 **Sprint Goal**: Build subscription pause/resume/downgrade functionality with Stripe
 
 **Developer Tasks**:
+
 ```
 Week 5:
 - [ ] Implement POST /api/subscriptions/{id}/pause endpoint (8 hours)
@@ -1466,6 +1535,7 @@ Week 6:
 ```
 
 **Success Criteria**:
+
 - ✅ Subscription pause/resume fully functional
 - ✅ Downgrade billing calculations accurate
 - ✅ Stripe webhooks processing correctly
@@ -1477,9 +1547,11 @@ Week 6:
 **Risks**: Stripe API complexity, billing calculation errors, webhook reliability
 
 #### **Sprint 4 (Weeks 7-8): Frontend Retention Flow UI**
+
 **Sprint Goal**: Build complete retention flow user interface
 
 **Frontend Developer Tasks**:
+
 ```
 Week 7:
 - [ ] Design and implement cancellation intent capture page (10 hours)
@@ -1499,6 +1571,7 @@ Week 8:
 ```
 
 **Success Criteria**:
+
 - ✅ Complete retention flow UI functional
 - ✅ Mobile-responsive design implemented
 - ✅ Error handling provides clear user feedback
@@ -1510,9 +1583,11 @@ Week 8:
 **Risks**: UX complexity, mobile responsiveness challenges
 
 #### **Sprint 5 (Weeks 9-10): Win-Back Campaign System**
+
 **Sprint Goal**: Implement automated win-back email campaign system
 
 **Developer Tasks**:
+
 ```
 Week 9:
 - [ ] Create win-back campaign scheduling service (10 hours)
@@ -1522,7 +1597,7 @@ Week 9:
 - [ ] Implement email delivery status tracking (6 hours)
 - [ ] Write email campaign tests (6 hours)
 
-Week 10:  
+Week 10:
 - [ ] Build GET /api/win-back/campaigns endpoint (4 hours)
 - [ ] Create POST /api/win-back/unsubscribe endpoint (6 hours)
 - [ ] Implement campaign performance analytics (8 hours)
@@ -1532,6 +1607,7 @@ Week 10:
 ```
 
 **Success Criteria**:
+
 - ✅ Automated email campaigns sending correctly
 - ✅ Personalization working for all user segments
 - ✅ Unsubscribe functionality compliant
@@ -1543,9 +1619,11 @@ Week 10:
 **Risks**: Email deliverability, template complexity, automation reliability
 
 #### **Sprint 6 (Weeks 11-12): Testing, Analytics & Launch**
+
 **Sprint Goal**: Complete testing, analytics dashboard, and production launch
 
 **QA & Testing Tasks**:
+
 ```
 Week 11:
 - [ ] Complete end-to-end retention flow testing (12 hours)
@@ -1565,6 +1643,7 @@ Week 12:
 ```
 
 **Success Criteria**:
+
 - ✅ All test suites passing with 90%+ coverage
 - ✅ Load testing shows system handles 100+ concurrent users
 - ✅ Security testing reveals no critical vulnerabilities
@@ -1578,6 +1657,7 @@ Week 12:
 ### 📋 Task Dependencies and Prerequisites
 
 #### **Critical Path Dependencies**
+
 ```
 Sprint 1 → Sprint 2 → Sprint 3 → Sprint 4
                   ↓
@@ -1587,12 +1667,14 @@ Sprint 1 → Sprint 2 → Sprint 3 → Sprint 4
 ```
 
 #### **Parallel Work Opportunities**
+
 - **Sprint 4 & 5 can run in parallel** (Frontend UI + Win-back system)
 - **Database optimization can continue** throughout all sprints
 - **API documentation creation** can overlap with development
 - **Email template design** can start in Sprint 3
 
 #### **External Dependencies**
+
 - ✅ **Stripe API Access**: Already configured and working
 - ✅ **SendGrid Email Service**: Already integrated
 - ✅ **Railway Deployment Platform**: Already operational
@@ -1602,14 +1684,15 @@ Sprint 1 → Sprint 2 → Sprint 3 → Sprint 4
 ### 🚨 Risk Mitigation Strategies
 
 #### **Technical Risks**
+
 ```
 Risk: Complex Stripe subscription modification logic
-Mitigation: 
+Mitigation:
 - Create comprehensive test suite with Stripe test environment
 - Implement rollback procedures for subscription changes
 - Build manual override capabilities for support team
 
-Risk: Database performance with retention flow queries  
+Risk: Database performance with retention flow queries
 Mitigation:
 - Implement proper indexing strategy from day 1
 - Monitor query performance with slow query logging
@@ -1618,11 +1701,12 @@ Mitigation:
 Risk: Email deliverability and compliance issues
 Mitigation:
 - Use SendGrid best practices and template validation
-- Implement double opt-in for win-back campaigns  
+- Implement double opt-in for win-back campaigns
 - Create GDPR-compliant unsubscribe mechanisms
 ```
 
 #### **Business Risks**
+
 ```
 Risk: Low retention flow conversion rates
 Mitigation:
@@ -1640,6 +1724,7 @@ Mitigation:
 ### 🎯 Success Metrics and KPIs
 
 #### **Sprint Completion Metrics**
+
 - **Code Coverage**: 90%+ for all new retention system code
 - **API Response Time**: <500ms for 95% of retention endpoint requests
 - **Database Query Performance**: <50ms for single record queries
@@ -1647,6 +1732,7 @@ Mitigation:
 - **Email Delivery Rate**: >95% for win-back campaigns
 
 #### **Business Impact Metrics (Post-Launch)**
+
 - **Retention Rate Improvement**: 25-35% reduction in voluntary churn
 - **Revenue Protection**: $2.5K-5K monthly recurring revenue retained
 - **User Experience**: 4.2+ star rating for retention experience
@@ -1660,6 +1746,7 @@ Mitigation:
 ### 🚀 Pre-Deployment Checklist
 
 #### **Code Quality Validation**
+
 - [ ] All unit tests passing (90%+ coverage)
 - [ ] Integration tests passing (100% endpoint coverage)
 - [ ] End-to-end tests passing (5 critical user journeys)
@@ -1668,6 +1755,7 @@ Mitigation:
 - [ ] Code review completed by 2+ senior developers
 
 #### **Database Readiness**
+
 - [ ] Migration scripts tested on staging environment
 - [ ] Database backup completed before deployment
 - [ ] Rollback migration scripts prepared and tested
@@ -1675,6 +1763,7 @@ Mitigation:
 - [ ] Data retention policies configured
 
 #### **Third-Party Integration Verification**
+
 - [ ] Stripe webhook endpoints registered and tested
 - [ ] SendGrid email templates uploaded and validated
 - [ ] JWT authentication working with retention endpoints
@@ -1682,6 +1771,7 @@ Mitigation:
 - [ ] CORS settings updated for new frontend routes
 
 #### **Monitoring and Analytics Setup**
+
 - [ ] Error tracking configured (Winston logging)
 - [ ] Performance monitoring dashboard created
 - [ ] Retention flow analytics tracking implemented
@@ -1691,6 +1781,7 @@ Mitigation:
 ### 🔄 Deployment Procedure
 
 #### **Phase 1: Database Migration (Maintenance Window)**
+
 ```bash
 # 1. Create database backup
 pg_dump $DATABASE_URL > retention_pre_deployment_backup_$(date +%Y%m%d).sql
@@ -1706,6 +1797,7 @@ npm run seed:retention-config
 ```
 
 #### **Phase 2: Backend API Deployment**
+
 ```bash
 # 1. Deploy to Railway staging environment
 git push origin staging
@@ -1721,6 +1813,7 @@ curl -f https://llm-txt-mastery-production.up.railway.app/api/retention/health
 ```
 
 #### **Phase 3: Frontend Deployment**
+
 ```bash
 # 1. Build frontend with retention flow components
 npm run build
@@ -1733,6 +1826,7 @@ curl -f https://www.llmtxtmastery.com/account/cancel-request
 ```
 
 #### **Phase 4: Post-Deployment Validation**
+
 ```bash
 # 1. Run smoke tests
 npm run test:smoke:retention
@@ -1749,6 +1843,7 @@ npm run test:campaigns:scheduling
 ### ⚠️ Rollback Procedures
 
 #### **Database Rollback**
+
 ```sql
 -- Rollback script: /server/scripts/rollback_retention_system.sql
 
@@ -1770,7 +1865,7 @@ ALTER TABLE auth_users DROP COLUMN IF EXISTS last_win_back_email;
 -- Step 3: Drop retention system tables
 DROP TABLE IF EXISTS retention_metrics CASCADE;
 DROP TABLE IF EXISTS win_back_campaigns CASCADE;
-DROP TABLE IF EXISTS downgrade_history CASCADE;  
+DROP TABLE IF EXISTS downgrade_history CASCADE;
 DROP TABLE IF EXISTS subscription_pauses CASCADE;
 DROP TABLE IF EXISTS retention_flows CASCADE;
 
@@ -1778,6 +1873,7 @@ COMMIT;
 ```
 
 #### **Application Rollback**
+
 ```bash
 # 1. Revert to previous Railway deployment
 railway rollback
@@ -1793,6 +1889,7 @@ stripe listen --forward-to localhost:3001/api/stripe/webhook
 ```
 
 #### **Emergency Rollback Triggers**
+
 - Error rate >5% on retention endpoints for >10 minutes
 - Database query performance degradation >50%
 - Stripe billing errors >1% of subscription modifications
@@ -1802,6 +1899,7 @@ stripe listen --forward-to localhost:3001/api/stripe/webhook
 ### 📞 Post-Launch Support Plan
 
 #### **Immediate Post-Launch (First 24 Hours)**
+
 - **Developer on-call**: Primary and secondary developer available
 - **Monitoring dashboard**: Active monitoring every 15 minutes
 - **Customer support**: Enhanced support team for retention-related questions
@@ -1809,13 +1907,15 @@ stripe listen --forward-to localhost:3001/api/stripe/webhook
 - **Error escalation**: Direct channel to development team
 
 #### **Week 1 Post-Launch**
+
 - Daily performance and error rate reviews
-- Customer feedback collection and analysis  
+- Customer feedback collection and analysis
 - Retention conversion rate monitoring
 - Email campaign performance optimization
 - Database performance tuning based on real usage
 
 #### **Month 1 Post-Launch**
+
 - Comprehensive retention system performance review
 - A/B testing of retention offers based on conversion data
 - Win-back campaign optimization based on engagement metrics
@@ -1836,6 +1936,7 @@ This comprehensive technical implementation plan provides all necessary specific
 ✅ **Go-Live Procedures**: Complete deployment and rollback procedures
 
 **Next Actions**:
+
 1. **Approve Sprint 1 initiation** - Database foundation (Weeks 1-2)
 2. **Assign development resources** - Primary and secondary developers
 3. **Legal review of retention offers** - Compliance verification

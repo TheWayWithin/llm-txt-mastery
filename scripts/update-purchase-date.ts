@@ -88,7 +88,9 @@ async function updatePurchaseDate() {
 
     // Calculate days remaining
     const now = new Date();
-    const daysElapsed = Math.floor((now.getTime() - newPurchaseDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysElapsed = Math.floor(
+      (now.getTime() - newPurchaseDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     const daysRemaining = 30 - daysElapsed;
 
     console.log(`📊 Days elapsed: ${daysElapsed}/30`);

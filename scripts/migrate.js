@@ -2,11 +2,11 @@
 
 /**
  * Database Migration Runner
- * 
+ *
  * Supports multiple database systems:
  * - PostgreSQL (via DATABASE_URL)
  * - Supabase (via SUPABASE_URL + service role key)
- * 
+ *
  * Usage:
  *   npm run migrate              # Run all pending PostgreSQL migrations
  *   npm run migrate:supabase     # Run Supabase migrations
@@ -61,7 +61,7 @@ class MigrationRunner {
         checksum VARCHAR(64)
       );
     `;
-    
+
     await this.pool.query(createTableSQL);
     console.log('✅ Migrations table ready');
   }
@@ -71,7 +71,7 @@ class MigrationRunner {
       const result = await this.pool.query(
         `SELECT filename FROM ${MIGRATIONS_TABLE} ORDER BY filename`
       );
-      return result.rows.map(row => row.filename);
+      return result.rows.map((row) => row.filename);
     } catch (error) {
       // Table might not exist yet
       return [];
@@ -84,13 +84,14 @@ class MigrationRunner {
       return [];
     }
 
-    const allMigrations = fs.readdirSync(this.migrationsDir)
-      .filter(file => file.endsWith('.sql'))
+    const allMigrations = fs
+      .readdirSync(this.migrationsDir)
+      .filter((file) => file.endsWith('.sql'))
       .sort();
 
     const appliedMigrations = await this.getAppliedMigrations();
     const pendingMigrations = allMigrations.filter(
-      migration => !appliedMigrations.includes(migration)
+      (migration) => !appliedMigrations.includes(migration)
     );
 
     return pendingMigrations;
@@ -112,8 +113,8 @@ class MigrationRunner {
       // Split SQL into statements
       const statements = content
         .split(/;(?=(?:[^']*'[^']*')*[^']*$)/)
-        .filter(stmt => stmt.trim().length > 0)
-        .map(stmt => stmt.trim());
+        .filter((stmt) => stmt.trim().length > 0)
+        .map((stmt) => stmt.trim());
 
       // Execute each statement
       for (const statement of statements) {
@@ -145,7 +146,7 @@ class MigrationRunner {
     }
 
     console.log(`📦 Found ${pendingMigrations.length} pending migration(s):`);
-    pendingMigrations.forEach(migration => {
+    pendingMigrations.forEach((migration) => {
       console.log(`   - ${migration}`);
     });
 
@@ -158,7 +159,7 @@ class MigrationRunner {
 
   async getMigrationStatus() {
     await this.ensureMigrationsTable();
-    
+
     const appliedMigrations = await this.getAppliedMigrations();
     const pendingMigrations = await this.getPendingMigrations();
 
@@ -168,14 +169,14 @@ class MigrationRunner {
 
     if (appliedMigrations.length > 0) {
       console.log('\n✅ Applied Migrations:');
-      appliedMigrations.forEach(migration => {
+      appliedMigrations.forEach((migration) => {
         console.log(`   - ${migration}`);
       });
     }
 
     if (pendingMigrations.length > 0) {
       console.log('\n⏳ Pending Migrations:');
-      pendingMigrations.forEach(migration => {
+      pendingMigrations.forEach((migration) => {
         console.log(`   - ${migration}`);
       });
     }
@@ -183,7 +184,7 @@ class MigrationRunner {
 
   async resetMigrations() {
     console.log('⚠️  Resetting all migrations...');
-    
+
     // Drop migrations table
     await this.pool.query(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`);
     console.log('🗑️  Dropped migrations table');
@@ -197,21 +198,23 @@ async function getConnectionString(target) {
   if (target === 'supabase') {
     const supabaseUrl = process.env.SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
+
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Supabase migrations');
+      throw new Error(
+        'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Supabase migrations'
+      );
     }
-    
+
     // Convert Supabase URL to PostgreSQL connection string
     const url = new URL(supabaseUrl);
     return `postgresql://postgres:${serviceRoleKey}@${url.hostname}:5432/postgres`;
   }
-  
+
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error('DATABASE_URL is required for PostgreSQL migrations');
   }
-  
+
   return connectionString;
 }
 
@@ -225,27 +228,27 @@ async function main() {
   try {
     const connectionString = await getConnectionString(target);
     const migrationsDir = getMigrationsDir(target);
-    
+
     console.log(`Target: ${target}`);
     console.log(`Migrations: ${path.relative(projectRoot, migrationsDir)}`);
-    
+
     const runner = new MigrationRunner(connectionString, migrationsDir);
-    
+
     await runner.connect();
 
     switch (command) {
       case 'run':
         await runner.runPendingMigrations();
         break;
-      
+
       case 'status':
         await runner.getMigrationStatus();
         break;
-      
+
       case 'reset':
         await runner.resetMigrations();
         break;
-      
+
       default:
         console.error(`Unknown command: ${command}`);
         console.log('Available commands: run, status, reset');

@@ -2,7 +2,7 @@
 
 /**
  * Manual Integration Test Script
- * 
+ *
  * This script provides a guided manual testing checklist for final integration validation
  * Run with: node manual-integration-test.js
  */
@@ -23,71 +23,71 @@ console.log(`
 const tests = [
   {
     id: 1,
-    title: "Email Capture Flow",
+    title: 'Email Capture Flow',
     steps: [
-      "1. Go to http://localhost:5000",
-      "2. Enter email: test-integration@example.com",
-      "3. Click Submit",
-      "4. ✅ Should redirect to tier selection",
-      "5. ✅ No form validation errors"
-    ]
+      '1. Go to http://localhost:5000',
+      '2. Enter email: test-integration@example.com',
+      '3. Click Submit',
+      '4. ✅ Should redirect to tier selection',
+      '5. ✅ No form validation errors',
+    ],
   },
   {
     id: 2,
-    title: "Tier Selection",
+    title: 'Tier Selection',
     steps: [
       "1. Click 'Free Tier' button",
-      "2. ✅ Should redirect to URL input page",
-      "3. ✅ Usage counter should show 0/3"
-    ]
+      '2. ✅ Should redirect to URL input page',
+      '3. ✅ Usage counter should show 0/3',
+    ],
   },
   {
     id: 3,
-    title: "URL Normalization",
+    title: 'URL Normalization',
     steps: [
-      "1. Enter URL: www.example.com (no https://)",
-      "2. Click Analyze",
-      "3. ✅ Should accept URL without errors",
-      "4. ✅ Backend should normalize to https://www.example.com"
-    ]
+      '1. Enter URL: www.example.com (no https://)',
+      '2. Click Analyze',
+      '3. ✅ Should accept URL without errors',
+      '4. ✅ Backend should normalize to https://www.example.com',
+    ],
   },
   {
     id: 4,
-    title: "Usage Counter Increment",
+    title: 'Usage Counter Increment',
     steps: [
-      "1. Wait for analysis to complete",
-      "2. ✅ Usage counter should update to 1/3",
+      '1. Wait for analysis to complete',
+      '2. ✅ Usage counter should update to 1/3',
       "3. Click 'Analyze Another Website'",
-      "4. Enter: github.com",
-      "5. Click Analyze",
-      "6. ✅ Usage counter should update to 2/3"
-    ]
+      '4. Enter: github.com',
+      '5. Click Analyze',
+      '6. ✅ Usage counter should update to 2/3',
+    ],
   },
   {
     id: 5,
-    title: "Post-Verification Redirect",
+    title: 'Post-Verification Redirect',
     steps: [
-      "1. Open new tab: http://localhost:5000?verified=true&email=test@example.com",
-      "2. ✅ Should redirect to URL input page",
-      "3. ✅ Should not show email capture form"
-    ]
+      '1. Open new tab: http://localhost:5000?verified=true&email=test@example.com',
+      '2. ✅ Should redirect to URL input page',
+      '3. ✅ Should not show email capture form',
+    ],
   },
   {
     id: 6,
-    title: "Daily Limit Enforcement",
+    title: 'Daily Limit Enforcement',
     steps: [
-      "1. Perform third analysis (should show 3/3)",
-      "2. Try fourth analysis",
-      "3. ✅ Should show upgrade prompt",
-      "4. ✅ Should prevent analysis"
-    ]
-  }
+      '1. Perform third analysis (should show 3/3)',
+      '2. Try fourth analysis',
+      '3. ✅ Should show upgrade prompt',
+      '4. ✅ Should prevent analysis',
+    ],
+  },
 ];
 
-tests.forEach(test => {
+tests.forEach((test) => {
   console.log(`\n${test.id}. ${test.title}`);
-  console.log("─".repeat(40));
-  test.steps.forEach(step => console.log(`   ${step}`));
+  console.log('─'.repeat(40));
+  test.steps.forEach((step) => console.log(`   ${step}`));
 });
 
 console.log(`

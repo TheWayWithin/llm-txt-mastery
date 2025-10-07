@@ -12,6 +12,7 @@ description: Post Mortem Dump - Analyze failures and suggest improvements
 ## WHAT IS PMD?
 
 PMD (Post Mortem Dump) is a diagnostic command that analyzes failures and issues to identify their root causes across multiple system layers:
+
 - Agent performance and prompts
 - Documentation quality and completeness
 - Tool usage and configuration
@@ -44,6 +45,7 @@ PMD (Post Mortem Dump) is a diagnostic command that analyzes failures and issues
 ## ANALYSIS CATEGORIES
 
 ### 1. Agent Performance
+
 - Prompt clarity and completeness
 - Scope boundary compliance
 - Coordination protocol adherence
@@ -51,6 +53,7 @@ PMD (Post Mortem Dump) is a diagnostic command that analyzes failures and issues
 - Error handling robustness
 
 ### 2. Documentation Quality
+
 - CLAUDE.md currency and accuracy
 - Project-plan.md task definition
 - Progress.md issue logging
@@ -58,6 +61,7 @@ PMD (Post Mortem Dump) is a diagnostic command that analyzes failures and issues
 - README troubleshooting coverage
 
 ### 3. Tool Usage
+
 - MCP prioritization
 - Task tool delegation
 - File operation accuracy
@@ -65,6 +69,7 @@ PMD (Post Mortem Dump) is a diagnostic command that analyzes failures and issues
 - Performance optimization
 
 ### 4. Process Issues
+
 - Planning adequacy
 - Communication clarity
 - Testing coverage
@@ -76,44 +81,53 @@ PMD (Post Mortem Dump) is a diagnostic command that analyzes failures and issues
 Generates `post-mortem-analysis.md` containing:
 
 ### Executive Summary
+
 High-level description of issue and impact
 
 ### Timeline of Events
+
 Chronological sequence leading to failure
 
 ### Root Cause Analysis
+
 - Primary cause with evidence
 - Contributing factors
 - Impact assessment
 
 ### Recommendations
+
 - **Immediate Fixes**: Do now with specific file changes
 - **Short-term Improvements**: This week enhancements
 - **Long-term Enhancements**: This month strategic changes
 
 ### Prevention Strategies
+
 - Detection mechanisms
 - Prevention validations
 - Mitigation procedures
 
 ### Follow-up Actions
+
 Checklist of specific tasks with ownership
 
 ## BENEFITS
 
 ### For Development Teams
+
 - Faster issue resolution
 - Reduced repeat failures
 - Better agent performance
 - Improved documentation
 
 ### For Project Quality
+
 - Systematic improvement process
 - Knowledge preservation
 - Pattern identification
 - Risk reduction
 
 ### For Stakeholders
+
 - Transparency in issue handling
 - Confidence in improvement process
 - Reduced project delays
@@ -122,6 +136,7 @@ Checklist of specific tasks with ownership
 ## PATTERN RECOGNITION
 
 When multiple PMDs are run, the system can identify:
+
 - Recurring failure patterns
 - Common root causes
 - Systemic issues
@@ -137,6 +152,7 @@ When multiple PMDs are run, the system can identify:
 ## BEST PRACTICES
 
 ### When to Run PMD
+
 1. After any critical failure
 2. When issues repeat
 3. Before major releases
@@ -144,6 +160,7 @@ When multiple PMDs are run, the system can identify:
 5. When onboarding new team members
 
 ### How to Use Results
+
 1. Implement immediate fixes first
 2. Track pattern emergence
 3. Update documentation promptly
@@ -153,6 +170,7 @@ When multiple PMDs are run, the system can identify:
 ## INTEGRATION WITH AGENT-11
 
 PMD works seamlessly with:
+
 - **progress.md**: Analyzes logged issues
 - **CLAUDE.md**: Suggests improvements
 - **Agent prompts**: Recommends enhancements
@@ -162,6 +180,7 @@ PMD works seamlessly with:
 ## SUCCESS METRICS
 
 PMD effectiveness measured by:
+
 - Time to root cause identification
 - Reduction in repeat failures
 - Implementation of recommendations
@@ -171,26 +190,33 @@ PMD effectiveness measured by:
 ## EXAMPLE SCENARIOS
 
 ### Scenario 1: Agent Coordination Failure
+
 ```bash
 /pmd "Developer and tester producing conflicting results"
 ```
+
 Analyzes handoff protocols, scope boundaries, and communication patterns.
 
 ### Scenario 2: Deployment Issues
+
 ```bash
 /pmd "Installation failing on fresh systems"
 ```
+
 Examines prerequisites, dependencies, and error handling.
 
 ### Scenario 3: Performance Problems
+
 ```bash
 /pmd "Commands taking too long to execute"
 ```
+
 Reviews tool usage, MCP availability, and optimization opportunities.
 
 ## CONTINUOUS IMPROVEMENT
 
 PMD enables a continuous improvement cycle:
+
 1. **Detect**: Identify failures quickly
 2. **Analyze**: Understand root causes
 3. **Fix**: Implement targeted solutions
@@ -199,4 +225,4 @@ PMD enables a continuous improvement cycle:
 
 ---
 
-*The /pmd command transforms failures into learning opportunities, ensuring AGENT-11 systems continuously improve through systematic analysis and targeted enhancements.*
+_The /pmd command transforms failures into learning opportunities, ensuring AGENT-11 systems continuously improve through systematic analysis and targeted enhancements._

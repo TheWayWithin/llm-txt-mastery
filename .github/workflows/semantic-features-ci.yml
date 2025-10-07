@@ -2,7 +2,7 @@ name: Semantic Features CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - 'server/services/**'
       - 'client/src/**'
@@ -12,7 +12,7 @@ on:
       - 'package*.json'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - 'server/services/**'
       - 'client/src/**'
@@ -110,7 +110,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
           PGPASSWORD=test_password psql -h localhost -U postgres -d llmtxt_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-          
+
           # Run database migrations
           npm run migrate
 
@@ -137,7 +137,7 @@ jobs:
           # Extract coverage percentage from vitest output
           COVERAGE=$(npm run test:coverage 2>&1 | grep -o "All files.*[0-9]\+\.[0-9]\+" | tail -1 | grep -o "[0-9]\+\.[0-9]\+" | tail -1)
           echo "Coverage: ${COVERAGE}%"
-          
+
           # Check if coverage meets 80% threshold
           if (( $(echo "${COVERAGE} >= 80" | bc -l) )); then
             echo "✅ Coverage ${COVERAGE}% meets 80% threshold"
@@ -206,7 +206,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
           PGPASSWORD=test_password psql -h localhost -U postgres -d llmtxt_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-          
+
           # Run database migrations
           npm run migrate
 
@@ -220,7 +220,7 @@ jobs:
         run: |
           # Generate test data for performance testing
           npx tsx scripts/generate-test-data.ts ./test-data-performance
-          
+
           # Run performance testing harness
           npx tsx scripts/performance-testing-harness.ts ./test-data-performance ./performance-results-ci
 
@@ -231,14 +231,14 @@ jobs:
             echo "❌ Performance test results not found"
             exit 1
           fi
-          
+
           # Parse performance results
           VIOLATIONS=$(jq '.violations' ./performance-results-ci/threshold-report.json)
           PASS_RATE=$(jq '.passRate' ./performance-results-ci/threshold-report.json)
-          
+
           echo "Performance violations: ${VIOLATIONS}"
           echo "Pass rate: ${PASS_RATE}"
-          
+
           # Fail if pass rate is below 90%
           if (( $(echo "${PASS_RATE} < 0.9" | bc -l) )); then
             echo "❌ Performance regression detected: pass rate ${PASS_RATE} < 0.9"
@@ -311,10 +311,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
           PGPASSWORD=test_password psql -h localhost -U postgres -d llmtxt_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-          
+
           # Run database migrations
           npm run migrate
-          
+
           # Seed test data
           npx tsx scripts/generate-test-data.ts ./test-data-e2e
 
@@ -373,7 +373,7 @@ jobs:
           cat > test-feature-flags.js << 'EOF'
           import { createRequire } from 'module';
           const require = createRequire(import.meta.url);
-          
+
           async function testFeatureFlags() {
             console.log('Testing feature flag configuration...');
             
@@ -395,10 +395,10 @@ jobs:
             console.log('Feature flag validation passed');
             return true;
           }
-          
+
           testFeatureFlags().catch(console.error);
           EOF
-          
+
           node test-feature-flags.js
 
       - name: Validate A/B test configuration
@@ -406,20 +406,20 @@ jobs:
           # Test A/B testing configuration
           cat > test-ab-config.js << 'EOF'
           console.log('Testing A/B test configuration...');
-          
+
           const testExperiments = [
             'clustering_ui_test',
             'enhanced_descriptions_test',
             'sequencing_modes_test'
           ];
-          
+
           for (const experiment of testExperiments) {
             console.log(`✅ A/B test '${experiment}' configuration is valid`);
           }
-          
+
           console.log('A/B test validation passed');
           EOF
-          
+
           node test-ab-config.js
 
   # Security Scanning
@@ -448,18 +448,18 @@ jobs:
         run: |
           # Check for potential secrets in code
           echo "Checking for sensitive data patterns..."
-          
+
           # Check for API keys, passwords, etc.
           if grep -r -i "api[_-]key\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" . | grep -v "\.example" | grep -v "test" | grep -v "spec"; then
             echo "❌ Potential API key found in code"
             exit 1
           fi
-          
+
           if grep -r -i "password\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" . | grep -v "\.example" | grep -v "test" | grep -v "spec"; then
             echo "❌ Potential password found in code"
             exit 1
           fi
-          
+
           echo "✅ No sensitive data patterns detected"
 
   # Deployment Validation (for main branch)
@@ -467,7 +467,15 @@ jobs:
     name: Deployment Validation
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    needs: [code-quality, unit-tests, performance-tests, integration-tests, feature-flag-tests, security-scan]
+    needs:
+      [
+        code-quality,
+        unit-tests,
+        performance-tests,
+        integration-tests,
+        feature-flag-tests,
+        security-scan,
+      ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -488,19 +496,19 @@ jobs:
         run: |
           # Check required environment variables
           echo "Validating deployment configuration..."
-          
+
           # Check if required files exist
           if [ ! -f "dist/index.js" ]; then
             echo "❌ Build artifacts not found"
             exit 1
           fi
-          
+
           # Check package.json for required scripts
           if ! jq -e '.scripts.start' package.json > /dev/null; then
             echo "❌ Start script not found in package.json"
             exit 1
           fi
-          
+
           echo "✅ Deployment configuration validated"
 
       - name: Test production build
@@ -509,7 +517,7 @@ jobs:
           timeout 30 npm start &
           PID=$!
           sleep 10
-          
+
           # Test if server is responding
           if curl -f http://localhost:8080/api/health; then
             echo "✅ Production build smoke test passed"
@@ -517,14 +525,22 @@ jobs:
             echo "❌ Production build smoke test failed"
             exit 1
           fi
-          
+
           kill $PID
 
   # Notification on completion
   notify-completion:
     name: Notify Completion
     runs-on: ubuntu-latest
-    needs: [code-quality, unit-tests, performance-tests, integration-tests, feature-flag-tests, security-scan]
+    needs:
+      [
+        code-quality,
+        unit-tests,
+        performance-tests,
+        integration-tests,
+        feature-flag-tests,
+        security-scan,
+      ]
     if: always()
     steps:
       - name: Determine overall status
