@@ -94,7 +94,64 @@ LLM.txt Mastery is a production-ready, full-stack TypeScript application that an
 
 ## Infrastructure Architecture and Deployment Strategy
 
+### Multi-Environment Architecture (Production-Validated)
+
+The system implements a **three-tier environment strategy** that enables safe development, thorough testing, and reliable production deployments. This architecture supports the git-flow branching model with environment isolation and independent scaling.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    MULTI-ENVIRONMENT ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  GIT BRANCHES              ENVIRONMENTS              INFRASTRUCTURE     │
+│                                                                         │
+│  ┌──────────┐             ┌──────────────┐        ┌──────────────────┐ │
+│  │  main    │────────────▶│ PRODUCTION   │───────▶│ Netlify: llmtxt  │ │
+│  │ (sacred) │             │              │        │   mastery.com    │ │
+│  └──────────┘             │ • Live users │        ├──────────────────┤ │
+│                           │ • Full data  │        │ Railway: Prod    │ │
+│                           │ • All SSO    │        │   Environment    │ │
+│                           └──────────────┘        ├──────────────────┤ │
+│                                                   │ Supabase: Prod   │ │
+│                                                   │   Database       │ │
+│                                                   └──────────────────┘ │
+│                                                                         │
+│  ┌──────────┐             ┌──────────────┐        ┌──────────────────┐ │
+│  │ develop  │────────────▶│  STAGING     │───────▶│ Netlify: develop │ │
+│  │ (testing)│             │              │        │   --llmtxt*.app  │ │
+│  └──────────┘             │ • Final QA   │        ├──────────────────┤ │
+│                           │ • Integration│        │ Railway: Staging │ │
+│                           │ • Safe test  │        │   Environment    │ │
+│                           └──────────────┘        ├──────────────────┤ │
+│                                                   │ Supabase: Staging│ │
+│                                                   │   Database       │ │
+│                                                   └──────────────────┘ │
+│                                                                         │
+│  ┌──────────┐             ┌──────────────┐        ┌──────────────────┐ │
+│  │feature/* │────────────▶│  PREVIEW     │───────▶│ Netlify: pr-123  │ │
+│  │ (work)   │             │              │        │   --llmtxt*.app  │ │
+│  └──────────┘             │ • PR testing │        ├──────────────────┤ │
+│                           │ • Code review│        │ Railway: Staging │ │
+│                           │ • Auto-clean │        │   (shared)       │ │
+│                           └──────────────┘        ├──────────────────┤ │
+│                                                   │ Supabase: Staging│ │
+│                                                   │   (read-only)    │ │
+│                                                   └──────────────────┘ │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Environment Configuration Matrix
+
+| Environment | Git Branch  | Frontend URL                       | Backend URL                     | Database      | Auto-Deploy |
+| ----------- | ----------- | ---------------------------------- | ------------------------------- | ------------- | ----------- |
+| Production  | `main`      | llmtxtmastery.com                  | api.llmtxtmastery.com           | Production DB | ✅ On merge  |
+| Staging     | `develop`   | develop--llmtxtmastery.netlify.app | staging-api.llmtxtmastery.com   | Staging DB    | ✅ On merge  |
+| Preview     | `feature/*` | pr-{number}--llmtxtmastery.*.app   | staging-api.llmtxtmastery.com   | Staging DB    | ✅ On PR     |
+
 ### Current Production Deployment (0-5K Users)
+
+**Production Environment Architecture**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -175,6 +232,254 @@ LLM.txt Mastery is a production-ready, full-stack TypeScript application that an
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Environment Variable Management Strategy
+
+The multi-environment architecture requires careful management of configuration across production, staging, and preview environments. This strategy ensures security, proper environment isolation, and operational reliability.
+
+**Environment-Specific Configuration Pattern**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                ENVIRONMENT VARIABLE ARCHITECTURE                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  BACKEND (Railway)                    FRONTEND (Netlify)                │
+│                                                                         │
+│  Production Environment:              Production Site:                  │
+│  • DATABASE_URL (prod Neon)           • VITE_API_URL (prod Railway)    │
+│  • SUPABASE_URL (prod project)        • VITE_SUPABASE_URL (prod)       │
+│  • SUPABASE_SERVICE_KEY (prod)        • VITE_SUPABASE_ANON_KEY (prod)  │
+│  • FRONTEND_URL (llmtxtmastery.com)   • VITE_STRIPE_PUBLIC_KEY (prod)  │
+│  • STRIPE_SECRET_KEY (prod)                                             │
+│  • OPENAI_API_KEY (shared)            Branch: main                      │
+│                                       Deploy Context: production         │
+│  Staging Environment:                                                   │
+│  • DATABASE_URL (staging Neon)        Staging Site:                     │
+│  • SUPABASE_URL (staging project)     • VITE_API_URL (staging Railway) │
+│  • SUPABASE_SERVICE_KEY (staging)     • VITE_SUPABASE_URL (staging)    │
+│  • FRONTEND_URL (develop--.*.app)     • VITE_SUPABASE_ANON_KEY (stg)   │
+│  • STRIPE_SECRET_KEY (test mode)      • VITE_STRIPE_PUBLIC_KEY (test)  │
+│  • OPENAI_API_KEY (shared)                                              │
+│                                       Branch: develop                    │
+│                                       Deploy Context: branch-deploy      │
+│                                                                         │
+│  Preview Environments:                Preview Sites:                    │
+│  • Use staging backend (shared)       • VITE_API_URL (staging Railway) │
+│  • Read-only database access          • VITE_SUPABASE_URL (staging)    │
+│  • All staging credentials            • VITE_SUPABASE_ANON_KEY (stg)   │
+│                                       • VITE_STRIPE_PUBLIC_KEY (test)  │
+│                                                                         │
+│                                       Branch: feature/*                  │
+│                                       Deploy Context: deploy-preview    │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Configuration Principles** (Production-Validated):
+
+1. **Railway Environment Variables**:
+   - Each Railway environment (production/staging) has completely isolated variables
+   - Database URLs must include `?sslmode=require` for Supabase/Neon connections
+   - FRONTEND_URL must match exact Netlify deployment URLs for CORS validation
+   - Changes require manual redeploy trigger in Railway dashboard
+
+2. **Netlify Branch-Scoped Variables**:
+   - Production variables scoped to `main` branch and `production` deploy context
+   - Staging variables scoped to `develop` branch and `branch-deploy` context
+   - Preview variables scoped to `feature/*` branches and `deploy-preview` context
+   - Branch-scoped variables override site-wide variables automatically
+
+3. **CORS Configuration for Multi-Environment**:
+   - Backend validates origin against FRONTEND_URL environment variable
+   - Netlify preview domains follow pattern: `{branch}--{site-name}--{team}.netlify.app`
+   - Must include wildcard origin validation for preview deployments
+   - Example: Allow `develop--llmtxtmastery` and `pr-*--llmtxtmastery` patterns
+
+4. **Secret Management**:
+   - Production secrets stored only in production Railway environment
+   - Staging uses Stripe test mode keys and isolated Supabase project
+   - Never share production database credentials across environments
+   - Document all secrets in centralized secure location (1Password, Vault, etc.)
+
+**Common Configuration Issues** (From Phase 1 Production Experience):
+
+- **CORS blocking preview URLs**: Requires dynamic origin validation in security middleware
+- **Database connection failures**: Missing `?sslmode=require` parameter for Supabase connections
+- **Environment variables not applying**: Netlify requires manual redeploy after variable changes
+- **Session timeouts**: Netlify dashboard sessions timeout during long configuration sessions
+
+### Database Multi-Environment Strategy
+
+The database architecture supports safe schema evolution and testing through complete environment isolation with production as the authoritative source.
+
+**Database Environment Separation**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                   DATABASE ENVIRONMENT ARCHITECTURE                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  PRODUCTION DATABASE (Golden Standard)                                  │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │ Project: llmtxtmastery-production                                 │  │
+│  │ Platform: Neon PostgreSQL (via Supabase)                          │  │
+│  │ Region: us-east-2                                                 │  │
+│  │                                                                   │  │
+│  │ • Live user data and transactions                                │  │
+│  │ • Production schema with all hotfixes applied                    │  │
+│  │ • Point-in-time backup and recovery                              │  │
+│  │ • SSL-required connections only                                  │  │
+│  │ • Connection pooling enabled                                     │  │
+│  │                                                                   │  │
+│  │ CRITICAL: Production is SOURCE OF TRUTH for schema               │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                              │                                          │
+│                              │ Schema Export (supabase db dump)         │
+│                              ▼                                          │
+│  STAGING DATABASE (Testing & Integration)                               │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │ Project: llmtxtmastery-staging                                    │  │
+│  │ Platform: Neon PostgreSQL (via Supabase)                          │  │
+│  │ Region: us-east-2                                                 │  │
+│  │                                                                   │  │
+│  │ • Replica of production schema                                   │  │
+│  │ • Test data only (no production PII)                             │  │
+│  │ • Safe environment for schema changes                            │  │
+│  │ • Schema synchronized from production before major changes       │  │
+│  │ • SSL-required connections only                                  │  │
+│  │                                                                   │  │
+│  │ Used by: develop branch + feature/* preview deploys              │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Schema Synchronization Process** (Production-Validated):
+
+1. **Production as Golden Standard**:
+   - Production database contains the authoritative schema with all applied fixes
+   - Migration files may be outdated or missing emergency hotfixes
+   - Always export production schema when setting up or refreshing staging
+
+2. **Schema Export from Production**:
+   ```bash
+   # Export production schema (structure only, no data)
+   supabase db dump --db-url "postgresql://[prod-connection-string]" -f production-schema.sql
+   ```
+
+3. **Platform Compatibility Cleaning**:
+   - Neon-specific roles (neondb_owner, neon_superuser) must be replaced with `postgres`
+   - Remove platform-specific privilege grants that don't exist in Supabase
+   - Validate all foreign key constraints and indexes are preserved
+
+4. **Import to Staging**:
+   ```bash
+   # Import cleaned schema to staging Supabase project
+   psql "postgresql://[staging-connection-string]" < production-schema-cleaned.sql
+   ```
+
+5. **Verification**:
+   - Compare table counts (production vs staging)
+   - Verify all indexes and constraints exist
+   - Test application connection and basic operations
+   - Document any schema differences in architecture notes
+
+**Database Connection Requirements**:
+
+- **SSL Mode Required**: All connections must use `?sslmode=require` parameter
+- **Connection String Format**: `postgresql://user:pass@host:5432/db?sslmode=require`
+- **Connection Pooling**: Enabled by default in Neon, configured in DATABASE_URL
+- **Environment Isolation**: Zero shared credentials between production and staging
+
+**Migration Strategy**:
+
+- Test all schema changes in staging environment first
+- Apply migrations to production only after staging validation
+- Keep production and staging schemas synchronized before major releases
+- Document emergency hotfix migrations for future schema exports
+
+### CORS and Security Configuration for Multi-Environment
+
+Cross-Origin Resource Sharing (CORS) configuration must support multiple frontend deployment URLs while maintaining security. This is critical for Netlify's branch deploy and preview URL patterns.
+
+**Security Middleware Architecture**:
+
+```typescript
+// server/middleware/security.ts - Multi-environment CORS validation
+
+import type { Request, Response, NextFunction } from 'express';
+
+export function configureCORS(req: Request, res: Response, next: NextFunction) {
+  const origin = req.headers.origin;
+  const allowedOrigins = getAllowedOrigins();
+
+  if (origin && isOriginAllowed(origin, allowedOrigins)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  next();
+}
+
+function getAllowedOrigins(): string[] {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+  // Production environment: strict single origin
+  if (process.env.NODE_ENV === 'production' && !frontendUrl.includes('netlify.app')) {
+    return [frontendUrl];
+  }
+
+  // Staging/Development: support Netlify preview patterns
+  return [
+    frontendUrl,                                  // Primary environment URL
+    /https:\/\/develop--llmtxtmastery.*\.netlify\.app$/, // Staging branch
+    /https:\/\/pr-\d+--llmtxtmastery.*\.netlify\.app$/,  // PR previews
+    'http://localhost:5173',                      // Local development
+    'http://localhost:4173',                      // Local preview
+  ];
+}
+
+function isOriginAllowed(origin: string, allowedOrigins: (string | RegExp)[]): boolean {
+  return allowedOrigins.some(allowed => {
+    if (typeof allowed === 'string') {
+      return origin === allowed;
+    }
+    return allowed.test(origin);
+  });
+}
+```
+
+**CORS Configuration Principles**:
+
+1. **Dynamic Origin Validation**: Match origin against environment-specific patterns
+2. **Netlify Preview Pattern Support**: Handle `pr-{number}--{site}--{team}.netlify.app` URLs
+3. **Credential Handling**: Enable credentials for cookie-based authentication
+4. **Production Strictness**: Single origin validation in production environment
+5. **Development Flexibility**: Multiple patterns allowed in staging for preview deploys
+
+**Common CORS Issues and Solutions** (Production-Validated):
+
+| Issue | Symptom | Root Cause | Solution |
+|-------|---------|------------|----------|
+| CORS blocking preview URLs | Browser blocks API calls from PR preview sites | Static FRONTEND_URL doesn't match Netlify preview pattern | Add regex pattern matching for `pr-*--llmtxtmastery` |
+| Credentials not sent | Authentication cookies not included in requests | Missing Allow-Credentials header | Set `Access-Control-Allow-Credentials: true` |
+| OPTIONS preflight fails | All API requests fail with CORS error | OPTIONS request not handled | Handle OPTIONS method and return 204 status |
+| Localhost blocked in prod | Local development can't connect to staging API | Production CORS too strict | Use environment-based origin validation |
+
+**Deployment Checklist for CORS**:
+
+- [ ] Verify FRONTEND_URL matches exact deployment URL in Railway
+- [ ] Test preview deploy URLs match CORS regex patterns
+- [ ] Confirm credentials are allowed for authentication flows
+- [ ] Validate OPTIONS preflight responses are correct
+- [ ] Test CORS from both production and preview deployments
+
 ### Deployment Strategy Benefits
 
 **Cost Optimization**
@@ -183,6 +488,7 @@ LLM.txt Mastery is a production-ready, full-stack TypeScript application that an
 - **Managed Services**: Significantly reduced operational overhead compared to self-hosted solutions
 - **Auto-scaling**: Pay-per-use scaling prevents over-provisioning and reduces costs during low usage
 - **CDN Efficiency**: Global edge caching reduces bandwidth costs and improves performance
+- **Environment Isolation**: Staging infrastructure costs <10% of production at current scale
 
 **Performance Benefits**
 

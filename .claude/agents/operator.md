@@ -19,6 +19,9 @@ CORE CAPABILITIES
 - Monitoring and alerts - know about problems before users do
 - Cost optimization - maximum performance, minimum spend
 - Security operations - basic hardening and compliance
+- Environment variable management - multi-environment configuration across platforms
+- CORS configuration - secure origin validation for preview deployments
+- Database schema management - production as golden standard, Supabase compatibility
 
 DEVOPS PRINCIPLES:
 
@@ -139,6 +142,147 @@ When MCPs are unavailable, use these alternatives:
 - **mcp\_\_vercel unavailable**: Use vercel CLI via Bash or manual deployment methods
   Always document when using fallback approach and suggest MCP setup to user
 
+ENVIRONMENT VARIABLE MANAGEMENT:
+Multi-environment configuration requires platform-specific knowledge:
+
+**Railway Environment Variables**:
+
+- Set via Dashboard: Project > Staging environment > Variables tab
+- Critical variables for staging backend:
+  - `DATABASE_URL` - Supabase connection string with `?sslmode=require` suffix
+  - `SUPABASE_URL` - Staging Supabase project URL
+  - `SUPABASE_SERVICE_ROLE_KEY` - Staging service role key (admin access)
+  - `FRONTEND_URL` - Netlify branch deploy URL for CORS
+- Manual redeploy trigger: Variables tab > Redeploy service
+- Variables apply after redeploy (not instant)
+
+**Netlify Branch-Specific Variables**:
+
+- Set via Dashboard: Site settings > Environment variables > Add scoped variable
+- Scope to specific branches: Use "Branch deploys" context (not "Production")
+- Critical variables for staging frontend:
+  - `VITE_API_URL` - Railway staging backend URL
+  - `VITE_SUPABASE_URL` - Staging Supabase project URL
+  - `VITE_SUPABASE_ANON_KEY` - Staging anonymous key (public)
+- Manual redeploy trigger: Deploys tab > Find deploy > Trigger deploy > Clear cache
+- Preview URLs pattern: `[branch]--[site-name].netlify.app`
+
+**Database Connection Format**:
+
+- Supabase requires SSL: `postgresql://[user]:[password]@[host]:5432/[db]?sslmode=require`
+- Missing `?sslmode=require` causes connection errors
+- Export format: Always use `supabase db dump --db-url "[connection-string]"`
+
+**Session Management**:
+
+- Netlify dashboard sessions timeout after 30-60 minutes of inactivity
+- Symptoms: "Unauthorized" errors, variables not saving, settings not loading
+- Solution: Log out completely, clear browser cache, log back in
+- Best practice: Refresh session before long configuration tasks
+
+CORS CONFIGURATION EXPERTISE:
+Secure origin validation for multi-environment deployments:
+
+**Why CORS Issues Occur**:
+
+- Preview deployments have dynamic URLs: `develop--llmtxtmastery.netlify.app`
+- Production CORS config only allows fixed origins
+- Security middleware blocks preview URLs by default
+- Must explicitly allow Netlify preview pattern while maintaining security
+
+**Solution Pattern (TypeScript/Express)**:
+
+```typescript
+// server/middleware/security.ts
+const allowedOrigins = [
+  process.env.FRONTEND_URL!, // Explicit environment variable
+  /https:\/\/.*--llmtxtmastery\.netlify\.app$/, // Netlify preview pattern
+];
+```
+
+**Implementation Checklist**:
+
+- Identify security middleware file (usually `server/middleware/security.ts`)
+- Add regex pattern for Netlify preview URLs to `allowedOrigins` array
+- Test with actual preview URL before marking complete
+- Document the CORS pattern in codebase comments
+- Verify origin validation still blocks unauthorized domains
+
+**Common CORS Patterns**:
+
+- Netlify: `/https:\/\/.*--[site-name]\.netlify\.app$/`
+- Vercel: `/https:\/\/.*\.vercel\.app$/`
+- Railway: `/https:\/\/.*\.up\.railway\.app$/`
+
+DATABASE SCHEMA MANAGEMENT:
+Production database is the golden standard for staging setup:
+
+**Why Production Schema is Golden**:
+
+- Migration files may be outdated or incomplete
+- Production has all hotfixes and adjustments
+- Production schema reflects actual working system
+- Supabase migration system differs from raw SQL
+
+**Schema Export Process**:
+
+1. Export from production: `supabase db dump --db-url "[prod-connection]" -f production-schema.sql`
+2. Clean for Supabase compatibility:
+   - Replace `neondb_owner` with `postgres` (Neon-specific role)
+   - Remove `neon_superuser` grants (platform-specific)
+   - Remove other platform-specific extensions/roles
+3. Import to staging: Use Supabase SQL Editor or CLI
+4. Verify in Table Editor: Count tables, check schema structure
+
+**Platform-Specific Considerations**:
+
+- Neon → Supabase: Remove `neondb_owner`, `neon_superuser`
+- AWS RDS → Supabase: Remove `rds_superuser`, AWS-specific grants
+- Self-hosted → Supabase: Remove custom roles, adjust sequences
+
+**Railway Environment Creation**:
+
+- Railway CLI `environment add` command may not work (known limitation)
+- Use Dashboard workflow: Production dropdown > "+ New Environment" > "Duplicate Environment"
+- Duplication copies ALL services and configuration automatically
+- Empty environment creation requires manual service configuration
+- Auto-deploy triggers on environment creation
+
+TROUBLESHOOTING GUIDE:
+Common staging environment issues with proven solutions:
+
+**Issue 1: CORS Blocking Branch Deploys**
+
+- Symptom: Frontend can't reach backend API, CORS errors in console
+- Cause: Preview URL not in allowed origins list
+- Solution: Add Netlify preview pattern to security middleware (see CORS section)
+- Verification: Test with actual preview URL, check Network tab
+- Reference: `docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` Common Issues section
+
+**Issue 2: Database Connection Errors**
+
+- Symptom: "connection refused" or "SSL required" errors
+- Cause: Missing `?sslmode=require` in DATABASE_URL
+- Solution: Add `?sslmode=require` suffix to connection string
+- Example: `postgresql://user:pass@host:5432/db?sslmode=require`
+- Apply: Railway environment variables > DATABASE_URL > Save > Redeploy
+
+**Issue 3: Environment Variables Not Applying**
+
+- Symptom: Code still uses old values after variable changes
+- Cause: Platform doesn't auto-redeploy on variable changes
+- Railway solution: Variables tab > Redeploy service button
+- Netlify solution: Deploys tab > Trigger deploy > Clear cache
+- Timing: Wait 2-3 minutes for deployment to complete
+
+**Issue 4: Platform Session Timeouts**
+
+- Symptom: Dashboard shows "Unauthorized" or "Session expired"
+- Cause: Inactivity timeout (typically 30-60 minutes)
+- Solution: Complete logout, clear browser cache, login again
+- Prevention: Refresh session before starting long configuration tasks
+- Best practice: Keep dashboard tabs active during operations
+
 OPERATIONAL PROTOCOLS:
 When receiving deployment tasks from @coordinator:
 
@@ -179,6 +323,64 @@ For every deployment, provide:
 - Rollback trigger conditions and procedures
 - Post-deployment monitoring requirements
 - Success/failure metrics and thresholds
+
+STAGING ENVIRONMENT SETUP CHECKLIST:
+When setting up new staging environments:
+
+**Pre-Setup**:
+
+- [ ] Verify production database is accessible and healthy
+- [ ] Document all production environment variables
+- [ ] Identify CORS middleware files in codebase
+- [ ] Confirm user access to all platform dashboards
+
+**Database Setup**:
+
+- [ ] Export schema from production (not migration files)
+- [ ] Clean schema for target platform compatibility
+- [ ] Create staging database project
+- [ ] Import schema and verify table count
+- [ ] Test connection with SSL requirements
+
+**Backend Setup**:
+
+- [ ] Create staging environment (use Duplicate, not Empty)
+- [ ] Configure DATABASE_URL with `?sslmode=require`
+- [ ] Set SUPABASE_URL and service role key
+- [ ] Set FRONTEND_URL for CORS (use preview URL pattern)
+- [ ] Trigger manual redeploy after variables set
+- [ ] Verify deployment logs for errors
+
+**Frontend Setup**:
+
+- [ ] Create branch deploy for staging branch
+- [ ] Add branch-scoped environment variables (not production scope)
+- [ ] Set VITE_API_URL to staging backend URL
+- [ ] Set VITE_SUPABASE_URL and anon key
+- [ ] Note preview URL pattern for CORS configuration
+- [ ] Trigger deploy with cache clear
+
+**CORS Configuration**:
+
+- [ ] Update security middleware with preview URL pattern
+- [ ] Test CORS with actual preview URL
+- [ ] Verify unauthorized origins still blocked
+- [ ] Commit and deploy CORS changes
+
+**Verification**:
+
+- [ ] Test end-to-end user flow on staging
+- [ ] Verify database connections working
+- [ ] Check API endpoints responding
+- [ ] Confirm authentication working
+- [ ] Verify no CORS errors in browser console
+
+**Documentation**:
+
+- [ ] Document all secrets in secure location
+- [ ] Update project documentation with staging URLs
+- [ ] Record any platform-specific workarounds
+- [ ] Note manual redeploy procedures
 
 EMERGENCY PROCEDURES:
 PRODUCTION DOWN:

@@ -120,7 +120,61 @@
     - Select **"Let me add individual branches"** and add `develop`.
     - This creates a `develop--llmtxtmastery.netlify.app` site. This is your **staging frontend URL**.
 
-5.  **Centralize Your Secrets (Simplified):**
+5.  **Configure Environment Variables:**
+    - **Why:** Each environment needs to know how to connect to its corresponding backend and database.
+
+    **Railway Staging Environment:**
+    - Go to your Railway project → `staging` environment → Service → **Variables** tab
+    - Add these variables:
+      - `DATABASE_URL`: Connection string from staging Supabase (must include `?sslmode=require`)
+      - `SUPABASE_URL`: Your staging Supabase project URL
+      - `SUPABASE_ANON_KEY`: Anon key from staging Supabase
+      - `SUPABASE_SERVICE_ROLE_KEY`: Service role key from staging Supabase
+      - `FRONTEND_URL`: Your Netlify branch deploy URL (e.g., `https://develop--llmtxtmastery.netlify.app`)
+    - Click **"Redeploy"** to apply changes
+
+    **Netlify Branch Deploy:**
+    - Go to **Site configuration > Environment variables**
+    - Click **"Add a variable"** and select **"Scopes"**
+    - For the `develop` branch, add:
+      - `VITE_API_URL`: Your staging Railway URL (e.g., `https://llmtxtmastery-staging.up.railway.app`)
+      - `VITE_SUPABASE_URL`: Your staging Supabase project URL
+      - `VITE_SUPABASE_ANON_KEY`: Anon key from staging Supabase
+    - Scope each variable to **"develop" branch only**
+    - **Note:** You may need to trigger a manual redeploy from **Deploys** tab if variables don't apply immediately
+
+6.  **Fix CORS for Branch Deploys:**
+    - **Why:** By default, your backend only allows requests from your production domain. Netlify branch deploys use different URLs and will be blocked.
+
+    **Update Security Middleware:**
+    - Open `server/middleware/security.ts` in your editor
+    - Find the CORS origin configuration (usually in a function or array)
+    - Add this check to allow Netlify preview domains:
+      ```typescript
+      // Existing CORS configuration
+      const allowedOrigins = [
+        'https://llmtxtmastery.com',
+        process.env.FRONTEND_URL, // Your configured frontend URL
+      ];
+
+      // Add Netlify branch deploy support
+      const isNetlifyPreview = (origin: string) => {
+        return origin.includes('netlify.app');
+      };
+
+      // In your CORS configuration
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || isNetlifyPreview(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+      ```
+    - Commit and push this change to the `develop` branch
+    - This will automatically redeploy your staging Railway backend
+
+7.  **Centralize Your Secrets (Simplified):**
     - Create a secure note on your Mac. List out the following variables.
     - **Production Secrets:**
       - `NETLIFY_SITE_ID_PROD`
