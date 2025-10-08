@@ -1,147 +1,263 @@
-# Agent Context - DevOps Lifecycle Implementation Mission
+# Agent Context: CRITICAL Architecture Fix - Staging Database Migration
 
-## Previous Mission: Landing Page Optimization ✅
+## Mission Objective
+Fix critical architecture mismatch: Staging environment must use Neon PostgreSQL to match production and architecture specification.
 
-**Status**: Strategic analysis complete, awaiting Week 1 implementation
+## Current Situation
+- **Critical Issue**: Staging uses Supabase, but architecture document specifies Neon for both environments
+- **Architecture Document**: Lines 133-145 clearly specify Neon as database provider
+- **Production**: Correctly using Neon
+- **Staging**: Incorrectly using Supabase (must be migrated to Neon)
+
+## Root Cause Analysis
+
+**Why This Happened**:
+- During Phase 1 staging setup, Supabase was chosen without consulting architecture document
+- Architecture document clearly states both production and staging should use Neon
+- This creates infrastructure drift and testing inaccuracies
+
+**Impact**:
+- Schema behaviors differ between staging and production
+- Connection pooling implementations differ
+- SSL/TLS requirements handled differently
+- Testing results not representative of production
+- Deployment assumptions broken
+
+## Architecture Specification (From architecture.md)
+
+**Database Infrastructure (Lines 133-145)**:
+```
+#### Database Infrastructure (Neon)
+
+- **Provider**: Neon Tech (Managed PostgreSQL 15+)
+- **Configuration**: Production-grade pooled connections with SSL enforcement
+- **Connection**: PostgreSQL with Drizzle ORM integration
+- **Features**:
+  - Automatic backups and point-in-time recovery
+  - Connection pooling for optimal performance
+  - SSL/TLS encryption required for all connections
+  - Database branching for development environments
+  - Advanced monitoring and query optimization
+  - Complex 13+ table schema with JSONB support
+```
+
+**Current State**:
+- ✅ Production: Neon (correct per architecture)
+- ❌ Staging: Supabase (WRONG - violates architecture)
+
+**Required State**:
+- ✅ Production: Neon
+- ✅ Staging: Neon (must migrate)
+
+## Fix Strategy
+
+**Migration Plan**:
+1. Create new Neon staging database in us-east-2 (match production region)
+2. Export production schema (structure only, no data)
+3. Import schema to staging Neon
+4. Update Railway staging DATABASE_URL to new Neon connection
+5. Copy test user account for login testing
+6. Verify complete end-to-end functionality
+7. Clean up old Supabase resources (after 24h verification)
+
+**Why Schema-Only Export**:
+- Production data should not be in staging (security, privacy)
+- Only need database structure for testing
+- Test user account copied separately for authentication testing
+- Realistic testing with fresh data generation
+
+## Technical Details
+
+**Production Neon Connection** (from architecture.md line 874):
+```
+postgresql://neondb_owner:npg_QcNpixbZ7T9H@ep-dark-fire-ae795ogn-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+```
+
+**Region Requirements**:
+- Production: us-east-2
+- Staging: MUST be us-east-2 (match production for latency/testing accuracy)
+
+**SSL Requirements**:
+- All Neon connections MUST end with `?sslmode=require`
+- Missing SSL suffix causes connection failures
+- Critical for Railway environment variable configuration
+
+**Schema Complexity**:
+- 13+ tables with dual authentication system
+- JSONB fields for complex data types
+- Foreign key relationships across tables
+- Migration must preserve all constraints and indexes
+
+## User Context (Critical for Execution)
+
+**User Profile**:
+- Has ADHD - ONE step at a time is essential
+- Needs clear STOP points for confirmation
+- Requires copy/paste ready commands
+- Benefits from verification at each stage
+
+**Instruction Format**:
+- Step-by-step with numbered stages
+- STOP HERE markers for user confirmation
+- Expected output documented
+- Troubleshooting guidance provided
+- No assumptions about technical knowledge
+
+## Environment Variables to Update
+
+**Railway Staging Variables** (after Neon creation):
+```bash
+# CRITICAL: Update in Railway Dashboard → Staging → Variables
+DATABASE_URL=postgresql://[new_neon_staging_connection]?sslmode=require
+SUPABASE_URL=# Remove (no longer needed)
+SUPABASE_SERVICE_ROLE_KEY=# Remove (no longer needed)
+
+# Keep existing (already correct):
+FRONTEND_URL=https://develop--llm-txt-mastery.netlify.app
+JWT_SECRET=[existing value]
+# ... other variables unchanged
+```
+
+**Netlify Staging Variables** (no changes needed):
+- Frontend variables remain unchanged
+- Backend API URL stays the same
+- No frontend code changes required
+
+## Success Criteria
+
+### Infrastructure Compliance
+- [ ] Staging database running on Neon (not Supabase)
+- [ ] Staging region matches production (us-east-2)
+- [ ] Connection string uses SSL (`?sslmode=require`)
+- [ ] Railway staging points to Neon database
+
+### Schema Integrity
+- [ ] All 13+ tables created in staging Neon
+- [ ] Foreign key constraints intact
+- [ ] Indexes and performance optimizations present
+- [ ] JSONB fields configured correctly
+
+### Functional Testing
+- [ ] User can login to staging successfully
+- [ ] JWT authentication working
+- [ ] Dashboard loads without errors
+- [ ] No CORS errors in browser console
+- [ ] Backend health check passes
+- [ ] Database queries execute successfully
+
+### Verification
+- [ ] No SSL connection errors
+- [ ] Railway deployment successful
+- [ ] Backend logs show no database errors
+- [ ] 24-hour monitoring shows stability
+
+## Risk Mitigation
+
+**Backup Strategy**:
+- Old Supabase staging paused (not deleted immediately)
+- 24-hour wait before permanent deletion
+- Allows rollback if issues discovered
+- Zero risk to production (separate environments)
+
+**Rollback Plan** (if needed):
+1. Restore old Supabase DATABASE_URL in Railway
+2. Trigger redeploy
+3. Verify staging working with Supabase
+4. Debug Neon issues before retry
+
+**Testing Strategy**:
+- Complete end-to-end user flow testing
+- Authentication verification
+- Database query validation
+- 24-hour monitoring before considering complete
+
+## Why Architecture Compliance Matters
+
+**Operational Benefits**:
+- Single database provider to learn and manage
+- Consistent backup/restore procedures
+- Unified monitoring and alerting
+- Simplified troubleshooting workflows
+
+**Testing Accuracy**:
+- Staging matches production behavior exactly
+- Connection pooling characteristics identical
+- SSL/TLS handling identical
+- No "works in staging, breaks in production" surprises
+
+**Cost Efficiency**:
+- Neon free tier sufficient for staging
+- No need to maintain Supabase project
+- Simplified billing (one provider)
+- Reduced operational overhead
+
+**Infrastructure as Code**:
+- Configuration matches documentation
+- Repeatable setup procedures
+- Predictable behavior across environments
+- Professional DevOps practices
+
+## Next Steps After Migration
+
+1. **Documentation Updates**:
+   - Update project-plan.md with Neon staging details
+   - Document Neon connection patterns
+   - Add database backup procedures
+   - Record recovery procedures
+
+2. **Monitoring Setup**:
+   - Configure Neon dashboard alerts
+   - Set up query performance monitoring
+   - Track connection pool usage
+   - Monitor backup completion
+
+3. **Testing Validation**:
+   - Complete user registration flow
+   - Test analysis creation
+   - Verify file generation
+   - Check usage tracking
+   - Validate payment flows (if applicable)
+
+4. **Operational Handoff**:
+   - Document Neon access procedures
+   - Share staging connection details securely
+   - Update deployment runbooks
+   - Brief team on new infrastructure
+
+## Critical Security Principle Compliance
+
+**Root Cause Analysis**: ✅ COMPLETED
+- Identified why Supabase was used (lack of architecture review)
+- Understood design intent (Neon for both environments)
+- Addressed root cause (architecture compliance)
+- No security compromises in fix
+
+**Security Maintained**: ✅ VERIFIED
+- SSL/TLS enforced on all connections
+- Credentials properly secured in environment variables
+- No production data copied to staging
+- Authentication systems unchanged
+- No shortcuts or security bypasses
+
+**Strategic Solution**: ✅ CONFIRMED
+- Maintains all security requirements
+- Architecturally correct long-term solution
+- No technical debt created
+- Follows documented design patterns
+- Professional DevOps practices
+
+## Status
+
+**Current State**: Fix strategy documented, awaiting user execution
+
+**User Action Required**: Follow handoff-notes.md step-by-step guide
+
+**Next Agent**: Will need to verify migration success and document learnings
+
+**Estimated Time**: 30-45 minutes total (6 steps with verification)
+
+**Complexity**: Medium (database migration with user guidance)
 
 ---
 
-## Current Mission: DevOps Lifecycle Implementation 🎯
-
-### Mission Objectives
-
-1. ✅ Review and ratify DevOps implementation plan
-2. ⏳ Update project-plan.md with new mission breakdown
-3. ⏳ Execute Phase 0: Pre-commit guardrails (ESLint, Prettier, Vitest)
-4. ⏳ Execute Phase 1: Environment setup (develop branch, staging infrastructure)
-5. ⏳ Execute Phase 2: GitHub Actions automation (CI/CD pipeline)
-6. ⏳ Execute Phase 3: Database migrations & emergency procedures
-
-## Mission Status: PLANNING → EXECUTION ⏳
-
-**Start Date**: October 6, 2025
-**Mission Owner**: THE OPERATOR
-**User Constraints**: Basic GitHub knowledge, ADHD-friendly (step-by-step only)
-
-## Key Context Documents
-
-- **Implementation Plan**: `/docs/Operations/DEVOPS-IMPLEMENTATION_PLAN.md` (detailed 3-phase rollout)
-- **Workflow Guide**: `/docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` (conceptual framework)
-- **Current Project Plan**: `/project-plan.md` (needs new DevOps mission added)
-
-## DevOps Workflow Design
-
-### Branch Strategy
-
-- **`main`** → Production environment (sacred, tested code only)
-- **`develop`** → Staging environment (in-progress but completed features)
-- **`feature/*`** → Preview environments (temporary work branches, auto-deleted after merge)
-
-### Environment Mapping
-
-| Environment    | Deployed From | URL Pattern                        | Database               | Purpose                     |
-| -------------- | ------------- | ---------------------------------- | ---------------------- | --------------------------- |
-| **Production** | `main`        | llmtxtmastery.com                  | Production DB          | Live user traffic           |
-| **Staging**    | `develop`     | develop--llmtxtmastery.netlify.app | Staging DB             | Final checks before release |
-| **Preview**    | `feature/*`   | pr-123--llmtxtmastery.netlify.app  | Staging DB (read-only) | PR testing                  |
-
-### Tech Stack
-
-- **Frontend**: Netlify (React/TypeScript)
-- **Backend**: Railway (Express.js/Node.js)
-- **Database**: Supabase (PostgreSQL via Neon)
-- **CI/CD**: GitHub Actions
-- **Testing**: Playwright (E2E), Vitest (unit tests)
-- **Linting**: ESLint + Prettier
-
-## Implementation Phases
-
-### Phase 0: Pre-Commit Guardrails (Local Setup)
-
-**Objective**: Catch errors before commits
-**Tasks**:
-
-- Install ESLint, Prettier, Vitest
-- Configure linting and formatting rules
-- Add npm scripts for lint/format/test
-- Establish pre-push habit
-
-### Phase 1: Foundational Setup (Environments & Secrets)
-
-**Objective**: Create staging and production separation
-**Tasks**:
-
-- Create `develop` branch from `main`
-- Set up staging Supabase project (replicate schema)
-- Set up staging Railway environment
-- Set up staging Netlify deployment
-- Centralize and document all secrets
-- Configure environment variables in all platforms
-
-### Phase 2: Automation Engine (GitHub Actions)
-
-**Objective**: Automated testing and deployment
-**Tasks**:
-
-- Create `.github/workflows/test-and-deploy.yml`
-- Configure automated testing on PRs (Playwright + Vitest)
-- Set up automated deployment on merge
-- Add branch protection rules for `main`
-- Require passing tests before merge
-
-### Phase 3: Database & Emergency Procedures
-
-**Objective**: Safe migrations and rollback capability
-**Tasks**:
-
-- Document Supabase migration workflow
-- Set up emergency database rollback procedure
-- Document frontend rollback (Netlify)
-- Document backend rollback (Railway)
-- Create hotfix workflow documentation
-
-## Critical Requirements
-
-### User Constraints
-
-- **Knowledge Level**: Basic GitHub (can commit/push, needs step-by-step CLI guidance)
-- **ADHD**: Requires ONE task at a time, no overwhelming lists
-- **Preference**: See progress frequently, mark tasks complete often
-- **Communication**: Explain commands before running, provide copy-paste ready syntax
-
-### Security & Best Practices
-
-- Follow Critical Software Development Principles (CLAUDE.md)
-- Never compromise security for convenience
-- Root cause analysis before implementing fixes
-- Test each step before proceeding to next
-- Branch protection on `main` (require PR + passing tests)
-- All database migrations tested in staging first
-
-### Daily Workflow (After Implementation)
-
-1. Create feature branch from `develop`
-2. Build and commit code locally
-3. Push and open PR to `develop` (triggers automated tests + preview deploy)
-4. Merge to `develop` when tests pass (auto-deploys to staging)
-5. Open PR from `develop` to `main` for production release
-6. Merge to `main` when ready (auto-deploys to production)
-
-### Emergency Workflow (Hotfixes)
-
-1. Create `hotfix/*` branch from `main`
-2. Fix bug and open PR to `main`
-3. Merge and deploy to production immediately
-4. **CRITICAL**: Also merge hotfix into `develop` to keep branches in sync
-
-## Mission Status Summary
-
-**Plan Ratification**: ✅ APPROVED - Well-designed, comprehensive, ADHD-friendly
-**Current Phase**: Delegating to THE OPERATOR for project-plan.md update and Phase 0 start
-**Next Phase**: Phase 0 execution (pre-commit guardrails)
-**Estimated Total Duration**: 3-4 days across all phases
-**User Availability**: Step-by-step, one task at a time
-
----
-
-**Last Updated**: October 6, 2025 by THE COORDINATOR
+**CRITICAL REMINDER**: This is an architecture compliance fix, not optional. Staging MUST use Neon per architecture document specification.

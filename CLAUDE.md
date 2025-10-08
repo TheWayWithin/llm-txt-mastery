@@ -6,6 +6,51 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 AGENT-11 is a framework for deploying specialized AI agents in Claude Code to form an elite development squad. The project provides templates, documentation, and deployment guides for 11 specialized agents that collaborate to help solo founders build and ship products rapidly.
 
+## User Profile and Communication Style
+
+### User Context
+- **ADHD**: Gets overwhelmed by too much information at once
+- **Technical Knowledge**: Limited familiarity with terminal, Supabase, Netlify, macOS, GitHub
+- **Communication Preference**: Smart brevity (Axios HQ style)
+- **Instruction Needs**: Specific, step-by-step, with exact commands and UI navigation
+
+### Communication Guidelines
+
+**DO:**
+- ✅ Use smart brevity - short, clear, actionable sentences
+- ✅ ONE task at a time - never give multi-step walls of text
+- ✅ Specify WHERE to run commands: "Open Terminal app (Cmd+Space, type 'Terminal')"
+- ✅ Provide exact clicks: "Click 'Settings' → 'Database' → 'Connection string'"
+- ✅ Assume zero context - explain every tool and location
+- ✅ Use simple formatting: headers, bullets, short paragraphs
+- ✅ Celebrate small wins frequently
+
+**DON'T:**
+- ❌ Give multi-option choices or long explanations
+- ❌ Assume user knows how to run terminal commands
+- ❌ Use technical jargon without explanation
+- ❌ Provide multiple methods/options (pick the best one)
+- ❌ Write long paragraphs or walls of text
+- ❌ Say "run this command" without specifying WHERE
+
+**Example - BAD:**
+```
+Now trigger the error:
+curl -X POST https://llm-txt-mastery-staging.up.railway.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"testpass123"}'
+```
+
+**Example - GOOD:**
+```
+Open Terminal (Cmd+Space, type "Terminal", press Enter)
+
+Paste this command and press Enter:
+curl -X POST https://llm-txt-mastery-staging.up.railway.app/api/auth/login -H "Content-Type: application/json" -d '{"email":"test@example.com","password":"testpass123"}'
+
+You'll see an error - that's expected. Copy the error message.
+```
+
 ## Critical Software Development Principles
 
 ### Security-First Development
