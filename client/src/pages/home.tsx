@@ -234,10 +234,8 @@ export default function Home() {
               Get Found by AI in 24 Hours, Not 24 Months
             </h1>
             <p className="text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
-              Your expertise is invisible to ChatGPT, Claude, and Perplexity. We fix that with
-              AI-powered optimization that delivers{' '}
-              <span className="font-bold text-innovation-teal">73% more AI citations</span>–
-              something no other LLMs.txt generator can match.
+              Stop losing customers to AI search. We optimize your website so ChatGPT, Claude,
+              and Gemini cite your business first.
             </p>
 
             {/* Competitor Comparison Bar */}
@@ -263,11 +261,11 @@ export default function Home() {
               </picture>
             </div>
 
-            {/* Hero CTA Button */}
-            <div className="mt-6 flex justify-center">
+            {/* Hero CTA Buttons */}
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
               <Button
                 size="lg"
-                className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3"
+                className="bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3"
                 onClick={() => {
                   if (user) {
                     // Authenticated users go directly to analyze
@@ -278,24 +276,34 @@ export default function Home() {
                   }
                 }}
               >
-                Get Found by AI Today → Unlimited Analysis (Not 3/Day)
+                Start Free Analysis
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10 px-8 py-3"
+                onClick={() => {
+                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                See How It Works
               </Button>
             </div>
 
             <div className="flex items-center justify-center space-x-2 text-sm text-ai-silver mt-4">
               <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-                <span>89% See Results in 30 Days</span>
+                <span className="text-lg">✅</span>
+                <span>89% see results in 30 days</span>
               </div>
               <span className="text-slate-300">•</span>
               <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-                <span>30-Day Money-Back Guarantee</span>
+                <span className="text-lg">🛡️</span>
+                <span>30-day money-back guarantee</span>
               </div>
               <span className="text-slate-300">•</span>
               <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-                <span>5,000+ Businesses</span>
+                <span className="text-lg">🚀</span>
+                <span>Used by 5,000+ businesses</span>
               </div>
             </div>
           </section>
@@ -377,7 +385,7 @@ export default function Home() {
           </section>
 
           {/* How It Works Section */}
-          <section className="mb-16">
+          <section id="how-it-works" className="mb-16">
             <div className="text-center mb-8">
               <h3 className="text-3xl font-bold text-framework-black mb-4">How It Works</h3>
               <p className="text-lg text-ai-silver max-w-2xl mx-auto">
@@ -443,7 +451,7 @@ export default function Home() {
             <div className="mt-8 flex justify-center">
               <Button
                 size="lg"
-                className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3"
+                className="bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3"
                 onClick={() => {
                   if (user) {
                     window.location.href = '/analyze';
@@ -452,7 +460,7 @@ export default function Home() {
                   }
                 }}
               >
-                Start Analyzing Now →
+                Start Free Analysis
               </Button>
             </div>
           </section>
@@ -669,7 +677,7 @@ export default function Home() {
                 <div className="flex justify-center">
                   <Button
                     size="lg"
-                    className="bg-innovation-teal hover:bg-innovation-teal/90 text-white"
+                    className="bg-mastery-blue hover:bg-mastery-blue/90 text-white"
                     onClick={() => {
                       if (user) {
                         window.location.href = '/analyze';
@@ -678,7 +686,7 @@ export default function Home() {
                       }
                     }}
                   >
-                    Try The Only Tool That Actually Works → Unlimited
+                    Start Free Analysis
                   </Button>
                 </div>
               </div>
@@ -886,7 +894,7 @@ export default function Home() {
                     }
                   }}
                 >
-                  Start Risk-Free Today →
+                  Start Free Analysis
                 </Button>
               </div>
             </div>
@@ -1001,7 +1009,7 @@ export default function Home() {
                     }
                   }}
                 >
-                  Get Guaranteed Reliability →
+                  Start Free Analysis
                 </Button>
               </div>
             </div>
@@ -1413,7 +1421,7 @@ export default function Home() {
             <div className="mt-8 flex justify-center">
               <Button
                 size="lg"
-                className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3"
+                className="bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3"
                 onClick={() => {
                   if (user) {
                     window.location.href = '/analyze';
@@ -1422,7 +1430,7 @@ export default function Home() {
                   }
                 }}
               >
-                Get Started Today →
+                Start Free Analysis
               </Button>
             </div>
           </section>

@@ -61,6 +61,12 @@ export default {
           border: 'var(--sidebar-border)',
           ring: 'var(--sidebar-ring)',
         },
+        // Brand colors for LLM.txt Mastery
+        'mastery-blue': 'var(--mastery-blue)',
+        'authority-white': 'var(--authority-white)',
+        'innovation-teal': 'var(--innovation-teal)',
+        'ai-silver': 'var(--ai-silver)',
+        'framework-black': 'var(--framework-black)',
       },
       keyframes: {
         'accordion-down': {
