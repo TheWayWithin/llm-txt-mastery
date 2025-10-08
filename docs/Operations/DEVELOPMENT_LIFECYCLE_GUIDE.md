@@ -1,120 +1,85 @@
-# The Solo Developer's Lifecycle Guide
+# Development Lifecycle Guide
 
-**Why this exists:** To give you a simple, repeatable process for shipping code safely, so you can focus on building, not fixing.
-
----
-
-### The Core Idea: Two Branches, Three Environments
-
-This workflow separates your code into branches and your live servers into environments.
-
-1.  **`main` branch:** This is your **Production Code**. It's sacred. Only code that has been tested and works goes here.
-2.  **`develop` branch:** This is your **Staging Code**. It's a container for all your "in-progress" but completed features.
-3.  **Feature branches (`feature/add-new-button`):** These are temporary. You do all your work here. They get deleted after they're merged.
-
-The branches deploy to corresponding environments:
-
-| Environment    | Deployed From Branch | URL               | Database               | Purpose                                          |
-| :------------- | :------------------- | :---------------- | :--------------------- | :----------------------------------------------- |
-| **Production** | `main`               | `app.com`         | Production DB          | **Live user traffic.**                           |
-| **Staging**    | `develop`            | `develop.app.com` | Staging DB             | **Final checks before release.**                 |
-| **Preview**    | `feature/...`        | `pr-123.app.com`  | Staging DB (read-only) | **Automated & manual testing of a specific PR.** |
-
-**Key Clarification:** The `develop` branch contains the code. The `staging` environment is the live server that runs the code from the `develop` branch. They are two sides of the same coin.
+**Purpose**: Simple, repeatable workflow for shipping code safely.
 
 ---
 
-### The Daily Workflow: Feature Development
+## ⚠️ BEFORE SETTING UP STAGING
 
-1.  **Start Work:**
-    - **Action:** Create a new branch from `develop`.
-    - **Example:** `git checkout -b feature/user-profile`
-    - **Why:** This isolates your work. You can't break anything.
+**Haven't set up staging yet?** → Read **DEVOPS-IMPLEMENTATION_PLAN.md** and complete Pre-Flight checklist first.
 
-2.  **Build & Commit:**
-    - **Action:** Write your code in VS Code. Make small, frequent commits.
-    - **Example:** `git commit -m "feat: add avatar upload button"`
-    - **Why:** Small commits are easier to undo if something goes wrong.
+**THE RULE**: Staging must mirror production exactly (same database provider, same hosting).
 
-3.  **Test (The Automated Part):**
-    - **Action:** Push your branch and open a Pull Request (PR) to `develop`.
-    - **What Happens:** GitHub Actions automatically:
-      1.  Deploys your changes to a unique **Preview URL**.
-      2.  Runs your Playwright tests against that URL.
-      3.  Shows a **green check ✅** or **red cross ❌** on the PR.
-    - **Why:** You know _before_ merging if your change breaks anything. No more "testing in production."
-
-4.  **Deploy to Staging:**
-    - **Action:** If the checks are green, click **"Merge pull request"**.
-    - **What Happens:** Your changes are now in the `develop` branch. GitHub Actions automatically deploys this branch to your **Staging Environment**.
-    - **Why:** This gives you a stable place to see how all new features work together before they go live.
-
-5.  **Release to Production:**
-    - **Action:** When you're ready to release, open a new PR from `develop` to `main`.
-    - **What Happens:** Tests run one last time. When you merge this PR, the code from `main` is automatically deployed to your **Production Environment**.
-    - **Why:** This is your formal, safe, and automated release process.
+Skip this = waste hours debugging. 15-minute checklist saves you.
 
 ---
 
-### The Emergency Workflow: Production Hotfix
+## The Workflow
 
-**When to use:** A critical bug is live and needs to be fixed _now_.
+**Branches**:
+- **`main`**: Production code (sacred, tested only)
+- **`develop`**: Staging code (in-progress features)
+- **`feature/...`**: Your work (temporary, deleted after merge)
 
-1.  **Create Hotfix Branch:** Create a branch directly from `main`.
-    - **Example:** `git checkout -b hotfix/fix-login-error`
+**Environments**:
 
-2.  **Fix and PR to `main`:** Fix the bug and open a Pull Request directly back to `main`.
-
-3.  **Automated Test & Deploy:** The same automated tests will run. When you merge, the fix goes live to the production environment immediately.
-
-4.  **CRITICAL FINAL STEP:** You **must** also merge this fix back into `develop` to keep the branches in sync.
-    - **Action:** Open a new PR from your `hotfix/fix-login-error` branch into `develop` and merge it.
+| Environment | Branch | URL | Purpose |
+|------------|--------|-----|---------|
+| Production | `main` | `app.com` | Live users |
+| Staging | `develop` | `develop.app.com` | Final checks |
+| Preview | `feature/...` | `pr-123.app.com` | PR testing |
 
 ---
 
-### Common Issues & Solutions
+## Daily Feature Development
 
-**Issue: CORS blocking branch deploys**
-- **Symptom:** Your Netlify branch deploy shows network errors or "blocked by CORS policy" in browser console
-- **Cause:** Your backend only allows requests from production domain, not Netlify preview URLs
-- **Solution:** Update `server/middleware/security.ts` to allow Netlify domains:
-  ```typescript
-  const isNetlifyPreview = (origin: string) => {
-    return origin.includes('netlify.app');
-  };
+1. **Start**: Create branch from `develop`
+   ```bash
+   git checkout -b feature/user-profile
+   ```
 
-  // In CORS config:
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || isNetlifyPreview(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-  ```
+2. **Build**: Write code, make small commits
+   ```bash
+   git commit -m "feat: add avatar upload"
+   ```
 
-**Issue: Database connection errors**
-- **Symptom:** Backend logs show "SSL connection required" or "database connection failed"
-- **Cause:** Missing or incorrect `DATABASE_URL` format
-- **Solution:**
-  1. Go to Railway → staging environment → Variables
-  2. Verify `DATABASE_URL` includes `?sslmode=require` at the end
-  3. Format: `postgresql://postgres.[project]:[password]@[host]:5432/postgres?sslmode=require`
-  4. Click "Redeploy" after updating
+3. **Test**: Push branch, open PR to `develop`
+   - Automated tests run
+   - Preview URL deployed
+   - Green check ✅ = safe to merge
 
-**Issue: Environment variables not applying**
-- **Symptom:** Changes to environment variables don't take effect
-- **Cause:** Railway and Netlify don't automatically redeploy when variables change
-- **Solution:**
-  - **Railway:** Go to Deployments tab → Click "Redeploy" on latest deployment
-  - **Netlify:** Go to Deploys tab → Click "Trigger deploy" → "Clear cache and deploy site"
+4. **Stage**: Merge PR → Auto-deploys to staging
+   - Test all features work together
+   - Verify on `develop.app.com`
 
-**Issue: Netlify dashboard session timeouts**
-- **Symptom:** Getting logged out frequently or actions failing silently
-- **Cause:** Netlify sessions expire after inactivity
-- **Solution:**
-  1. Log out completely from Netlify
-  2. Close all Netlify browser tabs
-  3. Clear browser cookies for netlify.com
-  4. Log back in fresh
-  5. Keep a tab open to prevent timeout during long sessions
+5. **Release**: PR from `develop` to `main`
+   - Final tests run
+   - Merge → Auto-deploys to production
+
+---
+
+## Emergency Hotfix (Production Bug)
+
+1. Create branch from `main`: `git checkout -b hotfix/fix-login`
+2. Fix bug, open PR to `main`
+3. Merge → Auto-deploys to production
+4. **CRITICAL**: Also merge hotfix into `develop` (keeps branches in sync)
+
+---
+
+## Common Issues
+
+**CORS blocking preview deploys**:
+- Error: "Blocked by CORS policy" in browser console
+- Fix: Update `server/middleware/security.ts` to allow `netlify.app` domains
+- See DEVOPS-IMPLEMENTATION_PLAN.md Phase 2 Step 6 for code
+
+**Database connection errors**:
+- Error: "SSL required" or "connection failed"
+- Fix: Add `?sslmode=require` to DATABASE_URL in Railway
+- Redeploy after updating
+
+**Environment variables not applying**:
+- Railway: Deployments → Click "Redeploy"
+- Netlify: Deploys → "Trigger deploy" → "Clear cache"
+- Wait 2-3 minutes for deployment

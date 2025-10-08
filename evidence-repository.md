@@ -4,6 +4,132 @@
 
 Centralized collection of artifacts and supporting materials gathered during the PRODUCT-DESCRIPTION mission.
 
+---
+
+# STAGING LOGIN EMERGENCY FIX - Evidence
+
+## Investigation Date: 2025-10-08
+
+### API Test Results
+
+#### Health Endpoint Test (PASSED ✅)
+```bash
+curl -s https://llm-txt-mastery-staging.up.railway.app/health
+```
+
+**Response** (200 OK):
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-10-08T11:23:36.532Z",
+  "message": "Server is running",
+  "environment": "production",
+  "version": "2.0.1-refund-fix"
+}
+```
+
+**Analysis**: Server is running and responding. Environment shows "production" which may need correction to "staging".
+
+---
+
+#### Login Endpoint Test (FAILED ❌)
+```bash
+curl -X POST https://llm-txt-mastery-staging.up.railway.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"testpassword"}'
+```
+
+**Response** (500 Internal Server Error):
+```json
+{
+  "error": "Login failed",
+  "code": "LOGIN_ERROR"
+}
+```
+
+**Analysis**: Generic error response indicates catch block in auth.ts (lines 296-302) is being triggered. No detailed error information returned to client.
+
+---
+
+### Code Analysis Findings
+
+#### Critical Code Snippet 1: Database Fallback Logic
+
+**File**: `/server/db.ts` (lines 5-9)
+
+```typescript
+if (!process.env.DATABASE_URL) {
+  console.warn('⚠️  DATABASE_URL not set. Using in-memory storage for testing only!');
+  process.env.DATABASE_URL = 'postgresql://localhost:5432/test';
+}
+```
+
+**Analysis**:
+- When DATABASE_URL is not set, code falls back to `postgresql://localhost:5432/test`
+- This connection string is invalid in Railway environment (localhost not accessible)
+- This is the root cause of database connection failures
+
+---
+
+#### Critical Code Snippet 2: Login Error Handling
+
+**File**: `/server/routes/auth.ts` (lines 296-302)
+
+```typescript
+} catch (error) {
+  console.error('Login error:', error);
+  res.status(500).json({
+    error: 'Login failed',
+    code: 'LOGIN_ERROR',
+  });
+}
+```
+
+**Analysis**: Catches all errors but doesn't log environment diagnostics like registration route does.
+
+---
+
+### Error Flow Diagram
+
+```
+User Login Attempt
+   ↓
+POST /api/auth/login
+   ↓
+authStorage.getUserByEmail(email)
+   ↓
+Database Query via drizzle ORM
+   ↓
+Connection using process.env.DATABASE_URL
+   ↓
+❌ CONNECTION FAILS (localhost:5432 not accessible)
+   ↓
+Error caught by catch block
+   ↓
+500 Response: {"error":"Login failed","code":"LOGIN_ERROR"}
+```
+
+---
+
+### Required Environment Variables
+
+1. **DATABASE_URL** (CRITICAL)
+   - Format: `postgresql://[user]:[password]@[host]:5432/[db]?sslmode=require`
+   - Must include: `?sslmode=require` for Supabase
+
+2. **JWT_SECRET** (CRITICAL)
+   - For token generation/verification
+   - Should be: 32+ character random string
+
+3. **FRONTEND_URL** (Important)
+   - For CORS: `https://develop--llm-txt-mastery.netlify.app`
+
+4. **SUPABASE_URL** (Important)
+   - Staging Supabase project URL
+
+5. **SUPABASE_SERVICE_ROLE_KEY** (Important)
+   - Staging service role key
+
 ## Phase 1: Product Analysis
 
 _Awaiting evidence from strategist_
