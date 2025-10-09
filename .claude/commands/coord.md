@@ -45,6 +45,7 @@ Parse the arguments to determine:
 - `security` - Security audit and fixes
 - `integrate` - Third-party integration
 - `mvp` - Rapid MVP development from concept
+- `opsdev` - Development lifecycle and staging environment setup
 
 **View detailed mission briefings**: Check `/missions/mission-[name].md`
 
