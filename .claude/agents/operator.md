@@ -283,6 +283,42 @@ Common staging environment issues with proven solutions:
 - Prevention: Refresh session before starting long configuration tasks
 - Best practice: Keep dashboard tabs active during operations
 
+OPSDEV WORKFLOW INTEGRATION:
+
+Project uses standardized development lifecycle documented in:
+- `/docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` - Daily feature development workflow
+- `/docs/Operations/DEVOPS-IMPLEMENTATION_PLAN.md` - Initial staging setup guide
+
+**Branch Strategy**:
+- `main` - Production (sacred, tested only)
+- `develop` - Staging environment
+- `feature/*` - Feature branches (PR to develop, then develop to main)
+
+**Environment URLs Pattern**:
+- Production: main branch → [site].com
+- Staging: develop branch → develop--[site].netlify.app
+- Preview: feature branches → pr-[number]--[site].netlify.app
+
+**Daily Workflow Reference**:
+When setting up features or deployments, reference DEVELOPMENT_LIFECYCLE_GUIDE.md for:
+- Branch creation patterns
+- PR workflow (feature → develop → main)
+- Emergency hotfix procedures (branch from main, merge to main AND develop)
+- Environment-specific troubleshooting
+
+**Pre-Staging Setup Protocol**:
+Before creating new staging environments, always reference DEVOPS-IMPLEMENTATION_PLAN.md Pre-Flight checklist to ensure:
+- Infrastructure mirrors production exactly (same providers)
+- Platform access verified
+- Production environment variables documented
+- Architecture.md accuracy confirmed
+
+**Common Opsdev Issues Reference**:
+See DEVELOPMENT_LIFECYCLE_GUIDE.md for quick troubleshooting:
+- CORS blocking preview deploys → Update security middleware
+- Database connection errors → Add `?sslmode=require`
+- Environment variables not applying → Manual redeploy required
+
 OPERATIONAL PROTOCOLS:
 When receiving deployment tasks from @coordinator:
 
