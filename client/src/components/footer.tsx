@@ -116,6 +116,37 @@ export default function Footer() {
           <p className="mt-2">
             Built with integrity by a solopreneur who ships fast and listens to users.
           </p>
+          <p className="mt-4 flex flex-wrap justify-center items-center gap-x-3 gap-y-2">
+            <a
+              href="https://jamiewatters.work"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-innovation-teal transition-colors inline-flex items-center"
+            >
+              Built by Jamie Watters
+              <ExternalLink className="h-3 w-3 ml-1" />
+            </a>
+            <span className="text-slate-600 hidden sm:inline">|</span>
+            <a
+              href="https://agent-11.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-innovation-teal transition-colors inline-flex items-center"
+            >
+              Powered by AGENT-11
+              <ExternalLink className="h-3 w-3 ml-1" />
+            </a>
+            <span className="text-slate-600 hidden sm:inline">|</span>
+            <a
+              href="https://evolve-7.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-innovation-teal transition-colors inline-flex items-center"
+            >
+              More from Evolve-7
+              <ExternalLink className="h-3 w-3 ml-1" />
+            </a>
+          </p>
         </div>
       </div>
     </footer>
