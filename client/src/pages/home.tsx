@@ -28,6 +28,8 @@ import { DemoModeBanner } from '@/components/DemoModeBanner';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import PricingPreview from '@/components/landing/PricingPreview';
+import TrustBadges from '@/components/landing/TrustBadges';
 
 export default function Home() {
   // Import auth hook to get email recognition capability
@@ -230,10 +232,10 @@ export default function Home() {
 
           {/* Hero Section */}
           <section className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-framework-black mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-framework-black mb-4">
               Get Found by AI in 24 Hours, Not 24 Months
             </h1>
-            <p className="text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
               Stop losing customers to AI search. We optimize your website so ChatGPT, Claude,
               and Gemini cite your business first.
             </p>
@@ -306,6 +308,11 @@ export default function Home() {
                 <span>Used by 5,000+ businesses</span>
               </div>
             </div>
+
+            {/* Security Trust Badges */}
+            <div className="mt-6">
+              <TrustBadges variant="security" compact={true} alignment="center" />
+            </div>
           </section>
 
           {/* Problem-Solution Section */}
@@ -359,6 +366,13 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Pricing Preview Section */}
+          <PricingPreview
+            highlightTier="coffee"
+            showAllTiers={true}
+            className="mb-16"
+          />
+
           {/* Trust Section */}
           <section className="mb-16">
             <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-8">
@@ -387,7 +401,7 @@ export default function Home() {
           {/* How It Works Section */}
           <section id="how-it-works" className="mb-16">
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold text-framework-black mb-4">How It Works</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold text-framework-black mb-4">How It Works</h3>
               <p className="text-lg text-ai-silver max-w-2xl mx-auto">
                 I built this tool to analyze websites and create llms.txt files that actually work.
                 Three simple steps, no corporate complexity.
@@ -468,7 +482,7 @@ export default function Home() {
           {/* Competitor Comparison Section */}
           <section id="competitor-comparison" className="mb-16">
             <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-8">
-              <h3 className="text-3xl font-bold text-framework-black mb-4 text-center">
+              <h3 className="text-2xl sm:text-3xl font-bold text-framework-black mb-4 text-center">
                 We Outperform Every Other LLMs.txt Generator
               </h3>
               <p className="text-lg text-ai-silver text-center mb-8 max-w-3xl mx-auto">
@@ -477,8 +491,8 @@ export default function Home() {
               </p>
 
               {/* Comparison Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+              <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                <table className="w-full border-collapse min-w-[600px]">
                   <thead>
                     <tr className="bg-gray-50">
                       <th className="border border-gray-200 px-4 py-3 text-left font-semibold text-framework-black">
