@@ -377,16 +377,9 @@ export default function ContentAnalysis({
 
   return (
     <div className="space-y-6">
-      {/* Analysis In Progress Illustration */}
+      {/* Analysis In Progress */}
       <Card className="bg-gradient-to-r from-blue-50 to-teal-50 border-blue-200">
         <CardContent className="p-6 text-center">
-          <div className="flex justify-center mb-4">
-            <img
-              src="/images/analysis-in-progress.png"
-              alt="AI analysis in progress - scanning your website"
-              className="max-w-md h-auto max-h-40 rounded-lg"
-            />
-          </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Analyzing Your Website</h3>
           {coldStartDetected && (
             <div className="mb-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
