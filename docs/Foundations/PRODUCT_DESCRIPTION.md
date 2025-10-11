@@ -8,7 +8,7 @@
 
 **Infrastructure**: Fully operational Railway + Netlify split architecture
 **Authentication**: Complete JWT system with customer dashboard ✅ OPERATIONAL
-**Payment Processing**: Stripe Coffee tier ($4.95) with automatic account creation ✅ OPERATIONAL
+**Payment Processing**: Stripe Coffee tier ($4.95/month) with automatic account creation ✅ OPERATIONAL
 **Customer Journey**: End-to-end flow from URL input to dashboard file management ✅ OPERATIONAL
 **Technical Debt**: Minimal - all critical systems implemented and stable
 
@@ -17,7 +17,7 @@
 - **6-Phase AI Enhancement System**: Proprietary technology with blockquote summaries, dynamic clustering, semantic tagging, intelligent sequencing, metadata enrichment, and quality optimization
 - **93% AI Cost Optimization**: Industry-leading cost reduction enabling sustainable freemium model while competitors require $29+ minimums
 - **Production-Ready Infrastructure**: 99.9% uptime with enterprise-grade security while competitors remain in MVP/beta stage
-- **Market Democratization**: Professional AI optimization accessible from $0-$5 vs enterprise-only alternatives starting at $29+
+- **Market Democratization**: Professional AI optimization accessible from $0-$4.95/month vs enterprise-only alternatives starting at $29+
 - **Cross-Platform Optimization**: Single solution optimizing for all AI systems vs specialized single-platform tools
 - **Essential Infrastructure Positioning**: Business-critical AI visibility infrastructure, not optional marketing tool
 
@@ -29,7 +29,7 @@ While competitors remain in MVP or beta stages, LLM.txt Mastery operates with **
 
 ### Cost Leadership Through Innovation
 
-Our **93% AI cost optimization** enables a sustainable freemium model starting at $0, while nearest competitors require $29+ minimums. This breakthrough makes professional AI optimization accessible to solo entrepreneurs and small businesses previously priced out of the market.
+Our **93% AI cost optimization** enables a sustainable freemium model starting at $0, with professional features from $4.95/month while nearest competitors require $29+ minimums. This breakthrough makes professional AI optimization accessible to solo entrepreneurs and small businesses previously priced out of the market.
 
 ### Technology Superiority
 
@@ -40,7 +40,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 ### Market Democratization
 
-**84% pricing gap** between our Coffee tier ($4.95) and nearest competitor ($29) enables market expansion into underserved segments while maintaining healthy unit economics through cost optimization.
+**83% pricing gap** between our Coffee tier ($4.95/month) and nearest competitor ($29) enables market expansion into underserved segments while maintaining healthy unit economics through cost optimization.
 
 ### Proven Business Model
 
@@ -55,17 +55,17 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 1. **Solo Entrepreneurs & Creators** (40% revenue focus)
    - Pain point: Professional AI optimization inaccessible at $29+ competitor pricing
-   - Solution: $4.95 Coffee tier with enterprise-grade features
-   - Value: Professional AI visibility without ongoing subscription commitment
+   - Solution: $4.95/month Coffee tier with enterprise-grade features
+   - Value: Professional AI visibility with affordable monthly subscription
 
 2. **Growing SaaS Businesses** (35% revenue focus)
    - Pain point: Need scalable AI optimization as business grows
-   - Solution: $29 Growth tier with unlimited analyses and advanced features
+   - Solution: $9.95/month Growth tier with unlimited analyses and advanced features
    - Value: ROI-focused pricing with clear business impact metrics
 
 3. **Digital Agencies** (20% revenue focus)
    - Pain point: Client AI optimization requires expensive enterprise tools
-   - Solution: $89 Scale tier with API access and team management
+   - Solution: $19.95/month Scale tier with API access and team management
    - Value: White-label potential with revenue-sharing opportunities
 
 4. **Enterprise Organizations** (5% revenue focus)
@@ -254,12 +254,12 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 **Ideal For**: Individual users exploring LLM.txt functionality, small personal projects
 
-### Coffee (One-Time Purchase) ✅ FULLY OPERATIONAL
+### Coffee (Monthly Subscription) ✅ FULLY OPERATIONAL
 
-**Price**: $4.95 one-time purchase
+**Price**: $4.95/month subscription
 **Features**:
 
-- 100 analysis credits (one-time purchase)
+- 20 analyses per month
 - 200 pages maximum per analysis
 - Full 6-phase AI enhancement system with GPT-4o
 - Professional dashboard with file history
@@ -269,11 +269,11 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 - **✅ File Re-access**: Download previous analyses anytime
 - **✅ Smart Reset Functionality**: Seamless multi-analysis workflow
 
-**Ideal For**: Solo entrepreneurs, small businesses, anyone needing professional AI optimization without ongoing commitments
+**Ideal For**: Solo entrepreneurs, small businesses, anyone needing professional AI optimization with affordable monthly access
 
 ### Growth (Monthly Subscription) 🔄 READY FOR ACTIVATION
 
-**Price**: $29/month
+**Price**: $9.95/month
 **Features**:
 
 - Unlimited daily analyses
@@ -289,7 +289,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 ### Scale (Monthly Subscription)
 
-**Price**: $89/month
+**Price**: $19.95/month
 **Features**:
 
 - Unlimited daily analyses

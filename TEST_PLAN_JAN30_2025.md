@@ -45,7 +45,7 @@ _Purpose: Validate pricing corrections and perform full regression testing_
 
 - [ ] All pages show "$4.95/month" for Coffee tier
 - [ ] No references to "$100/month" exist
-- [ ] Message includes "100 analyses for the price of a coffee"
+- [ ] Message includes "20 analyses for the price of a coffee"
 - [ ] Monthly subscription clearly indicated
 
 ### Test Case 1.2: Scale Tier Benefits Accuracy
@@ -122,7 +122,7 @@ _Purpose: Validate pricing corrections and perform full regression testing_
 - [ ] Stripe checkout shows $4.95/month subscription
 - [ ] Payment processes successfully
 - [ ] Success page confirms Coffee tier active
-- [ ] User can access 100 monthly analyses
+- [ ] User can access 20 monthly analyses
 - [ ] Dashboard shows correct tier and benefits
 
 ### Test Case 2.2: Growth Tier Upgrade

@@ -14,7 +14,7 @@ import {
 } from '../services/stripe';
 
 // Credit bundle configuration
-const COFFEE_TIER_CREDITS = 100;
+const COFFEE_TIER_CREDITS = 20;
 import { storage } from '../storage';
 import { authStorage } from '../services/auth-storage';
 import { requireAuth, optionalAuth } from '../middleware/auth';
@@ -565,7 +565,7 @@ async function handleCheckoutCompleted(session: any) {
       // Create credit record
       await storage.createOneTimeCredit({
         userId: parseInt(userId), // Convert to number for database
-        creditsRemaining: COFFEE_TIER_CREDITS, // Coffee tier gives 100 analysis credits
+        creditsRemaining: COFFEE_TIER_CREDITS, // Coffee tier gives 20 analysis credits
         creditsTotal: COFFEE_TIER_CREDITS,
         productType: 'coffee',
         priceId: session.metadata?.priceId,
@@ -880,7 +880,7 @@ async function handlePaymentSucceeded(invoice: any) {
       const authUser = await authStorage.getUserByEmail(customerEmail);
 
       if (authUser && authUser.tier === 'coffee') {
-        // Reset credits to 100 for Coffee tier renewal
+        // Reset credits to 20 for Coffee tier renewal
         await authStorage.updateUser(authUser.id, {
           creditsRemaining: COFFEE_TIER_CREDITS,
         });

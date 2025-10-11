@@ -613,12 +613,13 @@ export async function resetMonthlyCredits(): Promise<void> {
 
     console.log(`[CREDIT RESET] Found ${coffeeTierUsers.length} Coffee tier users`);
 
-    // Reset credits to 100 for each user
+    // Reset credits to the proper Coffee tier allocation for each user
+    const coffeeCredits = TIER_LIMITS.coffee.dailyAnalyses;
     for (const user of coffeeTierUsers) {
       await authStorage.updateUser(user.id, {
-        creditsRemaining: 100, // Reset to full monthly allocation
+        creditsRemaining: coffeeCredits, // Reset to full monthly allocation
       });
-      console.log(`[CREDIT RESET] Reset credits to 100 for user ${user.email}`);
+      console.log(`[CREDIT RESET] Reset credits to ${coffeeCredits} for user ${user.email}`);
     }
 
     console.log('[CREDIT RESET] Monthly credit reset completed');
@@ -632,11 +633,12 @@ export async function handleSubscriptionRenewal(userId: number): Promise<void> {
   try {
     const user = await authStorage.getUserById(userId);
     if (user && user.tier === 'coffee') {
+      const coffeeCredits = TIER_LIMITS.coffee.dailyAnalyses;
       await authStorage.updateUser(userId, {
-        creditsRemaining: 100, // Reset to full credits on renewal
+        creditsRemaining: coffeeCredits, // Reset to full credits on renewal
       });
       console.log(
-        `[SUBSCRIPTION] Reset credits to 100 for renewed Coffee subscription: ${user.email}`
+        `[SUBSCRIPTION] Reset credits to ${coffeeCredits} for renewed Coffee subscription: ${user.email}`
       );
     }
   } catch (error) {

@@ -385,7 +385,7 @@ function BillingSection() {
                       {user.creditsRemaining !== 1 ? 's' : ''} remaining.
                     </p>
                     <p className="text-xs text-orange-500 mt-2">
-                      Coffee tier is a monthly subscription for 100 analyses per month.
+                      Coffee tier is a monthly subscription for 20 analyses per month.
                     </p>
                   </div>
                 </div>
@@ -474,7 +474,7 @@ function BillingSection() {
                     💰 Incredible Value
                   </div>
                   <div className="text-xs text-orange-600">
-                    100 analyses for just $4.95/month - the price of a coffee!
+                    20 analyses for just $4.95/month - the price of a coffee!
                   </div>
                 </div>
               </div>

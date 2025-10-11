@@ -927,7 +927,7 @@ curl $API_URL/health           # Health check
 ## Revision History
 
 - **v1.1.1** (Aug 25, 2025) - Updated pricing and tier information to reflect current offerings
-  - Coffee tier: $4.95/month subscription (100 analyses/month)
+  - Coffee tier: $4.95/month subscription (20 analyses/month)
   - Growth tier: $9.95/month (was $15/month)
   - Scale tier: $19.95/month (was $49/month)
   - Added detailed feature breakdown for each tier

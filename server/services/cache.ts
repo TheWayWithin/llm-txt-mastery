@@ -52,7 +52,7 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
     },
   },
   coffee: {
-    dailyAnalyses: 100, // 100 analyses per month (handled via credit system)
+    dailyAnalyses: 20, // 20 analyses per month (handled via credit system)
     maxPagesPerAnalysis: 200, // 10x more than free tier
     aiPagesLimit: 200, // Full AI analysis for coffee tier
     cacheDurationDays: 7, // Same as growth tier
@@ -65,7 +65,7 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
     },
   },
   growth: {
-    dailyAnalyses: 100, // 100 analyses per month (handled via credit system like coffee)
+    dailyAnalyses: 100, // 100 analyses per month (handled via credit system - unlimited for Growth tier)
     maxPagesPerAnalysis: 1000,
     aiPagesLimit: 1000, // Full AI analysis for growth tier
     cacheDurationDays: 7,

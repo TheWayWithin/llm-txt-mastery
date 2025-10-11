@@ -92,7 +92,7 @@ Questions:
 
 ```
 COST CONCERNS:
-├── Growth → Coffee downgrade offer (50% savings, 100 analyses)
+├── Growth → Coffee downgrade offer (50% savings, 20 analyses)
 ├── Scale → Growth downgrade offer (50% savings, maintains unlimited)
 ├── Coffee → 6-month payment plan ($0.83/month)
 └── All tiers → 30-day free trial extension
@@ -144,7 +144,7 @@ Growth Tier Example:
 ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
 │ 3-Month Pause   │   │ Coffee Tier     │   │ Success Call    │
 │ Keep all data   │   │ Save 50%        │   │ + 60-day trial  │
-│ Resume anytime  │   │ 100 analyses    │   │ + Custom setup  │
+│ Resume anytime  │   │ 20 analyses     │   │ + Custom setup  │
 │ FREE            │   │ $4.95 one-time  │   │ + Priority fix  │
 └─────────────────┘   └─────────────────┘   └─────────────────┘
 
@@ -552,7 +552,7 @@ Success Rate Target: 15% retention vs. 0% current
 
 ```
 Primary Offers (in order of preference):
-1. Coffee Downgrade: $4.95/month subscription for 100 analyses (50% savings)
+1. Coffee Downgrade: $4.95/month subscription for 20 analyses (50% savings)
 2. 3-Month Pause: Free pause with data preservation
 3. Discount Trial: 2 months at $4.95/month (50% off)
 4. Enhanced Support: Free optimization consultation + 60-day guarantee

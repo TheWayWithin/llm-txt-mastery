@@ -98,11 +98,11 @@ export default function DailyLimitModal({
                   <div className="flex-1">
                     <h4 className="font-semibold text-orange-800">Coffee Tier - $4.95/month</h4>
                     <p className="text-sm text-orange-700 mt-1">
-                      Get 100 monthly analyses with AI-enhanced results for a simple monthly
+                      Get 20 monthly analyses with AI-enhanced results for a simple monthly
                       subscription.
                       <br />
                       <br />
-                      • 100 analyses per month
+                      • 20 analyses per month
                       <br />
                       • 200 pages per analysis
                       <br />

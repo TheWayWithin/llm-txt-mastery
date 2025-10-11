@@ -102,7 +102,7 @@ export function TierSelectionGrid({
             <p className="text-sm font-medium text-green-700 mt-2">
               ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly
               <br />
-              ✅ 100 analyses per month (credits reset monthly)
+              ✅ 20 analyses per month (credits reset monthly)
               <br />
               ✅ Keep your LLMs.txt file CURRENT - update it as your site evolves
               <br />

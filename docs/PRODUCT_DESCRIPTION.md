@@ -191,7 +191,7 @@
 **Price**: $4.95/month
 **Features**:
 
-- 100 analyses per month (credits reset monthly)
+- 20 analyses per month (credits reset monthly)
 - 200 pages maximum per analysis
 - Full AI-powered content analysis with GPT-4o
 - 7-day cache retention

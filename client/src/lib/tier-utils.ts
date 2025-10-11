@@ -28,7 +28,7 @@ export const getTierDescription = (tier: string): string => {
     case 'starter':
       return '3 free analyses per day, up to 20 pages';
     case 'coffee':
-      return '100 monthly analyses, up to 200 pages each';
+      return '20 monthly analyses, up to 200 pages each';
     case 'growth':
       return '100 monthly analyses, up to 1,000 pages each';
     case 'scale':
