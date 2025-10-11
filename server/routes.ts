@@ -38,6 +38,10 @@ import {
 } from './middleware/rate-limit';
 import { smartBotProtection } from './middleware/smart-bot-protection';
 import { optionalAuth } from './middleware/auth';
+import { 
+  comprehensiveAnalysisProtection,
+  costProtectionLimiter 
+} from './middleware/enhanced-bot-protection';
 import { registerStripeRoutes } from './routes/stripe';
 import { registerCancellationRoutes } from './routes/cancellation';
 import authRoutes from './routes/auth';
@@ -369,8 +373,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced analyze endpoint with caching and tier support
-  app.post('/api/analyze', analysisLimiter, optionalAuth, async (req, res) => {
+  // Enhanced analyze endpoint with comprehensive bot protection
+  // CRITICAL SECURITY FIX: Enhanced protection for OpenAI API cost exposure
+  app.post('/api/analyze', costProtectionLimiter, comprehensiveAnalysisProtection, optionalAuth, async (req, res) => {
     try {
       const {
         url,

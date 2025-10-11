@@ -65,7 +65,7 @@ test.describe('Test Suite 1: Default Tier Selection', () => {
     console.log('✅ PASS: Coffee tier has orange highlighting');
   });
 
-  test('should show Coffee tier as $4.95 one-time payment', async ({ page }) => {
+  test('should show Coffee tier as $4.95/month subscription', async ({ page }) => {
     await page.goto('/');
 
     // Scroll to tier selection section

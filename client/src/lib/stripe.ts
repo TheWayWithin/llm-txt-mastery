@@ -1,5 +1,8 @@
 import { loadStripe } from '@stripe/stripe-js';
 
+// API Base URL configuration to ensure calls go to Railway backend, not Netlify
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+
 // Initialize Stripe with better error handling
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
@@ -44,7 +47,7 @@ export async function createCheckoutSession(
   tier: 'growth' | 'scale',
   authToken: string
 ): Promise<CreateCheckoutSessionResponse> {
-  const response = await fetch('/api/stripe/create-checkout', {
+  const response = await fetch(`${API_BASE_URL}/api/stripe/create-checkout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -65,7 +68,7 @@ export async function createUpgradeSession(
   targetTier: 'growth' | 'scale',
   authToken: string
 ): Promise<CreateCheckoutSessionResponse & { success?: boolean; message?: string }> {
-  const response = await fetch('/api/stripe/create-upgrade-session', {
+  const response = await fetch(`${API_BASE_URL}/api/stripe/create-upgrade-session`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -93,7 +96,7 @@ export async function createCoffeeCheckoutSession(
     body.email = email;
   }
 
-  const response = await fetch('/api/stripe/create-coffee-checkout', {
+  const response = await fetch(`${API_BASE_URL}/api/stripe/create-coffee-checkout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -111,7 +114,7 @@ export async function createCoffeeCheckoutSession(
 }
 
 export async function createPortalSession(authToken: string): Promise<CreatePortalSessionResponse> {
-  const response = await fetch('/api/stripe/create-portal', {
+  const response = await fetch(`${API_BASE_URL}/api/stripe/create-portal`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -128,7 +131,7 @@ export async function createPortalSession(authToken: string): Promise<CreatePort
 }
 
 export async function getSubscriptionStatus(authToken: string): Promise<SubscriptionStatus> {
-  const response = await fetch('/api/stripe/subscription-status', {
+  const response = await fetch(`${API_BASE_URL}/api/stripe/subscription-status`, {
     headers: {
       Authorization: `Bearer ${authToken}`,
     },

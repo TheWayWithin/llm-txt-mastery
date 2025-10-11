@@ -21,7 +21,7 @@ Based on analysis of the current Stripe implementation and the strategic retenti
 
 - **Customer Management**: `createStripeCustomer()` for new customers
 - **Subscription Creation**: Growth/Scale tier monthly subscriptions via Checkout Sessions
-- **One-time Payments**: Coffee tier ($4.95) via one-time Checkout Sessions
+- **Coffee Tier Subscriptions**: Coffee tier ($4.95/month subscription) via Checkout Sessions
 - **Webhook Handling**: Basic events (checkout.completed, subscription.updated, etc.)
 - **Portal Integration**: Customer portal for subscription management
 - **Database Sync**: User profiles and email captures updated via webhooks

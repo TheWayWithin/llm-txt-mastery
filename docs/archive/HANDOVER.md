@@ -17,7 +17,7 @@ The LLM.txt Mastery application has been significantly enhanced with a complete 
 
 - **Live Stripe keys configured** with LLM-TXT prefixed price IDs for multi-product organization
 - **Complete payment flow**: Checkout sessions, webhooks, customer management
-- **One-time payment handling** for coffee tier purchases
+- **Monthly subscription handling** for coffee tier purchases
 - **Subscription management** for growth/scale tiers
 - **Webhook security** with signature validation
 - **Error handling** throughout payment pipeline
@@ -92,7 +92,7 @@ The LLM.txt Mastery application has been significantly enhanced with a complete 
 
 ```
 FREE TIER:        20 pages, HTML extraction only
-COFFEE TIER:      $4.95 one-time, 200 pages + AI analysis, 1 credit
+COFFEE TIER:      $4.95/month subscription, 200 pages + AI analysis, 1 credit
 GROWTH TIER:      $25/month, 1000 pages + AI analysis, unlimited analyses
 SCALE TIER:       $99/month, unlimited pages + AI analysis, unlimited analyses
 ```

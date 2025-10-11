@@ -87,7 +87,7 @@ Date: August 16, 2025
 ## Next Steps Required
 
 1. **Create Test Products in Stripe Dashboard**
-   - Coffee Tier: $5 one-time payment
+   - Coffee Tier: $4.95/month subscription
    - Growth Tier: $25/month subscription
    - Scale Tier: $99/month subscription
    - Get actual price IDs and update .env

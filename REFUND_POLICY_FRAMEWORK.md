@@ -24,7 +24,7 @@ This comprehensive refund policy framework provides clear guidelines for all LLM
 
 ## 🎯 Tier-Specific Refund Policies
 
-### Coffee Tier ($4.95 One-Time Payment)
+### Coffee Tier - $4.95/month subscription
 
 #### **Refund Eligibility**
 

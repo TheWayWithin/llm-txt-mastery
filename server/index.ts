@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 // Load environment variables first
 dotenv.config();
 
+// CRITICAL SECURITY: Perform startup security validation
+import { performStartupSecurityValidation } from './startup-security-validation';
+performStartupSecurityValidation();
+
 // Force Railway deployment: 2025-09-27 15:51 UTC - ENHANCED LLMS.TXT FEATURES
 
 import express, { type Request, Response, NextFunction } from 'express';
@@ -10,6 +14,8 @@ import cors from 'cors';
 import { registerRoutes } from './routes';
 import { setupVite, serveStatic, log } from './vite';
 import { setupSecurityMiddleware, corsOptions } from './middleware/security';
+import { nonceInjectionMiddleware, cspViolationReporter } from './middleware/nonce-injection';
+import { enhancedSessionSecurity, securityMonitoring, enhancedInputValidation, apiSecurityHeaders, productionErrorSanitizer } from './middleware/advanced-security';
 import { keepAliveService } from './services/keep-alive';
 
 const app = express();
@@ -46,6 +52,18 @@ app.use(cors(corsOptions));
 
 // Apply security middleware first
 setupSecurityMiddleware(app);
+
+// Add CSP violation reporting
+app.use(cspViolationReporter);
+
+// Add nonce injection for CSP compliance
+app.use(nonceInjectionMiddleware);
+
+// Enhanced security middleware
+app.use(enhancedSessionSecurity);
+app.use(securityMonitoring);
+app.use(enhancedInputValidation);
+app.use(apiSecurityHeaders);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -91,14 +109,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Global error handler for API routes only - comes AFTER static serving
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-
-    res.status(status).json({ message });
-    throw err;
-  });
+  // Global error handler with production error sanitization - comes AFTER static serving
+  app.use(productionErrorSanitizer);
 
   // Use port from environment or default to 8080
   const port = parseInt(process.env.PORT || '8080', 10);

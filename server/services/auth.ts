@@ -3,12 +3,71 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AuthUser, JWTPayload, UserTier } from '@shared/schema';
 
-// Environment variables for JWT
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-development';
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret-for-development';
+// Environment variables for JWT with security validation
+function validateJWTSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  
+  if (!secret) {
+    throw new Error('CRITICAL SECURITY ERROR: JWT_SECRET environment variable is required');
+  }
+  
+  // Security validation - reject weak or default secrets
+  const weakSecrets = [
+    'fallback-secret-for-development',
+    'development',
+    'dev',
+    'test',
+    'secret',
+    'jwt-secret',
+    'password',
+    '123456',
+  ];
+  
+  if (weakSecrets.includes(secret.toLowerCase()) || secret.length < 32) {
+    throw new Error(
+      `CRITICAL SECURITY ERROR: JWT_SECRET is too weak. Must be at least 32 characters and not a common default. Current length: ${secret.length}`
+    );
+  }
+  
+  return secret;
+}
+
+function validateJWTRefreshSecret(): string {
+  const secret = process.env.JWT_REFRESH_SECRET;
+  
+  if (!secret) {
+    throw new Error('CRITICAL SECURITY ERROR: JWT_REFRESH_SECRET environment variable is required');
+  }
+  
+  // Security validation - reject weak or default secrets
+  const weakSecrets = [
+    'fallback-refresh-secret-for-development',
+    'development',
+    'dev',
+    'test',
+    'secret',
+    'refresh-secret',
+    'password',
+    '123456',
+  ];
+  
+  if (weakSecrets.includes(secret.toLowerCase()) || secret.length < 32) {
+    throw new Error(
+      `CRITICAL SECURITY ERROR: JWT_REFRESH_SECRET is too weak. Must be at least 32 characters and not a common default. Current length: ${secret.length}`
+    );
+  }
+  
+  return secret;
+}
+
+// Validate secrets at startup - fail fast for security
+const JWT_SECRET = validateJWTSecret();
+const JWT_REFRESH_SECRET = validateJWTRefreshSecret();
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+
+// Log security validation success (without exposing secrets)
+console.log(`✅ JWT Security validation passed - secrets are secure (${JWT_SECRET.length} chars, ${JWT_REFRESH_SECRET.length} chars)`);
 
 // Password hashing
 export async function hashPassword(password: string): Promise<string> {

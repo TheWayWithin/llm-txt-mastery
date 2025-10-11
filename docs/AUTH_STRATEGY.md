@@ -13,7 +13,7 @@ LLM.txt Mastery implements a sophisticated tier-based access control system that
 - **Limitations**: Daily limits, no AI analysis
 - **Upgrade Path**: Coffee tier ($4.95) or Growth tier ($25/month)
 
-### Coffee Tier ($4.95 one-time)
+### Coffee Tier - $4.95/month subscription
 
 - **Access**: 200 pages per analysis with AI enhancement
 - **Authentication**: Required (account needed for credit tracking)

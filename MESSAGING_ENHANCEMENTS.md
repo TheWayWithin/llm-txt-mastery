@@ -45,7 +45,7 @@ Enhanced messaging throughout the application to improve user experience, drive 
 **Tier Descriptions Enhanced**
 
 - **Free**: "Perfect for testing • 3 daily analyses • 20 pages • Smart categorization"
-- **Coffee**: "🏆 Most popular • 200 pages • AI-enhanced quality • One-time payment"
+- **Coffee**: "🏆 Most popular • 200 pages • AI-enhanced quality • $4.95/month subscription"
 - **Growth**: "Professional power • Unlimited analyses • 1,000 pages • Smart caching"
 - **Scale**: "Enterprise ready • Unlimited everything • API access • White-label support"
 
