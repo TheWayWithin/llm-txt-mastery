@@ -6,7 +6,7 @@
  *
  * Component Overview:
  * - 843 lines of complex tier selection and navigation logic
- * - Default: Coffee tier selected ($4.95 one-time)
+ * - Default: Coffee tier selected ($4.95/month subscription)
  * - Navigation: Direct auth page navigation (no email capture)
  * - Analytics tracking for tier selections
  * - Complex UI with multiple tiers and guarantees
@@ -98,7 +98,7 @@ describe('EmailCapture Component - Characterization Tests', () => {
       expect(screen.getByText('⚠️ SEVERELY LIMITED')).toBeInTheDocument();
 
       // Coffee tier
-      expect(screen.getByText('Coffee Power ($4.95 one-time)')).toBeInTheDocument();
+      expect(screen.getByText('Coffee Power ($4.95/month subscription)')).toBeInTheDocument();
       expect(screen.getByText('🏆 CRUSH YOUR COMPETITION')).toBeInTheDocument();
 
       // Growth tier

@@ -20,7 +20,7 @@
 
 ### ✅ Existing Cancellation System
 
-- **Coffee Tier ($4.95)**: One-time purchase with 30-day money-back guarantee
+- **Coffee Tier - $4.95/month subscription**: Monthly subscription with 30-day money-back guarantee
 - **Growth Tier ($9.95/month)**: Monthly subscription with immediate cancellation
 - **Scale Tier ($19.95/month)**: Monthly subscription with immediate cancellation
 - **Current Flow**: User cancels → immediate refund if eligible → complete access loss
@@ -535,7 +535,7 @@ Week 12: Integration & Optimization
 
 ### 🎯 Tier-Specific Retention Offers
 
-#### **Coffee Tier ($4.95 one-time)**
+#### **Coffee Tier - $4.95/month subscription**
 
 ```
 Retention Options:
@@ -552,7 +552,7 @@ Success Rate Target: 15% retention vs. 0% current
 
 ```
 Primary Offers (in order of preference):
-1. Coffee Downgrade: $4.95 one-time for 100 analyses (50% savings)
+1. Coffee Downgrade: $4.95/month subscription for 100 analyses (50% savings)
 2. 3-Month Pause: Free pause with data preservation
 3. Discount Trial: 2 months at $4.95/month (50% off)
 4. Enhanced Support: Free optimization consultation + 60-day guarantee

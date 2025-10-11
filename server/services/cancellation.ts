@@ -56,7 +56,7 @@ export async function calculateRefundAmount(
       };
     }
 
-    // Coffee tier (one-time payment)
+    // Coffee tier (monthly subscription)
     if (tier === 'coffee') {
       console.log(`[REFUND DEBUG] Processing Coffee tier refund check`);
       // Find the most recent coffee purchase

@@ -792,7 +792,7 @@ _For current work coordination, see project-plan.md. This document provides the 
   - **Technical Details**: Fixed in sitemap-enhanced.ts, openai.ts, and sitemap.ts
 
 - ✅ **NEW PRICING STRUCTURE DEPLOYED**
-  - **Coffee Tier**: $4.95 one-time (was $5.00) - 200 pages, all with AI
+  - **Coffee Tier**: $4.95/month subscription (was $5.00) - 200 pages, all with AI
   - **Growth Tier**: $9.95/month (NEW) - 1000 pages, 200 with AI
   - **Scale Tier**: $19.95/month (was $99.00) - Unlimited pages, all with AI
   - **Analysis**: Coffee tier is loss-leader ($6 AI cost per analysis)

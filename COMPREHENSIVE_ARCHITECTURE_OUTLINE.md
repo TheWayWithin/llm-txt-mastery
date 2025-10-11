@@ -389,7 +389,7 @@ const authLimiter = rateLimit({
 
 ```typescript
 // Tier Pricing Structure
-Coffee Tier: $4.95 (one-time) → 100 analysis credits
+Coffee Tier: $4.95/month subscription → 100 analysis credits
 Growth Tier: $9.95/month → Unlimited daily analyses
 Scale Tier: $19.95/month → Unlimited + API access
 ```

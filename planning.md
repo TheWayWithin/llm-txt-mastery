@@ -47,7 +47,7 @@ _Last Updated: January 13, 2025_
 - 20 pages WITH AI analysis ✅
 - "See exactly what you'll get"
 
-**COFFEE TIER** ($4.95 one-time)
+**COFFEE TIER** - $4.95/month subscription
 
 - Unlimited analyses forever
 - 200 pages per analysis
