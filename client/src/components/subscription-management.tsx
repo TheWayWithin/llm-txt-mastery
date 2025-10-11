@@ -190,7 +190,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               </div>
               <div className="text-sm text-slate-600">
                 <p>Each credit allows one full website analysis (up to 200 pages)</p>
-                <p>100 analyses per month • AI-enhanced analysis included</p>
+                <p>20 analyses per month • AI-enhanced analysis included</p>
               </div>
               {creditsRemaining > 0 && (
                 <Button

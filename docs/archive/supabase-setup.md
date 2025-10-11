@@ -61,7 +61,7 @@ In your Supabase dashboard:
   - `requireTier`: Enforces tier-based access
 
 - **Auth Routes**: `server/routes/auth.ts`
-  - `POST /api/auth/signup` - User registration
+  - `POST /api/auth/register` - User registration
   - `POST /api/auth/signin` - User login
   - `POST /api/auth/signout` - User logout
   - `GET /api/auth/me` - Get current user

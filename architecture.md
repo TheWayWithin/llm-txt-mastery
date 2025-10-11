@@ -473,7 +473,7 @@ Enhanced User Journey → Multi-Phase Analysis → Advanced Storage → Generati
 ```
 Feature/Tier              │ Free │ Coffee │ Growth │ Scale │ Enterprise
 ─────────────────────────┼──────┼────────┼────────┼───────┼────────────
-Daily Analyses           │  1   │   5    │   20   │  100  │  Unlimited
+Daily Analyses           │  1   │ 20/mo  │   20   │  100  │  Unlimited
 AI Quality Scoring       │  ❌  │   ✅   │   ✅   │   ✅  │     ✅
 Enhanced LLMs.txt (6-ph) │  ❌  │   ✅   │   ✅   │   ✅  │     ✅
 Coffee Credits System    │  ❌  │   ✅   │   ❌   │   ❌  │     ❌
@@ -581,9 +581,9 @@ API Access              │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
 │  └─────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                 │
 │  Supported Products & Pricing:                                                 │
-│  • Coffee Tier: $5 one-time (5 credits, 30-day guarantee)                     │
+│  • Coffee Tier: $4.95/month (20 credits, 30-day guarantee)                   │
 │  • Growth Tier: $25 monthly (20 daily analyses, enhanced features)             │
-│  • Scale Tier: $100 monthly (100 daily analyses, priority support)            │
+│  • Scale Tier: $19.95 monthly (100 daily analyses, priority support)         │
 │  • Enterprise: Custom pricing (unlimited usage, API access)                    │
 │                                                                                 │
 │  Advanced Security & Compliance:                                               │
@@ -681,7 +681,7 @@ The system implements a sophisticated 6-phase enhancement pipeline for generatin
 
 **Innovative Freemium Model:**
 
-- One-time $5 purchase for 5 analysis credits
+- Monthly $4.95 subscription for 20 analysis credits
 - 30-day money-back guarantee with automated refund processing
 - Credit tracking with real-time balance updates
 - Automatic tier upgrade recommendations based on usage patterns
@@ -1057,7 +1057,7 @@ if (estimatedCost > tierLimit) {
 
 #### 2. Coffee Tier Innovation (Business Model Success)
 
-**Innovation**: $5 one-time purchase with 30-day guarantee
+**Innovation**: $4.95 monthly subscription with 30-day guarantee
 **Results**:
 
 - Lower barrier to entry than $25 monthly subscriptions
@@ -1464,7 +1464,7 @@ Production Implementation:
 
 **Current Implementation**: Sophisticated freemium SaaS model
 
-- **Coffee Tier Innovation**: $5 one-time purchase with 5 credits + 30-day guarantee
+- **Coffee Tier Innovation**: $4.95 monthly subscription with 20 credits + 30-day guarantee
 - **Subscription Management**: Growth ($25) and Scale ($100) tiers with lifecycle management
 - **Usage Enforcement**: Real-time limits with intelligent upgrade recommendations
 - **Payment Processing**: Stripe integration with webhook handling and refund processing
@@ -1641,7 +1641,7 @@ Production Implementation:
 
 #### 3. Coffee Tier Pricing Innovation
 
-**Strategy**: $5 one-time purchase vs. $25+ monthly subscriptions
+**Strategy**: $4.95 monthly subscription vs. $25+ monthly subscriptions
 **Result**: Captured underserved solo entrepreneur market segment
 **Learning**: Creative pricing models can unlock new market segments
 

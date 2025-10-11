@@ -93,13 +93,13 @@ export default function Pricing() {
                 </div>
               </div>
               <CardTitle>Coffee</CardTitle>
-              <CardDescription>100 analyses per month</CardDescription>
+              <CardDescription>20 analyses per month</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm font-medium">100 analyses per month</span>
+                  <span className="text-sm font-medium">20 analyses per month</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />

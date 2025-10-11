@@ -143,7 +143,7 @@ export function UserDashboard() {
                 <div>• 200 pages per analysis</div>
                 <div>• AI-enhanced analysis</div>
                 <div>• Quality scoring & insights</div>
-                <div>• 100 analyses per month</div>
+                <div>• 20 analyses per month</div>
               </>
             )}
             {userProfile.tier === 'growth' && (

@@ -92,7 +92,8 @@ test.describe('Page Inspection', () => {
 
     // Save the full HTML for manual inspection
     const html = await page.content();
-    require('fs').writeFileSync('test-results/homepage-content.html', html);
+    const fs = await import('fs/promises');
+    await fs.writeFile('test-results/homepage-content.html', html);
     console.log('💾 Full HTML saved to test-results/homepage-content.html');
 
     // This test always passes - it's just for inspection

@@ -217,7 +217,7 @@ _Awaiting review results_
 
 **Metrics from Production**:
 
-- Coffee tier: One-time $4.95 with 100 analyses + 30-day guarantee
+- Coffee tier: One-time $4.95 with 20 analyses + 30-day guarantee
 - Growth tier: $9.95/month ready for activation
 - Scale tier: $19.95/month with unlimited features
 - API cost optimization: <60% of revenue maintained
@@ -271,7 +271,7 @@ _Awaiting review results_
 **Operational Revenue Tiers**:
 
 - $0 Starter: 3 analyses/day, 20 pages (proven sustainable)
-- $4.95 Coffee: 100 analyses one-time with 30-day guarantee (active)
+- $4.95 Coffee: 20 analyses one-time with 30-day guarantee (active)
 - $9.95 Growth: Unlimited daily, 1K pages (ready for activation)
 - $19.95 Scale: Unlimited everything (infrastructure complete)
 

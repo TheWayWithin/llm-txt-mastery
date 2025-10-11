@@ -216,7 +216,7 @@ COFFEE TIER (One-time $4.95):
    - Creates `one_time_credits` record with purchasedAt timestamp
    - Sets `refunded: false`
    - Updates auth_users.tier = 'coffee'
-   - Grants 100 analysis credits
+   - Grants 20 analysis credits
 4. User accesses dashboard → Can see credits
 
 REFUND FLOW:

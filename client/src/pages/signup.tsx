@@ -264,7 +264,7 @@ export default function SignupPage() {
         ];
       case 'coffee':
         return [
-          '✅ 100 monthly analysis credits',
+          '✅ 20 monthly analysis credits',
           '✅ 200 pages per analysis (10x more than free)',
           '✅ AI-powered content scoring for all pages',
           '✅ Priority processing and support',
@@ -272,7 +272,7 @@ export default function SignupPage() {
         ];
       case 'growth':
         return [
-          '✅ 100 monthly analyses (3x Coffee tier capacity)',
+          '✅ 100 monthly analyses (5x Coffee tier capacity)',
           '✅ 1,000 pages per analysis (perfect for large sites)',
           '✅ Bulk website processing - analyze multiple sites',
           '✅ Export to CSV/JSON for data analysis',
@@ -364,7 +364,7 @@ export default function SignupPage() {
                         ⚠️ FREE - 3 daily (20 pages max)
                       </option>
                       <option value="coffee" data-testid="tier-option-coffee">
-                        ☕ COFFEE - 100 monthly ($4.95/month)
+                        ☕ COFFEE - 20 monthly ($4.95/month)
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
                         💼 GROWTH - Go Pro ($9.95/month)
@@ -415,7 +415,7 @@ export default function SignupPage() {
                       {selectedTier === 'coffee' && (
                         <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded">
                           <p className="text-xs font-bold text-green-800">
-                            🚀 SMART CHOICE! 100 monthly analyses + 30-day guarantee + cancel
+                            🚀 SMART CHOICE! 20 monthly analyses + 30-day guarantee + cancel
                             instantly. After signup, secure Stripe payment ($4.95/month)
                           </p>
                         </div>

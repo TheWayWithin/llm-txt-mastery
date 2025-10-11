@@ -155,7 +155,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
               )}
               {usageData.tier === 'coffee' && (
                 <>
-                  <p className="text-xs text-framework-black">• 100 monthly analysis credits</p>
+                  <p className="text-xs text-framework-black">• 20 monthly analysis credits</p>
                   <p className="text-xs text-framework-black">• Max 200 pages per analysis</p>
                   <p className="text-xs text-framework-black">• AI analysis for all pages</p>
                 </>
@@ -187,7 +187,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                 🚫 Daily limit reached! Upgrade to continue analyzing.
               </p>
               <p className="text-xs text-ai-silver mb-3">
-                Get 100 monthly analyses with AI-enhanced results for just $4.95/month
+                Get 20 monthly analyses with AI-enhanced results for just $4.95/month
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <button

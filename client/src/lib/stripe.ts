@@ -152,7 +152,7 @@ export const TIER_PRICING = {
     price: '$4.95',
     interval: 'monthly',
     features: [
-      '100 monthly website analyses',
+      '20 monthly website analyses',
       'Up to 200 pages per analysis',
       'Full AI-enhanced analysis',
       'Quality scoring & insights',

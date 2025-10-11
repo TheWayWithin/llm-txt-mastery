@@ -2,7 +2,7 @@
 
 ## Overview
 
-Coffee tier is now a **$4.95/month subscription** with **100 analyses per month**. Credits reset automatically on each monthly billing cycle.
+Coffee tier is now a **$4.95/month subscription** with **20 analyses per month**. Credits reset automatically on each monthly billing cycle.
 
 ## Stripe Configuration
 
@@ -29,8 +29,8 @@ When Stripe processes the monthly payment, the webhook automatically:
 
 1. Detects `invoice.payment_succeeded` event
 2. Checks if `billing_reason === 'subscription_cycle'` (renewal, not first payment)
-3. Resets credits to 100 for Coffee tier users
-4. Logs the renewal: `[RENEWAL] Reset credits to 100 for Coffee tier user: {email}`
+3. Resets credits to 20 for Coffee tier users
+4. Logs the renewal: `[RENEWAL] Reset credits to 20 for Coffee tier user: {email}`
 
 ### Code Flow
 
@@ -117,7 +117,7 @@ ADMIN_KEY=your-secure-admin-key
 
 Look for these log messages in Railway logs:
 
-- `[RENEWAL] Reset credits to 100 for Coffee tier user: {email}`
+- `[RENEWAL] Reset credits to 20 for Coffee tier user: {email}`
 - `Subscription renewal detected for: {email}`
 - `Payment succeeded for subscription: {subscriptionId}`
 
@@ -150,7 +150,7 @@ ORDER BY updated_at DESC;
 If automatic reset fails, use admin endpoint:
 
 ```bash
-# Fix all Coffee tier users to have 100 credits
+# Fix all Coffee tier users to have 20 credits
 curl -X POST https://llm-txt-mastery-production.up.railway.app/api/auth/admin/fix-coffee-credits \
   -H "x-admin-key: your-secret-admin-key"
 ```
@@ -160,7 +160,7 @@ curl -X POST https://llm-txt-mastery-production.up.railway.app/api/auth/admin/fi
 ### What Users See
 
 - **Before Renewal**: Low/zero credits, prompted to wait for renewal
-- **After Renewal**: Credits reset to 100, can analyze again
+- **After Renewal**: Credits reset to 20, can analyze again
 - **In UI**: Credit counter shows current balance (e.g., "87 credits")
 
 ### Subscription Management

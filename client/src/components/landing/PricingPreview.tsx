@@ -44,9 +44,9 @@ export default function PricingPreview({
       price: '$4.95',
       period: '/mo',
       icon: Coffee,
-      description: '100 analyses/month',
+      description: '20 analyses/month',
       features: [
-        '100 analyses/month',
+        '20 analyses/month',
         '200 pages per analysis',
         'AI-enhanced quality',
       ],

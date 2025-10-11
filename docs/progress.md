@@ -210,7 +210,7 @@ _Tested & Validated: January 30, 2025 | Test Status: ✅ PASSED - 0 Defects_
 
 **Solutions Implemented**:
 
-1. **Coffee Tier**: Updated all 13 files to show correct "$4.95/month for 100 analyses"
+1. **Coffee Tier**: Updated all 13 files to show correct "$4.95/month for 20 analyses"
 2. **Scale Tier**: Removed false benefits, replaced with accurate offerings:
    - API access for integrations
    - Multi-site management

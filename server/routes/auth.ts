@@ -217,7 +217,7 @@ router.post('/login', authLimiter, async (req, res) => {
         email: 'demo@llmtxtmastery.com',
         tier: 'coffee' as UserTier,
         emailVerified: true,
-        creditsRemaining: 100,
+        creditsRemaining: 20,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -1072,22 +1072,22 @@ router.post('/admin/reset-coffee-credits', async (req, res) => {
       });
     }
 
-    // Reset credits to 100
+    // Reset credits to proper Coffee tier allocation
     await authStorage.updateUser(user.id, {
-      creditsRemaining: 100,
+      creditsRemaining: COFFEE_TIER_CREDITS,
     });
 
     // Also call the renewal handler
     const { handleSubscriptionRenewal } = await import('../services/usage');
     await handleSubscriptionRenewal(user.id);
 
-    console.log(`[ADMIN] Manually reset credits to 100 for Coffee tier user: ${email}`);
+    console.log(`[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Coffee tier user: ${email}`);
 
     res.json({
       success: true,
       message: 'Credits reset successfully',
       user: email,
-      newCredits: 100,
+      newCredits: COFFEE_TIER_CREDITS,
       previousCredits: user.creditsRemaining,
     });
   } catch (error) {
@@ -1111,9 +1111,9 @@ router.post('/admin/fix-coffee-credits', async (req, res) => {
       });
     }
 
-    const COFFEE_TIER_CREDITS = 100;
+    const COFFEE_TIER_CREDITS = 20;
 
-    // Find all Coffee tier users with less than 100 credits
+    // Find all Coffee tier users with less than 20 credits
     const coffeeUsers = await authStorage.getUsersByTier('coffee');
     const usersToFix = coffeeUsers.filter(
       (user) => (user.creditsRemaining || 0) < COFFEE_TIER_CREDITS
@@ -1127,7 +1127,7 @@ router.post('/admin/fix-coffee-credits', async (req, res) => {
       const currentCredits = user.creditsRemaining || 0;
       const creditDiff = COFFEE_TIER_CREDITS - currentCredits;
 
-      // Update user to have 100 total credits
+      // Update user to have proper Coffee tier credits
       await authStorage.updateUser(user.id, {
         creditsRemaining: COFFEE_TIER_CREDITS,
       });
