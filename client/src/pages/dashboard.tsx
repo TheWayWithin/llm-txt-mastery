@@ -197,7 +197,7 @@ function AccountOverview() {
                       user.tier === 'growth' ? 'text-blue-600' : 'text-purple-600'
                     }`}
                   >
-                    <li>100 monthly analyses</li>
+                    <li>{user.tier === 'growth' ? '100 monthly analyses (5x Coffee capacity)' : user.tier === 'scale' ? 'Unlimited analyses' : '20 Monthly Analyses'}</li>
                     <li>AI-enhanced analysis</li>
                     <li>Priority support</li>
                     {user.tier === 'scale' && (
@@ -435,10 +435,10 @@ function BillingSection() {
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-orange-200 rounded-md p-3">
                   <div className="text-sm font-semibold text-orange-800 mb-1">
-                    ✅ 100 Monthly Analyses
+                    ✅ 20 Monthly Analyses
                   </div>
                   <div className="text-xs text-orange-600">
-                    vs FREE: Only 3 per day (90 per month max)
+                    vs FREE: Only 3 per day (90 per month max) - Coffee gives you 20
                   </div>
                 </div>
 
