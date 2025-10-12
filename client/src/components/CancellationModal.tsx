@@ -117,7 +117,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
         ];
       case 'growth':
         return [
-          '100 monthly analyses',
+          '100 monthly analyses (5x more than Coffee)',
           '1,000-page analysis capability',
           'Priority processing',
           'Advanced features',

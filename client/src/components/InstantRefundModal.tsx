@@ -56,7 +56,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
         ];
       case 'growth':
         return [
-          '100 monthly analyses',
+          '100 monthly analyses (5x Coffee capacity)',
           '1,000-page analysis capability',
           'Priority processing',
           'Advanced analytics',

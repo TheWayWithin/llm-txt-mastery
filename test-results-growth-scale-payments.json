@@ -483,7 +483,7 @@
                               "text": "\n🎯 Testing Tier Selection Validation...\n"
                             },
                             {
-                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 100 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
+                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 20 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
                             },
                             {
                               "text": "✅ FREE tier option found\n"
@@ -565,7 +565,7 @@
                               "text": "\n🎯 Testing Tier Selection Validation...\n"
                             },
                             {
-                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 100 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
+                              "text": "Available tier options: [\n  \u001b[32m'⚠️ FREE - 3 daily (20 pages max)'\u001b[39m,\n  \u001b[32m'☕ COFFEE - 20 monthly ($4.95/month)'\u001b[39m,\n  \u001b[32m'💼 GROWTH - Go Pro ($9.95/month)'\u001b[39m,\n  \u001b[32m'🚀 SCALE - Enterprise ($19.95/month)'\u001b[39m\n]\n"
                             },
                             {
                               "text": "✅ FREE tier option found\n"
