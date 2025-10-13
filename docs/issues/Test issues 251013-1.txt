@@ -1,0 +1,94 @@
+Test issues:
+1. see image 1, login landing page indicates on heading line and current tier that we are logged in as coffee users.
+2. https://develop--llm-txt-mastery.netlify.app/dashboard billing and subscriptions lists coffee tier not solo, it shows old pricing and doesn't align with the product description Growth 1000 pages scale unlimited, API, direct support, etc. see image 2
+3. If I try an analysis it fails, see console log:  index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=INITIALIZING, authLoading=true, hasUser=false, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 ⏳ Auth still loading, currentState: INITIALIZING
+index-R0jJnb2Z.js:378 🔐 Initializing auth state...
+index-R0jJnb2Z.js:378 📱 Found stored user: jamie.watters.mail@icloud.com tier: coffee
+index-R0jJnb2Z.js:378 🔄 Refreshing user data from server...
+index-R0jJnb2Z.js:378 ✅ Google Tag Manager loaded via HTML
+index-R0jJnb2Z.js:378 🔒 GTM Consent Mode initialized with default denied state
+index-R0jJnb2Z.js:378 📋 Enzuzo consent management delegated to GTM
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=INITIALIZING, authLoading=true, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 ⏳ Auth still loading, currentState: INITIALIZING
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=INITIALIZING, authLoading=true, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:459 [DEBUG] Simple usage response: Object
+index-R0jJnb2Z.js:459 📊 [SIMPLE] Usage fetched for jamie.watters.mail@icloud.com: 0/999 (73 credits) - tier: coffee
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=INITIALIZING, authLoading=true, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:378 ✅ Server user data refreshed: jamie.watters.mail@icloud.com tier: coffee credits: 73
+index-R0jJnb2Z.js:378 🏁 Auth initialization complete - resolved state set
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=INITIALIZING, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 🔐 Auth loading completed, user: jamie.watters.mail@icloud.com, tier: coffee, currentState: INITIALIZING
+index-R0jJnb2Z.js:427 🔄 State transition: INITIALIZING + AUTH_RESOLVED (count: 1/10)
+index-R0jJnb2Z.js:427 🔐 AUTH_RESOLVED: currentState=INITIALIZING, hasUser=true, userTier=coffee
+index-R0jJnb2Z.js:427 ✅ AUTH_RESOLVED: Authenticated user - going to /analyze (URL_INPUT)
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 🔐 Auth loading completed, user: jamie.watters.mail@icloud.com, tier: coffee, currentState: URL_INPUT
+index-R0jJnb2Z.js:427 🔄 State transition: URL_INPUT + AUTH_RESOLVED (count: 1/10)
+index-R0jJnb2Z.js:427 🔐 AUTH_RESOLVED: currentState=URL_INPUT, hasUser=true, userTier=coffee
+index-R0jJnb2Z.js:427 🔄 AUTH_RESOLVED: Preserving current state, updating user context
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=URL_INPUT, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=false
+index-R0jJnb2Z.js:459 🌐 Starting analysis for URL: https://jamiewatters.work
+index-R0jJnb2Z.js:427 🔄 State transition: URL_INPUT + URL_SUBMITTED (count: 1/10)
+index-R0jJnb2Z.js:427 🌐 URL_SUBMITTED: url=https://jamiewatters.work, hasUser=true, userTier=coffee
+index-R0jJnb2Z.js:427 ✅ URL_SUBMITTED: User is authenticated with tier coffee
+index-R0jJnb2Z.js:427 ✅ URL_SUBMITTED: Regular authenticated user, showing tier limits
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=TIER_LIMITS, authLoading=false, hasUser=true, emailCapture=false, tierLimits=true, analysis=false
+index-R0jJnb2Z.js:427 🎯 TierLimitsDisplay: Starting limits check...
+index-R0jJnb2Z.js:427 🔐 Auth loading completed, user: jamie.watters.mail@icloud.com, tier: coffee, currentState: TIER_LIMITS
+index-R0jJnb2Z.js:427 🔍 TierLimitsDisplay: Checking limits for Object
+index-R0jJnb2Z.js:427 🔄 State transition: TIER_LIMITS + AUTH_RESOLVED (count: 1/10)
+index-R0jJnb2Z.js:427 🔐 AUTH_RESOLVED: currentState=TIER_LIMITS, hasUser=true, userTier=coffee
+index-R0jJnb2Z.js:427 🔄 AUTH_RESOLVED: Preserving current state, updating user context
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=TIER_LIMITS, authLoading=false, hasUser=true, emailCapture=false, tierLimits=true, analysis=false
+llm-txt-mastery-staging.up.railway.app/api/check-limits:1  Failed to load resource: the server responded with a status of 500 ()
+index-R0jJnb2Z.js:427 ❌ TierLimitsDisplay: API call failed, auto-proceeding to prevent user getting stuck Error: 500: {"message":"Failed to check limits"}
+    at qy (index-R0jJnb2Z.js:48:44711)
+    at async Gt (index-R0jJnb2Z.js:48:45076)
+    at async Object.mutationFn (index-R0jJnb2Z.js:427:60595)
+onError @ index-R0jJnb2Z.js:427
+index-R0jJnb2Z.js:427 🚨 TierLimitsDisplay: Auto-proceeding after error (1s delay)
+index-R0jJnb2Z.js:427 🔄 State transition: TIER_LIMITS + PROCEED_TO_ANALYSIS (count: 1/10)
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=ANALYSIS, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=true
+index-R0jJnb2Z.js:427 🔍 Analysis status check: status=undefined, id=undefined, alreadyCompleted=n/a
+index-R0jJnb2Z.js:427 🔐 Auth loading completed, user: jamie.watters.mail@icloud.com, tier: coffee, currentState: ANALYSIS
+index-R0jJnb2Z.js:427 🔄 State transition: ANALYSIS + AUTH_RESOLVED (count: 1/10)
+index-R0jJnb2Z.js:427 🔐 AUTH_RESOLVED: currentState=ANALYSIS, hasUser=true, userTier=coffee
+index-R0jJnb2Z.js:427 🔄 AUTH_RESOLVED: Preserving current state, updating user context
+index-R0jJnb2Z.js:427 👁️ VISIBILITY: state=ANALYSIS, authLoading=false, hasUser=true, emailCapture=false, tierLimits=false, analysis=true
+index-R0jJnb2Z.js:427 🔍 Analysis status check: status=undefined, id=undefined, alreadyCompleted=n/a
+llm-txt-mastery-staging.up.railway.app/api/analyze:1  Failed to load resource: the server responded with a status of 400 ()
+index-R0jJnb2Z.js:427 Analysis failed: Error: 400: {"message":"Cannot read properties of undefined (reading 'maxPagesPerAnalysis')"}
+    at qy (index-R0jJnb2Z.js:48:44711)
+    at async Gt (index-R0jJnb2Z.js:48:45076)
+    at async Object.mutationFn (index-R0jJnb2Z.js:427:8995)
+onError @ index-R0jJnb2Z.js:427

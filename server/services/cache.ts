@@ -64,6 +64,19 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
       smartCaching: true,
     },
   },
+  coffee: {
+    dailyAnalyses: 20, // Same as solo (legacy tier with credit system)
+    maxPagesPerAnalysis: 200, // Same as solo
+    aiPagesLimit: 200,
+    cacheDurationDays: 7,
+    features: {
+      htmlExtraction: true,
+      aiAnalysis: true,
+      fileHistory: true,
+      prioritySupport: false,
+      smartCaching: true,
+    },
+  },
   growth: {
     dailyAnalyses: 35, // 35 analyses per month (handled via credit system)
     maxPagesPerAnalysis: 500,
