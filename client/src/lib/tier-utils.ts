@@ -9,6 +9,7 @@ export const getTierDisplayName = (tier: string): string => {
   switch (tier) {
     case 'starter':
       return 'FREE';
+    case 'coffee':
     case 'solo':
       return 'SOLO';
     case 'growth':
@@ -27,6 +28,7 @@ export const getTierDescription = (tier: string): string => {
   switch (tier) {
     case 'starter':
       return '3 free analyses per day, up to 20 pages';
+    case 'coffee':
     case 'solo':
       return '20 monthly analyses, up to 200 pages each';
     case 'growth':
@@ -45,6 +47,7 @@ export const getTierColorClass = (tier: string): string => {
   switch (tier) {
     case 'starter':
       return 'bg-mastery-blue text-white';
+    case 'coffee':
     case 'solo':
       return 'bg-orange-600 text-white';
     case 'growth':
