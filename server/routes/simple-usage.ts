@@ -66,12 +66,12 @@ router.get('/api/simple-usage/:email', async (req, res) => {
 
     const usage = result.rows[0];
 
-    // Determine tier limits
+    // Determine tier limits - must match TIER_LIMITS in cache.ts
     const tierLimits = {
       starter: 3,
-      coffee: 999,
-      growth: 999,
-      scale: 999,
+      coffee: 20,   // Match TIER_LIMITS.coffee.dailyAnalyses
+      growth: 35,   // Match TIER_LIMITS.growth.dailyAnalyses
+      scale: 100,   // Match TIER_LIMITS.scale.dailyAnalyses
     };
 
     const response: any = {
