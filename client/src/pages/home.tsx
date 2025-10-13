@@ -249,18 +249,13 @@ export default function Home() {
 
             {/* Hero Illustration */}
             <div className="my-8 flex justify-center">
-              <picture>
-                <source
-                  type="image/webp"
-                  srcSet="/images/optimized/hero-illustration-professional.webp"
-                />
-                <img
-                  src="/images/hero-illustration-professional.png"
-                  alt="Website transformation into AI-ready content"
-                  className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
-                  loading="eager"
-                />
-              </picture>
+              <OptimizedImage
+                src="/images/hero-illustration-professional.png"
+                alt="Website transformation into AI-ready content"
+                className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
+                loading="eager"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              />
             </div>
 
             {/* Hero CTA Buttons */}
@@ -410,18 +405,13 @@ export default function Home() {
 
             {/* Process Diagram */}
             <div className="my-8 flex justify-center">
-              <picture>
-                <source
-                  type="image/webp"
-                  srcSet="/images/optimized/how-it-works-professional.webp"
-                />
-                <img
-                  src="/images/how-it-works-professional.png"
-                  alt="Process comparison showing LLM.txt Mastery finding 200+ pages vs competitors finding 20 pages"
-                  className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
-                  loading="lazy"
-                />
-              </picture>
+              <OptimizedImage
+                src="/images/how-it-works-professional.png"
+                alt="Process comparison showing LLM.txt Mastery finding 200+ pages vs competitors finding 20 pages"
+                className="max-w-full h-auto max-h-64 rounded-lg shadow-lg object-contain"
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              />
             </div>
 
             {/* Step Details */}

@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const IMAGE_CONFIG = {
-  // Critical above-fold images
-  'hero-illustration.png': {
+  // Critical above-fold images - need responsive sizes
+  'hero-illustration-professional.png': {
     sizes: [
       { width: 1200, suffix: '' }, // Default size
       { width: 800, suffix: '-md' }, // Medium screens
@@ -20,7 +20,7 @@ const IMAGE_CONFIG = {
     quality: 85,
     priority: 'high',
   },
-  'how-it-works.png': {
+  'how-it-works-professional.png': {
     sizes: [
       { width: 1200, suffix: '' },
       { width: 800, suffix: '-md' },
@@ -29,11 +29,86 @@ const IMAGE_CONFIG = {
     quality: 85,
     priority: 'medium',
   },
-  // Other images can be optimized with single size
+  // Large feature images - need responsive sizes
+  'success-celebration.png': {
+    sizes: [
+      { width: 1200, suffix: '' },
+      { width: 800, suffix: '-md' },
+      { width: 400, suffix: '-sm' },
+    ],
+    quality: 85,
+    priority: 'medium',
+  },
+  'error-404.png': {
+    sizes: [
+      { width: 1200, suffix: '' },
+      { width: 800, suffix: '-md' },
+      { width: 400, suffix: '-sm' },
+    ],
+    quality: 85,
+    priority: 'low',
+  },
+  'error-connection.png': {
+    sizes: [
+      { width: 1200, suffix: '' },
+      { width: 800, suffix: '-md' },
+      { width: 400, suffix: '-sm' },
+    ],
+    quality: 85,
+    priority: 'low',
+  },
+  'error-generic.png': {
+    sizes: [
+      { width: 1200, suffix: '' },
+      { width: 800, suffix: '-md' },
+      { width: 400, suffix: '-sm' },
+    ],
+    quality: 85,
+    priority: 'low',
+  },
+  'empty-state-no-analysis.png': {
+    sizes: [
+      { width: 1200, suffix: '' },
+      { width: 800, suffix: '-md' },
+      { width: 400, suffix: '-sm' },
+    ],
+    quality: 85,
+    priority: 'low',
+  },
+  'analysis-in-progress.png': {
+    sizes: [
+      { width: 1200, suffix: '' },
+      { width: 800, suffix: '-md' },
+      { width: 400, suffix: '-sm' },
+    ],
+    quality: 85,
+    priority: 'low',
+  },
+  // Logos and icons - single optimized size
   'logo-primary.png': {
     sizes: [{ width: 300, suffix: '' }],
     quality: 90,
     priority: 'high',
+  },
+  'tier-free.png': {
+    sizes: [{ width: 200, suffix: '' }],
+    quality: 90,
+    priority: 'medium',
+  },
+  'tier-coffee.png': {
+    sizes: [{ width: 200, suffix: '' }],
+    quality: 90,
+    priority: 'medium',
+  },
+  'tier-growth.png': {
+    sizes: [{ width: 200, suffix: '' }],
+    quality: 90,
+    priority: 'medium',
+  },
+  'tier-scale.png': {
+    sizes: [{ width: 200, suffix: '' }],
+    quality: 90,
+    priority: 'medium',
   },
 };
 
