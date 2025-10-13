@@ -20,7 +20,7 @@ const useNewEmailCapture = import.meta.env.VITE_NEW_EMAIL_CAPTURE === 'true';
 
 export interface EmailCaptureProps {
   websiteUrl?: string;
-  onEmailCaptured: (email: string, tier: 'starter' | 'coffee' | 'growth' | 'scale') => void;
+  onEmailCaptured: (email: string, tier: 'starter' | 'solo' | 'growth' | 'scale') => void;
   onLoginRequested?: () => void;
   onReset?: () => void;
   isVisible: boolean;
@@ -44,7 +44,7 @@ export default function EmailCaptureV2(props: EmailCaptureProps) {
   const typedProps = {
     ...props,
     onEmailCaptured: (email: string, tier: UserTier) => {
-      props.onEmailCaptured(email, tier as 'starter' | 'coffee' | 'growth' | 'scale');
+      props.onEmailCaptured(email, tier as 'starter' | 'solo' | 'growth' | 'scale');
     },
   };
 

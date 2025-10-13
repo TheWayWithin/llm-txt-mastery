@@ -80,11 +80,11 @@ export function TierSelectionGrid({
           className={`relative border-4 border-green-500 rounded-lg bg-gradient-to-br from-green-50 to-orange-50 hover:from-green-100 hover:to-orange-100 transition-colors p-4 shadow-lg ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
-          onClick={() => handleTierClick('coffee')}
+          onClick={() => handleTierClick('solo')}
         >
           <RadioGroupItem
-            value="coffee"
-            id="coffee"
+            value="solo"
+            id="solo"
             className="absolute top-4 right-4"
             disabled={disabled}
           />
@@ -93,7 +93,7 @@ export function TierSelectionGrid({
           </div>
           <div className="pr-8">
             <Label
-              htmlFor="coffee"
+              htmlFor="solo"
               className={`flex items-center space-x-2 mt-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <img src="/images/tier-coffee.png" alt="Coffee Tier" className="w-8 h-8" />

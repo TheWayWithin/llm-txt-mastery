@@ -22,7 +22,7 @@ export function TierGuaranteeContent({ selectedTier }: TierGuaranteeContentProps
               ⚠️ WARNING: Severely limited • Will miss critical pages • Competitors will outrank you
             </span>
           </div>
-        ) : selectedTier === 'coffee' ? (
+        ) : selectedTier === 'solo' ? (
           <div className="bg-green-50 border border-green-200 p-3 rounded">
             <span className="text-green-700 font-bold">
               🚀 SMART CHOICE: Full power • 30-day guarantee • Cancel instantly • Risk-FREE

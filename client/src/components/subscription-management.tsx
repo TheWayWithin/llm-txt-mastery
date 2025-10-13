@@ -24,7 +24,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<'coffee' | 'growth' | 'scale' | null>(null);
+  const [selectedTier, setSelectedTier] = useState<'solo' | 'growth' | 'scale' | null>(null);
   const [showCancellation, setShowCancellation] = useState(false);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
   const handleCoffeePurchase = async () => {
     try {
       setUpgrading(true);
-      setSelectedTier('coffee');
+      setSelectedTier('solo');
 
       const token = getAccessToken();
       if (!token) {
@@ -177,7 +177,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
         </CardHeader>
         <CardContent>
           {/* Coffee Tier Credits Display */}
-          {currentTier === 'coffee' && (
+          {currentTier === 'solo' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-orange-600">
@@ -206,7 +206,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           )}
 
           {/* Active Subscription Display */}
-          {hasActiveSubscription && currentTier !== 'coffee' ? (
+          {hasActiveSubscription && currentTier !== 'solo' ? (
             <div className="space-y-4">
               <div className="flex items-center text-green-600">
                 <CheckCircle className="h-5 w-5 mr-2" />
@@ -250,7 +250,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
               <p className="text-slate-600">
                 {currentTier === 'starter'
                   ? 'You are currently on the free Starter plan (20 pages).'
-                  : currentTier === 'coffee'
+                  : currentTier === 'solo'
                     ? `You have coffee credits for premium analysis.`
                     : 'No active subscription found.'}
               </p>
@@ -270,7 +270,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                     className="w-full bg-orange-600 hover:bg-orange-700 text-white min-h-[48px] px-6 py-3"
                     size="default"
                   >
-                    {upgrading && selectedTier === 'coffee' ? (
+                    {upgrading && selectedTier === 'solo' ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin mr-2" />
                         Processing...
@@ -281,7 +281,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                   </Button>
                 </div>
               )}
-              {currentTier === 'coffee' && creditsRemaining === 0 && (
+              {currentTier === 'solo' && creditsRemaining === 0 && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                   <h4 className="font-medium text-orange-800 mb-2">☕ Want Another Analysis?</h4>
                   <p className="text-sm text-orange-700 mb-3">
@@ -294,7 +294,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                     className="w-full border-orange-200 text-orange-600 hover:bg-orange-50 min-h-[48px] px-6 py-3"
                     size="default"
                   >
-                    {upgrading && selectedTier === 'coffee' ? (
+                    {upgrading && selectedTier === 'solo' ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin mr-2" />
                         Processing...
@@ -305,7 +305,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                   </Button>
                 </div>
               )}
-              {currentTier !== 'scale' && currentTier !== 'coffee' && (
+              {currentTier !== 'scale' && currentTier !== 'solo' && (
                 <p className="text-sm text-slate-500">
                   🚀 Upgrade to unlock unlimited analyses and advanced AI features.
                 </p>
@@ -357,7 +357,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
             </Card>
           )}
 
-          {(currentTier === 'starter' || currentTier === 'coffee' || currentTier === 'growth') && (
+          {(currentTier === 'starter' || currentTier === 'solo' || currentTier === 'growth') && (
             <Card className="border-purple-200">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">

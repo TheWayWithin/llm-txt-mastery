@@ -48,7 +48,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
 
   const getTierBenefits = () => {
     switch (eligibility.tier) {
-      case 'coffee':
+      case 'solo':
         return [
           'AI-enhanced analysis',
           'Remaining analysis credits',

@@ -430,9 +430,9 @@ export const analyticsHelpers = {
   trackEmailCapture: (emailTier: UserTier, websiteUrl?: string) => {
     const tierValues = {
       starter: 0,
-      coffee: 4.95,
-      growth: 9.95,
-      scale: 19.95,
+      solo: 4.95,
+      growth: 14.95,
+      scale: 29.95,
     };
 
     analytics.track('email_capture', {
@@ -499,9 +499,9 @@ export const analyticsHelpers = {
   trackUpgradeClick: (fromTier: UserTier, toTier: UserTier) => {
     const tierValues = {
       starter: 0,
-      coffee: 4.95,
-      growth: 9.95,
-      scale: 19.95,
+      solo: 4.95,
+      growth: 14.95,
+      scale: 29.95,
     };
 
     analytics.track('upgrade_click', {

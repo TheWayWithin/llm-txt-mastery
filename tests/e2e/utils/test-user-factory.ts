@@ -36,7 +36,7 @@ export class TestUserFactory {
   /**
    * Create a test user for a specific tier
    */
-  async createUser(tier: 'free' | 'coffee' | 'growth' | 'scale'): Promise<TestUser> {
+  async createUser(tier: 'free' | 'solo' | 'growth' | 'scale'): Promise<TestUser> {
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 8);
     const template = TEST_USER_TEMPLATES[tier];
@@ -66,12 +66,13 @@ export class TestUserFactory {
 
     // Add tier-specific properties
     switch (tier) {
-      case 'coffee':
-        user.credits = config.credits;
+      case 'solo':
+        user.dailyLimit = config.dailyLimit;
         user.metadata.purchaseDate = new Date();
         user.metadata.refundEligible = true;
+        user.metadata.monthlyLimit = config.monthlyLimit;
         break;
-      
+
       case 'growth':
       case 'scale':
         user.dailyLimit = config.dailyLimit;
@@ -79,8 +80,9 @@ export class TestUserFactory {
         user.stripeCustomerId = `cus_test_${randomId}`;
         user.metadata.billingCycle = 'monthly';
         user.metadata.nextBillingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        user.metadata.monthlyLimit = config.monthlyLimit;
         break;
-      
+
       default: // free tier
         user.dailyLimit = config.dailyLimit;
     }
@@ -94,7 +96,7 @@ export class TestUserFactory {
   /**
    * Create multiple users of the same tier
    */
-  async createMultipleUsers(tier: 'free' | 'coffee' | 'growth' | 'scale', count: number): Promise<TestUser[]> {
+  async createMultipleUsers(tier: 'free' | 'solo' | 'growth' | 'scale', count: number): Promise<TestUser[]> {
     const users: TestUser[] = [];
     
     for (let i = 0; i < count; i++) {
@@ -110,18 +112,18 @@ export class TestUserFactory {
    */
   async createTestUserSet(): Promise<{
     free: TestUser;
-    coffee: TestUser;
+    solo: TestUser;
     growth: TestUser;
     scale: TestUser;
   }> {
-    const [free, coffee, growth, scale] = await Promise.all([
+    const [free, solo, growth, scale] = await Promise.all([
       this.createUser('free'),
-      this.createUser('coffee'),
+      this.createUser('solo'),
       this.createUser('growth'),
       this.createUser('scale'),
     ]);
 
-    return { free, coffee, growth, scale };
+    return { free, solo, growth, scale };
   }
 
   /**
@@ -151,16 +153,21 @@ export class TestUserFactory {
   }
 
   /**
-   * Simulate user consuming credits (Coffee tier)
+   * Simulate daily limit consumption (Solo tier)
    */
-  consumeCredit(email: string): boolean {
+  consumeDailyUsage(email: string): boolean {
     const user = this.users.get(email);
-    if (!user || user.tier !== 'coffee' || !user.credits) {
+    if (!user || user.tier !== 'solo') {
       return false;
     }
 
-    if (user.credits > 0) {
-      user.credits--;
+    const today = new Date().toDateString();
+    const dailyUsage = user.metadata.dailyUsage || {};
+    const todayUsage = dailyUsage[today] || 0;
+
+    if (todayUsage < (user.dailyLimit || 0)) {
+      dailyUsage[today] = todayUsage + 1;
+      user.metadata.dailyUsage = dailyUsage;
       this.users.set(email, user);
       return true;
     }
@@ -236,11 +243,11 @@ export class TestUserFactory {
   }
 
   /**
-   * Simulate refund processing (Coffee tier)
+   * Simulate refund processing (Solo tier)
    */
   processRefund(email: string): boolean {
     const user = this.users.get(email);
-    if (!user || user.tier !== 'coffee') {
+    if (!user || user.tier !== 'solo') {
       return false;
     }
 
@@ -255,9 +262,9 @@ export class TestUserFactory {
 
     user.metadata.refunded = true;
     user.metadata.refundedAt = new Date();
-    user.credits = 0;
+    user.dailyLimit = 0;
     this.users.set(email, user);
-    
+
     return true;
   }
 
@@ -292,7 +299,7 @@ export class TestUserFactory {
     totalUsers: number;
     byTier: Record<string, number>;
     withSubscriptions: number;
-    withCredits: number;
+    withDailyLimits: number;
     refunded: number;
     canceled: number;
   } {
@@ -300,7 +307,7 @@ export class TestUserFactory {
       totalUsers: this.users.size,
       byTier: {} as Record<string, number>,
       withSubscriptions: 0,
-      withCredits: 0,
+      withDailyLimits: 0,
       refunded: 0,
       canceled: 0,
     };
@@ -308,16 +315,16 @@ export class TestUserFactory {
     this.users.forEach(user => {
       // Count by tier
       stats.byTier[user.tier] = (stats.byTier[user.tier] || 0) + 1;
-      
+
       // Count subscriptions
       if (user.subscriptionId) stats.withSubscriptions++;
-      
-      // Count credits
-      if (user.credits && user.credits > 0) stats.withCredits++;
-      
+
+      // Count daily limits
+      if (user.dailyLimit && user.dailyLimit > 0) stats.withDailyLimits++;
+
       // Count refunds
       if (user.metadata.refunded) stats.refunded++;
-      
+
       // Count cancellations
       if (user.metadata.subscriptionStatus === 'canceled') stats.canceled++;
     });
@@ -350,7 +357,7 @@ export class TestUserFactory {
  */
 export async function createTestUsers(): Promise<{
   free: TestUser;
-  coffee: TestUser;
+  solo: TestUser;
   growth: TestUser;
   scale: TestUser;
 }> {
@@ -361,7 +368,7 @@ export async function createTestUsers(): Promise<{
 /**
  * Create a single test user
  */
-export async function createTestUser(tier: 'free' | 'coffee' | 'growth' | 'scale'): Promise<TestUser> {
+export async function createTestUser(tier: 'free' | 'solo' | 'growth' | 'scale'): Promise<TestUser> {
   const factory = TestUserFactory.getInstance();
   return factory.createUser(tier);
 }
@@ -370,7 +377,7 @@ export async function createTestUser(tier: 'free' | 'coffee' | 'growth' | 'scale
  * Create multiple test users
  */
 export async function createMultipleTestUsers(
-  tier: 'free' | 'coffee' | 'growth' | 'scale',
+  tier: 'free' | 'solo' | 'growth' | 'scale',
   count: number
 ): Promise<TestUser[]> {
   const factory = TestUserFactory.getInstance();
@@ -415,19 +422,22 @@ export const TEST_USER_SCENARIOS = {
     },
   },
 
-  // Coffee user with 1 credit left
-  lowCredits: {
-    tier: 'coffee',
-    credits: 1,
+  // Solo user approaching daily limit
+  approachingLimit: {
+    tier: 'solo',
+    dailyLimit: 35,
     metadata: {
+      dailyUsage: {
+        [new Date().toDateString()]: 30,
+      },
       warningShown: false,
     },
   },
 
   // User eligible for refund
   refundEligible: {
-    tier: 'coffee',
-    credits: 3,
+    tier: 'solo',
+    dailyLimit: 35,
     metadata: {
       purchaseDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
       refundEligible: true,
@@ -436,8 +446,8 @@ export const TEST_USER_SCENARIOS = {
 
   // User past refund period
   refundIneligible: {
-    tier: 'coffee',
-    credits: 2,
+    tier: 'solo',
+    dailyLimit: 35,
     metadata: {
       purchaseDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000), // 35 days ago
       refundEligible: false,

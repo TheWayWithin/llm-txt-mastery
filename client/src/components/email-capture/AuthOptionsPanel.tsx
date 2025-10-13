@@ -54,7 +54,7 @@ export function AuthOptionsPanel({
           onClick={onSignUp}
           disabled={disabled || loading}
           className={`min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 disabled:opacity-50 ${
-            selectedTier === 'coffee'
+            selectedTier === 'solo'
               ? 'bg-orange-600 hover:bg-orange-700'
               : 'bg-mastery-blue hover:bg-mastery-blue/90'
           }`}

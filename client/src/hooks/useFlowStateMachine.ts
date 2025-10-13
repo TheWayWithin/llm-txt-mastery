@@ -20,7 +20,7 @@ export type FlowState =
   | 'ERROR';
 
 // User tier type
-export type UserTier = 'starter' | 'coffee' | 'growth' | 'scale';
+export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
 
 // Events that can trigger state transitions
 export type FlowEvent =
@@ -208,7 +208,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       if (context.user) {
         console.log(`✅ URL_SUBMITTED: User is authenticated with tier ${context.user.tier}`);
         // Coffee tier users proceed directly to analysis for optimal UX
-        if (context.user.tier === 'coffee') {
+        if (context.user.tier === 'solo') {
           console.log('☕ URL_SUBMITTED: Coffee tier user - proceeding directly to analysis');
           return { ...newContext, currentState: 'ANALYSIS' };
         } else {
@@ -514,7 +514,7 @@ function parseURLParams(location: string): URLParams {
   return {
     url: urlParams.get('url') || undefined,
     email: urlParams.get('email') || undefined,
-    isCoffeeReturn: urlParams.get('coffee') === 'true',
+    isCoffeeReturn: urlParams.get('solo') === 'true',
     isRerun: urlParams.get('rerun') === 'true',
   };
 }
@@ -620,7 +620,7 @@ function createInitialState(urlParams: URLParams, authLoading: boolean): FlowCon
   }
 
   if (urlParams.isCoffeeReturn && urlParams.email) {
-    userTier = 'coffee';
+    userTier = 'solo';
   }
 
   return {
@@ -667,7 +667,7 @@ export function useFlowStateMachine() {
       console.log(
         `📧 Email parameter detected: ${urlParams.email}, isCoffeeReturn: ${urlParams.isCoffeeReturn}`
       );
-      const tier = urlParams.isCoffeeReturn ? 'coffee' : 'starter';
+      const tier = urlParams.isCoffeeReturn ? 'solo' : 'starter';
       dispatch({ type: 'EMAIL_CAPTURED', email: urlParams.email, tier });
     }
   }, [urlParams, context.websiteUrl, context.userEmail, context.currentState, authLoading, user]);

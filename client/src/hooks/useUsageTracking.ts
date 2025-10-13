@@ -106,7 +106,7 @@ export function useUsageTracking(email: string | undefined) {
           console.log(`[DEBUG] Simple usage response:`, simpleData);
 
           // For Coffee tier, skip simple endpoint if it doesn't have creditsRemaining
-          if (simpleData.tier === 'coffee' && simpleData.creditsRemaining === undefined) {
+          if (simpleData.tier === 'solo' && simpleData.creditsRemaining === undefined) {
             console.log(
               `⚠️ [SIMPLE] Coffee tier detected but no creditsRemaining, falling back to full endpoint`
             );

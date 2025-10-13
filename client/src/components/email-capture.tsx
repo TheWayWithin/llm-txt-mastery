@@ -13,7 +13,7 @@ import { trackEvent } from '@/lib/analytics';
 
 interface EmailCaptureProps {
   websiteUrl?: string;
-  onEmailCaptured: (email: string, tier: 'starter' | 'coffee' | 'growth' | 'scale') => void;
+  onEmailCaptured: (email: string, tier: 'starter' | 'solo' | 'growth' | 'scale') => void;
   onLoginRequested?: () => void;
   onReset?: () => void;
   isVisible: boolean;
@@ -30,10 +30,10 @@ export default function EmailCapture({
 }: EmailCaptureProps) {
   // useToast hook removed - no longer using toast notifications
   const [selectedTier, setSelectedTier] = useState<
-    'starter' | 'coffee' | 'growth' | 'scale' | null
-  >('coffee');
+    'starter' | 'solo' | 'growth' | 'scale' | null
+  >('solo');
 
-  const handleTierSelection = (tier: 'starter' | 'coffee' | 'growth' | 'scale') => {
+  const handleTierSelection = (tier: 'starter' | 'solo' | 'growth' | 'scale') => {
     trackEvent('tier_selected', {
       tier_selected: tier,
       previous_tier: selectedTier,
@@ -184,14 +184,14 @@ export default function EmailCapture({
             {/* Coffee Tier */}
             <div
               className="relative border-4 border-green-500 rounded-lg bg-gradient-to-br from-green-50 to-orange-50 hover:from-green-100 hover:to-orange-100 transition-colors p-4 cursor-pointer shadow-lg"
-              onClick={() => handleTierSelection('coffee')}
+              onClick={() => handleTierSelection('solo')}
             >
-              <RadioGroupItem value="coffee" id="coffee" className="absolute top-4 right-4" />
+              <RadioGroupItem value="solo" id="solo" className="absolute top-4 right-4" />
               <div className="absolute -top-3 left-4 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-bold">
                 🏆 CRUSH YOUR COMPETITION
               </div>
               <div className="pr-8">
-                <Label htmlFor="coffee" className="flex items-center space-x-2 cursor-pointer mt-2">
+                <Label htmlFor="solo" className="flex items-center space-x-2 cursor-pointer mt-2">
                   <img src="/images/tier-coffee.png" alt="Coffee Tier" className="w-8 h-8" />
                   <span className="font-bold text-xl text-green-800">
                     Coffee Power ($4.95/month)
@@ -303,7 +303,7 @@ export default function EmailCapture({
                   type="button"
                   onClick={handleSignUp}
                   className={`min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 ${
-                    selectedTier === 'coffee'
+                    selectedTier === 'solo'
                       ? 'bg-orange-600 hover:bg-orange-700'
                       : 'bg-mastery-blue hover:bg-mastery-blue/90'
                   }`}
@@ -333,7 +333,7 @@ export default function EmailCapture({
                       outrank you
                     </span>
                   </div>
-                ) : selectedTier === 'coffee' ? (
+                ) : selectedTier === 'solo' ? (
                   <div className="bg-green-50 border border-green-200 p-3 rounded">
                     <span className="text-green-700 font-bold">
                       🚀 SMART CHOICE: Full power • 30-day guarantee • Cancel instantly • Risk-FREE

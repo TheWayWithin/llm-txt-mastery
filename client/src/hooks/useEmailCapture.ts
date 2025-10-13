@@ -45,7 +45,7 @@ export function useEmailCapture(options: UseEmailCaptureOptions = {}): UseEmailC
     onEmailCaptured,
     onLoginRequested,
     onReset,
-    initialTier = 'coffee',
+    initialTier = 'solo',
   } = options;
 
   // State

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Check, Coffee, Zap, Crown } from 'lucide-react';
 import { Link } from 'wouter';
 
-export type TierType = 'free' | 'coffee' | 'growth' | 'scale';
+export type TierType = 'free' | 'solo' | 'growth' | 'scale';
 
 interface PricingPreviewProps {
   highlightTier?: TierType;
@@ -13,7 +13,7 @@ interface PricingPreviewProps {
 }
 
 export default function PricingPreview({
-  highlightTier = 'coffee',
+  highlightTier = 'solo',
   showAllTiers = true,
   ctaText = 'Start Free Analysis',
   className = '',
@@ -39,8 +39,8 @@ export default function PricingPreview({
       badge: null,
     },
     {
-      id: 'coffee' as TierType,
-      name: 'COFFEE',
+      id: 'solo' as TierType,
+      name: 'SOLO',
       price: '$4.95',
       period: '/mo',
       icon: Coffee,
@@ -50,7 +50,7 @@ export default function PricingPreview({
         '200 pages per analysis',
         'AI-enhanced quality',
       ],
-      cta: 'Start Coffee Plan',
+      cta: 'Start Solo Plan',
       borderColor: 'border-orange-400',
       bgColor: 'bg-orange-50',
       iconColor: 'text-orange-600',
@@ -61,13 +61,13 @@ export default function PricingPreview({
     {
       id: 'growth' as TierType,
       name: 'GROWTH',
-      price: '$9.95',
+      price: '$14.95',
       period: '/mo',
       icon: Zap,
       description: 'Professional power',
       features: [
-        'Unlimited analyses',
-        '1,000 pages per analysis',
+        '35 analyses/month',
+        '500 pages per analysis',
         'Smart caching',
       ],
       cta: 'View Full Pricing',
@@ -80,14 +80,14 @@ export default function PricingPreview({
     {
       id: 'scale' as TierType,
       name: 'SCALE',
-      price: '$19.95',
+      price: '$29.95',
       period: '/mo',
       icon: Crown,
       description: 'Enterprise grade',
       features: [
-        'Unlimited everything',
+        '100 analyses/month',
+        '1,000 pages per analysis',
         'API access',
-        'Direct email support',
       ],
       cta: 'View Full Pricing',
       borderColor: 'border-mastery-blue',
@@ -99,7 +99,7 @@ export default function PricingPreview({
   ];
 
   // Filter tiers based on showAllTiers and screen size
-  const visibleTiers = showAllTiers ? tiers : tiers.filter(t => ['free', 'coffee'].includes(t.id));
+  const visibleTiers = showAllTiers ? tiers : tiers.filter(t => ['free', 'solo'].includes(t.id));
 
   return (
     <section className={`py-12 ${className}`}>
@@ -160,12 +160,12 @@ export default function PricingPreview({
                   </ul>
 
                   {/* CTA Button - Minimum 44px height for touch targets */}
-                  {tier.id === 'free' || tier.id === 'coffee' ? (
+                  {tier.id === 'free' || tier.id === 'solo' ? (
                     <Link href="/">
                       <Button
                         variant={tier.ctaVariant}
                         className={`w-full min-h-[44px] ${
-                          tier.id === 'coffee'
+                          tier.id === 'solo'
                             ? 'bg-orange-600 hover:bg-orange-700 text-white'
                             : ''
                         }`}

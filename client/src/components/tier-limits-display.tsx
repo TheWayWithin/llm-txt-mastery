@@ -31,7 +31,7 @@ export default function TierLimitsDisplay({
       setLimitsData(data);
       if (data.allowed) {
         // Coffee+ tier users proceed faster for premium experience
-        if (data.tier === 'coffee') {
+        if (data.tier === 'solo') {
           console.log('☕ Coffee tier detected - proceeding with premium experience (250ms delay)');
           setTimeout(() => {
             onProceed();
@@ -151,7 +151,7 @@ export default function TierLimitsDisplay({
                   </div>
                 </div>
                 <p className="text-sm text-green-700 pt-1">
-                  {tier === 'coffee'
+                  {tier === 'solo'
                     ? '☕ Premium AI analysis launching - your investment at work!'
                     : tier === 'growth' || tier === 'scale'
                       ? '🚀 Unlimited power engaged - full speed ahead!'
@@ -178,7 +178,7 @@ export default function TierLimitsDisplay({
                       variant="outline"
                       className="text-mastery-blue border-mastery-blue min-h-[48px] px-6 py-3 w-full sm:w-auto"
                       onClick={async () => {
-                        if (suggestedUpgrade === 'coffee') {
+                        if (suggestedUpgrade === 'solo') {
                           // Trigger coffee tier purchase via API
                           try {
                             const response = await apiRequest(
@@ -202,7 +202,7 @@ export default function TierLimitsDisplay({
                         }
                       }}
                     >
-                      {suggestedUpgrade === 'coffee'
+                      {suggestedUpgrade === 'solo'
                         ? '☕ Buy Me Coffee ($4.95)'
                         : `🚀 Upgrade to ${suggestedUpgrade.charAt(0).toUpperCase() + suggestedUpgrade.slice(1)}`}
                     </Button>

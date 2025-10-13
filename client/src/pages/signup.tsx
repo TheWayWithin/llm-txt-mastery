@@ -36,7 +36,7 @@ export default function SignupPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const emailParam = urlParams.get('email') || '';
   const tierParam =
-    (urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale') || 'coffee';
+    (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale') || 'solo';
   const websiteUrlParam = urlParams.get('websiteUrl') || '';
 
   // Form state
@@ -142,7 +142,7 @@ export default function SignupPage() {
       }
 
       // Handle paid tier checkouts BEFORE creating user (Coffee, Growth, Scale)
-      if (selectedTier === 'coffee' || selectedTier === 'growth' || selectedTier === 'scale') {
+      if (selectedTier === 'solo' || selectedTier === 'growth' || selectedTier === 'scale') {
         console.log(
           `💳 ${selectedTier} tier selected, redirecting to Stripe checkout WITHOUT creating user first`
         );
@@ -161,7 +161,7 @@ export default function SignupPage() {
 
         // Determine the correct endpoint based on tier
         let endpoint = '';
-        if (selectedTier === 'coffee') {
+        if (selectedTier === 'solo') {
           endpoint = '/api/stripe/create-coffee-checkout';
         } else if (selectedTier === 'growth') {
           endpoint = '/api/stripe/create-growth-checkout';
@@ -241,7 +241,7 @@ export default function SignupPage() {
     switch (tier) {
       case 'starter':
         return <Shield className="h-5 w-5" />;
-      case 'coffee':
+      case 'solo':
         return <Coffee className="h-5 w-5" />;
       case 'growth':
         return <Zap className="h-5 w-5" />;
@@ -262,7 +262,7 @@ export default function SignupPage() {
           '❌ Basic HTML extraction only',
           '⚠️ WARNING: AI will only see 20 pages - missing your pricing, features, case studies, and 90% of what makes you unique!',
         ];
-      case 'coffee':
+      case 'solo':
         return [
           '✅ 20 monthly analysis credits',
           '✅ 200 pages per analysis (10x more than free)',
@@ -363,7 +363,7 @@ export default function SignupPage() {
                       <option value="starter" data-testid="tier-option-starter">
                         ⚠️ FREE - 3 daily (20 pages max)
                       </option>
-                      <option value="coffee" data-testid="tier-option-coffee">
+                      <option value="solo" data-testid="tier-option-coffee">
                         ☕ COFFEE - 20 monthly ($4.95/month)
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
@@ -379,7 +379,7 @@ export default function SignupPage() {
                       className={`rounded-lg p-4 border-2 mt-2 ${
                         selectedTier === 'starter'
                           ? 'bg-red-50 border-red-300'
-                          : selectedTier === 'coffee'
+                          : selectedTier === 'solo'
                             ? 'bg-green-50 border-green-400'
                             : 'bg-blue-50 border-blue-300'
                       }`}
@@ -394,7 +394,7 @@ export default function SignupPage() {
                         className={`text-sm font-medium mt-2 ${
                           selectedTier === 'starter'
                             ? 'text-red-700'
-                            : selectedTier === 'coffee'
+                            : selectedTier === 'solo'
                               ? 'text-green-700'
                               : 'text-blue-700'
                         }`}
@@ -412,7 +412,7 @@ export default function SignupPage() {
                         </div>
                       )}
 
-                      {selectedTier === 'coffee' && (
+                      {selectedTier === 'solo' && (
                         <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded">
                           <p className="text-xs font-bold text-green-800">
                             🚀 SMART CHOICE! 20 monthly analyses + 30-day guarantee + cancel
@@ -666,7 +666,7 @@ export default function SignupPage() {
                         className={`text-sm font-medium ${
                           selectedTier === 'starter'
                             ? 'text-red-700'
-                            : selectedTier === 'coffee'
+                            : selectedTier === 'solo'
                               ? 'text-green-700'
                               : 'text-gray-700'
                         }`}

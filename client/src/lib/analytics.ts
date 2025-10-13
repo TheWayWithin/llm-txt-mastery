@@ -115,7 +115,7 @@ export const trackEvent = (event: string, parameters?: Record<string, any>) => {
 export const trackEmailCapture = (email: string, tier: string) => {
   trackEvent('email_capture', {
     email_tier: tier,
-    value: tier === 'starter' ? 0 : tier === 'coffee' ? 4.95 : tier === 'growth' ? 9.95 : 19.95,
+    value: tier === 'starter' ? 0 : tier === 'solo' ? 4.95 : tier === 'growth' ? 14.95 : 29.95,
     currency: 'USD',
   });
 };

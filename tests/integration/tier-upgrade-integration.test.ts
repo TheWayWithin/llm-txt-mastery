@@ -31,7 +31,7 @@ vi.mock('../../server/services/stripe', () => ({
   createPortalSession: vi.fn(),
   getCustomerSubscriptions: vi.fn(),
   TIER_PRICES: {
-    coffee: { priceId: 'price_coffee_123' },
+    solo: { priceId: 'price_solo_123' },
     growth: { priceId: 'price_growth_456' },
     scale: { priceId: 'price_scale_789' },
   },
@@ -81,8 +81,8 @@ describe('Tier Upgrade Integration Tests', () => {
     await db.delete(userProfiles).where(eq(userProfiles.id, testUserProfileId));
   });
 
-  describe('Coffee Tier Purchase Integration', () => {
-    it('should update both emailCaptures and userProfiles for coffee purchase', async () => {
+  describe('Solo Tier Purchase Integration', () => {
+    it('should update both emailCaptures and userProfiles for solo purchase', async () => {
       // Arrange
       const webhookPayload = {
         type: 'checkout.session.completed',
@@ -90,9 +90,9 @@ describe('Tier Upgrade Integration Tests', () => {
           object: {
             metadata: {
               userId: testUserProfileId,
-              paymentType: 'one_time',
-              productType: 'coffee',
-              priceId: 'price_coffee_123',
+              paymentType: 'subscription',
+              productType: 'solo',
+              priceId: 'price_solo_123',
             },
             customer_details: {
               email: 'integration-test@example.com',
@@ -114,22 +114,21 @@ describe('Tier Upgrade Integration Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ received: true });
 
-      // Verify emailCaptures table was updated to Coffee tier
+      // Verify emailCaptures table was updated to Solo tier
       const updatedEmailCapture = await db
         .select()
         .from(emailCaptures)
         .where(eq(emailCaptures.id, testEmailCaptureId));
 
-      expect(updatedEmailCapture[0].tier).toBe('coffee');
+      expect(updatedEmailCapture[0].tier).toBe('solo');
 
-      // Verify userProfiles table was updated to Coffee tier
+      // Verify userProfiles table was updated to Solo tier
       const updatedUserProfile = await db
         .select()
         .from(userProfiles)
         .where(eq(userProfiles.id, testUserProfileId));
 
-      expect(updatedUserProfile[0].tier).toBe('coffee');
-      expect(updatedUserProfile[0].creditsRemaining).toBe(1);
+      expect(updatedUserProfile[0].tier).toBe('solo');
     });
   });
 
@@ -357,8 +356,8 @@ describe('Tier Upgrade Integration Tests', () => {
           object: {
             metadata: {
               userId: testUserProfileId,
-              paymentType: 'one_time',
-              productType: 'coffee',
+              paymentType: 'subscription',
+              productType: 'solo',
             },
             customer_details: {
               email: 'nonexistent@example.com', // Email not in database
@@ -384,8 +383,7 @@ describe('Tier Upgrade Integration Tests', () => {
         .from(userProfiles)
         .where(eq(userProfiles.id, testUserProfileId));
 
-      expect(updatedUserProfile[0].tier).toBe('coffee');
-      expect(updatedUserProfile[0].creditsRemaining).toBe(1);
+      expect(updatedUserProfile[0].tier).toBe('solo');
     });
   });
 });

@@ -54,7 +54,7 @@ export interface UseTierSelectionReturn {
 export function useTierSelection(options: UseTierSelectionOptions = {}): UseTierSelectionReturn {
   const {
     initialTier = null,
-    allowedTiers = ['starter', 'coffee', 'growth', 'scale'],
+    allowedTiers = ['starter', 'solo', 'growth', 'scale'],
     required = true,
   } = options;
 
@@ -78,7 +78,7 @@ export function useTierSelection(options: UseTierSelectionOptions = {}): UseTier
         isPopular: false,
       },
       {
-        tier: 'coffee',
+        tier: 'solo',
         displayName: 'Coffee Power ($4.95/month)',
         features: [
           'UNLIMITED daily analyses',
@@ -123,7 +123,7 @@ export function useTierSelection(options: UseTierSelectionOptions = {}): UseTier
   );
 
   // Recommended tier (business rule: coffee tier is best for most users)
-  const recommendedTier: UserTier = 'coffee';
+  const recommendedTier: UserTier = 'solo';
 
   // Select tier with validation
   const selectTier = useCallback(

@@ -303,10 +303,10 @@ export default function AnalyzePage() {
                   <BarChart3 className="h-5 w-5 text-innovation-teal" />
                   <div>
                     <p className="text-sm font-medium text-framework-black">
-                      {user.tier === 'coffee' ? 'Credits' : "Today's Usage"}
+                      {user.tier === 'solo' ? 'Credits' : "Today's Usage"}
                     </p>
                     <p className="text-xs text-ai-silver">
-                      {user.tier === 'coffee'
+                      {user.tier === 'solo'
                         ? `${usageData?.creditsRemaining || 0} remaining`
                         : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || 3}`}
                     </p>
@@ -316,7 +316,7 @@ export default function AnalyzePage() {
                   <Clock className="h-5 w-5 text-innovation-teal" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-framework-black">
-                      {user.tier === 'coffee'
+                      {user.tier === 'solo'
                         ? 'Manage Subscription'
                         : user.tier === 'starter'
                           ? 'Upgrade Available'
@@ -325,7 +325,7 @@ export default function AnalyzePage() {
                             : 'Enterprise Features'}
                     </p>
                     <p className="text-xs text-ai-silver">
-                      {user.tier === 'coffee'
+                      {user.tier === 'solo'
                         ? 'View billing & invoices'
                         : user.tier === 'starter'
                           ? 'Get more analyses'
@@ -340,7 +340,7 @@ export default function AnalyzePage() {
                         <Button variant="outline" size="sm" className="h-7 text-xs">
                           {user.tier === 'starter'
                             ? 'Upgrade'
-                            : user.tier === 'coffee'
+                            : user.tier === 'solo'
                               ? 'Billing'
                               : 'Manage'}
                         </Button>
@@ -450,7 +450,7 @@ export default function AnalyzePage() {
                         <span>
                           {user.tier === 'starter'
                             ? 'AI analysis for first 5 pages'
-                            : user.tier === 'coffee'
+                            : user.tier === 'solo'
                               ? `${user.creditsRemaining || 0} premium analyses remaining`
                               : 'Unlimited AI-enhanced analysis'}
                         </span>

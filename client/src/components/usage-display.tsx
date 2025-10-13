@@ -53,13 +53,13 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   const maxPagesPerAnalysis =
     usageData?.maxPagesPerAnalysis ??
     usageData?.limits?.maxPagesPerAnalysis ??
-    (usageData?.tier === 'coffee' ? 200 : 20);
+    (usageData?.tier === 'solo' ? 200 : 20);
   const aiPagesLimit = usageData?.aiPagesLimit ?? usageData?.limits?.aiPagesLimit ?? 0;
   const cacheHitsToday = usageData?.cacheHitsToday ?? usageData?.usage?.cacheHitsToday ?? 0;
 
   const analysisPercentage = (currentUsage / dailyAnalyses) * 100;
   const costSaved = cacheHitsToday ? (cacheHitsToday * 0.03 * 0.7).toFixed(2) : '0.00';
-  const isCoffeeTier = usageData.tier === 'coffee';
+  const isCoffeeTier = usageData.tier === 'solo';
   const creditsRemaining = usageData?.creditsRemaining || 0;
 
   // Debug logging for Coffee tier
@@ -153,14 +153,14 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
               {usageData.tier === 'starter' && (
                 <p className="text-xs text-framework-black">• 3 free analyses per day</p>
               )}
-              {usageData.tier === 'coffee' && (
+              {usageData.tier === 'solo' && (
                 <>
                   <p className="text-xs text-framework-black">• 20 monthly analysis credits</p>
                   <p className="text-xs text-framework-black">• Max 200 pages per analysis</p>
                   <p className="text-xs text-framework-black">• AI analysis for all pages</p>
                 </>
               )}
-              {usageData.tier !== 'coffee' && (
+              {usageData.tier !== 'solo' && (
                 <>
                   <p className="text-xs text-framework-black">
                     • Max {maxPagesPerAnalysis} pages per analysis
