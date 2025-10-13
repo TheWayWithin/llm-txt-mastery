@@ -153,7 +153,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
               {usageData.tier === 'starter' && (
                 <p className="text-xs text-framework-black">• 3 free analyses per day</p>
               )}
-              {usageData.tier === 'solo' && (
+              {(usageData.tier === 'solo' || usageData.tier === 'coffee') && (
                 <>
                   <p className="text-xs text-framework-black">• 20 monthly analysis credits</p>
                   <p className="text-xs text-framework-black">• Max 200 pages per analysis</p>
