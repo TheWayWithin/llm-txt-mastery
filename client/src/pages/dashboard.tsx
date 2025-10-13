@@ -412,7 +412,7 @@ function BillingSection() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
-            {/* Coffee Tier */}
+            {/* Solo Tier */}
             <div
               className={`relative border-2 rounded-lg p-5 ${user.tier === 'solo' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}
             >
@@ -424,7 +424,7 @@ function BillingSection() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Coffee className="h-6 w-6 text-orange-600" />
-                  <h3 className="font-bold text-lg">Coffee</h3>
+                  <h3 className="font-bold text-lg">Solo</h3>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-orange-600">$4.95</div>
@@ -438,7 +438,7 @@ function BillingSection() {
                     ✅ 20 Monthly Analyses
                   </div>
                   <div className="text-xs text-orange-600">
-                    vs FREE: Only 3 per day (90 per month max) - Coffee gives you 20
+                    vs FREE: Only 3 per day (90 per month max) - Solo gives you 20
                   </div>
                 </div>
 
@@ -474,7 +474,7 @@ function BillingSection() {
                     💰 Incredible Value
                   </div>
                   <div className="text-xs text-orange-600">
-                    20 analyses for just $4.95/month - the price of a coffee!
+                    20 analyses for just $4.95/month - perfect for solo founders!
                   </div>
                 </div>
               </div>
@@ -488,11 +488,11 @@ function BillingSection() {
                 >
                   {upgradeLoading === 'solo'
                     ? 'Processing...'
-                    : '🚀 UPGRADE TO COFFEE - Beat Competitors Now'}
+                    : '🚀 UPGRADE TO SOLO - Beat Competitors Now'}
                 </Button>
               ) : user.tier === 'solo' ? (
                 <div className="text-center py-2 text-orange-600 font-medium">
-                  ✅ You're Using Coffee Plan
+                  ✅ You're Using Solo Plan
                 </div>
               ) : (
                 <div className="text-center py-2 text-gray-400 text-sm">
@@ -530,16 +530,16 @@ function BillingSection() {
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-blue-200 rounded-md p-3">
                   <div className="text-sm font-semibold text-blue-800 mb-1">
-                    🚀 EVERYTHING in Coffee +
+                    🚀 EVERYTHING in Solo +
                   </div>
-                  <div className="text-xs text-blue-600">All Coffee benefits included</div>
+                  <div className="text-xs text-blue-600">All Solo benefits included</div>
                 </div>
 
                 <div className="bg-white border border-blue-200 rounded-md p-3">
                   <div className="text-sm font-semibold text-blue-800 mb-1">
-                    📄 1,000 Pages per Analysis
+                    📄 500 Pages per Analysis
                   </div>
-                  <div className="text-xs text-blue-600">vs Coffee: 5x more content discovery</div>
+                  <div className="text-xs text-blue-600">vs Solo: 2.5x more content discovery</div>
                 </div>
 
                 <div className="bg-white border border-blue-200 rounded-md p-3">

@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { User, Coffee, Crown, Zap, Star, LogOut, Settings, CreditCard, Search } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { getTierDisplayName } from '@/lib/tier-utils';
 
 export function AuthNav() {
   const { user, signOut, loading } = useAuth();
@@ -68,7 +69,7 @@ export function AuthNav() {
         {user && (
           <Badge className={`${getTierColor(user.tier)} flex items-center gap-1`}>
             {getTierIcon(user.tier)}
-            {user.tier.charAt(0).toUpperCase() + user.tier.slice(1)}
+            {getTierDisplayName(user.tier)}
           </Badge>
         )}
 
