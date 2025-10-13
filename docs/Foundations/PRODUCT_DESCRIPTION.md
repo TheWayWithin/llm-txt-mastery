@@ -8,7 +8,7 @@
 
 **Infrastructure**: Fully operational Railway + Netlify split architecture
 **Authentication**: Complete JWT system with customer dashboard ✅ OPERATIONAL
-**Payment Processing**: Stripe Coffee tier ($4.95/month) with automatic account creation ✅ OPERATIONAL
+**Payment Processing**: Stripe Solo tier ($4.95/month) with automatic account creation ✅ OPERATIONAL
 **Customer Journey**: End-to-end flow from URL input to dashboard file management ✅ OPERATIONAL
 **Technical Debt**: Minimal - all critical systems implemented and stable
 
@@ -29,7 +29,7 @@ While competitors remain in MVP or beta stages, LLM.txt Mastery operates with **
 
 ### Cost Leadership Through Innovation
 
-Our **93% AI cost optimization** enables a sustainable freemium model starting at $0, with professional features from $4.95/month while nearest competitors require $29+ minimums. This breakthrough makes professional AI optimization accessible to solo entrepreneurs and small businesses previously priced out of the market.
+Our **93% AI cost optimization** enables a sustainable freemium model starting at $0, with professional features from $4.95/month (Solo tier) while nearest competitors require $29+ minimums. Our Scale tier at $29.95/month delivers enterprise features at competitor entry-level pricing. This breakthrough makes professional AI optimization accessible to solo entrepreneurs and small businesses previously priced out of the market.
 
 ### Technology Superiority
 
@@ -40,7 +40,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 ### Market Democratization
 
-**83% pricing gap** between our Coffee tier ($4.95/month) and nearest competitor ($29) enables market expansion into underserved segments while maintaining healthy unit economics through cost optimization.
+**83% pricing advantage** between our Solo tier ($4.95/month) and nearest competitor ($29) enables market expansion into underserved segments while maintaining healthy unit economics (90% gross margin) through cost optimization. Our complete tier structure (Solo/Growth/Scale at $4.95/$14.95/$29.95) offers clear upgrade paths with sustainable 60-90% margins across all tiers.
 
 ### Proven Business Model
 
@@ -55,18 +55,18 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 1. **Solo Entrepreneurs & Creators** (40% revenue focus)
    - Pain point: Professional AI optimization inaccessible at $29+ competitor pricing
-   - Solution: $4.95/month Coffee tier with enterprise-grade features
-   - Value: Professional AI visibility with affordable monthly subscription
+   - Solution: $4.95/month Solo tier with enterprise-grade features (20 analyses, 200 pages)
+   - Value: Professional AI visibility with affordable monthly subscription and 90% margin sustainability
 
 2. **Growing SaaS Businesses** (35% revenue focus)
    - Pain point: Need scalable AI optimization as business grows
-   - Solution: $9.95/month Growth tier with unlimited analyses and advanced features
-   - Value: ROI-focused pricing with clear business impact metrics
+   - Solution: $14.95/month Growth tier with daily analysis capacity (35/month, 500 pages)
+   - Value: ROI-focused pricing with clear business impact metrics and 86% healthy margins
 
 3. **Digital Agencies** (20% revenue focus)
    - Pain point: Client AI optimization requires expensive enterprise tools
-   - Solution: $19.95/month Scale tier with API access and team management
-   - Value: White-label potential with revenue-sharing opportunities
+   - Solution: $29.95/month Scale tier with API access (100 analyses, 1000 pages) and team management
+   - Value: White-label potential with revenue-sharing opportunities and 60% sustainable margins
 
 4. **Enterprise Organizations** (5% revenue focus)
    - Pain point: Compliance and security requirements for AI optimization
@@ -76,10 +76,10 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 ### Proven Business Model Success
 
 - **Revenue Generation**: Active paying customers across all operational tiers
-- **Unit Economics**: Healthy gross margins (>85%) through 93% AI cost optimization
+- **Unit Economics**: Healthy gross margins (60-90%) through 93% AI cost optimization
 - **Customer Acquisition**: Organic growth through product quality and word-of-mouth
 - **Retention Metrics**: High satisfaction with 30-day guarantee reducing risk
-- **Market Validation**: 84% pricing advantage creating sustainable competitive moat
+- **Market Validation**: 83% pricing advantage (Solo tier) creating sustainable competitive moat
 
 ## Architecture & Technology Stack
 
@@ -102,7 +102,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 **Database**: Neon PostgreSQL (Advanced Schema)
 
-- **Multi-Business Model Support**: Coffee credits, subscriptions, payment history, cancellations
+- **Multi-Business Model Support**: Solo tier subscriptions, payment history, cancellations, tier management
 - **Sophisticated User Management**: authUsers, userProfiles, oneTimeCredits, subscriptions, paymentHistory
 - **Intelligent Caching**: Tier-based expiration, HTTP header validation, content hash comparison
 - **Real-Time Usage Tracking**: Cost cap enforcement, tier management, analytics collection
@@ -120,7 +120,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 - JWT access tokens with secure refresh token rotation
 - Password hashing with bcrypt and security validation
 - Rate-limited authentication endpoints (15 requests/15 minutes)
-- Automatic account creation for Coffee tier purchasers
+- Automatic account creation for Solo tier purchasers
 - User profile management with tier-based access control
 - Session security with httpOnly cookies and CSRF protection
 
@@ -140,7 +140,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 **Stripe Payment Processing**
 
 - Complete payment flow with webhook integration
-- Support for one-time payments (Coffee tier) and subscriptions (Growth/Scale)
+- Support for monthly subscriptions (Solo/Growth/Scale tiers)
 - Secure customer data handling and PCI compliance
 - Automatic tier upgrades and access control
 
@@ -178,8 +178,8 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 ### Authentication & Account Management ✅ FULLY IMPLEMENTED
 
 - **JWT Authentication**: Complete login/logout system with refresh token rotation
-- **User Dashboard**: Account management interface for Coffee+ tier customers
-- **Automatic Account Creation**: Post-purchase account setup for Coffee tier buyers
+- **User Dashboard**: Account management interface for Solo+ tier customers
+- **Automatic Account Creation**: Post-purchase account setup for Solo tier buyers
 - **Tier Management**: Automatic tier recognition and access control
 - **Profile Management**: User settings, email preferences, and account status
 - **Session Security**: Secure token storage with automatic refresh and logout
@@ -189,7 +189,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 - **Standards-Compliant Output**: Properly formatted LLM.txt files following established conventions
 - **Comprehensive Documentation**: Includes analysis summary, quality scoring reference, and excluded pages
 - **Instant Download**: Secure file delivery with proper headers and complete content
-- **File History & Re-access**: Account-based file storage for Coffee+ tier customers ✅ IMPLEMENTED
+- **File History & Re-access**: Account-based file storage for Solo+ tier customers ✅ IMPLEMENTED
 - **Dashboard File Management**: Access previous analyses and re-download files ✅ IMPLEMENTED
 
 ### User Experience Features
@@ -245,7 +245,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 **Price**: $0/month
 **Features**:
 
-- 3 analyses per day
+- 3 analyses per month
 - 20 pages maximum per analysis
 - Full AI-powered analysis (GPT-4o quality scoring)
 - 30-day cache retention
@@ -254,7 +254,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 
 **Ideal For**: Individual users exploring LLM.txt functionality, small personal projects
 
-### Coffee (Monthly Subscription) ✅ FULLY OPERATIONAL
+### Solo (Monthly Subscription) ✅ FULLY OPERATIONAL
 
 **Price**: $4.95/month subscription
 **Features**:
@@ -264,44 +264,65 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 - Full 6-phase AI enhancement system with GPT-4o
 - Professional dashboard with file history
 - 30-day satisfaction guarantee
+- 90% gross margin (sustainable pricing)
 - **✅ Automatic Account Creation**: Post-purchase account setup
 - **✅ Customer Dashboard**: Account management and file history
 - **✅ File Re-access**: Download previous analyses anytime
 - **✅ Smart Reset Functionality**: Seamless multi-analysis workflow
 
-**Ideal For**: Solo entrepreneurs, small businesses, anyone needing professional AI optimization with affordable monthly access
+**Ideal For**: Solo entrepreneurs, small businesses, independent creators needing professional AI optimization with affordable monthly access
 
 ### Growth (Monthly Subscription) 🔄 READY FOR ACTIVATION
 
-**Price**: $9.95/month
+**Price**: $14.95/month
 **Features**:
 
-- Unlimited daily analyses
-- 1,000 pages maximum per analysis
-- Full AI analysis for 200 pages per analysis
-- 7-day cache retention
+- 35 analyses per month (~1 per day for active builders)
+- 500 pages maximum per analysis
+- Full 6-phase AI enhancement system with GPT-4o
+- 7-day cache retention for fresh data
+- 86% gross margin (healthy unit economics)
 - **✅ File history and account dashboard** (infrastructure complete)
 - Priority support
 - Advanced analytics
 - **✅ Authentication System**: Full account management ready
 
-**Ideal For**: Growing businesses, agencies with multiple clients, regular content analysis needs
+**Ideal For**: Growing SaaS businesses, active builders needing daily analysis, agencies with multiple clients
 
 ### Scale (Monthly Subscription)
 
-**Price**: $19.95/month
+**Price**: $29.95/month
 **Features**:
 
-- Unlimited daily analyses
-- Unlimited pages per analysis
-- Unlimited AI analysis
+- 100 analyses per month (~3-4 per day for agencies/teams)
+- 1,000 pages maximum per analysis (full site coverage)
+- Full 6-phase AI enhancement system with GPT-4o
 - 3-day cache retention for freshest data
+- 60% gross margin (sustainable SaaS economics)
 - Complete file history with search
 - Priority support with dedicated assistance
 - Custom integrations and API access
 - Advanced reporting and analytics
 
-**Ideal For**: Large enterprises, development agencies, organizations with extensive website analysis requirements
+**Ideal For**: Digital agencies, development teams, enterprises with extensive website analysis requirements (3-4 sites daily)
+
+### Custom (Enterprise)
+
+**Price**: Contact for pricing
+**Features**:
+
+- Unlimited analyses per month
+- Unlimited pages per analysis
+- Full 6-phase AI enhancement system with GPT-4o
+- 70%+ gross margin target (volume pricing)
+- Dedicated account management
+- Custom SLA agreements
+- White-label options
+- Advanced API access with custom integrations
+- Priority enterprise support
+- Compliance certifications (SOC 2, GDPR, HIPAA available)
+
+**Ideal For**: Large enterprises with compliance requirements, white-label partners, high-volume organizations needing custom solutions
 
 ## Development Roadmap
 
@@ -312,7 +333,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 **✅ Completed Tasks**:
 
 - ✅ Resolved external HTTP request timeouts in Railway backend
-- ✅ Complete Coffee tier customer journey optimization
+- ✅ Complete Solo tier customer journey optimization
 - ✅ End-to-end flow testing and validation implemented
 - ✅ Railway deployment fully stabilized and operational
 
@@ -337,7 +358,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 **✅ Account Features Operational**:
 
 - ✅ User profile management with tier status and account overview
-- ✅ Automatic account creation for Coffee tier purchasers
+- ✅ Automatic account creation for Solo tier purchasers
 - ✅ File access and account dashboard for premium customers
 - ✅ Tier-based access control and upgrade prompts
 
@@ -359,7 +380,7 @@ Our **93% AI cost optimization** enables a sustainable freemium model starting a
 - **Professional Flow**: URL → Analysis → "Analyze Another Website" → Direct to URL input
 - **No Email Re-entry**: Returning users proceed seamlessly to analysis
 - **Usage Clarity**: Consistent usage tracking (1/3 → 2/3 → 3/3) throughout flow
-- **Coffee Tier Benefits**: Unlimited analyses without authentication friction
+- **Solo Tier Benefits**: 20 monthly analyses without authentication friction
 
 ### 🚨 Phase 0: Critical UX/UI Foundation (Completed)
 
@@ -415,17 +436,17 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 - Usage-based upgrade nudging with value demonstration
 - Email marketing automation for re-engagement
 
-##### **Coffee/Premium User Journey: Efficiency → Premium Value → Retention**
+##### **Solo/Premium User Journey: Efficiency → Premium Value → Retention**
 
 **Current Experience**: Same basic flow despite payment
 **Optimal Experience**: Premium Dashboard → Advanced Features → Project Management → Team Sharing
 
 **Premium Features**:
 
-- Enhanced dashboard with Coffee-specific tools
+- Enhanced dashboard with Solo-specific tools (20 analyses, 200 pages)
 - Project organization with tags and notes
 - Advanced sharing and collaboration options
-- Clear Growth tier upgrade path for expanding needs
+- Clear Growth tier upgrade path for expanding needs (35 analyses, 500 pages)
 - Exclusive premium content and insights
 
 ##### **Growth/Scale User Journey: Power Features → Team Management → Enterprise Value**
@@ -609,7 +630,7 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 
 - Eliminated 30-50% user drop-off from authentication friction
 - Professional, seamless multi-analysis experience now live
-- Both free tier (1/3 → 2/3 → 3/3) and Coffee tier (unlimited) flows working perfectly
+- Both free tier (1/3 → 2/3 → 3/3) and Solo tier (20/month) flows working perfectly
 - Zero customer complaints about re-entering email or tier information
 
 **User Experience Transformation**:
@@ -621,6 +642,6 @@ This represents a major UX breakthrough that brings the application to professio
 
 ---
 
-_Last Updated: September 30, 2025_  
-_Version: 3.0_  
-_Status: Production Complete - Comprehensive Product Description Updated to Reflect 6-Phase AI Enhancement System and Production Reality_
+_Last Updated: October 12, 2025_
+_Version: 3.1_
+_Status: Production Complete - Updated with Solo/Growth/Scale tier structure, pricing, and margins (Coffee → Solo transition complete)_

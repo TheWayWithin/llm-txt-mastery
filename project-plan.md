@@ -10,14 +10,18 @@
 4. 🎯 **Priority 3.1**: Coffee Tier Pricing Documentation Fix - **ACTIVE**
    - Correct all "one-time payment" errors to "monthly subscription"
    - **Expected Impact**: Accurate customer communication and brand consistency
-5. ⏳ **Priority 4**: User Acceptance Testing (UAT)
+5. 🎯 **Priority 3.2**: Lighthouse Performance Optimization - **ACTIVE - PHASE 1**
+   - Current Score: 51/100 → Target: 90+
+   - Phase 1: Image Optimization (IN PROGRESS)
+   - **Expected Impact**: Improved user experience, faster load times, better SEO, increased conversions
+6. ⏳ **Priority 4**: User Acceptance Testing (UAT)
    - Phased execution with review gates after tier restructure
-6. ⏳ **Priority 5**: Traffic Generation & Beta Recruitment
-7. ⏳ **Priority 6**: Product Hunt Launch (Target: Nov 12, 2025)
-8. ⏳ **Priority 7**: Content Marketing Engine
-9. ⏳ **Priority 8**: Conversion & Pricing Optimization
-10. ⏳ **Priority 9**: Clean up project files
-11. ⏳ **Priority 10**: Code review
+7. ⏳ **Priority 5**: Traffic Generation & Beta Recruitment
+8. ⏳ **Priority 6**: Product Hunt Launch (Target: Nov 12, 2025)
+9. ⏳ **Priority 7**: Content Marketing Engine
+10. ⏳ **Priority 8**: Conversion & Pricing Optimization
+11. ⏳ **Priority 9**: Clean up project files
+12. ⏳ **Priority 10**: Code review
 
 ---
 
@@ -169,6 +173,178 @@ Correct all documentation instances that incorrectly describe Coffee Tier ($4.95
 
 **LOW RISK**: Documentation-only changes, no code logic affected
 **IMPACT**: High - Affects customer understanding and brand consistency
+
+---
+
+## Queued Mission: Lighthouse Performance Optimization
+
+**Mission Type**: Performance Optimization with Phased UAT
+**Status**: ⏳ QUEUED (starts after product description update)
+**Priority**: HIGH - User experience and SEO impact
+**Owner**: THE COORDINATOR
+**Current Score**: 51/100 → **Target**: 90+
+
+### Mission Objective
+
+Optimize website performance through systematic 6-phase improvements, with coordinator-led agent delegation and user UAT review gates after each phase.
+
+### Performance Issues Identified
+
+**Critical Bottlenecks**:
+- Image optimization: 2.58s potential savings (properly size, encode, next-gen formats)
+- JavaScript bundle: 1.59s savings (reduce unused JS, code splitting)
+- Third-party scripts: 1.61s savings (defer analytics, async loading)
+- Main-thread work: 7.4s detected (render optimization needed)
+
+### 6-Phase Optimization Plan
+
+#### Phase 1: Image Optimization ⚡ - IN PROGRESS
+**Impact**: +15-20 points | **Time**: 3-4 hours
+**Agents**: developer (implementation), tester (validation)
+**Status**: 🟡 ACTIVE
+
+**Tasks**:
+- [x] Add Vite image optimization plugin (vite-imagetools)
+- [x] Convert PNG/JPG → WebP/AVIF with fallbacks
+- [x] Implement responsive image sizes
+- [x] Add lazy loading for below-fold images
+- [x] Optimize hero section images
+
+**Implementation Summary**:
+- 13 images optimized: 16 MB → 1 MB (94% reduction)
+- Hero image: 1.11 MB → 67 KB AVIF / 55 KB WebP (95% smaller)
+- Created OptimizedImage component with auto-detection
+- Added HTML preloading for critical hero image
+- Expected Lighthouse improvement: +15-20 points (51 → 66-71)
+
+**Testing Results**: ✅ **PASS** - All validation complete
+- Build process: ✅ PASS (1.63s build time, no errors)
+- Component integration: ✅ PASS (proper usage verified)
+- File structure: ✅ PASS (105 optimized images generated)
+- Security compliance: ✅ PASS (no compromises)
+
+**Test Report**: `/phase1-test-report.md`
+**Handoff Documentation**: `/handoff-notes.md`
+
+**Tester Recommendation**: **GO** for User UAT Gate (HIGH confidence)
+
+---
+
+**✅ REVIEW GATE 1 - AWAITING USER UAT**
+
+**Your UAT Testing Checklist**:
+
+1. **Quick Visual Check** (2 minutes):
+   - Visit https://llmtxtmastery.com
+   - Verify all images load correctly
+   - Check image quality is crisp and clear
+
+2. **Browser DevTools Check** (3 minutes):
+   - Open Chrome DevTools → Network tab
+   - Filter by "Img"
+   - Reload page
+   - Find hero image: verify .avif format, size < 100KB
+
+3. **Lighthouse Audit** (5 minutes):
+   - Chrome DevTools → Lighthouse tab
+   - Run Performance audit
+   - Verify score improved to 66-71 (from 51)
+   - Check LCP < 2.5s
+
+4. **Cross-Browser Test** (5 minutes):
+   - Test in Chrome, Firefox, Safari
+   - Verify images load in all browsers
+
+**Decision**: GO / MODIFY / NO-GO
+
+_Phase 2 will begin after your approval_
+
+#### Phase 2: JavaScript Bundle Optimization 📦
+**Impact**: +10-15 points | **Time**: 4-5 hours
+**Agents**: @architect (analysis), @developer (implementation), @tester (validation)
+
+**Tasks**:
+- Configure Vite code splitting (route-based chunks)
+- Implement React lazy loading for routes
+- Remove unused Radix UI components
+- Tree-shake unused utilities
+- Move dev dependencies out of production
+- Add bundle analyzer
+
+**✅ REVIEW GATE 2**: User reviews bundle sizes, conducts UAT for navigation and lazy loading
+
+#### Phase 3: Third-Party Script Optimization 🔌
+**Impact**: +8-12 points | **Time**: 2-3 hours
+**Agents**: @developer (implementation), @tester (integration testing)
+
+**Tasks**:
+- Defer non-critical scripts (analytics, Enzuzo)
+- Add async loading for Stripe SDK
+- Implement facade pattern for heavy components
+- Move analytics to web worker (if possible)
+- Preconnect to critical third-party domains
+
+**✅ REVIEW GATE 3**: User reviews analytics/Stripe, conducts UAT for payment flows and GDPR
+
+#### Phase 4: Render Performance 🎨
+**Impact**: +5-8 points | **Time**: 3-4 hours
+**Agents**: @developer (optimization), @tester (performance validation)
+
+**Tasks**:
+- Add explicit width/height to images (prevent CLS)
+- Optimize React rendering (useMemo, useCallback)
+- Virtualize long lists (TanStack Virtual)
+- Debounce expensive operations
+- Reduce re-renders in dashboard components
+
+**✅ REVIEW GATE 4**: User reviews visual stability, conducts UAT for dashboard performance
+
+#### Phase 5: Network & Caching 🌐
+**Impact**: +5-7 points | **Time**: 2-3 hours
+**Agents**: @operator (infrastructure), @tester (caching validation)
+
+**Tasks**:
+- Configure Netlify caching headers
+- Add service worker for offline support (optional)
+- Implement HTTP/2 push for critical resources
+- Enable compression (Brotli) on Netlify
+- Add resource hints (preload, prefetch)
+
+**✅ REVIEW GATE 5**: User reviews caching behavior, conducts UAT for cache invalidation
+
+#### Phase 6: Testing & Validation ✅
+**Impact**: Ensure gains stick | **Time**: 2-3 hours
+**Agents**: @tester (test automation), @operator (monitoring setup)
+
+**Tasks**:
+- Set up Lighthouse CI for automated monitoring
+- Create performance budget in Vite config
+- Add E2E performance tests (Playwright)
+- Test on real devices (mobile crucial)
+- Monitor Web Vitals in production
+
+**✅ FINAL REVIEW GATE**: User reviews test suite and scores, conducts full regression UAT
+
+### Success Metrics
+
+**Performance Score**: 90+ (from 51)
+**Key Metrics**:
+- LCP (Largest Contentful Paint): < 2.5s
+- FID (First Input Delay): < 100ms
+- CLS (Cumulative Layout Shift): < 0.1
+- TBT (Total Blocking Time): < 300ms
+
+**Estimated Time**: 16-22 hours implementation + user review/UAT time
+**Risk Level**: LOW (phased approach with review gates minimizes risk)
+
+### Coordinator Responsibilities
+
+- Use Task tool to delegate to appropriate specialists
+- Track progress in project-plan.md (mark tasks complete only after confirmation)
+- Log issues in progress.md immediately
+- Wait for user UAT approval at each gate before proceeding
+- Update context files for agent handoffs
+- Report actual completion status (not planned)
 
 ---
 
