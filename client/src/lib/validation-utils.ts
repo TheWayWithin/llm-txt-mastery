@@ -59,7 +59,7 @@ export const commonSchemas = {
   /**
    * Tier validation
    */
-  tier: z.enum(['starter', 'coffee', 'growth', 'scale'], {
+  tier: z.enum(['starter', 'solo', 'growth', 'scale'], {
     errorMap: () => ({ message: 'Please select a valid service tier' }),
   }),
 
@@ -92,7 +92,7 @@ export const formSchemas = {
   emailCapture: z.object({
     email: commonSchemas.email,
     websiteUrl: commonSchemas.optionalString,
-    tier: commonSchemas.tier.default('coffee'),
+    tier: commonSchemas.tier.default('solo'),
   }),
 
   /**
@@ -301,7 +301,7 @@ export const tierUtils = {
   /**
    * Valid tier options
    */
-  validTiers: ['starter', 'coffee', 'growth', 'scale'] as const,
+  validTiers: ['starter', 'solo', 'growth', 'scale'] as const,
 
   /**
    * Check if tier is valid
@@ -316,9 +316,9 @@ export const tierUtils = {
   getDisplayName: (tier: UserTier): string => {
     const displayNames: Record<UserTier, string> = {
       starter: 'Starter (Free)',
-      coffee: 'Coffee ($4.95)',
-      growth: 'Growth ($9.95)',
-      scale: 'Scale ($19.95)',
+      solo: 'Solo ($4.95)',
+      growth: 'Growth ($14.95)',
+      scale: 'Scale ($29.95)',
     };
     return displayNames[tier] || tier;
   },
@@ -328,10 +328,10 @@ export const tierUtils = {
    */
   getFeatures: (tier: UserTier): string[] => {
     const features: Record<UserTier, string[]> = {
-      starter: ['Basic HTML analysis', '1 analysis per day', 'Standard support'],
-      coffee: ['AI-enhanced analysis', '5 analyses per day', 'Priority support', 'File history'],
-      growth: ['Advanced AI analysis', '25 analyses per day', 'Smart caching', 'Priority support'],
-      scale: ['Enterprise AI analysis', 'Unlimited pages', 'API access', 'Direct email support'],
+      starter: ['Basic HTML analysis', '3 analyses per day', 'Standard support'],
+      solo: ['AI-enhanced analysis', '20 analyses per month', '200 pages per analysis', 'Priority support'],
+      growth: ['Advanced AI analysis', '35 analyses per month', '500 pages per analysis', 'Smart caching'],
+      scale: ['Enterprise AI analysis', '100 analyses per month', '1,000 pages per analysis', 'API access'],
     };
     return features[tier] || [];
   },

@@ -368,7 +368,7 @@ export default function Home() {
 
           {/* Pricing Preview Section */}
           <PricingPreview
-            highlightTier="coffee"
+            highlightTier="solo"
             showAllTiers={true}
             className="mb-16"
           />
@@ -1042,7 +1042,7 @@ export default function Home() {
                   </h3>
                 </div>
                 <p className="text-green-600 mb-4">
-                  {user.tier === 'coffee'
+                  {user.tier === 'solo'
                     ? `Your Coffee tier is active! ${
                         user.creditsRemaining > 0
                           ? `${user.creditsRemaining} premium analyses remaining.`
@@ -1065,7 +1065,7 @@ export default function Home() {
                       </Button>
                     </a>
                   </Link>
-                  {user.tier === 'coffee' && (
+                  {user.tier === 'solo' && (
                     <Button
                       size="sm"
                       className="bg-orange-600 hover:bg-orange-700"

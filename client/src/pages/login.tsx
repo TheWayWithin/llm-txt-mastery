@@ -20,7 +20,7 @@ export default function LoginPage() {
   // URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const emailParam = urlParams.get('email') || '';
-  const tierParam = urlParams.get('tier') as 'starter' | 'coffee' | 'growth' | 'scale' | null;
+  const tierParam = urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale' | null;
   const websiteUrlParam = urlParams.get('websiteUrl') || '';
 
   // Form state
@@ -88,7 +88,7 @@ export default function LoginPage() {
     switch (tier) {
       case 'starter':
         return <Shield className="h-5 w-5" />;
-      case 'coffee':
+      case 'solo':
         return <Coffee className="h-5 w-5" />;
       case 'growth':
         return <Zap className="h-5 w-5" />;
@@ -228,7 +228,7 @@ export default function LoginPage() {
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
                 <Link
-                  href={`/signup?tier=${tierParam || 'coffee'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}
+                  href={`/signup?tier=${tierParam || 'solo'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}
                 >
                   <a className="text-blue-600 hover:text-blue-800 font-medium">Sign up for free</a>
                 </Link>

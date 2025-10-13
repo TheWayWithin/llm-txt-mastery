@@ -21,7 +21,7 @@ export const stripePromise = stripePublishableKey
 
 // Stripe-related types
 export interface SubscriptionStatus {
-  tier: 'starter' | 'coffee' | 'growth' | 'scale';
+  tier: 'starter' | 'solo' | 'growth' | 'scale';
   subscriptionStatus: string | null;
   hasActiveSubscription: boolean;
   creditsRemaining?: number;
@@ -85,7 +85,7 @@ export async function createUpgradeSession(
   return response.json();
 }
 
-export async function createCoffeeCheckoutSession(
+export async function createSoloCheckoutSession(
   authToken: string,
   email?: string
 ): Promise<CreateCheckoutSessionResponse> {
@@ -96,7 +96,7 @@ export async function createCoffeeCheckoutSession(
     body.email = email;
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/stripe/create-coffee-checkout`, {
+  const response = await fetch(`${API_BASE_URL}/api/stripe/create-solo-checkout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export async function createCoffeeCheckoutSession(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to create coffee checkout session');
+    throw new Error(error.message || 'Failed to create solo checkout session');
   }
 
   return response.json();
@@ -145,10 +145,13 @@ export async function getSubscriptionStatus(authToken: string): Promise<Subscrip
   return response.json();
 }
 
+// Backward compatibility alias
+export const createCoffeeCheckoutSession = createSoloCheckoutSession;
+
 // Tier pricing configuration (should match server-side)
 export const TIER_PRICING = {
-  coffee: {
-    name: 'Coffee Analysis',
+  solo: {
+    name: 'Solo',
     price: '$4.95',
     interval: 'monthly',
     features: [
@@ -156,16 +159,16 @@ export const TIER_PRICING = {
       'Up to 200 pages per analysis',
       'Full AI-enhanced analysis',
       'Quality scoring & insights',
-      'Monthly subscription - price of a coffee!',
+      'Perfect for solopreneurs',
     ],
   },
   growth: {
     name: 'Growth',
-    price: '$9.95',
+    price: '$14.95',
     interval: 'month',
     features: [
-      'Unlimited analyses per day',
-      'Up to 1,000 pages per analysis',
+      '35 analyses per month',
+      'Up to 500 pages per analysis',
       'AI-enhanced analysis on all pages',
       'Priority support',
       'Advanced quality scoring',
@@ -174,12 +177,12 @@ export const TIER_PRICING = {
   },
   scale: {
     name: 'Scale',
-    price: '$19.95',
+    price: '$29.95',
     interval: 'month',
     features: [
-      'Everything in Growth',
-      'Unlimited pages per analysis',
-      'Full AI analysis (capped at $19.95 cost)',
+      '100 analyses per month',
+      'Up to 1,000 pages per analysis',
+      'Full AI analysis',
       'API access for integrations',
       'Multi-site management',
       'Direct email support line',

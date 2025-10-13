@@ -9,7 +9,7 @@ interface AuthContextType {
     email: string,
     password: string,
     confirmPassword: string,
-    tier?: 'starter' | 'coffee' | 'growth' | 'scale'
+    tier?: 'starter' | 'solo' | 'growth' | 'scale'
   ) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -87,11 +87,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
             refreshError.message?.includes('Failed to fetch');
 
           if (isNetworkError) {
-            // Network issue - keep stored user data (especially important for Coffee users)
+            // Network issue - keep stored user data (especially important for Solo users)
             console.log('🌐 Network issue detected, keeping stored user data');
-            if (storedUser.tier === 'coffee') {
+            if (storedUser.tier === 'solo') {
               console.log(
-                '☕ Coffee user - stored credentials should be sufficient for offline operation'
+                '👤 Solo user - stored credentials should be sufficient for offline operation'
               );
             }
           } else if (
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     email: string,
     password: string,
     confirmPassword: string,
-    tier: 'starter' | 'coffee' | 'growth' | 'scale' = 'starter'
+    tier: 'starter' | 'solo' | 'growth' | 'scale' = 'starter'
   ) => {
     try {
       setLoading(true); // Set loading during auth operation
@@ -293,7 +293,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Computed properties - merge authenticated user with email-based user
   const effectiveUser = user || emailBasedUser;
-  const hasCredits = effectiveUser?.tier === 'coffee' && (effectiveUser?.creditsRemaining || 0) > 0;
+  const hasCredits = effectiveUser?.tier === 'solo' && (effectiveUser?.creditsRemaining || 0) > 0;
   const canAnalyze =
     !effectiveUser ||
     effectiveUser?.tier === 'starter' ||

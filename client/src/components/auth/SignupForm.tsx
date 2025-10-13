@@ -13,7 +13,7 @@ interface SignupFormProps {
   onSwitchToLogin: () => void;
   onSuccess?: () => void;
   defaultEmail?: string;
-  defaultTier?: 'starter' | 'coffee' | 'growth' | 'scale';
+  defaultTier?: 'starter' | 'solo' | 'growth' | 'scale';
 }
 
 export function SignupForm({

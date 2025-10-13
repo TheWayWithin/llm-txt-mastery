@@ -23,7 +23,7 @@ vi.mock('../../server/services/stripe', () => ({
   getTierFromPriceId: mockGetTierFromPriceId,
   validateWebhookSignature: mockValidateWebhookSignature,
   TIER_PRICES: {
-    coffee: { priceId: 'price_coffee_123' },
+    solo: { priceId: 'price_solo_123' },
     growth: { priceId: 'price_growth_456' },
     scale: { priceId: 'price_scale_789' },
   },
@@ -93,14 +93,14 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
   });
 
   describe('handleCheckoutCompleted', () => {
-    it('should update emailCaptures table for coffee tier purchases', async () => {
+    it('should update emailCaptures table for solo tier purchases', async () => {
       // Arrange
       const mockSession = {
         metadata: {
           userId: '123',
-          paymentType: 'one_time',
-          productType: 'coffee',
-          priceId: 'price_coffee_123',
+          paymentType: 'subscription',
+          productType: 'solo',
+          priceId: 'price_solo_123',
         },
         customer_details: {
           email: 'test@example.com',
@@ -115,7 +115,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       });
 
       (mockStorage.getUserProfile as Mock).mockResolvedValue({
-        creditsRemaining: 0,
+        tier: 'starter',
       });
 
       // Import the handler function dynamically
@@ -124,25 +124,16 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       // Act
       await handleCheckoutCompleted(mockSession);
 
-      // Assert - CRITICAL: emailCaptures must be updated to Coffee tier
+      // Assert - CRITICAL: emailCaptures must be updated to Solo tier
       expect(mockStorage.updateEmailCapture).toHaveBeenCalledWith('test@example.com', {
-        tier: 'coffee',
+        tier: 'solo',
       });
 
       // Verify userProfiles is also updated
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('123', {
-        creditsRemaining: 1,
-        tier: 'coffee',
-      });
-
-      // Verify credit is created
-      expect(mockStorage.createOneTimeCredit).toHaveBeenCalledWith({
-        userId: 123,
-        creditsRemaining: 1,
-        creditsTotal: 1,
-        productType: 'coffee',
-        priceId: 'price_coffee_123',
-        stripePaymentIntentId: 'pi_test123',
+        tier: 'solo',
+        subscriptionId: expect.any(String),
+        subscriptionStatus: 'active',
       });
     });
 
@@ -219,8 +210,8 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
       const mockSession = {
         metadata: {
           userId: '999',
-          paymentType: 'one_time',
-          productType: 'coffee',
+          paymentType: 'subscription',
+          productType: 'solo',
         },
         // No customer_details or customer_email
       };

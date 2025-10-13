@@ -80,7 +80,7 @@ const getStatusColor = (status: string) => {
 
 const getTierColor = (tier: string) => {
   switch (tier) {
-    case 'coffee':
+    case 'solo':
       return 'bg-orange-100 text-orange-800 border-orange-200';
     case 'growth':
       return 'bg-blue-100 text-blue-800 border-blue-200';

@@ -32,7 +32,7 @@ import { getTierDisplayName } from '@/lib/tier-utils';
 
 const getTierIcon = (tier: string) => {
   switch (tier) {
-    case 'coffee':
+    case 'solo':
       return <Coffee className="h-4 w-4" />;
     case 'growth':
       return <Zap className="h-4 w-4" />;
@@ -45,7 +45,7 @@ const getTierIcon = (tier: string) => {
 
 const getTierColor = (tier: string) => {
   switch (tier) {
-    case 'coffee':
+    case 'solo':
       return 'bg-orange-100 text-orange-800 border-orange-200';
     case 'growth':
       return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -127,7 +127,7 @@ function AccountOverview() {
         <CardContent>
           <div className="space-y-4">
             {/* Coffee Tier Status */}
-            {user.tier === 'coffee' && (
+            {user.tier === 'solo' && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-orange-800">Coffee Credits</h4>
@@ -260,7 +260,7 @@ function BillingSection() {
     }
   };
 
-  const handleUpgrade = async (tier: 'coffee' | 'growth' | 'scale') => {
+  const handleUpgrade = async (tier: 'solo' | 'growth' | 'scale') => {
     try {
       setUpgradeLoading(tier);
       const token = getAccessToken();
@@ -268,7 +268,7 @@ function BillingSection() {
 
       // Determine the endpoint based on tier
       let endpoint = '';
-      if (tier === 'coffee') {
+      if (tier === 'solo') {
         endpoint = '/api/stripe/create-coffee-checkout';
       } else if (tier === 'growth') {
         endpoint = '/api/stripe/create-growth-checkout';
@@ -376,7 +376,7 @@ function BillingSection() {
                     </div>
                   </div>
                 </div>
-              ) : user.tier === 'coffee' ? (
+              ) : user.tier === 'solo' ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
                     <h4 className="font-medium text-orange-800">Coffee Credits</h4>
@@ -414,9 +414,9 @@ function BillingSection() {
           <div className="grid gap-6 md:grid-cols-3">
             {/* Coffee Tier */}
             <div
-              className={`relative border-2 rounded-lg p-5 ${user.tier === 'coffee' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'solo' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}
             >
-              {user.tier === 'coffee' && (
+              {user.tier === 'solo' && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
                 </div>
@@ -483,14 +483,14 @@ function BillingSection() {
                 <Button
                   data-testid="upgrade-to-coffee"
                   className="w-full bg-orange-600 hover:bg-orange-700 font-bold"
-                  onClick={() => handleUpgrade('coffee')}
-                  disabled={upgradeLoading === 'coffee'}
+                  onClick={() => handleUpgrade('solo')}
+                  disabled={upgradeLoading === 'solo'}
                 >
-                  {upgradeLoading === 'coffee'
+                  {upgradeLoading === 'solo'
                     ? 'Processing...'
                     : '🚀 UPGRADE TO COFFEE - Beat Competitors Now'}
                 </Button>
-              ) : user.tier === 'coffee' ? (
+              ) : user.tier === 'solo' ? (
                 <div className="text-center py-2 text-orange-600 font-medium">
                   ✅ You're Using Coffee Plan
                 </div>
@@ -677,7 +677,7 @@ function BillingSection() {
                     ? 'Processing...'
                     : user.tier === 'starter'
                       ? '🚀 GO ENTERPRISE WITH SCALE'
-                      : user.tier === 'coffee'
+                      : user.tier === 'solo'
                         ? '⬆️ UPGRADE TO SCALE'
                         : '⬆️ UPGRADE TO SCALE'}
                 </Button>

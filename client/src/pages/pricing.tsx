@@ -79,7 +79,7 @@ export default function Pricing() {
             </CardContent>
           </Card>
 
-          {/* Coffee Tier */}
+          {/* Solo Tier */}
           <Card className="relative border-2 border-orange-400 hover:shadow-lg transition-shadow bg-orange-50">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white text-xs px-3 py-1 rounded-full">
               MOST POPULAR
@@ -92,7 +92,7 @@ export default function Pricing() {
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>
-              <CardTitle>Coffee</CardTitle>
+              <CardTitle>Solo</CardTitle>
               <CardDescription>20 analyses per month</CardDescription>
             </CardHeader>
             <CardContent>
@@ -119,7 +119,7 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Zap className="h-6 w-6 text-innovation-teal" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$9.95</span>
+                  <span className="text-2xl font-bold">$14.95</span>
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>
@@ -130,11 +130,11 @@ export default function Pricing() {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Unlimited analyses</span>
+                  <span className="text-sm">35 analyses per month</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">1,000 pages per analysis</span>
+                  <span className="text-sm">500 pages per analysis</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
@@ -150,7 +150,7 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Crown className="h-6 w-6 text-mastery-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$19.95</span>
+                  <span className="text-2xl font-bold">$29.95</span>
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>
@@ -161,7 +161,11 @@ export default function Pricing() {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Unlimited everything</span>
+                  <span className="text-sm">100 analyses per month</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">1,000 pages per analysis</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
@@ -169,7 +173,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Direct email support line</span>
+                  <span className="text-sm">Direct email support</span>
                 </li>
               </ul>
             </CardContent>

@@ -17,7 +17,7 @@ export function UserDashboard() {
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
-      case 'coffee':
+      case 'solo':
         return <Coffee className="h-4 w-4" />;
       case 'growth':
         return <Zap className="h-4 w-4" />;
@@ -30,7 +30,7 @@ export function UserDashboard() {
 
   const getTierColor = (tier: string) => {
     switch (tier) {
-      case 'coffee':
+      case 'solo':
         return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'growth':
         return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -92,7 +92,7 @@ export function UserDashboard() {
         <Separator />
 
         {/* Credits Display (Coffee Tier Only) */}
-        {userProfile.tier === 'coffee' && (
+        {userProfile.tier === 'solo' && (
           <>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -138,7 +138,7 @@ export function UserDashboard() {
                 <div>• Basic file generation</div>
               </>
             )}
-            {userProfile.tier === 'coffee' && (
+            {userProfile.tier === 'solo' && (
               <>
                 <div>• 200 pages per analysis</div>
                 <div>• AI-enhanced analysis</div>

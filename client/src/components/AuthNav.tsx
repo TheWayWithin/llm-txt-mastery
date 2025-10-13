@@ -26,7 +26,7 @@ export function AuthNav() {
 
   const getTierIcon = (tier?: string) => {
     switch (tier) {
-      case 'coffee':
+      case 'solo':
         return <Coffee className="h-3 w-3" />;
       case 'growth':
         return <Zap className="h-3 w-3" />;
@@ -39,7 +39,7 @@ export function AuthNav() {
 
   const getTierColor = (tier?: string) => {
     switch (tier) {
-      case 'coffee':
+      case 'solo':
         return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'growth':
         return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -73,7 +73,7 @@ export function AuthNav() {
         )}
 
         {/* Credits Display for Coffee Tier */}
-        {user?.tier === 'coffee' && (
+        {user?.tier === 'solo' && (
           <div className="flex items-center space-x-1 text-sm text-orange-600">
             <Coffee className="h-4 w-4" />
             <span className="font-medium">{user.creditsRemaining}</span>

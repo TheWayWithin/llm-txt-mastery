@@ -108,7 +108,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
 
   const getTierLosses = () => {
     switch (user?.tier) {
-      case 'coffee':
+      case 'solo':
         return [
           'Access to AI-enhanced analysis',
           'Remaining analysis credits',

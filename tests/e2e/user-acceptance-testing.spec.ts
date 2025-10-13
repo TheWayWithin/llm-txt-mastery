@@ -35,7 +35,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
   let helpers: UATHelpers;
   let testUsers: {
     free: TestUser;
-    coffee: TestUser;
+    solo: TestUser;
     growth: TestUser;
     scale: TestUser;
   };
@@ -142,63 +142,64 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
       await expect(upgradeOptions).toBeVisible();
       
       // Check all tier options are available for upgrade
-      await expect(page.locator('text=/Coffee Tier.*\\$4\\.95/i')).toBeVisible();
-      await expect(page.locator('text=/Growth Tier.*\\$9\\.95/i')).toBeVisible();
-      await expect(page.locator('text=/Scale Tier.*\\$19\\.95/i')).toBeVisible();
+      await expect(page.locator('text=/Solo Tier.*\\$14\\.95/i')).toBeVisible();
+      await expect(page.locator('text=/Growth Tier.*\\$29\\.95/i')).toBeVisible();
+      await expect(page.locator('text=/Scale Tier.*\\$100/i')).toBeVisible();
     });
   });
 
   // ============================================================================
-  // SECTION 2: COFFEE TIER USER JOURNEY (AUTHENTICATION-FIRST)
+  // SECTION 2: SOLO TIER USER JOURNEY (AUTHENTICATION-FIRST)
   // ============================================================================
-  
-  test.describe('Coffee Tier User Journey - Authentication First', () => {
-    test('2.1 Coffee tier: Signup → Payment → Analysis with credits', async ({ page }) => {
+
+  test.describe('Solo Tier User Journey - Authentication First', () => {
+    test('2.1 Solo tier: Signup → Payment → Analysis with daily limits', async ({ page }) => {
       // Step 1: Navigate to landing page
       await helpers.navigateToHome();
       
       // Step 2: Go to signup via CTA
       await helpers.navigateToSignupFromLanding();
-      
-      // Step 3: Complete signup with Coffee tier selection
+
+      // Step 3: Complete signup with Solo tier selection
       const tempEmail = generateTempEmail();
       await helpers.completeSignupFlow({
         email: tempEmail,
-        password: 'CoffeeUser123!',
-        tier: 'coffee'
+        password: 'SoloUser123!',
+        tier: 'solo'
       });
-      
+
       // Step 4: Handle Stripe checkout during signup
       const checkoutSuccess = await helpers.handleStripeCheckout({
-        tier: 'coffee',
+        tier: 'solo',
         testCard: UAT_CONFIG.stripe.testCards.success,
       });
       expect(checkoutSuccess).toBeTruthy();
-      
+
       // Step 5: Login after successful payment
-      const loginSuccess = await helpers.login(tempEmail, 'CoffeeUser123!');
+      const loginSuccess = await helpers.login(tempEmail, 'SoloUser123!');
       expect(loginSuccess).toBeTruthy();
-      
+
       // Step 6: Navigate to authenticated dashboard
       await helpers.navigateToDashboard();
-      
-      // Step 7: Verify credits are available
-      const credits = await helpers.getCoffeeCredits();
-      expect(credits).toBe(5);
-      
-      // Step 8: Navigate to analysis and use a credit
+
+      // Step 7: Verify daily limit is available
+      const dailyLimit = await helpers.getDailyLimit();
+      expect(dailyLimit).toBe(35);
+
+      // Step 8: Navigate to analysis and perform analysis
       await helpers.navigateToAuthenticatedAnalysis();
-      await helpers.performTierSpecificAnalysis('coffee', TEST_WEBSITES.medium.url);
-      
-      // Step 9: Verify credit was deducted
+      await helpers.performTierSpecificAnalysis('solo', TEST_WEBSITES.medium.url);
+
+      // Step 9: Verify usage was tracked
       await helpers.navigateToDashboard();
-      const remainingCredits = await helpers.getCoffeeCredits();
-      expect(remainingCredits).toBe(4);
+      const usageData = await helpers.getUsageData();
+      expect(usageData.analysesToday).toBe(1);
+      expect(usageData.analysesRemaining).toBe(34);
     });
 
-    test('2.2 Coffee tier refund button (30-day guarantee)', async ({ page }) => {
-      // Login as coffee tier user
-      await helpers.login(testUsers.coffee.email, testUsers.coffee.password);
+    test('2.2 Solo tier refund button (30-day guarantee)', async ({ page }) => {
+      // Login as solo tier user
+      await helpers.login(testUsers.solo.email, testUsers.solo.password);
       
       // Navigate to dashboard
       await helpers.navigateToDashboard();
@@ -216,7 +217,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
       await expect(modal.locator('text=/30-day money-back guarantee/i')).toBeVisible();
       
       // Verify refund amount
-      await expect(modal.locator('text=/$4.95/i')).toBeVisible();
+      await expect(modal.locator('text=/$14.95/i')).toBeVisible();
     });
   });
 
@@ -225,7 +226,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
   // ============================================================================
   
   test.describe('Growth Tier User Journey - Authentication First', () => {
-    test('3.1 Growth tier: Signup → Subscription → Analysis (20 daily)', async ({ page }) => {
+    test('3.1 Growth tier: Signup → Subscription → Analysis (35 daily)', async ({ page }) => {
       // Step 1: Navigate to landing page
       await helpers.navigateToHome();
       
@@ -253,10 +254,10 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
       
       // Step 6: Navigate to authenticated dashboard
       await helpers.navigateToDashboard();
-      
-      // Step 7: Verify daily limit (20 analyses per day)
+
+      // Step 7: Verify daily limit (35 analyses per day)
       const dailyLimit = await helpers.getDailyLimit();
-      expect(dailyLimit).toBe(20);
+      expect(dailyLimit).toBe(35);
       
       // Step 8: Test enhanced features
       await helpers.navigateToAuthenticatedAnalysis();
@@ -278,7 +279,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
       const subscription = await helpers.getSubscriptionDetails();
       expect(subscription.tier).toBe('growth');
       expect(subscription.status).toBe('active');
-      expect(subscription.price).toBe('$25/month');
+      expect(subscription.price).toBe('$29.95/month');
       
       // Test cancellation flow
       await page.click('button:has-text("Cancel Subscription")');
@@ -451,7 +452,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
   test.describe('Analysis Features', () => {
     test('6.1 Multi-strategy sitemap discovery (authenticated user)', async ({ page }) => {
       // Login as authenticated user first
-      await helpers.login(testUsers.coffee.email, testUsers.coffee.password);
+      await helpers.login(testUsers.solo.email, testUsers.solo.password);
       
       const testCases = [
         { site: TEST_WEBSITES.withSitemap, expectedMethod: 'sitemap' },
@@ -462,9 +463,9 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
       for (const testCase of testCases) {
         // Navigate to authenticated analysis page
         await helpers.navigateToAuthenticatedAnalysis();
-        
+
         // Perform analysis as authenticated user
-        await helpers.performTierSpecificAnalysis('coffee', testCase.site.url);
+        await helpers.performTierSpecificAnalysis('solo', testCase.site.url);
         
         // Wait for analysis completion
         await helpers.waitForAnalysis();
@@ -476,14 +477,14 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
     });
 
     test('6.2 Six-phase LLMs.txt generation (authenticated premium user)', async ({ page }) => {
-      // Login as coffee tier user (premium features)
-      await helpers.login(testUsers.coffee.email, testUsers.coffee.password);
-      
+      // Login as solo tier user (premium features)
+      await helpers.login(testUsers.solo.email, testUsers.solo.password);
+
       // Navigate to authenticated analysis page
       await helpers.navigateToAuthenticatedAnalysis();
-      
+
       // Perform premium analysis
-      await helpers.performTierSpecificAnalysis('coffee', TEST_WEBSITES.medium.url);
+      await helpers.performTierSpecificAnalysis('solo', TEST_WEBSITES.medium.url);
       
       // Wait for analysis completion
       await helpers.waitForAnalysis();
@@ -535,9 +536,9 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
   test.describe('Payment Integration', () => {
     test('7.1 Stripe checkout flow', async ({ page }) => {
       await helpers.navigateToPricing();
-      
+
       // Test each tier's checkout
-      const tiers = ['coffee', 'growth', 'scale'];
+      const tiers = ['solo', 'growth', 'scale'];
       
       for (const tier of tiers) {
         await page.click(`[data-tier="${tier}"] button`);
@@ -581,7 +582,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
       
       // View current subscription
       await expect(page.locator('text="Growth Tier"')).toBeVisible();
-      await expect(page.locator('text="$25/month"')).toBeVisible();
+      await expect(page.locator('text="$29.95/month"')).toBeVisible();
       
       // Update payment method
       await page.click('button:has-text("Update Payment Method")');
@@ -704,7 +705,7 @@ test.describe('LLM.txt Mastery - User Acceptance Testing', () => {
     });
 
     test('9.3 Analysis performance', async ({ page }) => {
-      await helpers.login(testUsers.coffee.email, testUsers.coffee.password);
+      await helpers.login(testUsers.solo.email, testUsers.solo.password);
       
       const startTime = Date.now();
       await helpers.performAnalysis(TEST_WEBSITES.medium.url);

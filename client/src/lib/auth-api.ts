@@ -5,7 +5,7 @@ const API_BASE_URL =
 export interface AuthUser {
   id: number;
   email: string;
-  tier: 'starter' | 'coffee' | 'growth' | 'scale';
+  tier: 'starter' | 'solo' | 'growth' | 'scale';
   creditsRemaining: number;
   emailVerified: boolean;
   createdAt: string;
@@ -115,7 +115,7 @@ class AuthApiClient {
       'tier:',
       authResponse.user.tier
     );
-    if (authResponse.user.tier === 'coffee') {
+    if (authResponse.user.tier === 'solo') {
       console.log('☕ Coffee user authentication - credits:', authResponse.user.creditsRemaining);
     }
   }

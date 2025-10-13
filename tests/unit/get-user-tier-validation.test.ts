@@ -61,14 +61,14 @@ describe('getUserTier() Validation After Webhook Processing', () => {
     vi.clearAllMocks();
   });
 
-  describe('Coffee Tier Validation', () => {
-    it('should return coffee tier after webhook updates emailCaptures', async () => {
+  describe('Solo Tier Validation', () => {
+    it('should return solo tier after webhook updates emailCaptures', async () => {
       // Arrange - Simulate post-webhook state where emailCaptures was updated
-      const testEmail = 'coffee-webhook-test@example.com';
+      const testEmail = 'solo-webhook-test@example.com';
       const updatedEmailCapture = {
         id: 1,
         email: testEmail,
-        tier: 'coffee', // Updated by webhook
+        tier: 'solo', // Updated by webhook
         websiteUrl: 'https://test.com',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -79,24 +79,24 @@ describe('getUserTier() Validation After Webhook Processing', () => {
       // Act
       const tier = await getUserTier(testEmail);
 
-      // Assert - CRITICAL: Must return coffee tier after webhook processing
-      expect(tier).toBe('coffee');
+      // Assert - CRITICAL: Must return solo tier after webhook processing
+      expect(tier).toBe('solo');
       expect(mockStorage.getEmailCapture).toHaveBeenCalledWith(testEmail);
     });
 
-    it('should return coffee tier consistently across multiple calls', async () => {
+    it('should return solo tier consistently across multiple calls', async () => {
       // Arrange
-      const testEmail = 'consistent-coffee@example.com';
-      const coffeeCapture = {
+      const testEmail = 'consistent-solo@example.com';
+      const soloCapture = {
         id: 2,
         email: testEmail,
-        tier: 'coffee',
+        tier: 'solo',
         websiteUrl: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      (mockStorage.getEmailCapture as Mock).mockResolvedValue(coffeeCapture);
+      (mockStorage.getEmailCapture as Mock).mockResolvedValue(soloCapture);
 
       // Act - Multiple calls to simulate real usage
       const tier1 = await getUserTier(testEmail);
@@ -104,9 +104,9 @@ describe('getUserTier() Validation After Webhook Processing', () => {
       const tier3 = await getUserTier(testEmail);
 
       // Assert - Should be consistent
-      expect(tier1).toBe('coffee');
-      expect(tier2).toBe('coffee');
-      expect(tier3).toBe('coffee');
+      expect(tier1).toBe('solo');
+      expect(tier2).toBe('solo');
+      expect(tier3).toBe('solo');
     });
   });
 
@@ -322,11 +322,11 @@ describe('getUserTier() Validation After Webhook Processing', () => {
       // This test validates the manual override logic in getUserTier()
       const testEmail = 'jamie.watters.mail@icloud.com'; // Hard-coded override
 
-      // Act - The function should return coffee without checking database
+      // Act - The function should return solo without checking database
       const tier = await getUserTier(testEmail);
 
       // Assert
-      expect(tier).toBe('coffee');
+      expect(tier).toBe('solo');
       // Storage should not be called due to manual override
       expect(mockStorage.getEmailCapture).not.toHaveBeenCalled();
     });
@@ -336,7 +336,7 @@ describe('getUserTier() Validation After Webhook Processing', () => {
     it('should prevent paid users from being treated as free users', async () => {
       // This is the CRITICAL test for revenue protection
       const scenarios = [
-        { email: 'coffee-user@example.com', expectedTier: 'coffee' },
+        { email: 'solo-user@example.com', expectedTier: 'solo' },
         { email: 'growth-user@example.com', expectedTier: 'growth' },
         { email: 'scale-user@example.com', expectedTier: 'scale' },
       ];

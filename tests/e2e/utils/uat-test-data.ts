@@ -162,13 +162,14 @@ export const TIER_CONFIGS: Record<string, TierConfig> = {
       'Email support',
     ],
   },
-  coffee: {
-    name: 'Coffee Tier',
-    price: '$5',
-    dailyLimit: 0, // Uses credits instead
-    credits: 5,
+  solo: {
+    name: 'Solo Tier',
+    price: '$14.95',
+    dailyLimit: 35,
+    monthlyLimit: 500,
     features: [
-      '5 analysis credits',
+      '35 analyses per day',
+      '500 analyses per month',
       'Enhanced LLMs.txt with AI',
       '6-phase generation',
       'Quality scoring',
@@ -177,11 +178,13 @@ export const TIER_CONFIGS: Record<string, TierConfig> = {
   },
   growth: {
     name: 'Growth Tier',
-    price: '$25/month',
-    dailyLimit: 20,
+    price: '$29.95/month',
+    dailyLimit: 35,
+    monthlyLimit: 500,
     features: [
-      '20 analyses per day',
-      'All Coffee tier features',
+      '35 analyses per day',
+      '500 analyses per month',
+      'All Solo tier features',
       'Priority processing',
       'Advanced analytics',
       'Email support',
@@ -191,8 +194,10 @@ export const TIER_CONFIGS: Record<string, TierConfig> = {
     name: 'Scale Tier',
     price: '$100/month',
     dailyLimit: 100,
+    monthlyLimit: 1000,
     features: [
       '100 analyses per day',
+      '1000 analyses per month',
       'All Growth tier features',
       'Priority support',
       'Bulk analysis',
@@ -256,7 +261,7 @@ export const UAT_CONFIG = {
     testCards: STRIPE_TEST_CARDS,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET_TEST,
     products: {
-      coffee: 'price_test_coffee',
+      solo: 'price_test_solo',
       growth: 'price_test_growth',
       scale: 'price_test_scale',
     },
@@ -338,11 +343,11 @@ export const TEST_USER_TEMPLATES = {
     expectedFeatures: ['basic-analysis', 'authenticated-access', 'download', '1-per-day-limit'],
     signupFlow: 'landing → signup → login → analysis',
   },
-  coffee: {
-    emailPattern: 'uat-coffee-{id}@example.com',
-    password: 'CoffeeUser123!',
-    tier: 'coffee',
-    expectedFeatures: ['enhanced-analysis', 'quality-scoring', 'credits', 'refund-button', 'authenticated-access'],
+  solo: {
+    emailPattern: 'uat-solo-{id}@example.com',
+    password: 'SoloUser123!',
+    tier: 'solo',
+    expectedFeatures: ['enhanced-analysis', 'quality-scoring', 'daily-limit-35', 'monthly-limit-500', 'refund-button', 'authenticated-access'],
     signupFlow: 'landing → signup → payment → login → analysis',
   },
   growth: {
@@ -377,15 +382,15 @@ export const ANALYSIS_SCENARIOS = [
     },
   },
   {
-    name: 'Coffee tier with quality scoring (authenticated)',
+    name: 'Solo tier with quality scoring (authenticated)',
     website: TEST_WEBSITES.medium,
-    tier: 'coffee',
+    tier: 'solo',
     authRequired: true,
     expectedResult: {
       pagesAnalyzed: 10,
       hasQualityScore: true,
       hasSixPhaseGeneration: true,
-      creditsConsumed: 1,
+      withinDailyLimit: true,
       requiresAuthentication: true,
       requiresPayment: true,
     },
@@ -428,10 +433,10 @@ export const DASHBOARD_EXPECTATIONS = {
     actions: ['new-analysis', 'view-history', 'upgrade'],
     authRequired: true,
   },
-  coffee: {
-    sections: ['overview', 'credits-remaining', 'recent-analyses', 'refund-option'],
-    metrics: ['credits-used', 'credits-remaining', 'purchase-date'],
-    actions: ['use-credit', 'view-history', 'request-refund', 'buy-more-credits'],
+  solo: {
+    sections: ['overview', 'usage-stats', 'recent-analyses', 'refund-option'],
+    metrics: ['analyses-today', 'analyses-this-month', 'daily-limit-remaining', 'monthly-limit-remaining'],
+    actions: ['new-analysis', 'view-history', 'request-refund'],
     authRequired: true,
   },
   growth: {
