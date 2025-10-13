@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-10-11T14:25:54.977Z",
+  "metrics": {
+    "totalTests": 1,
+    "passedTests": 0,
+    "failedTests": 1,
+    "startTime": 1760192750537,
+    "endTime": 1760192754976,
+    "performanceIssues": [],
+    "securityIssues": []
+  },
+  "bugs": [
+    {
+      "severity": "HIGH",
+      "category": "Test Failure",
+      "description": "1.1 Complete free tier flow: Landing → Signup → Login → Analysis → Download",
+      "steps": [
+        "1.1 Complete free tier flow: Landing → Signup → Login → Analysis → Download"
+      ],
+      "expected": "Test should pass",
+      "actual": "Test failed: Error: locator.isVisible: Error: strict mode violation: locator('button:has-text(\"Start Free Analysis\")') resolved to 6 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-12 rounded-md min-h-[44px] bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3\">Start Free Analysis</button> aka locator('section').filter({ hasText: 'Get Found by AI in 24 Hours,' }).getByRole('button').first()\n    2) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-12 rounded-md min-h-[44px] bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3\">Start Free Analysis</button> aka locator('#how-it-works').getByRole('button', { name: 'Start Free Analysis' })\n    3) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-12 rounded-md px-8 min-h-[44px] bg-mastery-blue hover:bg-mastery-blue/90 text-white\">Start Free Analysis</button> aka locator('#competitor-comparison').getByRole('button', { name: 'Start Free Analysis' })\n    4) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-12 rounded-md px-8 min-h-[44px] bg-green-600 hover:bg-green-700 text-white\">Start Free Analysis</button> aka locator('section').filter({ hasText: 'Real Results from Real' }).getByRole('button')\n    5) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-12 rounded-md px-8 min-h-[44px] mt-4 bg-green-600 hover:bg-green-700 text-white\">Start Free Analysis</button> aka locator('section').filter({ hasText: 'Our Reliability Guarantee100' }).getByRole('button')\n    6) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-12 rounded-md min-h-[44px] bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3\">Start Free Analysis</button> aka locator('section').filter({ hasText: 'Why This Matters (I Built' }).getByRole('button')\n\nCall log:\n\u001b[2m    - checking visibility of locator('button:has-text(\"Start Free Analysis\")')\u001b[22m\n",
+      "timestamp": "2025-10-11T14:25:54.938Z",
+      "screenshot": "uat-failure-1760192754938.png"
+    }
+  ],
+  "criteria": {
+    "All critical paths tested": false,
+    "No CRITICAL bugs": true,
+    "Less than 5 HIGH bugs": true,
+    "95%+ test pass rate": false,
+    "Performance within SLA": true,
+    "Security validation complete": true
+  },
+  "readyForProduction": false
+}

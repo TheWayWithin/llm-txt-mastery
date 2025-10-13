@@ -18,21 +18,21 @@ export const stripe = getStripe;
 
 // Tier pricing configuration
 export const TIER_PRICES = {
-  coffee: {
-    priceId: process.env.STRIPE_LLM_TXT_COFFEE_PRICE_ID || 'price_llm_txt_coffee_onetime',
+  solo: {
+    priceId: process.env.STRIPE_LLM_TXT_SOLO_PRICE_ID || 'price_1S0lZnIiC84gpR8HCqUGxmaD',
     amount: 495, // $4.95 in cents
     currency: 'usd',
-    interval: 'one_time', // One-time payment
+    interval: 'month', // Monthly recurring
   },
   growth: {
-    priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_llm_txt_growth_monthly',
-    amount: 995, // $9.95 in cents
+    priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1SHYFqIiC84gpR8HpyMNpxpr',
+    amount: 1495, // $14.95 in cents
     currency: 'usd',
     interval: 'month',
   },
   scale: {
-    priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_llm_txt_scale_monthly',
-    amount: 1995, // $19.95 in cents
+    priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_1SHYThIiC84gpR8HCHc48wmF',
+    amount: 2995, // $29.95 in cents
     currency: 'usd',
     interval: 'month',
   },
@@ -273,8 +273,8 @@ export function validateWebhookSignature(payload: string, signature: string): St
 /**
  * Get tier from price ID
  */
-export function getTierFromPriceId(priceId: string): 'coffee' | 'growth' | 'scale' | null {
-  if (priceId === TIER_PRICES.coffee.priceId) return 'coffee';
+export function getTierFromPriceId(priceId: string): 'solo' | 'growth' | 'scale' | null {
+  if (priceId === TIER_PRICES.solo.priceId) return 'solo';
   if (priceId === TIER_PRICES.growth.priceId) return 'growth';
   if (priceId === TIER_PRICES.scale.priceId) return 'scale';
   return null;

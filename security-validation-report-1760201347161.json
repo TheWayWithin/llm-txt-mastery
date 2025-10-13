@@ -1,0 +1,79 @@
+{
+  "overallScore": 47.5,
+  "productionReady": false,
+  "testResults": {
+    "headerTests": {
+      "Content-Security-Policy": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      },
+      "X-Frame-Options": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      },
+      "X-Content-Type-Options": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      },
+      "Strict-Transport-Security": {
+        "present": true,
+        "value": "max-age=31536000",
+        "status": "PASS"
+      },
+      "Referrer-Policy": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      },
+      "Permissions-Policy": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      },
+      "Cross-Origin-Opener-Policy": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      },
+      "Cross-Origin-Resource-Policy": {
+        "present": false,
+        "value": null,
+        "status": "FAIL"
+      }
+    },
+    "cspTests": {
+      "present": false
+    },
+    "authenticationTests": {
+      "signupEndpoint": 404,
+      "weakPasswordTest": 404
+    },
+    "botProtectionTests": {
+      "botUserAgentTest": 200,
+      "rateLimitingActive": false,
+      "multipleRequestsTest": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ]
+    },
+    "overallScore": 47.5,
+    "criticalIssues": [
+      "Missing security header: Content-Security-Policy",
+      "Missing security header: X-Frame-Options",
+      "Missing security header: X-Content-Type-Options",
+      "Missing security header: Referrer-Policy",
+      "Missing security header: Permissions-Policy",
+      "Missing security header: Cross-Origin-Opener-Policy",
+      "Missing security header: Cross-Origin-Resource-Policy",
+      "CSP header missing"
+    ],
+    "passed": 0,
+    "failed": 4
+  }
+}
