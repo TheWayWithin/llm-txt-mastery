@@ -24,6 +24,7 @@ import ContentAnalysis from '@/components/content-analysis';
 import ContentReview from '@/components/content-review';
 import FileGeneration from '@/components/file-generation';
 import TierLimitsDisplay from '@/components/tier-limits-display';
+import { getTierDisplayName } from '@/lib/tier-utils';
 import { ProgressBreadcrumb, FLOW_STEPS } from '@/components/ui/progress-breadcrumb';
 import { EnhancedLoading, LOADING_STATES } from '@/components/ui/enhanced-loading';
 import { useFlowStateMachine } from '@/hooks/useFlowStateMachine';
@@ -296,7 +297,7 @@ export default function AnalyzePage() {
                   <Zap className="h-5 w-5 text-innovation-teal" />
                   <div>
                     <p className="text-sm font-medium text-framework-black">Current Tier</p>
-                    <p className="text-xs text-ai-silver capitalize">{user.tier}</p>
+                    <p className="text-xs text-ai-silver">{getTierDisplayName(user.tier)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">

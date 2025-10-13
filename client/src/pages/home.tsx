@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { User, Settings, Coffee, HelpCircle } from 'lucide-react';
 import { AuthNav } from '@/components/AuthNav';
+import { getTierDisplayName } from '@/lib/tier-utils';
 import UrlInput from '@/components/url-input';
 import EmailCapture from '@/components/email-capture';
 import Footer from '@/components/footer';
@@ -1040,7 +1041,7 @@ export default function Home() {
                       }`
                     : user.tier === 'starter'
                       ? 'Ready for your next analysis?'
-                      : `Your ${user.tier} tier gives you unlimited access to premium features.`}
+                      : `Your ${getTierDisplayName(user.tier)} tier gives you unlimited access to premium features.`}
                 </p>
                 <div className="flex items-center justify-center space-x-4">
                   <Link href="/dashboard">

@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getTierDisplayName } from '@/lib/tier-utils';
 import {
   Activity,
   Globe,
@@ -236,7 +237,7 @@ export default function AnalysisDetailPage() {
               {getStatusIcon(analysis.status)}
               <Badge className={getStatusColor(analysis.status)}>{analysis.status}</Badge>
               <Badge className={getTierColor(analysis.analysisMetadata.tier)}>
-                {analysis.analysisMetadata.tier}
+                {getTierDisplayName(analysis.analysisMetadata.tier)}
               </Badge>
             </div>
           </div>
