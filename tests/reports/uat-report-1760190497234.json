@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-10-11T13:48:17.234Z",
+  "metrics": {
+    "totalTests": 1,
+    "passedTests": 0,
+    "failedTests": 1,
+    "startTime": 1760190463504,
+    "endTime": 1760190497234,
+    "performanceIssues": [],
+    "securityIssues": []
+  },
+  "bugs": [
+    {
+      "severity": "HIGH",
+      "category": "Test Failure",
+      "description": "1.1 Complete free tier flow from landing to download",
+      "steps": [
+        "1.1 Complete free tier flow from landing to download"
+      ],
+      "expected": "Test should pass",
+      "actual": "Test failed: TimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"url\"], input[placeholder*=\"URL\"], input[placeholder*=\"website\"]').first()\u001b[22m\n",
+      "timestamp": "2025-10-11T13:48:16.128Z",
+      "screenshot": "uat-failure-1760190496128.png"
+    }
+  ],
+  "criteria": {
+    "All critical paths tested": false,
+    "No CRITICAL bugs": true,
+    "Less than 5 HIGH bugs": true,
+    "95%+ test pass rate": false,
+    "Performance within SLA": true,
+    "Security validation complete": true
+  },
+  "readyForProduction": false
+}

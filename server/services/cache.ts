@@ -51,23 +51,23 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
       smartCaching: true,
     },
   },
-  coffee: {
+  solo: {
     dailyAnalyses: 20, // 20 analyses per month (handled via credit system)
     maxPagesPerAnalysis: 200, // 10x more than free tier
-    aiPagesLimit: 200, // Full AI analysis for coffee tier
+    aiPagesLimit: 200, // Full AI analysis for solo tier
     cacheDurationDays: 7, // Same as growth tier
     features: {
       htmlExtraction: true,
-      aiAnalysis: true, // AI analysis enabled for coffee tier
+      aiAnalysis: true, // AI analysis enabled for solo tier
       fileHistory: true, // File history enabled for monthly subscription
       prioritySupport: false,
       smartCaching: true,
     },
   },
   growth: {
-    dailyAnalyses: 100, // 100 analyses per month (handled via credit system - unlimited for Growth tier)
-    maxPagesPerAnalysis: 1000,
-    aiPagesLimit: 1000, // Full AI analysis for growth tier
+    dailyAnalyses: 35, // 35 analyses per month (handled via credit system)
+    maxPagesPerAnalysis: 500,
+    aiPagesLimit: 500, // Full AI analysis for growth tier
     cacheDurationDays: 7,
     features: {
       htmlExtraction: true,
@@ -78,9 +78,9 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
     },
   },
   scale: {
-    dailyAnalyses: 999,
-    maxPagesPerAnalysis: 999999,
-    aiPagesLimit: 999999,
+    dailyAnalyses: 100,
+    maxPagesPerAnalysis: 1000,
+    aiPagesLimit: 1000,
     cacheDurationDays: 3,
     features: {
       htmlExtraction: true,

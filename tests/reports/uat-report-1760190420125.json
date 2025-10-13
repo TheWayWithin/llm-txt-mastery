@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-10-11T13:47:00.124Z",
+  "metrics": {
+    "totalTests": 1,
+    "passedTests": 0,
+    "failedTests": 1,
+    "startTime": 1760190386224,
+    "endTime": 1760190420124,
+    "performanceIssues": [],
+    "securityIssues": []
+  },
+  "bugs": [
+    {
+      "severity": "HIGH",
+      "category": "Test Failure",
+      "description": "1.2 Free tier upgrade prompts",
+      "steps": [
+        "1.2 Free tier upgrade prompts"
+      ],
+      "expected": "Test should pass",
+      "actual": "Test failed: Error: \u001b[31mTimed out 30000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('.upgrade-options, [data-testid=\"upgrade-options\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('.upgrade-options, [data-testid=\"upgrade-options\"]')\u001b[22m\n",
+      "timestamp": "2025-10-11T13:46:59.048Z",
+      "screenshot": "uat-failure-1760190419048.png"
+    }
+  ],
+  "criteria": {
+    "All critical paths tested": false,
+    "No CRITICAL bugs": true,
+    "Less than 5 HIGH bugs": true,
+    "95%+ test pass rate": false,
+    "Performance within SLA": true,
+    "Security validation complete": true
+  },
+  "readyForProduction": false
+}

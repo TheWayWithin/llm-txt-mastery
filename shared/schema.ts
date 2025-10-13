@@ -15,8 +15,8 @@ export const authUsers = pgTable('auth_users', {
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   emailVerified: boolean('email_verified').default(false),
-  tier: text('tier').notNull().default('starter'), // "starter", "coffee", "growth", "scale"
-  creditsRemaining: integer('credits_remaining').default(0), // For coffee tier
+  tier: text('tier').notNull().default('starter'), // "starter", "solo", "growth", "scale"
+  creditsRemaining: integer('credits_remaining').default(0), // For solo tier
   stripeCustomerId: text('stripe_customer_id'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -140,7 +140,7 @@ export const oneTimeCredits = pgTable('one_time_credits', {
     .references(() => users.id),
   creditsRemaining: integer('credits_remaining').notNull().default(0),
   creditsTotal: integer('credits_total').notNull().default(0),
-  productType: text('product_type').notNull().default('coffee'), // "coffee", future: "pro", etc.
+  productType: text('product_type').notNull().default('solo'), // "solo", future: "pro", etc.
   priceId: text('price_id'), // Stripe price ID for the purchase
   stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
   purchasedAt: timestamp('purchased_at').notNull().defaultNow(), // Track for 30-day guarantee
@@ -316,7 +316,7 @@ export const emailCaptureSchema = z.object({
     .union([z.string().url('Please enter a valid URL'), z.literal(''), z.null(), z.undefined()])
     .optional()
     .nullable(),
-  tier: z.enum(['starter', 'coffee', 'growth', 'scale']).default('coffee'),
+  tier: z.enum(['starter', 'solo', 'growth', 'scale']).default('solo'),
 });
 
 export type InsertEmailCapture = z.infer<typeof insertEmailCaptureSchema>;
@@ -335,7 +335,7 @@ export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type UserProfile = typeof userProfiles.$inferSelect;
 
 // Tier-based types
-export type UserTier = 'starter' | 'coffee' | 'growth' | 'scale';
+export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
 
 export interface TierLimits {
   tier: UserTier;
