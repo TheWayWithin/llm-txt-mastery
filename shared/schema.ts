@@ -106,6 +106,7 @@ export const usageTracking = pgTable('usage_tracking', {
     .references(() => users.id),
   date: text('date').notNull(), // YYYY-MM-DD format
   analysesCount: integer('analyses_count').notNull().default(0),
+  validationsCount: integer('validations_count').notNull().default(0), // llms.txt validations
   pagesProcessed: integer('pages_processed').notNull().default(0),
   aiCallsCount: integer('ai_calls_count').notNull().default(0),
   htmlExtractionsCount: integer('html_extractions_count').notNull().default(0),
@@ -429,6 +430,46 @@ export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
 export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type UserLogin = z.infer<typeof userLoginSchema>;
 
+// Rate limiting table for API throttling
+export const rateLimits = pgTable('rate_limits', {
+  id: serial('id').primaryKey(),
+  identifier: text('identifier').notNull(),
+  identifierType: text('identifier_type').notNull(), // 'user' or 'ip'
+  endpoint: text('endpoint').notNull(),
+  requestCount: integer('request_count').notNull().default(1),
+  windowStart: timestamp('window_start').notNull().defaultNow(),
+  windowEnd: timestamp('window_end').notNull(),
+});
+
+// llms.txt validation results
+export const llmsTxtValidations = pgTable('llms_txt_validations', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => authUsers.id),
+  anonymousId: text('anonymous_id'),
+  url: text('url').notNull(),
+  fileUrl: text('file_url').notNull(),
+  urlHash: text('url_hash').notNull(),
+  valid: boolean('valid').notNull(),
+  score: integer('score').notNull(),
+  issues: jsonb('issues'),
+  recommendations: jsonb('recommendations'),
+  robotsConflicts: jsonb('robots_conflicts'),
+  tier: text('tier').notNull(),
+  cached: boolean('cached').notNull().default(false),
+  processingTime: integer('processing_time'),
+  createdAt: timestamp('created_at').defaultNow(),
+  expiresAt: timestamp('expires_at'),
+});
+
+// Validation cache for 24-hour caching
+export const validationCache = pgTable('validation_cache', {
+  id: serial('id').primaryKey(),
+  urlHash: text('url_hash').notNull().unique(),
+  validationResult: jsonb('validation_result').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+});
+
 // Cancellation and refund tracking
 export const cancellations = pgTable('cancellations', {
   id: serial('id').primaryKey(),
@@ -484,3 +525,36 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+// Rate limiting types
+export type RateLimit = typeof rateLimits.$inferSelect;
+export type InsertRateLimit = typeof rateLimits.$inferInsert;
+
+// Validation request schema with SSRF protection
+export const validateLlmsTxtSchema = z.object({
+  url: z.string().url('Please enter a valid URL').refine(
+    (url) => {
+      // SSRF Protection: Block localhost and private IPs
+      const privateRanges = [
+        /^https?:\/\/localhost/i,
+        /^https?:\/\/127\./,
+        /^https?:\/\/192\.168\./,
+        /^https?:\/\/10\./,
+        /^https?:\/\/172\.(1[6-9]|2\d|3[01])\./,
+        /^https?:\/\/169\.254\./,
+      ];
+      return !privateRanges.some(regex => regex.test(url));
+    },
+    { message: 'Invalid or unsafe URL (localhost/private IPs not allowed)' }
+  ),
+  includeRobotsTxt: z.boolean().optional().default(true),
+  bustCache: z.boolean().optional().default(false),
+});
+
+export type ValidateLlmsTxtRequest = z.infer<typeof validateLlmsTxtSchema>;
+
+// Validation types
+export type LlmsTxtValidation = typeof llmsTxtValidations.$inferSelect;
+export type InsertLlmsTxtValidation = typeof llmsTxtValidations.$inferInsert;
+export type ValidationCacheEntry = typeof validationCache.$inferSelect;
+export type InsertValidationCache = typeof validationCache.$inferInsert;

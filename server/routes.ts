@@ -78,6 +78,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin AI costs monitoring routes
   app.use('/api/admin', adminAiCostsRoutes);
 
+  // Register validation routes
+  const validationRoutes = await import('./routes/validation');
+  app.use('/api', validationRoutes.default);
+
   // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
   app.post('/api/debug-tier', async (req, res) => {
     // CRITICAL SECURITY: Block debug endpoints in production
