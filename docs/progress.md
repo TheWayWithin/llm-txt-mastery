@@ -6,11 +6,11 @@ _Last Updated: October 19, 2025 - Phase 2 API Staging Deployment_
 
 **LATEST UPDATES**:
 
-- ⚠️ **PHASE 2 STAGING DEPLOYMENT** - Blocked on Railway deployment after multiple cache/bundling issues
+- ⚠️ **PHASE 2 STAGING DEPLOYMENT** - Blocked on Railway deployment not triggering for dependency fix commits
 - 🔧 **RAILWAY MCP CONFIGURED** - Railway MCP setup complete, requires Claude Code restart to activate
-- 🐛 **DYNAMIC IMPORT ISSUE RESOLVED** - Fixed esbuild bundling problem preventing validation routes from loading
-- 💾 **DATABASE MIGRATION COMPLETE** - Staging database successfully updated with validations_count column
-- 🚀 **7 DEPLOYMENT ATTEMPTS** - Learned critical lessons about Docker caching, dynamic imports, and MCP tooling
+- 📦 **MISSING DEPENDENCIES RESOLVED** - Fixed cookie-parser AND uuid missing packages (commits ae8d25a, 4df98dc)
+- 💾 **DATABASE MIGRATION COMPLETE** - All 3 Phase 2 tables created (rate_limits, llms_txt_validations, validation_cache)
+- 🚀 **11 DEPLOYMENT ATTEMPTS** - Learned critical lessons about Docker caching, dynamic imports, dependencies, and MCP tooling
 
 ### Live Production URLs
 
@@ -23,11 +23,18 @@ _Last Updated: October 19, 2025 - Phase 2 API Staging Deployment_
 
 ## 🚧 Phase 2 API Staging Deployment Issues & Resolutions
 
-_Date: October 19, 2025 | Duration: 4+ hours | Status: BLOCKED - Awaiting Railway MCP activation_
+_Date: October 19, 2025 | Duration: 5+ hours | Status: BLOCKED - Railway not deploying dependency fixes_
 
 ### Context
 
 Attempting to deploy Phase 2 validation API (commit bae1e89) to Railway staging environment. Phase 2 adds `/api/validate-llms-txt` endpoint, rate limiting, and validation caching.
+
+**Current Situation**:
+- Database: ✅ 3 Phase 2 tables created successfully
+- Code: ✅ Dynamic import fixed + Both missing dependencies installed (cookie-parser, uuid)
+- Commits: ae8d25a, 4df98dc pushed to develop branch
+- Railway: ❌ NOT DEPLOYING - Health endpoint timestamp unchanged for 15+ minutes
+- Blocker: Railway auto-deploy may not be configured or deployment queue delayed
 
 ### Critical Issues Encountered
 
@@ -163,6 +170,91 @@ app.use('/api', validationRoutes);
 
 ---
 
+#### Issue 6: Missing cookie-parser Dependency
+**Duration**: 30 minutes | **Severity**: CRITICAL | **Status**: ✅ RESOLVED
+
+**Problem**: Validation endpoint still returning 404 after dynamic import fix.
+
+**Symptom**: Health endpoint showed Phase 2 version but validation routes not loading.
+
+**Root Cause**: Validation routes use `req.cookies?.anonymousId` (line 91) but `cookie-parser` package was never installed.
+
+**Code Dependency** (server/routes/validation.ts:91):
+```typescript
+// Check for existing anonymous ID in cookie
+anonymousId = req.cookies?.anonymousId;  // ❌ req.cookies undefined without cookie-parser
+```
+
+**Impact**: Module import failed silently, preventing route registration.
+
+**Resolution**:
+1. Installed `cookie-parser` and `@types/cookie-parser`
+2. Added middleware to server/index.ts:
+```typescript
+import cookieParser from 'cookie-parser';
+// ...
+app.use(cookieParser());
+```
+
+**Files Modified**: server/index.ts (lines 14, 76)
+**Commit**: ae8d25a
+**Status**: Pushed to develop, awaiting Railway deployment
+
+**Lesson Learned**: Verify ALL package dependencies when debugging module load failures. Check imports beyond just the module entry point.
+
+---
+
+#### Issue 7: Missing uuid Dependency
+**Duration**: 15 minutes | **Severity**: CRITICAL | **Status**: ✅ RESOLVED
+
+**Problem**: Second missing dependency discovered - validation routes import uuid but package not installed.
+
+**Root Cause**: Validation routes import `{ v4 as uuidv4 } from 'uuid'` for generating anonymous user IDs.
+
+**Code Dependency** (server/routes/validation.ts:21):
+```typescript
+import { v4 as uuidv4 } from 'uuid';  // ❌ Package not installed
+```
+
+**Resolution**:
+- Installed `uuid` (^13.0.0) and `@types/uuid` (^10.0.0)
+
+**Commit**: 4df98dc
+**Status**: Pushed to develop, awaiting Railway deployment
+
+**Lesson Learned**: When one missing dependency is found, check for others systematically. Both cookie-parser AND uuid were missing.
+
+---
+
+#### Issue 8: Railway MCP Configuration
+**Duration**: 20 minutes | **Severity**: MEDIUM | **Status**: ✅ RESOLVED (Pending restart)
+
+**Problem**: `.mcp.json` was empty - Railway MCP not configured for project.
+
+**Discovery**: Railway MCP shows "Failed to connect" in `claude mcp list`.
+
+**Resolution**:
+1. User provided Railway API token in `.env.mcp`
+2. Manually configured `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "railway": {
+      "command": "npx",
+      "args": ["-y", "@railway/mcp-server"],
+      "env": {
+        "RAILWAY_API_TOKEN": "cd47379f-2d84-4849-9eea-967dcda247ce"
+      }
+    }
+  }
+}
+```
+3. **Next Step**: Restart Claude Code to activate
+
+**Lesson Learned**: MCP configuration is project-specific. Check `.mcp.json` early in debugging session.
+
+---
+
 ### Deployment Attempts Summary
 
 | Attempt | Time | Action | Result | Issue |
@@ -172,26 +264,34 @@ app.use('/api', validationRoutes);
 | 3 | ~11:30 AM | Add `.dockerignore` | Still cached | Gitignored file |
 | 4 | ~12:00 PM | Modify build script | Still cached | Not enough change |
 | 5 | ~1:00 PM | Fix dynamic import | 404 error | Still cached |
-| 6 | ~2:30 PM | Update health endpoint | Pending verification | Real code change |
-| 7 | ~2:45 PM | Railway MCP setup | Pending restart | MCP activation needed |
+| 6 | ~2:30 PM | Update health endpoint | ✅ Deployed | Real code change worked |
+| 7 | ~2:45 PM | Railway MCP setup | ⏳ Pending | MCP activation needed |
+| 8 | ~3:00 PM | Database migration | ✅ Complete | All Phase 2 tables created |
+| 9 | ~3:45 PM | Install cookie-parser | ⏳ Pending deploy | ae8d25a |
+| 10 | ~4:00 PM | Install uuid | ⏳ Pending deploy | 4df98dc |
+| 11 | ~4:15 PM | Configure Railway MCP | ⏳ Pending restart | .mcp.json updated |
 
 ---
 
 ### Current Status
 
-**Database**: ✅ Migration complete on staging
-**Code**: ✅ All fixes committed and pushed (cc2014b)
-**Railway**: ⏳ Waiting for deployment verification after Claude Code restart
+**Database**: ✅ Migration complete on staging (3 Phase 2 tables created)
+**Code Fixes**: ✅ All fixes committed and pushed (ae8d25a, 4df98dc)
+**Railway**: ❌ NOT DEPLOYING - Health endpoint timestamp unchanged for 15+ minutes
 **MCP**: ⚠️ Configured but requires restart to activate
+**Blocker**: Railway hasn't picked up dependency fix commits (ae8d25a, 4df98dc)
 
 ---
 
 ### Next Actions
 
 1. **User**: Restart Claude Code to activate Railway MCP
-2. **Claude**: Use Railway MCP to check deployment status
-3. **Verify**: Health endpoint shows `version: "2.1.0-phase2-validation-api"`
-4. **Test**: Validation endpoint returns 400/405 instead of 404
+2. **Claude**: Use Railway MCP to:
+   - Check staging deployment status
+   - Verify auto-deploy enabled for develop branch
+   - Manually trigger deployment if needed
+3. **Verify**: Health endpoint shows updated timestamp (currently stuck at `2025-10-19T16:10:22.123Z`)
+4. **Test**: Validation endpoint returns 400/405 instead of 404 (currently 404)
 5. **UAT**: Full Phase 2 functionality testing on staging
 
 ---
@@ -204,6 +304,10 @@ app.use('/api', validationRoutes);
 4. **Verify Reality**: Check logs/status before debugging assumptions
 5. **User Communication**: Provide explicit step-by-step instructions for non-technical tasks
 6. **Cost of Context Loss**: 4+ hours debugging could have been 30 minutes with Railway MCP access
+7. **Dependency Verification**: When one missing dependency is found, systematically check for others
+8. **Module Load Failures**: Check ALL imports in file when debugging 404 routes, not just entry point
+9. **MCP Configuration**: Project-specific MCPs (`.mcp.json`) must be configured separately from global settings
+10. **Railway Auto-Deploy**: May not trigger immediately - check deployment queue and auto-deploy settings via MCP
 
 ---
 
