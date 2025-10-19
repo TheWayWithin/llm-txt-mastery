@@ -27,8 +27,13 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     message: 'Server is running',
     environment: process.env.NODE_ENV || 'production',
-    version: '2.0.1-refund-fix',
-    deployedAt: '2025-10-02T23:15:00Z',
+    version: '2.1.0-phase2-validation-api',
+    deployedAt: new Date().toISOString(),
+    phase2: {
+      validationAPI: true,
+      rateLimiting: true,
+      cachingLayer: true,
+    },
     fixes: {
       refundEligibility: 'DESC ordering for Coffee purchases',
       debugLogging: true,
@@ -132,5 +137,4 @@ app.use((req, res, next) => {
     }
   });
 })();
-// Force Railway redeploy: Wed Aug 27 13:05:42 EDT 2025
-// Force rebuild Sun Oct 19 09:04:50 EDT 2025
+// Force Railway deployment - Phase 2 Validation API: Sun Oct 19 14:30:00 EDT 2025
