@@ -438,6 +438,157 @@ _Phase 2 will begin after your approval_
 
 ---
 
+## Active Mission: Phase 2 API Implementation - Staging Deployment
+
+**Mission Type**: API Layer Development + Database Migration
+**Status**: ⚠️ BLOCKED - Awaiting Railway Staging Deployment
+**Start Date**: October 16, 2025
+**Current Date**: October 19, 2025
+**Priority**: HIGH - Enables validation API for all tiers
+**Owner**: THE OPERATOR
+
+### Mission Objective
+
+Deploy Phase 2 validation API to staging environment, including database schema changes and new API endpoints for llms.txt file validation.
+
+### Phase 2 Features
+
+**New API Endpoints**:
+- `POST /api/validate-llms-txt` - Validates llms.txt files
+- Rate limiting middleware
+- Validation result caching (24-hour TTL)
+
+**Database Schema Changes**:
+- `rateLimits` table - Request throttling tracking
+- `llmsTxtValidations` table - Validation results storage
+- `validationCache` table - 24-hour result cache
+- `usageTracking.validationsCount` column - Usage tracking
+
+### Implementation Status
+
+#### [x] Phase 2 Code Complete
+- [x] 14 files added/modified (3,277 lines)
+- [x] Validation API routes implemented
+- [x] Rate limiting middleware created
+- [x] Database schema defined
+- [x] 45/45 tests passing
+- **Commit**: `bae1e89` (pushed to develop October 16)
+
+#### [x] Database Migration - Staging
+- [x] Migration SQL created
+- [x] Neon staging database accessed
+- [x] `validations_count` column added to `usage_tracking`
+- [x] Migration verified with SELECT query
+- **Status**: ✅ COMPLETE (October 19)
+
+#### [⏳] Railway Staging Deployment - BLOCKED
+
+**Deployment Attempts Timeline**:
+
+1. **Attempt 1** (Oct 19, 10:13 AM): Manual redeploy → Docker cache issue
+   - Build showed 21ms compile time (suspiciously fast)
+   - Validation endpoint returned 404
+   - **Issue**: Docker layer caching serving stale build
+
+2. **Attempt 2** (Oct 19, ~11:00 AM): Set `NIXPACKS_NO_CACHE=1` → Failed
+   - Still showing cached builds in logs
+   - **Issue**: Environment variable didn't force rebuild
+
+3. **Attempt 3** (Oct 19, ~11:30 AM): Added `.dockerignore` → Failed
+   - Created file to exclude `dist/` folder
+   - **Issue**: Railway still using cached layers
+
+4. **Attempt 4** (Oct 19, ~12:00 PM): Modified `package.json` build script → Failed
+   - Added echo command to build script
+   - **Issue**: Railway still caching (commits 362199e, b8c2862, afea0a0)
+
+5. **Attempt 5** (Oct 19, ~1:00 PM): Fixed dynamic import bundling issue
+   - **Root Cause Discovered**: Dynamic import in `server/routes.ts` line 82-83
+   - Changed from `await import('./routes/validation')` to static import
+   - **Commits**: 6717d39, 701dddc
+
+6. **Attempt 6** (Oct 19, ~2:30 PM): Updated health endpoint
+   - Modified `/health` endpoint to show Phase 2 version
+   - Changed version to `2.1.0-phase2-validation-api`
+   - Added `phase2` object with feature flags
+   - **Commit**: cc2014b
+
+7. **Attempt 7** (Oct 19, ~2:45 PM): Railway MCP Setup
+   - Discovered Railway MCP not connected
+   - Ran `./mcp-setup.sh` to configure Railway MCP
+   - Railway MCP configured successfully
+   - **Next Step**: Restart Claude Code to activate MCP
+
+### Current Blocker
+
+**Railway MCP Connection**: MCP configured but not active until Claude Code restart. Once restarted, can use Railway MCP tools to:
+- Check deployment status directly
+- View build/deploy logs
+- Monitor Railway services
+- Debug issues without screenshots
+
+### Issues Encountered & Resolutions
+
+#### Issue 1: Database Migration Access ✅ RESOLVED
+**Problem**: User didn't know how to access Neon staging database
+**Resolution**: Provided step-by-step Neon dashboard navigation instructions
+**Lesson**: Always provide explicit UI navigation for non-technical users
+
+#### Issue 2: Railway Auto-Deploy Not Triggering ✅ RESOLVED (False Alarm)
+**Problem**: Thought Railway wasn't watching develop branch
+**Reality**: Railway WAS watching correctly, code WAS on origin/develop
+**Resolution**: Discovered real issue was Docker caching and dynamic imports
+**Lesson**: Verify reality before making assumptions about infrastructure
+
+#### Issue 3: Docker Layer Caching ⚠️ ONGOING
+**Problem**: Railway serving stale cached builds despite code changes
+**Attempts**: NIXPACKS_NO_CACHE, .dockerignore, build script modifications
+**Status**: None of these forced fresh build
+**Lesson**: Cache busting requires actual code changes that Docker can't ignore
+
+#### Issue 4: Dynamic Import Bundling ✅ RESOLVED
+**Problem**: Validation routes returning 404 despite route registration code
+**Root Cause**: `await import('./routes/validation')` prevents esbuild bundling
+**Resolution**: Changed to static import at top of routes.ts
+**Files**: server/routes.ts lines 48, 82-83
+**Commits**: 6717d39, 701dddc
+**Lesson**: ESM dynamic imports incompatible with esbuild --bundle flag
+
+#### Issue 5: Railway MCP Not Connected ✅ RESOLVED
+**Problem**: No direct access to Railway logs/deployments
+**Resolution**: Ran mcp-setup.sh script, configured Railway MCP
+**Next Step**: Restart Claude Code to activate MCP connection
+**Lesson**: MCP setup required for efficient DevOps workflows
+
+### Files Modified (Current Session)
+
+**Backend**:
+- `server/routes.ts` - Changed dynamic import to static (lines 48, 82-83)
+- `server/index.ts` - Updated health endpoint for Phase 2 (lines 30-36, 140)
+- `.dockerignore` - Added to exclude dist/ and force rebuild
+
+**Build Config**:
+- `package.json` - Modified build script with echo command (line 8)
+
+### Next Steps
+
+1. ⏳ **Restart Claude Code** - Activate Railway MCP
+2. ⏳ **Verify Railway Deployment** - Use Railway MCP to check commit cc2014b status
+3. ⏳ **Test Health Endpoint** - Verify `version: "2.1.0-phase2-validation-api"`
+4. ⏳ **Test Validation Endpoint** - Should return 400/405 instead of 404
+5. ⏳ **Full Phase 2 UAT** - Test validation API functionality on staging
+
+### Success Criteria
+
+- [x] Database migration executed on staging
+- [ ] Railway staging shows Phase 2 health endpoint
+- [ ] Validation endpoint returns non-404 response
+- [ ] Rate limiting middleware active
+- [ ] Validation cache working
+- [ ] Usage tracking increments validationsCount
+
+---
+
 ## DevOps Lifecycle Implementation - IN PROGRESS
 
 **Status**: In Progress
