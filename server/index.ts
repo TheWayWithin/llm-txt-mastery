@@ -139,4 +139,4 @@ app.use((req, res, next) => {
     }
   });
 })();
-// Force Railway deployment - Phase 2 Validation API with DB tables: Sun Oct 19 16:00:00 EDT 2025
+// Force Railway deployment - Phase 2 Validation API with cookie-parser + uuid: Sun Oct 19 16:58:00 EDT 2025
