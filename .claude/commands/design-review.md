@@ -10,25 +10,21 @@ You are executing a comprehensive design review using world-class standards from
 ## OPERATIONAL CONTEXT
 
 ### GIT STATUS:
-
 ```
 !`git status`
 ```
 
 ### FILES MODIFIED:
-
 ```
 !`git diff --name-only origin/HEAD...`
 ```
 
 ### COMMITS:
-
 ```
 !`git log --no-decorate --oneline -10 origin/HEAD...`
 ```
 
 ### DIFF CONTENT:
-
 ```
 !`git diff --merge-base origin/HEAD`
 ```
@@ -57,34 +53,29 @@ Review the complete diff above containing all UI/UX changes. Execute the compreh
 ## REVIEW PHASES TO EXECUTE
 
 ### Phase 0: Preparation (5 min)
-
 - Analyze PR motivation and testing notes
 - Set up Playwright environment
 - Configure initial viewport (1440x900)
 
 ### Phase 1: Interaction & User Flow (15 min)
-
 - Test primary user flows
 - Validate all interactive states
 - Check micro-interactions and animations
 - Assess perceived performance
 
 ### Phase 2: Responsiveness Testing (10 min)
-
 - Desktop (1440px) with screenshot
 - Tablet (768px) layout adaptation
 - Mobile (375px) touch optimization
 - Breakpoint transition verification
 
 ### Phase 3: Visual Polish (10 min)
-
 - Layout alignment consistency
 - Typography hierarchy validation
 - Color palette and image quality
 - Visual hierarchy assessment
 
 ### Phase 4: Accessibility Audit (15 min)
-
 - Keyboard navigation testing
 - Focus state verification
 - Screen reader compatibility
@@ -92,21 +83,18 @@ Review the complete diff above containing all UI/UX changes. Execute the compreh
 - Semantic HTML review
 
 ### Phase 5: Robustness Testing (10 min)
-
 - Form validation with invalid inputs
 - Content overflow scenarios
 - Loading/empty/error states
 - Edge case handling
 
 ### Phase 6: Code Health (10 min)
-
 - Component reuse patterns
 - Design token compliance
 - CSS architecture review
 - Performance optimization check
 
 ### Phase 7: Console & Performance (5 min)
-
 - Browser console error check
 - Network request optimization
 - Content clarity review
@@ -144,4 +132,4 @@ Apply these evaluation criteria:
 
 **INITIATE DESIGN REVIEW PROTOCOL NOW**
 
-_Execute systematic evaluation. Document everything. Provide evidence. Deliver actionable insights._
+*Execute systematic evaluation. Document everything. Provide evidence. Deliver actionable insights.*

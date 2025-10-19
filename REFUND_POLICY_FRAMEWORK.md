@@ -132,7 +132,7 @@ Before processing any refund request, customers are presented with:
 
 2. **Downgrade Alternatives**
    - Scale → Growth: 50% savings, maintain core features
-   - Growth → Coffee: One-time payment, 20+ analyses
+   - Growth → Coffee: $4.95/month subscription, 20+ analyses
    - All tiers: Extended trial periods
 
 3. **Enhanced Support**

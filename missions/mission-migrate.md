@@ -1,5 +1,4 @@
 # Mission: MIGRATE 🔄
-
 ## System, Database, and Platform Migration
 
 **Mission Code**: MIGRATE  
@@ -20,13 +19,11 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Mission Phases
 
 ### Phase 1: Migration Analysis and Planning (60-90 minutes)
-
 **Lead**: @architect  
 **Support**: @developer, @operator  
 **Objective**: Comprehensive migration strategy and risk assessment
 
 **Tasks**:
-
 - Analyze source and target system architectures
 - Assess data volume, complexity, and dependencies
 - Plan migration strategy (big bang vs phased approach)
@@ -34,20 +31,17 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 - Design rollback procedures and contingency plans
 
 **Success Criteria**:
-
 - Migration strategy documented
 - Risk assessment completed
 - Rollback plan prepared
 - Timeline and milestones defined
 
 ### Phase 2: Environment Preparation (45-75 minutes)
-
 **Lead**: @operator  
 **Support**: @architect, @developer  
 **Objective**: Prepare target environment and migration tools
 
 **Tasks**:
-
 - Set up target environment and infrastructure
 - Install and configure migration tools
 - Establish secure connections between systems
@@ -55,20 +49,17 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 - Test connectivity and permissions
 
 **Success Criteria**:
-
 - Target environment ready
 - Migration tools configured
 - Connectivity established
 - Monitoring active
 
 ### Phase 3: Data Assessment and Mapping (60-90 minutes)
-
 **Lead**: @developer  
 **Support**: @architect  
 **Objective**: Map data structures and create transformation logic
 
 **Tasks**:
-
 - Map data schemas between source and target
 - Identify data transformation requirements
 - Design data validation and integrity checks
@@ -76,20 +67,17 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 - Create data mapping documentation
 
 **Success Criteria**:
-
 - Data mapping complete
 - Transformation logic designed
 - Validation rules defined
 - Conflict resolution planned
 
 ### Phase 4: Migration Testing (90-120 minutes)
-
 **Lead**: @developer  
 **Support**: @operator, @architect  
 **Objective**: Test migration process with subset of data
 
 **Tasks**:
-
 - Execute migration test with sample data
 - Validate data integrity and completeness
 - Test application functionality on migrated data
@@ -97,20 +85,17 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 - Refine migration process based on test results
 
 **Success Criteria**:
-
 - Test migration successful
 - Data integrity validated
 - Performance benchmarks established
 - Process optimized
 
 ### Phase 5: Production Migration Execution (120-180 minutes)
-
 **Lead**: @operator  
 **Support**: @developer, @architect  
 **Objective**: Execute full production migration
 
 **Tasks**:
-
 - Coordinate downtime window and user communication
 - Execute pre-migration backup procedures
 - Run full migration process with monitoring
@@ -118,20 +103,17 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 - Perform post-migration system health checks
 
 **Success Criteria**:
-
 - Migration executed successfully
 - Data integrity maintained
 - System health validated
 - Downtime within SLA
 
 ### Phase 6: Validation and Cutover (45-75 minutes)
-
 **Lead**: @developer  
 **Support**: @operator  
 **Objective**: Validate migration success and enable new system
 
 **Tasks**:
-
 - Run comprehensive data validation checks
 - Test critical business processes
 - Update DNS and routing configurations
@@ -139,7 +121,6 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 - Document migration completion and lessons learned
 
 **Success Criteria**:
-
 - All validations passed
 - Business processes functional
 - System stable and performing
@@ -148,28 +129,24 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Migration Types
 
 ### Database Migration
-
 - **MySQL to PostgreSQL**: Schema conversion, data type mapping
 - **On-premise to Cloud**: AWS RDS, Google Cloud SQL, Azure SQL
 - **Version Upgrades**: Major version migrations with compatibility
 - **Replication**: Master-slave, master-master configurations
 
 ### Application Migration
-
 - **Cloud Migration**: On-premise to AWS/Azure/GCP
 - **Platform Migration**: Heroku to Kubernetes, server to serverless
 - **Language Migration**: Legacy language to modern stack
 - **Architecture Migration**: Monolith to microservices
 
 ### Infrastructure Migration
-
 - **Cloud Provider**: AWS to Azure, GCP to AWS
 - **Container Migration**: VM to Docker/Kubernetes
 - **CDN Migration**: CloudFlare to AWS CloudFront
 - **DNS Migration**: Provider changes, configuration updates
 
 ### Data Migration
-
 - **File Storage**: Local storage to S3/Azure Blob
 - **Cache Migration**: Memcached to Redis
 - **Search Migration**: Elasticsearch version upgrades
@@ -178,28 +155,24 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Migration Strategies
 
 ### Big Bang Migration
-
 - **Approach**: Complete migration in single maintenance window
 - **Pros**: Simple, fast cutover, no dual-system complexity
 - **Cons**: Higher risk, longer downtime, harder to rollback
 - **Best For**: Smaller systems, when downtime is acceptable
 
 ### Phased Migration
-
 - **Approach**: Migrate in stages, component by component
 - **Pros**: Lower risk, shorter downtime windows, easier testing
 - **Cons**: More complex, longer overall timeline, dual maintenance
 - **Best For**: Large systems, mission-critical applications
 
 ### Parallel Run
-
 - **Approach**: Run both systems simultaneously during transition
 - **Pros**: Zero downtime, extensive validation, easy rollback
 - **Cons**: Resource intensive, complex synchronization
 - **Best For**: High-availability requirements, critical systems
 
 ### Blue-Green Migration
-
 - **Approach**: Switch traffic between identical environments
 - **Pros**: Instant rollback, zero downtime, full testing
 - **Cons**: Double infrastructure cost, complex setup
@@ -208,21 +181,18 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Risk Management
 
 ### Common Risks
-
 - **Data Loss**: Incomplete migration, corruption during transfer
 - **Extended Downtime**: Migration taking longer than planned
 - **Performance Issues**: New system slower than expected
 - **Application Compatibility**: Features not working post-migration
 
 ### Mitigation Strategies
-
 - **Comprehensive Backups**: Full system backups before migration
 - **Rollback Procedures**: Tested rollback plans and scripts
 - **Validation Checks**: Automated data integrity validation
 - **Performance Testing**: Load testing on target system
 
 ### Contingency Plans
-
 - **Rollback Triggers**: Clear criteria for rollback decision
 - **Communication Plan**: Stakeholder notification procedures
 - **Extended Downtime**: Procedures for handling overruns
@@ -231,14 +201,12 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Success Metrics
 
 ### Technical Metrics
-
 - **Data Integrity**: 100% data accuracy and completeness
 - **Downtime**: Within planned maintenance window
 - **Performance**: Target system meets or exceeds baseline
 - **Availability**: System availability restored within SLA
 
 ### Business Metrics
-
 - **User Impact**: Minimal disruption to user workflows
 - **Functionality**: All features working post-migration
 - **Support Load**: No increase in support tickets
@@ -247,14 +215,12 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Tools and Technologies
 
 ### Migration Tools
-
 - **Database**: AWS DMS, Azure Data Migration, Google Migration Service
 - **Application**: Docker, Kubernetes, Terraform
 - **File System**: rsync, robocopy, cloud sync tools
 - **Monitoring**: CloudWatch, DataDog, New Relic
 
 ### Validation Tools
-
 - **Data Comparison**: Custom scripts, commercial tools
 - **Load Testing**: JMeter, LoadRunner, Artillery
 - **Monitoring**: APM tools, custom dashboards
@@ -263,21 +229,18 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 ## Post-Migration Tasks
 
 ### Immediate (0-24 hours)
-
 - **System Monitoring**: Intensive monitoring of new system
 - **Performance Validation**: Confirm performance meets expectations
 - **User Communication**: Notify users of successful migration
 - **Issue Triage**: Address any post-migration issues
 
 ### Short-term (1-7 days)
-
 - **Performance Tuning**: Optimize new system based on real usage
 - **Backup Verification**: Ensure backup systems working
 - **Documentation Update**: Update system documentation
 - **Team Training**: Train team on new system operations
 
 ### Long-term (1-4 weeks)
-
 - **Legacy Cleanup**: Decommission old systems safely
 - **Cost Optimization**: Optimize new system costs
 - **Process Documentation**: Document new operational procedures
@@ -294,4 +257,43 @@ Execute a systematic migration of systems, databases, or platforms with minimal 
 
 **Mission Command**: `/coord migrate [migration-plan] [system-assessment] [downtime-requirements]`
 
-_"Migration is not just moving data; it's transforming possibilities."_
+*"Migration is not just moving data; it's transforming possibilities."*
+
+---
+
+## Post-Mission Cleanup Decision
+
+After completing this mission, decide on cleanup approach based on project status:
+
+### ✅ Milestone Transition (Every 2-4 weeks)
+**When**: This mission completes a major project milestone, but more work remains.
+
+**Actions** (30-60 min):
+1. Extract lessons to `lessons/[category]/` from progress.md
+2. Archive current handoff-notes.md to `archives/handoffs/milestone-X/`
+3. Clean agent-context.md (retain essentials, archive historical details)
+4. Create fresh handoff-notes.md for next milestone
+5. Update project-plan.md with next milestone tasks
+
+**See**: `templates/cleanup-checklist.md` Section A for detailed steps
+
+### 🎯 Project Completion (Mission accomplished!)
+**When**: All project objectives achieved, ready for new mission.
+
+**Actions** (1-2 hours):
+1. Extract ALL lessons from entire progress.md to `lessons/`
+2. Create mission archive in `archives/missions/mission-[name]-YYYY-MM-DD/`
+3. Update CLAUDE.md with system-level learnings
+4. Archive all tracking files (project-plan.md, progress.md, etc.)
+5. Prepare fresh start for next mission
+
+**See**: `templates/cleanup-checklist.md` Section B for detailed steps
+
+### 🔄 Continue Active Work (No cleanup needed)
+**When**: Mission complete but continuing active development in same phase.
+
+**Actions**: Update progress.md and project-plan.md, continue working.
+
+---
+
+**Reference**: See `project/field-manual/project-lifecycle-guide.md` for complete lifecycle management procedures.

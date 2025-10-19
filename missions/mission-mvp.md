@@ -1,5 +1,4 @@
 # Mission: MVP 💡
-
 ## Rapid MVP Development
 
 **Mission Code**: MVP  
@@ -35,14 +34,13 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - Problem statement
 - User personas
 - Core feature list (3-5 max)
 - Success metrics
 - Value proposition
 
-### Phase 2: Market Analysis (1 hour) _[Optional but Recommended]_
+### Phase 2: Market Analysis (1 hour) *[Optional but Recommended]*
 
 **Lead**: @analyst  
 **Support**: @marketer  
@@ -58,7 +56,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - Competitor matrix
 - Market gap analysis
 - Pricing strategy
@@ -80,7 +77,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - Tech stack decision
 - Simple architecture diagram
 - Data model
@@ -103,7 +99,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - User flow diagrams
 - Wireframes
 - Clickable prototype
@@ -125,7 +120,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Key Principles**:
-
 - Speed over perfection
 - Core features only
 - Basic but functional UI
@@ -148,7 +142,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - Landing page
 - Analytics setup
 - Onboarding flow
@@ -171,7 +164,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - Core functionality verified
 - Showstopper bugs fixed
 - Basic security check
@@ -193,7 +185,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ```
 
 **Deliverables**:
-
 - Live MVP
 - Monitoring dashboard
 - Error tracking
@@ -211,7 +202,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ## MVP Principles
 
 ### Include
-
 - Core value proposition
 - One main user flow
 - Basic authentication
@@ -219,7 +209,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 - Feedback mechanism
 
 ### Exclude
-
 - Nice-to-have features
 - Perfect design
 - Extensive testing
@@ -227,7 +216,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 - Scaling concerns
 
 ### Technical Choices
-
 - Use familiar tech
 - Leverage templates
 - Choose PaaS over IaaS
@@ -237,28 +225,24 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ## Common MVP Types
 
 ### SaaS MVP
-
 - Authentication
 - Core feature
 - Basic billing
 - Simple dashboard
 
 ### Marketplace MVP
-
 - Listing creation
 - Search/browse
 - Contact/transaction
 - Basic profiles
 
 ### Content MVP
-
 - Content creation
 - Basic categorization
 - Simple consumption
 - User accounts
 
 ### Tool MVP
-
 - Core functionality
 - File handling
 - Basic UI
@@ -267,7 +251,6 @@ Transform a product concept into a working Minimum Viable Product. This mission 
 ## Post-MVP Protocol
 
 After launch:
-
 1. Monitor user behavior
 2. Collect feedback actively
 3. Fix only critical bugs
@@ -284,4 +267,43 @@ After launch:
 
 ---
 
-_Speed is the MVP superpower. Begin with `/coord mvp [vision.md]`_
+## Post-Mission Cleanup Decision
+
+After completing this mission, decide on cleanup approach based on project status:
+
+### ✅ Milestone Transition (Every 2-4 weeks)
+**When**: This mission completes a major project milestone, but more work remains.
+
+**Actions** (30-60 min):
+1. Extract lessons to `lessons/[category]/` from progress.md
+2. Archive current handoff-notes.md to `archives/handoffs/milestone-X/`
+3. Clean agent-context.md (retain essentials, archive historical details)
+4. Create fresh handoff-notes.md for next milestone
+5. Update project-plan.md with next milestone tasks
+
+**See**: `templates/cleanup-checklist.md` Section A for detailed steps
+
+### 🎯 Project Completion (Mission accomplished!)
+**When**: All project objectives achieved, ready for new mission.
+
+**Actions** (1-2 hours):
+1. Extract ALL lessons from entire progress.md to `lessons/`
+2. Create mission archive in `archives/missions/mission-[name]-YYYY-MM-DD/`
+3. Update CLAUDE.md with system-level learnings
+4. Archive all tracking files (project-plan.md, progress.md, etc.)
+5. Prepare fresh start for next mission
+
+**See**: `templates/cleanup-checklist.md` Section B for detailed steps
+
+### 🔄 Continue Active Work (No cleanup needed)
+**When**: Mission complete but continuing active development in same phase.
+
+**Actions**: Update progress.md and project-plan.md, continue working.
+
+---
+
+**Reference**: See `project/field-manual/project-lifecycle-guide.md` for complete lifecycle management procedures.
+
+---
+
+*Speed is the MVP superpower. Begin with `/coord mvp [vision.md]`*

@@ -152,7 +152,7 @@ describe('Component Performance Benchmarks', () => {
 
       // Perform multiple interactions
       await user.click(screen.getByText('Free (But Crippled)'));
-      await user.click(screen.getByText('Coffee Power ($4.95 one-time)'));
+      await user.click(screen.getByText('Coffee Power ($4.95/month)'));
       await user.click(screen.getByText('Professional Power ($9.95/mo)'));
 
       const finalRenders = renderCount;
@@ -277,7 +277,7 @@ describe('Component Performance Benchmarks', () => {
       // Perform rapid tier selections
       for (let i = 0; i < 5; i++) {
         await user.click(screen.getByText('Free (But Crippled)'));
-        await user.click(screen.getByText('Coffee Power ($4.95 one-time)'));
+        await user.click(screen.getByText('Coffee Power ($4.95/month)'));
       }
 
       const endTime = performance.now();

@@ -1,7 +1,6 @@
 # Architecture Documentation Standard Operating Procedure (SOP)
 
 ## Table of Contents
-
 1. [Purpose & Scope](#purpose--scope)
 2. [Document Structure Template](#document-structure-template)
 3. [Content Guidelines for Each Section](#content-guidelines-for-each-section)
@@ -31,14 +30,12 @@ Architecture documentation serves as the **single source of truth** for your sys
 ### Who Should Use This SOP
 
 **Primary Audiences:**
-
 - **Architects & Technical Leads** - Creating and maintaining architecture docs
 - **Senior Developers** - Contributing to architectural decisions and documentation
 - **Engineering Managers** - Ensuring documentation standards are met
 - **DevOps/Platform Engineers** - Documenting infrastructure and deployment
 
 **Secondary Audiences:**
-
 - **Product Managers** - Understanding technical constraints and capabilities
 - **New Team Members** - Learning system design and implementation
 - **External Stakeholders** - Understanding system capabilities and limitations
@@ -46,14 +43,12 @@ Architecture documentation serves as the **single source of truth** for your sys
 ### When to Create/Update Architecture Docs
 
 **Create New Documentation:**
-
 - ✅ New project or major system redesign
 - ✅ Migrating from undocumented legacy system
 - ✅ Onboarding new team with existing undocumented system
 - ✅ Preparing for major scaling or technology changes
 
 **Update Existing Documentation:**
-
 - ✅ **Immediately after** architectural changes are deployed
 - ✅ **Before major releases** that change system behavior
 - ✅ **Quarterly reviews** to catch drift and improvements
@@ -70,40 +65,26 @@ Architecture documentation serves as the **single source of truth** for your sys
 # System Architecture - [Project Name]
 
 ## 1. Executive Summary
-
-## 2. System Overview
-
+## 2. System Overview  
 ## 3. Infrastructure Architecture
-
 ## 4. Application Architecture
-
 ## 5. Data Architecture
-
 ## 6. Architecture Decisions
-
 ## 7. Current Limitations
-
 ## 8. Next Steps
 ```
 
 ### Optional Sections (Based on Project Needs)
 
 ```markdown
-## Security Architecture [Required for: user data, payments, compliance]
-
-## Integration Architecture [Required for: external APIs, microservices]
-
-## Development Architecture [Required for: teams >5 people, complex builds]
-
-## Monitoring & Performance [Required for: production systems, SLAs]
-
-## Scaling Strategy [Required for: growth systems, variable load]
-
-## Lessons Learned [Recommended for: mature systems, post-incidents]
-
-## Disaster Recovery [Required for: critical systems, data protection]
-
-## Compliance & Governance [Required for: regulated industries, enterprise]
+## Security Architecture        [Required for: user data, payments, compliance]
+## Integration Architecture     [Required for: external APIs, microservices]
+## Development Architecture     [Required for: teams >5 people, complex builds]
+## Monitoring & Performance     [Required for: production systems, SLAs]
+## Scaling Strategy             [Required for: growth systems, variable load]
+## Lessons Learned              [Recommended for: mature systems, post-incidents]
+## Disaster Recovery            [Required for: critical systems, data protection]
+## Compliance & Governance      [Required for: regulated industries, enterprise]
 ```
 
 ### Section Ordering Best Practices
@@ -125,7 +106,6 @@ Architecture documentation serves as the **single source of truth** for your sys
 **Audience:** All stakeholders, especially non-technical
 
 **Must Include:**
-
 - System purpose and primary users
 - Key business capabilities enabled
 - Major technology choices (1-2 sentences)
@@ -133,14 +113,12 @@ Architecture documentation serves as the **single source of truth** for your sys
 - Team size and ownership
 
 **Template:**
-
 ```markdown
 ## Executive Summary
 
-[Project Name] is a [type of system] that enables [primary business value] for [target users].
+[Project Name] is a [type of system] that enables [primary business value] for [target users]. 
 
 **Core Capabilities:**
-
 - [Primary capability 1]
 - [Primary capability 2]
 - [Primary capability 3]
@@ -159,34 +137,28 @@ Architecture documentation serves as the **single source of truth** for your sys
 **Audience:** Technical team members, architects
 
 **Must Include:**
-
 - System boundary diagram showing major components
 - External dependencies and integrations
 - User journey through the system
 - Key data flows between components
 
 **Template:**
-
 ```markdown
 ## System Overview
 
 ### High-Level Architecture
-
 [ASCII or embedded diagram showing major components]
 
 ### Core Components
-
 - **[Component 1]**: [Purpose and key responsibilities]
 - **[Component 2]**: [Purpose and key responsibilities]
 - **[Component 3]**: [Purpose and key responsibilities]
 
 ### External Dependencies
-
 - **[Service 1]**: [Purpose and integration method]
 - **[Service 2]**: [Purpose and integration method]
 
 ### User Journey
-
 1. [Step 1 description]
 2. [Step 2 description]
 3. [Step 3 description]
@@ -199,7 +171,6 @@ Architecture documentation serves as the **single source of truth** for your sys
 **Audience:** DevOps, platform engineers, architects
 
 **Must Include:**
-
 - Deployment environments (dev, staging, prod)
 - Infrastructure providers and services used
 - Networking and security boundaries
@@ -207,33 +178,27 @@ Architecture documentation serves as the **single source of truth** for your sys
 - Cost optimization strategies
 
 **Template:**
-
 ```markdown
 ## Infrastructure Architecture
 
 ### Deployment Environments
-
 - **Production**: [Platform] - [URL/access method]
-- **Staging**: [Platform] - [URL/access method]
+- **Staging**: [Platform] - [URL/access method]  
 - **Development**: [Platform] - [URL/access method]
 
 ### Core Infrastructure
-
 - **Compute**: [Service type, sizing, auto-scaling rules]
 - **Database**: [Type, provider, backup strategy]
 - **Storage**: [Type, purpose, retention policies]
 - **CDN/Cache**: [Service, configuration, cache strategy]
 
 ### Network Architecture
-
 [Diagram or description of network topology]
-
 - Load balancing strategy
 - Security groups/firewalls
 - Service discovery method
 
 ### Operational Characteristics
-
 - **Availability**: [SLA/uptime target]
 - **Scalability**: [Current capacity, scaling triggers]
 - **Backup/Recovery**: [Strategy, RTO/RPO targets]
@@ -247,7 +212,6 @@ Architecture documentation serves as the **single source of truth** for your sys
 **Audience:** Developers, technical leads
 
 **Must Include:**
-
 - Application layers and their responsibilities
 - Key architectural patterns used
 - Service boundaries and communication
@@ -255,27 +219,23 @@ Architecture documentation serves as the **single source of truth** for your sys
 - Framework and library choices with rationale
 
 **Template:**
-
 ```markdown
 ## Application Architecture
 
 ### Technology Stack
-
 - **Frontend**: [Framework/version, key libraries]
 - **Backend**: [Framework/version, key libraries]
 - **Language(s)**: [Versions and rationale]
 
 ### Application Layers
 ```
-
 [Frontend Layer]
-↓ API calls
+    ↓ API calls
 [API Layer]
-↓ Business logic
+    ↓ Business logic
 [Service Layer]  
- ↓ Data access
+    ↓ Data access
 [Data Layer]
-
 ```
 
 ### Service Architecture
@@ -290,16 +250,13 @@ Architecture documentation serves as the **single source of truth** for your sys
 
 ### Code Organization
 ```
-
 project/
-├── client/ # Frontend application
-├── server/ # Backend API
-├── shared/ # Shared types/utilities
-├── database/ # Migrations and schema
-└── infrastructure/ # Deployment configs
-
+├── client/          # Frontend application
+├── server/          # Backend API
+├── shared/          # Shared types/utilities
+├── database/        # Migrations and schema
+└── infrastructure/  # Deployment configs
 ```
-
 ```
 
 ### 5. Data Architecture
@@ -309,7 +266,6 @@ project/
 **Audience:** Developers, data engineers, architects
 
 **Must Include:**
-
 - Database schema overview
 - Data flow between components
 - Storage strategy and rationale
@@ -317,27 +273,22 @@ project/
 - Backup and recovery procedures
 
 **Template:**
-
 ```markdown
 ## Data Architecture
 
 ### Database Schema
-
 **Primary Database**: [Type/provider]
 
 **Core Entities:**
-
 - **[Entity 1]**: [Purpose, key fields, relationships]
 - **[Entity 2]**: [Purpose, key fields, relationships]
 - **[Entity 3]**: [Purpose, key fields, relationships]
 
 ### Data Flow
 ```
-
 [User Input] → [Validation] → [Business Logic] → [Database]
-↓
+                    ↓
 [External APIs] ← [Processing] ← [Event System]
-
 ```
 
 ### Storage Strategy
@@ -365,7 +316,6 @@ project/
 **Audience:** Technical team, future maintainers
 
 **Must Include:**
-
 - Date and context of decision
 - Options considered
 - Decision made and rationale
@@ -373,18 +323,15 @@ project/
 - Review trigger conditions
 
 **Template:**
-
 ```markdown
 ## Architecture Decisions
 
 ### ADR-001: Database Technology Choice
-
 **Date**: [YYYY-MM-DD]  
 **Status**: Accepted  
 **Context**: [Problem that needed solving]
 
 **Options Considered:**
-
 1. **[Option 1]**: [Pros and cons]
 2. **[Option 2]**: [Pros and cons]
 3. **[Option 3]**: [Pros and cons]
@@ -392,7 +339,6 @@ project/
 **Decision**: [Chosen option and key reasons]
 
 **Consequences:**
-
 - **Positive**: [Benefits realized]
 - **Negative**: [Trade-offs accepted]
 - **Neutral**: [Things to monitor]
@@ -402,7 +348,6 @@ project/
 ---
 
 ### ADR-002: [Next Decision]
-
 [Follow same template]
 ```
 
@@ -413,42 +358,34 @@ project/
 **Audience:** Product managers, technical leads, stakeholders
 
 **Must Include:**
-
 - Performance bottlenecks
-- Scalability constraints
+- Scalability constraints  
 - Technical debt priorities
 - Resource limitations
 - Known bugs or workarounds
 
 **Template:**
-
 ```markdown
 ## Current Limitations
 
 ### Performance Constraints
-
 - **[Bottleneck 1]**: [Impact and current mitigation]
 - **[Bottleneck 2]**: [Impact and current mitigation]
 
 ### Scalability Limits
-
 - **Users**: Current capacity [X], breaks at [Y]
 - **Requests**: Current [X/sec], max tested [Y/sec]
 - **Data**: Current [X GB], performance degrades at [Y GB]
 
 ### Technical Debt
-
 **Priority 1 (Blocking Growth):**
-
 - [Item 1]: [Impact and effort estimate]
 - [Item 2]: [Impact and effort estimate]
 
 **Priority 2 (Maintenance Burden):**
-
 - [Item 1]: [Impact and effort estimate]
 
 ### Resource Constraints
-
 - **Budget**: [Monthly costs approaching limits]
 - **Team Capacity**: [Areas needing more expertise]
 - **Infrastructure**: [Services approaching quotas]
@@ -461,40 +398,33 @@ project/
 **Audience:** Product managers, technical leads, executives
 
 **Must Include:**
-
 - Prioritized improvements
 - Timeline and resource estimates
 - Success metrics
 - Dependencies and risks
 
 **Template:**
-
 ```markdown
 ## Next Steps
 
 ### Immediate Priorities (Next Quarter)
-
 1. **[Priority 1]**: [Description, effort, success metric]
 2. **[Priority 2]**: [Description, effort, success metric]
 3. **[Priority 3]**: [Description, effort, success metric]
 
 ### Medium-term Goals (6 months)
-
 - **[Goal 1]**: [Why important, dependencies]
 - **[Goal 2]**: [Why important, dependencies]
 
 ### Long-term Vision (12+ months)
-
 - **[Vision item 1]**: [Strategic importance]
 - **[Vision item 2]**: [Strategic importance]
 
 ### Success Metrics
-
 - [Metric 1]: Current [X], target [Y]
 - [Metric 2]: Current [X], target [Y]
 
 ### Key Dependencies
-
 - **External**: [What we're waiting for]
 - **Internal**: [Team capacity, other projects]
 - **Technical**: [Platform upgrades, migrations]
@@ -507,22 +437,20 @@ project/
 ### ASCII Diagram Templates
 
 **System Overview Template:**
-
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │   Frontend  │───▶│   Backend   │───▶│  Database   │
 │   (React)   │    │ (Express)   │    │(PostgreSQL)│
 └─────────────┘    └─────────────┘    └─────────────┘
-       │                   │
-       ▼                   ▼
-┌─────────────┐    ┌─────────────┐
-│     CDN     │    │  External   │
-│  (Cloudflare)│    │   APIs      │
-└─────────────┘    └─────────────┘
+       │                   │                   
+       ▼                   ▼                   
+┌─────────────┐    ┌─────────────┐              
+│     CDN     │    │  External   │              
+│  (Cloudflare)│    │   APIs      │              
+└─────────────┘    └─────────────┘              
 ```
 
 **Data Flow Template:**
-
 ```
 User Input ──▶ Validation ──▶ Business Logic ──▶ Database
     │               │               │               │
@@ -531,7 +459,6 @@ User Input ──▶ Validation ──▶ Business Logic ──▶ Database
 ```
 
 **Deployment Architecture Template:**
-
 ```
 Production Environment
 ┌─────────────────────────────────────────────────────────┐
@@ -552,7 +479,6 @@ Production Environment
 ### When to Use Diagrams vs Text
 
 **Use Diagrams When:**
-
 - ✅ Showing relationships between 3+ components
 - ✅ Illustrating data flow or user journey
 - ✅ Explaining deployment topology
@@ -560,7 +486,6 @@ Production Environment
 - ✅ Complex decision trees or state machines
 
 **Use Text When:**
-
 - ✅ Listing configuration options
 - ✅ Explaining rationale or trade-offs
 - ✅ Providing step-by-step procedures
@@ -570,21 +495,18 @@ Production Environment
 ### Diagram Complexity Guidelines
 
 **Simple (Preferred):**
-
 - Maximum 7 components
 - Single level of abstraction
 - Clear labels and arrows
 - One primary message
 
 **Medium (Acceptable):**
-
 - 8-15 components
 - Two levels of abstraction
 - Grouped related items
 - Multiple related messages
 
 **Complex (Avoid):**
-
 - 16+ components
 - Three+ levels of abstraction
 - No clear grouping
@@ -597,21 +519,18 @@ Production Environment
 ### Detail Level by Audience
 
 **Executive Summary (Non-Technical Stakeholders):**
-
 - High-level business capabilities
 - Major technology choices only
 - Scale and performance in business terms
 - Costs and timeline implications
 
 **System Overview (Technical Managers):**
-
 - Component responsibilities
 - Technology stack with versions
 - Integration points
 - Performance characteristics
 
 **Implementation Details (Developers):**
-
 - Code organization patterns
 - Configuration specifics
 - Development workflow
@@ -620,7 +539,6 @@ Production Environment
 ### When to Include Code Examples
 
 **Include Code Examples For:**
-
 - ✅ Non-obvious configuration patterns
 - ✅ Critical integration points
 - ✅ Security implementation details
@@ -628,8 +546,7 @@ Production Environment
 - ✅ Error handling strategies
 
 **Example - Good Code Inclusion:**
-
-````markdown
+```markdown
 ### Authentication Flow
 
 Users authenticate via JWT tokens with refresh rotation:
@@ -638,7 +555,7 @@ Users authenticate via JWT tokens with refresh rotation:
 // Token validation middleware
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
-
+  
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
@@ -646,13 +563,11 @@ const authenticateToken = (req, res, next) => {
   });
 };
 ```
-````
-
-````
+```
 
 **Avoid Code Examples For:**
 - ❌ Standard framework usage
-- ❌ Basic CRUD operations
+- ❌ Basic CRUD operations  
 - ❌ Trivial configuration
 - ❌ Implementation details that change frequently
 
@@ -675,22 +590,20 @@ const authenticateToken = (req, res, next) => {
 DATABASE_URL=postgresql://user:pass@host:5432/db
 DATABASE_SSL=true
 
-# Authentication
+# Authentication  
 JWT_SECRET=your-256-bit-secret
 JWT_EXPIRES_IN=1h
 
 # External Services
 STRIPE_SECRET_KEY=sk_test_...
 SENDGRID_API_KEY=SG....
-````
+```
 
 **Configuration Files:**
-
 - `config/database.js` - Database connection settings
 - `config/auth.js` - Authentication configuration
 - `.env.example` - Template for local development
-
-````
+```
 
 ---
 
@@ -720,10 +633,9 @@ SENDGRID_API_KEY=SG....
 **Last Updated**: 2024-03-15
 **Document Version**: 2.1.0
 **System Version**: v1.8.3
-````
+```
 
 **Version Increment Rules:**
-
 - **Major (X.0.0)**: Fundamental architecture changes, new system paradigm
 - **Minor (x.Y.0)**: New components, significant changes to existing sections
 - **Patch (x.y.Z)**: Bug fixes, clarifications, minor updates
@@ -731,7 +643,6 @@ SENDGRID_API_KEY=SG....
 ### Review and Approval Process
 
 **For Major Changes (Version X.Y.0+):**
-
 1. **Author** creates draft with changes highlighted
 2. **Technical Lead** reviews technical accuracy
 3. **Architect** approves architectural consistency
@@ -739,32 +650,27 @@ SENDGRID_API_KEY=SG....
 5. **Final Approval** from engineering manager
 
 **For Minor Updates (Version x.y.Z):**
-
 1. **Author** updates relevant sections
 2. **Peer Review** from one team member
 3. **Direct Merge** with notification to team
 
 **Review Template:**
-
 ```markdown
 ## Review Checklist for Architecture Doc v[X.Y.Z]
 
 ### Technical Accuracy
-
 - [ ] All components and versions are current
 - [ ] Diagrams match actual implementation
 - [ ] Configuration examples are tested
 - [ ] Links and references are valid
 
 ### Completeness
-
 - [ ] New features are documented
 - [ ] Deprecated features are marked
 - [ ] All ADRs have rationale
 - [ ] Limitations section is current
 
 ### Clarity
-
 - [ ] Section headings are descriptive
 - [ ] Technical jargon is explained
 - [ ] Diagrams support the text
@@ -778,21 +684,18 @@ SENDGRID_API_KEY=SG....
 ### Documentation Ownership
 
 **Primary Owner (Architect/Technical Lead):**
-
 - Overall document quality and consistency
 - Major architectural decision documentation
 - Quarterly comprehensive reviews
 - Final approval on major changes
 
 **Contributing Owners (Senior Developers):**
-
 - Section expertise (frontend, backend, data, etc.)
 - Implementation detail accuracy
 - Code example maintenance
 - Regular minor updates
 
 **Review Contributors (All Team Members):**
-
 - Accuracy feedback from daily usage
 - Onboarding experience insights
 - Missing information identification
@@ -805,7 +708,6 @@ SENDGRID_API_KEY=SG....
 ### Pre-Publication Review Items
 
 **Content Quality:**
-
 - [ ] **Executive Summary** explains value in business terms
 - [ ] **System Overview** diagram shows actual components
 - [ ] **All sections** follow the template structure
@@ -814,7 +716,6 @@ SENDGRID_API_KEY=SG....
 - [ ] **ADRs** have clear rationale and trade-offs documented
 
 **Technical Accuracy:**
-
 - [ ] **Component versions** match current implementation
 - [ ] **API endpoints** and schemas are current
 - [ ] **Infrastructure** reflects actual deployment
@@ -822,7 +723,6 @@ SENDGRID_API_KEY=SG....
 - [ ] **External dependencies** are current and correct
 
 **Usability:**
-
 - [ ] **Table of contents** is complete and linked
 - [ ] **Section headings** are descriptive and scannable
 - [ ] **Diagrams** are clearly labeled with proper flow
@@ -832,7 +732,6 @@ SENDGRID_API_KEY=SG....
 ### Completeness Criteria
 
 **Minimum Viable Documentation:**
-
 - [ ] Purpose and scope clearly stated
 - [ ] System boundary and major components identified
 - [ ] Current deployment architecture documented
@@ -841,7 +740,6 @@ SENDGRID_API_KEY=SG....
 - [ ] Contact information for questions
 
 **Comprehensive Documentation:**
-
 - [ ] All template sections completed appropriately
 - [ ] Visual diagrams for complex relationships
 - [ ] Code examples for non-trivial patterns
@@ -852,7 +750,6 @@ SENDGRID_API_KEY=SG....
 ### Accuracy Validation Steps
 
 **Technical Validation:**
-
 1. **Code Examples**: Run all code snippets in appropriate environment
 2. **Configuration**: Test environment setup from documentation
 3. **Links**: Verify all internal and external links resolve
@@ -860,14 +757,12 @@ SENDGRID_API_KEY=SG....
 5. **Diagrams**: Walk through diagrams with actual system behavior
 
 **User Validation:**
-
 1. **Onboarding Test**: Have new team member follow documentation
 2. **Stakeholder Review**: Non-technical stakeholders review summary
 3. **Expert Review**: Subject matter experts validate their sections
 4. **Incident Response**: Use docs during simulated incident
 
 **Automated Validation:**
-
 ```bash
 # Example validation script
 #!/bin/bash
@@ -915,9 +810,7 @@ echo "Validation complete!"
 
 ### Architecture Diagram
 ```
-
 [Simple ASCII diagram of major components]
-
 ```
 
 ### Core Components
@@ -992,9 +885,8 @@ echo "Validation complete!"
 ShopFast is a B2B e-commerce platform that enables mid-market retailers to manage inventory, process orders, and analyze sales performance. The platform serves 500+ active retailers processing $2M+ in monthly transactions.
 
 **Key Capabilities:**
-
 - Multi-tenant inventory management with real-time stock tracking
-- Automated order processing with 3rd-party fulfillment integration
+- Automated order processing with 3rd-party fulfillment integration  
 - Advanced analytics dashboard with custom reporting
 - Mobile-responsive admin interface for on-the-go management
 
@@ -1006,32 +898,30 @@ ShopFast is a B2B e-commerce platform that enables mid-market retailers to manag
 
 ### Architecture Diagram
 ```
-
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│ Admin │ │ Customer │ │ Partner │
-│ Portal │ │ Storefront│ │ APIs │
-│ (React) │ │ (React) │ │ │
-└──────┬──────┘ └──────┬──────┘ └──────┬──────┘
-│ │ │
-└──────────────────┼──────────────────┘
-│
-┌─────────────────────▼─────────────────────┐
-│ API Gateway │
-│ (Express.js + Auth) │
-└─────────────────────┬─────────────────────┘
-│
-┌─────────────────┼─────────────────┐
-│ │ │
-┌────▼────┐ ┌───────▼──────┐ ┌─────▼─────┐
-│Inventory│ │ Order Mgmt │ │ Analytics │
-│Service │ │ Service │ │ Service │
-└────┬────┘ └───────┬──────┘ └─────┬─────┘
-│ │ │
-┌───▼─────────────────▼────────────────▼───┐
-│ PostgreSQL Database │
-│ (Multi-tenant with row-level security)│
-└──────────────────────────────────────────┘
-
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Admin     │    │   Customer  │    │  Partner    │
+│   Portal    │    │   Storefront│    │   APIs      │
+│  (React)    │    │  (React)    │    │             │
+└──────┬──────┘    └──────┬──────┘    └──────┬──────┘
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          │
+    ┌─────────────────────▼─────────────────────┐
+    │           API Gateway                     │
+    │        (Express.js + Auth)                │
+    └─────────────────────┬─────────────────────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+   ┌────▼────┐    ┌───────▼──────┐   ┌─────▼─────┐
+   │Inventory│    │ Order Mgmt   │   │ Analytics │
+   │Service  │    │ Service      │   │ Service   │
+   └────┬────┘    └───────┬──────┘   └─────┬─────┘
+        │                 │                │
+    ┌───▼─────────────────▼────────────────▼───┐
+    │         PostgreSQL Database              │
+    │    (Multi-tenant with row-level security)│
+    └──────────────────────────────────────────┘
 ```
 
 ### Core Components
@@ -1063,18 +953,16 @@ ShopFast is a B2B e-commerce platform that enables mid-market retailers to manag
 
 ### Network Architecture
 ```
-
 Internet ──▶ CloudFlare CDN ──▶ Application Load Balancer
-│
-┌───────────────────┼───────────────────┐
-│ │ │
-Private Subnet A Private Subnet B Private Subnet C
-│ │ │
-┌─────▼─────┐ ┌─────▼─────┐ ┌─────▼─────┐
-│ECS Tasks │ │ECS Tasks │ │ RDS │
-│ (App) │ │ (App) │ │(Database) │
-└───────────┘ └───────────┘ └───────────┘
-
+                                        │
+                    ┌───────────────────┼───────────────────┐
+                    │                   │                   │
+              Private Subnet A    Private Subnet B    Private Subnet C
+                    │                   │                   │
+              ┌─────▼─────┐       ┌─────▼─────┐       ┌─────▼─────┐
+              │ECS Tasks  │       │ECS Tasks  │       │    RDS    │
+              │ (App)     │       │ (App)     │       │(Database) │
+              └───────────┘       └───────────┘       └───────────┘
 ```
 
 ### Operational Characteristics
@@ -1093,17 +981,15 @@ Private Subnet A Private Subnet B Private Subnet C
 
 ### Application Layers
 ```
-
 React Frontend (Admin + Storefront)
-↓ REST API calls
+    ↓ REST API calls
 Express.js API Layer  
- ↓ Service calls
+    ↓ Service calls
 Business Logic Layer (Services)
-↓ ORM queries  
+    ↓ ORM queries  
 Data Access Layer (Drizzle ORM)
-↓ SQL queries
+    ↓ SQL queries
 PostgreSQL Database
-
 ```
 
 ### Service Architecture
@@ -1134,16 +1020,14 @@ PostgreSQL Database
 
 ### Data Flow
 ```
-
 User Action ──▶ API Validation ──▶ Business Logic ──▶ Database Transaction
-↓ ↓ ↓
-Error Response Event Publishing Analytics Event
-↓
-┌────────────▼────────────┐
-│ Background Jobs │
-│ (Email, Fulfillment) │
-└─────────────────────────┘
-
+                    ↓                      ↓                    ↓
+              Error Response         Event Publishing      Analytics Event
+                                           ↓
+                              ┌────────────▼────────────┐
+                              │   Background Jobs       │
+                              │ (Email, Fulfillment)   │
+                              └─────────────────────────┘
 ```
 
 ### Storage Strategy
@@ -1161,8 +1045,8 @@ Error Response Event Publishing Analytics Event
 ## Architecture Decisions
 
 ### ADR-001: Multi-tenant Database Strategy
-**Date**: 2023-08-15
-**Status**: Accepted
+**Date**: 2023-08-15  
+**Status**: Accepted  
 **Context**: Need to isolate customer data while maintaining operational efficiency
 
 **Options Considered:**
@@ -1180,8 +1064,8 @@ Error Response Event Publishing Analytics Event
 **Review Trigger**: When reaching 1000+ tenants or if security audit finds issues
 
 ### ADR-002: Frontend State Management
-**Date**: 2023-09-22
-**Status**: Accepted
+**Date**: 2023-09-22  
+**Status**: Accepted  
 **Context**: React application growing complex with multiple data sources
 
 **Decision**: React Query for server state, Context API for UI-only state
@@ -1236,37 +1120,30 @@ Error Response Event Publishing Analytics Event
 # System Architecture - Our App
 
 ## Overview
-
 Our app is built with modern technologies and is really scalable.
 
 ## Tech Stack
-
 - Frontend: React (latest version)
 - Backend: Node.js with Express
 - Database: PostgreSQL
 - Deployment: Cloud
 
 ## How it works
-
 Users log in and then they can do stuff. The frontend talks to the backend which saves data to the database. We use microservices architecture for scalability.
 
 ## Database
-
 We have tables for users, products, and orders. Everything is normalized and follows best practices.
 
 ## Security
-
 We use JWT tokens and everything is secure. Passwords are hashed.
 
 ## Performance
-
 The app is fast and can handle lots of users. We use caching.
 ```
 
 **Problems with this example:**
-
 - ❌ No specific version numbers or technical details
-- ❌ Vague descriptions without actionable information
+- ❌ Vague descriptions without actionable information  
 - ❌ No diagrams or visual architecture representation
 - ❌ Missing operational details (deployment, monitoring)
 - ❌ No architectural decisions or trade-offs explained
@@ -1280,25 +1157,21 @@ The app is fast and can handle lots of users. We use caching.
 ### Documentation Anti-Patterns
 
 **The "Perfect World" Fallback:**
-
 - ❌ **Problem**: Documenting ideal architecture that doesn't exist yet
 - ✅ **Solution**: Document current state with clear roadmap to ideal state
 - ✅ **Example**: "Currently using monolith (performance issues), migrating to microservices Q2 2024"
 
 **The "Implementation Manual" Trap:**
-
 - ❌ **Problem**: Step-by-step code implementation instead of architectural overview
 - ✅ **Solution**: Focus on components, interfaces, and design decisions
 - ✅ **Example**: "Authentication uses JWT pattern" vs. "Copy this 50-line auth middleware"
 
 **The "Everything is Important" Syndrome:**
-
 - ❌ **Problem**: Documenting every minor detail without prioritization
 - ✅ **Solution**: Use progressive disclosure - overview first, details linked
 - ✅ **Example**: High-level system diagram with links to detailed service docs
 
 **The "Set and Forget" Mindset:**
-
 - ❌ **Problem**: Writing documentation once and never updating
 - ✅ **Solution**: Build updates into development workflow and quarterly reviews
 - ✅ **Example**: Architecture review required for all major PRs
@@ -1306,10 +1179,8 @@ The app is fast and can handle lots of users. We use caching.
 ### How to Prevent Documentation Drift
 
 **Development Integration:**
-
 ```markdown
 ## Definition of Done Checklist
-
 - [ ] Code reviewed and approved
 - [ ] Tests passing
 - [ ] **Architecture doc updated if component/integration changes**
@@ -1317,31 +1188,26 @@ The app is fast and can handle lots of users. We use caching.
 ```
 
 **Automated Drift Detection:**
-
 - Version references in docs vs. actual package.json
 - API endpoint documentation vs. OpenAPI spec
 - Environment variable docs vs. actual .env files
 - Infrastructure diagrams vs. actual AWS/deployment config
 
 **Regular Maintenance Schedule:**
-
 ```markdown
 ## Documentation Maintenance Calendar
 
 **Monthly (1st Tuesday):**
-
 - Review for minor updates and corrections
 - Update version numbers and metrics
 - Check for broken links
 
 **Quarterly (Start of quarter):**
-
 - Comprehensive section-by-section review
 - Update roadmap and priorities
 - Architecture decision review
 
 **After incidents:**
-
 - Update limitations and lessons learned
 - Document new monitoring or alerting
 - Revise disaster recovery procedures
@@ -1350,21 +1216,18 @@ The app is fast and can handle lots of users. We use caching.
 ### Avoiding Over/Under Documentation
 
 **Over-Documentation Warning Signs:**
-
 - Documentation takes longer to read than to understand the code
 - Multiple documents covering the same concepts
 - Detailed documentation for simple, standard patterns
 - Documentation updated more often than the system itself
 
 **Under-Documentation Warning Signs:**
-
 - New team members need >1 week to understand system basics
 - Frequent questions about basic system operation
 - No clear system boundaries or component responsibilities
 - Architectural decisions made without documented rationale
 
 **Right-Sizing Guidelines:**
-
 - **Core Architecture**: Always document fully
 - **Standard Patterns**: Document deviations, not standard usage
 - **Implementation Details**: Document non-obvious or critical patterns only
@@ -1401,7 +1264,6 @@ The app is fast and can handle lots of users. We use caching.
 ### Cross-Referencing Standards
 
 **From Architecture Doc TO Other Docs:**
-
 ```markdown
 ## Detailed References
 
@@ -1412,41 +1274,32 @@ The app is fast and can handle lots of users. We use caching.
 ```
 
 **FROM Other Docs TO Architecture Doc:**
-
 ```markdown
 # API Documentation
 
 ## System Context
-
 This API is part of the larger system architecture described in [ARCHITECTURE.md](ARCHITECTURE.md#api-gateway).
 
 ## Authentication
-
 Uses JWT-based authentication as described in [Architecture - Security](ARCHITECTURE.md#security-architecture).
 ```
 
 ### Avoiding Documentation Duplication
 
 **Single Source of Truth Principle:**
-
 - **Architecture Doc**: High-level design, component relationships, major decisions
-- **API Doc**: Endpoint specifications, request/response formats, authentication details
+- **API Doc**: Endpoint specifications, request/response formats, authentication details  
 - **Deployment Doc**: Infrastructure setup, environment configuration, deployment procedures
 - **Runbooks**: Operational procedures, incident response, troubleshooting steps
 
 **Linking Strategy:**
-
 ```markdown
 <!-- In Architecture Doc -->
-
 ## Database Architecture
-
 Our PostgreSQL database uses multi-tenant row-level security. For detailed schema information and migration procedures, see [Database Schema Guide](guides/database-schema.md).
 
-<!-- In Database Schema Guide -->
-
+<!-- In Database Schema Guide -->  
 # Database Schema Guide
-
 This document provides implementation details for the database architecture described in [ARCHITECTURE.md](../ARCHITECTURE.md#data-architecture).
 ```
 
@@ -1462,13 +1315,11 @@ This document provides implementation details for the database architecture desc
 ### Documentation Review Integration
 
 **PR Template Addition:**
-
 ```markdown
 ## Architecture Impact Checklist
-
 - [ ] No architectural changes (skip remaining checklist)
 - [ ] New components added - update system overview diagram
-- [ ] External dependencies added - update integration architecture
+- [ ] External dependencies added - update integration architecture  
 - [ ] Database schema changed - update data architecture section
 - [ ] Major technology decisions made - add new ADR
 - [ ] Performance characteristics changed - update limitations section
@@ -1476,36 +1327,30 @@ This document provides implementation details for the database architecture desc
 ```
 
 **Architecture Review Meeting Agenda:**
-
 ```markdown
 # Monthly Architecture Review - [Date]
 
 ## 1. Documentation Drift Assessment (15 min)
-
 - Recent changes not reflected in architecture doc
 - Outdated diagrams or component descriptions
 - Missing architectural decisions
 
 ## 2. New Architecture Decisions (20 min)
-
 - Recent technology choices needing documentation
 - Trade-offs and alternatives considered
 - Impact on existing architecture
 
 ## 3. Forward-Looking Updates (15 min)
-
 - Upcoming changes requiring architecture updates
 - Planned technology migrations or upgrades
 - Capacity and scaling considerations
 
 ## 4. Documentation Quality (10 min)
-
 - Feedback from new team member onboarding
 - Sections needing clarification or examples
 - Process improvements for maintenance
 
 ## Action Items
-
 - [ ] [Owner] [Description] [Due Date]
 ```
 
@@ -1516,7 +1361,7 @@ This document provides implementation details for the database architecture desc
 This SOP provides a comprehensive framework for creating and maintaining excellent architecture documentation. The key to success is:
 
 1. **Start with your audience** - Write for the people who need to understand and use your system
-2. **Keep it current** - Build documentation updates into your development workflow
+2. **Keep it current** - Build documentation updates into your development workflow  
 3. **Focus on decisions** - Explain not just what you built, but why you built it that way
 4. **Use progressive disclosure** - Provide overview first, details on demand
 5. **Make it actionable** - Include enough detail for someone to actually use the information

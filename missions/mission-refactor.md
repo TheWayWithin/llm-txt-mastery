@@ -1,5 +1,4 @@
 # Mission: REFACTOR ♻️
-
 ## Code Quality Improvement
 
 **Mission Code**: REFACTOR  
@@ -35,7 +34,6 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
-
 - Code quality report
 - Refactoring priorities
 - Risk assessment
@@ -57,7 +55,6 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
-
 - Refactoring design
 - Step-by-step plan
 - Interface definitions
@@ -79,7 +76,6 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
-
 - Enhanced test suite
 - Behavior documentation
 - Performance baselines
@@ -101,7 +97,6 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
-
 - Refactored code
 - Passing test suite
 - Updated documentation
@@ -123,7 +118,6 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
-
 - Test results
 - Performance comparison
 - Compatibility report
@@ -145,7 +139,6 @@ Improve code quality, maintainability, and performance without changing external
 ```
 
 **Deliverables**:
-
 - Review feedback
 - Approval status
 - Follow-up items
@@ -162,25 +155,21 @@ Improve code quality, maintainability, and performance without changing external
 ## Refactoring Patterns
 
 ### Extract Method/Class
-
 - Identify cohesive code blocks
 - Create meaningful abstractions
 - Improve testability
 
 ### Replace Conditionals
-
 - Strategy pattern
 - Polymorphism
 - Guard clauses
 
 ### Simplify Method Calls
-
 - Reduce parameters
 - Introduce parameter objects
 - Builder pattern
 
 ### Deal with Generalization
-
 - Extract interface
 - Pull up/push down methods
 - Replace inheritance with composition
@@ -188,25 +177,21 @@ Improve code quality, maintainability, and performance without changing external
 ## Common Refactoring Targets
 
 ### Legacy Code Refactor
-
 - Add tests first
 - Small incremental changes
 - Strangler fig pattern
 
 ### Performance Refactor
-
 - Profile first
 - Optimize algorithms
 - Cache strategically
 
 ### API Refactor
-
 - Version compatibility
 - Deprecation warnings
 - Migration guides
 
 ### Database Refactor
-
 - Backwards compatibility
 - Data migration scripts
 - Staged rollout
@@ -220,11 +205,50 @@ Improve code quality, maintainability, and performance without changing external
 
 ## Coordination Notes
 
-- Update project-plan.md with progress
+- Update project-plan.md with progress (FORWARD-LOOKING)
 - Small, reviewable pull requests
 - Daily progress check-ins
-- Document decisions in progress.md
+- Document decisions, refactoring attempts (including failures), and learnings in progress.md (BACKWARD-LOOKING)
 
 ---
 
-_Clean code is a joy to maintain. Begin with `/coord refactor [target-area.md]`_
+## Post-Mission Cleanup Decision
+
+After completing this mission, decide on cleanup approach based on project status:
+
+### ✅ Milestone Transition (Every 2-4 weeks)
+**When**: This mission completes a major project milestone, but more work remains.
+
+**Actions** (30-60 min):
+1. Extract lessons to `lessons/[category]/` from progress.md
+2. Archive current handoff-notes.md to `archives/handoffs/milestone-X/`
+3. Clean agent-context.md (retain essentials, archive historical details)
+4. Create fresh handoff-notes.md for next milestone
+5. Update project-plan.md with next milestone tasks
+
+**See**: `templates/cleanup-checklist.md` Section A for detailed steps
+
+### 🎯 Project Completion (Mission accomplished!)
+**When**: All project objectives achieved, ready for new mission.
+
+**Actions** (1-2 hours):
+1. Extract ALL lessons from entire progress.md to `lessons/`
+2. Create mission archive in `archives/missions/mission-[name]-YYYY-MM-DD/`
+3. Update CLAUDE.md with system-level learnings
+4. Archive all tracking files (project-plan.md, progress.md, etc.)
+5. Prepare fresh start for next mission
+
+**See**: `templates/cleanup-checklist.md` Section B for detailed steps
+
+### 🔄 Continue Active Work (No cleanup needed)
+**When**: Mission complete but continuing active development in same phase.
+
+**Actions**: Update progress.md and project-plan.md, continue working.
+
+---
+
+**Reference**: See `project/field-manual/project-lifecycle-guide.md` for complete lifecycle management procedures.
+
+---
+
+*Clean code is a joy to maintain. Begin with `/coord refactor [target-area.md]`*

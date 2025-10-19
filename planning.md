@@ -49,9 +49,9 @@ _Last Updated: January 13, 2025_
 
 **COFFEE TIER** - $4.95/month subscription
 
-- Unlimited analyses forever
+- Unlimited analyses
 - 200 pages per analysis
-- "Buy once, use forever - no subscriptions"
+- Monthly subscription billing
 
 **GROWTH TIER** ($25/mo)
 

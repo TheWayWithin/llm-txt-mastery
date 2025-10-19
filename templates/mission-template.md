@@ -1,5 +1,4 @@
 # Mission: [MISSION_NAME] [EMOJI]
-
 ## [Mission Description]
 
 **Mission Code**: [CODE]  
@@ -35,7 +34,6 @@
 ```
 
 **Deliverables**:
-
 - [Deliverable 1]
 - [Deliverable 2]
 - [Deliverable 3]
@@ -54,7 +52,6 @@
 ```
 
 **Deliverables**:
-
 - [List deliverables]
 
 [Continue with additional phases as needed]
@@ -70,13 +67,11 @@
 ## [Optional: Common Variations]
 
 ### [Variation Name]
-
 - [Key differences]
 - [When to use]
 - [Modified timeline]
 
 ### [Variation Name]
-
 - [Key differences]
 - [When to use]
 - [Modified timeline]
@@ -84,7 +79,6 @@
 ## [Optional: Special Considerations]
 
 ### [Consideration Type]
-
 - [Important notes]
 - [Risk factors]
 - [Mitigation strategies]
@@ -99,16 +93,15 @@
 ## [Optional: Common Patterns]
 
 ### [Pattern Name]
-
 - [When this occurs]
 - [How to handle]
 - [Expected outcome]
 
 ---
 
-_[Inspiring closing statement. End with mission invocation: Begin with `/coord [mission] [inputs]`]_
+*[Inspiring closing statement. End with mission invocation: Begin with `/coord [mission] [inputs]`]*
 
-<!--
+<!-- 
 TEMPLATE GUIDELINES:
 
 1. Mission Code: Short, memorable name (BUILD, FIX, DEPLOY, etc.)

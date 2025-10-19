@@ -367,7 +367,7 @@ describe('Critical User Flows - Integration Tests', () => {
       });
 
       // Switch back to coffee
-      await user.click(screen.getByText('Coffee Power ($4.95 one-time)'));
+      await user.click(screen.getByText('Coffee Power ($4.95/month)'));
 
       await waitFor(() => {
         expect(screen.getByRole('radio', { name: /coffee/i })).toBeChecked();

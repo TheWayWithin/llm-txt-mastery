@@ -25,11 +25,11 @@ selectedTier: 'coffee'; // Always defaults to coffee tier
    - No AI quality scoring
    - Severe limitations warning
 
-2. **Coffee ($4.95)** - "Coffee Power ($4.95 one-time)" [DEFAULT]
+2. **Coffee ($4.95)** - "Coffee Power ($4.95/month subscription)" [DEFAULT]
    - Unlimited daily analyses
    - 200 pages per analysis
    - AI-powered content scoring
-   - One-time payment
+   - Monthly subscription
    - Green success styling
 
 3. **Growth ($9.95/mo)** - "Professional Power ($9.95/mo)"
