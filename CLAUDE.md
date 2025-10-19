@@ -4,7 +4,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AGENT-11 is a framework for deploying specialized AI agents in Claude Code to form an elite development squad. The project provides templates, documentation, and deployment guides for 11 specialized agents that collaborate to help solo founders build and ship products rapidly.
+LLM.txt Mastery - AI-powered website analysis and llms.txt file generation SaaS application.
+
+**Tech Stack**:
+- Frontend: React 18 + TypeScript + Vite (Netlify)
+- Backend: Express.js + TypeScript (Railway)
+- Database: PostgreSQL via Neon (managed)
+- Payments: Stripe
+- Authentication: JWT + bcrypt
+
+**Business Model**: Freemium SaaS with 4 tiers (Starter/Solo/Growth/Scale)
+
+## Environment Setup
+
+### Production
+- **Frontend**: https://llmtxtmastery.com (Netlify, `main` branch)
+- **Backend**: https://llm-txt-mastery-production.up.railway.app (Railway, `main` branch)
+- **Database**: Neon PostgreSQL (production project)
+
+### Staging
+- **Frontend**: https://develop--llm-txt-mastery.netlify.app (Netlify, `develop` branch)
+- **Backend**: https://llm-txt-mastery-staging.up.railway.app (Railway, `develop` branch)
+- **Database**: Neon PostgreSQL (staging project)
+
+### Development Workflow
+See `/docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` for complete workflow.
+
+**Branch Strategy**:
+- `main` → Production (auto-deploy)
+- `develop` → Staging (auto-deploy)
+- `feature/*` → PR previews
+
+**Deployment Flow**:
+1. Create `feature/*` branch from `develop`
+2. Push → PR to `develop` → Auto-deploys to staging
+3. Test on staging URLs
+4. PR from `develop` to `main` → Auto-deploys to production
+
+### Service Dashboards
+- **Railway**: Backend hosting and deployment logs
+- **Netlify**: Frontend hosting and build logs
+- **Neon**: Database management and SQL editor
+- **Stripe**: Payment processing and subscriptions
+
+**Note**: Create `.env.local` for local reference URLs and test account info (gitignored).
 
 ## User Profile and Communication Style
 
