@@ -79,8 +79,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/admin', adminAiCostsRoutes);
 
   // Register validation routes
-  const validationRoutes = await import('./routes/validation');
-  app.use('/api', validationRoutes.default);
+  const { default: validationRoutes } = await import('./routes/validation.js');
+  app.use('/api', validationRoutes);
 
   // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
   app.post('/api/debug-tier', async (req, res) => {
