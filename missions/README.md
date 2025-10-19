@@ -19,46 +19,44 @@ Pre-configured workflows for common development scenarios. Each mission coordina
 
 ### Core Operations
 
-| Mission                         | Code       | Duration  | Description                         |
-| ------------------------------- | ---------- | --------- | ----------------------------------- |
-| [Build](mission-build.md)       | `build`    | 2-4 hours | Build new feature from requirements |
-| [Fix](mission-fix.md)           | `fix`      | 1-2 hours | Emergency bug resolution            |
-| [Refactor](mission-refactor.md) | `refactor` | 2-3 hours | Code improvement and optimization   |
-| [MVP](mission-mvp.md)           | `mvp`      | 1-3 days  | Rapid MVP development               |
-| [Deploy](mission-deploy.md)     | `deploy`   | 1-2 hours | Production deployment               |
+| Mission | Code | Duration | Description |
+|---------|------|----------|-------------|
+| [Build](mission-build.md) | `build` | 2-4 hours | Build new feature from requirements |
+| [Fix](mission-fix.md) | `fix` | 1-2 hours | Emergency bug resolution |
+| [Refactor](mission-refactor.md) | `refactor` | 2-3 hours | Code improvement and optimization |
+| [MVP](mission-mvp.md) | `mvp` | 1-3 days | Rapid MVP development |
+| [Deploy](mission-deploy.md) | `deploy` | 1-2 hours | Production deployment |
 
 ### Quality & Review (NEW!)
 
-| Mission                               | Code              | Duration  | Description                                  |
-| ------------------------------------- | ----------------- | --------- | -------------------------------------------- |
+| Mission | Code | Duration | Description |
+|---------|------|----------|-------------|
 | [Operation RECON](operation-recon.md) | `operation-recon` | 2-4 hours | **UI/UX reconnaissance with RECON Protocol** |
-| [Document](mission-document.md)       | `document`        | 2-3 hours | Comprehensive documentation                  |
-| [Optimize](mission-optimize.md)       | `optimize`        | 2-4 hours | Performance optimization                     |
-| [Security](mission-security.md)       | `security`        | 3-4 hours | Security audit and hardening                 |
+| [Document](mission-document.md) | `document` | 2-3 hours | Comprehensive documentation |
+| [Optimize](mission-optimize.md) | `optimize` | 2-4 hours | Performance optimization |
+| [Security](mission-security.md) | `security` | 3-4 hours | Security audit and hardening |
 
 ### Integration & Migration
 
-| Mission                           | Code        | Duration  | Description                 |
-| --------------------------------- | ----------- | --------- | --------------------------- |
-| [Integrate](mission-integrate.md) | `integrate` | 2-4 hours | Third-party integration     |
-| [Migrate](mission-migrate.md)     | `migrate`   | 3-5 hours | System/database migration   |
-| [Release](mission-release.md)     | `release`   | 2-3 hours | Version release preparation |
+| Mission | Code | Duration | Description |
+|---------|------|----------|-------------|
+| [Integrate](mission-integrate.md) | `integrate` | 2-4 hours | Third-party integration |
+| [Migrate](mission-migrate.md) | `migrate` | 3-5 hours | System/database migration |
+| [Release](mission-release.md) | `release` | 2-3 hours | Version release preparation |
 
 ### Project Setup
 
-| Mission                                   | Code            | Duration  | Description                     |
-| ----------------------------------------- | --------------- | --------- | ------------------------------- |
-| [Dev Setup](dev-setup.md)                 | `dev-setup`     | 30-45 min | Initialize greenfield project   |
-| [Dev Alignment](dev-alignment.md)         | `dev-alignment` | 20-30 min | Understand existing project     |
-| [Connect MCP](connect-mcp.md)             | `connect-mcp`   | 15-20 min | Connect MCP tools               |
-| [Operation Genesis](operation-genesis.md) | `genesis`       | 4-6 hours | Complete project initialization |
+| Mission | Code | Duration | Description |
+|---------|------|----------|-------------|
+| [Dev Setup](dev-setup.md) | `dev-setup` | 30-45 min | Initialize greenfield project |
+| [Dev Alignment](dev-alignment.md) | `dev-alignment` | 20-30 min | Understand existing project |
+| [Connect MCP](connect-mcp.md) | `connect-mcp` | 15-20 min | Connect MCP tools |
+| [Operation Genesis](operation-genesis.md) | `genesis` | 4-6 hours | Complete project initialization |
 
 ## NEW: Enhanced Review Capabilities
 
 ### Operation RECON
-
 The most comprehensive review mission, combining:
-
 - **RECON Protocol** (Designer) - 8-phase UI/UX assessment
 - **SENTINEL Mode** (Tester) - 7-phase functional validation
 - **PARALLEL STRIKE** (Coordinator) - Simultaneous operations
@@ -90,20 +88,17 @@ Each mission follows this structure:
 ## Choosing the Right Mission
 
 ### For New Features
-
 - Small feature: Use `build`
 - Large feature: Use `mvp` then `build`
 - With design needs: Use `operation-recon` after `build`
 
 ### For Quality Assurance
-
 - UI/UX review: Use `operation-recon`
 - Performance issues: Use `optimize`
 - Security concerns: Use `security`
 - General bugs: Use `fix`
 
 ### For Project Setup
-
 - New project: Use `dev-setup`
 - Existing project: Use `dev-alignment`
 - Add tools: Use `connect-mcp`
@@ -117,7 +112,6 @@ cp missions/mission-template.md missions/mission-custom.md
 ```
 
 Edit to define:
-
 - Phases and timing
 - Agent coordination
 - Success criteria
@@ -126,16 +120,13 @@ Edit to define:
 ## Mission Coordination
 
 The Coordinator manages all missions with:
-
 - Task delegation to specialists
 - Progress tracking in `project-plan.md`
 - Issue resolution in `progress.md`
 - MCP tool assignment
 
 ### PARALLEL STRIKE Capability (NEW!)
-
 Missions can now execute with simultaneous agent operations:
-
 - 50-70% faster completion
 - Better issue detection
 - Synchronized reporting
@@ -152,7 +143,6 @@ Missions can now execute with simultaneous agent operations:
 ## Mission Success Metrics
 
 Track your mission effectiveness:
-
 - Completion time vs estimate
 - Issues detected/prevented
 - Code quality improvements
@@ -160,4 +150,4 @@ Track your mission effectiveness:
 
 ---
 
-_"Every mission is a step toward shipping excellence."_
+*"Every mission is a step toward shipping excellence."*

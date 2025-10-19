@@ -145,7 +145,7 @@ Growth Tier Example:
 │ 3-Month Pause   │   │ Coffee Tier     │   │ Success Call    │
 │ Keep all data   │   │ Save 50%        │   │ + 60-day trial  │
 │ Resume anytime  │   │ 20 analyses     │   │ + Custom setup  │
-│ FREE            │   │ $4.95 one-time  │   │ + Priority fix  │
+│ FREE            │   │ $4.95/month     │   │ + Priority fix  │
 └─────────────────┘   └─────────────────┘   └─────────────────┘
 
 Scale Tier Example:

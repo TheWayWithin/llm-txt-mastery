@@ -1,5 +1,4 @@
 # Operation: GENESIS
-
 ## New Feature Development Mission
 
 **Objective**: Build a complete feature from concept to production  
@@ -15,14 +14,13 @@
 ```bash
 @strategist I need to add [FEATURE DESCRIPTION] to our application. Please:
 1. Create detailed user stories with INVEST criteria
-2. Define acceptance criteria for each story
+2. Define acceptance criteria for each story  
 3. Identify edge cases and error states
 4. Suggest MVP scope vs future enhancements
 5. Define success metrics we should track
 ```
 
 **Expected Output**:
-
 - Complete PRD with user stories
 - Prioritized feature list
 - Success metrics defined
@@ -43,7 +41,6 @@
 ```
 
 **Expected Output**:
-
 - Technical approach document
 - Risk assessment
 - Time estimates
@@ -64,7 +61,6 @@
 ```
 
 **Expected Output**:
-
 - User flow diagrams
 - UI mockups
 - Component specifications
@@ -85,7 +81,6 @@
 ```
 
 **Expected Output**:
-
 - Working code implementation
 - Unit tests
 - API endpoints
@@ -106,7 +101,6 @@
 ```
 
 **Expected Output**:
-
 - Test results report
 - Bug reports (if any)
 - Performance metrics
@@ -127,7 +121,6 @@
 ```
 
 **Expected Output**:
-
 - User documentation
 - Technical documentation
 - Updated changelog
@@ -148,7 +141,6 @@
 ```
 
 **Expected Output**:
-
 - Deployment checklist
 - Monitoring configured
 - Rollback plan
@@ -156,7 +148,7 @@
 
 ### Phase 8: Launch Operations (1-2 hours)
 
-**Lead Agents**: @operator, @marketer
+**Lead Agents**: @operator, @marketer  
 
 ```bash
 # Deployment
@@ -171,7 +163,6 @@
 ```
 
 **Expected Output**:
-
 - Feature live in production
 - Launch content published
 - Users notified
@@ -223,7 +214,7 @@ After mission completion, document:
 ```bash
 # Rapid Feature Development (2-hour sprint)
 @strategist Quick user story for [feature]
-@developer Implement based on above requirements
+@developer Implement based on above requirements  
 @tester Quick validation of implementation
 @operator Deploy to staging for review
 
@@ -238,6 +229,45 @@ Follow all phases above in sequence
 
 ---
 
-_"In war, the way is to avoid what is strong and strike at what is weak." - Sun Tzu_
+## Post-Mission Cleanup Decision
 
-_In AGENT-11, we parallelize what we can and sequence what we must._
+After completing this mission, decide on cleanup approach based on project status:
+
+### ✅ Milestone Transition (Every 2-4 weeks)
+**When**: This mission completes a major project milestone, but more work remains.
+
+**Actions** (30-60 min):
+1. Extract lessons to `lessons/[category]/` from progress.md
+2. Archive current handoff-notes.md to `archives/handoffs/milestone-X/`
+3. Clean agent-context.md (retain essentials, archive historical details)
+4. Create fresh handoff-notes.md for next milestone
+5. Update project-plan.md with next milestone tasks
+
+**See**: `templates/cleanup-checklist.md` Section A for detailed steps
+
+### 🎯 Project Completion (Mission accomplished!)
+**When**: All project objectives achieved, ready for new mission.
+
+**Actions** (1-2 hours):
+1. Extract ALL lessons from entire progress.md to `lessons/`
+2. Create mission archive in `archives/missions/mission-[name]-YYYY-MM-DD/`
+3. Update CLAUDE.md with system-level learnings
+4. Archive all tracking files (project-plan.md, progress.md, etc.)
+5. Prepare fresh start for next mission
+
+**See**: `templates/cleanup-checklist.md` Section B for detailed steps
+
+### 🔄 Continue Active Work (No cleanup needed)
+**When**: Mission complete but continuing active development in same phase.
+
+**Actions**: Update progress.md and project-plan.md, continue working.
+
+---
+
+**Reference**: See `project/field-manual/project-lifecycle-guide.md` for complete lifecycle management procedures.
+
+---
+
+*"In war, the way is to avoid what is strong and strike at what is weak." - Sun Tzu*
+
+*In AGENT-11, we parallelize what we can and sequence what we must.*

@@ -8,7 +8,7 @@ The LLM.txt Mastery application has been significantly enhanced with a complete 
 
 ### ✅ Complete Coffee Tier Architecture
 
-- **$4.95 one-time payment tier** with 200 pages + AI analysis
+- **$4.95/month subscription tier** with 200 pages + AI analysis
 - **Credit-based system**: 1 credit = 1 analysis (no expiration)
 - **Price anchoring strategy**: 20 free pages → $4.95 coffee → $25 growth → $99 scale
 - **Conversion psychology**: Entry-level offer reduces friction for premium upgrades
@@ -17,7 +17,7 @@ The LLM.txt Mastery application has been significantly enhanced with a complete 
 
 - **Live Stripe keys configured** with LLM-TXT prefixed price IDs for multi-product organization
 - **Complete payment flow**: Checkout sessions, webhooks, customer management
-- **Monthly subscription handling** for coffee tier purchases
+- **Subscription handling** for all paid tiers including coffee
 - **Subscription management** for growth/scale tiers
 - **Webhook security** with signature validation
 - **Error handling** throughout payment pipeline

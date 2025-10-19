@@ -5,7 +5,6 @@
 [Provide a concise overview of the system architecture in 2-3 paragraphs. Include the main architectural style (e.g., microservices, monolithic, serverless), key technology choices, and primary architectural characteristics.]
 
 **Key Architecture Characteristics:**
-
 - **[Characteristic 1]**: [Description, e.g., "Cloud-Native: Deployed on AWS/GCP/Azure"]
 - **[Characteristic 2]**: [Description, e.g., "Event-Driven: Asynchronous message processing"]
 - **[Characteristic 3]**: [Description, e.g., "API-First: RESTful/GraphQL interfaces"]
@@ -58,21 +57,18 @@ External Integrations:
 ### Infrastructure Components
 
 #### [Component 1 - e.g., Compute]
-
 - **Platform**: [e.g., AWS EC2, Google Cloud Run, Kubernetes]
 - **Configuration**: [Key settings and specifications]
 - **Scaling**: [Auto-scaling policies]
 - **Monitoring**: [Monitoring approach]
 
 #### [Component 2 - e.g., Storage]
-
 - **Type**: [e.g., Object storage, Block storage]
 - **Provider**: [e.g., S3, Cloud Storage]
 - **Backup Strategy**: [Backup frequency and retention]
 - **Encryption**: [At rest and in transit]
 
 #### [Component 3 - e.g., Networking]
-
 - **CDN**: [If applicable]
 - **Load Balancing**: [Strategy and configuration]
 - **DNS**: [Provider and configuration]
@@ -87,7 +83,6 @@ External Integrations:
 ```
 
 **Technology Stack:**
-
 - **Framework**: [e.g., React, Vue, Angular]
 - **Language**: [e.g., TypeScript, JavaScript]
 - **Styling**: [e.g., CSS, Tailwind, styled-components]
@@ -101,7 +96,6 @@ External Integrations:
 ```
 
 **Technology Stack:**
-
 - **Runtime**: [e.g., Node.js, Python, Java]
 - **Framework**: [e.g., Express, FastAPI, Spring Boot]
 - **API Design**: [REST, GraphQL, gRPC]
@@ -123,13 +117,11 @@ External Integrations:
 ### Key Data Models
 
 #### [Model 1]
-
 - **Purpose**: [Description]
 - **Key Fields**: [List important fields]
 - **Relationships**: [Related models]
 
 #### [Model 2]
-
 - **Purpose**: [Description]
 - **Key Fields**: [List important fields]
 - **Relationships**: [Related models]
@@ -145,13 +137,11 @@ External Integrations:
 ### Authentication & Authorization
 
 **Implementation:**
-
 - **Authentication Method**: [e.g., JWT, OAuth 2.0, SAML]
 - **Authorization Model**: [e.g., RBAC, ABAC]
 - **Session Management**: [Approach and timeout policies]
 
 **Authorization Matrix:**
-
 ```
 Feature/Role    │ Admin │ User │ Guest
 ────────────────┼───────┼──────┼───────
@@ -163,14 +153,12 @@ Feature 3       │   ✅  │  ✅  │   ✅
 ### Security Measures
 
 #### API Security
-
 - **Rate Limiting**: [Strategy and limits]
 - **Input Validation**: [Approach]
 - **CORS Policy**: [Configuration]
 - **API Keys**: [Management strategy]
 
 #### Data Protection
-
 - **Encryption at Rest**: [Method and scope]
 - **Encryption in Transit**: [TLS version and configuration]
 - **PII Handling**: [Approach to sensitive data]
@@ -181,18 +169,15 @@ Feature 3       │   ✅  │  ✅  │   ✅
 ### External Service Integrations
 
 #### [Service 1 - e.g., Payment Provider]
-
 ```
 [Integration Pattern Diagram]
 ```
-
 - **Provider**: [Name]
 - **Integration Type**: [REST API, SDK, Webhook]
 - **Authentication**: [Method]
 - **Key Operations**: [List main interactions]
 
 #### [Service 2 - e.g., Email Service]
-
 - **Provider**: [Name]
 - **Integration Type**: [REST API, SDK, SMTP]
 - **Use Cases**: [When and why used]
@@ -209,13 +194,11 @@ Feature 3       │   ✅  │  ✅  │   ✅
 ### Build System Architecture
 
 #### Frontend Build
-
 - **Tool**: [e.g., Webpack, Vite]
 - **Optimizations**: [Minification, tree-shaking, etc.]
 - **Output**: [Build artifacts]
 
 #### Backend Build
-
 - **Tool**: [e.g., Docker, npm scripts]
 - **Testing**: [Unit, Integration, E2E]
 - **Output**: [Deployment artifacts]
@@ -248,7 +231,6 @@ project-root/
 ### Environment Configuration
 
 #### Development Environment
-
 ```bash
 # Key environment variables
 DATABASE_URL=[development database]
@@ -257,7 +239,6 @@ DEBUG=true
 ```
 
 #### Production Environment
-
 ```bash
 # Key environment variables
 DATABASE_URL=[production database]
@@ -268,13 +249,11 @@ DEBUG=false
 ### Operational Monitoring
 
 #### Health Checks
-
 - **Endpoint**: [Health check URL]
 - **Frequency**: [Check interval]
 - **Components Checked**: [What's validated]
 
 #### Logging Strategy
-
 - **Log Aggregation**: [Tool/Service]
 - **Log Levels**: [Used levels and when]
 - **Retention**: [Log retention policy]
@@ -284,13 +263,11 @@ DEBUG=false
 ### Performance Characteristics
 
 #### Response Time Targets
-
 - **API Endpoints**: [Target latency]
 - **Page Load**: [Target load time]
 - **Database Queries**: [Query performance targets]
 
 #### Scalability Metrics
-
 ```
 ┌─────────────────────────────────────┐
 │ Metric          │ Target  │ Current │
@@ -305,11 +282,9 @@ DEBUG=false
 ### Optimization Strategies
 
 **Frontend Optimizations:**
-
 - [List optimization approaches]
 
 **Backend Optimizations:**
-
 - [List optimization approaches]
 
 ## Scaling Strategy
@@ -317,17 +292,14 @@ DEBUG=false
 ### Horizontal Scaling Plan
 
 #### Phase 1: Current Architecture ([User Range])
-
 - **Capacity**: [Current capacity details]
 - **Limitations**: [Known bottlenecks]
 
 #### Phase 2: Enhanced Architecture ([User Range])
-
 - **Changes Required**: [List of changes]
 - **New Components**: [Additional services needed]
 
 #### Phase 3: [Next Phase] ([User Range])
-
 - **Architecture Evolution**: [How system will evolve]
 
 ### Database Scaling Strategy
@@ -341,14 +313,12 @@ DEBUG=false
 ### Critical Architecture Decisions
 
 #### Decision 1: [Decision Title]
-
 **Choice**: [What was chosen]
 **Alternatives Considered**: [Other options]
 **Rationale**: [Why this was chosen]
 **Trade-offs**: [Pros and cons]
 
 #### Decision 2: [Decision Title]
-
 **Choice**: [What was chosen]
 **Alternatives Considered**: [Other options]
 **Rationale**: [Why this was chosen]
@@ -356,26 +326,23 @@ DEBUG=false
 
 ### Technology Selection Rationale
 
-| Component   | Technology | Why Chosen | Alternatives Considered |
-| ----------- | ---------- | ---------- | ----------------------- |
-| [Component] | [Tech]     | [Reasons]  | [Other options]         |
-| [Component] | [Tech]     | [Reasons]  | [Other options]         |
+| Component | Technology | Why Chosen | Alternatives Considered |
+|-----------|------------|------------|------------------------|
+| [Component] | [Tech] | [Reasons] | [Other options] |
+| [Component] | [Tech] | [Reasons] | [Other options] |
 
 ## Future Considerations
 
 ### Planned Improvements
-
 - [ ] [Improvement 1]
 - [ ] [Improvement 2]
 - [ ] [Improvement 3]
 
 ### Technical Debt
-
 - [Debt item 1 - priority and plan to address]
 - [Debt item 2 - priority and plan to address]
 
 ### Migration Path
-
 [If planning to migrate or upgrade major components]
 
 ---
@@ -383,24 +350,21 @@ DEBUG=false
 ## Appendices
 
 ### A. Glossary
-
 - **[Term]**: [Definition]
 - **[Term]**: [Definition]
 
 ### B. References
-
 - [Architecture patterns used]
 - [Key libraries and frameworks]
 - [External documentation links]
 
 ### C. Change Log
-
-| Date   | Version | Changes              | Author |
-| ------ | ------- | -------------------- | ------ |
-| [Date] | [1.0]   | Initial architecture | [Name] |
+| Date | Version | Changes | Author |
+|------|---------|---------|--------|
+| [Date] | [1.0] | Initial architecture | [Name] |
 
 ---
 
-_Last Updated: [Date]_  
-_Architecture Version: [Version]_  
-_Status: [Draft/Approved/In Review]_
+*Last Updated: [Date]*  
+*Architecture Version: [Version]*  
+*Status: [Draft/Approved/In Review]*

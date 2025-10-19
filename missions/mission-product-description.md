@@ -1,5 +1,4 @@
 # Mission: PRODUCT-DESCRIPTION 📋
-
 ## Create or Update Comprehensive Product Description with Risk Management
 
 **Mission Code**: PRODUCT-DESCRIPTION  
@@ -12,13 +11,11 @@
 ### Ready to Create Your Product Description? (2 minutes)
 
 **Step 1**: Copy the vision template
-
 ```bash
 cp templates/mission-inputs/vision.md ./product-vision.md
 ```
 
 **Step 2**: Focus on these sections
-
 - **Problem Statement**: What specific problem you're solving
 - **Business Model**: How you'll make money
 - **Competitive Analysis**: Your market position
@@ -26,7 +23,6 @@ cp templates/mission-inputs/vision.md ./product-vision.md
 - **Risk Assessment**: Market, technical, and financial risks
 
 **Step 3**: Execute mission
-
 ```bash
 /coord product-description product-vision.md
 ```
@@ -52,14 +48,11 @@ Create a comprehensive product description document that captures your product's
 **Objective**: Understand product vision and core value proposition
 
 **COORDINATOR PROTOCOL**:
-
 1. **UPDATE project-plan.md** with Phase 1 tasks:
-
    ```markdown
    ## Mission: PRODUCT-DESCRIPTION Documentation
-
+   
    ### Phase 1: Product Analysis (In Progress)
-
    - [ ] Analyze product vision and requirements (assigned to @strategist)
    - [ ] Define core value propositions (assigned to @strategist)
    - [ ] Identify target customer segments (assigned to @strategist)
@@ -84,7 +77,6 @@ Create a comprehensive product description document that captures your product's
 5. **LOG TO progress.md** any issues encountered during this phase
 
 **Deliverables**:
-
 - Product vision statement
 - Value proposition matrix
 - Customer segment analysis
@@ -113,7 +105,6 @@ Create a comprehensive product description document that captures your product's
 **WAIT FOR @marketer RESPONSE** before proceeding to Phase 3
 
 **Deliverables**:
-
 - Competitive analysis matrix
 - Market opportunity assessment
 - Pricing strategy
@@ -139,7 +130,6 @@ Create a comprehensive product description document that captures your product's
 ```
 
 **Deliverables**:
-
 - Unit economics model
 - Risk assessment matrix
 - Cost control strategies
@@ -163,7 +153,6 @@ Create a comprehensive product description document that captures your product's
 ```
 
 **Deliverables**:
-
 - Technology stack documentation
 - Integration architecture
 - Performance targets
@@ -189,7 +178,6 @@ Create a comprehensive product description document that captures your product's
 ```
 
 **Deliverables**:
-
 - Complete product-description.md document
 - Risk management documentation
 - Pricing and feature matrices
@@ -212,7 +200,6 @@ Create a comprehensive product description document that captures your product's
 ```
 
 **Deliverables**:
-
 - Reviewed and approved product-description.md
 - Executive summary
 - Next steps and action items
@@ -232,21 +219,18 @@ Create a comprehensive product description document that captures your product's
 ## Common Variations
 
 ### New Product Launch
-
 - Greater emphasis on market validation
 - More detailed competitive analysis
 - Focus on MVP feature set
 - Include launch strategy
 
 ### Existing Product Update
-
 - Focus on current metrics and performance
 - Emphasize growth strategies
 - Document lessons learned
 - Include migration paths
 
 ### Enterprise Product
-
 - Detailed compliance and security sections
 - Enterprise pricing and licensing models
 - Integration and customization capabilities
@@ -255,21 +239,18 @@ Create a comprehensive product description document that captures your product's
 ## Special Considerations
 
 ### Risk Management Focus
-
 - Always calculate cost-to-revenue ratios
 - Include multiple fallback strategies
 - Document monitoring and alert thresholds
 - Plan for worst-case scenarios
 
 ### Investor Readiness
-
 - Include TAM, SAM, SOM analysis
 - Show clear path to profitability
 - Demonstrate defensibility
 - Include growth projections
 
 ### Team Alignment
-
 - Ensure all stakeholders review relevant sections
 - Create different versions for different audiences
 - Include clear action items and ownership
@@ -286,21 +267,18 @@ Create a comprehensive product description document that captures your product's
 ## Common Patterns
 
 ### API Cost Management
-
 - Implement aggressive caching
 - Use batch processing where possible
 - Set hard limits with graceful degradation
 - Monitor usage in real-time
 
 ### Pricing Strategy Evolution
-
 - Start with simple tiers
 - Add usage-based components over time
 - Consider freemium carefully
 - Plan for enterprise negotiations
 
 ### Risk Mitigation Patterns
-
 - Multi-provider strategies for critical services
 - Progressive enhancement approaches
 - Feature flags for controlled rollouts
@@ -308,6 +286,45 @@ Create a comprehensive product description document that captures your product's
 
 ---
 
-_Transform your product vision into a comprehensive blueprint that aligns teams, attracts investors, and manages risks proactively. Your product description becomes the strategic north star for sustainable growth._
+*Transform your product vision into a comprehensive blueprint that aligns teams, attracts investors, and manages risks proactively. Your product description becomes the strategic north star for sustainable growth.*
 
-_Begin with `/coord product-description [vision-document]`_
+*Begin with `/coord product-description [vision-document]`*
+
+---
+
+## Post-Mission Cleanup Decision
+
+After completing this mission, decide on cleanup approach based on project status:
+
+### ✅ Milestone Transition (Every 2-4 weeks)
+**When**: This mission completes a major project milestone, but more work remains.
+
+**Actions** (30-60 min):
+1. Extract lessons to `lessons/[category]/` from progress.md
+2. Archive current handoff-notes.md to `archives/handoffs/milestone-X/`
+3. Clean agent-context.md (retain essentials, archive historical details)
+4. Create fresh handoff-notes.md for next milestone
+5. Update project-plan.md with next milestone tasks
+
+**See**: `templates/cleanup-checklist.md` Section A for detailed steps
+
+### 🎯 Project Completion (Mission accomplished!)
+**When**: All project objectives achieved, ready for new mission.
+
+**Actions** (1-2 hours):
+1. Extract ALL lessons from entire progress.md to `lessons/`
+2. Create mission archive in `archives/missions/mission-[name]-YYYY-MM-DD/`
+3. Update CLAUDE.md with system-level learnings
+4. Archive all tracking files (project-plan.md, progress.md, etc.)
+5. Prepare fresh start for next mission
+
+**See**: `templates/cleanup-checklist.md` Section B for detailed steps
+
+### 🔄 Continue Active Work (No cleanup needed)
+**When**: Mission complete but continuing active development in same phase.
+
+**Actions**: Update progress.md and project-plan.md, continue working.
+
+---
+
+**Reference**: See `project/field-manual/project-lifecycle-guide.md` for complete lifecycle management procedures.
