@@ -45,6 +45,7 @@ import {
 import { registerStripeRoutes } from './routes/stripe';
 import { registerCancellationRoutes } from './routes/cancellation';
 import authRoutes from './routes/auth';
+import validationRoutes from './routes/validation';
 // import featureFlagRoutes from "./routes/feature-flags"; // Temporarily disabled - Redis issue
 import abTestingRoutes from './routes/ab-testing';
 import semanticMonitoringRoutes from './routes/semantic-monitoring';
@@ -79,7 +80,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/admin', adminAiCostsRoutes);
 
   // Register validation routes
-  const { default: validationRoutes } = await import('./routes/validation.js');
   app.use('/api', validationRoutes);
 
   // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
