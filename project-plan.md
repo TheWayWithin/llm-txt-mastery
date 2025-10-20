@@ -84,17 +84,35 @@ Implement complete llms.txt validation logic in `/server/services/validation.ts`
 
 #### Phase 1A: Validation Logic Core [ ]
 **Agent**: THE DEVELOPER
-**Status**: ⏳ PENDING
+**Status**: ⏳ INITIATING
 **Estimated Time**: 2 days
 
 **Tasks**:
-- [ ] Fetch llms.txt file from URL
-- [ ] Parse markdown structure and sections
-- [ ] Extract metadata, URLs, policies
+- [ ] Install dependencies (remark/marked, robots-parser)
+- [ ] Implement URL fetching with security controls
+  - [ ] HTTP/HTTPS support with redirect following (max 5)
+  - [ ] 10-second timeout
+  - [ ] SSRF protection (block localhost, private IPs)
+  - [ ] Error handling (404, 500, network errors)
+- [ ] Implement markdown parsing
+  - [ ] Extract sections (# Overview, # Policies, custom)
+  - [ ] Parse URLs from markdown links
+  - [ ] Extract metadata fields
+  - [ ] Validate markdown syntax
 - [ ] Implement validation rules engine
-- [ ] Check required sections (# Overview, # Policies)
-- [ ] Validate URL formats and accessibility
-- [ ] Verify markdown syntax compliance
+  - [ ] Required sections check (# Overview, # Policies)
+  - [ ] URL format validation
+  - [ ] URL accessibility check (HEAD request)
+  - [ ] Markdown syntax compliance
+  - [ ] Content completeness scoring
+
+**Expected Functions**:
+```typescript
+async function fetchLlmsTxt(url: string): Promise<string>
+async function parseLlmsTxt(content: string): ParsedLlmsTxt
+async function validateStructure(parsed: ParsedLlmsTxt): ValidationResult[]
+async function validateUrls(urls: string[]): UrlValidationResult[]
+```
 
 #### Phase 1B: Scoring System [ ]
 **Agent**: THE DEVELOPER
@@ -102,11 +120,26 @@ Implement complete llms.txt validation logic in `/server/services/validation.ts`
 **Estimated Time**: 1 day
 
 **Tasks**:
-- [ ] Design scoring algorithm (0-100 scale)
-- [ ] Weight validation criteria appropriately
+- [ ] Implement scoring algorithm
+  - [ ] Required sections: 30 points (15 per section)
+  - [ ] URL validity: 25 points (5 per valid URL, up to 5)
+  - [ ] Markdown syntax: 20 points
+  - [ ] Content completeness: 15 points
+  - [ ] Robots.txt compatibility: 10 points (bonus)
+- [ ] Implement severity classification
+  - [ ] CRITICAL: Missing required sections, broken URLs
+  - [ ] WARNING: Syntax issues, incomplete descriptions
+  - [ ] INFO: Optimization suggestions, best practices
 - [ ] Generate actionable recommendations
-- [ ] Create issue severity classification
-- [ ] Implement scoring calculation logic
+  - [ ] Specific improvement suggestions
+  - [ ] Example implementations
+  - [ ] Priority ordering
+
+**Expected Functions**:
+```typescript
+function calculateScore(validationResults: ValidationResult[]): number
+function generateRecommendations(validationResults: ValidationResult[]): string[]
+```
 
 #### Phase 1C: Robots.txt Integration [ ]
 **Agent**: THE DEVELOPER
@@ -114,11 +147,29 @@ Implement complete llms.txt validation logic in `/server/services/validation.ts`
 **Estimated Time**: 1 day
 
 **Tasks**:
-- [ ] Fetch robots.txt from same domain
-- [ ] Parse robots.txt rules
-- [ ] Detect conflicts with llms.txt paths
-- [ ] Generate conflict warnings
-- [ ] Add conflict resolution recommendations
+- [ ] Implement robots.txt fetching
+  - [ ] Fetch from {domain}/robots.txt
+  - [ ] Handle 404 gracefully (not all sites have robots.txt)
+- [ ] Implement robots.txt parsing
+  - [ ] Extract User-agent directives
+  - [ ] Extract Disallow/Allow paths
+  - [ ] Identify AI crawler references
+- [ ] Implement conflict detection
+  - [ ] Check if llms.txt URLs conflict with Disallow rules
+  - [ ] Check for inconsistent AI crawler policies
+  - [ ] Identify missing AI crawler directives
+- [ ] Generate robots.txt recommendations
+  - [ ] Suggest robots.txt updates if conflicts found
+  - [ ] Recommend adding AI crawler rules
+  - [ ] Provide example robots.txt syntax
+
+**Expected Functions**:
+```typescript
+async function fetchRobotsTxt(domain: string): Promise<string | null>
+function parseRobotsTxt(content: string): RobotsTxtRules
+function detectConflicts(llmsTxt: ParsedLlmsTxt, robotsTxt: RobotsTxtRules): Conflict[]
+function generateRobotsTxtRecommendations(conflicts: Conflict[]): string[]
+```
 
 #### Phase 1D: Testing & Validation [ ]
 **Agent**: THE TESTER
@@ -126,12 +177,26 @@ Implement complete llms.txt validation logic in `/server/services/validation.ts`
 **Estimated Time**: 1 day
 
 **Tasks**:
-- [ ] Create test suite for validation logic
-- [ ] Test with real llms.txt examples
-- [ ] Validate scoring accuracy
-- [ ] Test error handling (404, timeouts, malformed)
-- [ ] Verify robots.txt conflict detection
-- [ ] Integration tests with Phase 2 API
+- [ ] Unit tests (95% coverage target)
+  - [ ] Test each validation rule individually
+  - [ ] Test scoring algorithm with known inputs
+  - [ ] Test robots.txt parsing edge cases
+  - [ ] Test error handling (timeouts, 404s, malformed content)
+- [ ] Integration tests
+  - [ ] Test full validation flow end-to-end
+  - [ ] Test with real llms.txt examples
+  - [ ] Test with Phase 2 API endpoints
+  - [ ] Verify database storage working
+- [ ] Test data
+  - [ ] Valid llms.txt example (should score 90-100)
+  - [ ] Invalid llms.txt example (should score <50)
+  - [ ] Missing sections (should identify)
+  - [ ] Broken URLs (should detect)
+  - [ ] Robots.txt conflicts (should warn)
+
+**Test Files**:
+- `/server/services/__tests__/validation.test.ts`
+- `/tests/integration/validation-api.test.ts`
 
 #### Phase 1E: Deployment [ ]
 **Agent**: THE OPERATOR
@@ -140,11 +205,11 @@ Implement complete llms.txt validation logic in `/server/services/validation.ts`
 
 **Tasks**:
 - [ ] Deploy to staging environment
-- [ ] Verify real validation responses
-- [ ] Test with production-like data
+- [ ] Test with real llms.txt URLs
+- [ ] Verify performance (<35s p95)
+- [ ] Check API response format matches Phase 2 contract
 - [ ] Deploy to production
-- [ ] Monitor API response times
-- [ ] Verify zero regression in existing features
+- [ ] Monitor error rates and response times
 
 ### Success Criteria
 
@@ -157,17 +222,75 @@ Implement complete llms.txt validation logic in `/server/services/validation.ts`
 - [ ] Zero breaking changes to Phase 2 API contract
 - [ ] Production deployment successful
 
+### API Contract (MUST NOT BREAK)
+
+The validation service must return this structure:
+```typescript
+interface ValidationResponse {
+  success: boolean;
+  cached: boolean;
+  data: {
+    url: string;
+    score: number;  // 0-100
+    issues: Array<{
+      severity: 'critical' | 'warning' | 'info';
+      message: string;
+      section?: string;
+    }>;
+    recommendations: string[];
+    robotsTxtConflicts?: Array<{
+      path: string;
+      rule: string;
+      recommendation: string;
+    }>;
+    timestamp: string;
+  };
+}
+```
+
+### Performance Requirements
+- P50: < 10 seconds
+- P95: < 35 seconds
+- P99: < 60 seconds
+- Timeout: 60 seconds max
+
+### Security Requirements
+- Follow Critical Software Development Principles
+- No security compromises for convenience
+- Validate all external URLs before fetching
+- Prevent SSRF attacks (no internal IPs, localhost)
+- Rate limit external requests
+- Sanitize all user inputs
+
 ### Dependencies
 
 - ✅ Phase 2 infrastructure (database, API endpoints, rate limiting) - COMPLETE
-- ⏳ Validation rules specification (see `/validator-plan-enhancements.md`)
-- ⏳ Test llms.txt examples for validation
+- ⏳ Node.js fetch API (built-in)
+- ⏳ Markdown parsing: `remark` or `marked` (need to install)
+- ⏳ Robots.txt parsing: `robots-parser` package (need to install)
 
 ### Reference Documents
 
+- `/phase1-validator-mission-prompt.md` - Mission prompt (this document)
 - `/validator-plan-enhancements.md` - Comprehensive implementation plan
 - `/server/services/validation.ts` - Service to implement (currently mock)
 - `/server/routes/validation.ts` - API routes (already functional)
+- `/shared/schema.ts` - Database schema for validation results
+
+### Risk Mitigation
+- Keep Phase 2 API contract unchanged
+- Use feature flags if needed for gradual rollout
+- Monitor error rates closely after deployment
+- Have rollback plan ready (revert to mock if critical issues)
+
+### Emergency Rollback Plan
+If production issues occur:
+1. Identify error in logs
+2. Quick fix if obvious (< 1 hour)
+3. Otherwise: Deploy previous version
+4. Revert commit: `git revert HEAD && git push origin main`
+5. Railway auto-deploys previous version
+6. Investigate root cause offline
 
 ---
 

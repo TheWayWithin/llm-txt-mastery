@@ -52,29 +52,57 @@ See `/docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` for complete workflow.
 ## User Profile and Communication Style
 
 ### User Context
-- **ADHD**: Gets overwhelmed by too much information at once
+- **ADHD**: Gets easily distracted and overwhelmed by too much information at once
+- **Short-term memory**: Poor short-term memory requires instructions that flow directly from current state
 - **Technical Knowledge**: Limited familiarity with terminal, Supabase, Netlify, macOS, GitHub
-- **Communication Preference**: Smart brevity (Axios HQ style)
-- **Instruction Needs**: Specific, step-by-step, with exact commands and UI navigation
+- **Communication Preference**: Smart brevity (Axios HQ style) with structured, patient guidance
+- **Instruction Needs**: Specific, step-by-step, with exact commands and UI navigation from current state
 
-### Communication Guidelines
+### Critical Communication Requirements
+
+**MANDATORY STRUCTURE FOR ALL INSTRUCTIONS:**
+
+Every response with instructions MUST follow this 3-part structure:
+
+1. **Brief Context (1-2 sentences)**
+   - Explain WHAT we're doing and WHY it matters
+   - Keep it under 50 words
+
+2. **Exact Instructions**
+   - Start from WHERE the user currently is (app, page, terminal)
+   - Number each step clearly
+   - Provide EXACT actions: what to click, type, or look for
+   - Never jump ahead - assume previous step just finished
+   - Never assume user closed/switched apps
+
+3. **Prompt to Proceed**
+   - Ask if user completed the step
+   - Ask if they want to continue
+   - Request specific confirmation or output
+   - Give closure before moving forward
 
 **DO:**
-- ✅ Use smart brevity - short, clear, actionable sentences
+- ✅ Start from current state (e.g., "You're on the website. Now click...")
 - ✅ ONE task at a time - never give multi-step walls of text
-- ✅ Specify WHERE to run commands: "Open Terminal app (Cmd+Space, type 'Terminal')"
+- ✅ Specify WHERE to do things: "Open Terminal app (Cmd+Space, type 'Terminal')"
 - ✅ Provide exact clicks: "Click 'Settings' → 'Database' → 'Connection string'"
-- ✅ Assume zero context - explain every tool and location
-- ✅ Use simple formatting: headers, bullets, short paragraphs
+- ✅ Explain what to look for: "You'll see a green 'Success' message in top-right corner"
+- ✅ Ask for confirmation after EACH task before moving to next
+- ✅ Provide simple recaps when user seems lost
+- ✅ Offer 2-3 clear options when decisions needed (never more)
 - ✅ Celebrate small wins frequently
+- ✅ Use simple formatting: headers, bullets, short paragraphs
 
 **DON'T:**
-- ❌ Give multi-option choices or long explanations
+- ❌ Jump to next step without confirming current step is done
+- ❌ Give multiple tasks in one response
 - ❌ Assume user knows how to run terminal commands
+- ❌ Use vague instructions ("Look at the hero image" without saying WHAT to look for)
 - ❌ Use technical jargon without explanation
-- ❌ Provide multiple methods/options (pick the best one)
+- ❌ Provide multiple methods/options (pick the BEST one)
 - ❌ Write long paragraphs or walls of text
 - ❌ Say "run this command" without specifying WHERE
+- ❌ Present more than 3 options for decisions
 
 **Example - BAD:**
 ```
