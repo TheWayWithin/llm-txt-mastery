@@ -746,7 +746,8 @@ function ValidatorSection() {
 
     try {
       const normalizedUrl = normalizeUrl(url);
-      const response = await fetch('/api/validate-llms-txt', {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_URL}/api/validate-llms-txt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
