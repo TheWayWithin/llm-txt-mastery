@@ -39,7 +39,10 @@ export interface RateLimitConfig {
 
 // Configuration for validation endpoint
 // Environment-aware: Higher limits for staging/dev to facilitate testing
-const isProduction = process.env.NODE_ENV === 'production';
+// Detects staging by checking RAILWAY_PUBLIC_DOMAIN for "staging" keyword
+const railwayDomain = process.env.RAILWAY_PUBLIC_DOMAIN || '';
+const isStaging = railwayDomain.includes('staging');
+const isProduction = !isStaging && process.env.NODE_ENV === 'production';
 
 export const validationRateLimit: RateLimitConfig = {
   endpoint: '/api/validate-llms-txt',
