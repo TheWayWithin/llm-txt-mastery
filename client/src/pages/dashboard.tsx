@@ -21,6 +21,8 @@ import {
   Mail,
   Shield,
   ExternalLink,
+  CheckCircle,
+  FileText,
 } from 'lucide-react';
 import {
   getSubscriptionStatus,
@@ -704,6 +706,268 @@ function BillingSection() {
   );
 }
 
+function ValidatorSection() {
+  const [url, setUrl] = useState('');
+  const [isValid, setIsValid] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const normalizeUrl = (value: string) => {
+    if (!value.trim()) return value;
+    if (/^https?:\/\//.test(value)) {
+      return value;
+    }
+    return `https://${value}`;
+  };
+
+  const validateUrl = (value: string) => {
+    const normalizedUrl = normalizeUrl(value);
+    const urlPattern = /^https?:\/\/.+\..+/;
+    const valid = urlPattern.test(normalizedUrl);
+    setIsValid(valid);
+    return valid;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUrl(value);
+    validateUrl(value);
+    setError(null);
+    setValidationResult(null);
+  };
+
+  const handleValidate = async () => {
+    if (!isValid || !url) return;
+
+    setIsValidating(true);
+    setError(null);
+    setValidationResult(null);
+
+    try {
+      const normalizedUrl = normalizeUrl(url);
+      const response = await fetch('/api/validate-llms-txt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: normalizedUrl,
+          includeRobotsTxt: true,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          setError(
+            `Rate limit exceeded. ${
+              data.resetAt
+                ? `Try again after ${new Date(data.resetAt).toLocaleTimeString()}`
+                : 'Please try again later.'
+            }`
+          );
+        } else {
+          setError(data.error || 'Validation failed. Please try again.');
+        }
+        return;
+      }
+
+      setValidationResult(data.validation || data);
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+      console.error('Validation error:', err);
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return 'text-green-600';
+    if (score >= 75) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getScoreBgColor = (score: number) => {
+    if (score >= 90) return 'bg-green-50 border-green-200';
+    if (score >= 75) return 'bg-yellow-50 border-yellow-200';
+    return 'bg-red-50 border-red-200';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Validator Input */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="h-5 w-5" />
+            <span>Validate llms.txt File</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-600 mb-4">
+            Enter your website URL to validate your llms.txt file against the official specification.
+          </p>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="www.example.com or https://example.com"
+                value={url}
+                onChange={handleInputChange}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
+              />
+              <Button
+                onClick={handleValidate}
+                disabled={!isValid || isValidating}
+                className="bg-innovation-teal hover:bg-innovation-teal/90"
+              >
+                {isValidating ? 'Validating...' : 'Validate'}
+              </Button>
+            </div>
+            {url && (
+              <p className="text-xs text-gray-500">
+                Will check: {normalizeUrl(url)}/llms.txt
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Error Display */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Validation Results */}
+      {validationResult && (
+        <>
+          {/* Score Card */}
+          <Card className={`border-2 ${getScoreBgColor(validationResult.score)}`}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    Validation Score
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {validationResult.valid ? (
+                      <span className="flex items-center text-green-600">
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Valid llms.txt file
+                      </span>
+                    ) : (
+                      <span className="flex items-center text-red-600">
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Issues found
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className={`text-5xl font-bold ${getScoreColor(validationResult.score)}`}>
+                    {validationResult.score}
+                  </div>
+                  <div className="text-sm text-gray-500">out of 100</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Issues */}
+          {validationResult.issues && validationResult.issues.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Issues Found ({validationResult.issues.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {validationResult.issues.map((issue: any, index: number) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-gray-50 rounded-md border border-gray-200"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{issue.message}</p>
+                          {issue.suggestion && (
+                            <p className="text-xs text-gray-600 mt-1">💡 {issue.suggestion}</p>
+                          )}
+                        </div>
+                        <Badge
+                          variant={
+                            issue.severity === 'error'
+                              ? 'destructive'
+                              : issue.severity === 'warning'
+                                ? 'outline'
+                                : 'secondary'
+                          }
+                          className="ml-2 uppercase text-xs"
+                        >
+                          {issue.severity}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommendations */}
+          {validationResult.recommendations && validationResult.recommendations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Recommendations ({validationResult.recommendations.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {validationResult.recommendations.map((rec: any, index: number) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-blue-50 rounded-md border border-blue-200"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-blue-900">{rec.title}</p>
+                          <p className="text-xs text-blue-700 mt-1">{rec.description}</p>
+                        </div>
+                        <Badge variant="outline" className="ml-2">
+                          {rec.priority}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Perfect Score */}
+          {validationResult.score === 100 &&
+            validationResult.issues.length === 0 &&
+            validationResult.recommendations.length === 0 && (
+              <Card className="bg-green-50 border-green-200">
+                <CardContent className="p-6 text-center">
+                  <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
+                  <h3 className="text-xl font-bold text-green-900 mb-2">Perfect Score!</h3>
+                  <p className="text-green-700">
+                    Your llms.txt file follows all best practices.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function SettingsSection() {
   const { user, signOut } = useAuth();
 
@@ -789,7 +1053,7 @@ export default function Dashboard() {
   const getDefaultTab = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    return ['overview', 'analyses', 'billing', 'settings'].includes(tab || '')
+    return ['overview', 'analyses', 'validator', 'billing', 'settings'].includes(tab || '')
       ? tab || 'overview'
       : 'overview';
   };
@@ -847,7 +1111,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs defaultValue={getDefaultTab()} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview" className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
                 <span>Overview</span>
@@ -855,6 +1119,10 @@ export default function Dashboard() {
               <TabsTrigger value="analyses" className="flex items-center space-x-2">
                 <Activity className="h-4 w-4" />
                 <span>My Analyses</span>
+              </TabsTrigger>
+              <TabsTrigger value="validator" className="flex items-center space-x-2">
+                <FileText className="h-4 w-4" />
+                <span>Validator</span>
               </TabsTrigger>
               <TabsTrigger value="billing" className="flex items-center space-x-2">
                 <CreditCard className="h-4 w-4" />
@@ -876,6 +1144,10 @@ export default function Dashboard() {
 
             <TabsContent value="analyses">
               <AnalysisHistory />
+            </TabsContent>
+
+            <TabsContent value="validator">
+              <ValidatorSection />
             </TabsContent>
 
             <TabsContent value="billing">

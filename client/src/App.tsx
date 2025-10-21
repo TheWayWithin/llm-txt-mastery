@@ -25,6 +25,7 @@ import LoginPage from '@/pages/login';
 import ForgotPasswordPage from '@/pages/forgot-password';
 import ResetPasswordPage from '@/pages/reset-password';
 import AnalyzePage from '@/pages/analyze';
+import ValidatePage from '@/pages/validate';
 import CheckEmailPage from '@/pages/check-email';
 import NotFound from '@/pages/not-found';
 import AnalysisDetailPage from '@/pages/analysis-detail';
@@ -34,6 +35,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/analyze" component={AnalyzePage} />
+      <Route path="/validate" component={ValidatePage} />
       <Route path="/analysis/:id" component={AnalysisDetailPage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pricing" component={Pricing} />
