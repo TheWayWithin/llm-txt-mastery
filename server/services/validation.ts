@@ -187,7 +187,7 @@ function parseLlmsTxt(content: string): ParsedLlmsTxt {
       currentSection = token.text;
       currentContent = '';
 
-    } else if (token.type === 'paragraph' || token.type === 'list' || token.type === 'text') {
+    } else if (token.type === 'paragraph' || token.type === 'text') {
       // Add content to current section
       const text = 'text' in token ? token.text : '';
       currentContent += text + '\n';
@@ -205,6 +205,24 @@ function parseLlmsTxt(content: string): ParsedLlmsTxt {
       const metadataMatch = text.match(/^([^:]+):\s*(.+)$/);
       if (metadataMatch) {
         metadata[metadataMatch[1].trim()] = metadataMatch[2].trim();
+      }
+    } else if (token.type === 'list') {
+      // Extract URLs from list items
+      const listItems = 'items' in token ? token.items : [];
+      for (const item of listItems) {
+        if ('text' in item) {
+          const itemText = item.text;
+          currentContent += `- ${itemText}\n`;
+
+          // Extract URLs from markdown links in list items
+          const urlMatches = itemText.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g);
+          for (const match of urlMatches) {
+            const url = match[2];
+            if (url && !urls.includes(url)) {
+              urls.push(url);
+            }
+          }
+        }
       }
     }
   }
@@ -258,34 +276,43 @@ async function validateUrl(url: string): Promise<UrlValidationResult> {
 
 /**
  * Validate structure and content of parsed llms.txt
+ * Based on official llmstxt.org specification
  */
 async function validateStructure(parsed: ParsedLlmsTxt): Promise<ValidationIssue[]> {
   const issues: ValidationIssue[] = [];
 
-  // Check for required sections
-  if (!parsed.sections['Overview']) {
+  // REQUIRED: H1 header (any title acceptable)
+  const hasH1 = Object.keys(parsed.sections).length > 0;
+  if (!hasH1) {
     issues.push({
       severity: 'error',
-      message: 'Missing required "# Overview" section',
-      suggestion: 'Add a # Overview section describing the purpose of your site for AI models',
+      message: 'Missing required H1 header (# Title)',
+      suggestion: 'Add a # header with your project or site name as the first line',
     });
   }
 
-  if (!parsed.sections['Policies']) {
+  // RECOMMENDED: Blockquote description
+  const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
+  if (!hasBlockquote) {
     issues.push({
-      severity: 'error',
-      message: 'Missing required "# Policies" section',
-      suggestion: 'Add a # Policies section with your terms of use and AI crawler guidelines',
+      severity: 'warning',
+      message: 'Missing recommended blockquote description',
+      suggestion: 'Add a short description after the H1 header using "> Description" format',
     });
   }
 
-  // Check for empty sections
+  // OPTIONAL: H2 sections with URLs
+  const h2Sections = Object.keys(parsed.sections).filter(
+    (key) => !key.match(/^#/) // Exclude the main H1 section
+  );
+
+  // Check for empty sections (only if sections exist)
   for (const [section, content] of Object.entries(parsed.sections)) {
-    if (!content || content.trim().length === 0) {
+    if (content && content.trim().length === 0) {
       issues.push({
-        severity: 'warning',
+        severity: 'info',
         message: `Section "${section}" is empty`,
-        suggestion: `Add meaningful content to the ${section} section`,
+        suggestion: `Add content or remove the empty ${section} section`,
       });
     }
   }
@@ -295,7 +322,7 @@ async function validateStructure(parsed: ParsedLlmsTxt): Promise<ValidationIssue
     issues.push({
       severity: 'warning',
       message: 'No URLs found in llms.txt',
-      suggestion: 'Consider adding relevant URLs using markdown link syntax [text](url)',
+      suggestion: 'Consider adding relevant URLs using markdown link syntax: - [Title](url): Description',
     });
   } else {
     // Check URL accessibility (limit to first 5 to avoid excessive requests)
@@ -305,7 +332,7 @@ async function validateStructure(parsed: ParsedLlmsTxt): Promise<ValidationIssue
     for (const result of urlResults) {
       if (!result.accessible) {
         issues.push({
-          severity: 'warning',
+          severity: 'info',
           message: `URL not accessible: ${result.url}`,
           suggestion: result.error || 'Verify the URL is correct and publicly accessible',
         });
@@ -313,46 +340,48 @@ async function validateStructure(parsed: ParsedLlmsTxt): Promise<ValidationIssue
     }
   }
 
-  // Check markdown syntax quality
-  if (parsed.rawContent.includes('##') && !parsed.rawContent.includes('# ')) {
-    issues.push({
-      severity: 'info',
-      message: 'Using h2 (##) headers without h1 (#) headers',
-      suggestion: 'Use h1 (#) headers for main sections as per llms.txt spec',
-    });
-  }
-
   return issues;
 }
 
 /**
  * Calculate score based on validation results
+ * Based on official llmstxt.org specification
  */
 function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): number {
   let score = 100;
 
-  // Deduct points for issues
+  // Deduct points for issues (official spec alignment)
   for (const issue of issues) {
     if (issue.severity === 'error') {
-      score -= 15; // Critical issues
+      score -= 20; // Missing H1 header (REQUIRED)
     } else if (issue.severity === 'warning') {
-      score -= 5; // Minor issues
+      score -= 5; // Missing blockquote or no URLs (RECOMMENDED)
     } else if (issue.severity === 'info') {
-      score -= 2; // Suggestions
+      score -= 1; // Empty sections, inaccessible URLs (OPTIONAL improvements)
     }
   }
 
   // Bonus points for good practices
-  if (parsed.sections['Overview'] && parsed.sections['Overview'].length > 100) {
-    score += 5; // Detailed overview
+  const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
+  if (hasBlockquote) {
+    const blockquoteLength = hasBlockquote[0].replace(/^>\s+/, '').length;
+    if (blockquoteLength > 50) {
+      score += 5; // Detailed description
+    }
   }
 
   if (parsed.urls.length >= 3) {
     score += 5; // Multiple relevant URLs
   }
 
-  if (Object.keys(parsed.sections).length > 2) {
-    score += 5; // Additional sections beyond required
+  if (parsed.urls.length >= 10) {
+    score += 5; // Comprehensive URL list
+  }
+
+  // Bonus for H2 sections (good organization)
+  const h2Count = Object.keys(parsed.sections).length;
+  if (h2Count >= 2) {
+    score += 5; // Well-organized with sections
   }
 
   // Ensure score is within 0-100 range
@@ -361,45 +390,63 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
 
 /**
  * Generate recommendations based on validation results
+ * Aligned with official llmstxt.org specification
  */
 function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): ValidationRecommendation[] {
   const recommendations: ValidationRecommendation[] = [];
 
-  // Add recommendations based on missing sections
-  if (!parsed.sections['Owner']) {
-    recommendations.push({
-      title: 'Add Owner section',
-      description: 'Include information about who maintains this content to improve credibility',
-      priority: 'medium',
-      example: '# Owner\nName: Your Organization\nContact: ai@example.com',
-    });
-  }
-
-  if (!parsed.sections['Usage']) {
-    recommendations.push({
-      title: 'Add Usage guidelines',
-      description: 'Specify how AI models should use your content and any restrictions',
-      priority: 'medium',
-      example: '# Usage\nAI models may reference this content with attribution.',
-    });
-  }
-
-  // Recommend improvements based on content quality
+  // Fix critical issues first
   const hasErrors = issues.some(i => i.severity === 'error');
   if (hasErrors) {
     recommendations.push({
-      title: 'Fix critical issues first',
-      description: 'Address all error-level issues to ensure basic compliance',
+      title: 'Add H1 header',
+      description: 'The H1 header (# Title) is required per the llmstxt.org specification',
       priority: 'high',
+      example: '# YourProjectName\n\n> Brief description of your project',
     });
   }
 
+  // Recommend blockquote if missing
+  const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
+  if (!hasBlockquote) {
+    recommendations.push({
+      title: 'Add blockquote description',
+      description: 'A short description after the H1 header improves clarity for AI models',
+      priority: 'medium',
+      example: '# Project Name\n\n> This project provides tools and resources for...',
+    });
+  }
+
+  // Recommend organizing URLs into sections
+  if (parsed.urls.length > 0 && Object.keys(parsed.sections).length < 2) {
+    recommendations.push({
+      title: 'Organize URLs into sections',
+      description: 'Group related URLs under H2 headers (## Section Name) for better organization',
+      priority: 'medium',
+      example: '## Documentation\n\n- [Getting Started](https://example.com/start): Quick start guide\n- [API Reference](https://example.com/api): Complete API documentation',
+    });
+  }
+
+  // Recommend adding more URLs if too few
   if (parsed.urls.length < 3) {
     recommendations.push({
       title: 'Add more reference URLs',
-      description: 'Include links to important pages, documentation, or resources',
+      description: 'Include links to important pages using markdown syntax: - [Title](url): Description',
       priority: 'low',
-      example: '[Documentation](https://example.com/docs)\n[API Reference](https://example.com/api)',
+      example: '## Resources\n\n- [Documentation](https://example.com/docs): Comprehensive guides\n- [API Reference](https://example.com/api): Technical reference',
+    });
+  }
+
+  // Recommend optional section for secondary content
+  const hasOptionalSection = Object.keys(parsed.sections).some(key =>
+    key.toLowerCase().includes('optional') || key.toLowerCase().includes('additional')
+  );
+  if (parsed.urls.length > 5 && !hasOptionalSection) {
+    recommendations.push({
+      title: 'Consider adding Optional section',
+      description: 'Per the official spec, use "## Optional" for secondary or less important content',
+      priority: 'low',
+      example: '## Optional\n\n- [Archive](https://example.com/archive): Historical content\n- [Blog](https://example.com/blog): Latest updates',
     });
   }
 
