@@ -1,6 +1,18 @@
 import rateLimit from 'express-rate-limit';
 import type { Request, Response } from 'express';
 
+// Secure key generator for rate limiting when behind proxy
+// Uses rightmost IP from X-Forwarded-For header (Railway proxy)
+const secureKeyGenerator = (req: Request): string => {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    // Get rightmost IP (closest to server, hardest to spoof)
+    const ips = forwarded.split(',').map(ip => ip.trim());
+    return ips[ips.length - 1] || req.ip || 'unknown';
+  }
+  return req.ip || 'unknown';
+};
+
 // General API rate limiting - Balanced for security and usability
 export const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -11,7 +23,7 @@ export const apiLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  trustProxy: true, // Trust Railway proxy
+  keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
   handler: (req: Request, res: Response) => {
     // Log rate limit violations for security monitoring
     console.warn(`🚨 Rate limit exceeded: ${req.ip} - ${req.method} ${req.path}`, {
@@ -36,7 +48,7 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
   skipSuccessfulRequests: true, // Don't count successful requests
   handler: (req: Request, res: Response) => {
     res.status(429).json({
@@ -56,7 +68,7 @@ export const passwordResetLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many password reset attempts from this IP, please try again later.',
@@ -75,7 +87,7 @@ export const analysisLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
   handler: (req: Request, res: Response) => {
     // Log analysis rate limit violations - this is critical
     console.error(`🚨 ANALYSIS RATE LIMIT EXCEEDED: ${req.ip} - ${req.method} ${req.path}`, {
@@ -102,7 +114,7 @@ export const emailCaptureLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true,
+  keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many email capture attempts from this IP, please try again later.',
@@ -121,7 +133,7 @@ export const fileGenerationLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many file generation requests from this IP, please try again later.',
