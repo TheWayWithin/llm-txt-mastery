@@ -38,6 +38,9 @@ export interface RateLimitConfig {
 }
 
 // Configuration for validation endpoint
+// Environment-aware: Higher limits for staging/dev to facilitate testing
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const validationRateLimit: RateLimitConfig = {
   endpoint: '/api/validate-llms-txt',
   windowMinutes: {
@@ -45,7 +48,7 @@ export const validationRateLimit: RateLimitConfig = {
     user: 43200,      // 30 days
   },
   maxRequests: {
-    anonymous: 3,     // 3 per day
+    anonymous: isProduction ? 3 : 10,  // 3/day in prod, 10/day in staging/dev
     starter: 5,       // 5 per month
     coffee: 20,       // 20 credits (Solo tier)
     growth: 35,       // 35 per month
