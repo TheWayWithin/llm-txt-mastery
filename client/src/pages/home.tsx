@@ -394,6 +394,74 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Validator Tool Section */}
+          <section className="mb-16">
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-2 border-innovation-teal shadow-lg p-8">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-innovation-teal rounded-full mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-3xl font-bold text-framework-black mb-3">
+                  Already Have an llms.txt File?
+                </h3>
+                <p className="text-lg text-ai-silver max-w-2xl mx-auto mb-6">
+                  Check if your llms.txt file follows the official specification and get actionable recommendations to improve your score.
+                </p>
+                <div className="inline-flex items-center justify-center px-4 py-2 bg-green-100 border border-green-300 rounded-full mb-4">
+                  <span className="text-sm font-semibold text-green-800">✨ 100% Free Tool - No Sign-up Required</span>
+                </div>
+              </div>
+
+              <div className="max-w-xl mx-auto mb-6">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h4 className="font-semibold text-framework-black mb-4 text-center">
+                    What Our Validator Checks:
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
+                      <span className="text-ai-silver">Official spec compliance</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
+                      <span className="text-ai-silver">Content quality score</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
+                      <span className="text-ai-silver">Format validation</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
+                      <span className="text-ai-silver">robots.txt conflicts</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link href="/validate">
+                  <a>
+                    <Button
+                      size="lg"
+                      className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3 shadow-lg hover:shadow-xl transition-shadow"
+                    >
+                      <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                      Validate Your llms.txt File
+                    </Button>
+                  </a>
+                </Link>
+              </div>
+
+              <p className="text-center text-sm text-ai-silver mt-4">
+                Get instant feedback with a detailed quality score and recommendations
+              </p>
+            </div>
+          </section>
+
           {/* How It Works Section */}
           <section id="how-it-works" className="mb-16">
             <div className="text-center mb-8">
