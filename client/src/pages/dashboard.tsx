@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InstantRefundButton } from '@/components/InstantRefundButton';
 import {
@@ -712,6 +714,7 @@ function ValidatorSection() {
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [includeRobotsTxt, setIncludeRobotsTxt] = useState(true);
 
   const normalizeUrl = (value: string) => {
     if (!value.trim()) return value;
@@ -754,7 +757,7 @@ function ValidatorSection() {
         },
         body: JSON.stringify({
           url: normalizedUrl,
-          includeRobotsTxt: true,
+          includeRobotsTxt,
         }),
       });
 
@@ -832,6 +835,16 @@ function ValidatorSection() {
                 Will check: {normalizeUrl(url)}/llms.txt
               </p>
             )}
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="robots-check-dashboard"
+                checked={includeRobotsTxt}
+                onCheckedChange={setIncludeRobotsTxt}
+              />
+              <Label htmlFor="robots-check-dashboard" className="text-sm text-gray-700 cursor-pointer">
+                Check for robots.txt conflicts
+              </Label>
+            </div>
           </div>
         </CardContent>
       </Card>
