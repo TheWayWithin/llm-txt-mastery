@@ -461,12 +461,18 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
 
 /**
  * Generate recommendations based on validation results
- * Emphasizes the value of professionally generated llms.txt files
+ * Only shows problem-fixing recommendations for files with actual issues
+ * Uses soft upselling for high-performing files
  */
 function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): ValidationRecommendation[] {
   const recommendations: ValidationRecommendation[] = [];
 
-  // CRITICAL: No URLs = useless file
+  // Calculate current score to determine recommendation strategy
+  const score = calculateScore(parsed, issues);
+  const h2Count = Object.keys(parsed.sections).length - 1; // Exclude H1
+  const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
+
+  // CRITICAL: No URLs = useless file (always show)
   if (parsed.urls.length === 0) {
     recommendations.push({
       title: 'Your llms.txt file has no value without URLs',
@@ -476,7 +482,7 @@ function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[
     });
   }
 
-  // Fix critical structure issues
+  // Fix critical structure issues (always show if present)
   const hasErrors = issues.some(i => i.severity === 'error');
   if (hasErrors) {
     recommendations.push({
@@ -487,9 +493,8 @@ function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[
     });
   }
 
-  // Recommend blockquote if missing
-  const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
-  if (!hasBlockquote) {
+  // Missing blockquote (only show if actually missing AND score < 90)
+  if (!hasBlockquote && score < 90) {
     recommendations.push({
       title: 'Add compelling site description',
       description: 'Without a blockquote description, AI models must guess your site\'s purpose. Professional generation analyzes your site to create optimized descriptions that improve AI comprehension by 300%.',
@@ -498,7 +503,7 @@ function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[
     });
   }
 
-  // Few URLs = limited value
+  // Few URLs = limited value (only show if actually < 5 URLs)
   if (parsed.urls.length > 0 && parsed.urls.length < 5) {
     recommendations.push({
       title: 'Expand URL coverage for better AI understanding',
@@ -508,9 +513,8 @@ function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[
     });
   }
 
-  // Recommend organizing URLs into sections
-  const h2Count = Object.keys(parsed.sections).length - 1;
-  if (parsed.urls.length > 0 && h2Count < 2) {
+  // Poor organization (only show if actually < 2 sections AND score < 90)
+  if (parsed.urls.length > 0 && h2Count < 2 && score < 90) {
     recommendations.push({
       title: 'Organize content for optimal AI comprehension',
       description: 'Unorganized URLs reduce AI model accuracy by 40%. Professional generation automatically categorizes your content into intuitive sections like Documentation, Products, Resources, and Blog.',
@@ -519,25 +523,23 @@ function generateRecommendations(parsed: ParsedLlmsTxt, issues: ValidationIssue[
     });
   }
 
-  // Recommend content tags and metadata
-  if (parsed.urls.length > 0) {
-    const hasContentTags = parsed.rawContent.match(/\[(article|tool|product|guide)\]/i);
-    if (!hasContentTags) {
-      recommendations.push({
-        title: 'Add content type tags for enhanced AI parsing',
-        description: 'Content tags help AI models understand the type and purpose of each URL. Professional generation automatically tags content as [article], [tool], [product], [guide], etc.',
-        priority: 'medium',
-        example: '- [API Docs](https://example.com/api): [documentation] [technical] Complete API reference',
-      });
-    }
+  // HIGH-SCORING FILES (90-100): Soft upsell only, no problem-fixing
+  if (score >= 90) {
+    recommendations.push({
+      title: 'Your llms.txt file is excellent!',
+      description: 'You have a well-structured llms.txt file that follows best practices. Want to take it further? Our automated generator can help you maintain and enhance your file with automatic updates, advanced categorization, and content tagging.',
+      priority: 'low',
+      example: 'Professional features: Automatic site monitoring, scheduled regeneration, advanced content scoring, SEO optimization, and robots.txt conflict detection.',
+    });
   }
 
-  // Recommend professional generation
-  if (parsed.urls.length < 20 || h2Count < 3 || !hasBlockquote) {
+  // LOW-SCORING FILES (<90): Problem-fixing recommendations
+  if (score < 90) {
+    // Show professional generation as solution to their problems
     recommendations.push({
-      title: 'Consider professional llms.txt generation',
-      description: 'Manually creating comprehensive llms.txt files takes hours. Our automated generator analyzes your entire site, scores content quality, categorizes intelligently, and generates optimized files in minutes. Get 95-100/100 scores consistently.',
-      priority: 'medium',
+      title: 'Professional generation solves these issues automatically',
+      description: `Your current file scores ${score}/100. Our automated generator can create a perfect llms.txt file in minutes, scoring 95-100/100 consistently with: intelligent categorization, quality scoring, comprehensive URL discovery, and SEO optimization.`,
+      priority: 'high',
       example: 'Professional generation includes: automated site crawling, quality scoring, intelligent categorization, SEO metadata, content tagging, and robots.txt conflict detection.',
     });
   }
