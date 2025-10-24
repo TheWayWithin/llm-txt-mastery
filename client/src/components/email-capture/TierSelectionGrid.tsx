@@ -143,7 +143,7 @@ export function TierSelectionGrid({
             <p className="text-sm text-ai-silver mt-2">
               • Unlimited analyses
               <br />
-              • 1,000 pages per analysis
+              • 500 pages per analysis
               <br />
               • Team collaboration
               <br />• Priority support

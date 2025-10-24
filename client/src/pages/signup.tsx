@@ -278,7 +278,7 @@ export default function SignupPage() {
       case 'growth':
         return [
           '✅ 100 monthly analyses (5x Coffee tier capacity)',
-          '✅ 1,000 pages per analysis (perfect for large sites)',
+          '✅ 500 pages per analysis (perfect for large sites)',
           '✅ Bulk website processing - analyze multiple sites',
           '✅ Export to CSV/JSON for data analysis',
           '✅ Skip the queue - priority processing',
@@ -369,7 +369,7 @@ export default function SignupPage() {
                         ⚠️ FREE - 3 daily (20 pages max)
                       </option>
                       <option value="solo" data-testid="tier-option-coffee">
-                        ☕ COFFEE - 20 monthly ($4.95/month)
+                        ☕ SOLO - 20 monthly ($4.95/month)
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
                         💼 GROWTH - Go Pro ($9.95/month)
@@ -430,7 +430,7 @@ export default function SignupPage() {
                         <div className="mt-3 p-3 bg-blue-100 border border-blue-300 rounded">
                           <p className="text-xs font-bold text-blue-800">
                             🚀 DOMINATE LARGE SITES: While competitors fail at 50+ pages, you'll
-                            analyze 1,000 pages effortlessly!
+                            analyze 500 pages effortlessly!
                           </p>
                         </div>
                       )}
@@ -738,7 +738,7 @@ export default function SignupPage() {
 
                 <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
                   <p className="text-center text-sm font-bold text-green-800">
-                    ✅ Built by Expert Solopreneur • ✅ Not VC-Funded BS • ✅ Real Results for Real
+                    ✅ Built by Expert Solopreneur • ✅ Self Not VC-Funded • ✅ Real Results for Real
                     Businesses
                   </p>
                 </div>

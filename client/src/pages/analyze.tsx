@@ -331,7 +331,7 @@ export default function AnalyzePage() {
                         : user.tier === 'starter'
                           ? 'Get more analyses'
                           : user.tier === 'growth'
-                            ? '1,000 pages per site'
+                            ? '500 pages per site'
                             : 'Unlimited everything'}
                     </p>
                   </div>
