@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /login
+Disallow: /signup
+Disallow: /analysis/
+
+# Allow public pages
+Allow: /pricing
+Allow: /validate
+Allow: /analyze
+Allow: /about
+Allow: /docs
+Allow: /blog
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
+
+Sitemap: https://llmtxtmastery.com/sitemap.xml
