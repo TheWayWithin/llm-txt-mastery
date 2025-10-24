@@ -1,16 +1,18 @@
 /**
  * llms.txt Validation Service
  *
- * IMPORTANT: This is a MOCK implementation for Phase 2 testing.
- * Full validation logic will be implemented in Phase 1 (assumed complete but not yet built).
+ * Production-ready validator for llms.txt files following the llmstxt.org specification.
  *
- * This mock provides:
- * - Basic llms.txt file fetching and parsing
- * - Simple validation scoring
- * - SSRF protection (real implementation in full version)
- * - Response structure matching Phase 1 specification
+ * Features:
+ * - Real llms.txt file fetching with SSRF protection
+ * - Comprehensive markdown parsing and structure validation
+ * - URL accessibility verification via HEAD requests
+ * - robots.txt conflict detection for AI crawler rules
+ * - Quality scoring algorithm (0-100 scale)
+ * - Dynamic recommendations based on validation results
+ * - Database persistence with tier-based retention
  *
- * TODO: Replace with actual Phase 1 implementation when available
+ * Implementation Status: ✅ PRODUCTION READY
  */
 
 import { createHash } from 'crypto';
