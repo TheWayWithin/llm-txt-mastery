@@ -1,75 +1,87 @@
-# Emergency Bug Fix - Validator 500 Error
+# Agent Context - Web Infrastructure Assessment Mission
 
-## Mission Overview
-**Mission Type**: Emergency Bug Fix
-**Start Time**: 2025-10-21
-**Status**: Active - Investigation Phase
-**Priority**: Priority 0 - PRODUCTION CRITICAL (User-facing feature broken)
+## Mission Objective
+Investigate and implement critical web infrastructure files for llmtxtmastery.com:
+- sitemap.xml (SEO discoverability)
+- robots.txt (crawler management)
+- Web server configuration (redirects, security, URL rewriting)
 
-## Objectives
-1. Identify root cause of 500 error in production validator endpoint
-2. Fix the error following Critical Software Development Principles
-3. Test fix on staging environment before production deployment
-4. Ensure anonymous users can validate llms.txt files with rate limiting
-5. Verify robots.txt conflict detection works properly
+## Current State
+- Production: https://llmtxtmastery.com (Netlify, main branch)
+- Staging: https://develop--llm-txt-mastery.netlify.app (Netlify, develop branch)
+- Frontend: React 18 + TypeScript + Vite (Netlify)
+- Backend: Express.js on Railway
+- Deployment: Auto-deploy from GitHub (main → production, develop → staging)
 
-## Current Application State
+## Mission Scope
+1. Assess current state of SEO/infrastructure files
+2. Research best practices for SaaS applications
+3. Determine implementation approach for Netlify + Railway architecture
+4. Create deployment and maintenance plan
+5. Provide actionable recommendations
 
-### Production Status
-- **Frontend**: https://llmtxtmastery.com (Netlify, main branch)
-- **Backend**: https://llm-txt-mastery-production.up.railway.app (Railway, main branch)
-- **Lighthouse Score**: 98/100 (just completed optimization)
-- **Tier System**: Solo ($4.95), Growth ($9.95), Scale ($19.95)
+## Known Constraints
+- Netlify hosting (not Apache, so no .htaccess)
+- Static frontend with SPA routing
+- Separate backend on Railway
+- Need staging and production configurations
 
-## Error Details
-- **Endpoint**: `llm-txt-mastery-production.up.railway.app/api/validate-llms-txt`
-- **Status Code**: 500 Internal Server Error
-- **Test Case**: Validating https://freecalchub.com/ with "Check for robots.txt conflicts" enabled
-- **Frontend Status**: Working correctly (auth flow, state transitions confirmed)
-- **User Type**: Anonymous/unauthenticated user
-- **Expected Behavior**: Validation should work for anonymous users with rate limiting
+## Accumulated Findings
 
-### Recent Completions
-1. ✅ Validator UI deployment (git commit 4a2694e)
-2. ✅ Staging environment auto-detection (git commit 239578e)
-3. ✅ Anonymous rate limit increase to 10/day for staging (git commit e8d3ddc)
+### Web Infrastructure Assessment (2025-10-24)
+**Specialist**: THE ARCHITECT
 
-### Test Email Accounts Available
-- User has test accounts configured for testing
-- Need to identify test credentials location
+**Current State**:
+- ❌ sitemap.xml MISSING - Search engines cannot discover pages
+- ❌ robots.txt MISSING - No crawler control
+- ❌ _headers MISSING - No security headers
+- ✅ netlify.toml EXISTS - Basic config, needs SEO updates
 
-## Technical Context
+**Impact**: SEO severely impacted, no search engine discoverability
 
-### Tech Stack
-- **Frontend**: React 18 + TypeScript + Vite
-- **Backend**: Express.js + TypeScript
-- **Database**: PostgreSQL (Neon)
-- **Payments**: Stripe
-- **Auth**: JWT + bcrypt
-- **Testing**: Playwright (to be configured)
+**Root Cause**: Files don't exist, and SPA fallback would catch them anyway
 
-### Critical User Flows to Test
-1. **Authentication**: Signup, login, logout
-2. **Free Tier**: Email capture, limited analysis
-3. **Solo Tier**: Purchase, usage tracking, analysis
-4. **Growth Tier**: Advanced features, higher limits
-5. **Scale Tier**: Unlimited usage, API access
-6. **Payment**: Stripe integration, subscription management
-7. **Dashboard**: Usage display, billing section
+**Solution Designed**: Three static files + netlify.toml updates with `force = true` redirects
 
-### Existing Test Infrastructure
-- Need to verify if Playwright is already configured
-- Need to check for existing test files
-- Need to identify test account credentials
+**Architecture Document**: `web-infrastructure-assessment.md` (complete specifications)
 
-## Dependencies
-- Playwright installation/configuration
-- Test environment setup (staging URLs)
-- Test account credentials
-- CI/CD integration (GitHub Actions)
+**Application Routes Analyzed**: 11 public pages, 7 protected routes
+- Public: /, /pricing, /validate, /analyze, /about, /docs, /blog, /contact, /privacy, /terms, /cookies
+- Protected: /dashboard, /login, /signup, /analysis/:id, auth flows
 
-## Constraints
-- Follow Critical Software Development Principles
-- No security compromises in test setup
-- Test data must not affect production
-- Tests must be maintainable and documented
+## Critical Decisions
+
+### Decision 1: Static Files vs Build-time Generation
+**Choice**: Static files for MVP, build-time generation for future
+**Rationale**: Faster implementation (< 1 hour vs 4-8 hours), sufficient for 11 pages
+**Trade-off**: Manual maintenance for new pages (acceptable for current scale)
+
+### Decision 2: Security-First Headers
+**Choice**: Implement comprehensive security headers (_headers file)
+**Rationale**: Prevent XSS, clickjacking, MIME attacks; align with existing CSP
+**Compliance**: All headers work WITH security requirements, no compromises
+
+### Decision 3: Netlify-Native Solution
+**Choice**: Use `force = true` redirects in netlify.toml for SEO files
+**Rationale**: Correct Netlify approach per official docs (not a workaround)
+**Alternative Rejected**: Apache .htaccess (not supported on Netlify)
+
+### Decision 4: robots.txt User Data Protection
+**Choice**: Block /analysis/:id from crawlers
+**Rationale**: Prevent user-specific analysis results from appearing in search results
+**Security Benefit**: Protects user data privacy
+
+## Dependencies & Blockers
+
+### Ready for Implementation
+- ✅ All architecture decisions complete
+- ✅ All specifications documented
+- ✅ Research complete (Netlify best practices)
+- ✅ Routes analyzed (App.tsx)
+- ✅ Implementation plan created (4 phases)
+
+### Next Steps
+- Awaiting @developer for file creation and deployment
+- No blockers identified
+- Estimated effort: 2-4 hours
+- Priority: HIGH
