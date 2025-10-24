@@ -58,6 +58,11 @@ export default function SignupPage() {
   const [emailChecking, setEmailChecking] = useState(false);
   const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Redirect authenticated users
   useEffect(() => {
     if (isAuthenticated && user) {
