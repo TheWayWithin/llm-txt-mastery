@@ -50,13 +50,13 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 └─────────────────────────────────────────────────────────────────────────────────┘
 
 External Integrations:
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  OpenAI API     │    │ Target Websites │    │ Resend Email    │    │ ConvertKit      │
-│                 │    │                 │    │                 │    │                 │
-│ - GPT-4o-mini   │    │ - Sitemap Disc. │    │ - Verification  │    │ - Marketing     │
-│ - 93% Cost Red. │    │ - Content Ext.  │    │ - Password Rst. │    │ - Automation    │
-│ - Token Track.  │    │ - Multi-strat.  │    │ - Notifications │    │ - Analytics     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  OpenAI API     │  │ Target Websites │  │ Resend Email    │  │ ConvertKit      │  │ llms.txt Files  │
+│                 │  │                 │  │                 │  │                 │  │                 │
+│ - GPT-4o-mini   │  │ - Sitemap Disc. │  │ - Verification  │  │ - Marketing     │  │ - Validation    │
+│ - 93% Cost Red. │  │ - Content Ext.  │  │ - Password Rst. │  │ - Automation    │  │ - Spec Check    │
+│ - Token Track.  │  │ - Multi-strat.  │  │ - Notifications │  │ - Analytics     │  │ - Quality Score │
+└─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
 
 ## Infrastructure Architecture
@@ -242,6 +242,12 @@ Server Application (Railway)
 │  │   - Tier management and upgrades                                       │   │
 │  │   - Analysis history and file downloads                                │   │
 │  │                                                                         │   │
+│  │ • Validation Routes (/api/validate-llms-txt)                           │   │
+│  │   - llms.txt file validation with spec compliance                     │   │
+│  │   - Quality scoring and issue detection                               │   │
+│  │   - Anonymous + authenticated user support                            │   │
+│  │   - Tier-based rate limiting enforcement                              │   │
+│  │                                                                         │   │
 │  │ • Admin & Monitoring Routes                                             │   │
 │  │   - AI cost tracking and optimization                                  │   │
 │  │   - Usage analytics and reporting                                      │   │
@@ -353,6 +359,44 @@ The system uses PostgreSQL with a comprehensive multi-table schema design suppor
 │  │   - siteType, metrics, etc.     │                                          │
 │  │ • createdAt                     │                                          │
 │  └─────────────────────────────────┘                                          │
+│                                                                                 │
+│  Validation Storage & Tracking                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                        llmsTxtValidations                               │   │
+│  │                                                                         │   │
+│  │ • id (PK)                                                               │   │
+│  │ • userId (FK → users.id) - nullable (anonymous support)                │   │
+│  │ • anonymousId - UUID for non-authenticated users                       │   │
+│  │ • url - Base website URL validated                                     │   │
+│  │ • fileUrl - Full llms.txt file URL                                     │   │
+│  │ • urlHash - SHA-256 hash for deduplication                             │   │
+│  │ • valid - Boolean validation result                                    │   │
+│  │ • score - Quality score (0-100)                                        │   │
+│  │ • issues (JSONB) - Array of validation issues                          │   │
+│  │   - {severity: 'error'|'warning'|'info', message, suggestion}          │   │
+│  │ • recommendations (JSONB) - Array of improvement suggestions           │   │
+│  │   - {title, description, priority}                                     │   │
+│  │ • robotsConflicts (JSONB) - robots.txt disallow conflicts (nullable)   │   │
+│  │ • tier - User tier at validation time (anonymous/starter/coffee/etc.)  │   │
+│  │ • cached - Boolean indicating if result was cached                     │   │
+│  │ • processingTime - Milliseconds to complete validation                 │   │
+│  │ • expiresAt - Tier-based expiration (7/30/90 days or null)            │   │
+│  │ • createdAt - Validation timestamp                                     │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                 │
+│  Rate Limiting Storage                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                           rateLimits                                    │   │
+│  │                                                                         │   │
+│  │ • id (PK)                                                               │   │
+│  │ • identifier - User ID or IP address                                   │   │
+│  │ • identifierType - 'user' or 'ip'                                      │   │
+│  │ • endpoint - API endpoint path (/api/validate-llms-txt)                │   │
+│  │ • requestCount - Number of requests in current window                  │   │
+│  │ • windowStart - Sliding window start timestamp                         │   │
+│  │ • windowEnd - Sliding window end timestamp                             │   │
+│  │ • createdAt - Record creation timestamp                                │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                 │
 │  Advanced Usage Tracking & AI Cost Management                                  │
 │  ┌─────────────────────────────────────────────────────────────────────────┐   │
@@ -480,6 +524,8 @@ Coffee Credits System    │  ❌  │   ✅   │   ❌   │   ❌  │     �
 Subscription Management  │  ❌  │   ❌   │   ✅   │   ✅  │     ✅
 Priority Support         │  ❌  │   ❌   │   ❌   │   ✅  │     ✅
 API Access              │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
+llms.txt Validations/mo │  5   │   20   │   35   │  100  │  Unlimited
+Validation API Access   │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
 ```
 
 ### Comprehensive Security Measures
@@ -492,6 +538,7 @@ API Access              │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
   - Analysis: 10 requests/hour per user
   - Email capture: 5 requests/2min per IP
   - File generation: 20 requests/hour per user
+  - Validation: Tier-based (3/day anonymous, 5-100/month authenticated)
 - **CORS Configuration**: Strict origin control for production domains
 - **Input Validation**: Zod schema validation for all user inputs
 - **SQL Injection Prevention**: Parameterized queries with Drizzle ORM
@@ -636,6 +683,160 @@ Multi-Strategy Sitemap Discovery & Content Analysis Pipeline:
 ```
 
 ## Enhanced Features & Capabilities
+
+### llms.txt File Validator System
+
+**Design Date**: October 2025
+**Status**: ✅ IMPLEMENTED (Backend validation uses MOCK data - production validation in development)
+
+The system implements a comprehensive llms.txt file validation service with three user touchpoints for maximum discovery and engagement.
+
+#### Validation Architecture
+
+**Validation Service** (`/server/services/validation.ts`):
+- URL-based llms.txt file retrieval and parsing
+- Official specification compliance checking
+- Quality scoring algorithm (0-100 scale with visual indicators)
+- Issue detection with severity classification (error/warning/info)
+- Actionable recommendation generation with priority ranking
+- Optional robots.txt conflict detection
+- Processing time tracking and performance metrics
+
+**API Endpoint** (`/server/routes/validation.ts`):
+- POST /api/validate-llms-txt
+- Optional authentication (supports anonymous + authenticated users)
+- Anonymous ID tracking via HttpOnly cookies (7-day expiry for migration window)
+- Tier-based rate limiting integration
+- Database persistence with tier-based expiration policies
+- Usage tracking for authenticated users
+- Comprehensive error handling with security safeguards
+
+#### User Access Points
+
+**1. Standalone Validation Page** (`/validate`):
+- Primary public-facing validator interface
+- URL input with auto-normalization (adds https:// if missing)
+- robots.txt conflict checking toggle
+- Real-time validation with loading states
+- Comprehensive results display:
+  - Quality score with color-coded indicators (green ≥90, yellow ≥75, red <75)
+  - Issue list with severity badges and suggestions
+  - Prioritized recommendations
+  - Perfect score celebration UI
+
+**2. Landing Page CTA** (home.tsx):
+- Featured section promoting validator tool
+- "Already Have an llms.txt File?" messaging
+- Highlights what the validator checks (spec compliance, quality, format, robots.txt)
+- 100% Free Tool - No Sign-up Required badge
+- Direct link to /validate page
+
+**3. Dashboard Validator Tab** (dashboard.tsx):
+- Authenticated user access from dashboard
+- Same validation UI as standalone page
+- Integrated with user's tier for rate limiting display
+- Remaining validations counter
+
+#### Rate Limiting System
+
+**Tier-Based Limits** (sliding window algorithm):
+
+| Tier | Validations | Window | Tracking Method |
+|------|-------------|--------|-----------------|
+| Anonymous | 3 | 24 hours | IP address |
+| Starter | 5 | 30 days | User ID |
+| Solo (coffee) | 20 | 30 days | User ID (shares credit pool) |
+| Growth | 35 | 30 days | User ID |
+| Scale | 100 | 30 days | User ID |
+
+**Implementation Details**:
+- Database-tracked via `rateLimits` table
+- X-RateLimit-* headers for client transparency
+- Upgrade CTAs on limit exceeded
+- Environment-aware (higher limits in staging for testing)
+
+#### Database Schema
+
+**llmsTxtValidations Table**:
+- Stores validation results with tier-based expiration:
+  - Anonymous/Starter: 7 days
+  - Solo: 30 days
+  - Growth: 90 days
+  - Scale: Unlimited retention (null expiresAt)
+- JSONB fields for flexible issue and recommendation storage
+- URL hash for deduplication
+- Anonymous ID support for non-authenticated users
+- Cached result tracking for performance optimization
+
+**rateLimits Table**:
+- Sliding window algorithm implementation
+- Supports both IP-based (anonymous) and user-based (authenticated) tracking
+- Cleanup job removes expired records (30+ days old)
+- Real-time status API for UI display
+
+#### Security Features
+
+**SSRF Protection**:
+- Zod schema validation for all URLs
+- No arbitrary URL access - validation URLs only
+- Input sanitization and normalization
+
+**SQL Injection Prevention**:
+- Parameterized queries via Drizzle ORM throughout
+- No raw SQL with user input
+- Validated database operations
+
+**Cookie Security**:
+- HttpOnly cookies prevent XSS access
+- Secure flag in production (HTTPS-only)
+- SameSite=strict prevents CSRF
+- 7-day expiry for anonymous ID migration window
+
+**Error Handling**:
+- Generic error messages (no internal details leaked)
+- No stack traces in production responses
+- Comprehensive logging for debugging
+- Rate limit errors include upgrade CTAs
+
+#### Current Limitations
+
+⚠️ **CRITICAL**: The validation service currently returns MOCK data for testing purposes. Real llms.txt file validation against the official specification is in active development.
+
+**What Works**:
+- ✅ Frontend UI with all validation displays
+- ✅ API endpoint with full request handling
+- ✅ Rate limiting with tier-based enforcement
+- ✅ Database persistence and tracking
+- ✅ Anonymous + authenticated user support
+- ✅ Cookie-based anonymous ID tracking
+- ✅ Usage tracking for authenticated users
+
+**What Needs Production Implementation**:
+- ❌ Real llms.txt file fetching and parsing
+- ❌ Official spec compliance validation logic
+- ❌ Quality scoring algorithm (currently returns random scores)
+- ❌ Issue detection rules (currently returns sample issues)
+- ❌ Recommendation generation logic
+- ❌ robots.txt conflict detection implementation
+
+**Priority**: Replacing MOCK data is Priority 1 for production readiness.
+
+#### Future Enhancements
+
+**Planned Features**:
+- Batch validation for multiple domains
+- Historical validation tracking and trend analysis
+- Comparison against competitor llms.txt files
+- Automated re-validation scheduling
+- Validation API for programmatic access (Scale tier)
+- Webhook notifications for validation status changes
+- Export validation reports (PDF/JSON)
+
+**Technical Improvements**:
+- Caching layer for frequently validated domains
+- Performance optimization for large llms.txt files
+- Advanced issue detection with machine learning
+- Competitive benchmarking against industry standards
 
 ### 6-Phase LLMs.txt Generation System
 

@@ -170,6 +170,76 @@
 - **Satisfaction Scores**: Target 90%+ satisfaction among retained customers
 - **Revenue Protection**: Estimated $2,000-3,500 monthly recurring revenue preservation
 
+### llms.txt File Validator ✅ IMPLEMENTED (BETA)
+
+**Design Date**: October 2025
+**Objective**: Provide free validation tool for existing llms.txt files
+**Status**: Backend validation logic uses MOCK data (production validation in development)
+
+**Validation Features**:
+
+- **Official Spec Compliance**: Validates against the official llms.txt specification
+- **Quality Scoring**: 0-100 scale with visual indicators (green ≥90, yellow ≥75, red <75)
+- **Issue Detection**: Comprehensive error, warning, and info-level issue identification
+- **Actionable Recommendations**: Priority-ranked suggestions for improvement
+- **robots.txt Conflict Detection**: Optional checking for robots.txt disallow conflicts
+- **Processing Time Tracking**: Performance metrics for validation operations
+
+**Access Points**:
+
+1. **Standalone Validation Page** (`/validate`): Primary public-facing validator interface
+2. **Landing Page CTA**: Featured section promoting validator to all visitors
+3. **Dashboard Validator Tab**: Authenticated users can access validator from dashboard
+
+**Rate Limiting** (Tier-based):
+
+- Anonymous users: 3 validations/day (IP-based tracking)
+- Starter tier: 5 validations/month
+- Solo tier: 20 validations/month (shares monthly credit pool)
+- Growth tier: 35 validations/month
+- Scale tier: 100 validations/month
+
+**Technical Implementation**:
+
+- Backend validation service: `/server/services/validation.ts`
+- API endpoint: `POST /api/validate-llms-txt`
+- Optional authentication (supports both anonymous + authenticated users)
+- Anonymous ID tracking via HttpOnly cookies (7-day expiry for migration window)
+- Database persistence with tier-based expiration:
+  - Anonymous/Starter: 7 days
+  - Solo: 30 days
+  - Growth: 90 days
+  - Scale: Unlimited retention
+- Usage tracking for authenticated users
+
+**Security Features**:
+
+- SSRF protection via Zod schema validation
+- Parameterized queries only (SQL injection prevention)
+- HttpOnly, Secure, SameSite cookies for anonymous tracking
+- No sensitive data in error messages
+- Rate limiting with upgrade CTAs
+
+**Current Limitations**:
+
+⚠️ **IMPORTANT**: The validation service currently returns MOCK data for testing purposes. Real llms.txt file validation against the official specification is in active development. The UI, API, rate limiting, and database persistence are production-ready, but validation results are not yet based on actual file analysis.
+
+**Projected Impact**:
+
+- **Lead Generation**: Free tool attracts users who may convert to paid analysis
+- **Brand Authority**: Demonstrates expertise in llms.txt optimization
+- **User Retention**: Dashboard integration encourages return visits
+- **Viral Potential**: Users share validation scores and recommendations
+
+**Future Enhancements** (Roadmap):
+
+- Production validation engine (Priority 1 - replaces MOCK data)
+- Batch validation for multiple domains
+- Historical validation tracking and trend analysis
+- Comparison against competitor llms.txt files
+- Automated re-validation scheduling
+- Validation API for programmatic access (Scale tier feature)
+
 ## Pricing Tiers
 
 ### Starter (Free)
@@ -183,6 +253,7 @@
 - 30-day cache retention
 - Complete sitemap discovery with 7+ fallback methods
 - Standards-compliant file generation
+- **✅ 5 llms.txt validations/month**
 
 **Ideal For**: Individual users exploring LLM.txt functionality, small personal projects
 
@@ -200,6 +271,7 @@
 - **✅ Automatic Account Creation**: Post-purchase account setup
 - **✅ Customer Dashboard**: Account management and file history
 - **✅ File Re-access**: Download previous analyses anytime
+- **✅ 20 llms.txt validations/month** (shares monthly credit pool)
 
 **Ideal For**: Regular users, small businesses with ongoing analysis needs
 
@@ -216,6 +288,7 @@
 - Priority support
 - Advanced analytics
 - **✅ Authentication System**: Full account management ready
+- **✅ 35 llms.txt validations/month**
 
 **Ideal For**: Growing businesses, agencies with multiple clients, regular content analysis needs
 
@@ -232,6 +305,8 @@
 - Priority support with dedicated assistance
 - Custom integrations and API access
 - Advanced reporting and analytics
+- **✅ 100 llms.txt validations/month**
+- Validation API access for programmatic integration (future enhancement)
 
 **Ideal For**: Large enterprises, development agencies, organizations with extensive website analysis requirements
 
@@ -402,6 +477,42 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 - **Viral Growth**: 15% of users generate at least one referral
 - **Support Reduction**: 40% decrease in support tickets
 - **Revenue Impact**: $1,500-2,000 MRR from improvements
+
+### 🔄 Phase 2.5: Validator Production Completion (Priority 1)
+
+**Status**: IN PROGRESS - Backend MOCK data replacement
+**Timeline**: 1-2 weeks completion target
+
+**Critical Work**:
+
+- ✅ Frontend validator UI complete (/validate page)
+- ✅ API endpoint implemented (POST /api/validate-llms-txt)
+- ✅ Rate limiting integrated (tier-based limits)
+- ✅ Database persistence operational
+- ✅ Landing page CTA placement complete
+- ✅ Dashboard tab integration complete
+- ❌ **Backend validation logic returns MOCK data** (PRIORITY 1 BLOCKER)
+- ❌ Real llms.txt file parsing and validation
+- ❌ Official spec compliance checking
+- ❌ Quality scoring algorithm implementation
+
+**Next Steps**:
+
+1. Replace MOCK data in `/server/services/validation.ts` with real validation logic
+2. Implement official llms.txt spec parsing
+3. Build quality scoring algorithm (0-100 scale)
+4. Create issue detection rules (error/warning/info severity)
+5. Develop actionable recommendation engine
+6. Add robots.txt conflict detection logic
+7. Production testing and validation accuracy verification
+
+**Success Criteria**:
+
+- Real llms.txt file fetching and parsing
+- Accurate spec compliance validation
+- Quality scores reflect actual file analysis
+- Issues detected match real problems
+- Recommendations are actionable and relevant
 
 ### Phase 3: Enhanced Analytics & Business Intelligence (Post-Phase 0)
 
