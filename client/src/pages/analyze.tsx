@@ -75,12 +75,12 @@ export default function AnalyzePage() {
     }
   }, [websiteUrlParam]);
 
-  // Authentication check - redirect to login if not authenticated
+  // Authentication check - redirect to signup if not authenticated
   useEffect(() => {
     if (authResolved && !authLoading && !isAuthenticated) {
-      console.log('🔒 User not authenticated, redirecting to login');
-      const loginUrl = url ? `/login?websiteUrl=${encodeURIComponent(url)}` : '/login';
-      navigate(loginUrl);
+      console.log('🔒 User not authenticated, redirecting to signup');
+      const signupUrl = url ? `/signup?websiteUrl=${encodeURIComponent(url)}` : '/signup';
+      navigate(signupUrl);
     }
   }, [authResolved, authLoading, isAuthenticated, navigate, url]);
 
