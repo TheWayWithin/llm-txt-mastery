@@ -96,7 +96,7 @@ export function useTierSelection(options: UseTierSelectionOptions = {}): UseTier
         displayName: 'Professional Power ($9.95/mo)',
         features: [
           'Unlimited analyses',
-          '1,000 pages per analysis',
+          '500 pages per analysis',
           'Team collaboration',
           'Priority support',
         ],

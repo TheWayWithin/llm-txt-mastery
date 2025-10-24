@@ -79,8 +79,8 @@ export function TierGuaranteeContent({ selectedTier }: TierGuaranteeContentProps
             </div>
           </div>
           <div className="text-center mt-4 text-xs text-blue-600 font-medium">
-            ✅ Secure & Private • ✅ No Spam Ever • ✅ Built by Expert Solopreneur • ✅ Not
-            VC-Funded BS
+            ✅ Secure & Private • ✅ No Spam Ever • ✅ Built by Expert Solopreneur • ✅ Self Not
+            VC-Funded
           </div>
         </div>
       </div>

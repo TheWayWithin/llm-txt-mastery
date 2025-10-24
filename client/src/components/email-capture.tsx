@@ -231,7 +231,7 @@ export default function EmailCapture({
                 <p className="text-sm text-ai-silver mt-2">
                   • Unlimited analyses
                   <br />
-                  • 1,000 pages per analysis
+                  • 500 pages per analysis
                   <br />
                   • Team collaboration
                   <br />• Priority support
@@ -402,8 +402,8 @@ export default function EmailCapture({
               </div>
             </div>
             <div className="text-center mt-4 text-xs text-blue-600 font-medium">
-              ✅ Secure & Private • ✅ No Spam Ever • ✅ Built by Expert Solopreneur • ✅ Not
-              VC-Funded BS
+              ✅ Secure & Private • ✅ No Spam Ever • ✅ Built by Expert Solopreneur • ✅ Self Not
+              VC-Funded
             </div>
           </div>
         </div>

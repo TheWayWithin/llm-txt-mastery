@@ -148,7 +148,7 @@ export function UserDashboard() {
             )}
             {userProfile.tier === 'growth' && (
               <>
-                <div>• 1,000 pages per analysis</div>
+                <div>• 500 pages per analysis</div>
                 <div>• Unlimited AI analysis</div>
                 <div>• File history</div>
                 <div>• Priority support</div>
