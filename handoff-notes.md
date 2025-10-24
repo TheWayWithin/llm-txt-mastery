@@ -1,7 +1,207 @@
-# Handoff Notes - Signup Page Scroll Position Fix
+# Handoff Notes - Cosmetic Text Fixes
 
 ## Status
-**Phase**: Bug Fix Complete
+**Phase**: Text Corrections Complete
+**Last Updated**: 2025-10-24
+**Next Agent**: @operator (ready for deployment)
+
+---
+
+## ✅ COSMETIC TEXT FIXES COMPLETE
+
+**Fixed Date**: 2025-10-24
+**Fixed By**: THE DEVELOPER
+**Status**: ✅ ALL 3 ISSUES FIXED - READY FOR DEPLOYMENT
+
+### Issues Fixed Summary
+
+Three cosmetic text corrections across 7 files:
+1. **Growth Tier Page Limit**: Changed "1,000 pages" → "500 pages" (6 files)
+2. **Tier Dropdown Label**: Changed "COFFEE" → "SOLO" (1 file)
+3. **Copy Text Update**: Changed "Not VC-Funded BS" → "Self Not VC-Funded" (3 files)
+
+---
+
+### Issue #1: Growth Tier Page Limit (1,000 → 500 pages)
+
+**Problem**: Growth tier was incorrectly showing "1,000 pages per analysis" instead of "500 pages"
+
+**Files Modified**: 6 files
+
+1. **client/src/pages/signup.tsx**
+   - Line 281: `'✅ 1,000 pages per analysis` → `'✅ 500 pages per analysis`
+   - Line 433: `analyze 1,000 pages effortlessly!` → `analyze 500 pages effortlessly!`
+
+2. **client/src/components/email-capture.tsx**
+   - Line 234: `• 1,000 pages per analysis` → `• 500 pages per analysis`
+
+3. **client/src/hooks/useTierSelection.ts**
+   - Line 99: `'1,000 pages per analysis'` → `'500 pages per analysis'`
+
+4. **client/src/pages/analyze.tsx**
+   - Line 334: `? '1,000 pages per site'` → `? '500 pages per site'`
+
+5. **client/src/components/UserDashboard.tsx**
+   - Line 151: `<div>• 1,000 pages per analysis</div>` → `<div>• 500 pages per analysis</div>`
+
+6. **client/src/components/email-capture/TierSelectionGrid.tsx**
+   - Line 146: `• 1,000 pages per analysis` → `• 500 pages per analysis`
+
+**Files Already Correct** (Not changed):
+- `client/src/lib/validation-utils.ts` - Line 333 already "500 pages" for Growth
+- `client/src/lib/stripe.ts` - Line 171 already "500 pages" for Growth
+- `client/src/lib/tier-utils.ts` - Line 35 already "500 pages" for Growth
+- `client/src/pages/pricing.tsx` - Growth already "500 pages", Scale correctly "1,000 pages"
+- `client/src/components/landing/PricingPreview.tsx` - Already correct
+
+---
+
+### Issue #2: Tier Dropdown Label (COFFEE → SOLO)
+
+**Problem**: Signup page dropdown was showing "COFFEE" instead of "SOLO" for the solo tier
+
+**File Modified**: 1 file
+
+**client/src/pages/signup.tsx**
+- Line 372: `☕ COFFEE - 20 monthly ($4.95/month)` → `☕ SOLO - 20 monthly ($4.95/month)`
+
+**Context**:
+- Backend uses lowercase "coffee" and "solo" interchangeably for same tier
+- UI utility `getTierDisplayName()` in `tier-utils.ts` returns "SOLO" for both
+- This fix ensures dropdown matches the standard display name
+
+---
+
+### Issue #3: Copy Text Update (Not VC-Funded BS → Self Not VC-Funded)
+
+**Problem**: Marketing copy said "Not VC-Funded BS" instead of "Self Not VC-Funded"
+
+**Files Modified**: 3 files
+
+1. **client/src/pages/signup.tsx**
+   - Line 741: `✅ Not VC-Funded BS` → `✅ Self Not VC-Funded`
+
+2. **client/src/components/email-capture.tsx**
+   - Line 405-406: `✅ Not VC-Funded BS` → `✅ Self Not VC-Funded`
+
+3. **client/src/components/email-capture/TierGuaranteeContent.tsx**
+   - Line 82-83: `✅ Not VC-Funded BS` → `✅ Self Not VC-Funded`
+
+---
+
+### Verification Summary
+
+**Total Changes**:
+- 7 files modified
+- 13 insertions(+), 13 deletions(-)
+- All changes are cosmetic text only
+- No logic changes, no security impacts
+- No TypeScript errors, no functional changes
+
+**Git Status**:
+```
+client/src/components/UserDashboard.tsx                      | 2 +-
+client/src/components/email-capture.tsx                      | 6 +++---
+client/src/components/email-capture/TierGuaranteeContent.tsx | 4 ++--
+client/src/components/email-capture/TierSelectionGrid.tsx    | 2 +-
+client/src/hooks/useTierSelection.ts                         | 2 +-
+client/src/pages/analyze.tsx                                 | 2 +-
+client/src/pages/signup.tsx                                  | 8 ++++----
+```
+
+---
+
+### Testing Plan (5 minutes)
+
+**Manual Testing**:
+1. Navigate to `/signup` page
+   - Verify dropdown shows "☕ SOLO" not "☕ COFFEE"
+   - Verify Growth tier benefits show "500 pages per analysis"
+   - Verify footer trust signals show "Self Not VC-Funded"
+
+2. Navigate to home page email capture
+   - Verify Growth tier shows "500 pages per analysis"
+   - Verify footer shows "Self Not VC-Funded"
+
+3. Navigate to `/analyze` (authenticated)
+   - Verify Growth tier quick stats show "500 pages per site"
+
+**Expected Results**:
+- ✅ All "1,000 pages" references for Growth tier changed to "500 pages"
+- ✅ All "COFFEE" tier labels changed to "SOLO"
+- ✅ All "Not VC-Funded BS" changed to "Self Not VC-Funded"
+- ✅ Scale tier still correctly shows "1,000 pages"
+
+---
+
+### Deployment Notes
+
+**Environment**:
+- Frontend: Vite + React (Netlify)
+- Changes: Client-side only (no backend changes)
+- Deploy: Staging first, then production
+
+**Deployment Steps**:
+1. Commit changes with clear message
+2. Push to `develop` branch
+3. Auto-deploy to staging
+4. Test on staging URLs
+5. Merge to `main` for production
+6. Verify on production
+
+**No Database Migrations**: ❌ Not needed (text-only changes)
+**No API Changes**: ❌ Not needed (frontend only)
+**No Environment Variables**: ❌ Not needed
+
+---
+
+### Success Criteria
+
+- [x] ✅ Issue #1 Fixed: Growth tier shows "500 pages" (not "1,000")
+- [x] ✅ Issue #2 Fixed: Dropdown shows "SOLO" (not "COFFEE")
+- [x] ✅ Issue #3 Fixed: Copy shows "Self Not VC-Funded" (not "BS")
+- [x] ✅ All changes verified via git diff
+- [x] ✅ No TypeScript errors
+- [x] ✅ No functional changes
+- [ ] ⏳ Tested on staging environment
+- [ ] ⏳ Deployed to production
+
+---
+
+**CURRENT STATUS**: 🚀 DEPLOYED TO STAGING - READY FOR TESTING
+**DEPLOYED BY**: THE OPERATOR
+**COMMIT**: a2843b9 - fix: Correct Growth tier and copy text across UI
+**STAGING URL**: https://develop--llm-txt-mastery.netlify.app
+**NEXT AGENT**: @coordinator (approve staging, then merge to main for production)
+**CONFIDENCE LEVEL**: 🟢 HIGH (100% confident - simple text changes, no logic impact)
+
+### Deployment Status
+
+**Staging Deployment**:
+- ✅ Commit: a2843b9
+- ✅ Branch: develop
+- ✅ Pushed to GitHub: 2025-10-24
+- 🚀 Auto-deploying to: https://develop--llm-txt-mastery.netlify.app
+- ⏳ Status: Netlify build in progress (check after ~2 minutes)
+
+**Testing Checklist for Staging**:
+1. **Growth Tier Page Limit** - Visit `/signup`, verify "500 pages per analysis" (not "1,000")
+2. **Tier Dropdown** - Check dropdown shows "☕ SOLO" (not "☕ COFFEE")
+3. **Copy Text** - Verify footer shows "Self Not VC-Funded" (not "Not VC-Funded BS")
+4. **Scale Tier** - Ensure Scale tier still correctly shows "1,000 pages"
+
+**Production Deployment** (After staging approval):
+- [ ] Merge `develop` → `main` via GitHub PR
+- [ ] Auto-deploy to: https://llmtxtmastery.com
+- [ ] Verify changes on production
+- [ ] Monitor for 30 minutes post-deploy
+
+---
+
+# Previous Context: Signup Page Scroll Position Fix
+
+## Status
+**Phase**: Bug Fix Complete - DEPLOYED
 **Last Updated**: 2025-10-24
 **Next Agent**: @tester (for verification)
 
