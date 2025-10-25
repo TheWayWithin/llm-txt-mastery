@@ -20,12 +20,20 @@ LLM.txt Mastery - AI-powered website analysis and llms.txt file generation SaaS 
 ### Production
 - **Frontend**: https://llmtxtmastery.com (Netlify, `main` branch)
 - **Backend**: https://llm-txt-mastery-production.up.railway.app (Railway, `main` branch)
-- **Database**: Neon PostgreSQL (production project)
+- **Database**: Neon PostgreSQL - **Production Project** (separate Neon project)
+  - Live customer data, real transactions
+  - Automatic daily backups
+  - SSL/TLS required
+  - **⚠️ NEVER use for local development or testing**
 
 ### Staging
 - **Frontend**: https://develop--llm-txt-mastery.netlify.app (Netlify, `develop` branch)
 - **Backend**: https://llm-txt-mastery-staging.up.railway.app (Railway, `develop` branch)
-- **Database**: Neon PostgreSQL (staging project)
+- **Database**: Neon PostgreSQL - **Staging Project** (separate Neon project)
+  - Mirrors production schema
+  - Test data only, safe to reset
+  - SSL/TLS required
+  - **Completely isolated from production database**
 
 ### Development Workflow
 See `/docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` for complete workflow.
@@ -46,6 +54,19 @@ See `/docs/Operations/DEVELOPMENT_LIFECYCLE_GUIDE.md` for complete workflow.
 - **Netlify**: Frontend hosting and build logs
 - **Neon**: Database management and SQL editor
 - **Stripe**: Payment processing and subscriptions
+
+### Database Security Guardrails
+
+**Production is protected by startup validation** (`server/startup-security-validation.ts`):
+
+The application **will not start** if:
+- DATABASE_URL contains 'localhost', '127.0.0.1', 'test', 'dev', or 'local'
+- JWT secrets are missing or weak (< 64 characters in production)
+- OpenAI API key is missing or invalid format
+
+Railway automatically sets the correct `DATABASE_URL` environment variable for each deployment:
+- **Production Railway** → Production Neon database
+- **Staging Railway** → Staging Neon database
 
 **Note**: Create `.env.local` for local reference URLs and test account info (gitignored).
 
