@@ -132,16 +132,26 @@ Production Environment:
 
 #### Database Infrastructure (Neon)
 
+**🚨 CRITICAL**: Production and Staging use **completely separate Neon PostgreSQL projects** - they are fully isolated with no data sharing.
+
 - **Provider**: Neon Tech (Managed PostgreSQL 15+)
+- **Production Project**: Dedicated Neon project for live customer data
+  - Live customer data, real transactions
+  - Automatic daily backups and point-in-time recovery
+  - SSL/TLS encryption required
+  - **Protected by startup guardrails** (blocks localhost, test, dev, local keywords)
+- **Staging Project**: Separate Neon project for testing
+  - Test data only, mirrors production schema
+  - Safe to experiment and reset
+  - SSL/TLS encryption required
+  - Completely isolated from production database
 - **Configuration**: Production-grade pooled connections with SSL enforcement
 - **Connection**: PostgreSQL with Drizzle ORM integration
 - **Features**:
-  - Automatic backups and point-in-time recovery
-  - Connection pooling for optimal performance
-  - SSL/TLS encryption required for all connections
-  - Database branching for development environments
+  - Connection pooling for optimal performance (Railway auto-configures DATABASE_URL per environment)
   - Advanced monitoring and query optimization
   - Complex 13+ table schema with JSONB support
+  - Database branching for development environments
 
 ## Application Architecture
 
