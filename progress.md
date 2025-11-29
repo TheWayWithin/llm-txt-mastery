@@ -59,13 +59,16 @@ Building a Public API for LLM.txt Mastery to enable integration with AImpactScan
 - ✅ Fixed `relations` import (moved from `drizzle-orm/pg-core` to `drizzle-orm`)
 - ✅ TypeScript compilation passes for all API files
 - ✅ Build verified successful
+- ✅ Code committed: `31e6820 feat(api): Add Public API v1 for AImpactScanner integration`
+- ✅ Deployed to production via Railway (auto-deploy from main branch)
+- ✅ API v1 status endpoint verified live: `GET /api/v1/status` returns `{"status":"ok","version":"1.0.0",...}`
 
 **Pending** (requires manual steps):
 1. **Database Migration**: Run `npm run db:push` interactively to create tables
    - Select "create table" for `api_keys`, `api_usage`, `api_webhooks`
-   - Or deploy to staging where Railway will apply schema automatically
-2. **Test API key creation**: `npm run api:create-key test-key aimpactscanner partner 1000`
-3. **Test endpoints locally** after server starts with proper .env
+   - Tables required before authenticated endpoints work
+2. **Create test API key**: `npm run api:create-key test-key aimpactscanner partner 1000`
+3. **Test authenticated endpoints**: POST /api/v1/analyze, GET /api/v1/usage
 4. **Verify rate limiting** works correctly
 
 ### Remaining Phases
