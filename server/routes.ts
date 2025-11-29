@@ -51,6 +51,7 @@ import abTestingRoutes from './routes/ab-testing';
 import semanticMonitoringRoutes from './routes/semantic-monitoring';
 import simpleUsageRoutes from './routes/simple-usage';
 import adminAiCostsRoutes from './routes/admin-ai-costs';
+import apiV1Routes from './routes/api-v1';
 import { incrementSimpleUsage, getSimpleUsage } from './services/simple-tracker';
 import { connectionPool } from './services/connection-pool';
 
@@ -81,6 +82,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register validation routes
   app.use('/api', validationRoutes);
+
+  // Register Public API v1 routes
+  app.use('/api/v1', apiV1Routes);
 
   // Debug tier lookup (temporary endpoint) - PRODUCTION PROTECTED
   app.post('/api/debug-tier', async (req, res) => {

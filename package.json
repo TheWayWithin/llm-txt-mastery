@@ -66,7 +66,8 @@
     "benchmark:report": "tsx scripts/run-performance-benchmarks.ts --output markdown",
     "health-check": "node scripts/health-check.js",
     "setup": "node scripts/setup.js",
-    "setup:database": "./scripts/setup-database.sh"
+    "setup:database": "./scripts/setup-database.sh",
+    "api:create-key": "tsx scripts/create-api-key.ts"
   },
   "dependencies": {
     "@google-analytics/data": "^4.12.1",
