@@ -97,6 +97,15 @@
 - HTTP header validation (ETag, Last-Modified)
 - Cache hit optimization reduces API costs and improves response times
 
+**Public API (v1)**
+
+- RESTful API for third-party integrations and automation
+- API key authentication with SHA-256 hashing (keys never stored in plain text)
+- Tiered rate limiting: Free (100/hr), Partner (1,000/hr), Enterprise (10,000/hr)
+- Endpoints: analyze, generate, download, usage statistics
+- Comprehensive usage tracking for analytics and billing
+- Full API documentation at `/docs/API_DOCUMENTATION.md`
+
 ## Feature Breakdown
 
 ### Core Analysis Features
