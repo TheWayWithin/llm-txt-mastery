@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -558,3 +559,104 @@ export type LlmsTxtValidation = typeof llmsTxtValidations.$inferSelect;
 export type InsertLlmsTxtValidation = typeof llmsTxtValidations.$inferInsert;
 export type ValidationCacheEntry = typeof validationCache.$inferSelect;
 export type InsertValidationCache = typeof validationCache.$inferInsert;
+
+// ===================================================================
+// PUBLIC API INFRASTRUCTURE
+// ===================================================================
+
+/**
+ * API Keys table - manages authentication for public API access
+ * SECURITY: Never store plain-text keys, only SHA-256 hashes
+ */
+export const apiKeys = pgTable('api_keys', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(), // Descriptive name (e.g., "aimpactscanner-production")
+  keyHash: text('key_hash').notNull().unique(), // SHA-256 hashed API key
+  keyPrefix: text('key_prefix').notNull(), // Display prefix (e.g., "llmtxt_abc123...")
+  consumer: text('consumer').notNull(), // e.g., 'aimpactscanner', 'public', 'internal'
+  tier: text('tier').notNull().default('free'), // 'free', 'partner', 'enterprise'
+  rateLimit: integer('rate_limit').notNull().default(100), // Requests per hour
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastUsedAt: timestamp('last_used_at'),
+  expiresAt: timestamp('expires_at'), // Optional expiration
+  metadata: jsonb('metadata'), // Flexible additional data
+});
+
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type NewApiKey = typeof apiKeys.$inferInsert;
+export const insertApiKeySchema = createInsertSchema(apiKeys);
+
+/**
+ * API Usage table - tracks all API requests for analytics and billing
+ */
+export const apiUsage = pgTable('api_usage', {
+  id: serial('id').primaryKey(),
+  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  endpoint: text('endpoint').notNull(), // e.g., '/api/v1/analyze'
+  method: text('method').notNull(), // GET, POST, etc.
+  statusCode: integer('status_code').notNull(),
+  responseTime: integer('response_time'), // Milliseconds
+  requestSize: integer('request_size'), // Bytes
+  responseSize: integer('response_size'), // Bytes
+  errorMessage: text('error_message'),
+  timestamp: timestamp('timestamp').defaultNow().notNull(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+});
+
+export type ApiUsageRecord = typeof apiUsage.$inferSelect;
+export type NewApiUsage = typeof apiUsage.$inferInsert;
+export const insertApiUsageSchema = createInsertSchema(apiUsage);
+
+/**
+ * API Webhooks table - webhook configurations for event notifications
+ * SECURITY: Webhook secrets should be hashed for signature verification
+ */
+export const apiWebhooks = pgTable('api_webhooks', {
+  id: serial('id').primaryKey(),
+  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  url: text('url').notNull(), // Webhook endpoint URL
+  events: jsonb('events').notNull(), // Array like ['analysis.completed', 'generation.completed']
+  isActive: boolean('is_active').notNull().default(true),
+  secret: text('secret').notNull(), // Hashed secret for signature verification
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastTriggeredAt: timestamp('last_triggered_at'),
+});
+
+export type ApiWebhook = typeof apiWebhooks.$inferSelect;
+export type NewApiWebhook = typeof apiWebhooks.$inferInsert;
+export const insertApiWebhookSchema = createInsertSchema(apiWebhooks);
+
+/**
+ * Relations for API infrastructure tables
+ */
+export const apiKeysRelations = relations(apiKeys, ({ many }) => ({
+  usage: many(apiUsage),
+  webhooks: many(apiWebhooks),
+}));
+
+export const apiUsageRelations = relations(apiUsage, ({ one }) => ({
+  apiKey: one(apiKeys, {
+    fields: [apiUsage.apiKeyId],
+    references: [apiKeys.id],
+  }),
+}));
+
+export const apiWebhooksRelations = relations(apiWebhooks, ({ one }) => ({
+  apiKey: one(apiKeys, {
+    fields: [apiWebhooks.apiKeyId],
+    references: [apiKeys.id],
+  }),
+}));
+
+// API Consumer Tiers
+export type ApiConsumerTier = 'free' | 'partner' | 'enterprise';
+
+// API Key with usage statistics
+export interface ApiKeyWithStats extends ApiKey {
+  totalRequests: number;
+  requestsThisHour: number;
+  averageResponseTime: number;
+  errorRate: number;
+}
