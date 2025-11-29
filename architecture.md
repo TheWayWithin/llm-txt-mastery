@@ -302,6 +302,67 @@ Server Application (Railway)
 - **Security**: Helmet.js, CORS, rate limiting, input validation
 - **Monitoring**: Custom logging, health checks, performance tracking
 
+### Public API Layer (v1)
+
+The platform exposes a versioned REST API for third-party integrations, enabling programmatic access to website analysis and LLMs.txt generation.
+
+```
+Public API Architecture
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           API v1 (/api/v1/*)                                     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  Authentication Layer                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ • API Key Authentication (X-API-Key header)                             │   │
+│  │ • SHA-256 key hashing (keys never stored in plain text)                │   │
+│  │ • Tier-based access control (free, partner, enterprise)                │   │
+│  │ • Key expiration and deactivation support                              │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                     │                                           │
+│  Rate Limiting Layer                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ • Sliding window rate limiting per API key                             │   │
+│  │ • Tier-based limits: Free=100, Partner=1000, Enterprise=10000/hour    │   │
+│  │ • Rate limit headers: X-RateLimit-Limit, Remaining, Reset             │   │
+│  │ • 429 responses with retry-after information                          │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                     │                                           │
+│  Usage Tracking Layer                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ • Non-blocking request logging (fire-and-forget)                       │   │
+│  │ • Tracks: endpoint, method, status, response time, sizes               │   │
+│  │ • Analytics for billing and usage dashboards                           │   │
+│  │ • Error tracking with messages and stack traces                        │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                     │                                           │
+│  API Endpoints                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ GET  /api/v1/status        - Health check (no auth)                   │   │
+│  │ POST /api/v1/analyze       - Start website analysis                    │   │
+│  │ GET  /api/v1/analysis/:id  - Get analysis results                     │   │
+│  │ POST /api/v1/generate      - Generate LLMs.txt file                   │   │
+│  │ GET  /api/v1/download/:id  - Download generated file                  │   │
+│  │ GET  /api/v1/usage         - Get API usage statistics                 │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**API Infrastructure Tables:**
+
+| Table | Purpose |
+|-------|---------|
+| `api_keys` | API key management with hashed keys, tiers, rate limits |
+| `api_usage` | Request tracking for analytics and billing |
+| `api_webhooks` | Webhook configuration for event notifications |
+
+**Key Security Features:**
+- API keys generated with `crypto.randomBytes(32)` (256-bit entropy)
+- SHA-256 hashing before storage (plain text keys never persisted)
+- Automatic key expiration checking on every request
+- Usage tracking for abuse detection and billing
+
 ## Data Architecture
 
 ### Database Schema Design
