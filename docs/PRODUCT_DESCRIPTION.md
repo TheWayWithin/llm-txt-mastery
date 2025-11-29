@@ -8,7 +8,7 @@
 
 **Infrastructure**: Fully operational Railway + Netlify split architecture
 **Authentication**: Complete JWT system with customer dashboard ✅ OPERATIONAL
-**Payment Processing**: Stripe Coffee tier ($4.95) with automatic account creation ✅ OPERATIONAL
+**Payment Processing**: Stripe Solo tier ($4.95/month) with automatic account creation ✅ OPERATIONAL
 **Customer Journey**: End-to-end flow from URL input to dashboard file management ✅ OPERATIONAL
 **Technical Debt**: Minimal - all critical systems implemented and stable
 
@@ -59,7 +59,7 @@
 - JWT access tokens with secure refresh token rotation
 - Password hashing with bcrypt and security validation
 - Rate-limited authentication endpoints (15 requests/15 minutes)
-- Automatic account creation for Coffee tier purchasers
+- Automatic account creation for Solo tier purchasers
 - User profile management with tier-based access control
 - Session security with httpOnly cookies and CSRF protection
 
@@ -75,7 +75,7 @@
 **Stripe Payment Processing**
 
 - Complete payment flow with webhook integration
-- Support for one-time payments (Coffee tier) and subscriptions (Growth/Scale)
+- Support for monthly subscriptions across all tiers (Solo/Growth/Scale)
 - Secure customer data handling and PCI compliance
 - Automatic tier upgrades and access control
 
@@ -110,8 +110,8 @@
 ### Authentication & Account Management ✅ FULLY IMPLEMENTED
 
 - **JWT Authentication**: Complete login/logout system with refresh token rotation
-- **User Dashboard**: Account management interface for Coffee+ tier customers
-- **Automatic Account Creation**: Post-purchase account setup for Coffee tier buyers
+- **User Dashboard**: Account management interface for Solo+ tier customers
+- **Automatic Account Creation**: Post-purchase account setup for Solo tier buyers
 - **Tier Management**: Automatic tier recognition and access control
 - **Profile Management**: User settings, email preferences, and account status
 - **Session Security**: Secure token storage with automatic refresh and logout
@@ -121,7 +121,7 @@
 - **Standards-Compliant Output**: Properly formatted LLM.txt files following established conventions
 - **Comprehensive Documentation**: Includes analysis summary, quality scoring reference, and excluded pages
 - **Instant Download**: Secure file delivery with proper headers and complete content
-- **File History & Re-access**: Account-based file storage for Coffee+ tier customers ✅ IMPLEMENTED
+- **File History & Re-access**: Account-based file storage for Solo+ tier customers ✅ IMPLEMENTED
 - **Dashboard File Management**: Access previous analyses and re-download files ✅ IMPLEMENTED
 
 ### User Experience Features
@@ -259,9 +259,10 @@
 
 **Ideal For**: Individual users exploring LLM.txt functionality, small personal projects
 
-### Coffee (Monthly Subscription) ✅ FULLY OPERATIONAL
+### Solo (Monthly Subscription) ✅ FULLY OPERATIONAL
 
 **Price**: $4.95/month
+**Internal Code**: `coffee` (legacy identifier used in backend)
 **Features**:
 
 - 20 analyses per month (credits reset monthly)
@@ -321,7 +322,7 @@
 **✅ Completed Tasks**:
 
 - ✅ Resolved external HTTP request timeouts in Railway backend
-- ✅ Complete Coffee tier customer journey optimization
+- ✅ Complete Solo tier customer journey optimization
 - ✅ End-to-end flow testing and validation implemented
 - ✅ Railway deployment fully stabilized and operational
 
@@ -346,7 +347,7 @@
 **✅ Account Features Operational**:
 
 - ✅ User profile management with tier status and account overview
-- ✅ Automatic account creation for Coffee tier purchasers
+- ✅ Automatic account creation for Solo tier purchasers
 - ✅ File access and account dashboard for premium customers
 - ✅ Tier-based access control and upgrade prompts
 
@@ -368,7 +369,7 @@
 - **Professional Flow**: URL → Analysis → "Analyze Another Website" → Direct to URL input
 - **No Email Re-entry**: Returning users proceed seamlessly to analysis
 - **Usage Clarity**: Consistent usage tracking (1/3 → 2/3 → 3/3) throughout flow
-- **Coffee Tier Benefits**: Unlimited analyses without authentication friction
+- **Solo Tier Benefits**: Unlimited analyses without authentication friction
 
 ### 🚨 Phase 0: Critical UX/UI Foundation (Completed)
 
@@ -424,14 +425,14 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 - Usage-based upgrade nudging with value demonstration
 - Email marketing automation for re-engagement
 
-##### **Coffee/Premium User Journey: Efficiency → Premium Value → Retention**
+##### **Solo/Premium User Journey: Efficiency → Premium Value → Retention**
 
 **Current Experience**: Same basic flow despite payment
 **Optimal Experience**: Premium Dashboard → Advanced Features → Project Management → Team Sharing
 
 **Premium Features**:
 
-- Enhanced dashboard with Coffee-specific tools
+- Enhanced dashboard with Solo-specific tools
 - Project organization with tags and notes
 - Advanced sharing and collaboration options
 - Clear Growth tier upgrade path for expanding needs
@@ -562,7 +563,7 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 - **File Generation**: <1 second for complete LLM.txt file creation
 - **System Uptime**: 99.9% achieved with Railway infrastructure
 - **Authentication Performance**: <200ms JWT token generation and validation
-- **Coffee Tier Conversion**: 100% success rate from payment to account creation
+- **Solo Tier Conversion**: 100% success rate from payment to account creation
 - **Dashboard Load Time**: <500ms for customer account and file history access
 - **✅ Smart Reset Performance**: <2 seconds for seamless multi-analysis transitions
 - **✅ User Context Preservation**: 100% accuracy in maintaining tier and usage data across resets
@@ -601,6 +602,27 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 
 ## Recent Major Achievements
 
+### A+ Security Rating & Performance Excellence 🏆 (October 2025)
+
+**Security Optimization**:
+- **A+ Security Rating**: Achieved via SecurityHeaders.com scan
+- **Hash-Based CSP**: Implemented SHA-256 authentication for Google Tag Manager
+- **Removed Vulnerabilities**: Eliminated 'unsafe-inline' and 'unsafe-eval' from CSP
+- **Zero Functionality Loss**: GTM, Stripe, and all integrations maintained
+
+**Performance Optimization** (Lighthouse Score: 51 → 98/100):
+- **47-point improvement** in overall Lighthouse score
+- **LCP: 0.9 seconds** (was ~3-4 seconds)
+- **94% image size reduction** (16 MB → 1 MB)
+- **Build-time optimization** with AVIF/WebP/PNG fallbacks
+- **OptimizedImage component** for maintainable responsive images
+
+**SEO Infrastructure** (October 24, 2025):
+- **sitemap.xml**: 11 public pages with priorities and change frequencies
+- **robots.txt**: Crawler management with protected route blocking
+- **_headers**: Comprehensive security headers (CSP, HSTS, X-Frame-Options)
+- **Google Search Console**: Sitemap submitted, 11 URLs discovered and indexing
+
 ### Smart Reset User Flow Milestone 🎉 (Completed)
 
 **BREAKTHROUGH**: Resolved the critical "Analyze Another Website" user experience issue that was causing authentication friction for multi-analysis workflows.
@@ -616,7 +638,7 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 
 - Eliminated 30-50% user drop-off from authentication friction
 - Professional, seamless multi-analysis experience now live
-- Both free tier (1/3 → 2/3 → 3/3) and Coffee tier (unlimited) flows working perfectly
+- Both free tier (1/3 → 2/3 → 3/3) and Solo tier (20/month) flows working perfectly
 - Zero customer complaints about re-entering email or tier information
 
 **User Experience Transformation**:
@@ -628,6 +650,6 @@ This represents a major UX breakthrough that brings the application to professio
 
 ---
 
-_Last Updated: August 29, 2025_  
-_Version: 2.3_  
-_Status: Production Complete - Coffee Tier Corrected to Monthly Subscription_
+_Last Updated: November 29, 2025_
+_Version: 2.4_
+_Status: Production Complete - A+ Security Rating, 98/100 Lighthouse Score_

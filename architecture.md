@@ -2,7 +2,9 @@
 
 ## Executive Summary
 
-LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates enhanced `llms.txt` files with 6-phase AI optimization. The system implements a sophisticated freemium SaaS model with dual authentication systems, coffee tier credits, comprehensive usage tracking, and advanced cost management, deployed using a split architecture across Railway (backend) and Netlify (frontend).
+LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates enhanced `llms.txt` files with 6-phase AI optimization. The system implements a sophisticated freemium SaaS model with dual authentication systems, Solo tier credits (internally coded as "coffee"), comprehensive usage tracking, and advanced cost management, deployed using a split architecture across Railway (backend) and Netlify (frontend).
+
+**Note on Tier Naming**: The Solo tier ($4.95/month) uses the internal code name "coffee" throughout the codebase and database. Customer-facing displays show "Solo" via display mapping in `tier-utils.ts`.
 
 **Key Architecture Characteristics:**
 
@@ -638,9 +640,9 @@ Validation API Access   │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
 │  └─────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                 │
 │  Supported Products & Pricing:                                                 │
-│  • Coffee Tier: $4.95/month (20 credits, 30-day guarantee)                   │
-│  • Growth Tier: $25 monthly (20 daily analyses, enhanced features)             │
-│  • Scale Tier: $19.95 monthly (100 daily analyses, priority support)         │
+│  • Solo Tier (code: coffee): $4.95/month (20 credits, 30-day guarantee)       │
+│  • Growth Tier: $9.95/month (100 analyses, enhanced features)                 │
+│  • Scale Tier: $19.95/month (unlimited analyses, priority support)            │
 │  • Enterprise: Custom pricing (unlimited usage, API access)                    │
 │                                                                                 │
 │  Advanced Security & Compliance:                                               │
@@ -1148,10 +1150,12 @@ AI_COST_TRACKING_ENABLED=true
 #### Current Performance Baselines
 
 ```
-Production Performance Metrics (September 2025):
+Production Performance Metrics (November 2025):
 ┌─────────────────────────────────────────────┐
 │ Metric              │ Target    │ Current   │
 ├─────────────────────────────────────────────┤
+│ Lighthouse Score    │ 90+       │ 98        │
+│ LCP (Largest Paint) │ <2.5s     │ 0.9s      │
 │ Concurrent Users    │ 500       │ 150       │
 │ Daily Analyses      │ 5000      │ 800       │
 │ DB Connections      │ 50        │ 15        │
@@ -1161,6 +1165,7 @@ Production Performance Metrics (September 2025):
 │ Cache Hit Rate      │ >80%      │ 85%       │
 │ Error Rate          │ <1%       │ 0.3%      │
 │ Uptime SLA          │ 99.9%     │ 99.95%    │
+│ Security Rating     │ A+        │ A+        │
 └─────────────────────────────────────────────┘
 ```
 
@@ -1350,6 +1355,10 @@ if (usage.reachedLimit) {
 - SSL/TLS enforcement across all connections
 - Secrets management with environment variables
 - JWT security with rotation and invalidation
+- **A+ Security Rating** (SecurityHeaders.com) via comprehensive _headers configuration
+- **Hash-based CSP** for Google Tag Manager (SHA-256 authentication)
+- Removed 'unsafe-inline' and 'unsafe-eval' from Content Security Policy
+- Security headers: X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy
 
 ### Performance Optimization History
 
@@ -1365,8 +1374,19 @@ if (usage.reachedLimit) {
 
 - Vite 5.x build system for optimal development and production performance
 - Advanced code splitting and lazy loading (40% initial bundle reduction)
-- Image optimization with modern formats (60% image size reduction)
+- **Lighthouse Score: 98/100** (improved from 51/100 baseline)
+- **LCP: 0.9 seconds** (improved from ~3-4 seconds)
+- **94% image size reduction** (16 MB → 1 MB) with AVIF/WebP/PNG fallbacks
+- OptimizedImage React component for maintainable responsive images
 - Progressive Web App features for enhanced user experience
+
+#### SEO Infrastructure Deployed (October 2025)
+
+- **sitemap.xml**: 11 public pages with priorities and change frequencies
+- **robots.txt**: Crawler management with protected route blocking
+- **_headers**: Comprehensive security headers (CSP, HSTS, X-Frame-Options)
+- **netlify.toml**: Force redirects for SEO files (served before SPA fallback)
+- **Google Search Console**: Sitemap submitted, 11 URLs discovered and indexing
 
 ### Operational Maturity Assessment
 
@@ -1406,10 +1426,10 @@ The system is designed with clear evolution paths from the current monolithic ar
 **Business Impact:**
 The architecture directly enables the business model with sophisticated freemium support, multiple payment tiers, comprehensive usage tracking, and AI cost optimization that maintains healthy unit economics across all customer segments.
 
-**Last Updated**: September 30, 2025  
-**Architecture Version**: 3.0  
-**Status**: Production Ready with Enhanced Features ✅  
-**Next Review**: Q1 2025 (Microservices evaluation)
+**Last Updated**: November 29, 2025
+**Architecture Version**: 3.1
+**Status**: Production Ready - A+ Security, 98/100 Lighthouse ✅
+**Next Review**: Q1 2026 (Microservices evaluation)
 
 ---
 
