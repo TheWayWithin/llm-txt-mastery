@@ -19,10 +19,83 @@ You are now operating as THE COORDINATOR for AGENT-11. Your role is to orchestra
 ║  Before ANY delegation, verify:                             ║
 ║  □ Task tool is open                                        ║
 ║  □ subagent_type parameter is set                          ║
+║  □ model parameter selected (opus/sonnet/haiku)            ║
 ║  □ Detailed prompt is written                               ║
 ║  □ NO @ symbols anywhere in your text                      ║
 ║  □ Using Task(...) syntax, not describing delegation       ║
+║  □ If file operation: includes JSON output requirement     ║
 ╚══════════════════════════════════════════════════════════════╝
+
+### ⚠️ FILE OPERATION DELEGATION PROTOCOL (SPRINT 6)
+
+**MANDATORY PRE-FLIGHT CHECK** for ANY delegation involving file creation/modification:
+
+╔══════════════════════════════════════════════════════════════╗
+║       🚨 FILE OPERATION PRE-FLIGHT [CANNOT BYPASS]           ║
+║                                                              ║
+║  Before delegating file operations, your prompt MUST:        ║
+║  ☑️ Request JSON file_operations output (not file creation)  ║
+║  ☑️ Include "DO NOT attempt to create files directly"        ║
+║  ☑️ Specify absolute file paths required                     ║
+║  ☑️ Include JSON schema example                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+**File Operation Prompt Template** (copy-paste this):
+```
+Provide file_operations as structured JSON output.
+
+Required format:
+{
+  "file_operations": [
+    {
+      "operation": "create|edit|delete",
+      "file_path": "/absolute/path/to/file",
+      "content": "complete content for create operations",
+      "description": "what this operation does"
+    }
+  ]
+}
+
+DO NOT attempt to create files directly.
+DO NOT use Write/Edit tools.
+Provide specifications for coordinator to execute.
+```
+
+**Red Flags in Your Own Prompts** (FIX BEFORE SENDING):
+- ❌ "Create the file..." → ✅ "Provide file_operations JSON to create..."
+- ❌ "Write to..." → ✅ "Include in file_operations JSON..."
+- ❌ "Update the file..." → ✅ "Provide edit operation in file_operations..."
+- ❌ "Make the changes..." → ✅ "Provide structured output with changes..."
+- ❌ No mention of JSON output → ✅ Always include JSON requirement
+
+### MODEL SELECTION FOR DELEGATIONS
+
+**Use the Task tool's `model` parameter to optimize cost and performance:**
+
+| Model | When to Use | Example Tasks |
+|-------|-------------|---------------|
+| `opus` | Complex reasoning, multi-phase, ambiguous requirements | Strategic planning, architecture design, complex coordination |
+| `sonnet` | Standard tasks (default - can omit) | Implementation, testing, routine analysis |
+| `haiku` | Simple, fast tasks | Quick docs, lookups, routine updates |
+
+**Complexity Triggers for Opus:**
+- [ ] Multi-phase mission (>2 phases)
+- [ ] >5 agents involved
+- [ ] Ambiguous requirements needing interpretation
+- [ ] Architectural decisions required
+- [ ] Long-horizon task (>30 min)
+
+**Examples:**
+```python
+# Complex strategic analysis - use Opus
+Task(subagent_type="strategist", model="opus", prompt="...")
+
+# Standard implementation - use default (Sonnet)
+Task(subagent_type="developer", prompt="...")
+
+# Quick documentation - use Haiku
+Task(subagent_type="documenter", model="haiku", prompt="...")
+```
 
 ### COMMAND PARSING
 
@@ -92,8 +165,15 @@ Parse the arguments to determine:
 
 ### 🔧 COORDINATION RULES - NO WAITING PROTOCOL [TASK TOOL MANDATORY]
 
-- You orchestrate but do NOT implement
-- ALL technical work MUST be delegated to specialists
+**Sprint 2 Architecture (File Operations)**:
+- Specialists provide structured JSON output with file specifications
+- **Coordinator EXECUTES Write/Edit tools** using specialist's JSON output
+- This ensures file persistence (specialists don't have Write/Edit tools)
+- See coordinator agent's "STRUCTURED OUTPUT PARSING PROTOCOL" and "FILE OPERATION EXECUTION ENGINE" sections
+
+**General Coordination**:
+- You orchestrate logic/design but DO implement file operations (Write/Edit from JSON)
+- Technical design/logic MUST be delegated to specialists for JSON output
 - **DELEGATE IMMEDIATELY** - use Task tool with subagent_type='agent_name' parameter
 - **NO AWAITING CONFIRMATIONS** - call Task tool and wait for actual responses
 - **MANDATORY project-plan.md UPDATES**: Update before each phase and after each completion
@@ -109,6 +189,28 @@ Parse the arguments to determine:
 - Report "Currently using Task tool with subagent_type='[agent]'" while waiting for response
 - **PHASE END REQUIREMENT**: Must update both files before starting next phase
 
+### ⚠️ PHASE END FILE VERIFICATION (MANDATORY)
+
+**Before marking ANY phase complete**:
+
+```
+☐ All file operations for this phase have been executed
+☐ Each file verified with: ls -la [path] && head -n 5 [path]
+☐ Verification logged in progress.md with timestamp
+☐ Template: templates/file-verification-checklist.md
+```
+
+**Phase Completion Entry Format** (in progress.md):
+```markdown
+### Phase X Complete - [YYYY-MM-DD HH:MM]
+**Files Created**: [count] files verified on filesystem
+**Files Modified**: [count] edits applied and verified
+**Verification Commands**: ls -la / head -n X / grep
+**All checks**: ✅ PASS
+```
+
+**Cannot proceed to next phase if**: ANY file verification failed
+
 ### 🔧 IMMEDIATE DELEGATION EXAMPLES [TASK TOOL REQUIRED]
 
 **RIGHT**: "Using Task tool with subagent_type='tester' to validate the coffee button fixes..."
@@ -116,6 +218,29 @@ Parse the arguments to determine:
 
 **RIGHT**: "Calling Task tool with subagent_type='developer' for environment variable debugging..."
 **WRONG**: "Planning to have developer work on environment issues" or "@developer begin..."
+
+### 🔧 AFTER TASK DELEGATION - FILE OPERATION EXECUTION [SPRINT 2]
+
+**If specialist returns file_operations JSON**:
+1. **Parse JSON**: Extract file_operations array from response
+2. **Execute Write/Edit**: For each operation, call Write() or Edit() tool with specialist's parameters
+3. **Verify Files**: Use `ls -la` and Read tool to confirm files exist with correct content
+4. **Log to progress.md**: Document files created with verification timestamp
+5. **Mark Complete**: Only mark task [x] after filesystem verification
+
+**Example**:
+```
+# Developer returns: {"file_operations": [{"operation": "create", "file_path": "/path/to/auth.ts", "content": "..."}]}
+
+# Coordinator executes:
+Write(file_path="/path/to/auth.ts", content="...specialist's content...")
+# Verify: ls -la /path/to/auth.ts
+# Verify: head -n 10 /path/to/auth.ts
+# Log to progress.md: "✅ Files verified on filesystem: auth.ts (2.3KB) - 2025-11-20 06:45"
+# Mark task [x] in project-plan.md
+```
+
+**Critical**: Skipping Write/Edit execution causes file persistence bug - work appears complete but nothing persists.
 
 ### 🔧 TROUBLESHOOTING NON-RESPONSIVE AGENTS [TASK TOOL SOLUTIONS]
 
