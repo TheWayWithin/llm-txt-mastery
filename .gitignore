@@ -166,5 +166,10 @@ Desktop.ini
 *.backup
 *.old
 *.orig
+CLAUDE.md.backup-*
+.claude/backups/
+
+# MCP secrets
+.env.mcp
 # Local Netlify folder
 .netlify
