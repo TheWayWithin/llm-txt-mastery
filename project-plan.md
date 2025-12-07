@@ -780,6 +780,265 @@ Transform LLM.txt Mastery into an API-callable service that can be consumed by A
 
 ---
 
+---
+
+## 🚀 SPRINT 1: SPA/Next.js Analysis Enhancement
+
+**Mission Type**: Platform Capability Expansion
+**Sprint Start**: December 5, 2025
+**Priority**: HIGH - Market Expansion & Competitive Parity
+**Owner**: THE COORDINATOR
+**Status**: 🔄 IN PROGRESS - Phase 1 Complete (Backend + Frontend)
+
+### Sprint Objective
+
+Improve LLM.txt Mastery's ability to analyze JavaScript-rendered websites (Next.js, React SPAs, Vue, etc.) which currently capture only 40-60% of content due to lack of JavaScript execution capabilities.
+
+### Business Case
+
+- **Market Impact**: 67% of top 10K websites use JavaScript frameworks
+- **Current Gap**: Platform captures only 40-60% of content on CSR-heavy sites
+- **Competitive Pressure**: Firecrawl, Ahrefs, SEMrush all use headless browser rendering
+- **Revenue Opportunity**: ~40% market expansion with proper SPA support
+
+### Tier & Feature Model (Approved December 7, 2025)
+
+#### LLM.txt Mastery Web Tiers
+
+| Tier | Price | Analyses | Pages | SPA Detection | Completeness Score | JS Rendering |
+|------|-------|----------|-------|---------------|-------------------|--------------|
+| Starter (Free) | $0 | 3/day | 20 | ✅ | ✅ | ❌ |
+| Solo | $5/mo | 20/mo | 200 | ✅ | ✅ | ❌ |
+| Growth | $15/mo | 35/mo | 500 | ✅ | ✅ | ❌ |
+| Scale | $30/mo | 100/mo | 1000 | ✅ | ✅ | ✅ Premium |
+
+#### API Tiers (for AImpactScanner & Partners)
+
+| API Tier | Rate Limit | Pages/Analysis | JS Rendering | Maps To |
+|----------|------------|----------------|--------------|---------|
+| `free` | 100/hour | 50 | ❌ | Testing only |
+| `partner` | 1,000/hour | 200 | ❌ | AImpactScanner Growth |
+| `enterprise` | 10,000/hour | 500 | ✅ Premium | AImpactScanner Scale |
+
+#### AImpactScanner Tier Mapping
+
+| AImpactScanner Tier | Price | LLMs.txt Gens | API Tier Used | Pages/Gen |
+|---------------------|-------|---------------|---------------|-----------|
+| Free | $0 | ❌ | N/A | N/A |
+| Solo | $5/mo | ❌ | N/A | N/A |
+| Growth | $20/mo | 25/mo | `partner` | 200 |
+| Scale | $50/mo | Unlimited | `enterprise` | 500 |
+
+#### Feature Availability Matrix
+
+| Feature | Free | Paid (Solo+) | API Partner | API Enterprise |
+|---------|------|--------------|-------------|----------------|
+| Basic HTML analysis | ✅ | ✅ | ✅ | ✅ |
+| Sitemap discovery | ✅ | ✅ | ✅ | ✅ |
+| AI content scoring | ❌ | ✅ | ✅ | ✅ |
+| SPA Detection Warning | ✅ | ✅ | ✅ | ✅ |
+| Content Completeness Score | ✅ | ✅ | ✅ | ✅ |
+| **JavaScript Rendering** | ❌ | Scale only | ❌ | ✅ |
+
+### Problem Statement
+
+**Current Limitations Identified**:
+1. HTML-only crawling misses client-side rendered content
+2. Cannot execute JavaScript to reveal dynamically loaded sections
+3. Cannot discover client-side routed pages not in sitemap
+4. Lazy-loaded content below the fold is invisible
+5. Framework loading states/skeletons captured instead of actual content
+
+**Framework Compatibility Matrix**:
+
+| Framework | Current Effectiveness | Content Captured |
+|-----------|----------------------|------------------|
+| Gatsby (SSG) | Excellent | 95-100% |
+| Astro (Static) | Excellent | 95-100% |
+| Next.js SSR/SSG | Good | 70-80% |
+| Nuxt Universal | Good | 70-80% |
+| Next.js CSR-heavy | Poor | 40-50% |
+| Vue CLI (CSR) | Poor | 10-30% |
+| Create React App | Poor | 10-30% |
+| Angular CSR | Poor | 10-30% |
+
+### Sprint Phases
+
+#### Phase 1: Enhanced SPA Detection + User Warning [x] COMPLETE
+**Priority**: P1 - Quick Win
+**Duration**: 1-2 days
+**Agent**: THE DEVELOPER + THE ARCHITECT
+**Backend Completed**: December 7, 2025
+**Frontend Completed**: December 7, 2025
+**Tasks**:
+- [x] Enhance SPA detection in `sitemap.ts` to identify rendering strategy (not just framework)
+- [x] Check for `__NEXT_DATA__` script tag (Next.js SSR/SSG indicator)
+- [x] Check for `__NUXT__` or `__NUXT_DATA__` (Nuxt SSR indicator)
+- [x] Calculate text-to-HTML ratio to detect empty CSR shells
+- [x] Detect loading indicators and skeleton UI patterns
+- [x] Add `contentCoverageWarning` to analysis results
+- [x] Update analysis metadata with estimated content coverage percentage
+- [x] Create user-facing warning message for CSR-heavy sites
+- [x] Update UI to display content coverage warnings
+
+**Deliverables**:
+- [x] Enhanced `analyzeHomepage()` function in `sitemap.ts` (+307 lines)
+- [x] New `SPADetectionResult` interface with rendering strategy
+- [x] New TypeScript types: `RenderingStrategy`, `SPAFrameworkIndicators`, `ContentCoverageEstimate`
+- [x] Helper functions: `detectSSRIndicators`, `detectCSRIndicators`, `calculateContentMetrics`, `determineFramework`, `estimateContentCoverage`, `generateCoverageWarning`
+- [x] Frontend component: `ContentCoverageBadge.tsx` (92 lines)
+- [x] Frontend component: `RenderingStrategyTag.tsx` (108 lines)
+- [x] Content Analysis card in `analysis-detail.tsx` (+70 lines)
+- [x] Data flow: routes.ts saves spaDetection to database + exposes in API
+
+**Success Criteria**:
+- [ ] Detection correctly identifies SSR vs CSR sites (>90% accuracy) - Needs real-world testing
+- [x] Users see clear warning when analysis may be incomplete
+- [x] Warning message suggests upgrade path for premium rendering
+
+#### Phase 2: Content Completeness Scoring [ ]
+**Priority**: P3 - Trust Building
+**Duration**: 3-5 days
+**Agent**: THE DEVELOPER
+**Tasks**:
+- [ ] Create `ContentCompletenessScore` interface
+- [ ] Implement scoring factors: sitemap coverage, content extraction, framework compatibility
+- [ ] Add visual completeness badge (Green >80%, Yellow 50-80%, Red <50%)
+- [ ] List specific recommendations for improving score
+- [ ] Integrate completeness score into analysis results UI
+- [ ] Add completeness metrics to generated llms.txt metadata
+
+**Deliverables**:
+- [ ] `server/services/content-completeness.ts` - Scoring service
+- [ ] Completeness badge component in analysis results
+- [ ] Recommendations engine for incomplete analyses
+
+#### Phase 3: Playwright Integration (Premium Feature) [ ]
+**Priority**: P2 - High Impact
+**Duration**: 1-2 weeks
+**Agent**: THE ARCHITECT → THE DEVELOPER
+**Available To**: Web Scale tier + API Enterprise tier only
+
+**Tasks**:
+- [ ] Design Playwright service architecture
+- [ ] Implement `server/services/browserRenderer.ts`
+- [ ] Add browser pool management for concurrent rendering
+- [ ] Implement auto-scrolling to trigger lazy-loading
+- [ ] Add configurable render timeout (5-30 seconds)
+- [ ] Create tier-based access control:
+  - Web: Scale tier only (1000 pages/analysis)
+  - API Enterprise: 500 pages/analysis (for AImpactScanner Scale)
+  - API Partner: Not available (returns upgrade prompt)
+- [ ] Update database schema for rendered page tracking
+- [ ] Integrate rendered content into analysis pipeline
+- [ ] Add "Enhanced Analysis" option in UI for Scale tier
+- [ ] Update API to accept `useJsRendering: boolean` option
+- [ ] Return `jsRenderingAvailable: false` for non-premium API tiers
+
+**Deliverables**:
+- [ ] `server/services/browserRenderer.ts` - Playwright rendering service
+- [ ] Database migration for rendered page quotas
+- [ ] UI toggle for enhanced rendering (Scale tier only)
+- [ ] API parameter for JS rendering requests
+- [ ] Tier validation middleware for premium features
+
+**Success Criteria**:
+- [ ] Playwright renders JavaScript content successfully
+- [ ] Content capture increases to 95%+ for CSR sites
+- [ ] Rendering completes within 30 seconds per page
+- [ ] Web Scale users can toggle JS rendering
+- [ ] API Enterprise users can request JS rendering
+- [ ] API Partner users receive clear upgrade messaging
+
+#### Phase 4: Smart Rendering Selection [ ]
+**Priority**: P2 - Efficiency
+**Duration**: 1 week
+**Agent**: THE DEVELOPER
+**Tasks**:
+- [ ] Implement `shouldUseJSRendering()` decision function
+- [ ] Auto-detect when HTML analysis is sufficient vs rendering needed
+- [ ] Route static/SSR sites to fast HTML path
+- [ ] Route CSR sites to Playwright rendering path
+- [ ] Add metrics tracking for rendering decisions
+- [ ] Optimize resource usage by avoiding unnecessary rendering
+
+**Deliverables**:
+- [ ] Smart routing logic in analysis pipeline
+- [ ] Decision metrics dashboard
+- [ ] Resource usage optimization
+
+#### Phase 5: Documentation & Testing [ ]
+**Priority**: P3
+**Duration**: 2-3 days
+**Agent**: THE DOCUMENTER + THE TESTER
+**Tasks**:
+- [ ] Update architecture.md with rendering architecture
+- [ ] Update PRODUCT_DESCRIPTION.md with enhanced analysis capability
+- [ ] Create user guide for understanding content coverage scores
+- [ ] Write integration tests for SPA detection
+- [ ] Write E2E tests for Playwright rendering flow
+- [ ] Performance testing with various framework sites
+- [ ] **Create AImpactScanner Integration Guide** (see below)
+- [ ] Update API_DOCUMENTATION.md with new parameters and features
+
+**Deliverables**:
+- [ ] Updated architecture documentation
+- [ ] User-facing documentation for content coverage
+- [ ] Test suite for new functionality
+- [ ] **`docs/AIMPACTSCANNER_INTEGRATION_GUIDE.md`** - Developer guide for AImpactScanner team
+
+**AImpactScanner Integration Guide Requirements**:
+The guide must include:
+1. **Tier Mapping Reference** - Which AImpactScanner tier maps to which API tier
+2. **Feature Availability by Tier** - What each tier can access
+3. **API Changes Summary** - New parameters, response fields, error codes
+4. **Page Limit Updates** - 200 pages for Growth, 500 for Scale
+5. **JavaScript Rendering** - How to request it (Scale only), error handling for Growth
+6. **Upgrade Messaging** - Copy for prompting users to upgrade when hitting limits
+7. **Tier Benefits Verbiage** - Suggested marketing copy for each tier:
+   - Growth: "Analyze up to 200 pages per site with AI-powered content scoring"
+   - Scale: "Full JavaScript rendering for React/Next.js sites, 500 pages per analysis"
+8. **Code Examples** - Updated API calls with new options
+9. **Migration Checklist** - Steps for AImpactScanner developer to implement changes
+
+### Success Criteria
+
+- [ ] SPA detection correctly identifies framework and rendering strategy
+- [ ] Users receive clear warnings when analysis may be incomplete
+- [ ] Content completeness score provides transparency
+- [ ] Playwright integration captures 95%+ of CSR content (premium)
+- [ ] Smart routing optimizes resource usage
+- [ ] Zero regressions in existing static/SSR site analysis
+- [ ] Documentation updated with new capabilities
+
+### Risk Assessment
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Playwright increases infrastructure costs | High | Medium | Tier-based limits, resource monitoring |
+| Browser rendering too slow | Medium | High | Configurable timeouts, async processing |
+| Some sites block headless browsers | Medium | Medium | User-agent rotation, stealth mode |
+| Feature complexity increases maintenance | Low | Medium | Comprehensive testing, documentation |
+
+### Estimated Timeline
+
+| Phase | Duration | Dependencies |
+|-------|----------|--------------|
+| Phase 1: SPA Detection | 1-2 days | None |
+| Phase 2: Completeness Scoring | 3-5 days | Phase 1 |
+| Phase 3: Playwright Integration | 1-2 weeks | Phase 1 |
+| Phase 4: Smart Routing | 1 week | Phase 3 |
+| Phase 5: Documentation & Testing | 2-3 days | Phase 3, 4 |
+| **Total** | **3-4 weeks** | |
+
+### Research Reference
+
+- Investigation Date: December 5, 2025
+- Analyst Findings: See progress.md for detailed gap analysis
+- Competitor Research: Firecrawl uses Playwright, Ahrefs/SEMrush use headless Chrome
+
+---
+
 ## Priority List
 
 ### 🚨 CRITICAL - BLOCKING PRODUCTION VALUE

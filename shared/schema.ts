@@ -76,6 +76,10 @@ export const sitemapAnalysis = pgTable('sitemapAnalysis', {
     totalPagesFound: number;
     userEmail?: string;
     tier?: UserTier;
+    // Enhanced SPA detection fields (Sprint 1: Phase 1)
+    spaDetection?: SPADetectionResult;
+    contentCoveragePercentage?: number;
+    renderingStrategy?: RenderingStrategy;
     metrics?: {
       cacheHit: boolean;
       processingTime: number;
@@ -338,6 +342,54 @@ export type UserProfile = typeof userProfiles.$inferSelect;
 
 // Tier-based types
 export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
+
+// ===================================================================
+// ENHANCED SPA DETECTION TYPES (Sprint 1: Phase 1)
+// ===================================================================
+
+/**
+ * Rendering strategy detected for a website
+ */
+export type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
+
+/**
+ * Framework and rendering strategy detection result
+ */
+export interface SPAFrameworkIndicators {
+  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'unknown';
+  renderingStrategy: RenderingStrategy;
+  indicators: string[];
+}
+
+/**
+ * Signals used to estimate content coverage
+ */
+export interface ContentCoverageSignals {
+  textToHtmlRatio: number;
+  hasSSRData: boolean;
+  hasSkeletonUI: boolean;
+  bodyContentLength: number;
+  htmlStructureSize: number;
+}
+
+/**
+ * Content coverage estimation with confidence level
+ */
+export interface ContentCoverageEstimate {
+  estimatedCoverage: number; // 0-100 percentage
+  confidence: 'high' | 'medium' | 'low';
+  signals: ContentCoverageSignals;
+}
+
+/**
+ * Complete SPA detection result (replaces simple isSinglePage boolean)
+ */
+export interface SPADetectionResult {
+  isSinglePage: boolean; // Backward compatibility
+  framework: SPAFrameworkIndicators;
+  contentCoverage: ContentCoverageEstimate;
+  contentCoverageWarning?: string;
+}
 
 export interface TierLimits {
   tier: UserTier;
