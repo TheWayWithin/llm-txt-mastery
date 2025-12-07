@@ -23,6 +23,7 @@ interface AnalysisProgressProps {
   className?: string;
   showPageCount?: boolean;
   showTimeEstimate?: boolean;
+  estimatedTotalTime?: string;  // Dynamic estimate based on page count
 }
 
 const DEFAULT_STAGES: AnalysisStage[] = [
@@ -68,6 +69,7 @@ export function AnalysisProgress({
   overallProgress,
   stages = DEFAULT_STAGES,
   className,
+  estimatedTotalTime,
   showPageCount = true,
   showTimeEstimate = true,
 }: AnalysisProgressProps) {
@@ -108,10 +110,10 @@ export function AnalysisProgress({
               {currentStageData?.description || 'Processing your website...'}
             </p>
           </div>
-          {showTimeEstimate && currentStageData?.estimatedTime && (
+          {showTimeEstimate && (estimatedTotalTime || currentStageData?.estimatedTime) && (
             <div className="flex items-center space-x-2 text-sm text-ai-silver">
               <Clock className="h-4 w-4 flex-shrink-0" />
-              <span>{currentStageData.estimatedTime}</span>
+              <span>{estimatedTotalTime || currentStageData?.estimatedTime}</span>
             </div>
           )}
         </div>
