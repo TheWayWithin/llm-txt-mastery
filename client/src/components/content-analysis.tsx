@@ -452,6 +452,7 @@ export default function ContentAnalysis({
         stages={ANALYSIS_STAGES}
         showPageCount={totalPages !== undefined && totalPages > 0}
         showTimeEstimate={true}
+        estimatedTotalTime={estimatedTime !== 'Calculating...' ? estimatedTime : undefined}
       />
 
       {/* Analysis Results - Show when completed */}

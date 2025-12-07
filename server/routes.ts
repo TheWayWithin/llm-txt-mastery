@@ -973,10 +973,19 @@ async function performAnalysisWithTimeout(
     // Determine site type
     const siteType = determineSiteType(sitemapResult);
 
-    // Update analysis with sitemap data
+    // Update analysis with sitemap data and total pages (for frontend progress estimation)
     await storage.updateAnalysis(analysisId, {
       sitemapContent: sitemapResult.entries,
       status: 'processing',
+      analysisMetadata: {
+        totalPagesFound: sitemapResult.entries.length,
+        siteType,
+        sitemapFound: sitemapResult.analysisMethod === 'sitemap',
+        analysisMethod: sitemapResult.analysisMethod,
+        spaDetection: sitemapResult.spaDetection,
+        contentCoveragePercentage: sitemapResult.spaDetection?.contentCoverage.estimatedCoverage,
+        renderingStrategy: sitemapResult.spaDetection?.framework.renderingStrategy,
+      },
     });
 
     // Analyze pages with smart caching
