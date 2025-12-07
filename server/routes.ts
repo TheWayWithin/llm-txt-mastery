@@ -979,6 +979,7 @@ async function performAnalysisWithTimeout(
       status: 'processing',
       analysisMetadata: {
         totalPagesFound: sitemapResult.entries.length,
+        tier, // Include tier for frontend time estimation
         siteType,
         sitemapFound: sitemapResult.analysisMethod === 'sitemap',
         analysisMethod: sitemapResult.analysisMethod,

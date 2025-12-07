@@ -41,13 +41,27 @@ const analysisSteps: AnalysisStep[] = [
   { id: 'finalization', label: 'Saving results', progress: 100 },
 ];
 
-// Estimate analysis time based on page count
+// Tier page limits
+const TIER_PAGE_LIMITS: Record<string, number> = {
+  starter: 20,
+  coffee: 20,
+  solo: 200,
+  growth: 500,
+  scale: 1000,
+};
+
+// Estimate analysis time based on page count and tier limit
 // ~1.3 seconds per page with AI analysis + overhead
-function getEstimatedTime(pageCount: number): string {
+function getEstimatedTime(pageCount: number, tier?: string): string {
   if (pageCount <= 0) return 'Calculating...';
+
+  // Use tier limit if available, otherwise use full page count
+  const tierLimit = tier ? TIER_PAGE_LIMITS[tier] || pageCount : pageCount;
+  const actualPages = Math.min(pageCount, tierLimit);
+
   const secondsPerPage = 1.3;
   const overheadSeconds = 30; // sitemap discovery, saving, etc.
-  const totalSeconds = Math.ceil(pageCount * secondsPerPage + overheadSeconds);
+  const totalSeconds = Math.ceil(actualPages * secondsPerPage + overheadSeconds);
 
   if (totalSeconds < 60) {
     return `~${totalSeconds} seconds`;
@@ -247,8 +261,12 @@ export default function ContentAnalysis({
     } else if (analysisData && analysisData.status === 'processing') {
       // Update estimated time and mark discovery complete when we know the page count
       if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
+        const tier = analysisData.analysisMetadata?.tier || analysisData.tier;
+        const tierLimit = tier ? TIER_PAGE_LIMITS[tier] || analysisData.totalPagesFound : analysisData.totalPagesFound;
+        const actualPages = Math.min(analysisData.totalPagesFound, tierLimit);
+
         setTotalPages(analysisData.totalPagesFound);
-        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound));
+        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound, tier));
 
         // Discovery is complete once we have the page count
         // Now we're in content extraction / AI analysis phase
@@ -256,8 +274,8 @@ export default function ContentAnalysis({
         setCurrentStage('ai-analysis'); // Main phase - AI analysis of all pages
 
         // Progress during processing: 15% (discovery done) to 95% max
-        // Estimate progress based on time elapsed vs estimated time
-        const estimatedSeconds = analysisData.totalPagesFound * 1.3 + 30;
+        // Estimate progress based on ACTUAL pages to analyze (tier-limited)
+        const estimatedSeconds = actualPages * 1.3 + 30;
 
         const timer = setInterval(() => {
           setProgress((prev) => {
