@@ -20,7 +20,11 @@ import {
   BarChart3,
   FileText,
   Zap,
+  Eye,
 } from 'lucide-react';
+import { ContentCoverageBadge } from '@/components/ui/content-coverage-badge';
+import { RenderingStrategyTag } from '@/components/ui/rendering-strategy-tag';
+import type { SPADetectionResult, RenderingStrategy } from '@shared/schema';
 import { Link } from 'wouter';
 
 interface AnalysisDetail {
@@ -57,6 +61,10 @@ interface AnalysisDetail {
       processingTime: number;
       htmlExtractionsUsed: number;
     };
+    // Enhanced SPA detection fields (Sprint 1: Phase 1)
+    spaDetection?: SPADetectionResult;
+    contentCoveragePercentage?: number;
+    renderingStrategy?: RenderingStrategy;
   };
 }
 
@@ -304,6 +312,76 @@ export default function AnalysisDetailPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* SPA Detection & Content Coverage (Sprint 1: Phase 1) */}
+        {analysis.analysisMetadata.spaDetection && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Eye className="h-5 w-5" />
+                <span>Content Analysis</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Framework & Rendering</h4>
+                  <RenderingStrategyTag
+                    framework={analysis.analysisMetadata.spaDetection.framework}
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Detected technology stack and how content is rendered
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Content Coverage</h4>
+                  <ContentCoverageBadge
+                    coverage={analysis.analysisMetadata.spaDetection.contentCoverage.estimatedCoverage}
+                    confidence={analysis.analysisMetadata.spaDetection.contentCoverage.confidence}
+                    warning={analysis.analysisMetadata.spaDetection.contentCoverageWarning}
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Estimated percentage of site content captured during analysis
+                  </p>
+                </div>
+              </div>
+
+              {analysis.analysisMetadata.spaDetection.contentCoverageWarning && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-sm text-yellow-800">
+                    {analysis.analysisMetadata.spaDetection.contentCoverageWarning}
+                  </p>
+                </div>
+              )}
+
+              {/* Detailed signals for advanced users */}
+              <details className="mt-4">
+                <summary className="text-sm text-gray-600 cursor-pointer hover:text-gray-900">
+                  View detection details
+                </summary>
+                <div className="mt-2 p-3 bg-gray-50 rounded-md text-xs text-gray-600 space-y-1">
+                  <p>
+                    <strong>Text-to-HTML Ratio:</strong>{' '}
+                    {(analysis.analysisMetadata.spaDetection.contentCoverage.signals.textToHtmlRatio * 100).toFixed(1)}%
+                  </p>
+                  <p>
+                    <strong>Has SSR Data:</strong>{' '}
+                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.hasSSRData ? 'Yes' : 'No'}
+                  </p>
+                  <p>
+                    <strong>Has Skeleton UI:</strong>{' '}
+                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.hasSkeletonUI ? 'Yes' : 'No'}
+                  </p>
+                  <p>
+                    <strong>Body Content Length:</strong>{' '}
+                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.bodyContentLength.toLocaleString()} chars
+                  </p>
+                </div>
+              </details>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Performance Metrics */}
         {analysis.analysisMetadata.metrics && (

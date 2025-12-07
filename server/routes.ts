@@ -620,6 +620,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         response.metrics = analysis.analysisMetadata.metrics;
       }
 
+      // Include enhanced SPA detection data (Sprint 1: Phase 1)
+      if (analysis.analysisMetadata?.spaDetection) {
+        response.spaDetection = analysis.analysisMetadata.spaDetection;
+        response.contentCoveragePercentage = analysis.analysisMetadata.contentCoveragePercentage;
+        response.renderingStrategy = analysis.analysisMetadata.renderingStrategy;
+      }
+
       res.json(response);
     } catch (error) {
       console.error('Get analysis error:', error);
@@ -1049,6 +1056,10 @@ async function performAnalysisWithTimeout(
         totalPagesFound: sitemapResult.entries.length,
         userEmail,
         tier,
+        // Enhanced SPA detection data (Sprint 1: Phase 1)
+        spaDetection: sitemapResult.spaDetection,
+        contentCoveragePercentage: sitemapResult.spaDetection?.contentCoverage.estimatedCoverage,
+        renderingStrategy: sitemapResult.spaDetection?.framework.renderingStrategy,
         metrics,
         processingTime: (Date.now() - startTime) / 1000,
       },

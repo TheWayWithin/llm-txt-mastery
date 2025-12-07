@@ -1,6 +1,236 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest Mission: Public API Implementation for AImpactScanner Integration - COMPLETE ✅
+## Latest: Sprint 1 Phase 1 - Enhanced SPA Detection COMPLETE
+
+**Date**: December 7, 2025
+**Status**: ✅ Phase 1 Complete (Backend + Frontend)
+
+### What Was Delivered
+
+**1. New TypeScript Types** (`shared/schema.ts`):
+- `RenderingStrategy` type: 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN'
+- `SPAFrameworkIndicators` interface: Framework + rendering strategy + detection indicators
+- `ContentCoverageSignals` interface: Raw signals for coverage calculation
+- `ContentCoverageEstimate` interface: Coverage % + confidence + signals
+- `SPADetectionResult` interface: Complete detection result (replaces simple boolean)
+- Updated `analysisMetadata` to include new SPA detection fields
+
+**2. Enhanced Detection Functions** (`server/services/sitemap.ts`):
+- `detectSSRIndicators()`: Detects __NEXT_DATA__, __NUXT__, ___gatsby
+- `detectCSRIndicators()`: Detects empty roots, loading/skeleton UI patterns
+- `calculateContentMetrics()`: Text-to-HTML ratio, content length
+- `determineFramework()`: Framework identification + rendering strategy
+- `estimateContentCoverage()`: Coverage % based on signals (95% SSR, 30% CSR)
+- `generateCoverageWarning()`: User-facing warning when coverage < 70%
+- `createDefaultSPAResult()`: Error fallback with sensible defaults
+- Enhanced `analyzeHomepage()`: Now returns `SPADetectionResult` with full detection pipeline
+
+**3. Data Flow Integration** (`server/routes.ts`):
+- Lines 1052-1055: Save spaDetection to database in analysisMetadata
+- Lines 623-628: Expose spaDetection in API response
+
+**4. Frontend Components** (NEW):
+- `client/src/components/ui/content-coverage-badge.tsx`: Color-coded coverage badge
+  - Green (≥95%): Excellent coverage
+  - Yellow (≥70%): Good coverage
+  - Orange (≥40%): Limited coverage
+  - Red (<40%): Poor coverage
+  - Tooltip with confidence level and expandable warning
+- `client/src/components/ui/rendering-strategy-tag.tsx`: Framework + strategy tag
+  - Icons for SSR (Server), SSG (Zap), CSR (Smartphone), HYBRID (Layers)
+  - Framework labels: React, Vue.js, Angular, Next.js, Nuxt, Gatsby, Astro
+  - Tooltip with detection indicators
+
+**5. UI Integration** (`client/src/pages/analysis-detail.tsx`):
+- Added "Content Analysis" card between Website Overview and Performance Metrics
+- Displays RenderingStrategyTag and ContentCoverageBadge side-by-side
+- Shows coverage warning banner when coverage < 70%
+- Expandable "View detection details" with raw signal data
+
+**6. Files Modified/Created**:
+- `shared/schema.ts`: +47 lines (new types)
+- `server/services/sitemap.ts`: +307 lines (helper functions + enhanced analyzeHomepage)
+- `server/routes.ts`: +8 lines (data storage + API exposure)
+- `client/src/components/ui/content-coverage-badge.tsx`: NEW (92 lines)
+- `client/src/components/ui/rendering-strategy-tag.tsx`: NEW (108 lines)
+- `client/src/pages/analysis-detail.tsx`: +70 lines (Content Analysis card)
+
+**TypeScript Compilation**: ✅ No errors in Sprint 1 files (pre-existing errors in useABTesting.ts/useFeatureFlags.ts unrelated)
+
+### Next Steps
+- [ ] Deploy to staging and test with real-world sites
+- [ ] Test sites: vercel.com (Next.js SSR), create-react-app demo (CSR), gatsbyjs.com (SSG)
+
+---
+
+## Previous: SPA/Next.js Analysis Gaps Discovery & Sprint Planning
+
+**Date**: December 5, 2025
+**Status**: 🔍 INVESTIGATION COMPLETE → Sprint Created
+**Sprint Reference**: See `project-plan.md` → "SPRINT 1: SPA/Next.js Analysis Enhancement"
+
+### Issue Discovery Summary
+
+Comprehensive analysis revealed significant limitations when analyzing JavaScript-rendered websites (React, Next.js, Vue, Angular). Current HTML-only crawling captures only 40-60% of content on Client-Side Rendered (CSR) sites.
+
+### Gap Analysis Findings
+
+#### Current Architecture Limitations
+
+| Limitation | Impact | Affected Sites |
+|------------|--------|----------------|
+| HTML-only crawling (cheerio) | Cannot execute JavaScript | All CSR sites |
+| No dynamic content capture | Misses lazy-loaded content | 67% of top 10K sites |
+| Static page discovery only | Misses client-side routes | React Router, Vue Router, etc. |
+| Loading state capture | Gets spinners instead of content | Sites with async data |
+
+#### Framework Compatibility Matrix
+
+| Framework | Rendering Type | Current Capture Rate | Status |
+|-----------|---------------|---------------------|--------|
+| Static HTML | SSG | 95%+ | ✅ Excellent |
+| Next.js (SSR/SSG) | Server-rendered | 70-80% | ⚠️ Good |
+| Next.js (App Router CSR) | Client-rendered | 30-50% | ❌ Poor |
+| Create React App | CSR | 10-30% | ❌ Critical |
+| Vue.js (Nuxt SSR) | Server-rendered | 70-80% | ⚠️ Good |
+| Vue.js (SPA) | CSR | 10-30% | ❌ Critical |
+| Angular | CSR | 10-30% | ❌ Critical |
+| Gatsby | SSG | 85-90% | ✅ Good |
+
+#### Content Being Missed
+
+1. **Dynamically loaded content** - API-fetched data rendered after page load
+2. **Client-side routed pages** - Pages only accessible via JavaScript navigation
+3. **Lazy-loaded sections** - Below-fold content loaded on scroll
+4. **Interactive components** - Content revealed by user interaction
+5. **Authenticated content** - Behind login walls requiring session
+
+### Technical Root Cause
+
+**Location**: `server/services/sitemap.ts` (lines 45-60)
+
+Current SPA detection identifies framework presence but doesn't determine rendering strategy:
+
+```javascript
+// Current detection - identifies presence but not rendering type
+const reactIndicators = $('#root, [data-reactroot], .react-app').length;
+const nextjsIndicators = $('#__next, [data-nextjs-page]').length;
+```
+
+**Problem**: Platform uses `cheerio` for HTML extraction which cannot execute JavaScript. This is architecturally correct for SSR/SSG sites but fundamentally limited for CSR sites.
+
+### Competitive Analysis
+
+| Competitor | Approach | JavaScript Support |
+|------------|----------|-------------------|
+| Firecrawl | Playwright/Puppeteer | ✅ Full |
+| Screaming Frog | Headless Chrome | ✅ Full |
+| Ahrefs | Headless browser | ✅ Full |
+| SEMrush | Headless browser | ✅ Full |
+| **LLM.txt Mastery** | cheerio (HTML only) | ❌ None |
+
+### Recommended Solutions (Prioritized)
+
+| Priority | Solution | Effort | Impact | Status |
+|----------|----------|--------|--------|--------|
+| P1 | Enhanced SPA Detection + Warning | 1-2 days | User transparency | 📋 Sprint Phase 1 |
+| P2 | Content Completeness Scoring | 2-3 days | Quality indication | 📋 Sprint Phase 2 |
+| P3 | Playwright Integration (Premium) | 1-2 weeks | Full JS support | 📋 Sprint Phase 3 |
+| P4 | Smart Rendering Selection | 3-5 days | Automated optimization | 📋 Sprint Phase 4 |
+
+### Business Impact Assessment
+
+- **67% of top 10,000 websites** use JavaScript frameworks
+- **Market expansion opportunity**: Premium tier feature for enterprise clients
+- **Competitive parity**: All major competitors offer JavaScript rendering
+- **Tier-based limits proposed**: Solo (5), Growth (50), Scale (500) pages/month
+
+### Sprint Created
+
+Full implementation sprint added to `project-plan.md`:
+- 5 phases over 3-4 weeks estimated
+- Phase 1 (Quick Win): User-facing warnings for SPA sites
+- Phase 3 (Premium): Playwright integration as paid feature
+- Risk assessment and success criteria defined
+
+### Lessons Learned
+
+1. **Transparency over silence** - Better to warn users about limitations than silently fail
+2. **Tier-based features** - JavaScript rendering is compute-expensive, perfect for premium tiers
+3. **Framework detection vs. rendering detection** - Need to distinguish SSR from CSR, not just React from Vue
+4. **Competitive necessity** - This gap puts us at significant disadvantage vs. Firecrawl, Ahrefs
+
+---
+
+## Tier & Feature Model Alignment (December 7, 2025)
+
+**Status**: ✅ DECISIONS APPROVED - Sprint Updated
+
+### Context
+
+During sprint planning for SPA/Next.js Analysis Enhancement, identified that two separate tier systems existed:
+1. Web App Tiers (Starter/Solo/Growth/Scale)
+2. API Tiers (free/partner/enterprise)
+
+These were not aligned, and AImpactScanner integration requirements were unclear.
+
+### Decisions Made
+
+#### 1. API Tier Page Limits (Approved)
+
+| API Tier | Pages/Analysis | Rate Limit | Maps To |
+|----------|----------------|------------|---------|
+| `free` | 50 | 100/hour | Testing only |
+| `partner` | **200** | 1,000/hour | AImpactScanner Growth ($20/mo) |
+| `enterprise` | **500** | 10,000/hour | AImpactScanner Scale ($50/mo) |
+
+**Rationale**: AImpactScanner users paying $20-50/mo deserve meaningful analysis. 200/500 pages matches LLM.txt Mastery Solo/Growth tiers respectively.
+
+#### 2. JavaScript Rendering Availability (Approved)
+
+| Tier | JS Rendering Access |
+|------|---------------------|
+| Web Free/Solo/Growth | ❌ Not available |
+| Web Scale ($30/mo) | ✅ Available |
+| API Partner | ❌ Not available |
+| API Enterprise | ✅ Available |
+
+**Rationale**: Playwright is compute-expensive. Reserved for premium tiers only.
+
+#### 3. Free Features for All Tiers (Approved)
+
+- SPA Detection + Warning (Phase 1)
+- Content Completeness Scoring (Phase 2)
+
+**Rationale**: Transparency benefits everyone and builds trust.
+
+#### 4. AImpactScanner Integration Guide (New Deliverable)
+
+Added to Phase 5: `docs/AIMPACTSCANNER_INTEGRATION_GUIDE.md`
+
+Must include:
+- Tier mapping reference
+- Feature availability matrix
+- API changes (new parameters, response fields)
+- Page limit updates
+- JavaScript rendering request/error handling
+- Upgrade messaging copy
+- Tier benefits verbiage for marketing
+- Code examples
+- Migration checklist
+
+### Files Updated
+
+- `project-plan.md` - Added Tier & Feature Model section, updated Phase 3 & 5
+- `progress.md` - Documented decisions (this entry)
+
+### Next Steps
+
+SPRINT 1 ready to begin. Phase 1 (SPA Detection) can start immediately.
+
+---
+
+## Previous Mission: Public API Implementation for AImpactScanner Integration - COMPLETE ✅
 
 **Date**: November 29, 2025
 **Status**: ✅ COMPLETE - All phases delivered and deployed

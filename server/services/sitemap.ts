@@ -1,7 +1,13 @@
 import { parseStringPromise } from 'xml2js';
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import { DiscoveredPage } from '@shared/schema';
+import {
+  DiscoveredPage,
+  SPADetectionResult,
+  SPAFrameworkIndicators,
+  ContentCoverageEstimate,
+  RenderingStrategy,
+} from '@shared/schema';
 import { analyzePageContent } from './openai';
 import { connectionPool } from './connection-pool';
 
@@ -46,6 +52,8 @@ export interface SitemapResult {
   sitemapFound: boolean;
   analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
   message: string;
+  // Enhanced SPA detection data (Sprint 1: Phase 1)
+  spaDetection?: SPADetectionResult;
 }
 
 export async function fetchSitemap(baseUrl: string): Promise<SitemapResult> {
@@ -262,16 +270,18 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
     console.log('Robots.txt fallback failed:', error.message);
   }
 
-  // Check if this is a single-page site by analyzing the homepage
-  const homepageAnalysis = await analyzeHomepage(baseUrl);
-  if (homepageAnalysis.isSinglePage) {
+  // Enhanced SPA detection with rendering strategy and content coverage
+  const spaDetection = await analyzeHomepage(baseUrl);
+  if (spaDetection.isSinglePage) {
     console.log('Detected single-page site, analyzing homepage only');
     return {
       entries: [{ url: baseUrl, lastmod: new Date().toISOString() }],
       sitemapFound: false,
       analysisMethod: 'homepage-only',
-      message:
-        'No sitemap found. This appears to be a single-page site. Analysis includes homepage only.',
+      message: spaDetection.contentCoverageWarning ||
+        `No sitemap found. This appears to be a single-page site (${spaDetection.framework.framework}). Analysis includes homepage only.`,
+      // Include SPA detection data for metadata
+      spaDetection,
     };
   }
 
@@ -340,9 +350,255 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
   };
 }
 
-async function analyzeHomepage(
-  url: string
-): Promise<{ isSinglePage: boolean; indicators: string[] }> {
+// ===================================================================
+// ENHANCED SPA DETECTION HELPER FUNCTIONS (Sprint 1: Phase 1)
+// ===================================================================
+
+type CheerioAPI = ReturnType<typeof cheerio.load>;
+
+/**
+ * Detect SSR indicators in HTML content
+ */
+function detectSSRIndicators($: CheerioAPI): { hasNextData: boolean; hasNuxtData: boolean; hasGatsbyData: boolean } {
+  // Check for Next.js SSR/SSG indicator
+  const hasNextData = $('#__NEXT_DATA__').length > 0;
+
+  // Check for Nuxt SSR indicators (window.__NUXT__ is set server-side)
+  const html = $.html();
+  const hasNuxtData = html.includes('__NUXT__') || html.includes('__NUXT_DATA__');
+
+  // Check for Gatsby SSG indicator
+  const hasGatsbyData = $('#___gatsby').length > 0;
+
+  return { hasNextData, hasNuxtData, hasGatsbyData };
+}
+
+/**
+ * Detect CSR indicators in HTML content
+ */
+function detectCSRIndicators($: CheerioAPI): { rootEmpty: boolean; hasLoadingIndicators: boolean } {
+  // Check if root containers are empty (common CSR pattern)
+  const root = $('#root, #app, [data-reactroot]');
+  const rootEmpty = root.length > 0 && root.children().length === 0;
+
+  // Check for loading/skeleton indicators
+  const loadingSelectors = [
+    '.spinner', '.loading', '.loader',
+    '.skeleton', '.placeholder',
+    '[aria-busy="true"]', '[data-loading="true"]',
+    '.shimmer', '.pulse-animation'
+  ];
+  const hasLoadingIndicators = loadingSelectors.some(sel => $(sel).length > 0);
+
+  return { rootEmpty, hasLoadingIndicators };
+}
+
+/**
+ * Calculate content metrics from HTML
+ */
+function calculateContentMetrics($: CheerioAPI, html: string): { textLength: number; htmlSize: number; ratio: number } {
+  // Get all visible text content
+  const bodyText = $('body').text() || '';
+  const textLength = bodyText.replace(/\s+/g, ' ').trim().length;
+
+  // Get HTML structure size
+  const htmlSize = html.length;
+
+  // Calculate ratio (text / HTML)
+  const ratio = htmlSize > 0 ? textLength / htmlSize : 0;
+
+  return { textLength, htmlSize, ratio };
+}
+
+/**
+ * Determine framework and rendering strategy
+ */
+function determineFramework(
+  $: CheerioAPI,
+  ssrIndicators: { hasNextData: boolean; hasNuxtData: boolean; hasGatsbyData: boolean },
+  csrIndicators: { rootEmpty: boolean; hasLoadingIndicators: boolean }
+): SPAFrameworkIndicators {
+  const indicators: string[] = [];
+  let framework: SPAFrameworkIndicators['framework'] = 'unknown';
+  let renderingStrategy: RenderingStrategy = 'UNKNOWN';
+
+  // Check for React indicators
+  const hasReact = $('#root, [data-reactroot], .react-app, [data-react-]').length > 0;
+
+  // Check for Vue indicators
+  const hasVue = $('#app, [data-v-], .vue-app, [data-vue]').length > 0;
+
+  // Check for Angular indicators
+  const hasAngular = $('[ng-app], [data-ng-app], .angular-app, app-root').length > 0;
+
+  // Check for Svelte indicators
+  const hasSvelte = $('[class*="svelte-"]').length > 0;
+
+  // Determine specific framework (most specific first)
+  if (ssrIndicators.hasNextData) {
+    framework = 'next';
+    indicators.push('__NEXT_DATA__');
+    // Next.js with __NEXT_DATA__ means SSR or SSG
+    renderingStrategy = 'SSR';
+  } else if (ssrIndicators.hasNuxtData) {
+    framework = 'nuxt';
+    indicators.push('__NUXT__');
+    renderingStrategy = 'SSR';
+  } else if (ssrIndicators.hasGatsbyData) {
+    framework = 'gatsby';
+    indicators.push('___gatsby');
+    renderingStrategy = 'SSG';
+  } else if (hasReact) {
+    framework = 'react';
+    indicators.push('react-app');
+    // React without SSR data is likely CSR
+    renderingStrategy = csrIndicators.rootEmpty ? 'CSR' : 'HYBRID';
+  } else if (hasVue) {
+    framework = 'vue';
+    indicators.push('vue-app');
+    renderingStrategy = csrIndicators.rootEmpty ? 'CSR' : 'HYBRID';
+  } else if (hasAngular) {
+    framework = 'angular';
+    indicators.push('angular-app');
+    // Angular is typically CSR
+    renderingStrategy = 'CSR';
+  } else if (hasSvelte) {
+    framework = 'svelte';
+    indicators.push('svelte-app');
+    renderingStrategy = 'HYBRID'; // Svelte can be SSR or CSR
+  }
+
+  // Add CSR indicators
+  if (csrIndicators.rootEmpty) indicators.push('empty-root');
+  if (csrIndicators.hasLoadingIndicators) indicators.push('loading-indicators');
+
+  // If we found loading indicators but no framework, it's likely CSR
+  if (framework === 'unknown' && csrIndicators.hasLoadingIndicators) {
+    renderingStrategy = 'CSR';
+  }
+
+  return { framework, renderingStrategy, indicators };
+}
+
+/**
+ * Estimate content coverage based on signals
+ */
+function estimateContentCoverage(
+  ssrIndicators: { hasNextData: boolean; hasNuxtData: boolean; hasGatsbyData: boolean },
+  contentMetrics: { textLength: number; htmlSize: number; ratio: number },
+  csrIndicators: { rootEmpty: boolean; hasLoadingIndicators: boolean }
+): ContentCoverageEstimate {
+  const { ratio, textLength, htmlSize } = contentMetrics;
+
+  let estimatedCoverage = 0;
+  let confidence: 'high' | 'medium' | 'low' = 'medium';
+
+  // Base coverage from text-to-HTML ratio
+  if (ratio > 0.15) {
+    // High text content relative to HTML = likely SSR/SSG
+    estimatedCoverage = 95;
+    confidence = 'high';
+  } else if (ratio > 0.08) {
+    // Moderate text content
+    estimatedCoverage = 70;
+    confidence = 'medium';
+  } else if (ratio > 0.03) {
+    // Low text content
+    estimatedCoverage = 40;
+    confidence = 'medium';
+  } else {
+    // Very low text content = likely CSR shell
+    estimatedCoverage = 15;
+    confidence = 'high';
+  }
+
+  // Adjust based on SSR indicators (BOOST coverage)
+  const hasSSRData = ssrIndicators.hasNextData || ssrIndicators.hasNuxtData || ssrIndicators.hasGatsbyData;
+  if (hasSSRData) {
+    estimatedCoverage = Math.max(estimatedCoverage, 85);
+    confidence = 'high';
+  }
+
+  // Adjust based on CSR indicators (LOWER coverage)
+  if (csrIndicators.rootEmpty || csrIndicators.hasLoadingIndicators) {
+    estimatedCoverage = Math.min(estimatedCoverage, 30);
+    confidence = 'high';
+  }
+
+  // Absolute minimum if we have any text
+  if (textLength > 1000 && estimatedCoverage < 50) {
+    estimatedCoverage = 50;
+    confidence = 'low';
+  }
+
+  return {
+    estimatedCoverage,
+    confidence,
+    signals: {
+      textToHtmlRatio: Math.round(ratio * 1000) / 1000, // Round to 3 decimals
+      hasSSRData,
+      hasSkeletonUI: csrIndicators.hasLoadingIndicators,
+      bodyContentLength: textLength,
+      htmlStructureSize: htmlSize,
+    },
+  };
+}
+
+/**
+ * Generate user-facing warning for low content coverage
+ */
+function generateCoverageWarning(
+  coverage: ContentCoverageEstimate,
+  framework: SPAFrameworkIndicators
+): string | undefined {
+  if (coverage.estimatedCoverage >= 70) {
+    return undefined;
+  }
+
+  const strategyExplanation: Record<RenderingStrategy, string> = {
+    'CSR': 'client-side rendered (CSR)',
+    'SSR': 'server-side rendered (SSR)',
+    'SSG': 'statically generated (SSG)',
+    'HYBRID': 'partially server-rendered',
+    'UNKNOWN': 'dynamically rendered',
+  };
+
+  const strategy = strategyExplanation[framework.renderingStrategy] || 'JavaScript-heavy';
+  const frameworkName = framework.framework !== 'unknown' ? ` (${framework.framework.charAt(0).toUpperCase() + framework.framework.slice(1)})` : '';
+
+  return `⚠️ This site appears to be ${strategy}${frameworkName} with an estimated ${coverage.estimatedCoverage}% initial content coverage. The llms.txt file may be incomplete as it only captures the initial HTML. Consider using Enhanced Analysis (Scale tier) for full JavaScript rendering.`;
+}
+
+/**
+ * Create default SPA detection result for error cases
+ */
+function createDefaultSPAResult(indicators: string[]): SPADetectionResult {
+  return {
+    isSinglePage: false,
+    framework: {
+      framework: 'unknown',
+      renderingStrategy: 'UNKNOWN',
+      indicators,
+    },
+    contentCoverage: {
+      estimatedCoverage: 50,
+      confidence: 'low',
+      signals: {
+        textToHtmlRatio: 0,
+        hasSSRData: false,
+        hasSkeletonUI: false,
+        bodyContentLength: 0,
+        htmlStructureSize: 0,
+      },
+    },
+  };
+}
+
+/**
+ * Enhanced homepage analysis for SPA detection
+ * Returns comprehensive detection result including rendering strategy and content coverage
+ */
+async function analyzeHomepage(url: string): Promise<SPADetectionResult> {
   try {
     const response = await fetchWithTimeout(
       url,
@@ -356,87 +612,49 @@ async function analyzeHomepage(
     );
 
     if (!response.ok) {
-      return { isSinglePage: false, indicators: ['failed-to-fetch'] };
+      return createDefaultSPAResult(['failed-to-fetch']);
     }
 
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    const indicators: string[] = [];
-    let singlePageScore = 0;
+    // Step 1: Detect SSR indicators
+    const ssrIndicators = detectSSRIndicators($);
 
-    // Check for single-page app indicators
-    const reactIndicators = $('#root, [data-reactroot], .react-app').length;
-    const vueIndicators = $('#app, [data-v-], .vue-app').length;
-    const angularIndicators = $('[ng-app], [data-ng-app], .angular-app').length;
-    const nextjsIndicators = $('#__next, [data-nextjs-page]').length;
+    // Step 2: Detect CSR indicators
+    const csrIndicators = detectCSRIndicators($);
 
-    if (reactIndicators > 0) {
-      indicators.push('react-app');
-      singlePageScore += 2;
-    }
-    if (vueIndicators > 0) {
-      indicators.push('vue-app');
-      singlePageScore += 2;
-    }
-    if (angularIndicators > 0) {
-      indicators.push('angular-app');
-      singlePageScore += 2;
-    }
-    if (nextjsIndicators > 0) {
-      indicators.push('nextjs-app');
-      singlePageScore += 1; // Next.js can be multi-page
-    }
+    // Step 3: Calculate content metrics
+    const contentMetrics = calculateContentMetrics($, html);
 
-    // Check for navigation complexity
-    const navLinks = $('nav a, .nav a, .navigation a, header a').length;
-    const footerLinks = $('footer a, .footer a').length;
-    const internalLinks = $('a[href^="/"], a[href^="./"], a[href^="../"]').length;
+    // Step 4: Determine framework and rendering strategy
+    const framework = determineFramework($, ssrIndicators, csrIndicators);
 
-    if (navLinks <= 3) {
-      indicators.push('minimal-navigation');
-      singlePageScore += 1;
-    }
-    if (internalLinks <= 5) {
-      indicators.push('few-internal-links');
-      singlePageScore += 1;
-    }
+    // Step 5: Estimate content coverage
+    const contentCoverage = estimateContentCoverage(ssrIndicators, contentMetrics, csrIndicators);
 
-    // Check for traditional multi-page indicators
-    const breadcrumbs = $('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"]').length;
-    const pagination = $('.pagination, .pager, .page-numbers').length;
+    // Step 6: Generate warning if needed
+    const contentCoverageWarning = generateCoverageWarning(contentCoverage, framework);
 
-    if (breadcrumbs > 0) {
-      indicators.push('has-breadcrumbs');
-      singlePageScore -= 1;
-    }
-    if (pagination > 0) {
-      indicators.push('has-pagination');
-      singlePageScore -= 1;
-    }
-
-    // Check meta tags and title for SPA indicators
-    const title = $('title').text().toLowerCase();
-    const description = $('meta[name="description"]').attr('content')?.toLowerCase() || '';
-
-    if (title.includes('app') || description.includes('app')) {
-      indicators.push('app-terminology');
-      singlePageScore += 1;
-    }
+    // Determine if single-page (backward compatibility)
+    const isSinglePage = framework.framework !== 'unknown' &&
+      (framework.renderingStrategy === 'CSR' || contentCoverage.estimatedCoverage < 50);
 
     console.log(
-      `Homepage analysis for ${url}: score=${singlePageScore}, indicators=[${indicators.join(', ')}]`
+      `Enhanced SPA detection for ${url}: framework=${framework.framework}, ` +
+      `strategy=${framework.renderingStrategy}, coverage=${contentCoverage.estimatedCoverage}%, ` +
+      `indicators=[${framework.indicators.join(', ')}]`
     );
 
-    // Be more conservative - only mark as single-page if strong indicators present
-    // Require score of 4+ to avoid false positives on content-rich sites
     return {
-      isSinglePage: singlePageScore >= 4,
-      indicators,
+      isSinglePage,
+      framework,
+      contentCoverage,
+      contentCoverageWarning,
     };
-  } catch (error) {
-    console.log(`Homepage analysis failed for ${url}:`, error.message);
-    return { isSinglePage: false, indicators: ['analysis-failed'] };
+  } catch (error: any) {
+    console.log(`Enhanced SPA detection failed for ${url}:`, error.message);
+    return createDefaultSPAResult(['analysis-failed']);
   }
 }
 
