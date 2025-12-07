@@ -36,11 +36,9 @@ interface AnalysisStep {
 }
 
 const analysisSteps: AnalysisStep[] = [
-  { id: 'sitemap', label: 'Discovering sitemap.xml and content structure', progress: 15 },
-  { id: 'pages', label: 'Processing discovered pages', progress: 30 },
-  { id: 'content', label: 'Extracting and analyzing content', progress: 50 },
-  { id: 'ai', label: 'AI quality analysis and scoring', progress: 75 },
-  { id: 'saving', label: 'Saving results...', progress: 95 },  // Cap at 95% until truly complete
+  { id: 'discovery', label: 'Discovering sitemap and pages', progress: 15 },
+  { id: 'ai-analysis', label: 'AI analyzing each page', progress: 95 },
+  { id: 'finalization', label: 'Saving results', progress: 100 },
 ];
 
 // Estimate analysis time based on page count
@@ -247,61 +245,35 @@ export default function ContentAnalysis({
       console.error(`❌ Analysis failed: id=${analysisData.id}, error=${analysisData.error}`);
       setLastError(analysisData.error || 'Analysis failed unexpectedly');
     } else if (analysisData && analysisData.status === 'processing') {
-      // Update estimated time when we know the page count
+      // Update estimated time and mark discovery complete when we know the page count
       if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
         setTotalPages(analysisData.totalPagesFound);
         setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound));
-      }
 
-      // Enhanced progress tracking with stage updates
-      // Progress is capped at 95% until analysis truly completes
-      const stageMapping = [
-        { stage: 'discovery', stepIndex: 0 },
-        { stage: 'content-fetch', stepIndex: 1 },
-        { stage: 'ai-analysis', stepIndex: 2 },
-        { stage: 'ai-analysis', stepIndex: 3 }, // Extended AI phase
-        { stage: 'ai-analysis', stepIndex: 4 }, // Saving phase (still shows as AI until complete)
-      ];
+        // Discovery is complete once we have the page count
+        // Now we're in content extraction / AI analysis phase
+        setCompletedStages(['discovery']);
+        setCurrentStage('ai-analysis'); // Main phase - AI analysis of all pages
 
-      let stageIndex = 0;
-      const timer = setInterval(() => {
-        setCurrentStepIndex((prev) => {
-          // Cap at analysisSteps.length - 1 (95% / saving step) until actually complete
-          if (prev < analysisSteps.length - 1) {
-            const newIndex = prev + 1;
-            // Never exceed 95% while still processing
-            const cappedProgress = Math.min(analysisSteps[newIndex].progress, 95);
-            setProgress(cappedProgress);
+        // Progress during processing: 15% (discovery done) to 95% max
+        // Estimate progress based on time elapsed vs estimated time
+        const estimatedSeconds = analysisData.totalPagesFound * 1.3 + 30;
 
-            // Update stage tracking
-            if (stageIndex < stageMapping.length) {
-              const currentStageData = stageMapping[stageIndex];
-              if (newIndex >= currentStageData.stepIndex) {
-                setCurrentStage(currentStageData.stage);
-                setCompletedStages((prev) => {
-                  const newCompleted = [...prev];
-                  if (stageIndex > 0) {
-                    const prevStage = stageMapping[stageIndex - 1].stage;
-                    if (!newCompleted.includes(prevStage)) {
-                      newCompleted.push(prevStage);
-                    }
-                  }
-                  return newCompleted;
-                });
-
-                // Notify parent of progress (using current state values)
-                onProgressUpdate?.(currentStageData.stage, totalPages, processedPages);
-                stageIndex++;
-              }
+        const timer = setInterval(() => {
+          setProgress((prev) => {
+            // Slowly increment from 15% to 95% over the estimated time
+            // Cap at 95% - only completion sets 100%
+            if (prev < 95) {
+              // Increment by ~1% every few seconds, but cap at 95%
+              const increment = Math.max(0.5, 80 / (estimatedSeconds / 3));
+              return Math.min(prev + increment, 95);
             }
+            return prev;
+          });
+        }, 3000); // Update every 3 seconds
 
-            return newIndex;
-          }
-          return prev;
-        });
-      }, 8000); // Slower updates (8s) for more realistic progress on large sites
-
-      return () => clearInterval(timer);
+        return () => clearInterval(timer);
+      }
     }
   }, [
     analysisData?.status,
