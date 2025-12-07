@@ -613,14 +613,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         analysisMethod: analysis.analysisMetadata?.analysisMethod || 'unknown',
         message: analysis.analysisMetadata?.message || 'Analysis completed',
         totalPagesFound: analysis.analysisMetadata?.totalPagesFound || 0,
+        // Include full analysisMetadata for frontend components
+        analysisMetadata: analysis.analysisMetadata || {},
       };
 
-      // Include metrics if available
+      // Include metrics if available (also at top level for backwards compatibility)
       if (analysis.analysisMetadata?.metrics) {
         response.metrics = analysis.analysisMetadata.metrics;
       }
 
-      // Include enhanced SPA detection data (Sprint 1: Phase 1)
+      // Include enhanced SPA detection data at top level (backwards compatibility)
       if (analysis.analysisMetadata?.spaDetection) {
         response.spaDetection = analysis.analysisMetadata.spaDetection;
         response.contentCoveragePercentage = analysis.analysisMetadata.contentCoveragePercentage;
