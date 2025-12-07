@@ -36,12 +36,30 @@ interface AnalysisStep {
 }
 
 const analysisSteps: AnalysisStep[] = [
-  { id: 'sitemap', label: 'Discovering sitemap.xml and content structure', progress: 20 },
-  { id: 'pages', label: 'Processing discovered pages', progress: 40 },
-  { id: 'content', label: 'Extracting and analyzing content', progress: 60 },
-  { id: 'ai', label: 'AI quality analysis and scoring', progress: 80 },
-  { id: 'finalize', label: 'Finalizing results', progress: 100 },
+  { id: 'sitemap', label: 'Discovering sitemap.xml and content structure', progress: 15 },
+  { id: 'pages', label: 'Processing discovered pages', progress: 30 },
+  { id: 'content', label: 'Extracting and analyzing content', progress: 50 },
+  { id: 'ai', label: 'AI quality analysis and scoring', progress: 75 },
+  { id: 'saving', label: 'Saving results...', progress: 95 },  // Cap at 95% until truly complete
 ];
+
+// Estimate analysis time based on page count
+// ~1.3 seconds per page with AI analysis + overhead
+function getEstimatedTime(pageCount: number): string {
+  if (pageCount <= 0) return 'Calculating...';
+  const secondsPerPage = 1.3;
+  const overheadSeconds = 30; // sitemap discovery, saving, etc.
+  const totalSeconds = Math.ceil(pageCount * secondsPerPage + overheadSeconds);
+
+  if (totalSeconds < 60) {
+    return `~${totalSeconds} seconds`;
+  } else if (totalSeconds < 120) {
+    return '~1-2 minutes';
+  } else {
+    const minutes = Math.ceil(totalSeconds / 60);
+    return `~${minutes} minutes`;
+  }
+}
 
 export default function ContentAnalysis({
   websiteUrl,
@@ -63,6 +81,7 @@ export default function ContentAnalysis({
   const [lastError, setLastError] = useState<string | null>(null);
   const [coldStartDetected, setColdStartDetected] = useState(false);
   const [requestStartTime, setRequestStartTime] = useState<number | null>(null);
+  const [estimatedTime, setEstimatedTime] = useState<string>('Calculating...');
 
   const startAnalysisMutation = useMutation({
     mutationFn: async ({
@@ -140,18 +159,26 @@ export default function ContentAnalysis({
     }
   };
 
-  const { data: analysisData, error } = useQuery<SiteAnalysisResult>({
+  const { data: analysisData, error, isRefetching } = useQuery<SiteAnalysisResult>({
     queryKey: ['/api/analysis', analysisId],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/analysis/${analysisId}`);
       return response.json();
     },
     enabled: !!analysisId,
+    // Polling configuration for long-running analyses (can take 5+ minutes for large sites)
     refetchInterval: (query) => {
       // Stop polling when analysis is complete
       const data = query?.state?.data;
-      return data?.status === 'completed' || data?.status === 'failed' ? false : 2000;
+      return data?.status === 'completed' || data?.status === 'failed' ? false : 3000;
     },
+    // Keep polling even if window loses focus (important for long analyses)
+    refetchIntervalInBackground: true,
+    // Don't consider data stale while processing
+    staleTime: 0,
+    // Retry failed polls (network issues shouldn't stop polling)
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Handle query errors
@@ -220,20 +247,31 @@ export default function ContentAnalysis({
       console.error(`❌ Analysis failed: id=${analysisData.id}, error=${analysisData.error}`);
       setLastError(analysisData.error || 'Analysis failed unexpectedly');
     } else if (analysisData && analysisData.status === 'processing') {
+      // Update estimated time when we know the page count
+      if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
+        setTotalPages(analysisData.totalPagesFound);
+        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound));
+      }
+
       // Enhanced progress tracking with stage updates
+      // Progress is capped at 95% until analysis truly completes
       const stageMapping = [
         { stage: 'discovery', stepIndex: 0 },
         { stage: 'content-fetch', stepIndex: 1 },
         { stage: 'ai-analysis', stepIndex: 2 },
-        { stage: 'finalization', stepIndex: 3 },
+        { stage: 'ai-analysis', stepIndex: 3 }, // Extended AI phase
+        { stage: 'ai-analysis', stepIndex: 4 }, // Saving phase (still shows as AI until complete)
       ];
 
       let stageIndex = 0;
       const timer = setInterval(() => {
         setCurrentStepIndex((prev) => {
+          // Cap at analysisSteps.length - 1 (95% / saving step) until actually complete
           if (prev < analysisSteps.length - 1) {
             const newIndex = prev + 1;
-            setProgress(analysisSteps[newIndex].progress);
+            // Never exceed 95% while still processing
+            const cappedProgress = Math.min(analysisSteps[newIndex].progress, 95);
+            setProgress(cappedProgress);
 
             // Update stage tracking
             if (stageIndex < stageMapping.length) {
@@ -261,7 +299,7 @@ export default function ContentAnalysis({
           }
           return prev;
         });
-      }, 5000); // Update every 5 seconds instead of 2 for more realistic progress on large sites
+      }, 8000); // Slower updates (8s) for more realistic progress on large sites
 
       return () => clearInterval(timer);
     }
@@ -389,10 +427,19 @@ export default function ContentAnalysis({
               </p>
             </div>
           )}
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-gray-600 mb-2">
             Our AI system is carefully examining your content structure and optimizing it for
             machine readability
           </p>
+          {/* Estimated time display */}
+          {totalPages && totalPages > 0 && (
+            <div className="mt-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg inline-block">
+              <p className="text-sm text-blue-800">
+                <Globe className="inline mr-2 h-4 w-4" />
+                {totalPages} pages found • Estimated time: <strong>{estimatedTime}</strong>
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
