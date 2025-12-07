@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,11 +10,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Star } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import { Edit, Star, Eye } from 'lucide-react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { DiscoveredPage, SelectedPage } from '@shared/schema';
+import { DiscoveredPage, SelectedPage, SPADetectionResult } from '@shared/schema';
+import { RenderingStrategyTag } from '@/components/ui/rendering-strategy-tag';
+import { ContentCoverageBadge } from '@/components/ui/content-coverage-badge';
 
 interface ContentReviewProps {
   analysisId: number;
@@ -22,6 +24,7 @@ interface ContentReviewProps {
   onFileGenerated: (fileId: number) => void;
   onStartOver?: () => void;
   onStartNewAnalysis?: () => void;
+  spaDetection?: SPADetectionResult;
 }
 
 type FilterType = 'all' | 'high-quality' | 'documentation' | 'tutorials';
@@ -32,8 +35,24 @@ export default function ContentReview({
   onFileGenerated,
   onStartOver,
   onStartNewAnalysis,
+  spaDetection,
 }: ContentReviewProps) {
   const { toast } = useToast();
+
+  // Fetch analysis data to get SPA detection info
+  const { data: analysisData } = useQuery({
+    queryKey: ['/api/analysis', analysisId],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/analysis/${analysisId}`);
+      return response.json();
+    },
+    enabled: !!analysisId && !spaDetection, // Only fetch if not passed as prop
+    staleTime: Infinity, // Analysis data won't change
+  });
+
+  // Use prop if provided, otherwise use fetched data
+  const effectiveSpaDetection = spaDetection || analysisData?.analysisMetadata?.spaDetection;
+
   const [selectedPages, setSelectedPages] = useState<Record<string, boolean>>(() => {
     // Auto-select high quality pages (score >= 5)
     const initial: Record<string, boolean> = {};
@@ -195,6 +214,31 @@ export default function ContentReview({
             {discoveredPages.length} pages analyzed for review
           </div>
         </div>
+
+        {/* SPA Detection & Content Coverage (Sprint 1: Phase 1) */}
+        {effectiveSpaDetection && (
+          <div className="mb-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="flex items-start space-x-2">
+              <Eye className="h-5 w-5 text-slate-600 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-slate-900 mb-2">Content Analysis</h4>
+                <div className="flex flex-wrap items-center gap-3">
+                  <RenderingStrategyTag framework={effectiveSpaDetection.framework} />
+                  <ContentCoverageBadge
+                    coverage={effectiveSpaDetection.contentCoverage.estimatedCoverage}
+                    confidence={effectiveSpaDetection.contentCoverage.confidence}
+                    warning={effectiveSpaDetection.contentCoverageWarning}
+                  />
+                </div>
+                {effectiveSpaDetection.contentCoverageWarning && (
+                  <p className="mt-2 text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200">
+                    ⚠️ {effectiveSpaDetection.contentCoverageWarning}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Quality Scoring Info */}
         <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
