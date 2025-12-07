@@ -51,7 +51,19 @@ export default function ContentReview({
   });
 
   // Use prop if provided, otherwise use fetched data
-  const effectiveSpaDetection = spaDetection || analysisData?.analysisMetadata?.spaDetection;
+  // Check both locations: top-level (backwards compat) and nested in analysisMetadata
+  const effectiveSpaDetection = spaDetection ||
+    analysisData?.spaDetection ||
+    analysisData?.analysisMetadata?.spaDetection;
+
+  // Debug logging
+  console.log('SPA Detection debug:', {
+    analysisId,
+    hasProp: !!spaDetection,
+    hasTopLevel: !!analysisData?.spaDetection,
+    hasNested: !!analysisData?.analysisMetadata?.spaDetection,
+    effective: !!effectiveSpaDetection
+  });
 
   const [selectedPages, setSelectedPages] = useState<Record<string, boolean>>(() => {
     // Auto-select high quality pages (score >= 5)
