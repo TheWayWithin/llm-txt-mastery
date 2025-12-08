@@ -47,7 +47,8 @@ export default function ContentReview({
       return response.json();
     },
     enabled: !!analysisId && !spaDetection, // Only fetch if not passed as prop
-    staleTime: Infinity, // Analysis data won't change
+    staleTime: 0, // Always fetch fresh to get SPA detection data
+    refetchOnMount: true,
   });
 
   // Use prop if provided, otherwise use fetched data
@@ -62,7 +63,10 @@ export default function ContentReview({
     hasProp: !!spaDetection,
     hasTopLevel: !!analysisData?.spaDetection,
     hasNested: !!analysisData?.analysisMetadata?.spaDetection,
-    effective: !!effectiveSpaDetection
+    effective: !!effectiveSpaDetection,
+    actualTopLevel: analysisData?.spaDetection,
+    actualNested: analysisData?.analysisMetadata?.spaDetection,
+    fullAnalysisMetadata: analysisData?.analysisMetadata,
   });
 
   const [selectedPages, setSelectedPages] = useState<Record<string, boolean>>(() => {
