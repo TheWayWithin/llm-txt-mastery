@@ -486,6 +486,7 @@ export default function AnalyzePage() {
             <ContentAnalysis
               websiteUrl={websiteUrl}
               userEmail={user.email}
+              userTier={user.tier}
               onAnalysisComplete={handleAnalysisComplete}
               onReset={startNewAnalysis}
               useAI={user.tier !== 'starter'}
