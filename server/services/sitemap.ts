@@ -374,11 +374,17 @@ type CheerioAPI = ReturnType<typeof cheerio.load>;
  * Detect SSR indicators in HTML content
  */
 function detectSSRIndicators($: CheerioAPI): { hasNextData: boolean; hasNuxtData: boolean; hasGatsbyData: boolean } {
-  // Check for Next.js SSR/SSG indicator
-  const hasNextData = $('#__NEXT_DATA__').length > 0;
+  const html = $.html();
+
+  // Check for Next.js SSR/SSG indicators:
+  // - Pages Router: __NEXT_DATA__ script tag
+  // - App Router: self.__next_f streaming data OR /_next/static/ chunks
+  const hasNextDataScript = $('#__NEXT_DATA__').length > 0;
+  const hasNextAppRouter = html.includes('self.__next_f') || html.includes('self.__next_');
+  const hasNextChunks = html.includes('/_next/static/chunks/');
+  const hasNextData = hasNextDataScript || hasNextAppRouter || hasNextChunks;
 
   // Check for Nuxt SSR indicators (window.__NUXT__ is set server-side)
-  const html = $.html();
   const hasNuxtData = html.includes('__NUXT__') || html.includes('__NUXT_DATA__');
 
   // Check for Gatsby SSG indicator
@@ -451,8 +457,16 @@ function determineFramework(
   // Determine specific framework (most specific first)
   if (ssrIndicators.hasNextData) {
     framework = 'next';
-    indicators.push('__NEXT_DATA__');
-    // Next.js with __NEXT_DATA__ means SSR or SSG
+    // Add specific indicator based on detection method
+    const html = $.html();
+    if ($('#__NEXT_DATA__').length > 0) {
+      indicators.push('__NEXT_DATA__');
+    } else if (html.includes('self.__next_f')) {
+      indicators.push('next-app-router');
+    } else if (html.includes('/_next/static/chunks/')) {
+      indicators.push('next-chunks');
+    }
+    // Next.js means SSR or SSG
     renderingStrategy = 'SSR';
   } else if (ssrIndicators.hasNuxtData) {
     framework = 'nuxt';
