@@ -23,6 +23,7 @@ import { QuickHelp, InlineHelp } from './HelpSystem';
 interface ContentAnalysisProps {
   websiteUrl: string;
   userEmail: string;
+  userTier: string;
   onAnalysisComplete: (analysisId: number, pages: DiscoveredPage[]) => void;
   onReset?: () => void;
   useAI?: boolean;
@@ -76,6 +77,7 @@ function getEstimatedTime(pageCount: number, tier?: string): string {
 export default function ContentAnalysis({
   websiteUrl,
   userEmail,
+  userTier,
   onAnalysisComplete,
   onReset,
   useAI = false,
@@ -94,6 +96,13 @@ export default function ContentAnalysis({
   const [coldStartDetected, setColdStartDetected] = useState(false);
   const [requestStartTime, setRequestStartTime] = useState<number | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<string>('Calculating...');
+
+  // Calculate tier limit for display
+  const tierLimit = TIER_PAGE_LIMITS[userTier] || 20;
+  const tierDisplayName = userTier === 'coffee' ? 'Coffee' :
+    userTier === 'solo' ? 'Solo' :
+    userTier === 'growth' ? 'Growth' :
+    userTier === 'scale' ? 'Scale' : 'Starter';
 
   const startAnalysisMutation = useMutation({
     mutationFn: async ({
@@ -280,12 +289,15 @@ export default function ContentAnalysis({
     } else if (analysisData && analysisData.status === 'processing') {
       // Update estimated time and mark discovery complete when we know the page count
       if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
-        const tier = analysisData.analysisMetadata?.tier || analysisData.tier;
-        const tierLimit = tier ? TIER_PAGE_LIMITS[tier] || analysisData.totalPagesFound : analysisData.totalPagesFound;
-        const actualPages = Math.min(analysisData.totalPagesFound, tierLimit);
+        // Use userTier prop (from auth) as source of truth - API tier may be stale
+        const effectiveTier = userTier || analysisData.analysisMetadata?.tier || analysisData.tier;
+        const effectiveTierLimit = TIER_PAGE_LIMITS[effectiveTier] || analysisData.totalPagesFound;
+        const actualPages = Math.min(analysisData.totalPagesFound, effectiveTierLimit);
 
         setTotalPages(analysisData.totalPagesFound);
-        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound, tier));
+        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound, effectiveTier));
+
+        console.log(`📊 Analysis tier info: tier=${effectiveTier}, limit=${effectiveTierLimit}, totalPages=${analysisData.totalPagesFound}, analyzing=${actualPages}`);
 
         // Discovery is complete once we have the page count
         // Now we're in content extraction / AI analysis phase
@@ -422,12 +434,25 @@ export default function ContentAnalysis({
     return <EnhancedLoading state={loadingState} />;
   }
 
+  // Calculate how many pages will actually be analyzed based on tier
+  const actualPagesToAnalyze = totalPages ? Math.min(totalPages, tierLimit) : undefined;
+  const isLimited = totalPages ? totalPages > tierLimit : false;
+
   return (
     <div className="space-y-6">
       {/* Analysis In Progress */}
       <Card className="bg-gradient-to-r from-blue-50 to-teal-50 border-blue-200">
         <CardContent className="p-6 text-center">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Analyzing Your Website</h3>
+
+          {/* URL being analyzed */}
+          <div className="mb-3 px-4 py-2 bg-white/50 border border-blue-100 rounded-lg inline-block">
+            <p className="text-sm text-gray-700 font-medium">
+              <Globe className="inline mr-2 h-4 w-4 text-blue-600" />
+              {websiteUrl}
+            </p>
+          </div>
+
           {coldStartDetected && (
             <div className="mb-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-800">
@@ -440,13 +465,31 @@ export default function ContentAnalysis({
             Our AI system is carefully examining your content structure and optimizing it for
             machine readability
           </p>
-          {/* Estimated time display */}
+          {/* Estimated time and tier info display */}
           {totalPages && totalPages > 0 && (
-            <div className="mt-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg inline-block">
-              <p className="text-sm text-blue-800">
-                <Globe className="inline mr-2 h-4 w-4" />
-                {totalPages} pages found • Estimated time: <strong>{estimatedTime}</strong>
-              </p>
+            <div className="mt-3 space-y-2">
+              <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg inline-block">
+                <p className="text-sm text-blue-800">
+                  <FileText className="inline mr-2 h-4 w-4" />
+                  {isLimited ? (
+                    <>
+                      Analyzing <strong>{actualPagesToAnalyze}</strong> of {totalPages} pages
+                      <span className="text-blue-600 ml-1">({tierDisplayName} tier limit)</span>
+                    </>
+                  ) : (
+                    <>{totalPages} pages found</>
+                  )}
+                  {' '} • Estimated time: <strong>{estimatedTime}</strong>
+                </p>
+              </div>
+              {isLimited && (
+                <div className="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg inline-block">
+                  <p className="text-sm text-amber-700">
+                    <AlertTriangle className="inline mr-2 h-4 w-4" />
+                    Upgrade to analyze more pages: Growth (500) or Scale (1000)
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
