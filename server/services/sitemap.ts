@@ -114,6 +114,18 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
 
   console.log(`Searching for sitemap for baseUrl: ${baseUrl}, rootDomain: ${rootDomain}`);
 
+  // CRITICAL FIX: Always run SPA detection early so it's available for all return paths
+  // This was only running when no sitemap was found, missing sites with sitemaps
+  console.log('Running SPA detection analysis...');
+  let spaDetection: SPADetectionResult | undefined;
+  try {
+    spaDetection = await analyzeHomepage(baseUrl);
+    console.log(`SPA detection complete: ${spaDetection.framework.framework} (${spaDetection.framework.renderingStrategy}), coverage: ${spaDetection.contentCoverage.estimatedCoverage}%`);
+  } catch (error) {
+    console.log('SPA detection failed (non-blocking):', error.message);
+    // Don't fail the whole analysis, just skip SPA detection
+  }
+
   // Check if we need to handle redirects first
   let redirectPath = '';
   try {
@@ -224,6 +236,7 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
             sitemapFound: true,
             analysisMethod: 'sitemap',
             message: `Found sitemap with ${entries.length} pages (including homepage)`,
+            spaDetection, // Include SPA detection for all sites (even with sitemaps)
           };
         }
       } else {
@@ -262,6 +275,7 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
             sitemapFound: true,
             analysisMethod: 'robots.txt',
             message: `Found sitemap via robots.txt with ${entries.length} pages`,
+            spaDetection, // Include SPA detection for all sites
           };
         }
       }
@@ -270,9 +284,8 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
     console.log('Robots.txt fallback failed:', error.message);
   }
 
-  // Enhanced SPA detection with rendering strategy and content coverage
-  const spaDetection = await analyzeHomepage(baseUrl);
-  if (spaDetection.isSinglePage) {
+  // Check if this is a single-page site (spaDetection already ran earlier)
+  if (spaDetection?.isSinglePage) {
     console.log('Detected single-page site, analyzing homepage only');
     return {
       entries: [{ url: baseUrl, lastmod: new Date().toISOString() }],
@@ -347,6 +360,7 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
     sitemapFound: false,
     analysisMethod: 'fallback-crawl',
     message: `No sitemap found. Discovered ${fallbackEntries.length} pages through deep crawling. Some pages may be missing.`,
+    spaDetection, // Include SPA detection for all sites
   };
 }
 
