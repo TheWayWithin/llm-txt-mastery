@@ -139,22 +139,41 @@ export default function ContentAnalysis({
   });
 
   function getDetailedAnalysisError(error: any): string {
-    if (error.message?.includes('timeout')) {
+    const errorMsg = error.message || '';
+
+    // Check for authentication/email errors FIRST (before generic "not found" check)
+    if (errorMsg.includes('Email not found') || errorMsg.includes('sign up first')) {
+      return 'Session expired. Please refresh the page and try again, or log in again.';
+    }
+    if (errorMsg.includes('Email verification expired')) {
+      return 'Your session has expired. Please log in again to continue analyzing websites.';
+    }
+    if (errorMsg.includes('Email required')) {
+      return 'Authentication required. Please log in to analyze websites.';
+    }
+
+    if (errorMsg.includes('timeout')) {
       return 'Analysis timed out. The website might be slow to respond or very large. Try again or contact support.';
     }
-    if (error.message?.includes('network') || error.message?.includes('fetch')) {
+    if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
       return 'Network connection problem. Please check your internet connection and try again.';
     }
-    if (error.message?.includes('404') || error.message?.includes('not found')) {
+    // Be more specific - only match HTTP 404 errors, not "Email not found" etc.
+    if (errorMsg.includes('404')) {
       return 'Website not found. Please check the URL and make sure the website is publicly accessible.';
     }
-    if (error.message?.includes('403') || error.message?.includes('forbidden')) {
+    // For 403, check if it's a website blocking us vs our own auth error
+    if (errorMsg.includes('403')) {
+      // If message contains our specific auth errors, don't show "website blocking" message
+      if (errorMsg.includes('Email') || errorMsg.includes('sign up') || errorMsg.includes('log in')) {
+        return 'Session expired. Please refresh the page and try again.';
+      }
       return 'Access denied. The website might be blocking automated analysis. Try a different website.';
     }
-    if (error.message?.includes('rate limit')) {
+    if (errorMsg.includes('rate limit')) {
       return 'Too many requests. Please wait a moment before trying again.';
     }
-    if (error.message?.includes('sitemap')) {
+    if (errorMsg.includes('sitemap')) {
       return "Unable to find or parse the website's sitemap. The site might not have public content to analyze.";
     }
     return (
