@@ -1039,6 +1039,173 @@ The guide must include:
 
 ---
 
+## 🚀 SPRINT 2: Scale Tier Premium Features (JavaScript Rendering)
+
+**Mission Type**: Premium Feature Development
+**Sprint Start**: TBD (After Sprint 1 Phase 1 stabilization)
+**Priority**: MEDIUM - Revenue Expansion & Competitive Differentiation
+**Owner**: THE COORDINATOR
+**Status**: 📋 PLANNED
+
+### Sprint Objective
+
+Implement JavaScript rendering capabilities exclusively for Scale tier users, enabling full content capture on CSR (Client-Side Rendered) websites like React SPAs, Angular apps, and Vue applications.
+
+### Business Case
+
+- **Current Gap**: CSR sites show only 10-50% content coverage (as validated with angular.dev testing)
+- **Scale Tier Differentiator**: JS rendering is the key feature justifying $30/month pricing
+- **Competitive Parity**: Firecrawl, Ahrefs, SEMrush all offer headless browser rendering
+- **Revenue Impact**: Upsell path from Growth ($15) to Scale ($30) for users with CSR sites
+
+### Prerequisites
+
+- [x] Sprint 1 Phase 1 complete (SPA detection + coverage warnings)
+- [ ] Sprint 1 Phase 2 complete (Content completeness scoring)
+- [ ] Infrastructure cost analysis for browser rendering
+
+### Sprint Phases
+
+#### Phase 1: Infrastructure & Service Selection [ ]
+**Priority**: P1 - Foundation
+**Duration**: 2-3 days
+**Agent**: THE ARCHITECT
+
+**Decision Required**: Self-hosted vs Managed Service
+
+| Option | Pros | Cons | Monthly Cost Est. |
+|--------|------|------|-------------------|
+| **Playwright (Self-hosted)** | Full control, no per-request fees | Infrastructure overhead, scaling complexity | $50-200 (servers) |
+| **Browserless.io** | Managed, auto-scaling, simple API | Per-request pricing, vendor lock-in | $100-500 (usage) |
+| **ScrapingBee** | Easy integration, proxy rotation | Higher per-request cost | $150-600 (usage) |
+
+**Tasks**:
+- [ ] Analyze expected Scale tier usage volume
+- [ ] Cost modeling for each option at 100/500/1000 renders per month
+- [ ] Evaluate Railway add-ons for browser capabilities
+- [ ] Make architecture decision with cost justification
+- [ ] Document decision in architecture.md
+
+**Deliverables**:
+- [ ] Cost analysis spreadsheet
+- [ ] Architecture decision record
+- [ ] Infrastructure requirements document
+
+#### Phase 2: Browser Rendering Service [ ]
+**Priority**: P1 - Core Implementation
+**Duration**: 1-2 weeks
+**Agent**: THE DEVELOPER
+
+**Tasks**:
+- [ ] Implement `server/services/browserRenderer.ts`
+- [ ] Create browser pool management (if self-hosted)
+- [ ] Implement page rendering with configurable timeout (5-30 seconds)
+- [ ] Add auto-scrolling to trigger lazy-loaded content
+- [ ] Implement content extraction from rendered DOM
+- [ ] Add error handling for rendering failures
+- [ ] Create fallback to HTML-only on rendering timeout
+
+**Deliverables**:
+- [ ] `browserRenderer.ts` - Core rendering service
+- [ ] Configuration for timeout, scroll behavior, wait conditions
+- [ ] Error handling and graceful degradation
+
+#### Phase 3: Tier-Gated Access Control [ ]
+**Priority**: P1 - Revenue Protection
+**Duration**: 2-3 days
+**Agent**: THE DEVELOPER
+
+**Tasks**:
+- [ ] Add tier check middleware for JS rendering requests
+- [ ] Update `/api/analyze` to accept `useEnhancedRendering: boolean`
+- [ ] Return `enhancedRenderingAvailable: boolean` in analysis response
+- [ ] Show upgrade prompt for non-Scale users requesting JS rendering
+- [ ] Add usage tracking for rendered pages (separate from HTML analyses)
+- [ ] Implement monthly render quota for Scale tier (e.g., 500 renders/month)
+
+**Deliverables**:
+- [ ] Tier validation middleware
+- [ ] API parameter handling
+- [ ] Usage tracking for renders
+- [ ] Upgrade messaging for lower tiers
+
+#### Phase 4: UI Integration [ ]
+**Priority**: P2 - User Experience
+**Duration**: 3-4 days
+**Agent**: THE DEVELOPER + THE DESIGNER
+
+**Tasks**:
+- [ ] Add "Enhanced Analysis" toggle in analyze page (Scale tier only)
+- [ ] Show "Upgrade to Scale" prompt for CSR sites on lower tiers
+- [ ] Display "JavaScript Rendered" badge on enhanced analyses
+- [ ] Update coverage badge to show post-rendering coverage
+- [ ] Add render queue status indicator for long-running renders
+- [ ] Show comparison: "HTML: 50% → Rendered: 95%" coverage
+
+**Deliverables**:
+- [ ] Enhanced analysis toggle component
+- [ ] Upgrade prompt component
+- [ ] Rendering status indicators
+- [ ] Before/after coverage comparison UI
+
+#### Phase 5: Testing & Documentation [ ]
+**Priority**: P3 - Quality Assurance
+**Duration**: 3-4 days
+**Agent**: THE TESTER + THE DOCUMENTER
+
+**Tasks**:
+- [ ] Test rendering with: React (CRA), Angular, Vue CLI, Next.js CSR
+- [ ] Performance testing: render time, memory usage, concurrent renders
+- [ ] Load testing: simulate Scale tier usage patterns
+- [ ] Update PRODUCT_DESCRIPTION.md with enhanced analysis capability
+- [ ] Create user guide: "When to use Enhanced Analysis"
+- [ ] Update API documentation with new parameters
+- [ ] Update pricing page copy to highlight JS rendering benefit
+
+**Deliverables**:
+- [ ] Test suite for browser rendering
+- [ ] Performance benchmarks
+- [ ] Updated product documentation
+- [ ] User guide for enhanced analysis
+
+### Success Criteria
+
+- [ ] Scale tier users can toggle JavaScript rendering
+- [ ] CSR sites achieve 90%+ content coverage with rendering
+- [ ] Render time < 30 seconds per page
+- [ ] Clear upgrade path messaging for Growth tier users
+- [ ] No impact on existing HTML-only analysis performance
+- [ ] Usage tracking and quota enforcement working
+
+### Risk Assessment
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| High infrastructure costs | High | High | Start with managed service, optimize later |
+| Slow render times | Medium | High | Aggressive timeouts, async processing |
+| Bot detection by target sites | Medium | Medium | Rotate user agents, respect rate limits |
+| Feature complexity | Medium | Medium | Phased rollout, comprehensive testing |
+
+### Estimated Timeline
+
+| Phase | Duration | Dependencies |
+|-------|----------|--------------|
+| Phase 1: Infrastructure | 2-3 days | Sprint 1 Phase 2 |
+| Phase 2: Rendering Service | 1-2 weeks | Phase 1 decision |
+| Phase 3: Access Control | 2-3 days | Phase 2 |
+| Phase 4: UI Integration | 3-4 days | Phase 3 |
+| Phase 5: Testing & Docs | 3-4 days | Phase 4 |
+| **Total** | **3-4 weeks** | |
+
+### Cost Considerations
+
+**Initial Estimate** (to be refined in Phase 1):
+- Managed service: $100-300/month for 500 renders
+- Self-hosted: $50-100/month infrastructure + dev time
+- Recommendation: Start with managed service for faster launch, optimize after validating demand
+
+---
+
 ## Priority List
 
 ### 🚨 CRITICAL - BLOCKING PRODUCTION VALUE
