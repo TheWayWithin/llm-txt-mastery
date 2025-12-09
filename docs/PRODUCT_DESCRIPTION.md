@@ -116,6 +116,46 @@
 - **Real-Time Progress Tracking**: Live updates during analysis with detailed status information
 - **Content Filtering & Review**: Manual page selection with quality-based filtering options
 
+### Framework Detection & Content Coverage ✅ IMPLEMENTED (December 2025)
+
+**SPA/Framework Detection**: Automatically identifies website technology stack and rendering strategy:
+
+| Framework | Detection Method | Rendering Strategy |
+|-----------|------------------|-------------------|
+| Next.js | `__NEXT_DATA__`, `self.__next_f`, `/_next/static/` | SSR/SSG |
+| Nuxt.js | `__NUXT__`, `__NUXT_DATA__` | SSR |
+| Gatsby | `___gatsby`, `gatsby-*` elements | SSG |
+| React | `#root`, `data-reactroot` | CSR/Hybrid |
+| Vue.js | `#app`, `data-v-*` attributes | CSR/Hybrid |
+| Angular | `ng-version`, `_ngcontent-*`, `app-root` | CSR |
+| Svelte | `svelte-*` classes | CSR/Hybrid |
+| Astro | Static HTML with islands | SSG |
+
+**Content Coverage Estimation**: Provides transparency about analysis completeness:
+
+| Rendering Strategy | Content Coverage | Quality |
+|-------------------|------------------|---------|
+| SSG (Static Site Generation) | 95-100% | Excellent |
+| SSR (Server-Side Rendering) | 90-95% | Excellent |
+| Hybrid (SSR + Client hydration) | 70-85% | Good |
+| CSR (Client-Side Rendering) | 30-50% | Limited |
+
+**User-Facing Indicators**:
+- Framework badge showing detected technology (e.g., "Next.js (Server-Side)")
+- Coverage badge with color coding (Green ≥95%, Yellow ≥70%, Orange ≥40%, Red <40%)
+- Warning message for CSR-heavy sites explaining potential content gaps
+
+**Current Limitations**:
+- HTML-only crawling (no JavaScript execution)
+- CSR sites capture page structure but may miss dynamically loaded content
+- Lazy-loaded content below the fold not captured
+- Framework loading states/skeletons may be captured instead of actual content
+
+**Planned Enhancement** (Sprint 2 - Scale Tier):
+- JavaScript rendering via headless browser for Scale tier ($30/mo)
+- Expected to achieve 95%+ coverage on CSR sites
+- See `project-plan.md` → Sprint 2 for implementation details
+
 ### Authentication & Account Management ✅ FULLY IMPLEMENTED
 
 - **JWT Authentication**: Complete login/logout system with refresh token rotation

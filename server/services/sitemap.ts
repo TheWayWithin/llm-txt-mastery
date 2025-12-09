@@ -460,6 +460,13 @@ function determineFramework(
   // Check for Svelte indicators
   const hasSvelte = $('[class*="svelte-"]').length > 0;
 
+  // Check for Astro indicators
+  // Astro uses: <astro-island> elements, data-astro-* attributes, /_astro/ paths
+  const hasAstroIsland = $('astro-island').length > 0;
+  const hasAstroAttributes = html.includes('data-astro-cid-') || html.includes('data-astro-source');
+  const hasAstroScripts = html.includes('/_astro/') || html.includes('/astro/');
+  const hasAstro = hasAstroIsland || hasAstroAttributes || hasAstroScripts;
+
   // Determine specific framework (most specific first)
   if (ssrIndicators.hasNextData) {
     framework = 'next';
@@ -512,6 +519,18 @@ function determineFramework(
     framework = 'svelte';
     indicators.push('svelte-app');
     renderingStrategy = 'HYBRID'; // Svelte can be SSR or CSR
+  } else if (hasAstro) {
+    framework = 'astro';
+    // Add specific indicator based on detection method
+    if (hasAstroIsland) {
+      indicators.push('astro-island');
+    } else if (hasAstroAttributes) {
+      indicators.push('astro-cid');
+    } else if (hasAstroScripts) {
+      indicators.push('astro-scripts');
+    }
+    // Astro is primarily SSG (static site generator)
+    renderingStrategy = 'SSG';
   }
 
   // Add CSR indicators
