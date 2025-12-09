@@ -608,10 +608,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/analysis/:id', async (req, res) => {
     try {
       const analysisId = parseInt(req.params.id);
-      const analysis = await storage.getAnalysis(analysisId);
+      let analysis = await storage.getAnalysis(analysisId);
 
       if (!analysis) {
         return res.status(404).json({ message: 'Analysis not found' });
+      }
+
+      // ORPHANED ANALYSIS DETECTION: If analysis has been "analyzing" for more than 15 minutes,
+      // it's likely an orphaned job (server restart killed the processing). Mark it as failed.
+      const ORPHAN_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+      if (analysis.status === 'analyzing' && analysis.createdAt) {
+        const analysisAge = Date.now() - new Date(analysis.createdAt).getTime();
+        if (analysisAge > ORPHAN_TIMEOUT_MS) {
+          console.warn(
+            `⚠️ ORPHAN DETECTED: Analysis ${analysisId} stuck in 'analyzing' for ${Math.floor(analysisAge / 60000)} minutes. Marking as failed.`
+          );
+          await storage.updateAnalysis(analysisId, {
+            status: 'failed',
+            analysisMetadata: {
+              ...analysis.analysisMetadata,
+              message: 'Analysis timed out. The server may have restarted during processing. Please try again.',
+              error: 'Orphaned analysis detected - exceeded 15 minute timeout',
+            },
+          });
+          // Refresh the analysis object with updated status
+          analysis = (await storage.getAnalysis(analysisId)) || analysis;
+        }
       }
 
       const response: any = {
