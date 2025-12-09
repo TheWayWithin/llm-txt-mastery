@@ -96,13 +96,14 @@ export default function ContentAnalysis({
   const [coldStartDetected, setColdStartDetected] = useState(false);
   const [requestStartTime, setRequestStartTime] = useState<number | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<string>('Calculating...');
+  const [effectiveTier, setEffectiveTier] = useState<string>(userTier);
 
-  // Calculate tier limit for display
-  const tierLimit = TIER_PAGE_LIMITS[userTier] || 20;
-  const tierDisplayName = userTier === 'coffee' ? 'Coffee' :
-    userTier === 'solo' ? 'Solo' :
-    userTier === 'growth' ? 'Growth' :
-    userTier === 'scale' ? 'Scale' : 'Starter';
+  // Calculate tier limit for display - use effectiveTier which updates from API
+  const tierLimit = TIER_PAGE_LIMITS[effectiveTier] || 20;
+  const tierDisplayName = effectiveTier === 'coffee' ? 'Coffee' :
+    effectiveTier === 'solo' ? 'Solo' :
+    effectiveTier === 'growth' ? 'Growth' :
+    effectiveTier === 'scale' ? 'Scale' : 'Starter';
 
   const startAnalysisMutation = useMutation({
     mutationFn: async ({
@@ -289,15 +290,17 @@ export default function ContentAnalysis({
     } else if (analysisData && analysisData.status === 'processing') {
       // Update estimated time and mark discovery complete when we know the page count
       if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
-        // Use userTier prop (from auth) as source of truth - API tier may be stale
-        const effectiveTier = userTier || analysisData.analysisMetadata?.tier || analysisData.tier;
-        const effectiveTierLimit = TIER_PAGE_LIMITS[effectiveTier] || analysisData.totalPagesFound;
-        const actualPages = Math.min(analysisData.totalPagesFound, effectiveTierLimit);
+        // Use API tier as source of truth (fresh from database) - userTier prop may be stale JWT
+        const apiTier = analysisData.analysisMetadata?.tier || analysisData.tier || userTier;
+        const apiTierLimit = TIER_PAGE_LIMITS[apiTier] || analysisData.totalPagesFound;
+        const actualPages = Math.min(analysisData.totalPagesFound, apiTierLimit);
 
+        // Update effective tier state so UI shows correct tier info
+        setEffectiveTier(apiTier);
         setTotalPages(analysisData.totalPagesFound);
-        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound, effectiveTier));
+        setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound, apiTier));
 
-        console.log(`📊 Analysis tier info: tier=${effectiveTier}, limit=${effectiveTierLimit}, totalPages=${analysisData.totalPagesFound}, analyzing=${actualPages}`);
+        console.log(`📊 Analysis tier info: tier=${apiTier}, limit=${apiTierLimit}, totalPages=${analysisData.totalPagesFound}, analyzing=${actualPages}`);
 
         // Discovery is complete once we have the page count
         // Now we're in content extraction / AI analysis phase
