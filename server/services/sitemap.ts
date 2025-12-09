@@ -448,8 +448,14 @@ function determineFramework(
   // Check for Vue indicators
   const hasVue = $('#app, [data-v-], .vue-app, [data-vue]').length > 0;
 
-  // Check for Angular indicators
-  const hasAngular = $('[ng-app], [data-ng-app], .angular-app, app-root').length > 0;
+  // Check for Angular indicators (modern Angular v2+ and AngularJS)
+  // Modern Angular uses: <app-root>, ng-version attribute, _ngcontent-* attributes
+  // Also check for Angular scripts in the HTML
+  const html = $.html();
+  const hasAngularElement = $('[ng-app], [data-ng-app], app-root, [ng-version]').length > 0;
+  const hasAngularAttributes = html.includes('_ngcontent-') || html.includes('_nghost-');
+  const hasAngularScripts = html.includes('@angular') || html.includes('/angular/') || html.includes('angular.min.js');
+  const hasAngular = hasAngularElement || hasAngularAttributes || hasAngularScripts;
 
   // Check for Svelte indicators
   const hasSvelte = $('[class*="svelte-"]').length > 0;
@@ -457,8 +463,7 @@ function determineFramework(
   // Determine specific framework (most specific first)
   if (ssrIndicators.hasNextData) {
     framework = 'next';
-    // Add specific indicator based on detection method
-    const html = $.html();
+    // Add specific indicator based on detection method (html already defined above)
     if ($('#__NEXT_DATA__').length > 0) {
       indicators.push('__NEXT_DATA__');
     } else if (html.includes('self.__next_f')) {
@@ -487,7 +492,20 @@ function determineFramework(
     renderingStrategy = csrIndicators.rootEmpty ? 'CSR' : 'HYBRID';
   } else if (hasAngular) {
     framework = 'angular';
-    indicators.push('angular-app');
+    // Add specific indicator based on detection method
+    if (hasAngularElement) {
+      if ($('[ng-version]').length > 0) {
+        indicators.push('ng-version');
+      } else if ($('app-root').length > 0) {
+        indicators.push('app-root');
+      } else {
+        indicators.push('ng-app');
+      }
+    } else if (hasAngularAttributes) {
+      indicators.push('_ngcontent');
+    } else if (hasAngularScripts) {
+      indicators.push('angular-scripts');
+    }
     // Angular is typically CSR
     renderingStrategy = 'CSR';
   } else if (hasSvelte) {
