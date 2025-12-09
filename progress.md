@@ -1,6 +1,52 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest: Sprint 1 Phase 1 - Enhanced SPA Detection COMPLETE
+## Latest: Sprint 1 Phase 1 Testing & Bug Fixes
+
+**Date**: December 8, 2025
+**Status**: 🔧 Testing complete, multiple issues fixed
+
+### Issues Fixed
+
+**1. Time Estimate Always Showing ~56 Seconds**
+- **Root cause**: Frontend used stale JWT tier instead of API-returned tier
+- **Fix**: Added `effectiveTier` state that uses `analysisData.analysisMetadata.tier` from API
+
+**2. Coffee Tier Page Limit Mismatch (20 vs 200)**
+- **Root cause**: Frontend `TIER_PAGE_LIMITS` had `coffee: 20` but backend had `coffee: 200`
+- **Fix**: Updated frontend to `coffee: 200` to match backend
+
+**3. Next.js Sites Showing "Unknown (Unknown)"**
+- **Root cause**: Detection only checked for `__NEXT_DATA__` (Pages Router pattern)
+- **Fix**: Added detection for `self.__next_f` (App Router) and `/_next/static/chunks/`
+
+**4. SSG Label Clarity**
+- Changed "Static" to "Static/SSG" for clarity in rendering strategy tags
+
+**5. Orphaned Analysis Detection (NEW)**
+- **Root cause**: When Railway restarts server, in-progress analyses become "orphaned" - stuck in `analyzing` status forever
+- **Symptom**: angular.dev analysis stuck at 95% indefinitely with no processing happening
+- **Fix**: Added timeout detection in GET `/api/analysis/:id` - if analysis has been `analyzing` for >15 minutes, automatically mark as `failed` with helpful error message
+- **File**: `server/routes.ts` lines 617-637
+
+### Testing Results
+
+| Site | Framework | Rendering | Status |
+|------|-----------|-----------|--------|
+| vuejs.org | Vue.js | Hybrid | ✅ Pass |
+| nextjs.org | Next.js | Server-Side | ✅ Pass |
+| gatsbyjs.com | Gatsby | Static/SSG | ✅ Pass |
+| angular.dev | Angular | CSR | ⚠️ Exposed orphan bug (now fixed) |
+
+### Files Modified
+- `client/src/components/content-analysis.tsx` - Tier handling, page limits, UI improvements
+- `client/src/pages/analyze.tsx` - Added userTier prop
+- `client/src/components/ui/rendering-strategy-tag.tsx` - SSG label clarity
+- `server/services/sitemap.ts` - Next.js App Router detection
+- `server/routes.ts` - Orphaned analysis detection
+
+---
+
+## Previous: Sprint 1 Phase 1 - Enhanced SPA Detection COMPLETE
 
 **Date**: December 7, 2025
 **Status**: ✅ Phase 1 Complete (Backend + Frontend)
