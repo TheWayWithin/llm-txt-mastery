@@ -612,7 +612,7 @@ function generateCoverageWarning(
   const strategy = strategyExplanation[framework.renderingStrategy] || 'JavaScript-heavy';
   const frameworkName = framework.framework !== 'unknown' ? ` (${framework.framework.charAt(0).toUpperCase() + framework.framework.slice(1)})` : '';
 
-  return `⚠️ This site appears to be ${strategy}${frameworkName} with an estimated ${coverage.estimatedCoverage}% initial content coverage. The llms.txt file may be incomplete as it only captures the initial HTML. Consider using Enhanced Analysis (Scale tier) for full JavaScript rendering.`;
+  return `⚠️ This site appears to be ${strategy}${frameworkName} with an estimated ${coverage.estimatedCoverage}% initial content coverage. The llms.txt file may be incomplete as it only captures the initial HTML.`;
 }
 
 /**
