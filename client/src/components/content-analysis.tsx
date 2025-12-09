@@ -42,10 +42,10 @@ const analysisSteps: AnalysisStep[] = [
   { id: 'finalization', label: 'Saving results', progress: 100 },
 ];
 
-// Tier page limits
+// Tier page limits (must match server/services/cache.ts TIER_LIMITS)
 const TIER_PAGE_LIMITS: Record<string, number> = {
   starter: 20,
-  coffee: 20,
+  coffee: 200,  // Coffee = Solo equivalent (legacy tier name)
   solo: 200,
   growth: 500,
   scale: 1000,
