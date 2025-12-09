@@ -753,7 +753,68 @@ Multi-Strategy Sitemap Discovery & Content Analysis Pipeline:
    ├── Tier-specific cache duration (1-30 days)
    ├── Intelligent cache warming
    └── Analytics-driven cache optimization
+
+6. SPA/Framework Detection & Content Coverage (December 2025)
+   ├── Framework identification via HTML pattern matching
+   ├── Rendering strategy classification (SSR/SSG/CSR/Hybrid)
+   ├── Content coverage estimation based on rendering type
+   └── User-facing warnings for limited coverage scenarios
 ```
+
+### Framework Detection Technical Implementation
+
+**Location**: `server/services/sitemap.ts` - `analyzeHomepage()` function
+
+**Detection Methods**:
+
+| Framework | Detection Patterns |
+|-----------|-------------------|
+| Next.js (Pages Router) | `#__NEXT_DATA__` script element |
+| Next.js (App Router) | `self.__next_f` in HTML, `/_next/static/chunks/` |
+| Nuxt.js | `#__NUXT__` script, `__NUXT_DATA__` |
+| Gatsby | `#___gatsby` element |
+| React | `#root`, `[data-reactroot]` |
+| Vue.js | `#app`, `[data-v-*]` attributes |
+| Angular | `[ng-version]`, `_ngcontent-*`, `_nghost-*`, `app-root` |
+| Svelte | `[class*="svelte-"]` |
+
+**Rendering Strategy Classification**:
+
+| Strategy | Indicators | Content Coverage |
+|----------|------------|------------------|
+| SSR | Framework SSR markers (`__NEXT_DATA__`, `__NUXT__`) | 90-95% |
+| SSG | Static generator markers (`___gatsby`), pre-rendered content | 95-100% |
+| CSR | Empty root containers, loading skeletons, minimal initial HTML | 30-50% |
+| Hybrid | Mix of SSR markers with client hydration indicators | 70-85% |
+
+**Content Coverage Estimation Algorithm**:
+```typescript
+function estimateContentCoverage(framework: SPAFrameworkIndicators): ContentCoverageEstimate {
+  const baseCoverage = {
+    SSR: 95, SSG: 95, CSR: 50, HYBRID: 75, UNKNOWN: 60
+  };
+
+  const textToHtmlRatio = contentLength / htmlLength;
+  const ratioAdjustment = Math.min(20, textToHtmlRatio * 100);
+
+  return {
+    estimatedCoverage: Math.min(100, baseCoverage[strategy] + ratioAdjustment),
+    confidence: hasFrameworkIndicators ? 'high' : 'medium',
+    signals: { textToHtmlRatio, hasLoadingIndicators, rootEmpty }
+  };
+}
+```
+
+**Current Limitations**:
+- **HTML-only extraction**: No JavaScript execution capability
+- **CSR content gaps**: Client-rendered content not captured (30-50% coverage)
+- **Lazy-loading**: Below-fold content not triggered
+- **Dynamic routing**: Client-side routes not in sitemap may be missed
+
+**Planned Enhancement** (Sprint 2):
+- Headless browser rendering for Scale tier users
+- Expected 95%+ coverage on CSR sites
+- See `project-plan.md` → Sprint 2 for implementation roadmap
 
 ## Enhanced Features & Capabilities
 
