@@ -551,7 +551,8 @@ function determineFramework(
 function estimateContentCoverage(
   ssrIndicators: { hasNextData: boolean; hasNuxtData: boolean; hasGatsbyData: boolean },
   contentMetrics: { textLength: number; htmlSize: number; ratio: number },
-  csrIndicators: { rootEmpty: boolean; hasLoadingIndicators: boolean }
+  csrIndicators: { rootEmpty: boolean; hasLoadingIndicators: boolean },
+  renderingStrategy: RenderingStrategy
 ): ContentCoverageEstimate {
   const { ratio, textLength, htmlSize } = contentMetrics;
 
@@ -584,8 +585,16 @@ function estimateContentCoverage(
     confidence = 'high';
   }
 
-  // Adjust based on CSR indicators (LOWER coverage)
-  if (csrIndicators.rootEmpty || csrIndicators.hasLoadingIndicators) {
+  // Boost coverage for SSG/SSR frameworks (e.g., Astro, detected via framework analysis)
+  // These render full content in initial HTML even if text-to-HTML ratio is low
+  if (renderingStrategy === 'SSG' || renderingStrategy === 'SSR') {
+    estimatedCoverage = Math.max(estimatedCoverage, 90);
+    confidence = 'high';
+  }
+
+  // Adjust based on CSR indicators (LOWER coverage) - only if not already detected as SSG/SSR
+  if ((csrIndicators.rootEmpty || csrIndicators.hasLoadingIndicators) &&
+      renderingStrategy !== 'SSG' && renderingStrategy !== 'SSR') {
     estimatedCoverage = Math.min(estimatedCoverage, 30);
     confidence = 'high';
   }
@@ -695,8 +704,8 @@ async function analyzeHomepage(url: string): Promise<SPADetectionResult> {
     // Step 4: Determine framework and rendering strategy
     const framework = determineFramework($, ssrIndicators, csrIndicators);
 
-    // Step 5: Estimate content coverage
-    const contentCoverage = estimateContentCoverage(ssrIndicators, contentMetrics, csrIndicators);
+    // Step 5: Estimate content coverage (pass rendering strategy for accurate estimation)
+    const contentCoverage = estimateContentCoverage(ssrIndicators, contentMetrics, csrIndicators, framework.renderingStrategy);
 
     // Step 6: Generate warning if needed
     const contentCoverageWarning = generateCoverageWarning(contentCoverage, framework);
