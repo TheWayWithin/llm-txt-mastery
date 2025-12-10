@@ -129,7 +129,7 @@
 | Vue.js | `#app`, `data-v-*` attributes | CSR/Hybrid |
 | Angular | `ng-version`, `_ngcontent-*`, `app-root` | CSR |
 | Svelte | `svelte-*` classes | CSR/Hybrid |
-| Astro | Static HTML with islands | SSG |
+| Astro | `<astro-island>`, `data-astro-cid-*`, `/_astro/` | SSG |
 
 **Content Coverage Estimation**: Provides transparency about analysis completeness:
 
@@ -699,6 +699,6 @@ This represents a major UX breakthrough that brings the application to professio
 
 ---
 
-_Last Updated: November 29, 2025_
-_Version: 2.4_
+_Last Updated: December 9, 2025_
+_Version: 2.5_
 _Status: Production Complete - A+ Security Rating, 98/100 Lighthouse Score_

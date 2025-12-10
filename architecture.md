@@ -777,6 +777,7 @@ Multi-Strategy Sitemap Discovery & Content Analysis Pipeline:
 | Vue.js | `#app`, `[data-v-*]` attributes |
 | Angular | `[ng-version]`, `_ngcontent-*`, `_nghost-*`, `app-root` |
 | Svelte | `[class*="svelte-"]` |
+| Astro | `<astro-island>`, `data-astro-cid-*`, `/_astro/` paths |
 
 **Rendering Strategy Classification**:
 
@@ -1548,8 +1549,8 @@ The system is designed with clear evolution paths from the current monolithic ar
 **Business Impact:**
 The architecture directly enables the business model with sophisticated freemium support, multiple payment tiers, comprehensive usage tracking, and AI cost optimization that maintains healthy unit economics across all customer segments.
 
-**Last Updated**: November 29, 2025
-**Architecture Version**: 3.1
+**Last Updated**: December 9, 2025
+**Architecture Version**: 3.2
 **Status**: Production Ready - A+ Security, 98/100 Lighthouse ✅
 **Next Review**: Q1 2026 (Microservices evaluation)
 
