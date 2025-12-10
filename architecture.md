@@ -1,5 +1,11 @@
 # LLM.txt Mastery - System Architecture Documentation
 
+**Version**: 3.2
+**Last Updated**: December 9, 2025
+**Changelog**: Added Astro framework detection, SSG/SSR coverage estimation fix
+
+---
+
 ## Executive Summary
 
 LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates enhanced `llms.txt` files with 6-phase AI optimization. The system implements a sophisticated freemium SaaS model with dual authentication systems, Solo tier credits (internally coded as "coffee"), comprehensive usage tracking, and advanced cost management, deployed using a split architecture across Railway (backend) and Netlify (frontend).
