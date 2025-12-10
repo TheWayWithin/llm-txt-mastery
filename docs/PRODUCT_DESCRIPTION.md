@@ -1,5 +1,11 @@
 # LLM.txt Mastery - Product Description
 
+**Version**: 2.5
+**Last Updated**: December 9, 2025
+**Changelog**: Added Astro to framework detection, updated copy with framework benefits
+
+---
+
 ## Product Overview
 
 **LLM.txt Mastery** is an intelligent web application that automates the creation of optimized `llms.txt` files through advanced website analysis and AI-powered content curation. The platform analyzes websites, evaluates content quality, and generates standards-compliant LLM.txt files that help AI systems understand and navigate website content effectively.
