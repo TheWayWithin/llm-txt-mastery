@@ -1,11 +1,22 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest: Sprint 1 Phase 1 Testing & Bug Fixes
+## Latest: Sprint 1 Phase 1 - COMPLETE ✅
 
-**Date**: December 8, 2025
-**Status**: 🔧 Testing complete, multiple issues fixed
+**Date**: December 9, 2025
+**Status**: ✅ All testing complete, all issues fixed
 
-### Issues Fixed
+### Final Testing Results
+
+| Site Type | Test Site | Framework | Coverage | Status |
+|-----------|-----------|-----------|----------|--------|
+| SSR | nextjs.org | Next.js | 90%+ | ✅ Pass |
+| SSG | gatsbyjs.com | Gatsby | 95% | ✅ Pass |
+| CSR | angular.dev | Angular | 30-50% | ✅ Pass |
+| Hybrid | vuejs.org | Vue.js | 70-85% | ✅ Pass |
+| Astro/SSG | astro.build | Astro | 90% | ✅ Pass |
+| Static HTML | example.com | Unknown | 95% | ✅ Pass |
+
+### Issues Fixed (December 8-9)
 
 **1. Time Estimate Always Showing ~56 Seconds**
 - **Root cause**: Frontend used stale JWT tier instead of API-returned tier
@@ -22,27 +33,42 @@
 **4. SSG Label Clarity**
 - Changed "Static" to "Static/SSG" for clarity in rendering strategy tags
 
-**5. Orphaned Analysis Detection (NEW)**
-- **Root cause**: When Railway restarts server, in-progress analyses become "orphaned" - stuck in `analyzing` status forever
-- **Symptom**: angular.dev analysis stuck at 95% indefinitely with no processing happening
-- **Fix**: Added timeout detection in GET `/api/analysis/:id` - if analysis has been `analyzing` for >15 minutes, automatically mark as `failed` with helpful error message
+**5. Orphaned Analysis Detection**
+- **Root cause**: When Railway restarts server, in-progress analyses become "orphaned"
+- **Fix**: Added 15-minute timeout detection in GET `/api/analysis/:id`
 - **File**: `server/routes.ts` lines 617-637
 
-### Testing Results
+**6. Angular Framework Detection**
+- **Root cause**: Only checked for AngularJS patterns, not modern Angular v2+
+- **Fix**: Added detection for `ng-version`, `_ngcontent-*`, `_nghost-*`, `@angular` scripts
+- **File**: `server/services/sitemap.ts`
 
-| Site | Framework | Rendering | Status |
-|------|-----------|-----------|--------|
-| vuejs.org | Vue.js | Hybrid | ✅ Pass |
-| nextjs.org | Next.js | Server-Side | ✅ Pass |
-| gatsbyjs.com | Gatsby | Static/SSG | ✅ Pass |
-| angular.dev | Angular | CSR | ⚠️ Exposed orphan bug (now fixed) |
+**7. Astro Framework Detection (NEW)**
+- **Issue**: astro.build showed "Unknown (Unknown)" instead of "Astro (Static/SSG)"
+- **Fix**: Added detection for `<astro-island>`, `data-astro-cid-*`, `/_astro/` paths
+- **File**: `server/services/sitemap.ts`
+
+**8. SSG/SSR Coverage Estimation Fix (NEW)**
+- **Issue**: Astro showed 50% coverage instead of 90%+ despite being SSG
+- **Root cause**: Coverage estimation didn't use framework's rendering strategy
+- **Fix**: Pass `renderingStrategy` to `estimateContentCoverage()`, boost SSG/SSR to 90%+
+- **File**: `server/services/sitemap.ts`
 
 ### Files Modified
 - `client/src/components/content-analysis.tsx` - Tier handling, page limits, UI improvements
 - `client/src/pages/analyze.tsx` - Added userTier prop
 - `client/src/components/ui/rendering-strategy-tag.tsx` - SSG label clarity
-- `server/services/sitemap.ts` - Next.js App Router detection
+- `server/services/sitemap.ts` - Angular detection, Astro detection, coverage fix
 - `server/routes.ts` - Orphaned analysis detection
+- `docs/PRODUCT_DESCRIPTION.md` - Framework detection documentation
+- `architecture.md` - Technical implementation documentation
+
+---
+
+## Previous: Sprint 1 Phase 1 Testing & Bug Fixes
+
+**Date**: December 8, 2025
+**Status**: 🔧 Testing phase (superseded by December 9 completion)
 
 ---
 
