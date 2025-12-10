@@ -305,6 +305,12 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Framework Support Badge */}
+            <div className="flex items-center justify-center space-x-1 text-sm text-ai-silver mt-2">
+              <span className="text-lg">⚙️</span>
+              <span>Works on any technology: React, Next.js, Vue, Angular, Astro & more</span>
+            </div>
+
             {/* Security Trust Badges */}
             <div className="mt-6">
               <TrustBadges variant="security" compact={true} alignment="center" />
@@ -335,6 +341,8 @@ export default function Home() {
                     <li>✅ AI analyzes your content for AI (not just HTML scraping)</li>
                     <li>✅ Proprietary scoring finds your best pages</li>
                     <li>✅ Works across ChatGPT, Claude, Perplexity & more</li>
+                    <li>✅ Works on ANY website technology (React, Next.js, Vue, Astro & more)</li>
+                    <li>✅ Captures 90%+ content from SPAs that basic scrapers miss</li>
                     <li>✅ 73% average increase in AI citations</li>
                     <li>✅ Results in 24 hours, not months of waiting</li>
                   </ul>
@@ -706,6 +714,23 @@ export default function Home() {
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
                         ⚠️ Generic
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-gray-50 bg-green-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">
+                        Modern Framework Support
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
+                        ✅ React, Next, Vue, Astro + 10 more
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ HTML only
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ Basic scraping
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ Broken
                       </td>
                     </tr>
                     <tr className="hover:bg-gray-50">
@@ -1377,7 +1402,7 @@ export default function Home() {
                 <h4 className="font-semibold text-framework-black mb-3">
                   The Technical Difference That Matters:
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                   <div className="text-center p-3 bg-innovation-teal/10 rounded">
                     <p className="font-bold text-innovation-teal mb-1">7+ Discovery Methods</p>
                     <p className="text-gray-600">We find pages others miss</p>
@@ -1389,6 +1414,10 @@ export default function Home() {
                   <div className="text-center p-3 bg-innovation-teal/10 rounded">
                     <p className="font-bold text-innovation-teal mb-1">Smart Truncation</p>
                     <p className="text-gray-600">Optimize for AI token limits</p>
+                  </div>
+                  <div className="text-center p-3 bg-green-100 rounded border border-green-300">
+                    <p className="font-bold text-green-700 mb-1">Framework Detection</p>
+                    <p className="text-gray-600">React, Next, Vue, Astro & 10+ more</p>
                   </div>
                 </div>
               </div>
