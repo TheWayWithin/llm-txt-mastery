@@ -261,37 +261,35 @@ export default function SignupPage() {
     switch (tier) {
       case 'starter':
         return [
-          '❌ Only 3 analyses per day (then locked out)',
-          '❌ Severely limited to 20 pages only',
-          '❌ No AI quality scoring (missing critical content)',
-          '❌ Basic HTML extraction only',
-          '⚠️ WARNING: AI will only see 20 pages - missing your pricing, features, case studies, and 90% of what makes you unique!',
+          'Discover if AI can even find your business',
+          'See what pages AI currently sees (spoiler: probably not many)',
+          'Get a wake-up call about your AI visibility',
+          'Understand the gap between you and competitors',
         ];
       case 'solo':
         return [
-          '✅ 20 monthly analysis credits',
-          '✅ 200 pages per analysis (10x more than free)',
-          '✅ AI-powered content scoring for all pages',
-          '✅ Priority processing and support',
-          '✅ 30-day money-back guarantee',
+          'AI finds 10x more of your content (200 vs 20 pages)',
+          'Know exactly which pages convert and which don\'t',
+          'Get found for your best services, not just your homepage',
+          'Stop losing customers who never knew you existed',
+          '30-day money-back guarantee — zero risk',
         ];
       case 'growth':
         return [
-          '✅ 100 monthly analyses (5x Coffee tier capacity)',
-          '✅ 500 pages per analysis (perfect for large sites)',
-          '✅ Bulk website processing - analyze multiple sites',
-          '✅ Export to CSV/JSON for data analysis',
-          '✅ Skip the queue - priority processing',
-          "🚀 Handle enterprise websites competitors can't touch",
+          'Dominate AI recommendations for your entire site',
+          'Analyze multiple properties at once (agencies love this)',
+          'Export data to prove ROI to clients or stakeholders',
+          'Process 1,000 pages — handle sites competitors can\'t',
+          'Never lose a client because their site was "too big"',
         ];
       case 'scale':
         return [
-          '✅ Everything in Growth tier',
-          '✅ Unlimited pages per analysis',
-          '✅ Full AI analysis (capped at $19.95 cost)',
-          '✅ API access for integrations',
-          '✅ Multi-site management',
-          '✅ Direct email support line',
+          'Analyze any site, any size, no exceptions',
+          'Full AI analysis on every single page',
+          'Direct support line — your questions answered fast',
+          'Multi-site management for agencies and enterprises',
+          'Freshest data with 3-day cache (others use 14 days)',
+          'Complete mastery over your AI visibility',
         ];
       default:
         return [];
@@ -322,11 +320,11 @@ export default function SignupPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <main className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
           {/* Signup Form */}
           <div>
-            <Card className="w-full max-w-md mx-auto lg:mx-0">
+            <Card className="w-full">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center">Create Your Account</CardTitle>
                 <CardDescription className="text-center">
@@ -366,16 +364,16 @@ export default function SignupPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
                     >
                       <option value="starter" data-testid="tier-option-starter">
-                        ⚠️ FREE - 3 daily (20 pages max)
+                        🔍 Starter (Free) - Am I invisible?
                       </option>
                       <option value="solo" data-testid="tier-option-coffee">
-                        ☕ SOLO - 20 monthly ($4.95/month)
+                        🛡️ Solo ($4.95/mo) - Stop losing customers
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
-                        💼 GROWTH - Go Pro ($9.95/month)
+                        ⚔️ Growth ($9.95/mo) - Dominate AI
                       </option>
                       <option value="scale" data-testid="tier-option-scale">
-                        🚀 SCALE - Enterprise ($19.95/month)
+                        👑 Scale ($19.95/mo) - No limits
                       </option>
                     </select>
 
@@ -407,39 +405,115 @@ export default function SignupPage() {
                         {getTierDescription(selectedTier)}
                       </p>
 
-                      {/* Dramatic messaging for each tier */}
+                      {/* OB Headlines - Marketing Physics */}
+                      <div className="mt-3 p-3 rounded border">
+                        {selectedTier === 'starter' && (
+                          <div className="bg-amber-50 border-amber-300">
+                            <p className="text-sm font-bold text-amber-900 mb-1">
+                              🔍 Find out if you're invisible to AI
+                            </p>
+                            <p className="text-xs text-amber-700">
+                              Discover how AI sees your site (3 analyses/month, 20 pages each)
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedTier === 'solo' && (
+                          <div className="bg-green-50 border-green-300">
+                            <p className="text-sm font-bold text-green-900 mb-1">
+                              🛡️ Stop losing customers to the competitors AI recommends instead of you
+                            </p>
+                            <p className="text-xs text-green-700">
+                              20 analyses/month • 200 pages • AI scoring • 30-day guarantee
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedTier === 'growth' && (
+                          <div className="bg-blue-50 border-blue-300">
+                            <p className="text-sm font-bold text-blue-900 mb-1">
+                              ⚔️ Dominate AI recommendations across all your properties
+                            </p>
+                            <p className="text-xs text-blue-700">
+                              Unlimited analyses • 1,000 pages • Bulk processing • Export to CSV/JSON
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedTier === 'scale' && (
+                          <div className="bg-purple-50 border-purple-300">
+                            <p className="text-sm font-bold text-purple-900 mb-1">
+                              👑 No page limits. No excuses. Just results for your clients.
+                            </p>
+                            <p className="text-xs text-purple-700">
+                              Unlimited pages • Full AI analysis • Multi-site management • Direct support
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* FoMo Section - What you're missing from the next tier */}
                       {selectedTier === 'starter' && (
-                        <div className="mt-3 p-3 bg-red-100 border border-red-300 rounded">
-                          <p className="text-xs font-bold text-red-800">
-                            ⚠️ WARNING: You'll miss critical pages and your competitors will outrank
-                            you with better llms.txt files!
+                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-xs font-semibold text-red-800 mb-2">
+                            ⚠️ What you're missing:
                           </p>
+                          <p className="text-xs text-red-700">
+                            AI only sees 20 of your pages. Your pricing, case studies, testimonials, and best content stay invisible — while competitors with better llms.txt files get found instead.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedTier('solo')}
+                            className="mt-2 text-xs font-bold text-green-700 hover:text-green-900 underline"
+                          >
+                            → Upgrade to Solo for just $4.95/month
+                          </button>
                         </div>
                       )}
 
                       {selectedTier === 'solo' && (
-                        <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded">
-                          <p className="text-xs font-bold text-green-800">
-                            🚀 SMART CHOICE! 20 monthly analyses + 30-day guarantee + cancel
-                            instantly. After signup, secure Stripe payment ($4.95/month)
+                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs font-semibold text-amber-800 mb-2">
+                            📈 Outgrowing Solo?
                           </p>
+                          <p className="text-xs text-amber-700">
+                            If you have 200+ pages or multiple sites, you're still leaving customers invisible to AI.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedTier('growth')}
+                            className="mt-2 text-xs font-bold text-blue-700 hover:text-blue-900 underline"
+                          >
+                            → Upgrade to Growth for $9.95/month
+                          </button>
                         </div>
                       )}
 
                       {selectedTier === 'growth' && (
-                        <div className="mt-3 p-3 bg-blue-100 border border-blue-300 rounded">
-                          <p className="text-xs font-bold text-blue-800">
-                            🚀 DOMINATE LARGE SITES: While competitors fail at 50+ pages, you'll
-                            analyze 500 pages effortlessly!
+                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs font-semibold text-amber-800 mb-2">
+                            🏢 Working with enterprise clients?
                           </p>
+                          <p className="text-xs text-amber-700">
+                            Your client has 1,500 pages. You can only cover 1,000. Their competitors get full coverage. Your client loses customers — and blames you.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedTier('scale')}
+                            className="mt-2 text-xs font-bold text-purple-700 hover:text-purple-900 underline"
+                          >
+                            → Upgrade to Scale for $19.95/month
+                          </button>
                         </div>
                       )}
 
                       {selectedTier === 'scale' && (
-                        <div className="mt-3 p-3 bg-purple-100 border border-purple-300 rounded">
-                          <p className="text-xs font-bold text-purple-800">
-                            👑 ENTERPRISE POWER: Unlimited everything + white-label options for
-                            agencies
+                        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-xs font-semibold text-green-800 mb-1">
+                            ✅ Complete solution — no limits holding you back
+                          </p>
+                          <p className="text-xs text-green-700">
+                            You've chosen the best. Unlimited pages, unlimited AI analysis, and direct support.
                           </p>
                         </div>
                       )}
@@ -655,25 +729,31 @@ export default function SignupPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   {getTierIcon(selectedTier)}
-                  <span className="ml-2">{getTierDisplayName(selectedTier)} Plan Benefits</span>
+                  <span className="ml-2">What You Get with {getTierDisplayName(selectedTier)}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
                   {getTierBenefits(selectedTier).map((benefit, index) => (
                     <li key={index} className="flex items-start">
-                      {selectedTier === 'starter' ? (
-                        <X className="h-4 w-4 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                      ) : (
-                        <Check className="h-4 w-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                      )}
+                      <Check className={`h-4 w-4 mt-0.5 mr-3 flex-shrink-0 ${
+                        selectedTier === 'starter'
+                          ? 'text-amber-500'
+                          : selectedTier === 'solo'
+                            ? 'text-green-500'
+                            : selectedTier === 'growth'
+                              ? 'text-blue-500'
+                              : 'text-purple-500'
+                      }`} />
                       <span
                         className={`text-sm font-medium ${
                           selectedTier === 'starter'
-                            ? 'text-red-700'
+                            ? 'text-amber-800'
                             : selectedTier === 'solo'
                               ? 'text-green-700'
-                              : 'text-gray-700'
+                              : selectedTier === 'growth'
+                                ? 'text-blue-700'
+                                : 'text-purple-700'
                         }`}
                       >
                         {benefit}
@@ -684,12 +764,15 @@ export default function SignupPage() {
               </CardContent>
             </Card>
 
-            {/* Dramatic Trust Signals */}
+            {/* Real Reasons to Believe - Marketing Physics RR */}
             <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
               <CardHeader>
                 <CardTitle className="text-green-800">
-                  🛡️ ZERO RISK - We Remove ALL Your Fears
+                  🛡️ Real Reasons to Believe
                 </CardTitle>
+                <p className="text-sm text-green-700 mt-1">
+                  The ONLY standalone paid tool between $0 and $879/year
+                </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
@@ -697,8 +780,7 @@ export default function SignupPage() {
                   <div>
                     <h4 className="font-bold text-green-800">💰 30-Day Money Back Guarantee</h4>
                     <p className="text-sm text-green-700">
-                      Don't like the results? Get every penny back. No questions asked. No hoops to
-                      jump through.
+                      Don't see results? Get every penny back. No questions asked. No hoops.
                     </p>
                   </div>
                 </div>
@@ -706,10 +788,9 @@ export default function SignupPage() {
                 <div className="flex items-start space-x-3">
                   <Zap className="h-6 w-6 text-blue-600 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-blue-800">⚡ Cancel Instantly Anytime</h4>
+                    <h4 className="font-bold text-blue-800">⚡ Cancel in 10 Seconds</h4>
                     <p className="text-sm text-blue-700">
-                      One click cancellation. No phone calls. No retention tactics. Cancel in 10
-                      seconds flat.
+                      One click. No phone calls. No retention tactics. Just cancel.
                     </p>
                   </div>
                 </div>
@@ -717,29 +798,16 @@ export default function SignupPage() {
                 <div className="flex items-start space-x-3">
                   <User className="h-6 w-6 text-purple-600 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-purple-800">🏆 Results in 24 Hours or Refund</h4>
+                    <h4 className="font-bold text-purple-800">👨‍💻 Built by Solopreneur for Solopreneurs</h4>
                     <p className="text-sm text-purple-700">
-                      See dramatic improvements within 24 hours or get a full refund immediately.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Coffee className="h-6 w-6 text-orange-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-orange-800">
-                      🚀 Outperform Competitors or Refund
-                    </h4>
-                    <p className="text-sm text-orange-700">
-                      We find 3x more pages than competitors or you get your money back. Guaranteed.
+                      Not VC-funded. Real indie maker who understands your business needs.
                     </p>
                   </div>
                 </div>
 
                 <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
                   <p className="text-center text-sm font-bold text-green-800">
-                    ✅ Built by Expert Solopreneur • ✅ Self Not VC-Funded • ✅ Real Results for Real
-                    Businesses
+                    ✅ 89% see measurable improvement • ✅ Results in 24 hours • ✅ Used by 100+ businesses
                   </p>
                 </div>
               </CardContent>
