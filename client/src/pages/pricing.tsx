@@ -84,10 +84,7 @@ export default function Pricing() {
           </Card>
 
           {/* Solo Tier */}
-          <Card className="relative border-2 border-orange-400 hover:shadow-lg transition-shadow bg-orange-50">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white text-xs px-3 py-1 rounded-full">
-              MOST POPULAR
-            </div>
+          <Card className="relative border-2 border-orange-400 hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
                 <Coffee className="h-6 w-6 text-orange-600" />
@@ -121,9 +118,12 @@ export default function Pricing() {
             </CardContent>
           </Card>
 
-          {/* Growth Tier */}
-          <Card className="relative border-2 hover:shadow-lg transition-shadow">
-            <CardHeader>
+          {/* Growth Tier - MOST POPULAR */}
+          <Card className="relative border-2 border-innovation-teal hover:shadow-lg transition-shadow bg-teal-50 ring-2 ring-innovation-teal ring-offset-2">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-innovation-teal text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
+              ⭐ MOST POPULAR
+            </div>
+            <CardHeader className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <Zap className="h-6 w-6 text-innovation-teal" />
                 <div className="text-right">
@@ -138,7 +138,7 @@ export default function Pricing() {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Cover 1,000 pages per site</span>
+                  <span className="text-sm font-medium">Cover 1,000 pages per site</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />

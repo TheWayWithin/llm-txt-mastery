@@ -36,7 +36,7 @@ export default function SignupPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const emailParam = urlParams.get('email') || '';
   const tierParam =
-    (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale') || 'solo';
+    (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale') || 'growth';
   const websiteUrlParam = urlParams.get('websiteUrl') || '';
 
   // Form state
