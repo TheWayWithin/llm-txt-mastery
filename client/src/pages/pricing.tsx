@@ -115,6 +115,13 @@ export default function Pricing() {
                   <span className="text-sm">30-day money-back guarantee</span>
                 </li>
               </ul>
+              <Link href="/signup?tier=solo">
+                <a className="block">
+                  <Button variant="outline" className="w-full">
+                    Start Solo
+                  </Button>
+                </a>
+              </Link>
             </CardContent>
           </Card>
 
@@ -153,6 +160,13 @@ export default function Pricing() {
                   <span className="text-sm">Export to CSV/JSON</span>
                 </li>
               </ul>
+              <Link href="/signup?tier=growth">
+                <a className="block">
+                  <Button className="w-full bg-innovation-teal hover:bg-teal-600 text-white">
+                    Start Growth
+                  </Button>
+                </a>
+              </Link>
             </CardContent>
           </Card>
 
@@ -188,6 +202,13 @@ export default function Pricing() {
                   <span className="text-sm">Direct support line</span>
                 </li>
               </ul>
+              <Link href="/signup?tier=scale">
+                <a className="block">
+                  <Button variant="outline" className="w-full">
+                    Start Scale
+                  </Button>
+                </a>
+              </Link>
             </CardContent>
           </Card>
         </div>
