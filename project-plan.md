@@ -1206,6 +1206,174 @@ Implement JavaScript rendering capabilities exclusively for Scale tier users, en
 
 ---
 
+## ✅ SPRINT 3: Signup Value Ladder Optimization
+
+**Mission Type**: Conversion Rate Optimization - Marketing Physics Implementation
+**Sprint Start**: December 12, 2025
+**Completion Date**: December 12, 2025
+**Priority**: HIGH - Revenue Optimization & Tier Conversion
+**Owner**: THE COORDINATOR
+**Status**: ✅ COMPLETE - Deployed to Staging
+
+### Sprint Objective
+
+Transform the signup page into a compelling value ladder that uses Doug Hall's Marketing Physics framework (OB-DD-RR) to encourage users to select higher tiers through strategic FoMo and dramatic benefit communication.
+
+### Business Case
+
+- **Current Issues**: Two-column layout splits attention, no FoMo between tiers, feature-based (not outcome-based) messaging
+- **Marketing Physics Gap**: Benefits don't follow OB-DD-RR framework from foundation documents
+- **Revenue Impact**: Improved tier selection and conversion rates
+
+### Approved Value Ladder Copy
+
+#### Value Ladder Progression
+```
+Starter → Solo → Growth → Scale
+Discovery → Defense → Offense → Complete
+"Am I invisible?" → "Stop losing" → "Dominate" → "No limits"
+```
+
+#### Starter (Free) - $0/month
+**Overt Benefit:** "Find out if you're invisible to AI"
+**Emotional State:** Awareness/Fear
+**FoMo (from Solo):** "AI only sees 20 of your pages. Your pricing, case studies, testimonials, and best content stay invisible - while competitors with better llms.txt files get found instead."
+
+**Features:**
+- 3 analyses per month
+- 20 pages per analysis
+- AI-powered scoring
+- 5 validations/month
+
+#### Solo - $4.95/month
+**Overt Benefit:** "Stop losing customers to the competitors AI recommends instead of you"
+**Emotional State:** Relief/Protection
+**FoMo (from Growth):** "Outgrowing Solo? If you have 200+ pages or multiple sites, you're still leaving customers invisible to AI."
+
+**Features:**
+- 20 analyses per month
+- 200 pages per analysis
+- AI-powered scoring
+- Priority processing
+- Dashboard/file history
+- 20 validations/month
+- 30-day money-back guarantee
+
+#### Growth - $9.95/month
+**Overt Benefit:** "Dominate AI recommendations across all your properties"
+**Emotional State:** Confidence/Aggression
+**FoMo (from Scale):** "Your client has 1,500 pages. You can only cover 1,000. Their competitors get full coverage. Your client loses customers - and blames you."
+
+**Features:**
+- Unlimited daily analyses
+- 1,000 pages per analysis
+- AI analysis for 200 pages per analysis
+- Bulk website processing
+- Export to CSV/JSON
+- 35 validations/month
+
+#### Scale - $19.95/month
+**Overt Benefit:** "No page limits. No excuses. Just results for your clients."
+**Emotional State:** Mastery/Control
+**Validation:** "Complete solution - no limits holding you back."
+
+**Features:**
+- Unlimited pages per analysis
+- Unlimited AI analysis
+- 3-day cache (freshest data)
+- Multi-site management
+- Direct support line
+- 100 validations/month
+
+### Sprint Phases
+
+#### Phase 1: Layout Fix [x] ✅
+**Priority**: P1 - Quick Win
+**Duration**: 15 minutes
+**Completed**: December 12, 2025
+**Tasks**:
+- [x] Change signup layout from two-column to single-column
+- [x] Remove `lg:grid-cols-2` from signup.tsx
+- [x] Test on wide and narrow screens
+
+#### Phase 2: OB Headlines [x] ✅
+**Priority**: P1 - Core Value Proposition
+**Duration**: 1 hour
+**Completed**: December 12, 2025
+**Tasks**:
+- [x] Update tier headlines with approved OB copy
+- [x] Update tier description text
+- [x] Test tier selection UX
+
+#### Phase 3: FoMo Messages [x] ✅
+**Priority**: P1 - Upgrade Nudges
+**Duration**: 2 hours
+**Completed**: December 12, 2025
+**Tasks**:
+- [x] Add FoMo comparison section when tier selected
+- [x] Show "what you're missing" from next tier up
+- [x] Add upgrade CTA within FoMo message
+- [x] Scale tier shows validation instead of FoMo
+
+#### Phase 4: Benefit Rewrite [x] ✅
+**Priority**: P2 - Outcome Focus
+**Duration**: 1-2 hours
+**Completed**: December 12, 2025
+**Tasks**:
+- [x] Rewrite getTierBenefits() with outcome-focused language
+- [x] Remove feature lists, add outcome statements
+- [x] Test readability and impact
+
+#### Phase 5: Real Reasons to Believe [x] ✅
+**Priority**: P2 - Trust Building
+**Duration**: 1 hour
+**Completed**: December 12, 2025
+**Tasks**:
+- [x] Add specific proof points (89% success rate, etc.)
+- [x] Enhance money-back guarantee messaging
+- [x] Add solopreneur credibility signals
+
+### Success Criteria
+
+- [x] Single-column layout on all screen sizes
+- [x] All tier OBs updated with approved copy
+- [x] FoMo messages display when tier selected
+- [x] Benefits are outcome-focused, not feature-focused
+- [x] Real Reasons to Believe section enhanced
+- [x] Zero regressions in signup flow
+
+### Mission Results
+
+**Status**: ✅ **COMPLETE** (December 12, 2025)
+**Duration**: 45 minutes
+**Quality**: All success criteria met, zero issues
+
+**Deliverables**:
+- Commit f7b37a3: "feat: Implement Sprint 3 - Signup Value Ladder Optimization"
+- Single-column focused layout
+- Marketing Physics OB headlines for all 4 tiers
+- FoMo upgrade nudges with one-click tier switching
+- Outcome-focused benefits (not feature lists)
+- Enhanced Real Reasons to Believe with DD positioning
+
+**Marketing Physics Implementation**:
+- ✅ OB (Overt Benefit): Outcome-focused headlines per tier
+- ✅ DD (Dramatic Difference): "ONLY standalone paid tool between $0 and $879/year"
+- ✅ RR (Real Reasons to Believe): 89% success rate, 30-day guarantee, solopreneur credibility
+
+**Staging URL**: https://develop--llm-txt-mastery.netlify.app/signup
+
+### Files to Modify
+
+- `client/src/pages/signup.tsx` - Main signup page
+- `client/src/lib/tier-utils.ts` - Tier display utilities (if needed)
+
+### Detailed Sprint Plan
+
+Full implementation details in: `project-plan-signup-sprint.md`
+
+---
+
 ## Priority List
 
 ### 🚨 CRITICAL - BLOCKING PRODUCTION VALUE
