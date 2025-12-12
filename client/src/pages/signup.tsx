@@ -321,27 +321,21 @@ export default function SignupPage() {
 
       {/* Main Content */}
       <main className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          {/* Signup Form */}
-          <div>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-6">
+            {/* Step 1: Choose Your Plan */}
             <Card className="w-full">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl text-center">Create Your Account</CardTitle>
+                <CardTitle className="text-2xl text-center">Get Found by AI</CardTitle>
                 <CardDescription className="text-center">
                   Join early adopters making their businesses AI-discoverable
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-
+                <div className="space-y-4">
                   {/* Tier Selection Dropdown */}
                   <div className="space-y-2">
-                    <Label htmlFor="tier">Select Your Plan</Label>
+                    <Label htmlFor="tier">Step 1: Choose Your Plan</Label>
                     <select
                       id="tier"
                       data-testid="tier-select"
@@ -381,10 +375,12 @@ export default function SignupPage() {
                     <div
                       className={`rounded-lg p-4 border-2 mt-2 ${
                         selectedTier === 'starter'
-                          ? 'bg-red-50 border-red-300'
+                          ? 'bg-amber-50 border-amber-300'
                           : selectedTier === 'solo'
                             ? 'bg-green-50 border-green-400'
-                            : 'bg-blue-50 border-blue-300'
+                            : selectedTier === 'growth'
+                              ? 'bg-blue-50 border-blue-300'
+                              : 'bg-purple-50 border-purple-300'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -396,10 +392,12 @@ export default function SignupPage() {
                       <p
                         className={`text-sm font-medium mt-2 ${
                           selectedTier === 'starter'
-                            ? 'text-red-700'
+                            ? 'text-amber-700'
                             : selectedTier === 'solo'
                               ? 'text-green-700'
-                              : 'text-blue-700'
+                              : selectedTier === 'growth'
+                                ? 'text-blue-700'
+                                : 'text-purple-700'
                         }`}
                       >
                         {getTierDescription(selectedTier)}
@@ -519,6 +517,131 @@ export default function SignupPage() {
                       )}
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Benefits & Trust Signals (before form) */}
+            {/* Selected Tier Benefits */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  {getTierIcon(selectedTier)}
+                  <span className="ml-2">What You Get with {getTierDisplayName(selectedTier)}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  {getTierBenefits(selectedTier).map((benefit, index) => (
+                    <li key={index} className="flex items-start">
+                      <Check className={`h-4 w-4 mt-0.5 mr-3 flex-shrink-0 ${
+                        selectedTier === 'starter'
+                          ? 'text-amber-500'
+                          : selectedTier === 'solo'
+                            ? 'text-green-500'
+                            : selectedTier === 'growth'
+                              ? 'text-blue-500'
+                              : 'text-purple-500'
+                      }`} />
+                      <span
+                        className={`text-sm font-medium ${
+                          selectedTier === 'starter'
+                            ? 'text-amber-800'
+                            : selectedTier === 'solo'
+                              ? 'text-green-700'
+                              : selectedTier === 'growth'
+                                ? 'text-blue-700'
+                                : 'text-purple-700'
+                        }`}
+                      >
+                        {benefit}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Real Reasons to Believe - Marketing Physics RR */}
+            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
+              <CardHeader>
+                <CardTitle className="text-green-800">
+                  🛡️ Real Reasons to Believe
+                </CardTitle>
+                <p className="text-sm text-green-700 mt-1">
+                  The ONLY standalone paid tool between $0 and $879/year
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Shield className="h-6 w-6 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-green-800">💰 30-Day Money Back Guarantee</h4>
+                    <p className="text-sm text-green-700">
+                      Don't see results? Get every penny back. No questions asked. No hoops.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Zap className="h-6 w-6 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-blue-800">⚡ Cancel in 10 Seconds</h4>
+                    <p className="text-sm text-blue-700">
+                      One click. No phone calls. No retention tactics. Just cancel.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <User className="h-6 w-6 text-purple-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-purple-800">👨‍💻 Built by Solopreneur for Solopreneurs</h4>
+                    <p className="text-sm text-purple-700">
+                      Not VC-funded. Real indie maker who understands your business needs.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
+                  <p className="text-center text-sm font-bold text-green-800">
+                    ✅ 89% see measurable improvement • ✅ Results in 24 hours • ✅ Used by 100+ businesses
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Notice */}
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Lock className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-900">Secure & Private</h4>
+                    <p className="text-sm text-blue-700">
+                      Your data is encrypted and never shared. We only analyze public content and
+                      generate files you control.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 2: Create Account (Form at the end) */}
+            <Card className="w-full border-2 border-innovation-teal">
+              <CardHeader className="space-y-1 bg-innovation-teal/5">
+                <CardTitle className="text-xl text-center">Step 2: Create Your Account</CardTitle>
+                <CardDescription className="text-center">
+                  Ready to get found by AI? Enter your details below.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
 
                   {/* Email Field */}
                   <div className="space-y-2">
@@ -707,7 +830,7 @@ export default function SignupPage() {
                       </>
                     )}
                   </Button>
-                </form>
+                </div>
 
                 {/* Login Link */}
                 <div className="mt-6 text-center">
@@ -721,115 +844,7 @@ export default function SignupPage() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Tier Benefits & Trust Signals */}
-          <div className="space-y-6">
-            {/* Selected Tier Benefits */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  {getTierIcon(selectedTier)}
-                  <span className="ml-2">What You Get with {getTierDisplayName(selectedTier)}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {getTierBenefits(selectedTier).map((benefit, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className={`h-4 w-4 mt-0.5 mr-3 flex-shrink-0 ${
-                        selectedTier === 'starter'
-                          ? 'text-amber-500'
-                          : selectedTier === 'solo'
-                            ? 'text-green-500'
-                            : selectedTier === 'growth'
-                              ? 'text-blue-500'
-                              : 'text-purple-500'
-                      }`} />
-                      <span
-                        className={`text-sm font-medium ${
-                          selectedTier === 'starter'
-                            ? 'text-amber-800'
-                            : selectedTier === 'solo'
-                              ? 'text-green-700'
-                              : selectedTier === 'growth'
-                                ? 'text-blue-700'
-                                : 'text-purple-700'
-                        }`}
-                      >
-                        {benefit}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Real Reasons to Believe - Marketing Physics RR */}
-            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
-              <CardHeader>
-                <CardTitle className="text-green-800">
-                  🛡️ Real Reasons to Believe
-                </CardTitle>
-                <p className="text-sm text-green-700 mt-1">
-                  The ONLY standalone paid tool between $0 and $879/year
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Shield className="h-6 w-6 text-green-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-green-800">💰 30-Day Money Back Guarantee</h4>
-                    <p className="text-sm text-green-700">
-                      Don't see results? Get every penny back. No questions asked. No hoops.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Zap className="h-6 w-6 text-blue-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-blue-800">⚡ Cancel in 10 Seconds</h4>
-                    <p className="text-sm text-blue-700">
-                      One click. No phone calls. No retention tactics. Just cancel.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <User className="h-6 w-6 text-purple-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-purple-800">👨‍💻 Built by Solopreneur for Solopreneurs</h4>
-                    <p className="text-sm text-purple-700">
-                      Not VC-funded. Real indie maker who understands your business needs.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
-                  <p className="text-center text-sm font-bold text-green-800">
-                    ✅ 89% see measurable improvement • ✅ Results in 24 hours • ✅ Used by 100+ businesses
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Security Notice */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-6">
-                <div className="flex items-start space-x-3">
-                  <Lock className="h-5 w-5 text-blue-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-blue-900">Secure & Private</h4>
-                    <p className="text-sm text-blue-700">
-                      Your data is encrypted and never shared. We only analyze public content and
-                      generate files you control.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        </form>
       </main>
 
       {/* Footer */}
