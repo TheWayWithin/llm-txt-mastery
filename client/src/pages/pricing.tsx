@@ -44,29 +44,33 @@ export default function Pricing() {
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {/* Free Tier */}
+          {/* Starter Tier */}
           <Card className="relative border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
                 <Check className="h-6 w-6 text-green-600" />
                 <span className="text-2xl font-bold">$0</span>
               </div>
-              <CardTitle>Free</CardTitle>
-              <CardDescription>Perfect for testing</CardDescription>
+              <CardTitle>Starter</CardTitle>
+              <CardDescription>Find out if you're invisible to AI</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">3 analyses per day</span>
+                  <span className="text-sm">Discover if AI can find you</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">20 pages per analysis</span>
+                  <span className="text-sm">See your visibility score</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Basic categorization</span>
+                  <span className="text-sm">20 pages analyzed</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Basic recommendations</span>
                 </li>
               </ul>
               <Link href="/">
@@ -93,21 +97,25 @@ export default function Pricing() {
                 </div>
               </div>
               <CardTitle>Solo</CardTitle>
-              <CardDescription>20 analyses per month</CardDescription>
+              <CardDescription>Stop losing customers to competitors</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm font-medium">20 analyses per month</span>
+                  <span className="text-sm font-medium">AI finds 10x more pages (200)</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">200 pages per analysis</span>
+                  <span className="text-sm">Know which pages convert</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">AI-enhanced quality</span>
+                  <span className="text-sm">Stop losing to competitors</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">30-day money-back guarantee</span>
                 </li>
               </ul>
             </CardContent>
@@ -119,26 +127,30 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Zap className="h-6 w-6 text-innovation-teal" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$14.95</span>
+                  <span className="text-2xl font-bold">$9.95</span>
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>
               <CardTitle>Growth</CardTitle>
-              <CardDescription>Professional power</CardDescription>
+              <CardDescription>Dominate AI recommendations</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">35 analyses per month</span>
+                  <span className="text-sm">Cover 1,000 pages per site</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">500 pages per analysis</span>
+                  <span className="text-sm">Unlimited daily analyses</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Smart caching</span>
+                  <span className="text-sm">Bulk website processing</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Export to CSV/JSON</span>
                 </li>
               </ul>
             </CardContent>
@@ -150,30 +162,30 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Crown className="h-6 w-6 text-mastery-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$29.95</span>
+                  <span className="text-2xl font-bold">$19.95</span>
                   <span className="text-xs text-ai-silver block">/month</span>
                 </div>
               </div>
               <CardTitle>Scale</CardTitle>
-              <CardDescription>Enterprise ready</CardDescription>
+              <CardDescription>No limits. Just results.</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">100 analyses per month</span>
+                  <span className="text-sm">Unlimited pages per analysis</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">1,000 pages per analysis</span>
+                  <span className="text-sm">Unlimited AI analysis</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">API access</span>
+                  <span className="text-sm">Multi-site management</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Direct email support</span>
+                  <span className="text-sm">Direct support line</span>
                 </li>
               </ul>
             </CardContent>
