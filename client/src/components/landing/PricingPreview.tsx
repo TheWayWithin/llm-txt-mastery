@@ -52,7 +52,7 @@ export default function PricingPreview({
         'Stop losing to competitors',
         '30-day money-back guarantee',
       ],
-      cta: 'Start Solo Plan',
+      cta: 'Start Solo',
       borderColor: 'border-orange-400',
       bgColor: 'bg-white',
       iconColor: 'text-orange-600',
@@ -72,7 +72,7 @@ export default function PricingPreview({
         'Bulk website processing',
         'Export to CSV/JSON',
       ],
-      cta: 'Start Growth Plan',
+      cta: 'Start Growth',
       borderColor: 'border-innovation-teal',
       bgColor: 'bg-teal-50',
       iconColor: 'text-innovation-teal',
@@ -93,7 +93,7 @@ export default function PricingPreview({
         'Multi-site management',
         'Direct support line',
       ],
-      cta: 'Start Scale Plan',
+      cta: 'Start Scale',
       borderColor: 'border-mastery-blue',
       bgColor: 'bg-white',
       iconColor: 'text-mastery-blue',
@@ -164,26 +164,18 @@ export default function PricingPreview({
                   </ul>
 
                   {/* CTA Button - Minimum 44px height for touch targets */}
-                  {tier.id === 'free' || tier.id === 'solo' ? (
-                    <Link href="/">
-                      <Button
-                        variant={tier.ctaVariant}
-                        className={`w-full min-h-[44px] ${
-                          tier.id === 'solo'
-                            ? 'bg-orange-600 hover:bg-orange-700 text-white'
-                            : ''
-                        }`}
-                      >
-                        {tier.cta}
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link href="/pricing">
-                      <Button variant="outline" className="w-full min-h-[44px]">
-                        {tier.cta} →
-                      </Button>
-                    </Link>
-                  )}
+                  <Link href={tier.id === 'free' ? '/' : `/signup?tier=${tier.id}`}>
+                    <Button
+                      variant={tier.ctaVariant}
+                      className={`w-full min-h-[44px] ${
+                        tier.id === 'growth'
+                          ? 'bg-innovation-teal hover:bg-teal-600 text-white'
+                          : ''
+                      }`}
+                    >
+                      {tier.cta}
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             );
