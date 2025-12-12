@@ -199,53 +199,74 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Competitor Warning Alert */}
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-6">
+          {/* Competitor Warning Alert - Updated December 2025 */}
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mb-6">
             <div className="flex items-start">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-red-400 mt-0.5"
+                  className="h-5 w-5 text-amber-500 mt-0.5"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                     clipRule="evenodd"
                   />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-bold text-red-800">
-                  ⚠️ August 2025 Testing Alert: 2 of 4 LLMs.txt Generators Don't Work
+                <p className="text-sm font-bold text-amber-800">
+                  ⚠️ December 2025 Alert: Free Tools Find Pages, But Can't Score Quality
                 </p>
-                <p className="text-sm text-red-700 mt-1">
-                  <span className="font-semibold">Writesonic:</span> Limited to 3 uses per day
-                  (unusable for real work) •<span className="font-semibold ml-2">LiveChatAI:</span>{' '}
-                  Completely broken (100% failure rate) •
-                  <span className="font-semibold ml-2">SiteSpeakAI:</span> Works but misses 60% of
-                  your content
+                <p className="text-sm text-amber-700 mt-1">
+                  <span className="font-semibold">Keploy</span> finds pages for free — but misses what matters.
+                  Only <span className="font-semibold text-innovation-teal">LLM.txt Mastery</span> uses
+                  <span className="font-semibold"> GPT-4o</span> to evaluate what ChatGPT, Claude & Perplexity will actually <span className="italic">cite</span>.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Hero Section */}
+          {/* Hero Section - 6 Moats Positioning */}
           <section className="text-center mb-12">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-framework-black mb-4">
-              Get Found by AI in 24 Hours, Not 24 Months
+              The ONLY Dedicated LLMs.txt Platform
             </h1>
             <p className="text-base sm:text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
-              Stop losing customers to AI search. We optimize your website so ChatGPT, Claude,
-              and Gemini cite your business first.
+              Free tools are lead magnets for other products. We're <span className="font-semibold text-innovation-teal">100% focused on AI discoverability</span> —
+              with GPT-4o analysis, any website type support, and 47+ updates shipped in 2025.
             </p>
 
-            {/* Competitor Comparison Bar */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
-              <p className="text-green-800 font-semibold">
-                ✅ We tested all 4 major generators – ours delivers 5x better AI discovery
-              </p>
+            {/* 6 Moat Badges - Core Differentiators */}
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 max-w-3xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span className="text-gray-700">AI Quality Scoring (GPT-4o)</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span className="text-gray-700">Any Website Type (SSR/CSR/SSG)</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span className="text-gray-700">15+ Frameworks Detected</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span className="text-gray-700">Validator + robots.txt Check</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span className="text-gray-700">All 3 File Formats</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span className="text-gray-700">47+ Updates in 2025</span>
+                </div>
+              </div>
             </div>
 
             {/* Hero Illustration */}
@@ -305,10 +326,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Framework Support Badge */}
+            {/* Dedicated Platform Badge */}
             <div className="flex items-center justify-center space-x-1 text-sm text-ai-silver mt-2">
-              <span className="text-lg">⚙️</span>
-              <span>Works on any technology: React, Next.js, Vue, Angular, Astro & more</span>
+              <span className="text-lg">🎯</span>
+              <span>This is our entire focus — not a marketing add-on for another product</span>
             </div>
 
             {/* Security Trust Badges */}
@@ -317,62 +338,60 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Problem-Solution Section */}
+          {/* Problem-Solution Section - Updated for Quality vs Quantity */}
           <section className="mb-16">
             <div className="bg-red-50 border border-red-200 rounded-lg p-8">
               <h3 className="text-2xl font-bold text-framework-black mb-6 text-center">
-                Is Your Business Invisible to AI?
+                Free Tools Find Pages. But Will AI Actually Cite You?
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <h4 className="font-semibold text-red-800 mb-3">The Problem You're Facing:</h4>
+                  <h4 className="font-semibold text-red-800 mb-3">The Hidden Problem:</h4>
                   <ul className="space-y-2 text-sm text-red-700">
-                    <li>❌ People use AI for research but can't find you</li>
-                    <li>❌ Competitors appear in AI responses while you don't</li>
-                    <li>❌ Hit daily limits on other generators (Writesonic: 3/day)</li>
-                    <li>❌ Tools that literally don't work (LiveChatAI: 100% broken)</li>
-                    <li>❌ Basic scrapers missing 60% of your content (SiteSpeakAI)</li>
-                    <li>❌ You're losing 100+ leads/month to AI-optimized businesses</li>
+                    <li>❌ Free tools (like Keploy) find pages — but without quality scoring</li>
+                    <li>❌ AI systems get a list, not guidance on what matters</li>
+                    <li>❌ Your privacy policy ranks alongside your best content</li>
+                    <li>❌ No framework detection means React/Next.js sites may fail</li>
+                    <li>❌ robots.txt conflicts silently block AI access</li>
+                    <li>❌ Lead magnets get abandoned — no updates after launch</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-green-800 mb-3">Our Solution:</h4>
+                  <h4 className="font-semibold text-green-800 mb-3">What Quality Intelligence Delivers:</h4>
                   <ul className="space-y-2 text-sm text-green-700">
-                    <li>✅ AI analyzes your content for AI (not just HTML scraping)</li>
-                    <li>✅ Proprietary scoring finds your best pages</li>
-                    <li>✅ Works across ChatGPT, Claude, Perplexity & more</li>
-                    <li>✅ Works on ANY website technology (React, Next.js, Vue, Astro & more)</li>
-                    <li>✅ Captures 90%+ content from SPAs that basic scrapers miss</li>
-                    <li>✅ 73% average increase in AI citations</li>
-                    <li>✅ Results in 24 hours, not months of waiting</li>
+                    <li>✅ GPT-4o analyzes what AI will actually cite</li>
+                    <li>✅ Quality scoring prioritizes your best content</li>
+                    <li>✅ 15+ framework detection (React, Next.js, Vue, Astro...)</li>
+                    <li>✅ robots.txt conflict detection (unique feature)</li>
+                    <li>✅ All 3 file formats (llms.txt, llms-full.txt, llms.md)</li>
+                    <li>✅ 47+ updates in 2025 — actively developed platform</li>
+                    <li>✅ Dedicated platform, not a side feature or lead magnet</li>
                   </ul>
                 </div>
               </div>
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-4">
-                  <strong>Bottom line:</strong> If you're not optimized for AI, you're already
-                  losing business.
+                  <strong>The insight:</strong> Finding pages is solved. <span className="italic">Finding the RIGHT pages for AI citation</span> — that's what we do.
                 </p>
                 <Button
                   variant="outline"
                   size="lg"
                   className="border-red-300 text-red-700 hover:bg-red-100"
                   onClick={() => {
-                    // Scroll to competitor comparison section
                     document
                       .getElementById('competitor-comparison')
                       ?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  See How We're Different →
+                  See the Full Comparison →
                 </Button>
               </div>
             </div>
           </section>
 
-          {/* Pricing Preview Section */}
+          {/* Pricing Preview Section - Growth highlighted (Sprint 3) */}
           <PricingPreview
-            highlightTier="solo"
+            highlightTier="growth"
             showAllTiers={true}
             className="mb-16"
           />
@@ -402,7 +421,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Validator Tool Section */}
+          {/* Validator Tool Section - Enhanced with robots.txt */}
           <section className="mb-16">
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-2 border-innovation-teal shadow-lg p-8">
               <div className="text-center mb-6">
@@ -412,37 +431,51 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-3xl font-bold text-framework-black mb-3">
-                  Already Have an llms.txt File?
+                  The Only Validator That Checks robots.txt Conflicts
                 </h3>
                 <p className="text-lg text-ai-silver max-w-2xl mx-auto mb-6">
-                  Check if your llms.txt file follows the official specification and get actionable recommendations to improve your score.
+                  Standalone validators check format. Our validator checks if your llms.txt <span className="font-semibold text-innovation-teal">actually works</span> — including robots.txt conflicts that silently block AI access.
                 </p>
                 <div className="inline-flex items-center justify-center px-4 py-2 bg-green-100 border border-green-300 rounded-full mb-4">
                   <span className="text-sm font-semibold text-green-800">✨ 100% Free Tool - No Sign-up Required</span>
                 </div>
               </div>
 
-              <div className="max-w-xl mx-auto mb-6">
+              <div className="max-w-2xl mx-auto mb-6">
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <h4 className="font-semibold text-framework-black mb-4 text-center">
-                    What Our Validator Checks:
+                    What Our Validator Checks (That Others Don't):
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-start space-x-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                      <span className="text-green-600 font-bold mt-0.5">✓</span>
+                      <div>
+                        <span className="text-gray-800 font-medium">robots.txt Conflict Detection</span>
+                        <p className="text-gray-500 text-xs">Catches silent blocking issues</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                      <span className="text-green-600 font-bold mt-0.5">✓</span>
+                      <div>
+                        <span className="text-gray-800 font-medium">Content Quality Score</span>
+                        <p className="text-gray-500 text-xs">Not just format compliance</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2 p-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full mt-1.5"></div>
                       <span className="text-ai-silver">Official spec compliance</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-                      <span className="text-ai-silver">Content quality score</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
+                    <div className="flex items-start space-x-2 p-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full mt-1.5"></div>
                       <span className="text-ai-silver">Format validation</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-innovation-teal rounded-full"></div>
-                      <span className="text-ai-silver">robots.txt conflicts</span>
+                    <div className="flex items-start space-x-2 p-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full mt-1.5"></div>
+                      <span className="text-ai-silver">Actionable recommendations</span>
+                    </div>
+                    <div className="flex items-start space-x-2 p-2">
+                      <div className="w-2 h-2 bg-innovation-teal rounded-full mt-1.5"></div>
+                      <span className="text-ai-silver">Integrated improvement workflow</span>
                     </div>
                   </div>
                 </div>
@@ -465,7 +498,7 @@ export default function Home() {
               </div>
 
               <p className="text-center text-sm text-ai-silver mt-4">
-                Get instant feedback with a detailed quality score and recommendations
+                Don't let a robots.txt misconfiguration silently block your AI visibility
               </p>
             </div>
           </section>
@@ -546,27 +579,33 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Competitor Comparison Section */}
+          {/* Competitor Comparison Section - Updated December 2025 with Keploy */}
           <section id="competitor-comparison" className="mb-16">
             <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-8">
               <h3 className="text-2xl sm:text-3xl font-bold text-framework-black mb-4 text-center">
-                We Outperform Every Other LLMs.txt Generator
+                Free Tools Find Pages. We Find What AI Will CITE.
               </h3>
-              <p className="text-lg text-ai-silver text-center mb-8 max-w-3xl mx-auto">
-                We tested all 4 major generators with the same website. The results speak for
-                themselves:
+              <p className="text-lg text-ai-silver text-center mb-4 max-w-3xl mx-auto">
+                December 2025 independent testing. Yes, Keploy finds 90% of pages for free — but without quality analysis,
+                AI systems won't know which pages matter.
+              </p>
+              <p className="text-sm text-gray-500 text-center mb-8 max-w-2xl mx-auto">
+                We openly acknowledge competitors. Honesty builds trust.
               </p>
 
-              {/* Comparison Table */}
+              {/* Comparison Table - New format with Keploy */}
               <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                <table className="w-full border-collapse min-w-[600px]">
+                <table className="w-full border-collapse min-w-[700px]">
                   <thead>
                     <tr className="bg-gray-50">
                       <th className="border border-gray-200 px-4 py-3 text-left font-semibold text-framework-black">
                         Feature
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-innovation-teal">
+                      <th className="border border-gray-200 px-4 py-3 text-center font-semibold bg-innovation-teal/10 text-innovation-teal">
                         LLM.txt Mastery
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-600">
+                        Keploy (Free)
                       </th>
                       <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-600">
                         SiteSpeakAI
@@ -574,184 +613,209 @@ export default function Home() {
                       <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-600">
                         Writesonic
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-600">
-                        LiveChatAI
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="hover:bg-gray-50">
+                    {/* Product Focus - MOAT 6 */}
+                    <tr className="hover:bg-gray-50 bg-green-50">
                       <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Actually Works
+                        <span className="font-bold text-green-700">Product Focus</span>
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ 100% Reliable
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold bg-green-50">
+                        ✅ Dedicated Platform
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Basic only
+                        ⚠️ Lead Magnet
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ 3/day limit
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Side Feature
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Broken
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Side Feature
                       </td>
                     </tr>
+                    {/* AI Quality Scoring - MOAT 1 */}
+                    <tr className="hover:bg-gray-50 bg-green-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">
+                        <span className="font-bold text-green-700">AI Quality Scoring</span>
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold bg-green-50">
+                        ✅ GPT-4o Analysis
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                    </tr>
+                    {/* Website Type Detection - MOAT 2 */}
+                    <tr className="hover:bg-gray-50 bg-green-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">
+                        <span className="font-bold text-green-700">Website Type Detection</span>
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold bg-green-50">
+                        ✅ All 5 Types (SSR/CSR/SSG/ISR/Static)
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ HTML Only
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ HTML Only
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ HTML Only
+                      </td>
+                    </tr>
+                    {/* Framework Detection - MOAT 3 */}
+                    <tr className="hover:bg-gray-50 bg-green-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">
+                        <span className="font-bold text-green-700">Framework Detection</span>
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold bg-green-50">
+                        ✅ 15+ Frameworks
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                    </tr>
+                    {/* Validator with robots.txt - MOAT 4 */}
+                    <tr className="hover:bg-gray-50 bg-green-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">
+                        <span className="font-bold text-green-700">Validator + robots.txt</span>
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold bg-green-50">
+                        ✅ Full + Conflict Check
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        ❌ None
+                      </td>
+                    </tr>
+                    {/* Output Formats - MOAT 5 */}
                     <tr className="hover:bg-gray-50">
                       <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Daily Usage Limit
+                        Output Formats
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ Unlimited
+                        ✅ All 3 Formats
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600">
-                        ✅ Unlimited
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ 1 Format
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ 3 uses only
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ 1 Format
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-400">
-                        N/A (broken)
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ 1 Format
                       </td>
                     </tr>
+                    {/* Pages Found */}
                     <tr className="hover:bg-gray-50">
                       <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Pages Found (Test)
+                        Pages Found (Test Site)
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
                         ✅ 147 pages
                       </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600">
+                        ✅ 133 pages
+                      </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ 42 pages
+                        ⚠️ 21 pages
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-400">
-                        N/A (blocked)
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-400">
-                        N/A (broken)
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ 53 pages
                       </td>
                     </tr>
+                    {/* CSR/SPA Support */}
                     <tr className="hover:bg-gray-50">
                       <td className="border border-gray-200 px-4 py-3 font-medium">
-                        AI-Powered Analysis
+                        CSR/SPA Content Capture
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ GPT-4 + Claude
+                        ✅ Full + Warnings
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Basic scraping
+                        ❌ Fails Silently
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Template-based
+                        ❌ Fails Silently
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Simple extraction
+                        ❌ Fails Silently
                       </td>
                     </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Content Quality Scoring
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ Proprietary algorithm
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ No scoring
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ No scoring
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ No scoring
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Page Discovery
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ 7+ strategies
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Basic sitemap
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Limited
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Manual input
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Relevance Filtering
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ AI-driven selection
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Include all
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Include all
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Manual
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Cross-Platform Optimization
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ All AI systems
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Generic
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Generic
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
-                        ⚠️ Generic
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50 bg-green-50">
-                      <td className="border border-gray-200 px-4 py-3 font-medium">
-                        Modern Framework Support
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ React, Next, Vue, Astro + 10 more
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ HTML only
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Basic scraping
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Broken
-                      </td>
-                    </tr>
+                    {/* Support */}
                     <tr className="hover:bg-gray-50">
                       <td className="border border-gray-200 px-4 py-3 font-medium">Support</td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ Direct founder access
+                        ✅ Direct Founder Access
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Automated
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Self-Serve
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Tickets
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Tickets
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Limited
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Tickets
                       </td>
                     </tr>
-                    <tr className="bg-gray-50 font-bold">
-                      <td className="border border-gray-200 px-4 py-3">Overall Score</td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 text-lg">
-                        🏆 Winner
+                    {/* 2025 Updates */}
+                    <tr className="hover:bg-gray-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">2025 Updates</td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
+                        ✅ 47+ Shipped
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-400">
+                        ❓ Unknown
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-400">
+                        ❓ Unknown
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-400">
+                        ❓ Unknown
+                      </td>
+                    </tr>
+                    {/* Price */}
+                    <tr className="hover:bg-gray-50">
+                      <td className="border border-gray-200 px-4 py-3 font-medium">Price</td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
+                        $0-$19.95/mo
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600">
+                        Free
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-gray-600">
+                        $20+/mo
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
+                        3/day limit
+                      </td>
+                    </tr>
+                    {/* Bottom Line */}
+                    <tr className="bg-gray-100 font-bold">
+                      <td className="border border-gray-200 px-4 py-3">Bottom Line</td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-green-600 text-lg bg-green-50">
+                        🏆 Quality + Quantity
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        Quantity Only
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-gray-600">
                         Limited
@@ -759,18 +823,19 @@ export default function Home() {
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
                         Unusable
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        Broken
-                      </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
+              {/* Key Insight */}
               <div className="mt-8 bg-innovation-teal/10 border border-innovation-teal rounded-lg p-6">
-                <p className="text-center text-innovation-teal font-semibold mb-4">
-                  💡 Independent testing shows we generate 3x more relevant pages and 5x better AI
-                  discoverability
+                <p className="text-center text-framework-black mb-2">
+                  <span className="font-bold text-innovation-teal">The Key Insight:</span> Keploy finds 90% of pages for free — <span className="italic">and that's fine</span>.
+                </p>
+                <p className="text-center text-ai-silver mb-4">
+                  But finding pages isn't enough. AI systems need to know <span className="font-semibold">which pages matter</span>.
+                  Only GPT-4o quality scoring tells them that.
                 </p>
                 <div className="flex justify-center">
                   <Button
@@ -791,11 +856,11 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Tested & Proven Section */}
+          {/* Tested & Proven Section - December 2025 */}
           <section className="mb-16">
             <div className="bg-gradient-to-r from-blue-50 to-innovation-teal/10 rounded-lg border border-blue-200 p-8">
               <h3 className="text-3xl font-bold text-framework-black mb-6 text-center">
-                Independently Tested & Proven Superior
+                December 2025 Testing: Quality vs Quantity
               </h3>
 
               <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -804,7 +869,7 @@ export default function Home() {
                     Real Test Results: FreecalcHub.com Analysis
                   </h4>
                   <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                    August 2025 Testing
+                    December 2025 Testing
                   </span>
                 </div>
 
@@ -812,31 +877,30 @@ export default function Home() {
                   <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                     <p className="text-sm font-medium text-gray-600 mb-1">LLM.txt Mastery</p>
                     <p className="text-3xl font-bold text-green-600">147</p>
-                    <p className="text-xs text-gray-500">AI-curated pages</p>
+                    <p className="text-xs text-gray-500">AI quality-scored pages</p>
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <p className="text-sm font-medium text-gray-600 mb-1">SiteSpeakAI</p>
-                    <p className="text-3xl font-bold text-yellow-600">42</p>
-                    <p className="text-xs text-gray-500">Basic scraping</p>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Keploy (Free)</p>
+                    <p className="text-3xl font-bold text-yellow-600">133</p>
+                    <p className="text-xs text-gray-500">Pages found (no scoring)</p>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                    <p className="text-sm font-medium text-gray-600 mb-1">Writesonic</p>
-                    <p className="text-2xl font-bold text-red-600">BLOCKED</p>
-                    <p className="text-xs text-gray-500">3/day limit hit</p>
+                    <p className="text-sm font-medium text-gray-600 mb-1">SiteSpeakAI</p>
+                    <p className="text-2xl font-bold text-red-600">21</p>
+                    <p className="text-xs text-gray-500">Only 14% coverage</p>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-sm font-medium text-gray-600 mb-1">LiveChatAI</p>
-                    <p className="text-2xl font-bold text-gray-600">ERROR</p>
-                    <p className="text-xs text-gray-500">Tool broken</p>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Writesonic</p>
+                    <p className="text-2xl font-bold text-gray-600">53</p>
+                    <p className="text-xs text-gray-500">3/day limit</p>
                   </div>
                 </div>
 
                 <div className="bg-innovation-teal/10 rounded-lg p-4">
                   <p className="text-sm text-gray-700">
-                    <strong className="text-innovation-teal">Key Finding:</strong> We found 3.5x
-                    more relevant pages than the only other working competitor. Our AI analysis
-                    excluded 53 low-value pages (privacy policies, login pages, etc.) while
-                    identifying 147 high-quality pages that AI systems actually need.
+                    <strong className="text-innovation-teal">The Real Difference:</strong> Keploy finds 90% of pages for free — that's great for discovery.
+                    But only LLM.txt Mastery uses GPT-4o to evaluate <span className="italic">which pages AI will actually cite</span>.
+                    Free tools give you quantity. We give you quality intelligence.
                   </p>
                 </div>
               </div>
@@ -855,10 +919,10 @@ export default function Home() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <h5 className="font-semibold text-gray-900">15 Websites Tested</h5>
+                    <h5 className="font-semibold text-gray-900">GPT-4o Quality Scoring</h5>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Across SaaS, e-commerce, blogs, and documentation sites
+                    Every page evaluated for AI citation potential — not just found
                   </p>
                 </div>
 
@@ -875,10 +939,10 @@ export default function Home() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <h5 className="font-semibold text-gray-900">100% Success Rate</h5>
+                    <h5 className="font-semibold text-gray-900">15+ Framework Detection</h5>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Only tool that worked every single time without limits
+                    Works on React, Next.js, Vue, Angular, Astro sites that competitors miss
                   </p>
                 </div>
 
@@ -895,10 +959,10 @@ export default function Home() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <h5 className="font-semibold text-gray-900">AI Quality Scoring</h5>
+                    <h5 className="font-semibold text-gray-900">47+ Updates in 2025</h5>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Every page evaluated for AI relevance and value
+                    Dedicated platform — not a side project or lead magnet
                   </p>
                 </div>
               </div>
@@ -1323,75 +1387,73 @@ export default function Home() {
             )}
           </div>
 
-          {/* Why We're Different Section */}
+          {/* Built for Modern Web Section - NEW positioning */}
           <section className="mb-16">
             <div className="bg-gradient-to-r from-innovation-teal/10 to-blue-50 rounded-lg border border-innovation-teal/30 p-8">
               <h3 className="text-3xl font-bold text-framework-black mb-6 text-center">
-                We Don't Just Scrape HTML – We Use AI to Optimize for AI
+                Built for the Modern Web — Not Just Static HTML
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
-                  <h4 className="font-semibold text-innovation-teal mb-4 text-lg">
-                    How Others Do It (Wrong):
+                  <h4 className="font-semibold text-red-700 mb-4 text-lg">
+                    Why Free Tools Fail on Your Website:
                   </h4>
                   <ul className="space-y-3 text-sm text-gray-700">
                     <li className="flex items-start">
                       <span className="text-red-500 mr-2 mt-1">✗</span>
                       <div>
-                        <strong>Basic HTML scraping:</strong> They just grab whatever text they find
+                        <strong>HTML Only:</strong> Can't process React, Next.js, Vue, or Angular
                       </div>
                     </li>
                     <li className="flex items-start">
                       <span className="text-red-500 mr-2 mt-1">✗</span>
                       <div>
-                        <strong>No quality filtering:</strong> Include every page, even irrelevant
-                        ones
+                        <strong>No Quality Analysis:</strong> List every page equally, regardless of value
                       </div>
                     </li>
                     <li className="flex items-start">
                       <span className="text-red-500 mr-2 mt-1">✗</span>
                       <div>
-                        <strong>Template-based:</strong> One-size-fits-all approach
+                        <strong>Silent Failures:</strong> CSR/SPA content loads empty or missing
                       </div>
                     </li>
                     <li className="flex items-start">
                       <span className="text-red-500 mr-2 mt-1">✗</span>
                       <div>
-                        <strong>No optimization:</strong> Hope AI finds something useful
+                        <strong>Lead Magnets:</strong> Built once, never updated, abandoned quickly
                       </div>
                     </li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-innovation-teal mb-4 text-lg">
-                    Our AI-Powered Approach:
+                  <h4 className="font-semibold text-green-700 mb-4 text-lg">
+                    Our Technical Superiority:
                   </h4>
                   <ul className="space-y-3 text-sm text-gray-700">
                     <li className="flex items-start">
                       <span className="text-green-500 mr-2 mt-1">✓</span>
                       <div>
-                        <strong>GPT-4 + Claude Analysis:</strong> AI evaluates content quality &
-                        relevance
+                        <strong>15+ Frameworks:</strong> React, Next.js, Vue, Angular, Astro, Svelte, Nuxt...
                       </div>
                     </li>
                     <li className="flex items-start">
                       <span className="text-green-500 mr-2 mt-1">✓</span>
                       <div>
-                        <strong>Proprietary Scoring:</strong> Trained on 100K+ AI interactions
+                        <strong>All 5 Rendering Types:</strong> SSR, CSR, SSG, ISR, and Static HTML
                       </div>
                     </li>
                     <li className="flex items-start">
                       <span className="text-green-500 mr-2 mt-1">✓</span>
                       <div>
-                        <strong>Smart Selection:</strong> Only include pages AI will actually cite
+                        <strong>CSR Warnings:</strong> Alert you when content may not be fully crawled
                       </div>
                     </li>
                     <li className="flex items-start">
                       <span className="text-green-500 mr-2 mt-1">✓</span>
                       <div>
-                        <strong>Cross-Platform:</strong> Optimized for all major AI systems
+                        <strong>Dedicated Platform:</strong> 47+ updates in 2025, continuous improvement
                       </div>
                     </li>
                   </ul>
@@ -1399,39 +1461,40 @@ export default function Home() {
               </div>
 
               <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h4 className="font-semibold text-framework-black mb-3">
-                  The Technical Difference That Matters:
+                <h4 className="font-semibold text-framework-black mb-3 text-center">
+                  60-80% of Modern Websites Use JavaScript Frameworks
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                  <div className="text-center p-3 bg-innovation-teal/10 rounded">
-                    <p className="font-bold text-innovation-teal mb-1">7+ Discovery Methods</p>
-                    <p className="text-gray-600">We find pages others miss</p>
+                <p className="text-sm text-center text-gray-600 mb-4">
+                  Competitors only work on the 15-20% that are static HTML. We work on everything.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 text-sm">
+                  <div className="text-center p-2 bg-blue-50 rounded border border-blue-200">
+                    <p className="font-bold text-blue-700">React</p>
                   </div>
-                  <div className="text-center p-3 bg-innovation-teal/10 rounded">
-                    <p className="font-bold text-innovation-teal mb-1">AI Quality Scoring</p>
-                    <p className="text-gray-600">Every page evaluated for AI relevance</p>
+                  <div className="text-center p-2 bg-gray-800 rounded">
+                    <p className="font-bold text-white">Next.js</p>
                   </div>
-                  <div className="text-center p-3 bg-innovation-teal/10 rounded">
-                    <p className="font-bold text-innovation-teal mb-1">Smart Truncation</p>
-                    <p className="text-gray-600">Optimize for AI token limits</p>
+                  <div className="text-center p-2 bg-green-50 rounded border border-green-200">
+                    <p className="font-bold text-green-700">Vue</p>
                   </div>
-                  <div className="text-center p-3 bg-green-100 rounded border border-green-300">
-                    <p className="font-bold text-green-700 mb-1">Framework Detection</p>
-                    <p className="text-gray-600">React, Next, Vue, Astro & 10+ more</p>
+                  <div className="text-center p-2 bg-red-50 rounded border border-red-200">
+                    <p className="font-bold text-red-600">Angular</p>
+                  </div>
+                  <div className="text-center p-2 bg-orange-50 rounded border border-orange-200">
+                    <p className="font-bold text-orange-600">Astro</p>
                   </div>
                 </div>
+                <p className="text-xs text-center text-gray-500 mt-3">
+                  + Svelte, Nuxt, Gatsby, Remix, Solid, Qwik, WordPress, Webflow, Squarespace...
+                </p>
               </div>
 
               <div className="mt-6 text-center">
                 <p className="text-lg font-semibold text-innovation-teal mb-4">
-                  Built by someone facing the same AI adoption challenges you are
+                  This is our entire focus — not a marketing add-on
                 </p>
                 <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-                  I learned AI to stay relevant, but hit a wall - corporate risk aversion. Sound
-                  familiar? That's why I build for solopreneurs, founders, and small businesses who
-                  need these tools today, not after 6 months of committee meetings. Direct access to
-                  someone who codes at night because the corporate world moves too slowly during the
-                  day.
+                  Free tools are lead magnets built to convert you to their main product. LLM.txt Mastery is a dedicated platform with a single mission: make your website AI-discoverable. That focus means better features, faster updates, and actual support.
                 </p>
               </div>
             </div>
