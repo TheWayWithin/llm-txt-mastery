@@ -401,7 +401,198 @@ For API support, questions, or to request higher rate limits:
 
 ---
 
+## Validation Endpoints
+
+### Validate LLMs.txt File
+
+Validate an existing llms.txt file at any URL. Supports multiple file locations and formats.
+
+```
+POST /api/validate-llms-txt
+```
+
+**Headers:**
+- `Content-Type`: application/json
+- `X-API-Key`: Optional (for authenticated users with higher limits)
+
+**Request Body:**
+```json
+{
+  "url": "https://example.com",
+  "fileType": "auto",
+  "includeRobotsTxt": true,
+  "bustCache": false
+}
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| url | string | Yes | - | Base URL of website with llms.txt file |
+| fileType | string | No | "auto" | File type to validate: "auto", "llms.txt", "llms-full.txt", ".well-known", "llms.md" |
+| includeRobotsTxt | boolean | No | true | Check for robots.txt conflicts |
+| bustCache | boolean | No | false | Force fresh validation (bypass cache) |
+
+**File Type Options:**
+- `auto` - Auto-detect: checks all standard locations in priority order
+- `llms.txt` - Standard file at `/llms.txt`
+- `llms-full.txt` - Extended file at `/llms-full.txt`
+- `.well-known` - Well-known location at `/.well-known/llms.txt`
+- `llms.md` - Markdown variant at `/llms.md`
+
+**Response:**
+```json
+{
+  "success": true,
+  "validation": {
+    "id": 123,
+    "url": "https://example.com",
+    "valid": true,
+    "score": 85,
+    "issues": [
+      {
+        "severity": "warning",
+        "message": "Only 3 URL(s) found - severely limited AI understanding",
+        "suggestion": "Add at least 3-5 key URLs..."
+      }
+    ],
+    "recommendations": [
+      {
+        "title": "Expand URL coverage",
+        "description": "Professional generation automatically discovers 50-200+ URLs...",
+        "priority": "high",
+        "example": "## Key Resources..."
+      }
+    ],
+    "robotsConflicts": [],
+    "spaDetection": {
+      "isSinglePage": false,
+      "framework": {
+        "framework": "next",
+        "renderingStrategy": "SSR",
+        "indicators": ["__NEXT_DATA__", "next-router-state-tree"]
+      },
+      "contentCoverage": {
+        "estimatedCoverage": 85,
+        "confidence": "high",
+        "signals": { ... }
+      }
+    },
+    "fileType": "llms.txt",
+    "detectedPath": "/llms.txt",
+    "checkedPaths": ["/llms.txt"],
+    "contentDepth": {
+      "urlCount": 15,
+      "sectionCount": 4,
+      "wordCount": 250,
+      "hasDescription": true,
+      "descriptionLength": 120,
+      "hasOptionalSection": false,
+      "depthLevel": "good",
+      "depthScore": 65
+    },
+    "processingTime": 2450,
+    "createdAt": "2025-12-15T12:00:00.000Z"
+  },
+  "user": {
+    "tier": "growth",
+    "remainingValidations": 32
+  }
+}
+```
+
+**Content Depth Levels:**
+- `minimal` (score 0-29): Very limited content, needs significant improvement
+- `basic` (score 30-54): Basic structure present, could be enhanced
+- `good` (score 55-79): Well-structured file with decent coverage
+- `comprehensive` (score 80-100): Excellent coverage and organization
+
+---
+
+### Batch Validate All Locations
+
+Validates all standard llms.txt file locations and provides a comparison.
+
+```
+POST /api/batch-validate-llms-txt
+```
+
+**Headers:**
+- `Content-Type`: application/json
+- `X-API-Key`: Optional (for authenticated users with higher limits)
+
+**Request Body:**
+```json
+{
+  "url": "https://example.com",
+  "includeRobotsTxt": true
+}
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| url | string | Yes | - | Base URL of website to check |
+| includeRobotsTxt | boolean | No | true | Check for robots.txt conflicts |
+
+**Response:**
+```json
+{
+  "success": true,
+  "batchValidation": {
+    "baseUrl": "https://example.com",
+    "results": [
+      {
+        "fileType": "llms.txt",
+        "path": "/llms.txt",
+        "found": true,
+        "result": { ... full validation result ... }
+      },
+      {
+        "fileType": ".well-known",
+        "path": "/.well-known/llms.txt",
+        "found": false,
+        "error": "File not found"
+      },
+      {
+        "fileType": "llms-full.txt",
+        "path": "/llms-full.txt",
+        "found": false,
+        "error": "File not found"
+      },
+      {
+        "fileType": "llms.md",
+        "path": "/llms.md",
+        "found": false,
+        "error": "File not found"
+      }
+    ],
+    "comparison": {
+      "bestFile": "llms.txt",
+      "bestScore": 85,
+      "inconsistencies": [],
+      "recommendation": "Only llms.txt was found. Consider adding files at other standard locations for broader compatibility."
+    },
+    "processingTime": 8500
+  }
+}
+```
+
+**Use Cases:**
+- Verify consistent content across multiple file locations
+- Identify the best-performing file type for a site
+- Detect inconsistencies between different llms.txt variants
+- Recommend which file to prioritize for AI model access
+
+---
+
 ## Changelog
+
+### v1.1.0 (December 2025)
+- Added validation endpoints: validate-llms-txt, batch-validate-llms-txt
+- Multi-file support: llms.txt, llms-full.txt, .well-known/llms.txt, llms.md
+- Auto-detect mode for finding files at any standard location
+- Content depth analysis with scoring and recommendations
+- SPA/Framework detection for Universal Compatibility
+- Batch validation with file comparison and inconsistency detection
 
 ### v1.0.0 (November 2025)
 - Initial API release

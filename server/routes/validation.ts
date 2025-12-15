@@ -22,7 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { db } from '../db';
 import { llmsTxtValidations, usageTracking, authUsers } from '@shared/schema';
-import { validateLlmsTxt } from '../services/validation';
+import { validateLlmsTxt, batchValidateLlmsTxt } from '../services/validation';
 import { rateLimitMiddleware } from '../middleware/rateLimiter';
 import { optionalAuth } from '../middleware/auth';
 import { validateLlmsTxtSchema } from '@shared/schema';
@@ -105,8 +105,9 @@ router.post(
         }
       }
 
-      // Run validation service
+      // Run validation service (Sprint 5: Multi-file support)
       const result = await validateLlmsTxt(validatedData.url, {
+        fileType: validatedData.fileType,
         includeRobotsTxt: validatedData.includeRobotsTxt,
         bustCache: validatedData.bustCache,
       });
@@ -122,13 +123,18 @@ router.post(
 
       // Save validation to database
       // SECURITY: Using parameterized queries via Drizzle ORM
+      // Sprint 5: Use actual detected path instead of hardcoded /llms.txt
+      const fileUrl = result.detectedPath
+        ? `${validatedData.url.replace(/\/$/, '')}${result.detectedPath}`
+        : `${validatedData.url}/llms.txt`;
+
       const validation = await db
         .insert(llmsTxtValidations)
         .values({
           userId: user?.id || null,
           anonymousId: anonymousId,
           url: validatedData.url,
-          fileUrl: `${validatedData.url}/llms.txt`,
+          fileUrl: fileUrl,
           urlHash: urlHash,
           valid: result.valid,
           score: result.score,
@@ -168,7 +174,7 @@ router.post(
         remainingValidations = await getRemainingValidations(user.id, user.tier);
       }
 
-      // Return detailed response
+      // Return detailed response (Sprint 5: Multi-file support)
       return res.json({
         success: true,
         validation: {
@@ -179,6 +185,13 @@ router.post(
           issues: result.issues,
           recommendations: result.recommendations,
           robotsConflicts: result.robotsConflicts,
+          spaDetection: result.spaDetection,
+          // Sprint 5: Multi-file support fields
+          fileType: result.fileType,
+          detectedPath: result.detectedPath,
+          checkedPaths: result.checkedPaths,
+          // Sprint 5 Phase 4: Content depth analysis
+          contentDepth: result.contentDepth,
           processingTime: result.processingTime,
           createdAt: validation[0].createdAt,
         },
@@ -280,5 +293,60 @@ async function getRemainingValidations(
   const usedCount = Number(used[0]?.count || 0);
   return Math.max(0, limit - usedCount);
 }
+
+/**
+ * POST /api/batch-validate-llms-txt
+ *
+ * Validates all llms.txt file locations for a URL and compares them.
+ * Sprint 5 Phase 5: Batch Validation / Multi-Path Check
+ *
+ * Request Body:
+ * {
+ *   url: string (required) - Base URL of website
+ *   includeRobotsTxt?: boolean - Check robots.txt conflicts (default: true)
+ * }
+ */
+router.post(
+  '/batch-validate-llms-txt',
+  optionalAuth,
+  rateLimitMiddleware,
+  async (req, res) => {
+    try {
+      // Validate request body
+      const schema = z.object({
+        url: z.string().url('Please enter a valid URL'),
+        includeRobotsTxt: z.boolean().optional().default(true),
+      });
+
+      const validationResult = schema.safeParse(req.body);
+
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: 'Invalid request',
+          code: 'VALIDATION_ERROR',
+          details: validationResult.error.errors,
+        });
+      }
+
+      const { url, includeRobotsTxt } = validationResult.data;
+
+      // Run batch validation
+      const result = await batchValidateLlmsTxt(url, { includeRobotsTxt });
+
+      return res.json({
+        success: true,
+        batchValidation: result,
+      });
+    } catch (error) {
+      console.error('Batch validation endpoint error:', error);
+
+      return res.status(500).json({
+        error: 'Batch validation failed',
+        code: 'VALIDATION_ERROR',
+        message: 'An error occurred while validating your llms.txt files. Please try again.',
+      });
+    }
+  }
+);
 
 export default router;

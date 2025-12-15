@@ -260,7 +260,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
                   <span className="text-green-600 font-bold">✓</span>
-                  <span className="text-gray-700">All 3 File Formats</span>
+                  <span className="text-gray-700">All 4 File Locations</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
                   <span className="text-green-600 font-bold">✓</span>
@@ -363,7 +363,7 @@ export default function Home() {
                     <li>✅ Quality scoring prioritizes your best content</li>
                     <li>✅ 15+ framework detection (React, Next.js, Vue, Astro...)</li>
                     <li>✅ robots.txt conflict detection (unique feature)</li>
-                    <li>✅ All 3 file formats (llms.txt, llms-full.txt, llms.md)</li>
+                    <li>✅ All 4 file locations (llms.txt, llms-full.txt, .well-known/, llms.md)</li>
                     <li>✅ 47+ updates in 2025 — actively developed platform</li>
                     <li>✅ Dedicated platform, not a side feature or lead magnet</li>
                   </ul>

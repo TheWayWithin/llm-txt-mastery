@@ -583,6 +583,16 @@ export interface AuthResponse {
 export type RateLimit = typeof rateLimits.$inferSelect;
 export type InsertRateLimit = typeof rateLimits.$inferInsert;
 
+// File type options for llms.txt validation (Sprint 5)
+export const LlmsTxtFileType = z.enum([
+  'auto',           // Auto-detect: check all locations
+  'llms.txt',       // Standard: /llms.txt
+  'llms-full.txt',  // Extended: /llms-full.txt
+  '.well-known',    // Well-known: /.well-known/llms.txt
+  'llms.md',        // Markdown: /llms.md
+]);
+export type LlmsTxtFileType = z.infer<typeof LlmsTxtFileType>;
+
 // Validation request schema with SSRF protection
 export const validateLlmsTxtSchema = z.object({
   url: z.string().url('Please enter a valid URL').refine(
@@ -600,6 +610,7 @@ export const validateLlmsTxtSchema = z.object({
     },
     { message: 'Invalid or unsafe URL (localhost/private IPs not allowed)' }
   ),
+  fileType: LlmsTxtFileType.optional().default('auto'),
   includeRobotsTxt: z.boolean().optional().default(true),
   bustCache: z.boolean().optional().default(false),
 });
