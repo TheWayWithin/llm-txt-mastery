@@ -8,6 +8,13 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InstantRefundButton } from '@/components/InstantRefundButton';
 import {
@@ -708,6 +715,17 @@ function BillingSection() {
   );
 }
 
+// Sprint 5: File type options for validator
+type LlmsTxtFileType = 'auto' | 'llms.txt' | 'llms-full.txt' | '.well-known' | 'llms.md';
+
+const FILE_TYPE_OPTIONS: { value: LlmsTxtFileType; label: string; path: string }[] = [
+  { value: 'auto', label: 'Auto-detect (check all)', path: 'all locations' },
+  { value: 'llms.txt', label: 'llms.txt', path: '/llms.txt' },
+  { value: 'llms-full.txt', label: 'llms-full.txt', path: '/llms-full.txt' },
+  { value: '.well-known', label: '.well-known/llms.txt', path: '/.well-known/llms.txt' },
+  { value: 'llms.md', label: 'llms.md', path: '/llms.md' },
+];
+
 function ValidatorSection() {
   const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState(false);
@@ -715,6 +733,7 @@ function ValidatorSection() {
   const [validationResult, setValidationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [includeRobotsTxt, setIncludeRobotsTxt] = useState(true);
+  const [fileType, setFileType] = useState<LlmsTxtFileType>('auto');
 
   const normalizeUrl = (value: string) => {
     if (!value.trim()) return value;
@@ -757,6 +776,7 @@ function ValidatorSection() {
         },
         body: JSON.stringify({
           url: normalizedUrl,
+          fileType,
           includeRobotsTxt,
         }),
       });
@@ -830,9 +850,31 @@ function ValidatorSection() {
                 {isValidating ? 'Validating...' : 'Validate'}
               </Button>
             </div>
+
+            {/* Sprint 5: File type selector */}
+            <div className="space-y-2">
+              <Label htmlFor="file-type-dashboard" className="text-sm font-medium text-gray-700">
+                File Location
+              </Label>
+              <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
+                <SelectTrigger className="border-gray-300 focus:ring-innovation-teal">
+                  <SelectValue placeholder="Select file type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FILE_TYPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {url && (
               <p className="text-xs text-gray-500">
-                Will check: {normalizeUrl(url)}/llms.txt
+                Will check: {normalizeUrl(url)}{fileType === 'auto'
+                  ? ' at all standard locations'
+                  : FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}
               </p>
             )}
             <div className="flex items-center space-x-2">
