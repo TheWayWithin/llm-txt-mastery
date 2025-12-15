@@ -672,7 +672,7 @@ function createDefaultSPAResult(indicators: string[]): SPADetectionResult {
  * Enhanced homepage analysis for SPA detection
  * Returns comprehensive detection result including rendering strategy and content coverage
  */
-async function analyzeHomepage(url: string): Promise<SPADetectionResult> {
+export async function analyzeHomepage(url: string): Promise<SPADetectionResult> {
   try {
     const response = await fetchWithTimeout(
       url,

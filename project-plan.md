@@ -1773,6 +1773,314 @@ Direct founder support within 24 hours."
 
 ---
 
+## ✅ SPRINT 5: Validator Universal Compatibility
+
+**Mission Type**: Platform Capability Expansion - Validator Enhancement
+**Sprint Start**: December 15, 2025
+**Sprint Completed**: December 15, 2025
+**Priority**: HIGH - Marketing Claim Alignment & Spec Compliance
+**Owner**: THE COORDINATOR
+**Status**: ✅ COMPLETE - All 6 Phases Delivered
+
+### Sprint Objective
+
+Expand the validator to support ALL llms.txt file variants and ALL modern web architectures, fulfilling our marketing claim of "All 3 file formats" (MOAT 5) and ensuring the validator works correctly regardless of how a website is built.
+
+### Business Case
+
+**Critical Gap Discovered (December 15, 2025)**:
+1. **Marketing vs Reality Mismatch**: Landing page claims "All 3 file formats (llms.txt, llms-full.txt, .well-known/)" but validator only checks `/llms.txt`
+2. **Spec Compliance**: The llmstxt.org spec mentions `llms-full.txt` as an extended format - we should validate it
+3. **Modern Web Gap**: Validator doesn't detect or handle CSR/SSR/SSG sites differently (40-60% of web)
+
+**Current Validator Limitations**:
+```typescript
+// server/services/validation.ts:116
+const url = baseUrl.endsWith('/llms.txt') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/llms.txt`;
+// ❌ Hardcoded to /llms.txt only
+```
+
+**Impact**:
+- Users with `llms-full.txt` cannot validate their files
+- Users using `.well-known/llms.txt` path cannot validate
+- Marketing claims don't match product capability (credibility risk)
+- MOAT 5 is not actually implemented in the validator
+
+### File Types to Support
+
+| File Type | Path | Description | Current Support |
+|-----------|------|-------------|-----------------|
+| `llms.txt` | `/llms.txt` | Main file (spec standard) | ✅ Supported |
+| `llms-full.txt` | `/llms-full.txt` | Extended version with more content | ❌ Not supported |
+| `.well-known` | `/.well-known/llms.txt` | Alternative standardized path | ❌ Not supported |
+| `llms.md` | `/llms.md` | Markdown variant | ❌ Not supported |
+
+### Modern Web Architectures to Handle
+
+Based on `/docs/Ideation/Modern Web Architectures and llms.txt Compatibility (1).md`:
+
+| Architecture | Market Share | Validator Complexity | Key Challenge |
+|--------------|--------------|---------------------|---------------|
+| Traditional CMS (WordPress) | 40-45% | Medium | Content mixed with themes |
+| Static HTML | 15-20% | Low | No standardized structure |
+| SSG (Gatsby, Hugo, Astro) | 5-10% | Low | Best case - all content available |
+| SSR (Next.js, Nuxt) | 3-5% | Medium | Dynamic routes, on-demand pages |
+| CSR (React SPA, Vue, Angular) | 10-15% | High | JavaScript required to render |
+| ISR (Next.js) | 1-2% | Medium | Pages may not exist until visited |
+
+### Sprint Phases
+
+#### Phase 1: File Type Selection UI [x] COMPLETE
+**Priority**: P1 - User Experience
+**Duration**: 1 day (Actual: December 15, 2025)
+**Agent**: THE DEVELOPER + THE COORDINATOR
+
+**Tasks**:
+- [x] Add file type dropdown to validation form (llms.txt, llms-full.txt, .well-known/llms.txt, llms.md)
+- [x] Update validation request schema to accept `fileType` parameter
+- [x] Update helper text to show selected file path preview
+- [x] Default to "Auto-detect" which checks all locations
+
+**Deliverables**:
+- [x] Updated `client/src/pages/validate.tsx` with file type selector (Select component)
+- [x] Updated Zod schema in `shared/schema.ts` with `LlmsTxtFileType` enum
+- [x] Dynamic helper text shows path preview based on selection
+
+**Implementation Notes** (December 15, 2025):
+- Added `LlmsTxtFileType` enum: 'auto', 'llms.txt', 'llms-full.txt', '.well-known', 'llms.md'
+- Added `fileType` state and Select dropdown in validate.tsx
+- Helper text dynamically updates: "at all standard locations" for auto, specific path otherwise
+- File type sent in API request body
+
+#### Phase 2: Multi-File Backend Support [x] COMPLETE
+**Priority**: P1 - Core Functionality
+**Duration**: 1-2 days (Actual: December 15, 2025)
+**Agent**: THE DEVELOPER + THE COORDINATOR
+
+**Tasks**:
+- [x] Refactor `fetchLlmsTxt()` to accept file type parameter
+- [x] Update URL construction to support all 4 file paths
+- [x] Add "Auto-detect" mode that tries paths in priority order:
+  1. `/llms.txt` (primary)
+  2. `/.well-known/llms.txt` (standardized)
+  3. `/llms-full.txt` (extended)
+  4. `/llms.md` (markdown variant)
+- [x] Return which file was found in validation result
+- [x] Handle 404 gracefully with "file not found at any location" message
+
+**Deliverables**:
+- [x] Updated `server/services/validation.ts` with multi-file support
+- [x] New `fileType`, `detectedPath`, and `checkedPaths` fields in `ValidationResult`
+- [x] `FetchResult` interface for internal fetch results
+- [x] `fetchSingleFile()` helper that returns null on 404
+- [x] API response includes all new fields
+
+**Implementation Notes** (December 15, 2025):
+- Created `FILE_PATHS` constant mapping file types to paths
+- Created `AUTO_DETECT_ORDER` array for priority checking
+- `fetchLlmsTxt()` now returns `FetchResult` with content + metadata
+- Error messages list all checked paths for auto-detect mode
+- Database `fileUrl` now uses actual detected path
+- Frontend shows detected path in score card with "Checked: ..." for auto-detect
+
+#### Phase 3: Architecture Detection for Validator [x] COMPLETE
+**Priority**: P2 - Enhanced Analysis
+**Duration**: 2-3 days (Actual: 1 day - December 15, 2025)
+**Agent**: THE DEVELOPER + THE COORDINATOR
+
+**Tasks**:
+- [x] Reuse SPA detection logic from `sitemap.ts` in validator (exported `analyzeHomepage`)
+- [x] Add architecture detection to validation results (`spaDetection` field in `ValidationResult`)
+- [x] Show warning for CSR sites via `contentCoverageWarning` field
+- [x] Add "Rendering Strategy" badge to validation results (Universal Compatibility card)
+- [x] Provide architecture-specific recommendations (via existing `contentCoverageWarning` logic from Sprint 1)
+
+**Deliverables**:
+- [x] Architecture detection in validation service (`validation.ts` Step 7)
+- [x] Universal Compatibility card in validation UI (`validate.tsx`)
+- [x] Architecture-specific warnings from `analyzeHomepage()` reuse
+
+**Implementation Notes** (December 15, 2025):
+- Exported `analyzeHomepage` from `sitemap.ts` for reuse
+- Added `SPADetectionResult` import to `validation.ts`
+- Added `spaDetection` field to `ValidationResult` interface
+- Validation now calls `analyzeHomepage(url)` as Step 7
+- API response includes `spaDetection` data
+- Frontend displays 3-column card: Framework, Rendering Strategy, Content Coverage
+- Color-coded coverage (green ≥70%, yellow 40-69%, red <40%)
+- Detection signals shown for transparency
+
+#### Phase 4: Content Depth Analysis [x] COMPLETE
+**Priority**: P2 - Spec Compliance
+**Duration**: 1 day (Actual: December 15, 2025)
+**Agent**: THE DEVELOPER + THE COORDINATOR
+
+**Tasks**:
+- [x] Research llms-full.txt spec requirements (discovered: NOT an official spec, FastHTML project-specific)
+- [x] Pivot to "Content Depth Analysis" - measuring comprehensiveness of ANY llms.txt file
+- [x] Add `ContentDepthMetrics` interface with: urlCount, sectionCount, wordCount, hasDescription, depthLevel, depthScore
+- [x] Create `analyzeContentDepth()` function for content analysis
+- [x] Create `generateFileTypeRecommendations()` for file-type-specific suggestions
+- [x] Add recommendation to generate llms-full.txt if llms.txt is sparse
+- [x] Add "Content Depth Analysis" card to validation UI
+
+**Deliverables**:
+- [x] `ContentDepthMetrics` interface in validation.ts
+- [x] `analyzeContentDepth()` function (lines 881-951)
+- [x] `generateFileTypeRecommendations()` function (lines 957-1011)
+- [x] Content Depth Analysis card in validate.tsx (4-column grid: URLs, Sections, Words, Depth Score)
+- [x] Depth levels: minimal (0-29), basic (30-54), good (55-79), comprehensive (80-100)
+
+**Implementation Notes** (December 15, 2025):
+- Discovered llms-full.txt is NOT an official llmstxt.org spec - it's a FastHTML project convention
+- Pivoted from "llms-full.txt specific validation" to "content depth analysis" applicable to ALL file types
+- Depth score based on: URL count (40%), section count (15%), word count (15%), description quality (20%), optional sections (10%)
+
+#### Phase 5: Batch Validation (Multi-Path Check) [x] COMPLETE
+**Priority**: P3 - Power Feature
+**Duration**: 1 day (Actual: December 15, 2025)
+**Agent**: THE DEVELOPER + THE COORDINATOR
+
+**Tasks**:
+- [x] Add "Compare All" button to validation UI
+- [x] Create `BatchValidationResult` interface for multi-file results
+- [x] Create `batchValidateLlmsTxt()` function that checks all 4 paths in parallel
+- [x] Add `/api/batch-validate-llms-txt` endpoint
+- [x] Validate all found files and show comparison
+- [x] Highlight inconsistencies between files
+- [x] Recommend which file to prioritize based on findings
+
+**Deliverables**:
+- [x] `BatchValidationResult` interface in validation.ts
+- [x] `batchValidateLlmsTxt()` function with parallel validation
+- [x] `POST /api/batch-validate-llms-txt` endpoint in routes/validation.ts
+- [x] "Compare All" button in validate.tsx (next to "Validate File")
+- [x] Multi-Path Comparison card with file location grid
+- [x] Comparison summary with best file, inconsistencies, and recommendations
+
+**Implementation Notes** (December 15, 2025):
+- Batch validation runs all 4 file paths in parallel using Promise.all()
+- Results show found/not found status for each path with visual indicators
+- Comparison logic identifies: best file by score, inconsistencies between files
+- Added `Layers` and `FolderOpen` icons for batch validation UI
+
+#### Phase 6: Documentation & Testing [x] COMPLETE
+**Priority**: P3 - Quality Assurance
+**Duration**: 1 day (Actual: December 15, 2025)
+**Agent**: THE DOCUMENTER + THE COORDINATOR
+
+**Tasks**:
+- [x] Update API documentation with new `fileType` parameter
+- [x] Document `POST /api/validate-llms-txt` with all parameters and response fields
+- [x] Document `POST /api/batch-validate-llms-txt` endpoint
+- [x] Add Content Depth Levels documentation
+- [x] Update landing page to accurately reflect validator capabilities
+- [x] Update MOAT 5 marketing copy from "3 File Formats" to "4 File Locations"
+
+**Deliverables**:
+- [x] Updated `docs/API_DOCUMENTATION.md`:
+  - Added "Validation Endpoints" section with full documentation
+  - Added `POST /api/validate-llms-txt` with all parameters
+  - Added `POST /api/batch-validate-llms-txt` documentation
+  - Added Content Depth Levels explanation (minimal/basic/good/comprehensive)
+  - Added Changelog v1.1.0 entry
+- [x] Updated `client/src/pages/home.tsx`:
+  - Changed "All 3 File Formats" to "All 4 File Locations"
+  - Updated list from "(llms.txt, llms-full.txt, llms.md)" to "(llms.txt, llms-full.txt, .well-known/, llms.md)"
+
+**Implementation Notes** (December 15, 2025):
+- API documentation expanded from 403 lines to 600+ lines with comprehensive validation endpoint docs
+- Landing page messaging now accurately reflects 4 file locations instead of 3 formats
+
+### Success Criteria
+
+**File Type Support:**
+- [x] Validator can check `/llms.txt` (existing)
+- [x] Validator can check `/llms-full.txt` (new) - Phase 2
+- [x] Validator can check `/.well-known/llms.txt` (new) - Phase 2
+- [x] Validator can check `/llms.md` (new) - Phase 2
+- [x] Auto-detect mode finds files at any location - Phase 2
+
+**Architecture Handling:**
+- [x] CSR sites show appropriate warning - Phase 3 (via `analyzeHomepage()`)
+- [x] SSG sites get positive feedback - Phase 3 (via content coverage %)
+- [x] SSR sites get dynamic route recommendations - Phase 3 (via detection signals)
+- [x] Architecture badge displays correctly - Phase 3 (Universal Compatibility card)
+
+**Marketing Alignment:**
+- [x] MOAT 5 claim updated from "3 file formats" to "4 file locations" - Phase 6
+- [x] Landing page validator section updated - Phase 6
+- [x] User can validate any spec-compliant file - Phase 2
+
+**Content Analysis (Phase 4):**
+- [x] Content depth scoring implemented (0-100 scale)
+- [x] Depth levels categorization (minimal/basic/good/comprehensive)
+- [x] File-type-specific recommendations generated
+
+**Batch Validation (Phase 5):**
+- [x] "Compare All" feature validates all 4 paths in parallel
+- [x] Comparison view shows found/not found status
+- [x] Best file recommendation generated
+- [x] Inconsistency detection between files
+
+### Sprint Results
+
+**Status**: ✅ **COMPLETE** (December 15, 2025)
+**Duration**: 1 day (all 6 phases completed in single session)
+**Quality**: All success criteria met, build verified
+
+**Key Deliverables**:
+- Multi-file support: 4 file locations (llms.txt, llms-full.txt, .well-known/, llms.md)
+- Auto-detect mode with priority ordering
+- SPA/Framework detection integration from Sprint 1
+- Content depth analysis with scoring
+- Batch validation with comparison view
+- API documentation (200+ lines added)
+- Landing page copy updated
+
+**Files Modified**:
+- `server/services/validation.ts` - Core multi-file + depth analysis (+350 lines)
+- `server/routes/validation.ts` - Batch validation endpoint (+60 lines)
+- `client/src/pages/validate.tsx` - UI for all new features (+200 lines)
+- `shared/schema.ts` - `LlmsTxtFileType` enum
+- `docs/API_DOCUMENTATION.md` - Validation endpoints documentation (+200 lines)
+- `client/src/pages/home.tsx` - Marketing copy update
+
+**Technical Highlights**:
+- Discovered llms-full.txt is NOT an official spec (FastHTML project convention)
+- Reused `analyzeHomepage()` from Sprint 1 for architecture detection
+- Parallel batch validation with Promise.all() for performance
+- Content depth scoring algorithm: URL count (40%), sections (15%), words (15%), description (20%), optional sections (10%)
+
+### Risk Assessment
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Different file types have different specs | Low | Medium | Research spec, add conditional validation |
+| Auto-detect causes excessive requests | Medium | Low | Implement sequential checking with early exit |
+| CSR warning confuses users | Low | Low | Clear explanation with "learn more" link |
+
+### Estimated Timeline
+
+| Phase | Duration | Dependencies |
+|-------|----------|--------------|
+| Phase 1: UI File Type Selector | 1 day | None |
+| Phase 2: Backend Multi-File | 1-2 days | Phase 1 |
+| Phase 3: Architecture Detection | 2-3 days | Phase 2 |
+| Phase 4: llms-full.txt Rules | 1 day | Phase 2 |
+| Phase 5: Batch Validation | 1-2 days | Phase 2, 4 |
+| Phase 6: Documentation & Testing | 1 day | Phase 3, 4 |
+| **Total** | **7-10 days** | |
+
+### Reference Documents
+
+- Modern Web Architectures: `/docs/Ideation/Modern Web Architectures and llms.txt Compatibility (1).md`
+- llmstxt.org Spec: https://llmstxt.org
+- Current Validator: `server/services/validation.ts`
+- Sprint 1 SPA Detection: See Phase 1 deliverables for reusable detection logic
+
+---
+
 ## Priority List
 
 ### 🚨 CRITICAL - BLOCKING PRODUCTION VALUE

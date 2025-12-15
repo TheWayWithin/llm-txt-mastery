@@ -7,6 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -18,6 +25,12 @@ import {
   Shield,
   ChevronRight,
   ExternalLink,
+  Laptop,
+  Server,
+  Zap,
+  BarChart3,
+  Layers,
+  FolderOpen,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthNav } from '@/components/AuthNav';
@@ -42,6 +55,59 @@ interface RobotsConflict {
   recommendation: string;
 }
 
+// SPA Detection Types (Sprint 5)
+type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
+
+interface SPAFrameworkIndicators {
+  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'unknown';
+  renderingStrategy: RenderingStrategy;
+  indicators: string[];
+}
+
+interface ContentCoverageSignals {
+  textToHtmlRatio: number;
+  hasSSRData: boolean;
+  hasSkeletonUI: boolean;
+  bodyContentLength: number;
+  htmlStructureSize: number;
+}
+
+interface ContentCoverageEstimate {
+  estimatedCoverage: number;
+  confidence: 'high' | 'medium' | 'low';
+  signals: ContentCoverageSignals;
+}
+
+interface SPADetectionResult {
+  isSinglePage: boolean;
+  framework: SPAFrameworkIndicators;
+  contentCoverage: ContentCoverageEstimate;
+  contentCoverageWarning?: string;
+}
+
+// Sprint 5: File type options
+type LlmsTxtFileType = 'auto' | 'llms.txt' | 'llms-full.txt' | '.well-known' | 'llms.md';
+
+const FILE_TYPE_OPTIONS: { value: LlmsTxtFileType; label: string; path: string }[] = [
+  { value: 'auto', label: 'Auto-detect (check all)', path: 'all locations' },
+  { value: 'llms.txt', label: 'llms.txt', path: '/llms.txt' },
+  { value: 'llms-full.txt', label: 'llms-full.txt', path: '/llms-full.txt' },
+  { value: '.well-known', label: '.well-known/llms.txt', path: '/.well-known/llms.txt' },
+  { value: 'llms.md', label: 'llms.md', path: '/llms.md' },
+];
+
+// Sprint 5 Phase 4: Content Depth Analysis
+interface ContentDepthMetrics {
+  urlCount: number;
+  sectionCount: number;
+  wordCount: number;
+  hasDescription: boolean;
+  descriptionLength: number;
+  hasOptionalSection: boolean;
+  depthLevel: 'minimal' | 'basic' | 'good' | 'comprehensive';
+  depthScore: number;
+}
+
 interface ValidationResult {
   valid: boolean;
   score: number;
@@ -49,6 +115,36 @@ interface ValidationResult {
   issues: ValidationIssue[];
   recommendations: ValidationRecommendation[];
   robotsConflicts?: RobotsConflict[];
+  spaDetection?: SPADetectionResult;
+  // Sprint 5: Multi-file support
+  fileType?: LlmsTxtFileType;
+  detectedPath?: string;
+  checkedPaths?: string[];
+  // Sprint 5 Phase 4: Content depth
+  contentDepth?: ContentDepthMetrics;
+}
+
+// Sprint 5 Phase 5: Batch validation types
+interface BatchValidationFileResult {
+  fileType: LlmsTxtFileType;
+  path: string;
+  found: boolean;
+  result?: ValidationResult;
+  error?: string;
+}
+
+interface BatchValidationComparison {
+  bestFile: LlmsTxtFileType;
+  bestScore: number;
+  inconsistencies: string[];
+  recommendation: string;
+}
+
+interface BatchValidationResult {
+  baseUrl: string;
+  results: BatchValidationFileResult[];
+  comparison?: BatchValidationComparison;
+  processingTime: number;
 }
 
 export default function ValidatePage() {
@@ -59,6 +155,10 @@ export default function ValidatePage() {
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [includeRobotsTxt, setIncludeRobotsTxt] = useState(true);
+  const [fileType, setFileType] = useState<LlmsTxtFileType>('auto');
+  // Sprint 5 Phase 5: Batch validation state
+  const [isBatchValidating, setIsBatchValidating] = useState(false);
+  const [batchResult, setBatchResult] = useState<BatchValidationResult | null>(null);
 
   const normalizeUrl = (value: string) => {
     if (!value.trim()) return value;
@@ -82,6 +182,7 @@ export default function ValidatePage() {
     validateUrl(value);
     setError(null);
     setValidationResult(null);
+    setBatchResult(null); // Sprint 5 Phase 5: Reset batch results
   };
 
   const handleValidate = async () => {
@@ -101,6 +202,7 @@ export default function ValidatePage() {
         },
         body: JSON.stringify({
           url: normalizedUrl,
+          fileType,
           includeRobotsTxt,
         }),
       });
@@ -129,6 +231,50 @@ export default function ValidatePage() {
       console.error('Validation error:', err);
     } finally {
       setIsValidating(false);
+    }
+  };
+
+  // Sprint 5 Phase 5: Batch validation handler
+  const handleBatchValidate = async () => {
+    if (!isValid || !url) return;
+
+    setIsBatchValidating(true);
+    setError(null);
+    setBatchResult(null);
+
+    try {
+      const normalizedUrl = normalizeUrl(url);
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_URL}/api/batch-validate-llms-txt`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: normalizedUrl,
+          includeRobotsTxt,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          setError(
+            `Rate limit exceeded: ${data.message || 'Too many requests'}. Please try again later.`
+          );
+        } else {
+          setError(data.error || 'Batch validation failed. Please try again.');
+        }
+        return;
+      }
+
+      setBatchResult(data.batchValidation);
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+      console.error('Batch validation error:', err);
+    } finally {
+      setIsBatchValidating(false);
     }
   };
 
@@ -263,8 +409,34 @@ export default function ValidatePage() {
                   )}
                 </div>
                 <p className="mt-2 text-sm text-ai-silver">
-                  We'll check {url ? `${normalizeUrl(url)}/llms.txt` : 'your-site.com/llms.txt'}
+                  We'll check{' '}
+                  {url
+                    ? fileType === 'auto'
+                      ? `${normalizeUrl(url)} at all standard locations`
+                      : `${normalizeUrl(url)}${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`
+                    : fileType === 'auto'
+                    ? 'your-site.com at all standard locations'
+                    : `your-site.com${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`}
                 </p>
+              </div>
+
+              {/* Sprint 5: File Type Selection */}
+              <div>
+                <Label htmlFor="file-type" className="text-sm font-medium text-framework-black">
+                  File Location
+                </Label>
+                <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
+                  <SelectTrigger className="mt-2 border-slate-300 focus:ring-innovation-teal">
+                    <SelectValue placeholder="Select file type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FILE_TYPE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -283,23 +455,45 @@ export default function ValidatePage() {
                   <Shield className="h-4 w-4 text-innovation-teal" />
                   <span>Official llmstxt.org specification validator</span>
                 </div>
-                <Button
-                  type="submit"
-                  disabled={!isValid || isValidating}
-                  className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3 text-lg"
-                >
-                  {isValidating ? (
-                    <>
-                      <Clock className="h-5 w-5 mr-2 animate-spin" />
-                      Validating...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="h-5 w-5 mr-2" />
-                      Validate File
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center space-x-3">
+                  {/* Sprint 5 Phase 5: Batch Validation Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBatchValidate}
+                    disabled={!isValid || isBatchValidating || isValidating}
+                    className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10 px-6 py-3"
+                  >
+                    {isBatchValidating ? (
+                      <>
+                        <Clock className="h-5 w-5 mr-2 animate-spin" />
+                        Comparing...
+                      </>
+                    ) : (
+                      <>
+                        <Layers className="h-5 w-5 mr-2" />
+                        Compare All
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={!isValid || isValidating || isBatchValidating}
+                    className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3 text-lg"
+                  >
+                    {isValidating ? (
+                      <>
+                        <Clock className="h-5 w-5 mr-2 animate-spin" />
+                        Validating...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-5 w-5 mr-2" />
+                        Validate File
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>
@@ -311,6 +505,119 @@ export default function ValidatePage() {
             <XCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+
+        {/* Sprint 5 Phase 5: Batch Validation Results */}
+        {batchResult && (
+          <div className="space-y-6 mb-6">
+            <Card className="bg-white shadow-sm border border-slate-200">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
+                  <Layers className="h-5 w-5 mr-2 text-innovation-teal" />
+                  Multi-Path Comparison
+                  <span className="ml-auto text-sm font-normal text-ai-silver">
+                    {batchResult.processingTime}ms
+                  </span>
+                </h3>
+
+                {/* File Location Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {batchResult.results.map((fileResult) => (
+                    <div
+                      key={fileResult.path}
+                      className={`p-4 rounded-lg border-2 ${
+                        fileResult.found
+                          ? fileResult.result && fileResult.result.score >= 75
+                            ? 'border-green-200 bg-green-50'
+                            : 'border-yellow-200 bg-yellow-50'
+                          : 'border-slate-200 bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2 mb-2">
+                        <FolderOpen
+                          className={`h-4 w-4 ${
+                            fileResult.found ? 'text-green-600' : 'text-slate-400'
+                          }`}
+                        />
+                        <span className="text-sm font-medium text-framework-black">
+                          {fileResult.fileType}
+                        </span>
+                      </div>
+                      <p className="text-xs text-ai-silver mb-2">{fileResult.path}</p>
+                      {fileResult.found && fileResult.result ? (
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`text-lg font-bold ${getScoreColor(
+                              fileResult.result.score
+                            )}`}
+                          >
+                            {fileResult.result.score}/100
+                          </span>
+                          <Badge
+                            className={
+                              fileResult.result.valid
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }
+                          >
+                            {fileResult.result.valid ? 'Valid' : 'Issues'}
+                          </Badge>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-slate-500">Not found</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Comparison Summary */}
+                {batchResult.comparison && (
+                  <div className="border-t border-slate-200 pt-4">
+                    <div className="flex items-start space-x-3">
+                      <div
+                        className={`p-2 rounded-full ${
+                          batchResult.comparison.inconsistencies.length > 0
+                            ? 'bg-yellow-100'
+                            : 'bg-green-100'
+                        }`}
+                      >
+                        {batchResult.comparison.inconsistencies.length > 0 ? (
+                          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                        ) : (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="font-semibold text-framework-black">
+                            Best File: {batchResult.comparison.bestFile}
+                          </span>
+                          <Badge className="bg-innovation-teal text-white">
+                            Score: {batchResult.comparison.bestScore}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-ai-silver mb-2">
+                          {batchResult.comparison.recommendation}
+                        </p>
+                        {batchResult.comparison.inconsistencies.length > 0 && (
+                          <div className="bg-yellow-50 rounded-lg p-3 mt-2">
+                            <p className="text-xs font-medium text-yellow-800 mb-1">
+                              Inconsistencies Detected:
+                            </p>
+                            <ul className="text-xs text-yellow-700 space-y-1">
+                              {batchResult.comparison.inconsistencies.map((inc, i) => (
+                                <li key={i}>• {inc}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Validation Results */}
@@ -345,6 +652,24 @@ export default function ValidatePage() {
                     <div className="text-sm text-ai-silver">out of 100</div>
                   </div>
                 </div>
+
+                {/* Sprint 5: Show detected file path */}
+                {validationResult.detectedPath && (
+                  <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center space-x-2 text-sm">
+                      <FileText className="h-4 w-4 text-innovation-teal" />
+                      <span className="text-ai-silver">File found at:</span>
+                      <code className="text-framework-black font-mono bg-white px-2 py-0.5 rounded">
+                        {validationResult.detectedPath}
+                      </code>
+                    </div>
+                    {validationResult.checkedPaths && validationResult.checkedPaths.length > 1 && (
+                      <p className="text-xs text-ai-silver mt-1 ml-6">
+                        Checked: {validationResult.checkedPaths.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between text-sm text-ai-silver">
                   <span className="flex items-center">
@@ -456,6 +781,173 @@ export default function ValidatePage() {
                         </p>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Universal Compatibility - SPA Detection (Sprint 5) */}
+            {validationResult.spaDetection && (
+              <Card className="bg-white shadow-sm border border-slate-200">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
+                    <Laptop className="h-5 w-5 mr-2 text-innovation-teal" />
+                    Universal Compatibility
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Framework Detection */}
+                    <div className="p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Zap className="h-4 w-4 text-innovation-teal" />
+                        <span className="text-sm font-medium text-ai-silver">Framework</span>
+                      </div>
+                      <p className="text-lg font-semibold text-framework-black capitalize">
+                        {validationResult.spaDetection.framework.framework === 'unknown'
+                          ? 'Traditional'
+                          : validationResult.spaDetection.framework.framework}
+                      </p>
+                    </div>
+
+                    {/* Rendering Strategy */}
+                    <div className="p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Server className="h-4 w-4 text-innovation-teal" />
+                        <span className="text-sm font-medium text-ai-silver">Rendering</span>
+                      </div>
+                      <p className="text-lg font-semibold text-framework-black">
+                        {validationResult.spaDetection.framework.renderingStrategy === 'SSR' && 'Server-Side'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'SSG' && 'Static (SSG)'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'CSR' && 'Client-Side'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'HYBRID' && 'Hybrid'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' && 'Traditional'}
+                      </p>
+                    </div>
+
+                    {/* Content Coverage */}
+                    <div className="p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <FileText className="h-4 w-4 text-innovation-teal" />
+                        <span className="text-sm font-medium text-ai-silver">Content Coverage</span>
+                      </div>
+                      <p className={`text-lg font-semibold ${
+                        validationResult.spaDetection.contentCoverage.estimatedCoverage >= 70
+                          ? 'text-green-600'
+                          : validationResult.spaDetection.contentCoverage.estimatedCoverage >= 40
+                          ? 'text-yellow-600'
+                          : 'text-red-600'
+                      }`}>
+                        {validationResult.spaDetection.contentCoverage.estimatedCoverage}%
+                        <span className="text-xs text-ai-silver ml-1">
+                          ({validationResult.spaDetection.contentCoverage.confidence})
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Coverage Warning */}
+                  {validationResult.spaDetection.contentCoverageWarning && (
+                    <Alert className="mt-4 bg-yellow-50 border-yellow-200">
+                      <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                      <AlertDescription className="text-yellow-800">
+                        {validationResult.spaDetection.contentCoverageWarning}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Technical Details (collapsed by default) */}
+                  {validationResult.spaDetection.framework.indicators.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-slate-200">
+                      <p className="text-xs text-ai-silver">
+                        <span className="font-medium">Detection signals:</span>{' '}
+                        {validationResult.spaDetection.framework.indicators.join(', ')}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Content Depth Analysis (Sprint 5 Phase 4) */}
+            {validationResult.contentDepth && (
+              <Card className="bg-white shadow-sm border border-slate-200">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
+                    <BarChart3 className="h-5 w-5 mr-2 text-innovation-teal" />
+                    Content Depth Analysis
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    {/* URLs */}
+                    <div className="p-4 bg-slate-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-framework-black">
+                        {validationResult.contentDepth.urlCount}
+                      </p>
+                      <p className="text-xs text-ai-silver">URLs</p>
+                    </div>
+
+                    {/* Sections */}
+                    <div className="p-4 bg-slate-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-framework-black">
+                        {validationResult.contentDepth.sectionCount}
+                      </p>
+                      <p className="text-xs text-ai-silver">Sections</p>
+                    </div>
+
+                    {/* Words */}
+                    <div className="p-4 bg-slate-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-framework-black">
+                        {validationResult.contentDepth.wordCount}
+                      </p>
+                      <p className="text-xs text-ai-silver">Words</p>
+                    </div>
+
+                    {/* Depth Score */}
+                    <div className="p-4 bg-slate-50 rounded-lg text-center">
+                      <p className={`text-2xl font-bold ${
+                        validationResult.contentDepth.depthScore >= 80
+                          ? 'text-green-600'
+                          : validationResult.contentDepth.depthScore >= 55
+                          ? 'text-blue-600'
+                          : validationResult.contentDepth.depthScore >= 30
+                          ? 'text-yellow-600'
+                          : 'text-red-600'
+                      }`}>
+                        {validationResult.contentDepth.depthScore}
+                      </p>
+                      <p className="text-xs text-ai-silver">Depth Score</p>
+                    </div>
+                  </div>
+
+                  {/* Depth Level Badge */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-ai-silver">Content Level:</span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        validationResult.contentDepth.depthLevel === 'comprehensive'
+                          ? 'bg-green-100 text-green-800'
+                          : validationResult.contentDepth.depthLevel === 'good'
+                          ? 'bg-blue-100 text-blue-800'
+                          : validationResult.contentDepth.depthLevel === 'basic'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {validationResult.contentDepth.depthLevel.charAt(0).toUpperCase() +
+                          validationResult.contentDepth.depthLevel.slice(1)}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3 text-xs text-ai-silver">
+                      {validationResult.contentDepth.hasDescription && (
+                        <span className="flex items-center">
+                          <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          Description
+                        </span>
+                      )}
+                      {validationResult.contentDepth.hasOptionalSection && (
+                        <span className="flex items-center">
+                          <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          Optional Section
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

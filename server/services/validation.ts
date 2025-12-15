@@ -18,11 +18,31 @@
 import { createHash } from 'crypto';
 import { marked } from 'marked';
 import robotsParser from 'robots-parser';
+import { SPADetectionResult, LlmsTxtFileType } from '@shared/schema';
+import { analyzeHomepage } from './sitemap';
 
 export interface ValidationOptions {
+  fileType?: LlmsTxtFileType;
   includeRobotsTxt?: boolean;
   bustCache?: boolean;
 }
+
+// File paths to check in priority order for auto-detect mode
+const FILE_PATHS: Record<LlmsTxtFileType, string> = {
+  'auto': '', // Special case - check all
+  'llms.txt': '/llms.txt',
+  'llms-full.txt': '/llms-full.txt',
+  '.well-known': '/.well-known/llms.txt',
+  'llms.md': '/llms.md',
+};
+
+// Priority order for auto-detect mode
+const AUTO_DETECT_ORDER: LlmsTxtFileType[] = [
+  'llms.txt',
+  '.well-known',
+  'llms-full.txt',
+  'llms.md',
+];
 
 export interface ValidationIssue {
   severity: 'error' | 'warning' | 'info';
@@ -45,12 +65,34 @@ export interface RobotsConflict {
   recommendation: string;
 }
 
+/**
+ * Content depth analysis metrics (Sprint 5 Phase 4)
+ * Provides insights into the comprehensiveness of the llms.txt file
+ */
+export interface ContentDepthMetrics {
+  urlCount: number;
+  sectionCount: number;
+  wordCount: number;
+  hasDescription: boolean;
+  descriptionLength: number;
+  hasOptionalSection: boolean;
+  depthLevel: 'minimal' | 'basic' | 'good' | 'comprehensive';
+  depthScore: number; // 0-100 specific to content depth
+}
+
 export interface ValidationResult {
   valid: boolean;
   score: number; // 0-100
   issues: ValidationIssue[];
   recommendations: ValidationRecommendation[];
   robotsConflicts?: RobotsConflict[];
+  spaDetection?: SPADetectionResult;
+  // Sprint 5: Multi-file support
+  fileType: LlmsTxtFileType; // Requested file type
+  detectedPath: string; // Actual path where file was found
+  checkedPaths?: string[]; // All paths checked (for auto-detect mode)
+  // Sprint 5 Phase 4: Content depth analysis
+  contentDepth?: ContentDepthMetrics;
   cached: boolean;
   processingTime: number;
 }
@@ -109,13 +151,20 @@ function validateUrlSecurity(url: string): void {
 }
 
 /**
- * Fetch llms.txt file from URL with security controls and timeout
+ * Result of fetching llms.txt file (Sprint 5: Multi-file support)
  */
-async function fetchLlmsTxt(baseUrl: string): Promise<string> {
-  // Ensure URL ends with /llms.txt
-  const url = baseUrl.endsWith('/llms.txt') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/llms.txt`;
+interface FetchResult {
+  content: string;
+  detectedPath: string;
+  fileType: LlmsTxtFileType;
+  checkedPaths: string[];
+}
 
-  // Validate URL security
+/**
+ * Fetch a single file from URL with security controls and timeout
+ * Returns null if 404, throws on other errors
+ */
+async function fetchSingleFile(url: string): Promise<string | null> {
   validateUrlSecurity(url);
 
   const controller = new AbortController();
@@ -135,9 +184,9 @@ async function fetchLlmsTxt(baseUrl: string): Promise<string> {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error('llms.txt file not found (404). Please ensure the file exists at /llms.txt');
+        return null; // File not found - return null to try next path
       } else if (response.status >= 500) {
-        throw new Error(`Server error (${response.status}). The server hosting llms.txt is having issues`);
+        throw new Error(`Server error (${response.status}). The server hosting the file is having issues`);
       } else {
         throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
       }
@@ -146,7 +195,7 @@ async function fetchLlmsTxt(baseUrl: string): Promise<string> {
     const content = await response.text();
 
     if (!content || content.trim().length === 0) {
-      throw new Error('llms.txt file is empty');
+      return null; // Empty file - treat as not found
     }
 
     return content;
@@ -156,12 +205,71 @@ async function fetchLlmsTxt(baseUrl: string): Promise<string> {
 
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        throw new Error('Request timeout: llms.txt took too long to fetch (>10 seconds)');
+        throw new Error('Request timeout: File took too long to fetch (>10 seconds)');
       }
       throw error;
     }
-    throw new Error('Failed to fetch llms.txt file');
+    throw new Error('Failed to fetch file');
   }
+}
+
+/**
+ * Fetch llms.txt file from URL with multi-file support (Sprint 5)
+ * Supports: llms.txt, llms-full.txt, .well-known/llms.txt, llms.md
+ * Auto-detect mode checks all locations in priority order
+ */
+async function fetchLlmsTxt(baseUrl: string, fileType: LlmsTxtFileType = 'auto'): Promise<FetchResult> {
+  const normalizedBase = baseUrl.replace(/\/$/, '');
+  const checkedPaths: string[] = [];
+
+  // Determine which paths to check
+  const pathsToCheck: LlmsTxtFileType[] = fileType === 'auto'
+    ? AUTO_DETECT_ORDER
+    : [fileType];
+
+  for (const type of pathsToCheck) {
+    const path = FILE_PATHS[type];
+    const fullUrl = `${normalizedBase}${path}`;
+    checkedPaths.push(path);
+
+    try {
+      const content = await fetchSingleFile(fullUrl);
+      if (content) {
+        return {
+          content,
+          detectedPath: path,
+          fileType: type,
+          checkedPaths,
+        };
+      }
+    } catch (error) {
+      // If not a 404, rethrow the error
+      if (error instanceof Error && !error.message.includes('404')) {
+        throw error;
+      }
+    }
+  }
+
+  // No file found at any location
+  if (fileType === 'auto') {
+    throw new Error(
+      `No llms.txt file found at any standard location. Checked: ${checkedPaths.join(', ')}. ` +
+      `Please create one at /llms.txt, /.well-known/llms.txt, /llms-full.txt, or /llms.md`
+    );
+  } else {
+    throw new Error(
+      `File not found at ${FILE_PATHS[fileType]}. Please ensure the file exists at this location.`
+    );
+  }
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use fetchLlmsTxt with fileType parameter instead
+ */
+async function fetchLlmsTxtLegacy(baseUrl: string): Promise<string> {
+  const result = await fetchLlmsTxt(baseUrl, 'llms.txt');
+  return result.content;
 }
 
 /**
@@ -767,6 +875,142 @@ function detectConflicts(
 }
 
 /**
+ * Analyze content depth of llms.txt file (Sprint 5 Phase 4)
+ * Provides metrics on how comprehensive the file is
+ */
+function analyzeContentDepth(
+  parsed: ParsedLlmsTxt,
+  fileType: LlmsTxtFileType
+): ContentDepthMetrics {
+  // Count sections (H2 headers)
+  const sectionCount = Object.keys(parsed.sections).length - 1; // Exclude H1
+
+  // Count words in raw content
+  const wordCount = parsed.rawContent
+    .replace(/[#\[\]()>*`-]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 0).length;
+
+  // Check for blockquote description
+  const blockquoteMatch = parsed.rawContent.match(/^>\s*(.+)$/m);
+  const hasDescription = !!blockquoteMatch;
+  const descriptionLength = blockquoteMatch ? blockquoteMatch[1].length : 0;
+
+  // Check for Optional section (per llmstxt.org spec)
+  const hasOptionalSection = Object.keys(parsed.sections)
+    .some(s => s.toLowerCase() === 'optional');
+
+  // Calculate depth score (0-100)
+  let depthScore = 0;
+
+  // URL coverage (0-40 points)
+  if (parsed.urls.length >= 50) depthScore += 40;
+  else if (parsed.urls.length >= 20) depthScore += 30;
+  else if (parsed.urls.length >= 10) depthScore += 20;
+  else if (parsed.urls.length >= 5) depthScore += 10;
+  else if (parsed.urls.length >= 1) depthScore += 5;
+
+  // Section organization (0-25 points)
+  if (sectionCount >= 5) depthScore += 25;
+  else if (sectionCount >= 3) depthScore += 20;
+  else if (sectionCount >= 2) depthScore += 15;
+  else if (sectionCount >= 1) depthScore += 10;
+
+  // Description quality (0-20 points)
+  if (descriptionLength >= 150) depthScore += 20;
+  else if (descriptionLength >= 100) depthScore += 15;
+  else if (descriptionLength >= 50) depthScore += 10;
+  else if (hasDescription) depthScore += 5;
+
+  // Word count / content volume (0-10 points)
+  if (wordCount >= 500) depthScore += 10;
+  else if (wordCount >= 200) depthScore += 7;
+  else if (wordCount >= 100) depthScore += 5;
+  else if (wordCount >= 50) depthScore += 3;
+
+  // Bonus for Optional section (5 points) - shows spec knowledge
+  if (hasOptionalSection) depthScore += 5;
+
+  // Determine depth level
+  let depthLevel: 'minimal' | 'basic' | 'good' | 'comprehensive';
+  if (depthScore >= 80) depthLevel = 'comprehensive';
+  else if (depthScore >= 55) depthLevel = 'good';
+  else if (depthScore >= 30) depthLevel = 'basic';
+  else depthLevel = 'minimal';
+
+  return {
+    urlCount: parsed.urls.length,
+    sectionCount,
+    wordCount,
+    hasDescription,
+    descriptionLength,
+    hasOptionalSection,
+    depthLevel,
+    depthScore: Math.min(100, depthScore),
+  };
+}
+
+/**
+ * Generate file-type-specific recommendations (Sprint 5 Phase 4)
+ * Provides cross-file recommendations based on content depth
+ */
+function generateFileTypeRecommendations(
+  contentDepth: ContentDepthMetrics,
+  fileType: LlmsTxtFileType,
+  existingRecommendations: ValidationRecommendation[]
+): ValidationRecommendation[] {
+  const recommendations = [...existingRecommendations];
+
+  // For llms.txt files with minimal content, suggest llms-full.txt
+  if (fileType === 'llms.txt' && contentDepth.depthLevel === 'minimal') {
+    recommendations.push({
+      title: 'Consider creating llms-full.txt for comprehensive coverage',
+      description: `Your llms.txt file has ${contentDepth.urlCount} URLs and ${contentDepth.sectionCount} sections. ` +
+        'For sites with extensive documentation, consider creating an llms-full.txt with expanded content. ' +
+        'Use llms.txt for the essential overview and llms-full.txt for comprehensive coverage.',
+      priority: 'medium',
+      example: 'llms.txt: 5-10 essential URLs for quick context\nllms-full.txt: 50-200+ URLs for comprehensive AI understanding',
+    });
+  }
+
+  // For llms-full.txt files that are too sparse
+  if (fileType === 'llms-full.txt' && (contentDepth.depthLevel === 'minimal' || contentDepth.depthLevel === 'basic')) {
+    recommendations.push({
+      title: 'llms-full.txt should contain comprehensive content',
+      description: `Your llms-full.txt has only ${contentDepth.urlCount} URLs. The "-full" variant is expected to contain ` +
+        'expanded content with more detailed URL coverage. Consider adding more sections, URLs, and descriptions, ' +
+        'or rename to llms.txt if this represents your complete content.',
+      priority: 'high',
+      example: 'llms-full.txt should typically contain 20+ URLs with detailed sections covering all major site areas.',
+    });
+  }
+
+  // For well-known path usage
+  if (fileType === '.well-known' && !contentDepth.hasDescription) {
+    recommendations.push({
+      title: 'Add description for .well-known/llms.txt',
+      description: 'Files in the .well-known directory are discoverable by standardized tools. ' +
+        'Adding a clear blockquote description helps AI systems quickly understand your site\'s purpose.',
+      priority: 'medium',
+      example: '> Your site description here - helps AI models understand your content at a glance',
+    });
+  }
+
+  // General depth improvement suggestions
+  if (contentDepth.depthLevel !== 'comprehensive' && !contentDepth.hasOptionalSection && contentDepth.urlCount >= 10) {
+    recommendations.push({
+      title: 'Add an Optional section for secondary content',
+      description: 'The llmstxt.org spec defines an "## Optional" section for secondary URLs that can be skipped when context is limited. ' +
+        'This helps AI models prioritize essential content while still having access to supplementary information.',
+      priority: 'low',
+      example: '## Optional\n\n- [Changelog](https://example.com/changelog): Version history and updates\n- [Contributing](https://example.com/contributing): How to contribute',
+    });
+  }
+
+  return recommendations;
+}
+
+/**
  * Validate llms.txt file at given URL
  *
  * Phase 1A Implementation - Real validation logic
@@ -781,13 +1025,15 @@ export async function validateLlmsTxt(
   options: ValidationOptions = {}
 ): Promise<ValidationResult> {
   const startTime = Date.now();
+  const requestedFileType = options.fileType || 'auto';
 
   try {
-    // Step 1: Fetch llms.txt file with security controls
-    const content = await fetchLlmsTxt(url);
+    // Step 1: Fetch llms.txt file with security controls (Sprint 5: Multi-file support)
+    const fetchResult = await fetchLlmsTxt(url, requestedFileType);
+    console.log(`File found at ${fetchResult.detectedPath} (checked: ${fetchResult.checkedPaths.join(', ')})`);
 
     // Step 2: Parse markdown content
-    const parsed = parseLlmsTxt(content);
+    const parsed = parseLlmsTxt(fetchResult.content);
 
     // Step 3: Validate structure and content
     const issues = await validateStructure(parsed);
@@ -796,7 +1042,14 @@ export async function validateLlmsTxt(
     const score = calculateScore(parsed, issues);
 
     // Step 5: Generate recommendations
-    const recommendations = generateRecommendations(parsed, issues);
+    let recommendations = generateRecommendations(parsed, issues);
+
+    // Step 5.5: Content depth analysis (Sprint 5 Phase 4)
+    const contentDepth = analyzeContentDepth(parsed, fetchResult.fileType);
+    console.log(`Content depth for ${url}: level=${contentDepth.depthLevel}, score=${contentDepth.depthScore}, urls=${contentDepth.urlCount}`);
+
+    // Step 5.6: Add file-type-specific recommendations based on content depth
+    recommendations = generateFileTypeRecommendations(contentDepth, fetchResult.fileType, recommendations);
 
     // Step 6: Handle robots.txt conflicts (Phase 1C)
     let robotsConflicts: RobotsConflict[] | undefined;
@@ -817,6 +1070,16 @@ export async function validateLlmsTxt(
       }
     }
 
+    // Step 7: SPA Detection for Universal Compatibility (Sprint 5)
+    let spaDetection: SPADetectionResult | undefined;
+    try {
+      spaDetection = await analyzeHomepage(url);
+      console.log(`SPA detection for ${url}: framework=${spaDetection.framework.framework}, strategy=${spaDetection.framework.renderingStrategy}, coverage=${spaDetection.contentCoverage.estimatedCoverage}%`);
+    } catch (error) {
+      // SPA detection is non-blocking - log and continue
+      console.warn('SPA detection failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
+    }
+
     const processingTime = Date.now() - startTime;
 
     return {
@@ -825,6 +1088,11 @@ export async function validateLlmsTxt(
       issues,
       recommendations,
       robotsConflicts,
+      spaDetection,
+      fileType: fetchResult.fileType,
+      detectedPath: fetchResult.detectedPath,
+      checkedPaths: requestedFileType === 'auto' ? fetchResult.checkedPaths : undefined,
+      contentDepth, // Sprint 5 Phase 4
       cached: false,
       processingTime,
     };
@@ -844,6 +1112,9 @@ export async function validateLlmsTxt(
         }
       ],
       recommendations: [],
+      fileType: requestedFileType,
+      detectedPath: '',
+      checkedPaths: requestedFileType === 'auto' ? AUTO_DETECT_ORDER.map(t => FILE_PATHS[t]) : undefined,
       cached: false,
       processingTime,
     };
@@ -875,4 +1146,130 @@ export async function cacheValidation(
 ): Promise<void> {
   // Mock: No cache support yet
   return;
+}
+
+/**
+ * Batch validation result for comparing multiple file locations (Sprint 5 Phase 5)
+ */
+export interface BatchValidationResult {
+  baseUrl: string;
+  results: Array<{
+    fileType: LlmsTxtFileType;
+    path: string;
+    found: boolean;
+    result?: ValidationResult;
+    error?: string;
+  }>;
+  comparison?: {
+    bestFile: LlmsTxtFileType;
+    bestScore: number;
+    inconsistencies: string[];
+    recommendation: string;
+  };
+  processingTime: number;
+}
+
+/**
+ * Batch validate all llms.txt file locations (Sprint 5 Phase 5)
+ * Checks all standard paths and compares found files
+ */
+export async function batchValidateLlmsTxt(
+  baseUrl: string,
+  options: Omit<ValidationOptions, 'fileType'> = {}
+): Promise<BatchValidationResult> {
+  const startTime = Date.now();
+  const results: BatchValidationResult['results'] = [];
+
+  // Check all file types in parallel
+  const validationPromises = AUTO_DETECT_ORDER.map(async (fileType) => {
+    try {
+      const result = await validateLlmsTxt(baseUrl, { ...options, fileType });
+      return {
+        fileType,
+        path: FILE_PATHS[fileType],
+        found: result.score > 0 && !result.issues.some(i => i.message.includes('not found')),
+        result,
+      };
+    } catch (error) {
+      return {
+        fileType,
+        path: FILE_PATHS[fileType],
+        found: false,
+        error: error instanceof Error ? error.message : 'Validation failed',
+      };
+    }
+  });
+
+  const validationResults = await Promise.all(validationPromises);
+
+  for (const vr of validationResults) {
+    results.push(vr);
+  }
+
+  // Generate comparison if multiple files found
+  const foundResults = results.filter(r => r.found && r.result);
+  let comparison: BatchValidationResult['comparison'];
+
+  if (foundResults.length > 0) {
+    // Find best file by score
+    const sortedByScore = [...foundResults].sort((a, b) =>
+      (b.result?.score || 0) - (a.result?.score || 0)
+    );
+    const bestFile = sortedByScore[0];
+
+    // Detect inconsistencies
+    const inconsistencies: string[] = [];
+
+    if (foundResults.length > 1) {
+      // Compare URL counts
+      const urlCounts = foundResults.map(r => ({
+        type: r.fileType,
+        count: r.result?.contentDepth?.urlCount || 0,
+      }));
+      const maxUrls = Math.max(...urlCounts.map(u => u.count));
+      const minUrls = Math.min(...urlCounts.map(u => u.count));
+      if (maxUrls - minUrls > 5) {
+        inconsistencies.push(
+          `URL count varies significantly: ${urlCounts.map(u => `${u.type}=${u.count}`).join(', ')}`
+        );
+      }
+
+      // Compare scores
+      const scores = foundResults.map(r => ({
+        type: r.fileType,
+        score: r.result?.score || 0,
+      }));
+      const maxScore = Math.max(...scores.map(s => s.score));
+      const minScore = Math.min(...scores.map(s => s.score));
+      if (maxScore - minScore > 20) {
+        inconsistencies.push(
+          `Validation scores vary: ${scores.map(s => `${s.type}=${s.score}`).join(', ')}`
+        );
+      }
+    }
+
+    // Generate recommendation
+    let recommendation: string;
+    if (foundResults.length === 1) {
+      recommendation = `Only ${bestFile.fileType} was found. Consider adding files at other standard locations for broader compatibility.`;
+    } else if (inconsistencies.length > 0) {
+      recommendation = `Multiple files found with inconsistencies. Recommend using ${bestFile.fileType} (score: ${bestFile.result?.score}) as the primary file and ensuring other files stay in sync.`;
+    } else {
+      recommendation = `Multiple files found with consistent content. ${bestFile.fileType} has the highest score (${bestFile.result?.score}).`;
+    }
+
+    comparison = {
+      bestFile: bestFile.fileType,
+      bestScore: bestFile.result?.score || 0,
+      inconsistencies,
+      recommendation,
+    };
+  }
+
+  return {
+    baseUrl,
+    results,
+    comparison,
+    processingTime: Date.now() - startTime,
+  };
 }
