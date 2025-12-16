@@ -727,6 +727,7 @@ const FILE_TYPE_OPTIONS: { value: LlmsTxtFileType; label: string; path: string }
 ];
 
 function ValidatorSection() {
+  const { getAccessToken } = useAuth();
   const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -769,10 +770,12 @@ function ValidatorSection() {
     try {
       const normalizedUrl = normalizeUrl(url);
       const API_URL = import.meta.env.VITE_API_URL || '';
+      const token = getAccessToken();
       const response = await fetch(`${API_URL}/api/validate-llms-txt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           url: normalizedUrl,

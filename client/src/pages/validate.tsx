@@ -148,7 +148,7 @@ interface BatchValidationResult {
 }
 
 export default function ValidatePage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, getAccessToken } = useAuth();
   const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -195,10 +195,12 @@ export default function ValidatePage() {
     try {
       const normalizedUrl = normalizeUrl(url);
       const API_URL = import.meta.env.VITE_API_URL || '';
+      const token = getAccessToken();
       const response = await fetch(`${API_URL}/api/validate-llms-txt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           url: normalizedUrl,
@@ -245,10 +247,12 @@ export default function ValidatePage() {
     try {
       const normalizedUrl = normalizeUrl(url);
       const API_URL = import.meta.env.VITE_API_URL || '';
+      const token = getAccessToken();
       const response = await fetch(`${API_URL}/api/batch-validate-llms-txt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           url: normalizedUrl,
