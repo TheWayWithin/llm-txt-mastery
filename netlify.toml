@@ -27,6 +27,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/llms.txt"
+  to = "/llms.txt"
+  status = 200
+  force = true
+
 # SPA fallback (must be last)
 [[redirects]]
   from = "/*"
