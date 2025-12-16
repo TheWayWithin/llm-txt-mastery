@@ -15,9 +15,9 @@ const secureKeyGenerator = (req: Request): string => {
   return req.ip || 'unknown';
 };
 
-// Disable IPv6 validation since we're behind a reverse proxy (Railway)
+// Disable IP validation since we're behind a reverse proxy (Railway)
 // and intentionally using X-Forwarded-For header for client IP
-const validateOptions = { ipAddress: false };
+const validateOptions = { ip: false };
 
 // General API rate limiting - Balanced for security and usability
 export const apiLimiter = rateLimit({
