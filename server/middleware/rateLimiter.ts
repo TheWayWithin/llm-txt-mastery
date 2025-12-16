@@ -51,11 +51,11 @@ export const validationRateLimit: RateLimitConfig = {
     user: 43200,      // 30 days
   },
   maxRequests: {
-    anonymous: isProduction ? 3 : 10,  // 3/day in prod, 10/day in staging/dev
-    starter: 5,       // 5 per month
-    coffee: 20,       // 20 credits (Solo tier)
-    growth: 35,       // 35 per month
-    scale: 100,       // 100 per month
+    anonymous: isProduction ? 10 : 50,  // 10/day in prod, 50/day in staging/dev (increased for testing)
+    starter: 50,       // 50 per month (increased for testing)
+    coffee: 100,       // 100 credits (Solo tier) - increased for testing
+    growth: 200,       // 200 per month (increased for testing)
+    scale: 500,       // 500 per month (increased for testing)
   },
 };
 
