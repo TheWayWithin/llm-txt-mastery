@@ -121,64 +121,86 @@ router.post(
       const tier = user?.tier || 'anonymous';
       const expiresAt = getExpiryDate(tier);
 
-      // Save validation to database
+      // Save validation to database (fail-open - validation still works if DB fails)
       // SECURITY: Using parameterized queries via Drizzle ORM
       // Sprint 5: Use actual detected path instead of hardcoded /llms.txt
       const fileUrl = result.detectedPath
         ? `${validatedData.url.replace(/\/$/, '')}${result.detectedPath}`
         : `${validatedData.url}/llms.txt`;
 
-      const validation = await db
-        .insert(llmsTxtValidations)
-        .values({
-          userId: user?.id || null,
-          anonymousId: anonymousId,
-          url: validatedData.url,
-          fileUrl: fileUrl,
-          urlHash: urlHash,
-          valid: result.valid,
-          score: result.score,
-          issues: result.issues as any, // JSONB field
-          recommendations: result.recommendations as any, // JSONB field
-          robotsConflicts: result.robotsConflicts as any || null, // JSONB field
-          tier: tier,
-          cached: result.cached,
-          processingTime: result.processingTime,
-          expiresAt: expiresAt,
-        })
-        .returning();
+      let validationId: number | undefined;
+      let createdAt: Date = new Date();
 
-      // Update usage tracking for authenticated users
-      // SECURITY: Only track for authenticated users, parameterized upsert
-      if (user) {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-        await db
-          .insert(usageTracking)
+      try {
+        const validation = await db
+          .insert(llmsTxtValidations)
           .values({
-            userId: user.id,
-            date: today,
-            validationsCount: 1,
+            userId: user?.id || null,
+            anonymousId: anonymousId,
+            url: validatedData.url,
+            fileUrl: fileUrl,
+            urlHash: urlHash,
+            valid: result.valid,
+            score: result.score,
+            issues: result.issues as any, // JSONB field
+            recommendations: result.recommendations as any, // JSONB field
+            robotsConflicts: result.robotsConflicts as any || null, // JSONB field
+            tier: tier,
+            cached: result.cached,
+            processingTime: result.processingTime,
+            expiresAt: expiresAt,
           })
-          .onConflictDoUpdate({
-            target: [usageTracking.userId, usageTracking.date],
-            set: {
-              validationsCount: sql`${usageTracking.validationsCount} + 1`,
-            },
-          });
+          .returning();
+
+        validationId = validation[0]?.id;
+        createdAt = validation[0]?.createdAt || new Date();
+      } catch (dbError) {
+        // FAIL-OPEN: Log error but don't block validation
+        // This allows validation to work even if llms_txt_validations table doesn't exist
+        console.error('⚠️ Database insert failed (failing open):', dbError);
       }
 
-      // Calculate remaining validations for authenticated users
+      // Update usage tracking for authenticated users (fail-open)
+      // SECURITY: Only track for authenticated users, parameterized upsert
+      if (user) {
+        try {
+          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+          await db
+            .insert(usageTracking)
+            .values({
+              userId: user.id,
+              date: today,
+              validationsCount: 1,
+            })
+            .onConflictDoUpdate({
+              target: [usageTracking.userId, usageTracking.date],
+              set: {
+                validationsCount: sql`${usageTracking.validationsCount} + 1`,
+              },
+            });
+        } catch (trackingError) {
+          // FAIL-OPEN: Log error but don't block validation
+          console.error('⚠️ Usage tracking failed (failing open):', trackingError);
+        }
+      }
+
+      // Calculate remaining validations for authenticated users (fail-open)
       let remainingValidations: number | undefined;
       if (user) {
-        remainingValidations = await getRemainingValidations(user.id, user.tier);
+        try {
+          remainingValidations = await getRemainingValidations(user.id, user.tier);
+        } catch (quotaError) {
+          // FAIL-OPEN: Default to tier limit if query fails
+          console.error('⚠️ Remaining validations query failed (failing open):', quotaError);
+        }
       }
 
       // Return detailed response (Sprint 5: Multi-file support)
       return res.json({
         success: true,
         validation: {
-          id: validation[0].id,
+          id: validationId,
           url: validatedData.url,
           valid: result.valid,
           score: result.score,
@@ -193,7 +215,7 @@ router.post(
           // Sprint 5 Phase 4: Content depth analysis
           contentDepth: result.contentDepth,
           processingTime: result.processingTime,
-          createdAt: validation[0].createdAt,
+          createdAt: createdAt,
         },
         user: user
           ? {
