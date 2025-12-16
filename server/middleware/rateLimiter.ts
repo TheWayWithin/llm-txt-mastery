@@ -172,14 +172,20 @@ export async function rateLimitMiddleware(
 
     next();
   } catch (error) {
-    // Log error but don't expose internal details
-    console.error('Rate limiting error:', error);
+    // Log error but FAIL-OPEN to avoid blocking users
+    // Rate limiting is defense-in-depth, not critical path
+    console.error('⚠️ Rate limiting error (failing open):', error);
 
-    // SECURITY: Generic error message, no internal details leaked
-    return res.status(500).json({
-      error: 'Rate limiting service temporarily unavailable',
-      message: 'Please try again in a moment.',
-    }) as any;
+    // FAIL-OPEN: Allow request to proceed if rate limiting fails
+    // This prevents database issues from blocking all validation requests
+    next();
+    return;
+
+    // OLD: Hard fail - uncomment if stricter enforcement needed
+    // return res.status(500).json({
+    //   error: 'Rate limiting service temporarily unavailable',
+    //   message: 'Please try again in a moment.',
+    // }) as any;
   }
 }
 
