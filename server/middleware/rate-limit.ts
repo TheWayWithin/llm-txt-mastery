@@ -3,6 +3,8 @@ import type { Request, Response } from 'express';
 
 // Secure key generator for rate limiting when behind proxy
 // Uses rightmost IP from X-Forwarded-For header (Railway proxy)
+// Note: We disable ipAddress validation because we intentionally extract
+// the client IP from X-Forwarded-For (behind Railway's reverse proxy)
 const secureKeyGenerator = (req: Request): string => {
   const forwarded = req.headers['x-forwarded-for'];
   if (typeof forwarded === 'string') {
@@ -12,6 +14,10 @@ const secureKeyGenerator = (req: Request): string => {
   }
   return req.ip || 'unknown';
 };
+
+// Disable IPv6 validation since we're behind a reverse proxy (Railway)
+// and intentionally using X-Forwarded-For header for client IP
+const validateOptions = { ipAddress: false };
 
 // General API rate limiting - Balanced for security and usability
 export const apiLimiter = rateLimit({
@@ -24,6 +30,7 @@ export const apiLimiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
+  validate: validateOptions, // Disable IPv6 validation (behind reverse proxy)
   handler: (req: Request, res: Response) => {
     // Log rate limit violations for security monitoring
     console.warn(`🚨 Rate limit exceeded: ${req.ip} - ${req.method} ${req.path}`, {
@@ -49,6 +56,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
+  validate: validateOptions, // Disable IPv6 validation (behind reverse proxy)
   skipSuccessfulRequests: true, // Don't count successful requests
   handler: (req: Request, res: Response) => {
     res.status(429).json({
@@ -69,6 +77,7 @@ export const passwordResetLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
+  validate: validateOptions, // Disable IPv6 validation (behind reverse proxy)
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many password reset attempts from this IP, please try again later.',
@@ -88,6 +97,7 @@ export const analysisLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
+  validate: validateOptions, // Disable IPv6 validation (behind reverse proxy)
   handler: (req: Request, res: Response) => {
     // Log analysis rate limit violations - this is critical
     console.error(`🚨 ANALYSIS RATE LIMIT EXCEEDED: ${req.ip} - ${req.method} ${req.path}`, {
@@ -115,6 +125,7 @@ export const emailCaptureLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
+  validate: validateOptions, // Disable IPv6 validation (behind reverse proxy)
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many email capture attempts from this IP, please try again later.',
@@ -134,6 +145,7 @@ export const fileGenerationLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: secureKeyGenerator, // Secure IP extraction behind proxy
+  validate: validateOptions, // Disable IPv6 validation (behind reverse proxy)
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many file generation requests from this IP, please try again later.',
