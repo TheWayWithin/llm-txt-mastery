@@ -198,6 +198,17 @@ async function fetchSingleFile(url: string): Promise<string | null> {
       return null; // Empty file - treat as not found
     }
 
+    // Detect HTML content (SPA fallback returning HTML instead of 404)
+    // This is common with SPAs like React, Vue, etc. on Netlify, Vercel, etc.
+    const trimmedContent = content.trim().toLowerCase();
+    if (
+      trimmedContent.startsWith('<!doctype html') ||
+      trimmedContent.startsWith('<html')
+    ) {
+      console.log(`Detected HTML content at ${url} - treating as file not found (SPA fallback)`);
+      return null; // SPA fallback HTML - treat as file not found
+    }
+
     return content;
 
   } catch (error) {
@@ -1099,19 +1110,35 @@ export async function validateLlmsTxt(
 
   } catch (error) {
     const processingTime = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Validation failed';
 
-    // Return error result with detailed message
+    // Determine appropriate suggestion based on error type
+    const isFileNotFound = errorMessage.includes('No llms.txt file found') ||
+                           errorMessage.includes('File not found');
+
+    const suggestion = isFileNotFound
+      ? 'Use our analyzer to generate an llms.txt file for your website, or create one manually following the llmstxt.org specification.'
+      : 'Check the URL is correct and the website is accessible, then try again.';
+
+    // Return error result with detailed message (this is NOT a 500 error - it's a valid validation result)
     return {
       valid: false,
       score: 0,
       issues: [
         {
           severity: 'error',
-          message: error instanceof Error ? error.message : 'Validation failed',
-          suggestion: 'Check URL and try again'
+          message: errorMessage,
+          suggestion: suggestion
         }
       ],
-      recommendations: [],
+      recommendations: isFileNotFound ? [
+        {
+          title: 'Create an llms.txt file',
+          description: 'Your website doesn\'t have an llms.txt file yet. This file helps AI models understand your site\'s content and structure.',
+          priority: 'high' as const,
+          example: '# YourSiteName\n\n> Brief description of your site\n\n## Documentation\n- [Getting Started](https://yoursite.com/docs): Introduction guide'
+        }
+      ] : [],
       fileType: requestedFileType,
       detectedPath: '',
       checkedPaths: requestedFileType === 'auto' ? AUTO_DETECT_ORDER.map(t => FILE_PATHS[t]) : undefined,
