@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 interface BlogPost {
   id: number;
@@ -42,6 +43,11 @@ const blogPosts: BlogPost[] = [
 ];
 
 export const BlogPage: React.FC = () => {
+  useSEO({
+    title: 'Blog - AI, Web Survival & Building Tools That Matter',
+    description: 'Insights on AI attribution, the llms.txt specification, and strategies for website visibility in the age of large language models.',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
