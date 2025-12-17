@@ -2,8 +2,14 @@ import React from 'react';
 import { Link } from 'wouter';
 import { Card, CardContent } from '../components/ui/card';
 import { ArrowRight, Sparkles, Code, Rocket } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 export const AboutPage: React.FC = () => {
+  useSEO({
+    title: 'About - From Corporate Programmer to AI Tool Builder',
+    description: 'Learn the story behind LLM.txt Mastery - how corporate bureaucracy led to building tools for solopreneurs in the AI era.',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">

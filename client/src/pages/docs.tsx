@@ -1,8 +1,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { FileText, BookOpen, Shield, Zap, Globe, ArrowRight } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 export const DocsPage: React.FC = () => {
+  useSEO({
+    title: 'Documentation - LLMs.txt Specification Guide',
+    description: 'Complete guide to the llms.txt specification. Learn how to implement AI attribution and visibility for your website.',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">

@@ -31,6 +31,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import PricingPreview from '@/components/landing/PricingPreview';
 import TrustBadges from '@/components/landing/TrustBadges';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function Home() {
   // Import auth hook to get email recognition capability
@@ -65,6 +66,12 @@ export default function Home() {
     // Actions
     actions,
   } = useFlowStateMachine();
+
+  // Set page-specific SEO metadata
+  useSEO({
+    title: 'LLM.txt Mastery - AI-Ready Website Content Generator',
+    description: 'Generate optimized llms.txt files for your website. Help AI systems understand your content with our intelligent analyzer and file generator.',
+  });
 
   // Fetch usage data to check limits
   const { data: usageData } = useQuery({

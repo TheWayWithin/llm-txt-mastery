@@ -5,8 +5,13 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Mail, MessageSquare, Send, Twitter, Linkedin, Github } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSEO } from '@/hooks/useSEO';
 
 export const ContactPage: React.FC = () => {
+  useSEO({
+    title: 'Contact - Get in Touch',
+    description: 'Have questions about LLM.txt Mastery? Contact us for support, feedback, or partnership inquiries.',
+  });
   const [formData, setFormData] = useState({
     name: '',
     email: '',

@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -1118,6 +1119,11 @@ function SettingsSection() {
 
 export default function Dashboard() {
   const { user } = useAuth();
+
+  useSEO({
+    title: 'Dashboard - Manage Your Analyses',
+    description: 'View your analysis history, manage subscriptions, and track your llms.txt file generation usage.',
+  });
 
   // Check for tab parameter in URL
   const getDefaultTab = () => {

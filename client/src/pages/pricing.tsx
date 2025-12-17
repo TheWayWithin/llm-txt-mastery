@@ -4,8 +4,14 @@ import { Check, Coffee, Zap, Crown, ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionManagement from '@/components/subscription-management';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function Pricing() {
+  useSEO({
+    title: 'Pricing - Simple, Transparent Plans',
+    description: 'Choose from Starter (free), Solo, Growth, or Scale plans. Generate AI-ready llms.txt files with no hidden fees.',
+  });
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
