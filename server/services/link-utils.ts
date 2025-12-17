@@ -75,6 +75,23 @@ export async function deduplicateAndFilterPages(
   // Step 3: Filter out low-value pages
   uniquePages = finalPages.filter(isValidPage);
 
+  // SAFEGUARD: If filtering removed ALL pages, keep the top pages by quality score
+  // This prevents returning 0 pages for sites that might have different content structures
+  if (uniquePages.length === 0 && finalPages.length > 0) {
+    console.log(`⚠️ [DEDUP] All ${finalPages.length} pages were filtered out! Applying safeguard...`);
+    // Sort by quality score and keep top pages
+    const sortedPages = [...finalPages].sort((a, b) => b.qualityScore - a.qualityScore);
+    // Keep up to 5 pages or all if fewer
+    const pagesToKeep = Math.min(5, sortedPages.length);
+    uniquePages = sortedPages.slice(0, pagesToKeep);
+    console.log(`⚠️ [DEDUP] Safeguard: Keeping top ${uniquePages.length} pages by quality score`);
+    uniquePages.forEach((p, i) => {
+      console.log(`   ${i + 1}. ${p.url} (score: ${p.qualityScore}, title: "${p.title}")`);
+    });
+  }
+
+  console.log(`🔍 [DEDUP] Final result: ${uniquePages.length} unique pages, ${duplicatesRemoved} duplicates removed`);
+
   return {
     uniquePages,
     duplicatesRemoved,
