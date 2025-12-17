@@ -31,6 +31,7 @@ import {
   BarChart3,
   Layers,
   FolderOpen,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthNav } from '@/components/AuthNav';
@@ -46,6 +47,9 @@ interface ValidationRecommendation {
   priority: 'high' | 'medium' | 'low';
   title: string;
   description: string;
+  example?: string;
+  actionUrl?: string;
+  actionLabel?: string;
 }
 
 interface RobotsConflict {
@@ -738,7 +742,7 @@ export default function ValidatePage() {
                     {validationResult.recommendations.map((rec, index) => (
                       <div
                         key={index}
-                        className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg"
+                        className="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
@@ -747,7 +751,16 @@ export default function ValidatePage() {
                             </p>
                             {getPriorityBadge(rec.priority)}
                           </div>
-                          <p className="text-sm text-ai-silver">{rec.description}</p>
+                          <p className="text-sm text-ai-silver mb-3">{rec.description}</p>
+                          {rec.actionUrl && rec.actionLabel && (
+                            <Link
+                              href={`${rec.actionUrl}?url=${encodeURIComponent(url)}`}
+                              className="inline-flex items-center px-4 py-2 bg-mastery-blue text-white text-sm font-medium rounded-lg hover:bg-mastery-blue/90 transition-colors"
+                            >
+                              {rec.actionLabel}
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                          )}
                         </div>
                       </div>
                     ))}
