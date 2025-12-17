@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +33,7 @@ import {
   ExternalLink,
   CheckCircle,
   FileText,
+  ArrowRight,
 } from 'lucide-react';
 import {
   getSubscriptionStatus,
@@ -991,7 +993,7 @@ function ValidatorSection() {
                       key={index}
                       className="p-3 bg-blue-50 rounded-md border border-blue-200"
                     >
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-blue-900">{rec.title}</p>
                           <p className="text-xs text-blue-700 mt-1">{rec.description}</p>
@@ -1000,6 +1002,15 @@ function ValidatorSection() {
                           {rec.priority}
                         </Badge>
                       </div>
+                      {rec.actionUrl && rec.actionLabel && (
+                        <Link
+                          href={`${rec.actionUrl}?url=${encodeURIComponent(url)}`}
+                          className="inline-flex items-center px-3 py-1.5 bg-mastery-blue text-white text-sm font-medium rounded-md hover:bg-mastery-blue/90 transition-colors"
+                        >
+                          {rec.actionLabel}
+                          <ArrowRight className="ml-2 h-3 w-3" />
+                        </Link>
+                      )}
                     </div>
                   ))}
                 </div>

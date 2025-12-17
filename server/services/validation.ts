@@ -56,6 +56,8 @@ export interface ValidationRecommendation {
   description: string;
   priority: 'high' | 'medium' | 'low';
   example?: string;
+  actionUrl?: string;
+  actionLabel?: string;
 }
 
 export interface RobotsConflict {
@@ -264,12 +266,11 @@ async function fetchLlmsTxt(baseUrl: string, fileType: LlmsTxtFileType = 'auto')
   // No file found at any location
   if (fileType === 'auto') {
     throw new Error(
-      `No llms.txt file found at any standard location. Checked: ${checkedPaths.join(', ')}. ` +
-      `Please create one at /llms.txt, /.well-known/llms.txt, /llms-full.txt, or /llms.md`
+      `This website doesn't have an llms.txt file yet. We checked ${checkedPaths.length} standard locations (${checkedPaths.join(', ')}) but none were found.`
     );
   } else {
     throw new Error(
-      `File not found at ${FILE_PATHS[fileType]}. Please ensure the file exists at this location.`
+      `No file found at ${FILE_PATHS[fileType]}. Please ensure the file exists at this location.`
     );
   }
 }
@@ -1113,11 +1114,11 @@ export async function validateLlmsTxt(
     const errorMessage = error instanceof Error ? error.message : 'Validation failed';
 
     // Determine appropriate suggestion based on error type
-    const isFileNotFound = errorMessage.includes('No llms.txt file found') ||
-                           errorMessage.includes('File not found');
+    const isFileNotFound = errorMessage.includes('doesn\'t have an llms.txt file') ||
+                           errorMessage.includes('No file found');
 
     const suggestion = isFileNotFound
-      ? 'Use our analyzer to generate an llms.txt file for your website, or create one manually following the llmstxt.org specification.'
+      ? 'Click "Create llms.txt" below to generate one automatically, or create one manually at /llms.txt following the llmstxt.org specification.'
       : 'Check the URL is correct and the website is accessible, then try again.';
 
     // Return error result with detailed message (this is NOT a 500 error - it's a valid validation result)
@@ -1134,9 +1135,11 @@ export async function validateLlmsTxt(
       recommendations: isFileNotFound ? [
         {
           title: 'Create an llms.txt file',
-          description: 'Your website doesn\'t have an llms.txt file yet. This file helps AI models understand your site\'s content and structure.',
+          description: 'An llms.txt file helps AI assistants understand your website. Use our analyzer to generate one automatically - just click "Create llms.txt" and we\'ll scan your site to build a customized file.',
           priority: 'high' as const,
-          example: '# YourSiteName\n\n> Brief description of your site\n\n## Documentation\n- [Getting Started](https://yoursite.com/docs): Introduction guide'
+          example: '# YourSiteName\n\n> Brief description of your site\n\n## Documentation\n- [Getting Started](https://yoursite.com/docs): Introduction guide',
+          actionUrl: '/analyze',
+          actionLabel: 'Create llms.txt'
         }
       ] : [],
       fileType: requestedFileType,
