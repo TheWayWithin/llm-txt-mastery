@@ -12,6 +12,14 @@ export interface DeduplicationResult {
 export async function deduplicateAndFilterPages(
   pages: DiscoveredPage[]
 ): Promise<DeduplicationResult> {
+  console.log(`🔍 [DEDUP] Starting deduplication with ${pages.length} pages`);
+  if (pages.length > 0 && pages.length <= 10) {
+    // Log details for small page sets to help debug
+    pages.forEach((p, i) => {
+      console.log(`🔍 [DEDUP] Input page ${i + 1}: url=${p.url}, title="${p.title}", score=${p.qualityScore}`);
+    });
+  }
+
   let uniquePages: DiscoveredPage[] = [];
   let duplicatesRemoved = 0;
   let redirectsResolved = 0;
@@ -66,6 +74,23 @@ export async function deduplicateAndFilterPages(
 
   // Step 3: Filter out low-value pages
   uniquePages = finalPages.filter(isValidPage);
+
+  // SAFEGUARD: If filtering removed ALL pages, keep the top pages by quality score
+  // This prevents returning 0 pages for sites that might have different content structures
+  if (uniquePages.length === 0 && finalPages.length > 0) {
+    console.log(`⚠️ [DEDUP] All ${finalPages.length} pages were filtered out! Applying safeguard...`);
+    // Sort by quality score and keep top pages
+    const sortedPages = [...finalPages].sort((a, b) => b.qualityScore - a.qualityScore);
+    // Keep up to 5 pages or all if fewer
+    const pagesToKeep = Math.min(5, sortedPages.length);
+    uniquePages = sortedPages.slice(0, pagesToKeep);
+    console.log(`⚠️ [DEDUP] Safeguard: Keeping top ${uniquePages.length} pages by quality score`);
+    uniquePages.forEach((p, i) => {
+      console.log(`   ${i + 1}. ${p.url} (score: ${p.qualityScore}, title: "${p.title}")`);
+    });
+  }
+
+  console.log(`🔍 [DEDUP] Final result: ${uniquePages.length} unique pages, ${duplicatesRemoved} duplicates removed`);
 
   return {
     uniquePages,
@@ -202,6 +227,7 @@ function isValidPage(page: DiscoveredPage): boolean {
 
   // Remove file downloads
   if (url.match(/\.(pdf|doc|docx|xls|xlsx|zip|tar|gz|rar)$/)) {
+    console.log(`🔍 [FILTER] Rejected ${page.url}: File download`);
     return false;
   }
 
@@ -212,16 +238,19 @@ function isValidPage(page: DiscoveredPage): boolean {
     url.includes('/wp-admin') ||
     url.includes('/dashboard')
   ) {
+    console.log(`🔍 [FILTER] Rejected ${page.url}: Admin/login page`);
     return false;
   }
 
   // Remove obvious navigation/menu pages with very short titles
   if (title.length < 5 || title === 'home' || title === 'menu' || title === 'navigation') {
+    console.log(`🔍 [FILTER] Rejected ${page.url}: Short/navigation title "${page.title}" (length: ${title.length})`);
     return false;
   }
 
   // Remove pages with very low quality scores (likely navigation or error pages)
   if (page.qualityScore <= 1) {
+    console.log(`🔍 [FILTER] Rejected ${page.url}: Low quality score ${page.qualityScore}`);
     return false;
   }
 
@@ -232,9 +261,11 @@ function isValidPage(page: DiscoveredPage): boolean {
     title.includes('error') ||
     title.includes('forbidden')
   ) {
+    console.log(`🔍 [FILTER] Rejected ${page.url}: Error title "${page.title}"`);
     return false;
   }
 
+  console.log(`✅ [FILTER] Accepted ${page.url}: title="${page.title}", score=${page.qualityScore}`);
   return true;
 }
 
@@ -264,7 +295,8 @@ export function isLikelyBrokenUrl(url: string): boolean {
  * Enhanced filtering for affiliate and low-value links
  */
 export function removeAffiliateAndLowValueLinks(pages: DiscoveredPage[]): DiscoveredPage[] {
-  return pages.filter((page) => {
+  console.log(`🔍 [AFFILIATE] Starting affiliate filter with ${pages.length} pages`);
+  const result = pages.filter((page) => {
     const url = page.url.toLowerCase();
 
     // Remove affiliate links
@@ -292,9 +324,12 @@ export function removeAffiliateAndLowValueLinks(pages: DiscoveredPage[]): Discov
 
     // Remove pagination pages
     if (url.includes('/page/') || url.includes('/p/') || url.match(/[?&]page=\d+/)) {
+      console.log(`🔍 [AFFILIATE] Rejected ${page.url}: Pagination page`);
       return false;
     }
 
     return true;
   });
+  console.log(`🔍 [AFFILIATE] After affiliate filter: ${result.length} pages remain`);
+  return result;
 }
