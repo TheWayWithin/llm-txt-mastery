@@ -2081,6 +2081,175 @@ Based on `/docs/Ideation/Modern Web Architectures and llms.txt Compatibility (1)
 
 ---
 
+## ⏳ SPRINT 6: JavaScript Rendering for SPA Analysis
+
+**Mission Type**: Platform Capability Enhancement - Analyzer Core Improvement
+**Sprint Start**: TBD
+**Priority**: HIGH - Core Product Functionality Gap
+**Owner**: THE COORDINATOR
+**Status**: ⏳ PLANNED
+
+### Sprint Objective
+
+Enable the analyzer to properly extract content from JavaScript-rendered websites (SPAs, CSR apps) by implementing headless browser rendering in the backend, ensuring accurate page titles, descriptions, and content extraction.
+
+### Business Case
+
+**Critical Gap Discovered (December 17, 2025)**:
+When analyzing llmtxtmastery.com (our own site), the analyzer:
+1. Found 4 pages but all had the **same title**: "LLM.txt Mastery - AI-Ready Website Content Generator"
+2. Reported only **15% content coverage** because it only sees raw HTML, not rendered content
+3. Filtered out 3 of 4 pages as "duplicates" due to identical titles
+
+**Root Cause**:
+- Our analyzer uses `fetch()` to retrieve page content
+- SPAs serve a shell HTML with JavaScript that renders content client-side
+- The analyzer sees the pre-rendered HTML, not the JavaScript-rendered DOM
+- Page titles, descriptions, and content are set by JavaScript AFTER page load
+
+**Impact**:
+- ~40-60% of modern websites are SPAs/CSR apps
+- These sites get poor analysis results (low coverage, duplicate detection)
+- Our own site cannot be properly analyzed
+- Credibility issue: "We can't even analyze ourselves properly"
+
+### Technical Approach
+
+**Solution**: Add Playwright to the backend for headless browser rendering
+
+| Component | Current State | Target State |
+|-----------|--------------|--------------|
+| Page Fetching | `fetch()` - raw HTML only | Playwright - full JS rendering |
+| Title Extraction | Sees `<title>` from index.html | Sees dynamic `document.title` |
+| Content Extraction | 15% coverage on SPAs | 90%+ coverage on SPAs |
+| Resource Usage | Low (simple HTTP) | Medium (headless browser) |
+
+### Sprint Phases
+
+#### Phase 1: Research & Architecture Design
+**Agent**: THE ARCHITECT
+**Status**: ⏳ Pending
+**Tasks**:
+- [ ] Research Playwright vs Puppeteer for Railway deployment
+- [ ] Evaluate resource/memory requirements on Railway
+- [ ] Design integration with existing `sitemap-enhanced.ts` and page fetching
+- [ ] Determine caching strategy (render once, cache result)
+- [ ] Plan fallback for sites that don't need JS rendering
+- [ ] Document architecture decision
+
+**Deliverable**: `spa-rendering-architecture.md`
+
+#### Phase 2: Playwright Integration
+**Agent**: THE DEVELOPER
+**Status**: ⏳ Pending
+**Tasks**:
+- [ ] Install Playwright in server package
+- [ ] Configure Playwright for Railway (headless Chromium)
+- [ ] Create `renderPage()` utility function
+- [ ] Implement wait-for-content strategies (network idle, DOM ready)
+- [ ] Add timeout and error handling
+- [ ] Test locally with llmtxtmastery.com
+
+**Deliverable**: `server/services/browser-renderer.ts`
+
+#### Phase 3: Analyzer Integration
+**Agent**: THE DEVELOPER
+**Status**: ⏳ Pending
+**Tasks**:
+- [ ] Modify `fetchPageContent()` to use Playwright for CSR sites
+- [ ] Add CSR detection (check if content differs between fetch and render)
+- [ ] Update title/description extraction to use rendered DOM
+- [ ] Update content extraction for full page content
+- [ ] Preserve existing fetch for static sites (performance)
+
+**Deliverable**: Updated `sitemap-enhanced.ts` with rendering support
+
+#### Phase 4: Performance Optimization
+**Agent**: THE DEVELOPER
+**Status**: ⏳ Pending
+**Tasks**:
+- [ ] Implement browser instance pooling (reuse browser)
+- [ ] Add rendering cache (don't re-render same URL)
+- [ ] Configure resource limits (memory, concurrent renders)
+- [ ] Add rendering timeout limits
+- [ ] Monitor Railway resource usage
+
+**Deliverable**: Optimized renderer with caching
+
+#### Phase 5: Testing & Validation
+**Agent**: THE TESTER
+**Status**: ⏳ Pending
+**Tasks**:
+- [ ] Test with llmtxtmastery.com (our SPA)
+- [ ] Test with isotracker.org (known SPA)
+- [ ] Test with static sites (ensure no regression)
+- [ ] Test with various SPA frameworks (React, Vue, Angular)
+- [ ] Verify page titles are now unique per page
+- [ ] Verify content coverage improves to 80%+
+
+**Deliverable**: Test report with before/after comparisons
+
+#### Phase 6: Deployment & Monitoring
+**Agent**: THE OPERATOR
+**Status**: ⏳ Pending
+**Tasks**:
+- [ ] Deploy to staging (develop branch)
+- [ ] Monitor Railway memory/CPU usage
+- [ ] Test production-like load
+- [ ] Deploy to production
+- [ ] Set up alerts for renderer failures
+
+**Deliverable**: Production deployment with monitoring
+
+### Success Criteria
+
+- [ ] llmtxtmastery.com analysis shows unique titles per page
+- [ ] Content coverage increases from 15% to 80%+ on SPAs
+- [ ] No performance regression on static sites
+- [ ] Railway resource usage stays within limits
+- [ ] Fallback works when rendering fails
+
+### Technical Considerations
+
+**Railway Deployment**:
+- Playwright requires Chromium binary (~400MB)
+- May need to use `playwright-core` with system Chromium
+- Consider Railway's memory limits (512MB default, may need upgrade)
+
+**Performance Trade-offs**:
+- Rendering adds 2-5 seconds per page
+- Limit concurrent renders to manage resources
+- Cache rendered results for repeat visits
+
+**Fallback Strategy**:
+- Detect if site needs JS rendering vs static
+- Use fast `fetch()` for static sites
+- Only use Playwright when necessary
+
+### Dependencies
+
+- Playwright npm package
+- Railway Chromium support
+- Sufficient Railway memory allocation
+
+### Risk Assessment
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Railway memory limits | Medium | High | Test limits, upgrade plan if needed |
+| Slow rendering impacts UX | Medium | Medium | Implement caching, show progress |
+| Chromium binary issues | Low | High | Use playwright-core with system browser |
+| Cost increase on Railway | Medium | Low | Monitor usage, optimize pooling |
+
+### Reference Documents
+
+- Current Analyzer: `server/services/sitemap-enhanced.ts`
+- Page Fetching: `server/services/openai.ts` (fetchPageContent)
+- Sprint 5 CSR Detection: Architecture detection logic
+- useSEO Hook: `client/src/hooks/useSEO.ts` (client-side fix)
+
+---
+
 ## Priority List
 
 ### 🚨 CRITICAL - BLOCKING PRODUCTION VALUE
