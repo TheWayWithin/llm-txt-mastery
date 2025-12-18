@@ -1,5 +1,33 @@
 # Project Plan - LLM.txt Mastery
 
+## ✅ COMPLETED: WordPress Framework Detection Fix (December 17, 2025)
+
+**Status**: ✅ DEPLOYED TO PRODUCTION
+**Duration**: ~30 minutes
+**Commits**: `7de0000` (develop), `840e285` (main)
+
+### Summary
+
+Fixed false positive SPA detection for WordPress sites. Sites like developer.wordpress.org were incorrectly showing "Unknown (Unknown)" and "50% Coverage (Limited)" despite being server-rendered.
+
+### Changes
+
+- [x] Added 'wordpress' to `SPAFrameworkIndicators.framework` type
+- [x] Added WordPress detection in `determineFramework()`:
+  - `meta[name="generator"]` containing "WordPress"
+  - URLs with `/wp-includes/` or `/wp-content/`
+  - Body classes with `wp-*` patterns
+- [x] Set `renderingStrategy = 'SSR'` for WordPress (boosts coverage to 90%)
+- [x] Deployed to staging and production
+
+### Files Modified
+
+- `shared/schema.ts` - Type definition
+- `client/src/pages/validate.tsx` - Client type
+- `server/services/sitemap.ts` - Detection logic
+
+---
+
 ## ✅ COMPLETED MISSION: Web Infrastructure Implementation (SEO/Server Configuration)
 
 **Mission Type**: Investigation & Implementation (SEO/Infrastructure)
