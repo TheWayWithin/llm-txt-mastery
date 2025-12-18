@@ -1009,12 +1009,13 @@ export async function parseSitemap(xml: string): Promise<SitemapEntry[]> {
 }
 
 export async function fetchPageContent(url: string): Promise<string> {
+  // Updated user agents with more recent browser versions (2024/2025)
   const userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
   ];
 
   const maxRetries = 3;
@@ -1023,11 +1024,20 @@ export async function fetchPageContent(url: string): Promise<string> {
   // Use connection pool for HTTPS URLs only
   const agent = url.startsWith('https') ? connectionPool.getAgent(url) : undefined;
 
+  // Extract domain for Referer header (makes requests look more natural)
+  let referer: string;
+  try {
+    const urlObj = new URL(url);
+    referer = `${urlObj.protocol}//${urlObj.hostname}/`;
+  } catch {
+    referer = url;
+  }
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       // Progressive delay between retries (exponential backoff)
       if (attempt > 0) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
+        const delay = Math.min(1000 * Math.pow(2, attempt), 8000); // Increased max to 8 seconds
         await new Promise((resolve) => setTimeout(resolve, delay));
         console.log(`Retry attempt ${attempt + 1} for ${url} after ${delay}ms delay`);
       }
@@ -1047,12 +1057,14 @@ export async function fetchPageContent(url: string): Promise<string> {
             'Accept-Encoding': 'gzip, deflate, br',
             'Cache-Control': 'no-cache',
             Pragma: 'no-cache',
+            Referer: referer, // Added Referer header - many sites check this
             'Sec-Fetch-Dest': 'document',
             'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-Site': 'same-origin', // Changed from 'none' to look more natural
             'Sec-Fetch-User': '?1',
             'Upgrade-Insecure-Requests': '1',
             Connection: 'keep-alive',
+            DNT: '1', // Do Not Track - common browser header
           },
         },
         15000
@@ -1268,6 +1280,55 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
   return prioritized;
 }
 
+/**
+ * Helper function to add delay between requests
+ * Prevents overwhelming servers with too many concurrent requests
+ */
+async function delayedFetch(
+  entry: SitemapEntry,
+  index: number,
+  useAI: boolean,
+  baseDelay: number = 200
+): Promise<{
+  url: string;
+  title: string;
+  description: string;
+  qualityScore: number;
+  category: string;
+  lastModified?: string;
+  success: boolean;
+}> {
+  // Stagger requests within batch to avoid rate limiting
+  // Each request waits (index * baseDelay) ms before starting
+  await new Promise((resolve) => setTimeout(resolve, index * baseDelay));
+
+  try {
+    const content = await fetchPageContent(entry.url);
+    const analysis = await analyzePageContent(entry.url, content, useAI);
+
+    return {
+      url: entry.url,
+      title: analysis.title,
+      description: analysis.description,
+      qualityScore: analysis.qualityScore,
+      category: analysis.category,
+      lastModified: entry.lastmod,
+      success: true,
+    };
+  } catch (error) {
+    console.log(`Failed to analyze ${entry.url}:`, error.message);
+    return {
+      url: entry.url,
+      title: 'Analysis Failed',
+      description: 'Unable to analyze this page',
+      qualityScore: 1,
+      category: 'Error',
+      lastModified: entry.lastmod,
+      success: false,
+    };
+  }
+}
+
 export async function analyzeDiscoveredPages(
   entries: SitemapEntry[],
   useAI: boolean = false,
@@ -1287,38 +1348,18 @@ export async function analyzeDiscoveredPages(
   let consecutiveFailures = 0;
   const MAX_CONSECUTIVE_FAILURES = 10;
 
-  // Process pages in larger batches for better performance
-  const batchSize = 20;
+  // IMPROVED: Smaller batch size with staggered requests to avoid rate limiting
+  // This is critical for sites like WordPress.org that have aggressive rate limiting
+  const batchSize = 5; // Reduced from 20 to 5 for better rate limit compliance
+  const intraRequestDelay = 300; // 300ms between requests within a batch
+
   for (let i = 0; i < pagesToAnalyze.length; i += batchSize) {
     const batch = pagesToAnalyze.slice(i, i + batchSize);
 
-    const batchPromises = batch.map(async (entry) => {
-      try {
-        const content = await fetchPageContent(entry.url);
-        const analysis = await analyzePageContent(entry.url, content, useAI);
-
-        return {
-          url: entry.url,
-          title: analysis.title,
-          description: analysis.description,
-          qualityScore: analysis.qualityScore,
-          category: analysis.category,
-          lastModified: entry.lastmod,
-          success: true,
-        };
-      } catch (error) {
-        console.log(`Failed to analyze ${entry.url}:`, error.message);
-        return {
-          url: entry.url,
-          title: 'Analysis Failed',
-          description: 'Unable to analyze this page',
-          qualityScore: 1,
-          category: 'Error',
-          lastModified: entry.lastmod,
-          success: false,
-        };
-      }
-    });
+    // Process batch with staggered delays to avoid overwhelming the server
+    const batchPromises = batch.map((entry, index) =>
+      delayedFetch(entry, index, useAI, intraRequestDelay)
+    );
 
     const batchResults = await Promise.allSettled(batchPromises);
 
@@ -1337,6 +1378,14 @@ export async function analyzeDiscoveredPages(
       }
     });
 
+    // Log progress for visibility
+    const successCount = batchResults.filter(
+      (r) => r.status === 'fulfilled' && r.value.success
+    ).length;
+    console.log(
+      `Batch ${Math.floor(i / batchSize) + 1}: ${successCount}/${batch.length} pages succeeded`
+    );
+
     // Early exit if we detect bot protection (all pages failing)
     if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
       console.log(
@@ -1345,9 +1394,10 @@ export async function analyzeDiscoveredPages(
       break;
     }
 
-    // Reduced delay between batches
+    // IMPROVED: Longer delay between batches to respect rate limits
     if (i + batchSize < pagesToAnalyze.length) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const interBatchDelay = batchFailures > 0 ? 2000 : 1000; // Longer delay if failures detected
+      await new Promise((resolve) => setTimeout(resolve, interBatchDelay));
     }
   }
 
