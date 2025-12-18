@@ -467,6 +467,14 @@ function determineFramework(
   const hasAstroScripts = html.includes('/_astro/') || html.includes('/astro/');
   const hasAstro = hasAstroIsland || hasAstroAttributes || hasAstroScripts;
 
+  // Check for WordPress indicators
+  // WordPress uses: meta[name="generator"], /wp-includes/, /wp-content/ paths, wp-* body classes
+  const wpGenerator = $('meta[name="generator"]').attr('content') || '';
+  const hasWPGenerator = wpGenerator.toLowerCase().includes('wordpress');
+  const hasWPPaths = html.includes('/wp-includes/') || html.includes('/wp-content/');
+  const hasWPBodyClasses = $('body').attr('class')?.includes('wp-') || false;
+  const hasWordPress = hasWPGenerator || hasWPPaths || hasWPBodyClasses;
+
   // Determine specific framework (most specific first)
   if (ssrIndicators.hasNextData) {
     framework = 'next';
@@ -531,6 +539,18 @@ function determineFramework(
     }
     // Astro is primarily SSG (static site generator)
     renderingStrategy = 'SSG';
+  } else if (hasWordPress) {
+    framework = 'wordpress';
+    // Add specific indicator based on detection method
+    if (hasWPGenerator) {
+      indicators.push('wp-generator');
+    } else if (hasWPPaths) {
+      indicators.push('wp-paths');
+    } else if (hasWPBodyClasses) {
+      indicators.push('wp-body-classes');
+    }
+    // WordPress is server-side rendered (PHP)
+    renderingStrategy = 'SSR';
   }
 
   // Add CSR indicators
