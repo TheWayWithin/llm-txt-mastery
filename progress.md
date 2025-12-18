@@ -1,6 +1,67 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest: Sprint 5 Phase 3 - Validator Universal Compatibility (Architecture Detection) - COMPLETE ✅
+## Latest: WordPress Framework Detection Fix - COMPLETE ✅
+
+**Date**: December 17, 2025
+**Status**: ✅ DEPLOYED TO PRODUCTION
+**Duration**: ~30 minutes
+
+### Mission Summary
+
+Fixed false positive SPA detection for WordPress sites. WordPress sites like developer.wordpress.org were incorrectly showing "Unknown (Unknown)" framework and "50% Coverage (Limited)" warning despite being server-rendered.
+
+### Root Cause Analysis
+
+**Problem**: The `determineFramework()` function in `server/services/sitemap.ts` detected React, Vue, Angular, Svelte, Astro, Next.js, Nuxt, and Gatsby - but NOT WordPress.
+
+**Impact**: When WordPress wasn't detected:
+- `framework = 'unknown'`
+- `renderingStrategy = 'UNKNOWN'`
+- Coverage estimation dropped to 50% due to WordPress's heavy HTML structure (menus, headers, sidebars)
+- Users saw misleading "Limited" coverage warning
+
+**Solution**: Added WordPress detection via:
+- `meta[name="generator"]` tag containing "WordPress"
+- URLs containing `/wp-includes/` or `/wp-content/`
+- Body classes containing `wp-*` patterns
+
+When detected, WordPress sites now get:
+- `framework = 'wordpress'`
+- `renderingStrategy = 'SSR'` (server-side rendered)
+- Coverage boosted to 90% via existing SSR logic
+
+### Files Modified
+
+1. **`shared/schema.ts`** (line 359)
+   - Added 'wordpress' to `SPAFrameworkIndicators.framework` union type
+
+2. **`client/src/pages/validate.tsx`** (line 66)
+   - Added 'wordpress' to local `SPAFrameworkIndicators` interface
+
+3. **`server/services/sitemap.ts`** (lines 470-476, 542-554)
+   - Added WordPress detection variables (hasWPGenerator, hasWPPaths, hasWPBodyClasses, hasWordPress)
+   - Added WordPress case in framework determination with SSR rendering strategy
+
+### Testing
+
+- ✅ Build succeeded (npm run build)
+- ✅ Staging deployment: SUCCESS (commit `7de0000`)
+- ✅ Production deployment: SUCCESS (commit `840e285`)
+
+### Commits
+
+1. `7de0000` - feat: Add WordPress detection to SPA framework detection (develop)
+2. `840e285` - Merge branch 'develop' (main → production)
+
+### Lessons Learned
+
+1. **CMS Detection Gap**: Framework detection was focused on JavaScript frameworks, missing traditional CMS platforms
+2. **False Positive Impact**: "Unknown" framework with low coverage creates user concern even when content is excellent
+3. **SSR Classification**: WordPress is server-rendered PHP, should be classified as SSR for accurate coverage estimation
+
+---
+
+## Previous: Sprint 5 Phase 3 - Validator Universal Compatibility (Architecture Detection) - COMPLETE ✅
 
 **Date**: December 15, 2025
 **Status**: ✅ IMPLEMENTED (Ready for Staging Deployment)
