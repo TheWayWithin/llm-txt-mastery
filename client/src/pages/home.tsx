@@ -228,7 +228,7 @@ export default function Home() {
                   ⚠️ December 2025 Alert: Free Tools Find Pages, But Can't Score Quality
                 </p>
                 <p className="text-sm text-amber-700 mt-1">
-                  <span className="font-semibold">Keploy</span> finds pages for free — but misses what matters.
+                  <span className="font-semibold">Free llms.txt generators</span> find pages — but miss what matters.
                   Only <span className="font-semibold text-innovation-teal">LLM.txt Mastery</span> uses
                   <span className="font-semibold"> GPT-4o</span> to evaluate what ChatGPT, Claude & Perplexity will actually <span className="italic">cite</span>.
                 </p>
@@ -355,7 +355,7 @@ export default function Home() {
                 <div>
                   <h4 className="font-semibold text-red-800 mb-3">The Hidden Problem:</h4>
                   <ul className="space-y-2 text-sm text-red-700">
-                    <li>❌ Free tools (like Keploy) find pages — but without quality scoring</li>
+                    <li>❌ Free generators find pages — but without quality scoring</li>
                     <li>❌ AI systems get a list, not guidance on what matters</li>
                     <li>❌ Your privacy policy ranks alongside your best content</li>
                     <li>❌ No framework detection means React/Next.js sites may fail</li>
@@ -593,7 +593,7 @@ export default function Home() {
                 Free Tools Find Pages. We Find What AI Will CITE.
               </h3>
               <p className="text-lg text-ai-silver text-center mb-4 max-w-3xl mx-auto">
-                December 2025 independent testing. Yes, Keploy finds 90% of pages for free — but without quality analysis,
+                December 2025 independent testing. Yes, free generators find most pages — but without quality analysis,
                 AI systems won't know which pages matter.
               </p>
               <p className="text-sm text-gray-500 text-center mb-8 max-w-2xl mx-auto">
@@ -838,7 +838,7 @@ export default function Home() {
               {/* Key Insight */}
               <div className="mt-8 bg-innovation-teal/10 border border-innovation-teal rounded-lg p-6">
                 <p className="text-center text-framework-black mb-2">
-                  <span className="font-bold text-innovation-teal">The Key Insight:</span> Keploy finds 90% of pages for free — <span className="italic">and that's fine</span>.
+                  <span className="font-bold text-innovation-teal">The Key Insight:</span> Free tools find most pages — <span className="italic">and that's fine</span>.
                 </p>
                 <p className="text-center text-ai-silver mb-4">
                   But finding pages isn't enough. AI systems need to know <span className="font-semibold">which pages matter</span>.
@@ -905,7 +905,7 @@ export default function Home() {
 
                 <div className="bg-innovation-teal/10 rounded-lg p-4">
                   <p className="text-sm text-gray-700">
-                    <strong className="text-innovation-teal">The Real Difference:</strong> Keploy finds 90% of pages for free — that's great for discovery.
+                    <strong className="text-innovation-teal">The Real Difference:</strong> Free generators find most pages — that's great for discovery.
                     But only LLM.txt Mastery uses GPT-4o to evaluate <span className="italic">which pages AI will actually cite</span>.
                     Free tools give you quantity. We give you quality intelligence.
                   </p>
@@ -1118,8 +1118,7 @@ export default function Home() {
                   </div>
                   <h4 className="font-bold text-lg mb-2">No Daily Limits</h4>
                   <p className="text-sm text-gray-600">
-                    Unlimited analyses, unlike Writesonic's restrictive 3 uses per day that makes it
-                    unusable
+                    Unlimited analyses, unlike some tools with restrictive 3 uses per day limits
                   </p>
                 </div>
 
