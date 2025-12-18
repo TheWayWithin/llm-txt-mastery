@@ -356,7 +356,7 @@ export type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
  * Framework and rendering strategy detection result
  */
 export interface SPAFrameworkIndicators {
-  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'unknown';
+  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'wordpress' | 'unknown';
   renderingStrategy: RenderingStrategy;
   indicators: string[];
 }
