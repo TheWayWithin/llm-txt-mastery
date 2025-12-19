@@ -10,6 +10,12 @@ import {
 } from '@shared/schema';
 import { analyzePageContent } from './openai';
 import { connectionPool } from './connection-pool';
+import {
+  renderPage,
+  isBrowserAvailable,
+  getRenderQueueStatus,
+  BrowserRenderResult,
+} from './browserRenderer';
 
 // Helper function to implement fetch with timeout using AbortController
 async function fetchWithTimeout(
@@ -1137,6 +1143,156 @@ export async function fetchPageContent(url: string): Promise<string> {
   );
 }
 
+// ============================================================================
+// ENHANCED CONTENT FETCHING WITH JS RENDERING (Sprint 6)
+// ============================================================================
+
+/**
+ * Options for enhanced page content fetching
+ */
+export interface EnhancedFetchOptions {
+  /** Enable JavaScript rendering via Playwright (Scale tier only) */
+  useJsRendering?: boolean;
+  /** SPA detection result to determine if JS rendering is beneficial */
+  spaDetection?: SPADetectionResult;
+  /** User tier for feature gating */
+  tier?: string;
+}
+
+/**
+ * Result of enhanced content fetch
+ */
+export interface EnhancedFetchResult {
+  /** The HTML content */
+  content: string;
+  /** Whether JavaScript was rendered */
+  wasJsRendered: boolean;
+  /** Render time in milliseconds (only for JS rendering) */
+  renderTimeMs?: number;
+  /** Error message if any */
+  error?: string;
+}
+
+/**
+ * Check if JavaScript rendering should be used for a page
+ * Based on tier (Scale only) and SPA detection signals
+ */
+export function shouldUseJsRendering(options: EnhancedFetchOptions): boolean {
+  // Only Scale tier gets JS rendering
+  if (options.tier !== 'scale') {
+    return false;
+  }
+
+  // Explicit opt-in via useJsRendering flag
+  if (options.useJsRendering === true) {
+    return true;
+  }
+
+  // Auto-detect based on SPA detection
+  if (options.spaDetection) {
+    const { framework, contentCoverage } = options.spaDetection;
+
+    // CSR frameworks definitely need JS rendering
+    if (framework.renderingStrategy === 'CSR') {
+      console.log(`[EnhancedFetch] CSR detected (${framework.framework}), JS rendering recommended`);
+      return true;
+    }
+
+    // Low content coverage suggests JS rendering would help
+    if (contentCoverage.estimatedCoverage < 50) {
+      console.log(`[EnhancedFetch] Low coverage (${contentCoverage.estimatedCoverage}%), JS rendering recommended`);
+      return true;
+    }
+
+    // Angular specifically almost always needs JS rendering
+    if (framework.framework === 'angular') {
+      console.log(`[EnhancedFetch] Angular detected, JS rendering recommended`);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Fetch page content with optional JavaScript rendering
+ * Scale tier exclusive feature - uses Playwright for CSR/SPA sites
+ *
+ * @param url - The URL to fetch
+ * @param options - Enhanced fetch options including tier and SPA detection
+ * @returns EnhancedFetchResult with content and rendering metadata
+ */
+export async function fetchPageContentEnhanced(
+  url: string,
+  options: EnhancedFetchOptions = {}
+): Promise<EnhancedFetchResult> {
+  const useJs = shouldUseJsRendering(options);
+
+  if (useJs) {
+    // Check if browser rendering is available
+    const browserAvailable = await isBrowserAvailable().catch(() => false);
+
+    if (!browserAvailable) {
+      console.log(`[EnhancedFetch] Browser not available for ${url}, falling back to HTTP`);
+    } else {
+      try {
+        console.log(`[EnhancedFetch] Using JS rendering for ${url}`);
+        const queueStatus = getRenderQueueStatus();
+        console.log(`[EnhancedFetch] Render queue: ${queueStatus.active}/${queueStatus.max} active, ${queueStatus.queued} queued`);
+
+        const result: BrowserRenderResult = await renderPage(url, {
+          timeout: 15000,
+          waitForNetwork: true,
+          autoScroll: true,
+        });
+
+        if (result.success) {
+          console.log(`[EnhancedFetch] JS render success for ${url} in ${result.renderTimeMs}ms`);
+          return {
+            content: result.html,
+            wasJsRendered: true,
+            renderTimeMs: result.renderTimeMs,
+          };
+        } else {
+          console.log(`[EnhancedFetch] JS render failed for ${url}: ${result.error}, falling back to HTTP`);
+          // Fall through to HTTP fetch
+        }
+      } catch (error) {
+        console.log(`[EnhancedFetch] JS render exception for ${url}: ${error.message}, falling back to HTTP`);
+        // Fall through to HTTP fetch
+      }
+    }
+  }
+
+  // Standard HTTP fetch (fallback or primary)
+  try {
+    const content = await fetchPageContent(url);
+    return {
+      content,
+      wasJsRendered: false,
+    };
+  } catch (error) {
+    return {
+      content: '',
+      wasJsRendered: false,
+      error: error.message,
+    };
+  }
+}
+
+/**
+ * Get browser rendering status for diagnostics
+ */
+export function getBrowserRenderingStatus(): {
+  available: Promise<boolean>;
+  queueStatus: { active: number; queued: number; max: number };
+} {
+  return {
+    available: isBrowserAvailable(),
+    queueStatus: getRenderQueueStatus(),
+  };
+}
+
 export function filterRelevantPages(entries: SitemapEntry[], tier?: string): SitemapEntry[] {
   // For paid tiers, use less aggressive filtering
   const isPaidTier = tier && ['coffee', 'growth', 'scale'].includes(tier);
@@ -1303,12 +1459,14 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
 /**
  * Helper function to add delay between requests
  * Prevents overwhelming servers with too many concurrent requests
+ * Enhanced in Sprint 6 to support JS rendering for Scale tier
  */
 async function delayedFetch(
   entry: SitemapEntry,
   index: number,
   useAI: boolean,
-  baseDelay: number = 200
+  baseDelay: number = 200,
+  enhancedOptions?: EnhancedFetchOptions
 ): Promise<{
   url: string;
   title: string;
@@ -1317,13 +1475,29 @@ async function delayedFetch(
   category: string;
   lastModified?: string;
   success: boolean;
+  wasJsRendered?: boolean;
 }> {
   // Stagger requests within batch to avoid rate limiting
   // Each request waits (index * baseDelay) ms before starting
   await new Promise((resolve) => setTimeout(resolve, index * baseDelay));
 
   try {
-    const content = await fetchPageContent(entry.url);
+    // Use enhanced fetch if options provided (Scale tier with JS rendering)
+    let content: string;
+    let wasJsRendered = false;
+
+    if (enhancedOptions && shouldUseJsRendering(enhancedOptions)) {
+      const result = await fetchPageContentEnhanced(entry.url, enhancedOptions);
+      content = result.content;
+      wasJsRendered = result.wasJsRendered;
+
+      if (result.error && !content) {
+        throw new Error(result.error);
+      }
+    } else {
+      content = await fetchPageContent(entry.url);
+    }
+
     const analysis = await analyzePageContent(entry.url, content, useAI);
 
     return {
@@ -1334,6 +1508,7 @@ async function delayedFetch(
       category: analysis.category,
       lastModified: entry.lastmod,
       success: true,
+      wasJsRendered,
     };
   } catch (error) {
     console.log(`Failed to analyze ${entry.url}:`, error.message);
@@ -1345,15 +1520,34 @@ async function delayedFetch(
       category: 'Error',
       lastModified: entry.lastmod,
       success: false,
+      wasJsRendered: false,
     };
   }
+}
+
+/**
+ * Options for analyzing discovered pages
+ * Enhanced in Sprint 6 to support JS rendering for Scale tier
+ */
+export interface AnalyzeDiscoveredPagesOptions {
+  /** Whether to use AI for content analysis */
+  useAI?: boolean;
+  /** Maximum number of pages to analyze */
+  maxPagesLimit?: number;
+  /** User tier (starter, coffee, growth, scale) */
+  tier?: string;
+  /** SPA detection result for JS rendering decisions */
+  spaDetection?: SPADetectionResult;
+  /** Force JS rendering for all pages (Scale tier only) */
+  forceJsRendering?: boolean;
 }
 
 export async function analyzeDiscoveredPages(
   entries: SitemapEntry[],
   useAI: boolean = false,
   maxPagesLimit: number = 200,
-  tier?: string
+  tier?: string,
+  options?: AnalyzeDiscoveredPagesOptions
 ): Promise<DiscoveredPage[]> {
   const relevantPages = filterRelevantPages(entries, tier);
   const pages: DiscoveredPage[] = [];
@@ -1364,21 +1558,39 @@ export async function analyzeDiscoveredPages(
 
   console.log(`Analyzing ${pagesToAnalyze.length} pages from ${entries.length} discovered pages`);
 
+  // Sprint 6: Prepare enhanced fetch options for Scale tier
+  const enhancedOptions: EnhancedFetchOptions | undefined =
+    tier === 'scale'
+      ? {
+          tier,
+          spaDetection: options?.spaDetection,
+          useJsRendering: options?.forceJsRendering,
+        }
+      : undefined;
+
+  if (enhancedOptions && shouldUseJsRendering(enhancedOptions)) {
+    console.log(`[Sprint 6] JS rendering enabled for Scale tier analysis`);
+  }
+
   // Track consecutive failures to detect bot protection
   let consecutiveFailures = 0;
   const MAX_CONSECUTIVE_FAILURES = 10;
 
+  // Track JS rendering usage for metrics
+  let jsRenderedCount = 0;
+
   // IMPROVED: Smaller batch size with staggered requests to avoid rate limiting
   // This is critical for sites like WordPress.org that have aggressive rate limiting
-  const batchSize = 5; // Reduced from 20 to 5 for better rate limit compliance
-  const intraRequestDelay = 300; // 300ms between requests within a batch
+  // For JS rendering, use even smaller batch due to resource constraints (max 2 concurrent)
+  const batchSize = enhancedOptions ? 2 : 5; // Smaller batch for JS rendering
+  const intraRequestDelay = enhancedOptions ? 500 : 300; // More delay for JS rendering
 
   for (let i = 0; i < pagesToAnalyze.length; i += batchSize) {
     const batch = pagesToAnalyze.slice(i, i + batchSize);
 
     // Process batch with staggered delays to avoid overwhelming the server
     const batchPromises = batch.map((entry, index) =>
-      delayedFetch(entry, index, useAI, intraRequestDelay)
+      delayedFetch(entry, index, useAI, intraRequestDelay, enhancedOptions)
     );
 
     const batchResults = await Promise.allSettled(batchPromises);
@@ -1386,8 +1598,12 @@ export async function analyzeDiscoveredPages(
     let batchFailures = 0;
     batchResults.forEach((result) => {
       if (result.status === 'fulfilled') {
-        const { success, ...pageData } = result.value;
+        const { success, wasJsRendered, ...pageData } = result.value;
         pages.push(pageData);
+
+        if (wasJsRendered) {
+          jsRenderedCount++;
+        }
 
         if (!success) {
           batchFailures++;
@@ -1402,8 +1618,12 @@ export async function analyzeDiscoveredPages(
     const successCount = batchResults.filter(
       (r) => r.status === 'fulfilled' && r.value.success
     ).length;
+    const jsCount = batchResults.filter(
+      (r) => r.status === 'fulfilled' && r.value.wasJsRendered
+    ).length;
+    const jsInfo = jsCount > 0 ? ` (${jsCount} JS rendered)` : '';
     console.log(
-      `Batch ${Math.floor(i / batchSize) + 1}: ${successCount}/${batch.length} pages succeeded`
+      `Batch ${Math.floor(i / batchSize) + 1}: ${successCount}/${batch.length} pages succeeded${jsInfo}`
     );
 
     // Early exit if we detect bot protection (all pages failing)
@@ -1415,10 +1635,17 @@ export async function analyzeDiscoveredPages(
     }
 
     // IMPROVED: Longer delay between batches to respect rate limits
+    // Even longer for JS rendering to allow browser resources to recover
     if (i + batchSize < pagesToAnalyze.length) {
-      const interBatchDelay = batchFailures > 0 ? 2000 : 1000; // Longer delay if failures detected
+      const baseDelay = enhancedOptions ? 2000 : 1000;
+      const interBatchDelay = batchFailures > 0 ? baseDelay * 2 : baseDelay;
       await new Promise((resolve) => setTimeout(resolve, interBatchDelay));
     }
+  }
+
+  // Sprint 6: Log final JS rendering metrics
+  if (jsRenderedCount > 0) {
+    console.log(`[Sprint 6] Analysis complete: ${jsRenderedCount}/${pages.length} pages used JS rendering`);
   }
 
   return pages.sort((a, b) => b.qualityScore - a.qualityScore);

@@ -21,6 +21,9 @@ export const authUsers = pgTable('auth_users', {
   stripeCustomerId: text('stripe_customer_id'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+  // Sprint 6: JS rendering quota tracking (Scale tier only)
+  jsRendersUsedThisMonth: integer('js_renders_used_this_month').default(0),
+  jsRendersResetAt: timestamp('js_renders_reset_at'),
 });
 
 export const emailCaptures = pgTable('emailCaptures', {

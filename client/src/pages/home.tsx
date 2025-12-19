@@ -230,7 +230,7 @@ export default function Home() {
                 <p className="text-sm text-amber-700 mt-1">
                   <span className="font-semibold">Free llms.txt generators</span> find pages — but miss what matters.
                   Only <span className="font-semibold text-innovation-teal">LLM.txt Mastery</span> uses
-                  <span className="font-semibold"> GPT-4o</span> to evaluate what ChatGPT, Claude & Perplexity will actually <span className="italic">cite</span>.
+                  <span className="font-semibold"> advanced AI</span> to evaluate what ChatGPT, Claude & Perplexity will actually <span className="italic">cite</span>.
                 </p>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function Home() {
             </h1>
             <p className="text-base sm:text-lg text-ai-silver mb-6 max-w-2xl mx-auto">
               Free tools are lead magnets for other products. We're <span className="font-semibold text-innovation-teal">100% focused on AI discoverability</span> —
-              with GPT-4o analysis, any website type support, and 47+ updates shipped in 2025.
+              with AI-powered analysis, any website type support, and 47+ updates shipped in 2025.
             </p>
 
             {/* 6 Moat Badges - Core Differentiators */}
@@ -251,7 +251,7 @@ export default function Home() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                 <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
                   <span className="text-green-600 font-bold">✓</span>
-                  <span className="text-gray-700">AI Quality Scoring (GPT-4o)</span>
+                  <span className="text-gray-700">AI Quality Scoring</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-green-200">
                   <span className="text-green-600 font-bold">✓</span>
@@ -339,6 +339,12 @@ export default function Home() {
               <span>This is our entire focus — not a marketing add-on for another product</span>
             </div>
 
+            {/* Future-Proof Badge */}
+            <div className="flex items-center justify-center space-x-1 text-sm text-ai-silver mt-2">
+              <span className="text-lg">🔄</span>
+              <span>I benchmark competitor tools monthly — any feature they add, I add too</span>
+            </div>
+
             {/* Security Trust Badges */}
             <div className="mt-6">
               <TrustBadges variant="security" compact={true} alignment="center" />
@@ -366,7 +372,7 @@ export default function Home() {
                 <div>
                   <h4 className="font-semibold text-green-800 mb-3">What Quality Intelligence Delivers:</h4>
                   <ul className="space-y-2 text-sm text-green-700">
-                    <li>✅ GPT-4o analyzes what AI will actually cite</li>
+                    <li>✅ AI analyzes what search engines will actually cite</li>
                     <li>✅ Quality scoring prioritizes your best content</li>
                     <li>✅ 15+ framework detection (React, Next.js, Vue, Astro...)</li>
                     <li>✅ robots.txt conflict detection (unique feature)</li>
@@ -647,7 +653,7 @@ export default function Home() {
                         <span className="font-bold text-green-700">AI Quality Scoring</span>
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold bg-green-50">
-                        ✅ GPT-4o Analysis
+                        ✅ AI Quality Analysis
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
                         ❌ None
@@ -755,10 +761,10 @@ export default function Home() {
                         CSR/SPA Content Capture
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ Full + Warnings
+                        ✅ Full + Quality Scoring
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Fails Silently
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Renders (Junk Output)
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
                         ❌ Fails Silently
@@ -842,7 +848,7 @@ export default function Home() {
                 </p>
                 <p className="text-center text-ai-silver mb-4">
                   But finding pages isn't enough. AI systems need to know <span className="font-semibold">which pages matter</span>.
-                  Only GPT-4o quality scoring tells them that.
+                  Only AI quality scoring tells them that.
                 </p>
                 <div className="flex justify-center">
                   <Button
@@ -906,7 +912,7 @@ export default function Home() {
                 <div className="bg-innovation-teal/10 rounded-lg p-4">
                   <p className="text-sm text-gray-700">
                     <strong className="text-innovation-teal">The Real Difference:</strong> Free generators find most pages — that's great for discovery.
-                    But only LLM.txt Mastery uses GPT-4o to evaluate <span className="italic">which pages AI will actually cite</span>.
+                    But only LLM.txt Mastery uses AI to evaluate <span className="italic">which pages will actually get cited</span>.
                     Free tools give you quantity. We give you quality intelligence.
                   </p>
                 </div>
@@ -926,7 +932,7 @@ export default function Home() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <h5 className="font-semibold text-gray-900">GPT-4o Quality Scoring</h5>
+                    <h5 className="font-semibold text-gray-900">AI Quality Scoring</h5>
                   </div>
                   <p className="text-sm text-gray-600">
                     Every page evaluated for AI citation potential — not just found

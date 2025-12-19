@@ -151,7 +151,7 @@ export const ContactPage: React.FC = () => {
                     @jamiewatters
                   </a>
                   <a
-                    href="https://www.linkedin.com/in/jamie-watters-solo"
+                    href="https://www.linkedin.com/in/Jamie_within"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"

@@ -71,8 +71,8 @@ app.use(securityMonitoring);
 app.use(enhancedInputValidation);
 app.use(apiSecurityHeaders);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
 
 app.use((req, res, next) => {
