@@ -726,3 +726,37 @@ export interface ApiKeyWithStats extends ApiKey {
   averageResponseTime: number;
   errorRate: number;
 }
+
+// ===================================================================
+// SPRINT 7: API JS RENDER QUOTAS (Per API Key + External User)
+// ===================================================================
+
+/**
+ * API JS Render Quotas table - tracks JS rendering usage per external user per API key
+ * Used when API consumers (like AImpactScanner) pass their user's tier and userId
+ */
+export const apiJsRenderQuotas = pgTable('api_js_render_quotas', {
+  id: serial('id').primaryKey(),
+  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  externalUserId: text('external_user_id').notNull(), // Consumer-provided user ID (e.g., aimp_user_123)
+  rendersUsedThisMonth: integer('renders_used_this_month').default(0).notNull(),
+  resetAt: timestamp('reset_at'), // When the quota counter will reset (first of next month)
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export type ApiJsRenderQuota = typeof apiJsRenderQuotas.$inferSelect;
+export type NewApiJsRenderQuota = typeof apiJsRenderQuotas.$inferInsert;
+export const insertApiJsRenderQuotaSchema = createInsertSchema(apiJsRenderQuotas);
+
+// Tier limits for API consumers (mapped from userTier parameter)
+export const API_TIER_LIMITS: Record<UserTier, {
+  maxPagesPerAnalysis: number;
+  aiPagesLimit: number;
+  jsRenderingEnabled: boolean;
+  jsRendersPerMonth: number;
+}> = {
+  starter: { maxPagesPerAnalysis: 20, aiPagesLimit: 20, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
+  solo: { maxPagesPerAnalysis: 200, aiPagesLimit: 200, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
+  growth: { maxPagesPerAnalysis: 500, aiPagesLimit: 500, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
+  scale: { maxPagesPerAnalysis: 1000, aiPagesLimit: 1000, jsRenderingEnabled: true, jsRendersPerMonth: 100 },
+};

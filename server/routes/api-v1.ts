@@ -19,7 +19,14 @@ import { fetchSitemap } from '../services/sitemap';
 import { analyzeDiscoveredPagesWithCache } from '../services/sitemap-enhanced';
 import { apiAuthChain, apiKeyAuth, trackApiUsage } from '../middleware/api-auth';
 import { getApiKeyStats } from '../utils/api-key-generator';
-import type { ApiKey } from '@shared/schema';
+import {
+  checkApiJsRenderQuota,
+  consumeApiJsRenders,
+  getApiJsRenderQuotaStatus,
+  getApiTierLimits,
+} from '../services/usage';
+import type { ApiKey, UserTier } from '@shared/schema';
+import { API_TIER_LIMITS } from '@shared/schema';
 
 const router = Router();
 
@@ -31,8 +38,12 @@ const analyzeSchema = z.object({
   url: z.string().url('Invalid URL format'),
   options: z
     .object({
-      maxPages: z.number().int().positive().max(100).optional().default(50),
+      maxPages: z.number().int().positive().max(1000).optional().default(50),
       force: z.boolean().optional().default(false),
+      // Sprint 7: Tiered Access Options
+      userTier: z.enum(['starter', 'solo', 'growth', 'scale']).optional().default('starter'),
+      renderJs: z.boolean().optional().default(false),
+      userId: z.string().optional(), // External user ID for quota tracking (e.g., aimp_user_123)
     })
     .optional()
     .default({}),
@@ -82,7 +93,9 @@ router.get('/status', (req: Request, res: Response) => {
 
 /**
  * POST /api/v1/analyze
- * Start website analysis
+ * Start website analysis with tiered access control
+ *
+ * Sprint 7: Added userTier, renderJs, userId options for AImpactScanner integration
  */
 router.post('/analyze', apiAuthChain, async (req: Request, res: Response) => {
   try {
@@ -100,10 +113,62 @@ router.post('/analyze', apiAuthChain, async (req: Request, res: Response) => {
     const { url, options } = validationResult.data;
     const apiKey = req.apiKey as ApiKey;
 
+    // Sprint 7: Extract tier options with defaults
+    const userTier = (options.userTier || 'starter') as UserTier;
+    const renderJs = options.renderJs || false;
+    const externalUserId = options.userId || 'anonymous';
+    const tierLimits = API_TIER_LIMITS[userTier];
+
+    // Sprint 7: Validate JS rendering request
+    if (renderJs) {
+      // JS rendering only available for Scale tier
+      if (!tierLimits.jsRenderingEnabled) {
+        return res.status(403).json({
+          error: 'Forbidden',
+          code: 'JS_RENDER_NOT_AVAILABLE',
+          message: `JS rendering requires 'scale' tier. Current tier: '${userTier}'`,
+          userTier,
+        });
+      }
+
+      // Check JS render quota for this user
+      const quotaCheck = await checkApiJsRenderQuota(apiKey.id, externalUserId);
+      if (!quotaCheck.hasQuota) {
+        return res.status(429).json({
+          error: 'Quota Exceeded',
+          code: 'JS_RENDER_QUOTA_EXCEEDED',
+          message: 'Monthly JS rendering quota exhausted',
+          quota: {
+            used: quotaCheck.rendersUsed,
+            limit: quotaCheck.limit,
+            resetAt: quotaCheck.resetAt?.toISOString(),
+          },
+        });
+      }
+    }
+
+    // Sprint 7: Apply tier-based page limits
+    const requestedMaxPages = options.maxPages || 50;
+    const effectiveMaxPages = Math.min(requestedMaxPages, tierLimits.maxPagesPerAnalysis);
+    const jsRenderingEnabled = tierLimits.jsRenderingEnabled && renderJs;
+
     // Check for existing cached analysis if not forcing refresh
     if (!options.force) {
       const existingAnalysis = await storage.getAnalysisByUrl(url);
       if (existingAnalysis && existingAnalysis.status === 'completed') {
+        // Build tier info for cached response
+        const tierInfo = {
+          userTier,
+          maxPages: tierLimits.maxPagesPerAnalysis,
+          jsRenderingEnabled,
+        };
+
+        // Include quota info if Scale tier with userId
+        let jsRenderQuota = undefined;
+        if (userTier === 'scale' && externalUserId !== 'anonymous') {
+          jsRenderQuota = await getApiJsRenderQuotaStatus(apiKey.id, externalUserId);
+        }
+
         return res.json({
           success: true,
           cached: true,
@@ -112,12 +177,14 @@ router.post('/analyze', apiAuthChain, async (req: Request, res: Response) => {
             url: existingAnalysis.url,
             status: existingAnalysis.status,
             createdAt: existingAnalysis.createdAt,
+            tierInfo,
+            ...(jsRenderQuota && { jsRenderQuota }),
           },
         });
       }
     }
 
-    // Create new analysis record
+    // Create new analysis record with tier metadata
     const analysis = await storage.createAnalysis({
       url,
       userId: null, // API key based, not user based
@@ -130,14 +197,32 @@ router.post('/analyze', apiAuthChain, async (req: Request, res: Response) => {
         totalPagesFound: 0,
         apiKeyId: apiKey.id,
         consumer: apiKey.consumer,
-        tier: apiKey.tier,
+        tier: userTier, // Use the provided userTier, not the API key tier
       },
     });
 
-    // Start async analysis process
-    processAnalysis(analysis.id, url, options.maxPages).catch((error) => {
+    // Start async analysis process with tier-aware options
+    processAnalysis(analysis.id, url, effectiveMaxPages, {
+      userTier,
+      jsRenderingEnabled,
+      apiKeyId: apiKey.id,
+      externalUserId,
+    }).catch((error) => {
       console.error(`Background analysis failed for ID ${analysis.id}:`, error);
     });
+
+    // Build response with tier info
+    const tierInfo = {
+      userTier,
+      maxPages: tierLimits.maxPagesPerAnalysis,
+      jsRenderingEnabled,
+    };
+
+    // Include quota info if Scale tier with userId
+    let jsRenderQuota = undefined;
+    if (userTier === 'scale' && externalUserId !== 'anonymous') {
+      jsRenderQuota = await getApiJsRenderQuotaStatus(apiKey.id, externalUserId);
+    }
 
     res.status(201).json({
       success: true,
@@ -147,6 +232,8 @@ router.post('/analyze', apiAuthChain, async (req: Request, res: Response) => {
         status: 'processing',
         createdAt: analysis.createdAt,
         message: 'Analysis started. Poll GET /api/v1/analysis/:id for results.',
+        tierInfo,
+        ...(jsRenderQuota && { jsRenderQuota }),
       },
     });
   } catch (error) {
@@ -392,9 +479,28 @@ router.get('/usage', apiAuthChain, async (req: Request, res: Response) => {
 // ===================================================================
 
 /**
- * Process analysis asynchronously (fire-and-forget)
+ * Sprint 7: Tier-aware analysis options
  */
-async function processAnalysis(analysisId: number, url: string, maxPages: number): Promise<void> {
+interface AnalysisOptions {
+  userTier: UserTier;
+  jsRenderingEnabled: boolean;
+  apiKeyId: number;
+  externalUserId: string;
+}
+
+/**
+ * Process analysis asynchronously (fire-and-forget)
+ * Sprint 7: Now tier-aware with JS rendering support
+ */
+async function processAnalysis(
+  analysisId: number,
+  url: string,
+  maxPages: number,
+  options?: AnalysisOptions
+): Promise<void> {
+  const userTier = options?.userTier || 'starter';
+  const jsRenderingEnabled = options?.jsRenderingEnabled || false;
+
   try {
     // Update status to analyzing
     await storage.updateAnalysis(analysisId, {
@@ -416,12 +522,26 @@ async function processAnalysis(analysisId: number, url: string, maxPages: number
       },
     });
 
-    // Limit pages to analyze
+    // Limit pages to analyze based on tier
     const pagesToAnalyze = sitemapResult.pages.slice(0, maxPages);
 
-    // Analyze discovered pages (this uses AI/HTML extraction)
-    const tier = 'partner'; // Use partner tier features for API access
-    const analyzedPages = await analyzeDiscoveredPagesWithCache(pagesToAnalyze, tier);
+    // Sprint 7: Use provided userTier instead of hardcoded 'partner'
+    const analyzedPages = await analyzeDiscoveredPagesWithCache(pagesToAnalyze, userTier);
+
+    // Sprint 7: If JS rendering was enabled and pages were rendered, consume quota
+    // Note: The actual JS rendering happens in the analysis pipeline
+    // This tracks pages that could have been JS-rendered
+    let jsRenderedPages = 0;
+    if (jsRenderingEnabled && options?.apiKeyId && options?.externalUserId) {
+      // Count pages that benefited from JS rendering (for now, count all analyzed pages)
+      // In a full implementation, this would check which pages actually used Puppeteer
+      jsRenderedPages = Math.min(analyzedPages.length, 10); // Cap at 10 per analysis for quota tracking
+
+      if (jsRenderedPages > 0) {
+        await consumeApiJsRenders(options.apiKeyId, options.externalUserId, jsRenderedPages);
+        console.log(`[API ANALYSIS] Consumed ${jsRenderedPages} JS renders for analysis ${analysisId}`);
+      }
+    }
 
     // Update analysis as completed
     await storage.updateAnalysis(analysisId, {
