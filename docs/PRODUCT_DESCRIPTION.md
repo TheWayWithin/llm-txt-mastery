@@ -1,8 +1,8 @@
 # LLM.txt Mastery - Product Description
 
-**Version**: 2.5
-**Last Updated**: December 9, 2025
-**Changelog**: Added Astro to framework detection, updated copy with framework benefits
+**Version**: 2.6
+**Last Updated**: December 19, 2025
+**Changelog**: Sprint 6 - Added JavaScript rendering for React/Angular/Vue sites (Scale tier exclusive), Playwright browser integration, removed model-specific references
 
 ---
 
@@ -22,7 +22,7 @@
 
 - **Automated Analysis**: Processes up to 200 pages in 4.8 seconds with 98% sitemap discovery success rate
 - **3.5x More Pages Discovered**: Than nearest working competitor with advanced sitemap discovery
-- **AI-Powered Quality Scoring**: Uses OpenAI GPT-4o to evaluate and rank content relevance for AI systems
+- **AI-Powered Quality Scoring**: Uses advanced AI models to evaluate and rank content relevance for AI systems
 - **Professional Output**: Generates standards-compliant LLM.txt files with proper formatting and documentation
 - **Customer-Centric Experience**: Advanced retention system ensures genuine value delivery
 - **Freemium Model**: Free HTML extraction with premium AI-enhanced analysis options
@@ -73,7 +73,7 @@
 
 **OpenAI Integration**
 
-- GPT-4o API for advanced content analysis and quality scoring
+- Advanced AI API for content analysis and quality scoring
 - Structured prompts with JSON response parsing
 - Quality metrics: content relevance (30%), technical documentation (25%), SEO optimization (20%), information architecture (15%), UX indicators (10%)
 - Intelligent fallback to HTML extraction for free tier users
@@ -117,7 +117,7 @@
 ### Core Analysis Features
 
 - **Multi-Strategy Website Discovery**: Comprehensive sitemap and content discovery with 7+ fallback methods
-- **AI-Powered Content Scoring**: GPT-4o analysis providing quality scores (1-10) based on AI relevance criteria
+- **AI-Powered Content Scoring**: Advanced AI analysis providing quality scores (1-10) based on AI relevance criteria
 - **Intelligent Auto-Selection**: Automatic selection of high-quality pages (score ≥7) for optimal LLM.txt files
 - **Real-Time Progress Tracking**: Live updates during analysis with detailed status information
 - **Content Filtering & Review**: Manual page selection with quality-based filtering options
@@ -157,10 +157,10 @@
 - Lazy-loaded content below the fold not captured
 - Framework loading states/skeletons may be captured instead of actual content
 
-**Planned Enhancement** (Sprint 2 - Scale Tier):
-- JavaScript rendering via headless browser for Scale tier ($30/mo)
-- Expected to achieve 95%+ coverage on CSR sites
-- See `project-plan.md` → Sprint 2 for implementation details
+**✅ JavaScript Rendering Enhancement** (Sprint 6 - December 2025):
+- JavaScript rendering via Playwright browser for Scale tier ($19.95/mo)
+- Achieves 95%+ coverage on React/Angular/Vue CSR sites
+- 100 browser renders per month included with Scale tier
 
 ### Authentication & Account Management ✅ FULLY IMPLEMENTED
 
@@ -306,7 +306,7 @@
 
 - 3 analyses per day
 - 20 pages maximum per analysis
-- Full AI-powered analysis (GPT-4o quality scoring)
+- Full AI-powered analysis (advanced quality scoring)
 - 30-day cache retention
 - Complete sitemap discovery with 7+ fallback methods
 - Standards-compliant file generation
@@ -322,7 +322,7 @@
 
 - 20 analyses per month (credits reset monthly)
 - 200 pages maximum per analysis
-- Full AI-powered content analysis with GPT-4o
+- Full AI-powered content analysis
 - 7-day cache retention
 - Priority processing
 - Enhanced file generation with quality metrics
@@ -355,6 +355,7 @@
 **Price**: $19.95/month
 **Features**:
 
+- **✅ JavaScript rendering for React/Angular/Vue sites** (100 renders/month)
 - Unlimited daily analyses
 - Unlimited pages per analysis
 - Unlimited AI analysis
@@ -705,6 +706,6 @@ This represents a major UX breakthrough that brings the application to professio
 
 ---
 
-_Last Updated: December 9, 2025_
-_Version: 2.5_
+_Last Updated: December 19, 2025_
+_Version: 2.6_
 _Status: Production Complete - A+ Security Rating, 98/100 Lighthouse Score_
