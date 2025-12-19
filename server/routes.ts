@@ -11,6 +11,7 @@ import {
   UserTier,
   users,
   usageTracking,
+  SPADetectionResult,
 } from '@shared/schema';
 import { fetchSitemap } from './services/sitemap';
 import { analyzeDiscoveredPagesWithCache } from './services/sitemap-enhanced';
@@ -27,6 +28,10 @@ import {
   getUserTierFromAuth,
   getTodayUsage,
   resolveUserFromEmail,
+  // Sprint 6: JS rendering quota
+  checkJsRenderQuota,
+  consumeJsRenders,
+  getJsRenderMonthlyLimit,
 } from './services/usage';
 import { authStorage } from './services/auth-storage';
 import { TIER_LIMITS } from './services/cache';
@@ -389,11 +394,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         url,
         force = false,
         email,
+        enhancedRendering = false, // Sprint 6: Scale tier JS rendering
       } = z
         .object({
           url: z.string(),
           force: z.boolean().optional().default(false),
           email: z.string().optional(),
+          enhancedRendering: z.boolean().optional().default(false), // Sprint 6
         })
         .parse(req.body);
 
@@ -461,6 +468,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user tier (prioritize authenticated user data)
       const tier = await getUserTierFromAuth(user, userEmail);
+
+      // Sprint 6: Validate enhanced rendering is only available for Scale tier with quota
+      let jsRenderingEnabled = enhancedRendering && tier === 'scale';
+      let jsRenderQuotaInfo: { hasQuota: boolean; rendersRemaining: number } = { hasQuota: true, rendersRemaining: 100 };
+
+      if (enhancedRendering && tier !== 'scale') {
+        console.log(`⚠️ [Sprint 6] Enhanced rendering requested but user is ${tier} tier (Scale required)`);
+      }
+
+      // Check quota for Scale tier users
+      if (jsRenderingEnabled && user?.id) {
+        jsRenderQuotaInfo = await checkJsRenderQuota(user.id);
+        if (!jsRenderQuotaInfo.hasQuota) {
+          console.log(`⚠️ [Sprint 6] JS render quota exhausted for user ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} remaining)`);
+          jsRenderingEnabled = false;
+        } else {
+          console.log(`🎯 [Sprint 6] Enhanced JS rendering enabled for Scale tier user: ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} renders remaining)`);
+        }
+      } else if (jsRenderingEnabled) {
+        console.log(`🎯 [Sprint 6] Enhanced JS rendering enabled for Scale tier user: ${userEmail}`);
+      }
 
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -556,12 +584,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Start analysis process (async with proper error handling)
       // Pass user.id for Coffee tier credit consumption
+      // Sprint 6: Pass JS rendering options and SPA detection
       analyzeWebsiteEnhanced(
         analysis.id,
         normalizedUrl,
         userEmail,
         tier,
-        user?.id?.toString()
+        user?.id?.toString(),
+        {
+          jsRenderingEnabled,
+          spaDetection: sitemapResult.spaDetection,
+        }
       ).catch((error) => {
         console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
         // Ensure the analysis is marked as failed even on unhandled errors
@@ -595,6 +628,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'analyzing',
         estimatedDuration: Math.min(300, pageCount * 0.5), // 0.5 seconds per page estimate
         pageCount: Math.min(pageCount, TIER_LIMITS[tier].maxPagesPerAnalysis),
+        // Sprint 6: JS rendering info
+        jsRenderingAvailable: tier === 'scale',
+        jsRenderingEnabled: jsRenderingEnabled,
+        jsRenderQuota: tier === 'scale' ? {
+          remaining: jsRenderQuotaInfo.rendersRemaining,
+          limit: getJsRenderMonthlyLimit(),
+        } : undefined,
+        spaDetected: sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
+                     sitemapResult.spaDetection?.contentCoverage.estimatedCoverage < 50,
       });
     } catch (error) {
       console.error('Analysis error:', error);
@@ -897,13 +939,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
+// Sprint 6: Interface for JS rendering options passed through the analysis chain
+interface AnalysisJsRenderingOptions {
+  jsRenderingEnabled?: boolean;
+  spaDetection?: SPADetectionResult;
+  forceJsRendering?: boolean;
+}
+
 // Enhanced website analysis with caching and tier support
 async function analyzeWebsiteEnhanced(
   analysisId: number,
   url: string,
   userEmail: string,
   tier: UserTier,
-  authUserId?: string
+  authUserId?: string,
+  jsRenderingOptions?: AnalysisJsRenderingOptions
 ) {
   console.log(`\n🚀 [ANALYSIS START] Beginning analysis for ${url}`);
   console.log(`  - User: ${userEmail}`);
@@ -922,7 +972,7 @@ async function analyzeWebsiteEnhanced(
   try {
     // Race the analysis against the timeout
     await Promise.race([
-      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId),
+      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId, jsRenderingOptions),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -961,7 +1011,8 @@ async function performAnalysisWithTimeout(
   url: string,
   userEmail: string,
   tier: UserTier,
-  authUserId?: string
+  authUserId?: string,
+  jsRenderingOptions?: AnalysisJsRenderingOptions
 ) {
   try {
     const startTime = Date.now();
@@ -1024,10 +1075,21 @@ async function performAnalysisWithTimeout(
 
     // Analyze pages with smart caching
     console.log(`Starting page analysis for ${sitemapResult.entries.length} pages`);
+
+    // Sprint 6: Log JS rendering status
+    if (jsRenderingOptions?.jsRenderingEnabled) {
+      console.log(`🎯 [Sprint 6] JS rendering enabled for this analysis`);
+    }
+
     const { pages, metrics } = await analyzeDiscoveredPagesWithCache(
       sitemapResult.entries,
       userEmail,
-      tier
+      tier,
+      jsRenderingOptions ? {
+        enabled: jsRenderingOptions.jsRenderingEnabled,
+        spaDetection: jsRenderingOptions.spaDetection,
+        forceAll: jsRenderingOptions.forceJsRendering,
+      } : undefined
     );
     console.log(
       `Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`
@@ -1089,6 +1151,28 @@ async function performAnalysisWithTimeout(
       }
     }
 
+    // Sprint 6: Consume JS render quota if JS renders were used
+    if (jsRenderingOptions?.jsRenderingEnabled && metrics.jsRenderedPages && metrics.jsRenderedPages > 0) {
+      try {
+        let userId = authUserId;
+        if (!userId) {
+          const resolvedUserId = await resolveUserFromEmail(userEmail);
+          userId = resolvedUserId?.toString();
+        }
+
+        if (userId) {
+          const consumed = await consumeJsRenders(userId, metrics.jsRenderedPages);
+          if (consumed) {
+            console.log(`🎯 [Sprint 6] Consumed ${metrics.jsRenderedPages} JS render(s) from quota for ${userEmail}`);
+          } else {
+            console.warn(`⚠️ [Sprint 6] Failed to consume JS renders from quota for ${userEmail}`);
+          }
+        }
+      } catch (error) {
+        console.error(`[Sprint 6] JS render quota consumption failed for ${userEmail}:`, error);
+      }
+    }
+
     // Update analysis with results and metrics
     await storage.updateAnalysis(analysisId, {
       discoveredPages: pages,
@@ -1105,13 +1189,20 @@ async function performAnalysisWithTimeout(
         spaDetection: sitemapResult.spaDetection,
         contentCoveragePercentage: sitemapResult.spaDetection?.contentCoverage.estimatedCoverage,
         renderingStrategy: sitemapResult.spaDetection?.framework.renderingStrategy,
+        // Sprint 6: JS rendering metrics
+        jsRenderingEnabled: jsRenderingOptions?.jsRenderingEnabled || false,
+        jsRenderedPages: metrics.jsRenderedPages || 0,
         metrics,
         processingTime: (Date.now() - startTime) / 1000,
       },
     });
 
+    // Sprint 6: Enhanced completion logging with JS rendering info
+    const jsRenderingInfo = jsRenderingOptions?.jsRenderingEnabled
+      ? `, ${metrics.jsRenderedPages || 0} JS rendered`
+      : '';
     console.log(
-      `Analysis completed for ${url}: ${metrics.totalPages} pages (${metrics.cachedPages} cached, ${metrics.analyzedPages} analyzed)`
+      `Analysis completed for ${url}: ${metrics.totalPages} pages (${metrics.cachedPages} cached, ${metrics.analyzedPages} analyzed${jsRenderingInfo})`
     );
   } catch (error) {
     console.error('Website analysis failed:', error);
