@@ -721,3 +721,126 @@ export function getNextTier(currentTier: UserTier): UserTier | null {
       return 'growth';
   }
 }
+
+// ============================================================================
+// Sprint 6: JS Rendering Quota Management (Scale Tier Only)
+// ============================================================================
+
+const JS_RENDERS_MONTHLY_LIMIT = 100; // Scale tier gets 100 JS renders per month
+
+/**
+ * Check if user has remaining JS renders for this month
+ * Returns the current count and whether they can use more
+ */
+export async function checkJsRenderQuota(
+  userId: string
+): Promise<{ hasQuota: boolean; rendersUsed: number; rendersRemaining: number; resetAt: Date | null }> {
+  try {
+    const numericUserId = parseInt(userId);
+    if (isNaN(numericUserId)) {
+      console.error(`[JS QUOTA] Invalid userId format: ${userId}`);
+      return { hasQuota: false, rendersUsed: 0, rendersRemaining: 0, resetAt: null };
+    }
+
+    const [authUser] = await db
+      .select({
+        tier: authUsers.tier,
+        jsRendersUsedThisMonth: authUsers.jsRendersUsedThisMonth,
+        jsRendersResetAt: authUsers.jsRendersResetAt,
+      })
+      .from(authUsers)
+      .where(eq(authUsers.id, numericUserId));
+
+    if (!authUser) {
+      console.error(`[JS QUOTA] No auth_user found for userId: ${userId}`);
+      return { hasQuota: false, rendersUsed: 0, rendersRemaining: 0, resetAt: null };
+    }
+
+    // Only Scale tier gets JS rendering
+    if (authUser.tier !== 'scale') {
+      return { hasQuota: false, rendersUsed: 0, rendersRemaining: 0, resetAt: null };
+    }
+
+    // Check if reset is needed (monthly reset)
+    let rendersUsed = authUser.jsRendersUsedThisMonth || 0;
+    let resetAt = authUser.jsRendersResetAt;
+
+    if (!resetAt || new Date() >= resetAt) {
+      // Reset the counter and set next reset date
+      const nextReset = new Date();
+      nextReset.setMonth(nextReset.getMonth() + 1);
+      nextReset.setDate(1);
+      nextReset.setHours(0, 0, 0, 0);
+
+      await db
+        .update(authUsers)
+        .set({
+          jsRendersUsedThisMonth: 0,
+          jsRendersResetAt: nextReset,
+        })
+        .where(eq(authUsers.id, numericUserId));
+
+      rendersUsed = 0;
+      resetAt = nextReset;
+      console.log(`[JS QUOTA] Reset JS render counter for userId ${userId}. Next reset: ${nextReset.toISOString()}`);
+    }
+
+    const rendersRemaining = Math.max(0, JS_RENDERS_MONTHLY_LIMIT - rendersUsed);
+    const hasQuota = rendersRemaining > 0;
+
+    return { hasQuota, rendersUsed, rendersRemaining, resetAt };
+  } catch (error) {
+    console.error(`[JS QUOTA] Failed to check JS render quota for userId ${userId}:`, error);
+    // Fail open - allow usage if we can't check quota
+    return { hasQuota: true, rendersUsed: 0, rendersRemaining: JS_RENDERS_MONTHLY_LIMIT, resetAt: null };
+  }
+}
+
+/**
+ * Consume JS renders from the user's monthly quota
+ * @param userId The user's auth_users ID
+ * @param count Number of renders to consume (default 1)
+ * @returns true if consumption was successful, false if quota exceeded
+ */
+export async function consumeJsRenders(userId: string, count: number = 1): Promise<boolean> {
+  try {
+    const numericUserId = parseInt(userId);
+    if (isNaN(numericUserId)) {
+      console.error(`[JS QUOTA] Invalid userId format: ${userId}`);
+      return false;
+    }
+
+    // First check quota
+    const quota = await checkJsRenderQuota(userId);
+    if (!quota.hasQuota) {
+      console.warn(`[JS QUOTA] User ${userId} has exceeded JS render quota (${quota.rendersUsed}/${JS_RENDERS_MONTHLY_LIMIT})`);
+      return false;
+    }
+
+    if (quota.rendersRemaining < count) {
+      console.warn(`[JS QUOTA] User ${userId} has insufficient JS renders (${quota.rendersRemaining} remaining, ${count} requested)`);
+      return false;
+    }
+
+    // Consume the renders
+    const newCount = (quota.rendersUsed + count);
+    await db
+      .update(authUsers)
+      .set({ jsRendersUsedThisMonth: newCount })
+      .where(eq(authUsers.id, numericUserId));
+
+    console.log(`[JS QUOTA] Consumed ${count} JS render(s) for userId ${userId}. New total: ${newCount}/${JS_RENDERS_MONTHLY_LIMIT}`);
+    return true;
+  } catch (error) {
+    console.error(`[JS QUOTA] Failed to consume JS renders for userId ${userId}:`, error);
+    // Fail open - allow usage if we can't update quota
+    return true;
+  }
+}
+
+/**
+ * Get the monthly JS render limit for display purposes
+ */
+export function getJsRenderMonthlyLimit(): number {
+  return JS_RENDERS_MONTHLY_LIMIT;
+}
