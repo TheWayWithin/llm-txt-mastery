@@ -284,11 +284,11 @@ export default function SignupPage() {
         ];
       case 'scale':
         return [
+          'JavaScript rendering for React, Angular, Vue sites',
           'Analyze any site, any size, no exceptions',
           'Full AI analysis on every single page',
           'Direct support line — your questions answered fast',
           'Multi-site management for agencies and enterprises',
-          'Freshest data with 3-day cache (others use 14 days)',
           'Complete mastery over your AI visibility',
         ];
       default:
@@ -490,10 +490,10 @@ export default function SignupPage() {
                       {selectedTier === 'growth' && (
                         <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                           <p className="text-xs font-semibold text-amber-800 mb-2">
-                            🏢 Working with enterprise clients?
+                            🏢 Client using React, Angular, or Vue?
                           </p>
                           <p className="text-xs text-amber-700">
-                            Your client has 1,500 pages. You can only cover 1,000. Their competitors get full coverage. Your client loses customers — and blames you.
+                            JavaScript sites return empty pages without browser rendering. Scale tier includes full JS rendering — capture every page from modern web apps.
                           </p>
                           <button
                             type="button"
