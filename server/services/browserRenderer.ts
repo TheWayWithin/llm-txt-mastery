@@ -14,7 +14,7 @@
  * Cost: $0/month (runs on existing Railway backend)
  */
 
-import { chromium, Browser, Page } from '@playwright/test';
+import { chromium, Browser, Page } from 'playwright';
 
 // ============================================================================
 // Types
