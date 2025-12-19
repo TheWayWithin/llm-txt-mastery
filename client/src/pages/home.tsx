@@ -332,6 +332,12 @@ export default function Home() {
               <span>This is our entire focus — not a marketing add-on for another product</span>
             </div>
 
+            {/* Future-Proof Badge */}
+            <div className="flex items-center justify-center space-x-1 text-sm text-ai-silver mt-2">
+              <span className="text-lg">🔄</span>
+              <span>I benchmark competitor tools monthly — any feature they add, I add too</span>
+            </div>
+
             {/* Security Trust Badges */}
             <div className="mt-6">
               <TrustBadges variant="security" compact={true} alignment="center" />
