@@ -130,7 +130,10 @@ POST /api/v1/analyze
   "url": "https://example.com",
   "options": {
     "maxPages": 50,
-    "includeSubdomains": false
+    "force": false,
+    "userTier": "scale",
+    "renderJs": true,
+    "userId": "your_user_123"
   }
 }
 ```
@@ -138,19 +141,42 @@ POST /api/v1/analyze
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | url | string | Yes | Website URL to analyze |
-| options.maxPages | number | No | Maximum pages to discover (default: 50) |
-| options.includeSubdomains | boolean | No | Include subdomains (default: false) |
+| options.maxPages | number | No | Maximum pages to discover (default: 50, max varies by tier) |
+| options.force | boolean | No | Force fresh analysis, bypass cache (default: false) |
+| options.userTier | string | No | User's subscription tier (default: "starter") |
+| options.renderJs | boolean | No | Enable JavaScript rendering for SPAs (default: false, Scale tier only) |
+| options.userId | string | No | Your user's ID for quota tracking (recommended for JS rendering) |
+
+#### Tier-Based Limits
+
+| userTier | Max Pages | AI Pages | JS Rendering |
+|----------|-----------|----------|--------------|
+| starter  | 20        | 20       | ❌ Not available |
+| solo     | 200       | 200      | ❌ Not available |
+| growth   | 500       | 500      | ❌ Not available |
+| scale    | 1000      | 1000     | ✅ 100/month per user |
 
 **Response (New Analysis):**
 ```json
 {
   "success": true,
-  "cached": false,
   "analysis": {
     "id": 123,
     "url": "https://example.com",
     "status": "processing",
-    "createdAt": "2025-11-29T20:00:00.000Z"
+    "createdAt": "2025-11-29T20:00:00.000Z",
+    "message": "Analysis started. Poll GET /api/v1/analysis/:id for results.",
+    "tierInfo": {
+      "userTier": "scale",
+      "maxPages": 1000,
+      "jsRenderingEnabled": true
+    },
+    "jsRenderQuota": {
+      "used": 15,
+      "remaining": 85,
+      "limit": 100,
+      "resetAt": "2025-02-01T00:00:00.000Z"
+    }
   }
 }
 ```
@@ -164,7 +190,38 @@ POST /api/v1/analyze
     "id": 68,
     "url": "https://example.com",
     "status": "completed",
-    "createdAt": "2025-10-11T17:18:37.304Z"
+    "createdAt": "2025-10-11T17:18:37.304Z",
+    "tierInfo": {
+      "userTier": "scale",
+      "maxPages": 1000,
+      "jsRenderingEnabled": true
+    }
+  }
+}
+```
+
+#### JS Rendering Errors
+
+**JS Rendering Not Available (Wrong Tier):**
+```json
+{
+  "error": "Forbidden",
+  "code": "JS_RENDER_NOT_AVAILABLE",
+  "message": "JS rendering requires 'scale' tier. Current tier: 'growth'",
+  "userTier": "growth"
+}
+```
+
+**JS Render Quota Exceeded:**
+```json
+{
+  "error": "Quota Exceeded",
+  "code": "JS_RENDER_QUOTA_EXCEEDED",
+  "message": "Monthly JS rendering quota exhausted",
+  "quota": {
+    "used": 100,
+    "limit": 100,
+    "resetAt": "2025-02-01T00:00:00.000Z"
   }
 }
 ```
@@ -336,7 +393,9 @@ All errors follow a consistent format:
 | `INVALID_API_KEY` | 401 | Invalid or inactive API key |
 | `EXPIRED_API_KEY` | 401 | API key has expired |
 | `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
+| `JS_RENDER_QUOTA_EXCEEDED` | 429 | Monthly JS rendering quota exhausted |
 | `VALIDATION_ERROR` | 400 | Invalid request parameters |
+| `JS_RENDER_NOT_AVAILABLE` | 403 | JS rendering not available for tier |
 | `ANALYSIS_NOT_FOUND` | 404 | Analysis ID not found |
 | `FILE_NOT_FOUND` | 404 | File ID not found |
 | `ANALYSIS_FAILED` | 500 | Analysis processing failed |
@@ -585,6 +644,14 @@ POST /api/batch-validate-llms-txt
 ---
 
 ## Changelog
+
+### v1.2.0 (December 2025)
+- **Tiered Access Control**: Added `userTier` parameter to pass your user's subscription tier
+- **JavaScript Rendering**: Added `renderJs` option for Scale tier users to handle SPAs
+- **Per-User Quota Tracking**: Track JS render usage per external user with `userId` parameter
+- **Enhanced Responses**: Added `tierInfo` and `jsRenderQuota` to analysis responses
+- **Tier-Based Page Limits**: Automatic enforcement of max pages based on user tier
+- **New Error Codes**: `JS_RENDER_NOT_AVAILABLE`, `JS_RENDER_QUOTA_EXCEEDED`
 
 ### v1.1.0 (December 2025)
 - Added validation endpoints: validate-llms-txt, batch-validate-llms-txt

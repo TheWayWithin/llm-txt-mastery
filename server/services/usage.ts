@@ -7,6 +7,8 @@ import {
   usageTracking,
   users,
   authUsers,
+  apiJsRenderQuotas,
+  API_TIER_LIMITS,
 } from '@shared/schema';
 import { authStorage } from '../services/auth-storage';
 import { TIER_LIMITS } from './cache';
@@ -843,4 +845,186 @@ export async function consumeJsRenders(userId: string, count: number = 1): Promi
  */
 export function getJsRenderMonthlyLimit(): number {
   return JS_RENDERS_MONTHLY_LIMIT;
+}
+
+// ============================================================================
+// Sprint 7: API JS Render Quota Management (Per API Key + External User)
+// ============================================================================
+
+const API_JS_RENDERS_MONTHLY_LIMIT = 100; // Scale tier users get 100 JS renders per month via API
+
+/**
+ * Check if an external user (via API) has remaining JS renders for this month
+ * @param apiKeyId The API key being used
+ * @param externalUserId The consumer-provided user ID (e.g., aimp_user_123)
+ * @returns Quota status including remaining renders and reset time
+ */
+export async function checkApiJsRenderQuota(
+  apiKeyId: number,
+  externalUserId: string
+): Promise<{
+  hasQuota: boolean;
+  rendersUsed: number;
+  rendersRemaining: number;
+  limit: number;
+  resetAt: Date | null;
+}> {
+  try {
+    // Find or create quota record for this API key + user combination
+    const [existingQuota] = await db
+      .select()
+      .from(apiJsRenderQuotas)
+      .where(
+        and(
+          eq(apiJsRenderQuotas.apiKeyId, apiKeyId),
+          eq(apiJsRenderQuotas.externalUserId, externalUserId)
+        )
+      );
+
+    // If no record exists, create one
+    if (!existingQuota) {
+      const nextReset = getNextMonthlyReset();
+      await db.insert(apiJsRenderQuotas).values({
+        apiKeyId,
+        externalUserId,
+        rendersUsedThisMonth: 0,
+        resetAt: nextReset,
+      });
+
+      return {
+        hasQuota: true,
+        rendersUsed: 0,
+        rendersRemaining: API_JS_RENDERS_MONTHLY_LIMIT,
+        limit: API_JS_RENDERS_MONTHLY_LIMIT,
+        resetAt: nextReset,
+      };
+    }
+
+    // Check if reset is needed
+    let rendersUsed = existingQuota.rendersUsedThisMonth;
+    let resetAt = existingQuota.resetAt;
+
+    if (!resetAt || new Date() >= resetAt) {
+      // Reset the counter and set next reset date
+      const nextReset = getNextMonthlyReset();
+
+      await db
+        .update(apiJsRenderQuotas)
+        .set({
+          rendersUsedThisMonth: 0,
+          resetAt: nextReset,
+        })
+        .where(eq(apiJsRenderQuotas.id, existingQuota.id));
+
+      rendersUsed = 0;
+      resetAt = nextReset;
+      console.log(`[API JS QUOTA] Reset counter for apiKey=${apiKeyId}, user=${externalUserId}. Next reset: ${nextReset.toISOString()}`);
+    }
+
+    const rendersRemaining = Math.max(0, API_JS_RENDERS_MONTHLY_LIMIT - rendersUsed);
+
+    return {
+      hasQuota: rendersRemaining > 0,
+      rendersUsed,
+      rendersRemaining,
+      limit: API_JS_RENDERS_MONTHLY_LIMIT,
+      resetAt,
+    };
+  } catch (error) {
+    console.error(`[API JS QUOTA] Error checking quota for apiKey=${apiKeyId}, user=${externalUserId}:`, error);
+    // Fail open - allow usage if we can't check quota
+    return {
+      hasQuota: true,
+      rendersUsed: 0,
+      rendersRemaining: API_JS_RENDERS_MONTHLY_LIMIT,
+      limit: API_JS_RENDERS_MONTHLY_LIMIT,
+      resetAt: null,
+    };
+  }
+}
+
+/**
+ * Consume JS renders from an external user's monthly quota
+ * @param apiKeyId The API key being used
+ * @param externalUserId The consumer-provided user ID
+ * @param count Number of renders to consume (default 1)
+ * @returns true if consumption was successful, false if quota exceeded
+ */
+export async function consumeApiJsRenders(
+  apiKeyId: number,
+  externalUserId: string,
+  count: number = 1
+): Promise<boolean> {
+  try {
+    // First check quota
+    const quota = await checkApiJsRenderQuota(apiKeyId, externalUserId);
+    if (!quota.hasQuota) {
+      console.warn(`[API JS QUOTA] Quota exceeded for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersUsed}/${quota.limit})`);
+      return false;
+    }
+
+    if (quota.rendersRemaining < count) {
+      console.warn(`[API JS QUOTA] Insufficient renders for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersRemaining} remaining, ${count} requested)`);
+      return false;
+    }
+
+    // Consume the renders
+    const newCount = quota.rendersUsed + count;
+    await db
+      .update(apiJsRenderQuotas)
+      .set({ rendersUsedThisMonth: newCount })
+      .where(
+        and(
+          eq(apiJsRenderQuotas.apiKeyId, apiKeyId),
+          eq(apiJsRenderQuotas.externalUserId, externalUserId)
+        )
+      );
+
+    console.log(`[API JS QUOTA] Consumed ${count} render(s) for apiKey=${apiKeyId}, user=${externalUserId}. New total: ${newCount}/${quota.limit}`);
+    return true;
+  } catch (error) {
+    console.error(`[API JS QUOTA] Error consuming renders for apiKey=${apiKeyId}, user=${externalUserId}:`, error);
+    // Fail open - allow usage if we can't update quota
+    return true;
+  }
+}
+
+/**
+ * Get API JS render quota status for response enrichment
+ * @param apiKeyId The API key being used
+ * @param externalUserId The consumer-provided user ID
+ * @returns Quota info formatted for API response
+ */
+export async function getApiJsRenderQuotaStatus(
+  apiKeyId: number,
+  externalUserId: string
+): Promise<{
+  used: number;
+  remaining: number;
+  limit: number;
+  resetAt: string | null;
+}> {
+  const quota = await checkApiJsRenderQuota(apiKeyId, externalUserId);
+  return {
+    used: quota.rendersUsed,
+    remaining: quota.rendersRemaining,
+    limit: quota.limit,
+    resetAt: quota.resetAt?.toISOString() || null,
+  };
+}
+
+/**
+ * Get the next monthly reset date (first of next month at midnight UTC)
+ */
+function getNextMonthlyReset(): Date {
+  const now = new Date();
+  const nextReset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+  return nextReset;
+}
+
+/**
+ * Get tier limits for API usage
+ */
+export function getApiTierLimits(userTier: UserTier) {
+  return API_TIER_LIMITS[userTier];
 }
