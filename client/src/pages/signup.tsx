@@ -569,7 +569,7 @@ export default function SignupPage() {
                   🛡️ Real Reasons to Believe
                 </CardTitle>
                 <p className="text-sm text-green-700 mt-1">
-                  The ONLY standalone paid tool between $0 and $879/year
+                  I benchmark competitor tools monthly and add any features they have
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
