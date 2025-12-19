@@ -187,6 +187,10 @@ export default function Pricing() {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm font-medium">JavaScript rendering for React/Angular/Vue</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
                   <span className="text-sm">Unlimited pages per analysis</span>
                 </li>
                 <li className="flex items-start">
@@ -196,10 +200,6 @@ export default function Pricing() {
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
                   <span className="text-sm">Multi-site management</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Direct support line</span>
                 </li>
               </ul>
               <Link href="/signup?tier=scale">

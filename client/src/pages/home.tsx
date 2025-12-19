@@ -748,10 +748,10 @@ export default function Home() {
                         CSR/SPA Content Capture
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-green-600 font-bold">
-                        ✅ Full + Warnings
+                        ✅ Full + Quality Scoring
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
-                        ❌ Fails Silently
+                      <td className="border border-gray-200 px-4 py-3 text-center text-yellow-600">
+                        ⚠️ Renders (Junk Output)
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-center text-red-600">
                         ❌ Fails Silently
