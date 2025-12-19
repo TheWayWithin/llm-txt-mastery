@@ -88,10 +88,10 @@ export default function PricingPreview({
       icon: Crown,
       description: 'No limits. Just results.',
       features: [
+        'JS rendering for React/Angular/Vue',
         'Unlimited pages per analysis',
         'Unlimited AI analysis',
         'Multi-site management',
-        'Direct support line',
       ],
       cta: 'Start Scale',
       borderColor: 'border-mastery-blue',
