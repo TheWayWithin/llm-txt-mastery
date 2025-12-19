@@ -1067,13 +1067,13 @@ The guide must include:
 
 ---
 
-## 🚀 SPRINT 2: Scale Tier Premium Features (JavaScript Rendering)
+## 🚀 SPRINT 6: Scale Tier Premium Features (JavaScript Rendering)
 
 **Mission Type**: Premium Feature Development
-**Sprint Start**: TBD (After Sprint 1 Phase 1 stabilization)
-**Priority**: MEDIUM - Revenue Expansion & Competitive Differentiation
+**Sprint Start**: December 18, 2025
+**Priority**: HIGH - Revenue Expansion & Competitive Differentiation
 **Owner**: THE COORDINATOR
-**Status**: 📋 PLANNED
+**Status**: 🔄 IN PROGRESS - Phase 1 & 2 Complete, Ready for Phase 3 (Tier-Gating)
 
 ### Sprint Objective
 
@@ -1085,152 +1085,188 @@ Implement JavaScript rendering capabilities exclusively for Scale tier users, en
 - **Scale Tier Differentiator**: JS rendering is the key feature justifying $30/month pricing
 - **Competitive Parity**: Firecrawl, Ahrefs, SEMrush all offer headless browser rendering
 - **Revenue Impact**: Upsell path from Growth ($15) to Scale ($30) for users with CSR sites
+- **POC Validated**: December 18, 2025 - Playwright renders CSR sites in ~5 seconds at 28 MB memory
 
 ### Prerequisites
 
 - [x] Sprint 1 Phase 1 complete (SPA detection + coverage warnings)
-- [ ] Sprint 1 Phase 2 complete (Content completeness scoring)
-- [ ] Infrastructure cost analysis for browser rendering
+- [x] Infrastructure cost analysis - **$0 cost confirmed via POC**
+- [x] POC validates Playwright on Railway is feasible
 
 ### Sprint Phases
 
-#### Phase 1: Infrastructure & Service Selection [ ]
+#### Phase 1: Infrastructure & Service Selection ✅ COMPLETE
 **Priority**: P1 - Foundation
-**Duration**: 2-3 days
+**Duration**: 1 day (Completed December 18, 2025)
 **Agent**: THE ARCHITECT
 
-**Decision Required**: Self-hosted vs Managed Service
+**Decision**: Playwright on Railway at $0/month
 
-| Option | Pros | Cons | Monthly Cost Est. |
-|--------|------|------|-------------------|
-| **Playwright (Self-hosted)** | Full control, no per-request fees | Infrastructure overhead, scaling complexity | $50-200 (servers) |
-| **Browserless.io** | Managed, auto-scaling, simple API | Per-request pricing, vendor lock-in | $100-500 (usage) |
-| **ScrapingBee** | Easy integration, proxy rotation | Higher per-request cost | $150-600 (usage) |
+**POC Results (December 18, 2025)**:
 
-**Tasks**:
-- [ ] Analyze expected Scale tier usage volume
-- [ ] Cost modeling for each option at 100/500/1000 renders per month
-- [ ] Evaluate Railway add-ons for browser capabilities
-- [ ] Make architecture decision with cost justification
-- [ ] Document decision in architecture.md
+| Test Site | Type | Render Time | HTML Size | Text Extracted |
+|-----------|------|-------------|-----------|----------------|
+| angular.dev | CSR | 4.7s | 110 KB | 2.3 KB |
+| react.dev | SSR | 4.0s | 266 KB | 7.5 KB |
+| vuejs.org | SSG | 5.0s | 93 KB | 1.3 KB |
+
+**Key Findings**:
+- Browser launch: **237ms** (no cold start concern)
+- Memory usage: **27-28 MB** (not 512MB - way under limit)
+- Average render: **4.6 seconds** (excellent)
+- No Dockerfile needed (Nixpacks handles Chromium automatically)
+- No browser pool needed initially (lightweight enough to launch per-request)
+
+**Architecture Decision**: ✅ CONFIRMED
+- Use `@playwright/test` package (already installed for testing)
+- Run in same Express.js process on Railway
+- Limit to 1-2 concurrent renders
+- 15-second timeout per page
 
 **Deliverables**:
-- [ ] Cost analysis spreadsheet
-- [ ] Architecture decision record
-- [ ] Infrastructure requirements document
+- [x] POC script: `scripts/poc-browser-render.ts`
+- [x] Benchmarks documented
+- [x] Architecture decision recorded
 
-#### Phase 2: Browser Rendering Service [ ]
+---
+
+#### Phase 2: Browser Rendering Service [x] ✅
 **Priority**: P1 - Core Implementation
-**Duration**: 1-2 weeks
+**Duration**: 1 day (completed December 18, 2025)
 **Agent**: THE DEVELOPER
 
+**Simplified Approach** (based on POC learnings):
+- No browser pool needed (237ms launch is fast enough)
+- No Dockerfile changes needed
+- Reuse POC code patterns directly
+
 **Tasks**:
-- [ ] Implement `server/services/browserRenderer.ts`
-- [ ] Create browser pool management (if self-hosted)
-- [ ] Implement page rendering with configurable timeout (5-30 seconds)
-- [ ] Add auto-scrolling to trigger lazy-loaded content
-- [ ] Implement content extraction from rendered DOM
-- [ ] Add error handling for rendering failures
-- [ ] Create fallback to HTML-only on rendering timeout
+- [x] Create `server/services/browserRenderer.ts` (adapt from POC)
+- [x] Implement `renderPage(url: string)` function with:
+  - 15-second timeout
+  - Auto-scroll for lazy content
+  - Content extraction (HTML + text)
+- [x] Add error handling with graceful fallback to HTML-only
+- [x] Add request queue to limit concurrent renders (max 2)
+- [x] Integrate with existing analysis flow in `sitemap.ts`
+
+**Implementation Details**:
+- `browserRenderer.ts`: 386 lines with RenderQueue class, browser singleton, graceful error handling
+- `sitemap.ts`: Added `fetchPageContentEnhanced()`, `shouldUseJsRendering()`, `EnhancedFetchOptions`
+- Scale tier auto-detects CSR/Angular sites and enables JS rendering
+- Non-Scale tiers fall back to HTTP fetch (no JS rendering)
+- Integration test: `scripts/test-browser-integration.ts` - all tests pass
 
 **Deliverables**:
-- [ ] `browserRenderer.ts` - Core rendering service
-- [ ] Configuration for timeout, scroll behavior, wait conditions
-- [ ] Error handling and graceful degradation
+- [x] `server/services/browserRenderer.ts`
+- [x] Integration with analysis pipeline via `fetchPageContentEnhanced()`
+- [x] Error handling and fallback logic
+- [x] Integration test script
 
 #### Phase 3: Tier-Gated Access Control [ ]
 **Priority**: P1 - Revenue Protection
-**Duration**: 2-3 days
+**Duration**: 1-2 days (simplified - reuse existing tier middleware)
 **Agent**: THE DEVELOPER
 
 **Tasks**:
-- [ ] Add tier check middleware for JS rendering requests
-- [ ] Update `/api/analyze` to accept `useEnhancedRendering: boolean`
-- [ ] Return `enhancedRenderingAvailable: boolean` in analysis response
-- [ ] Show upgrade prompt for non-Scale users requesting JS rendering
-- [ ] Add usage tracking for rendered pages (separate from HTML analyses)
-- [ ] Implement monthly render quota for Scale tier (e.g., 500 renders/month)
+- [ ] Add `jsRenderingEnabled` check to existing tier middleware
+- [ ] Update `/api/analyze` to accept `enhancedRendering: boolean` parameter
+- [ ] Return `jsRenderingAvailable: boolean` based on user tier
+- [ ] Add render count tracking to `users` table (monthly quota)
+- [ ] Implement 100 renders/month quota for Scale tier
 
 **Deliverables**:
-- [ ] Tier validation middleware
-- [ ] API parameter handling
-- [ ] Usage tracking for renders
-- [ ] Upgrade messaging for lower tiers
+- [ ] Tier check in analysis endpoint
+- [ ] Render quota tracking
+- [ ] Clear error messages for non-Scale users
+
+---
 
 #### Phase 4: UI Integration [ ]
 **Priority**: P2 - User Experience
-**Duration**: 3-4 days
-**Agent**: THE DEVELOPER + THE DESIGNER
+**Duration**: 1-2 days (simplified based on existing UI patterns)
+**Agent**: THE DEVELOPER
 
 **Tasks**:
-- [ ] Add "Enhanced Analysis" toggle in analyze page (Scale tier only)
-- [ ] Show "Upgrade to Scale" prompt for CSR sites on lower tiers
-- [ ] Display "JavaScript Rendered" badge on enhanced analyses
-- [ ] Update coverage badge to show post-rendering coverage
-- [ ] Add render queue status indicator for long-running renders
-- [ ] Show comparison: "HTML: 50% → Rendered: 95%" coverage
+- [ ] Add "Enhanced Analysis (JS Rendering)" toggle on analyze page
+- [ ] Show toggle only for Scale tier users
+- [ ] Display "Upgrade to Scale" prompt for CSR sites on lower tiers
+- [ ] Show "JavaScript Rendered" badge on enhanced results
+- [ ] Update coverage display: "50% → 95% (with JS rendering)"
 
 **Deliverables**:
-- [ ] Enhanced analysis toggle component
-- [ ] Upgrade prompt component
-- [ ] Rendering status indicators
-- [ ] Before/after coverage comparison UI
+- [ ] Enhanced analysis toggle
+- [ ] Upgrade prompt for lower tiers
+- [ ] Before/after coverage comparison
 
-#### Phase 5: Testing & Documentation [ ]
+---
+
+#### Phase 5: Testing & Deployment [ ]
 **Priority**: P3 - Quality Assurance
-**Duration**: 3-4 days
-**Agent**: THE TESTER + THE DOCUMENTER
+**Duration**: 1-2 days
+**Agent**: THE TESTER + THE OPERATOR
 
 **Tasks**:
-- [ ] Test rendering with: React (CRA), Angular, Vue CLI, Next.js CSR
-- [ ] Performance testing: render time, memory usage, concurrent renders
-- [ ] Load testing: simulate Scale tier usage patterns
-- [ ] Update PRODUCT_DESCRIPTION.md with enhanced analysis capability
-- [ ] Create user guide: "When to use Enhanced Analysis"
-- [ ] Update API documentation with new parameters
-- [ ] Update pricing page copy to highlight JS rendering benefit
+- [ ] Test on Railway staging with real CSR sites
+- [ ] Verify tier gating works correctly
+- [ ] Test quota enforcement
+- [ ] Deploy to production
+- [ ] Update pricing page to highlight JS rendering
 
 **Deliverables**:
-- [ ] Test suite for browser rendering
-- [ ] Performance benchmarks
-- [ ] Updated product documentation
-- [ ] User guide for enhanced analysis
+- [ ] Staging verification complete
+- [ ] Production deployment
+- [ ] Marketing copy updated
+
+---
 
 ### Success Criteria
 
-- [ ] Scale tier users can toggle JavaScript rendering
-- [ ] CSR sites achieve 90%+ content coverage with rendering
-- [ ] Render time < 30 seconds per page
-- [ ] Clear upgrade path messaging for Growth tier users
+- [ ] Scale tier users can enable JavaScript rendering
+- [ ] CSR sites achieve 90%+ content coverage (vs 10-50% without)
+- [ ] Render time < 15 seconds per page
+- [ ] Clear upgrade messaging for Growth tier users on CSR sites
 - [ ] No impact on existing HTML-only analysis performance
-- [ ] Usage tracking and quota enforcement working
+- [ ] Render quota tracking working (100/month for Scale)
 
-### Risk Assessment
+### Risk Assessment (Updated Post-POC)
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| High infrastructure costs | High | High | Start with managed service, optimize later |
-| Slow render times | Medium | High | Aggressive timeouts, async processing |
-| Bot detection by target sites | Medium | Medium | Rotate user agents, respect rate limits |
-| Feature complexity | Medium | Medium | Phased rollout, comprehensive testing |
+| Risk | Likelihood | Impact | Mitigation | Status |
+|------|------------|--------|------------|--------|
+| ~~High infrastructure costs~~ | ~~High~~ | ~~High~~ | - | ✅ ELIMINATED ($0 cost) |
+| ~~Slow render times~~ | ~~Medium~~ | ~~High~~ | - | ✅ ELIMINATED (4.6s avg) |
+| ~~Memory constraints~~ | ~~Medium~~ | ~~High~~ | - | ✅ ELIMINATED (28MB only) |
+| Bot detection by target sites | Low | Medium | Rotate user agents, respect robots.txt | Monitor |
+| Concurrent render overload | Low | Medium | Limit to 2 concurrent, queue others | Implemented |
 
-### Estimated Timeline
+### Estimated Timeline (Updated Post-POC)
 
-| Phase | Duration | Dependencies |
-|-------|----------|--------------|
-| Phase 1: Infrastructure | 2-3 days | Sprint 1 Phase 2 |
-| Phase 2: Rendering Service | 1-2 weeks | Phase 1 decision |
-| Phase 3: Access Control | 2-3 days | Phase 2 |
-| Phase 4: UI Integration | 3-4 days | Phase 3 |
-| Phase 5: Testing & Docs | 3-4 days | Phase 4 |
-| **Total** | **3-4 weeks** | |
+| Phase | Duration | Status |
+|-------|----------|--------|
+| Phase 1: Infrastructure | 1 day | ✅ COMPLETE |
+| Phase 2: Rendering Service | 2-3 days | Ready to start |
+| Phase 3: Access Control | 1-2 days | Waiting |
+| Phase 4: UI Integration | 1-2 days | Waiting |
+| Phase 5: Testing & Deploy | 1-2 days | Waiting |
+| **Total** | **6-10 days** | **Reduced from 3-4 weeks** |
 
-### Cost Considerations
+### Cost Summary
 
-**Initial Estimate** (to be refined in Phase 1):
-- Managed service: $100-300/month for 500 renders
-- Self-hosted: $50-100/month infrastructure + dev time
-- Recommendation: Start with managed service for faster launch, optimize after validating demand
+**Final Decision**: $0/month
+
+| Option | Monthly Cost | Status |
+|--------|--------------|--------|
+| ~~Browserless.io~~ | ~~$100-500~~ | REJECTED |
+| ~~ScrapingBee~~ | ~~$150-600~~ | REJECTED |
+| ~~Separate server~~ | ~~$50-100~~ | REJECTED |
+| **Playwright on Railway** | **$0** | ✅ SELECTED |
+
+**Why $0 Works** (Validated by POC):
+- Memory: 28 MB per render (Railway has 512MB+)
+- Browser launch: 237ms (no cold start issue)
+- Render time: 4.6s average (excellent)
+- No Dockerfile changes needed
+- No external dependencies
 
 ---
 

@@ -1,5 +1,12 @@
-import { DiscoveredPage, UserTier } from '@shared/schema';
-import { fetchPageContent, filterRelevantPages, SitemapEntry } from './sitemap';
+import { DiscoveredPage, UserTier, SPADetectionResult } from '@shared/schema';
+import {
+  fetchPageContent,
+  filterRelevantPages,
+  SitemapEntry,
+  fetchPageContentEnhanced,
+  shouldUseJsRendering,
+  EnhancedFetchOptions,
+} from './sitemap';
 import { analyzePageContent } from './openai';
 import {
   getCachedAnalysis,
@@ -27,15 +34,35 @@ export interface AnalysisMetrics {
   totalTokensUsed: number;
   actualAiCostUSD: number;
   modelUsed: string;
+  // Sprint 6: JS rendering metrics
+  jsRenderedPages?: number;
+  jsRenderingEnabled?: boolean;
+}
+
+/**
+ * Options for JS rendering (Sprint 6)
+ */
+export interface JsRenderingOptions {
+  /** Enable JS rendering (Scale tier only) */
+  enabled?: boolean;
+  /** SPA detection result from homepage analysis */
+  spaDetection?: SPADetectionResult;
+  /** Force JS rendering for all pages */
+  forceAll?: boolean;
 }
 
 export async function analyzeDiscoveredPagesWithCache(
   entries: SitemapEntry[],
   userEmail: string,
-  tier: UserTier
+  tier: UserTier,
+  jsRenderingOptions?: JsRenderingOptions
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   // Add timeout protection to prevent infinite hanging during page analysis
-  const PAGE_ANALYSIS_TIMEOUT = 8 * 60 * 1000; // 8 minutes maximum for page analysis
+  // Longer timeout for JS rendering (browser operations take more time)
+  const baseTimeout = 8 * 60 * 1000; // 8 minutes for standard analysis
+  const jsRenderingBuffer = jsRenderingOptions?.enabled ? 4 * 60 * 1000 : 0; // +4 minutes for JS rendering
+  const PAGE_ANALYSIS_TIMEOUT = baseTimeout + jsRenderingBuffer;
+
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`Page analysis timeout: exceeded ${PAGE_ANALYSIS_TIMEOUT / 1000}s limit`));
@@ -44,7 +71,7 @@ export async function analyzeDiscoveredPagesWithCache(
 
   try {
     return await Promise.race([
-      performPageAnalysisWithCache(entries, userEmail, tier),
+      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -75,10 +102,17 @@ export async function analyzeDiscoveredPagesWithCache(
 async function performPageAnalysisWithCache(
   entries: SitemapEntry[],
   userEmail: string,
-  tier: UserTier
+  tier: UserTier,
+  jsRenderingOptions?: JsRenderingOptions
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   const relevantPages = filterRelevantPages(entries, tier);
   const tierLimits = TIER_LIMITS[tier];
+
+  // Sprint 6: Determine if JS rendering should be used
+  const useJsRendering = tier === 'scale' && jsRenderingOptions?.enabled === true;
+  if (useJsRendering) {
+    console.log(`🎯 [Sprint 6] JS rendering enabled for Scale tier analysis`);
+  }
 
   // Enhanced logging for transparency
   const totalDiscovered = entries.length;
@@ -152,7 +186,19 @@ async function performPageAnalysisWithCache(
     totalTokensUsed: 0,
     actualAiCostUSD: 0,
     modelUsed: '',
+    // Sprint 6: JS rendering metrics
+    jsRenderedPages: 0,
+    jsRenderingEnabled: useJsRendering,
   };
+
+  // Sprint 6: Prepare enhanced fetch options for JS rendering
+  const enhancedFetchOptions: EnhancedFetchOptions | undefined = useJsRendering
+    ? {
+        tier,
+        spaDetection: jsRenderingOptions?.spaDetection,
+        useJsRendering: jsRenderingOptions?.forceAll || false,
+      }
+    : undefined;
 
   // Track consecutive failures for bot protection
   let consecutiveFailures = 0;
@@ -177,7 +223,7 @@ async function performPageAnalysisWithCache(
       const batch = pagesToAnalyze.slice(batchStart, batchEnd);
 
       batchPromises.push(
-        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics)
+        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics, enhancedFetchOptions)
       );
     }
 
@@ -272,6 +318,10 @@ async function performPageAnalysisWithCache(
   console.log(
     `   • Cache hits: ${metrics.cachedPages}, AI calls: ${metrics.aiCallsUsed}, HTML extractions: ${metrics.htmlExtractionsUsed}`
   );
+  // Sprint 6: Log JS rendering metrics
+  if (metrics.jsRenderingEnabled && metrics.jsRenderedPages && metrics.jsRenderedPages > 0) {
+    console.log(`   • 🎯 [Sprint 6] JS rendered: ${metrics.jsRenderedPages} pages`);
+  }
 
   // Sort by quality score
   uniquePages.sort((a, b) => b.qualityScore - a.qualityScore);
@@ -301,7 +351,8 @@ async function processBatchWithCache(
   userEmail: string,
   tier: UserTier,
   aiPagesLimit: number,
-  metrics: AnalysisMetrics
+  metrics: AnalysisMetrics,
+  enhancedFetchOptions?: EnhancedFetchOptions
 ): Promise<Array<{ page: DiscoveredPage; success: boolean }>> {
   const results = [];
 
@@ -337,8 +388,25 @@ async function processBatchWithCache(
         }
       }
 
-      // Fetch and analyze content
-      const content = await fetchPageContent(entry.url);
+      // Sprint 6: Fetch content with optional JS rendering
+      let content: string;
+      let wasJsRendered = false;
+
+      if (enhancedFetchOptions && shouldUseJsRendering(enhancedFetchOptions)) {
+        const fetchResult = await fetchPageContentEnhanced(entry.url, enhancedFetchOptions);
+        content = fetchResult.content;
+        wasJsRendered = fetchResult.wasJsRendered;
+
+        if (fetchResult.error && !content) {
+          throw new Error(fetchResult.error);
+        }
+
+        if (wasJsRendered && metrics.jsRenderedPages !== undefined) {
+          metrics.jsRenderedPages++;
+        }
+      } else {
+        content = await fetchPageContent(entry.url);
+      }
       const contentHash = generateContentHash(content);
 
       // Extract HTTP caching headers
