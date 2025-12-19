@@ -1,8 +1,8 @@
 # LLM.txt Mastery - System Architecture Documentation
 
-**Version**: 3.2
-**Last Updated**: December 9, 2025
-**Changelog**: Added Astro framework detection, SSG/SSR coverage estimation fix
+**Version**: 3.3
+**Last Updated**: December 19, 2025
+**Changelog**: Sprint 6 - Added JavaScript rendering for React/Angular/Vue sites (Scale tier exclusive), Playwright browser integration
 
 ---
 
@@ -1555,8 +1555,8 @@ The system is designed with clear evolution paths from the current monolithic ar
 **Business Impact:**
 The architecture directly enables the business model with sophisticated freemium support, multiple payment tiers, comprehensive usage tracking, and AI cost optimization that maintains healthy unit economics across all customer segments.
 
-**Last Updated**: December 9, 2025
-**Architecture Version**: 3.2
+**Last Updated**: December 19, 2025
+**Architecture Version**: 3.3
 **Status**: Production Ready - A+ Security, 98/100 Lighthouse ✅
 **Next Review**: Q1 2026 (Microservices evaluation)
 
