@@ -116,7 +116,7 @@ export const BlogPage: React.FC = () => {
                   <p className="text-sm">
                     Newsletter coming soon. Follow me on{' '}
                     <a
-                      href="https://twitter.com/jamiewatters"
+                      href="https://twitter.com/Jamie_within"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline hover:no-underline"
