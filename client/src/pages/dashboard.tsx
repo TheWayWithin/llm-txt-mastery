@@ -671,7 +671,7 @@ function BillingSection() {
                     📞 Direct Support Line
                   </div>
                   <div className="text-xs text-purple-600">
-                    Email jamie@llmtxtmastery.com for priority help
+                    Email support@llmtxtmastery.com for priority help
                   </div>
                 </div>
               </div>

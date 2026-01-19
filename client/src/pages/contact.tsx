@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
-import { Mail, MessageSquare, Send, Twitter, Linkedin, Github } from 'lucide-react';
+import { Mail, MessageSquare, Send, Twitter, Linkedin, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSEO } from '@/hooks/useSEO';
 
@@ -128,8 +128,8 @@ export const ContactPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 mb-4">For quick questions or feedback:</p>
-                <a href="mailto:jamie@llmtxtmastery.com" className="text-blue-600 hover:underline">
-                  jamie@llmtxtmastery.com
+                <a href="mailto:support@llmtxtmastery.com" className="text-blue-600 hover:underline">
+                  support@llmtxtmastery.com
                 </a>
               </CardContent>
             </Card>
@@ -142,31 +142,31 @@ export const ContactPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   <a
-                    href="https://twitter.com/jamiewatters"
+                    href="https://jamiewatters.work"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <ExternalLink className="mr-3" size={20} />
+                    Build in Public
+                  </a>
+                  <a
+                    href="https://twitter.com/Jamie_within"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
                   >
                     <Twitter className="mr-3" size={20} />
-                    @jamiewatters
+                    @Jamie_within
                   </a>
                   <a
-                    href="https://www.linkedin.com/in/Jamie_within"
+                    href="https://linkedin.com/in/jamie-watters-solo"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
                   >
                     <Linkedin className="mr-3" size={20} />
                     LinkedIn
-                  </a>
-                  <a
-                    href="https://github.com/jamiewatters"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
-                  >
-                    <Github className="mr-3" size={20} />
-                    GitHub
                   </a>
                 </div>
               </CardContent>

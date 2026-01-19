@@ -49,7 +49,7 @@ const testGDPRCompliance = async () => {
     const hasArticle16 = html.includes('Article 16');
     const hasArticle17 = html.includes('Article 17');
     const hasArticle21 = html.includes('Article 21');
-    const hasContactMethod = html.includes('jamie@llmtxtmastery.com');
+    const hasContactMethod = html.includes('support@llmtxtmastery.com');
     const hasComplaintRights = html.includes('data protection authority');
 
     console.log(`  ✅ Article 15 (Access): ${hasArticle15 ? 'PASS' : 'FAIL'}`);

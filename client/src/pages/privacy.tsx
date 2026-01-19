@@ -152,7 +152,7 @@ export const PrivacyPage: React.FC = () => {
                   <br />
                   <strong>Business:</strong> LLM.txt Mastery
                   <br />
-                  <strong>Email:</strong> jamie@llmtxtmastery.com
+                  <strong>Email:</strong> support@llmtxtmastery.com
                   <br />
                   <strong>Website:</strong> www.llmtxtmastery.com
                 </p>
@@ -292,10 +292,10 @@ export const PrivacyPage: React.FC = () => {
                   <p>
                     <strong>Email:</strong>{' '}
                     <a
-                      href="mailto:jamie@llmtxtmastery.com?subject=GDPR%20Data%20Subject%20Request"
+                      href="mailto:support@llmtxtmastery.com?subject=GDPR%20Data%20Subject%20Request"
                       className="text-blue-600 hover:underline"
                     >
-                      jamie@llmtxtmastery.com
+                      support@llmtxtmastery.com
                     </a>
                   </p>
                   <p>
@@ -351,8 +351,8 @@ export const PrivacyPage: React.FC = () => {
               <h2 className="text-2xl font-bold mb-4">Questions?</h2>
               <p className="text-gray-700">
                 If you have any privacy concerns or questions, contact me directly at{' '}
-                <a href="mailto:jamie@llmtxtmastery.com" className="text-blue-600 hover:underline">
-                  jamie@llmtxtmastery.com
+                <a href="mailto:support@llmtxtmastery.com" className="text-blue-600 hover:underline">
+                  support@llmtxtmastery.com
                 </a>
                 . No support tickets, no runaround—just direct answers from the person who built
                 this.
