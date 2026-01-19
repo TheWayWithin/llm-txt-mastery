@@ -112,7 +112,7 @@ export default function Footer() {
 
         {/* Copyright Section */}
         <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
-          <p>&copy; 2025 Jamie Watters. No corporate BS. Just tools that work.</p>
+          <p>&copy; 2026 Jamie Watters. No corporate BS. Just tools that work.</p>
           <p className="mt-2">
             Built with integrity by a solopreneur who ships fast and listens to users.
           </p>
