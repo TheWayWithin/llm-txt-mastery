@@ -67,20 +67,20 @@ export function enhancedBotProtection(req: EnhancedRequest, res: Response, next:
     reasons.push('Suspicious automation patterns');
   }
 
-  // Missing typical browser headers
+  // Missing typical browser headers (low signal — many legit clients skip these)
   if (!acceptHeader.includes('text/html') && !acceptHeader.includes('application/json')) {
-    botScore += 20;
+    botScore += 10;
     reasons.push('Missing browser accept headers');
   }
 
   if (!acceptLanguage) {
-    botScore += 15;
+    botScore += 5;
     reasons.push('Missing Accept-Language header');
   }
 
-  // Suspicious request patterns
+  // Suspicious request patterns (Origin/Referer missing is common for direct API calls)
   if (!origin && !referer) {
-    botScore += 25;
+    botScore += 10;
     reasons.push('Missing origin and referer headers');
   }
 
@@ -103,9 +103,9 @@ export function enhancedBotProtection(req: EnhancedRequest, res: Response, next:
     botScore -= 10;
   }
 
-  // Final assessment
+  // Final assessment — threshold 70+ for suspicious (50 was too aggressive, blocked legit users)
   req.botScore = Math.max(0, botScore);
-  req.suspiciousActivity = botScore >= 50;
+  req.suspiciousActivity = botScore >= 70;
 
   // Log suspicious activity for monitoring
   if (req.suspiciousActivity) {
@@ -179,10 +179,10 @@ export const costProtectionLimiter = rateLimit({
  * Authentication requirement for cost-sensitive endpoints
  */
 export function requireAuthForAnalysis(req: EnhancedRequest, res: Response, next: NextFunction) {
-  const isHighRiskBot = (req.botScore || 0) >= 70;
-  const isSuspicious = req.suspiciousActivity;
+  const isHighRiskBot = (req.botScore || 0) >= 85;
+  const isSuspicious = req.suspiciousActivity && (req.botScore || 0) >= 70;
   
-  // Require authentication for high-risk requests
+  // Only block clearly automated requests — free tier has rate limits for abuse protection
   if ((isHighRiskBot || isSuspicious) && !req.user?.id) {
     console.warn(`🔒 AUTH REQUIRED: Blocking unauthenticated suspicious request`, {
       ip: req.ip,
