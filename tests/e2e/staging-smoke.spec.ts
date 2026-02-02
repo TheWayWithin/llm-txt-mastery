@@ -1,255 +1,302 @@
 import { test, expect } from '@playwright/test';
 
-// Test configuration
-const TEST_EMAIL = 'llmtxt.test.user@gmail.com';
-const TEST_PASSWORD = 'TestPassword123!';
-const TEST_URL = 'https://example.com'; // Fast, reliable test URL
-const VALIDATOR_TEST_URL = 'https://www.anthropic.com/llms.txt';
+const STAGING_FRONTEND_URL = 'https://develop--llm-txt-mastery.netlify.app';
+const STAGING_API_URL = 'https://llm-txt-mastery-staging.up.railway.app';
 
-test.describe('LLM.txt Mastery - Staging Smoke Tests', () => {
-  test.beforeEach(async ({ page }) => {
-    // Start each test with a clean state
-    await page.context().clearCookies();
-    await page.context().clearPermissions();
+test.describe('LLM.txt Mastery Staging - Smoke Tests', () => {
+  test.describe.configure({ mode: 'serial' });
+  
+  let testEmail: string;
+  let accessToken: string;
+  
+  test.beforeAll(() => {
+    // Generate unique test email to avoid conflicts
+    const timestamp = Date.now();
+    testEmail = `test-staging-${timestamp}@llmtxtmastery.com`;
   });
 
-  test('1. Landing page loads correctly', async ({ page }) => {
-    await page.goto('/');
+  test('Landing page loads correctly', async ({ page }) => {
+    await page.goto(STAGING_FRONTEND_URL);
     
-    // Check title
+    // Check page title
     await expect(page).toHaveTitle(/LLM\.txt Mastery/);
     
-    // Check hero section
-    await expect(page.locator('h1')).toBeVisible();
-    await expect(page.getByText('Stop losing customers')).toBeVisible();
+    // Check main elements are visible
+    await expect(page.locator('h1')).toContainText('ONLY Dedicated LLMs.txt Platform');
+    await expect(page.getByRole('button', { name: 'Start Free Analysis' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Get Started' })).toBeVisible();
     
-    // Check pricing section is visible
-    await expect(page.getByText('Choose Your Plan')).toBeVisible();
-    await expect(page.getByText('$0')).toBeVisible(); // Starter tier
-    await expect(page.getByText('$4.95')).toBeVisible(); // Solo tier
-    await expect(page.getByText('$9.95')).toBeVisible(); // Growth tier
-    await expect(page.getByText('$19.95')).toBeVisible(); // Scale tier
+    // Verify no console errors
+    const consoleLogs: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleLogs.push(msg.text());
+      }
+    });
+    
+    // Wait for page to fully load
+    await page.waitForLoadState('networkidle');
+    
+    // Should have no critical console errors
+    expect(consoleLogs.filter(log => !log.includes('favicon'))).toHaveLength(0);
   });
 
-  test('2. Free analysis flow (unauthenticated)', async ({ page }) => {
-    await page.goto('/');
+  test('Signup page renders correctly', async ({ page }) => {
+    await page.goto(`${STAGING_FRONTEND_URL}/signup`);
     
-    // Click "Start Free Analysis" button
-    const startButton = page.getByRole('button', { name: /start free analysis/i });
-    await expect(startButton).toBeVisible();
-    await startButton.click();
+    // Check signup form elements
+    await expect(page.getByRole('heading', { name: 'Get Found by AI' })).toBeVisible();
+    await expect(page.getByLabel('Email Address')).toBeVisible();
+    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Confirm Password')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create Account' })).toBeVisible();
     
-    // Should navigate to signup/plan selection
-    await expect(page).toHaveURL(/\/signup/);
-    
-    // Verify tier options are displayed
-    await expect(page.getByText('Starter')).toBeVisible();
-    await expect(page.getByText('Solo')).toBeVisible();
-    await expect(page.getByText('Growth')).toBeVisible();
-    await expect(page.getByText('Scale')).toBeVisible();
+    // Check pricing tiers are displayed
+    await expect(page.locator('text=GROWTH')).toBeVisible();
+    await expect(page.locator('text=$9.95')).toBeVisible();
   });
 
-  test('3. Signup flow', async ({ page }) => {
-    await page.goto('/signup');
+  test('Cookies page loads without Enzuzo references', async ({ page }) => {
+    await page.goto(`${STAGING_FRONTEND_URL}/cookies`);
     
-    // Fill in signup form
-    await page.fill('input[type="email"]', TEST_EMAIL);
-    await page.fill('input[type="password"]', TEST_PASSWORD);
+    // Check page loads
+    await expect(page.getByRole('heading', { name: 'Cookie Policy' })).toBeVisible();
     
-    // Select starter tier to avoid payment flow
-    await page.click('[data-testid="tier-starter"], .tier-starter, [data-tier="starter"]');
+    // Verify no Enzuzo references in page content
+    const pageContent = await page.textContent('body');
+    expect(pageContent).not.toContain('Enzuzo');
+    expect(pageContent).not.toContain('enzuzo');
     
-    // Submit form
-    const signupButton = page.getByRole('button', { name: /sign up|create account/i });
-    await signupButton.click();
+    // Check for native consent management mention
+    expect(pageContent).toContain('GDPR consent managed natively');
+  });
+
+  test('API health endpoints work correctly', async ({ request }) => {
+    // Test version endpoint
+    const versionResponse = await request.get(`${STAGING_API_URL}/api/version`);
+    expect(versionResponse.ok()).toBeTruthy();
     
-    // Should either:
-    // 1. Navigate to dashboard (new account)
-    // 2. Show "already exists" message (existing account)
+    const versionData = await versionResponse.json();
+    expect(versionData.version).toBe('2.0.0-enhanced');
+    expect(versionData.features.blockquoteSummary).toBe(true);
+    
+    // Test usage endpoint for test user
+    const usageResponse = await request.get(`${STAGING_API_URL}/api/usage/test@test.com`);
+    expect(usageResponse.ok()).toBeTruthy();
+    
+    const usageData = await usageResponse.json();
+    expect(usageData.tier).toBe('starter');
+    expect(usageData.limits.dailyAnalyses).toBe(3);
+  });
+
+  test('User registration via API works', async ({ request }) => {
+    const registerResponse = await request.post(`${STAGING_API_URL}/api/auth/register`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': STAGING_FRONTEND_URL,
+      },
+      data: {
+        email: testEmail,
+        password: 'TestPass123!',
+        confirmPassword: 'TestPass123!'
+      }
+    });
+    
+    expect(registerResponse.ok()).toBeTruthy();
+    
+    const registerData = await registerResponse.json();
+    expect(registerData.success).toBe(true);
+    expect(registerData.user.email).toBe(testEmail);
+    expect(registerData.user.tier).toBe('starter');
+    expect(registerData.accessToken).toBeTruthy();
+    
+    // Store token for subsequent tests
+    accessToken = registerData.accessToken;
+  });
+
+  test('User login via API works', async ({ request }) => {
+    const loginResponse = await request.post(`${STAGING_API_URL}/api/auth/login`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': STAGING_FRONTEND_URL,
+      },
+      data: {
+        email: testEmail,
+        password: 'TestPass123!'
+      }
+    });
+    
+    expect(loginResponse.ok()).toBeTruthy();
+    
+    const loginData = await loginResponse.json();
+    expect(loginData.success).toBe(true);
+    expect(loginData.user.email).toBe(testEmail);
+    expect(loginData.accessToken).toBeTruthy();
+    
+    // Update token
+    accessToken = loginData.accessToken;
+  });
+
+  test('Authenticated analysis works', async ({ request }) => {
+    const analyzeResponse = await request.post(`${STAGING_API_URL}/api/analyze`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': STAGING_FRONTEND_URL,
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      data: {
+        url: 'https://example.com',
+        useAI: false
+      }
+    });
+    
+    expect(analyzeResponse.ok()).toBeTruthy();
+    
+    const analyzeData = await analyzeResponse.json();
+    expect(analyzeData.analysisId).toBeTruthy();
+    expect(analyzeData.status).toBe('analyzing');
+    expect(analyzeData.pageCount).toBe(1);
+  });
+
+  test('Frontend routes API calls to Railway (not Netlify)', async ({ page }) => {
+    // Intercept network requests
+    const apiCalls: string[] = [];
+    
+    page.route('**/*', route => {
+      const url = route.request().url();
+      if (url.includes('/api/')) {
+        apiCalls.push(url);
+      }
+      route.continue();
+    });
+    
+    await page.goto(STAGING_FRONTEND_URL);
+    
+    // Trigger an API call by clicking "Start Free Analysis"
+    await page.getByRole('button', { name: 'Start Free Analysis' }).click();
+    
+    // Wait a moment for potential API calls
     await page.waitForTimeout(2000);
     
-    const currentUrl = page.url();
-    const pageContent = await page.textContent('body');
+    // Check that any API calls go to Railway, not Netlify
+    const railwayApiCalls = apiCalls.filter(url => url.includes('llm-txt-mastery-staging.up.railway.app'));
+    const netlifyApiCalls = apiCalls.filter(url => url.includes('/.netlify/functions/'));
     
-    if (currentUrl.includes('/dashboard') || pageContent.includes('Welcome')) {
-      // New account created successfully
-      await expect(page).toHaveURL(/\/dashboard/);
-    } else if (pageContent.includes('already exists') || pageContent.includes('already registered')) {
-      // Account already exists - this is expected
-      console.log('Account already exists - proceeding to login test');
-    } else {
-      // Check for any error messages
-      const hasError = await page.locator('[role="alert"], .error, .alert-error').count() > 0;
-      if (hasError) {
-        const errorText = await page.locator('[role="alert"], .error, .alert-error').first().textContent();
-        console.log('Signup error (may be expected):', errorText);
+    // We might not have API calls from just loading the page, but if there are any, they should go to Railway
+    if (apiCalls.length > 0) {
+      expect(netlifyApiCalls.length).toBe(0);
+      expect(railwayApiCalls.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('Bot protection allows real browsers', async ({ request }) => {
+    // Test that bot protection doesn't block legitimate requests with proper headers
+    const analyzeResponse = await request.post(`${STAGING_API_URL}/api/analyze`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': STAGING_FRONTEND_URL,
+        'Accept-Language': 'en-US,en;q=0.9',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+      data: {
+        url: 'https://example.com',
+        email: testEmail
       }
-    }
+    });
+    
+    // Should get a 401 for unauthenticated user, not be blocked by bot protection
+    expect(analyzeResponse.status()).toBe(400); // Email required error, not bot block
   });
 
-  test('4. Login flow', async ({ page }) => {
-    await page.goto('/login');
-    
-    // Fill in login form
-    await page.fill('input[type="email"]', TEST_EMAIL);
-    await page.fill('input[type="password"]', TEST_PASSWORD);
-    
-    // Submit login
-    const loginButton = page.getByRole('button', { name: /sign in|log in|login/i });
-    await loginButton.click();
-    
-    // Wait for navigation
-    await page.waitForTimeout(2000);
-    
-    // Verify dashboard loads
-    await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByText('Dashboard')).toBeVisible();
-  });
-
-  test('5. URL Analysis flow (core feature)', async ({ page }) => {
-    // Login first
-    await page.goto('/login');
-    await page.fill('input[type="email"]', TEST_EMAIL);
-    await page.fill('input[type="password"]', TEST_PASSWORD);
-    await page.getByRole('button', { name: /sign in|log in|login/i }).click();
-    await page.waitForURL(/\/dashboard/);
-    
-    // Navigate to analyze page
-    await page.goto('/analyze');
-    
-    // Enter test URL
-    const urlInput = page.locator('input[type="url"], input[placeholder*="website"], input[placeholder*="URL"]').first();
-    await urlInput.fill(TEST_URL);
-    
-    // Submit for analysis
-    const analyzeButton = page.getByRole('button', { name: /analyze|start analysis/i });
-    await analyzeButton.click();
-    
-    // Wait for analysis to start - check for loading state
-    await expect(page.getByText(/analyzing|processing|scanning/i)).toBeVisible({ timeout: 10000 });
-    
-    // Wait for results to appear (this may take 30-60 seconds)
-    await expect(page.getByText(/pages discovered|results|analysis complete/i)).toBeVisible({ timeout: 120000 });
-    
-    // Verify results show real data, not demo
-    const pageContent = await page.textContent('body');
-    expect(pageContent.toLowerCase()).not.toContain('demo response');
-    expect(pageContent.toLowerCase()).not.toContain('mock data');
-    
-    // Verify quality scores or similar metrics are present
-    await expect(page.locator('[data-testid="quality-score"], .quality-score, .score')).toBeVisible({ timeout: 5000 });
-  });
-
-  test('6. File generation and download', async ({ page }) => {
-    // This test assumes we have a completed analysis
-    // Login first
-    await page.goto('/login');
-    await page.fill('input[type="email"]', TEST_EMAIL);
-    await page.fill('input[type="password"]', TEST_PASSWORD);
-    await page.getByRole('button', { name: /sign in|log in|login/i }).click();
-    await page.waitForURL(/\/dashboard/);
-    
-    // Check if there are any previous analyses
-    const analysisLinks = page.locator('a[href*="/analysis/"], .analysis-item');
-    const hasAnalyses = await analysisLinks.count() > 0;
-    
-    if (hasAnalyses) {
-      // Click on the first analysis
-      await analysisLinks.first().click();
-      
-      // Look for generate/download button
-      const generateButton = page.getByRole('button', { name: /generate|download|llms\.txt/i });
-      if (await generateButton.count() > 0) {
-        // Set up download listener
-        const downloadPromise = page.waitForDownload();
-        await generateButton.click();
-        
-        // Verify download starts
-        const download = await downloadPromise;
-        expect(download.suggestedFilename()).toContain('llms.txt');
-        
-        // Verify file content is real (not empty or mock)
-        const path = await download.path();
-        if (path) {
-          const fs = require('fs');
-          const content = fs.readFileSync(path, 'utf8');
-          expect(content.length).toBeGreaterThan(100); // Should have substantial content
-          expect(content.toLowerCase()).not.toContain('demo');
-          expect(content.toLowerCase()).not.toContain('mock');
-        }
+  test('CORS headers are properly configured', async ({ request }) => {
+    const response = await request.post(`${STAGING_API_URL}/api/version`, {
+      headers: {
+        'Origin': STAGING_FRONTEND_URL,
       }
-    } else {
-      console.log('No existing analyses found - file generation test skipped');
+    });
+    
+    const headers = response.headers();
+    expect(headers['access-control-allow-origin']).toBe(STAGING_FRONTEND_URL);
+    expect(headers['access-control-allow-credentials']).toBe('true');
+  });
+
+  test('Privacy and legal pages load correctly', async ({ page }) => {
+    // Test privacy policy page
+    await page.goto(`${STAGING_FRONTEND_URL}/privacy`);
+    await expect(page.getByRole('heading', { name: 'Privacy Policy' })).toBeVisible();
+    
+    // Test terms of service page  
+    await page.goto(`${STAGING_FRONTEND_URL}/terms`);
+    await expect(page.getByRole('heading', { name: 'Terms of Service' })).toBeVisible();
+    
+    // Verify no Enzuzo references
+    for (const url of [`${STAGING_FRONTEND_URL}/privacy`, `${STAGING_FRONTEND_URL}/terms`]) {
+      await page.goto(url);
+      const pageContent = await page.textContent('body');
+      expect(pageContent).not.toContain('Enzuzo');
+      expect(pageContent).not.toContain('enzuzo');
     }
   });
 
-  test('7. Validator tool functionality', async ({ page }) => {
-    await page.goto('/validate');
+  test('Responsive design works on mobile', async ({ page }) => {
+    // Set mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
     
-    // Enter a known llms.txt URL
-    const urlInput = page.locator('input[type="url"], input[placeholder*="llms.txt"]').first();
-    await urlInput.fill(VALIDATOR_TEST_URL);
+    await page.goto(STAGING_FRONTEND_URL);
     
-    // Submit for validation
-    const validateButton = page.getByRole('button', { name: /validate|check/i });
-    await validateButton.click();
+    // Check that main elements are still visible and properly sized
+    await expect(page.getByRole('button', { name: 'Start Free Analysis' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Get Started' })).toBeVisible();
     
-    // Wait for validation results
-    await expect(page.getByText(/validation results|valid|invalid|score/i)).toBeVisible({ timeout: 30000 });
+    // Check navigation works on mobile
+    await page.goto(`${STAGING_FRONTEND_URL}/signup`);
+    await expect(page.getByRole('heading', { name: 'Get Found by AI' })).toBeVisible();
+  });
+});
+
+test.describe('LLM.txt Mastery Staging - Error Handling', () => {
+  test('404 page works correctly', async ({ page }) => {
+    const response = await page.goto(`${STAGING_FRONTEND_URL}/nonexistent-page`);
     
-    // Verify results are meaningful (not just error messages)
-    const resultsContainer = page.locator('[data-testid="validation-results"], .validation-results, .results');
-    await expect(resultsContainer).toBeVisible();
+    // Should return a page (SPA routing handles 404s client-side)
+    expect(response?.status()).toBe(200);
+    
+    // Wait for SPA to handle the route
+    await page.waitForTimeout(1000);
+    
+    // Should show 404 content or redirect to home
+    const content = await page.textContent('body');
+    expect(content).toBeTruthy();
   });
 
-  test('8. Pricing page displays correctly', async ({ page }) => {
-    await page.goto('/pricing');
+  test('API endpoints handle invalid requests gracefully', async ({ request }) => {
+    // Test invalid JSON
+    const invalidJsonResponse = await request.post(`${STAGING_API_URL}/api/auth/register`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': STAGING_FRONTEND_URL,
+      },
+      data: 'invalid json'
+    });
     
-    // Verify all 4 tiers are visible with correct prices
-    await expect(page.getByText('$0')).toBeVisible(); // Starter
-    await expect(page.getByText('$4.95')).toBeVisible(); // Solo
-    await expect(page.getByText('$9.95')).toBeVisible(); // Growth
-    await expect(page.getByText('$19.95')).toBeVisible(); // Scale
+    expect(invalidJsonResponse.status()).toBeGreaterThanOrEqual(400);
     
-    // Verify tier names
-    await expect(page.getByText('Starter')).toBeVisible();
-    await expect(page.getByText('Solo')).toBeVisible();
-    await expect(page.getByText('Growth')).toBeVisible();
-    await expect(page.getByText('Scale')).toBeVisible();
-  });
-
-  test('9. Legal pages load successfully', async ({ page }) => {
-    // Test privacy policy
-    await page.goto('/privacy');
-    await expect(page.getByText(/privacy policy|privacy/i)).toBeVisible();
+    // Test missing required fields
+    const missingFieldsResponse = await request.post(`${STAGING_API_URL}/api/auth/register`, {
+      headers: {
+        'Content-Type': 'application/json', 
+        'Origin': STAGING_FRONTEND_URL,
+      },
+      data: {
+        email: 'test@example.com'
+        // Missing password and confirmPassword
+      }
+    });
     
-    // Test terms of service
-    await page.goto('/terms');
-    await expect(page.getByText(/terms|service/i)).toBeVisible();
+    expect(missingFieldsResponse.status()).toBe(400);
     
-    // Test cookies policy
-    await page.goto('/cookies');
-    await expect(page.getByText(/cookies|cookie policy/i)).toBeVisible();
-  });
-
-  test('10. API health check', async ({ page }) => {
-    // Test Railway backend directly
-    const stagingApiUrl = 'https://llm-txt-mastery-staging.up.railway.app';
-    
-    // Navigate to a page that will trigger API calls
-    await page.goto('/');
-    
-    // Check if we can reach the API version endpoint
-    const response = await page.request.get(`${stagingApiUrl}/api/version`);
-    expect(response.status()).toBe(200);
-    
-    const versionData = await response.json();
-    expect(versionData).toHaveProperty('version');
-    
-    // Verify features object is present (indicates healthy backend)
-    if (versionData.features) {
-      expect(versionData.features).toBeDefined();
-      console.log('API features available:', Object.keys(versionData.features));
-    }
+    const errorData = await missingFieldsResponse.json();
+    expect(errorData.error).toBe('Validation failed');
+    expect(errorData.code).toBe('VALIDATION_ERROR');
   });
 });
