@@ -66,18 +66,19 @@ export default function CookiesPage() {
                   <Button
                     className="bg-innovation-teal hover:bg-innovation-teal/90"
                     onClick={() => {
-                      // Trigger Enzuzo consent manager
-                      if (typeof window !== 'undefined' && (window as any).__enzuzo) {
-                        (window as any).__enzuzo('showCookieConsent');
+                      // Trigger native consent manager
+                      if (typeof window !== 'undefined' && (window as any).__gdprConsent) {
+                        (window as any).__gdprConsent('show');
                       } else {
-                        alert('Cookie consent manager is loading. Please try again in a moment.');
+                        // Clear consent to force banner to reappear
+                        localStorage.removeItem('gdpr_consent');
+                        window.location.reload();
                       }
                     }}
                   >
                     <Cookie className="h-4 w-4 mr-2" />
                     Manage Cookie Preferences
                   </Button>
-                  <div id="__enzuzo-root"></div>
                 </div>
               </div>
             </div>
@@ -299,18 +300,10 @@ export default function CookiesPage() {
               <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded">
                 <Shield className="h-5 w-5 text-purple-600 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-framework-black">Enzuzo</h4>
+                  <h4 className="font-semibold text-framework-black">Native Consent Manager</h4>
                   <p className="text-sm text-ai-silver">
-                    Cookie consent management. Helps us comply with GDPR and privacy laws.
+                    Built-in cookie consent management to comply with GDPR and privacy laws.
                   </p>
-                  <a
-                    href="https://www.enzuzo.com/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Enzuzo Privacy Policy →
-                  </a>
                 </div>
               </div>
             </div>
@@ -467,12 +460,6 @@ export default function CookiesPage() {
           </CardContent>
         </Card>
 
-        {/* Enzuzo Widget Script */}
-        <script
-          id="__enzuzo-root-script"
-          src="https://app.enzuzo.com/scripts/cookies/66cd0312-7ca2-11f0-94f6-1bb8827a8390"
-          async
-        />
       </main>
 
       {/* Footer */}

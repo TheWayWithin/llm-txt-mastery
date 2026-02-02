@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/Users/jamiewatters/DevProjects/llm-txt-mastery/playwright.config.ts",
-    "rootDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+    "configFile": "/home/ubuntu/clawd/llm-txt-mastery/playwright.config.ts",
+    "rootDir": "/home/ubuntu/clawd/llm-txt-mastery/tests",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -9,8 +9,10 @@
     "globalTimeout": 0,
     "grep": {},
     "grepInvert": null,
-    "maxFailures": 3,
-    "metadata": {},
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -35,13 +37,15 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "outputDir": "/home/ubuntu/clawd/llm-txt-mastery/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
-        "id": "chromium",
-        "name": "chromium",
-        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "localhost",
+        "name": "localhost",
+        "testDir": "/home/ubuntu/clawd/llm-txt-mastery/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -49,13 +53,15 @@
         "timeout": 30000
       },
       {
-        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "outputDir": "/home/ubuntu/clawd/llm-txt-mastery/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
-        "id": "firefox",
-        "name": "firefox",
-        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "staging",
+        "name": "staging",
+        "testDir": "/home/ubuntu/clawd/llm-txt-mastery/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -63,13 +69,15 @@
         "timeout": 30000
       },
       {
-        "outputDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/test-results",
+        "outputDir": "/home/ubuntu/clawd/llm-txt-mastery/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
-        "id": "webkit",
-        "name": "webkit",
-        "testDir": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests",
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production",
+        "name": "production",
+        "testDir": "/home/ubuntu/clawd/llm-txt-mastery/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -80,55 +88,256 @@
     "shard": null,
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
-    "version": "1.54.2",
+    "version": "1.56.0",
     "workers": 1,
-    "webServer": {
-      "command": "npm run dev",
-      "url": "http://localhost:8080",
-      "reuseExistingServer": true,
-      "timeout": 120000
-    }
+    "webServer": null
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
-      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/@vitest/expect/dist/index.js:667:9"
-    },
-    {
-      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
-      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/@vitest/expect/dist/index.js:667:9"
-    },
-    {
-      "message": "Error: Cannot find package 'supertest' imported from /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/integration/tier-upgrade-integration.test.ts",
-      "stack": "Error: Cannot find package 'supertest' imported from /Users/jamiewatters/DevProjects/llm-txt-mastery/tests/integration/tier-upgrade-integration.test.ts"
-    },
-    {
-      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
-      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/@vitest/expect/dist/index.js:667:9"
-    },
-    {
-      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
-      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/@vitest/expect/dist/index.js:667:9"
-    },
-    {
-      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
-      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at /Users/jamiewatters/DevProjects/llm-txt-mastery/node_modules/@vitest/expect/dist/index.js:667:9"
-    },
-    {
-      "message": "Error: test file \"e2e/full-competitor-analysis-test.spec.ts\" should not import test file \"e2e/competitor-analysis.spec.ts\"",
-      "location": {
-        "file": "/Users/jamiewatters/DevProjects/llm-txt-mastery/tests/e2e/full-competitor-analysis-test.spec.ts",
-        "line": 1,
-        "column": 1
-      },
-      "snippet": "\u001b[90m   at \u001b[39me2e/full-competitor-analysis-test.spec.ts:1\n\n> 1 | import { test, expect } from '@playwright/test';\n    | ^\n  2 | import { CompetitorAnalyzer } from './competitor-analysis.spec.js';\n  3 | import { COMPETITOR_CONFIGS, TEST_URLS } from './utils/competitor-config.js';\n  4 |"
+      "title": "e2e/api-health.spec.ts",
+      "file": "e2e/api-health.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Railway Backend API Health Tests",
+          "file": "e2e/api-health.spec.ts",
+          "line": 2,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Staging Railway backend responds correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "staging",
+                  "projectName": "staging",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 923,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Staging API Version: 2.0.0-enhanced\n"
+                        },
+                        {
+                          "text": "Staging features: [\n  \u001b[32m'blockquoteSummary'\u001b[39m,\n  \u001b[32m'dynamicClustering'\u001b[39m,\n  \u001b[32m'semanticTags'\u001b[39m,\n  \u001b[32m'intelligentSequencing'\u001b[39m,\n  \u001b[32m'enhancedMetadata'\u001b[39m,\n  \u001b[32m'contentQuality'\u001b[39m\n]\n"
+                        },
+                        {
+                          "text": "Staging /api/version: 200\n"
+                        },
+                        {
+                          "text": "Staging /api/health: 404\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T17:39:34.568Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "26c38eac94dbfd85e77d-ccb06e2e3c53e00ac29d",
+              "file": "e2e/api-health.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Production Railway backend responds correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "staging",
+                  "projectName": "staging",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 368,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Production API Version: 2.0.0-enhanced\n"
+                        },
+                        {
+                          "text": "Production features: [\n  \u001b[32m'blockquoteSummary'\u001b[39m,\n  \u001b[32m'dynamicClustering'\u001b[39m,\n  \u001b[32m'semanticTags'\u001b[39m,\n  \u001b[32m'intelligentSequencing'\u001b[39m,\n  \u001b[32m'enhancedMetadata'\u001b[39m,\n  \u001b[32m'contentQuality'\u001b[39m\n]\n"
+                        },
+                        {
+                          "text": "Production /api/version: 200\n"
+                        },
+                        {
+                          "text": "Production /api/health: 404\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T17:39:35.800Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "26c38eac94dbfd85e77d-6a336d3aa8a843f17a9c",
+              "file": "e2e/api-health.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "Key API endpoints return expected shapes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "staging",
+                  "projectName": "staging",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4090,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Testing Staging API endpoint shapes...\n"
+                        },
+                        {
+                          "text": "Staging validation endpoint: 200\n"
+                        },
+                        {
+                          "text": "Staging usage endpoint: 200\n"
+                        },
+                        {
+                          "text": "Testing Production API endpoint shapes...\n"
+                        },
+                        {
+                          "text": "Production validation endpoint: 200\n"
+                        },
+                        {
+                          "text": "Production usage endpoint: 200\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T17:39:36.177Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "26c38eac94dbfd85e77d-247cb4b5173a94e9b304",
+              "file": "e2e/api-health.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "API CORS headers are properly configured",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "staging",
+                  "projectName": "staging",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 126,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T17:39:40.275Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "26c38eac94dbfd85e77d-9a4d6dd10de0b32a8a30",
+              "file": "e2e/api-health.spec.ts",
+              "line": 113,
+              "column": 3
+            },
+            {
+              "title": "API response times are reasonable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "staging",
+                  "projectName": "staging",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 119,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Staging API response time: 25ms\n"
+                        },
+                        {
+                          "text": "Production API response time: 24ms\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T17:39:40.409Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "26c38eac94dbfd85e77d-49df556d71ffcaca2011",
+              "file": "e2e/api-health.spec.ts",
+              "line": 132,
+              "column": 3
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-10-11T13:21:50.660Z",
-    "duration": 2834.649,
-    "expected": 0,
+    "startTime": "2026-02-02T17:39:34.067Z",
+    "duration": 6498.467000000001,
+    "expected": 5,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
