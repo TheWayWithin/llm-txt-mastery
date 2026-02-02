@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EnhancedLoading, LOADING_STATES } from '@/components/ui/enhanced-loading';
 import DeploymentGuide, { mapFrameworkToPlatform, type DetectedPlatform } from './DeploymentGuide';
 import type { SPADetectionResult } from '@shared/schema';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 interface FileGenerationProps {
   fileId: number;
@@ -39,7 +40,7 @@ export default function FileGeneration({
   const { data: fileData, isLoading: isLoadingFile } = useQuery({
     queryKey: ['/api/llm-file', fileId],
     queryFn: async () => {
-      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const baseUrl = getApiBaseUrl();
       const response = await fetch(`${baseUrl}/api/llm-file/${fileId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch file data');
@@ -53,7 +54,7 @@ export default function FileGeneration({
     queryKey: ['/api/analysis-metadata', analysisId],
     queryFn: async () => {
       if (!analysisId) return null;
-      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const baseUrl = getApiBaseUrl();
       const response = await fetch(`${baseUrl}/api/analysis/${analysisId}`);
       if (!response.ok) {
         // Non-critical - just won't show platform-specific instructions
@@ -98,7 +99,7 @@ export default function FileGeneration({
     if (fileId) {
       console.log('Downloading file with ID:', fileId);
       // Use the Railway backend URL directly for download
-      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const baseUrl = getApiBaseUrl();
       const link = document.createElement('a');
       link.href = `${baseUrl}/api/download/${fileId}`;
       link.download = 'llms.txt';

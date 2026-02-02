@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from '@tanstack/react-query';
+import { getApiBaseUrl } from './api-config';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -12,8 +13,8 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined
 ): Promise<Response> {
-  // Use VITE_API_URL for backend requests, fallback to relative URLs for development
-  const baseUrl = import.meta.env.VITE_API_URL || '';
+  // Use environment-aware API URL with smart Railway fallback
+  const baseUrl = getApiBaseUrl();
   const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
 
   // Get JWT token from sessionStorage for authenticated requests
@@ -37,7 +38,7 @@ type UnauthorizedBehavior = 'returnNull' | 'throw';
 export const getQueryFn: <T>(options: { on401: UnauthorizedBehavior }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const baseUrl = import.meta.env.VITE_API_URL || '';
+    const baseUrl = getApiBaseUrl();
     const url = queryKey.join('/') as string;
     const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
 

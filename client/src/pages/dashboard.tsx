@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSEO } from '@/hooks/useSEO';
@@ -291,7 +292,7 @@ function BillingSection() {
       }
 
       // Create checkout session
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}${endpoint}`, {
+      const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -772,7 +773,7 @@ function ValidatorSection() {
 
     try {
       const normalizedUrl = normalizeUrl(url);
-      const API_URL = import.meta.env.VITE_API_URL || '';
+      const API_URL = getApiBaseUrl();
       const token = getAccessToken();
       const response = await fetch(`${API_URL}/api/validate-llms-txt`, {
         method: 'POST',

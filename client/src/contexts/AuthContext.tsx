@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { authApi, AuthUser, LoginRequest, RegisterRequest } from '@/lib/auth-api';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -259,7 +260,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Check usage API to see if this email has a tier/history
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || ''}/api/usage/${encodeURIComponent(email)}`
+        `${getApiBaseUrl()}/api/usage/${encodeURIComponent(email)}`
       );
 
       if (response.ok) {

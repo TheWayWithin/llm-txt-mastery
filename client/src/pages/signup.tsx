@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { authApi } from '@/lib/auth-api';
 import { validatePasswordClient, isValidEmail } from '@/lib/auth-utils';
 import { getTierDisplayName, getTierDescription, getTierColorClass } from '@/lib/tier-utils';
@@ -175,7 +176,7 @@ export default function SignupPage() {
         }
 
         // Create Stripe checkout session
-        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}${endpoint}`, {
+        const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
