@@ -1,7 +1,8 @@
 import { loadStripe } from '@stripe/stripe-js';
+import { getApiBaseUrl } from './api-config';
 
 // API Base URL configuration to ensure calls go to Railway backend, not Netlify
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+const API_BASE_URL = getApiBaseUrl();
 
 // Initialize Stripe with better error handling
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;

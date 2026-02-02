@@ -1,6 +1,7 @@
 // Authentication API client for JWT-based authentication
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+import { getApiBaseUrl } from './api-config';
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface AuthUser {
   id: number;
