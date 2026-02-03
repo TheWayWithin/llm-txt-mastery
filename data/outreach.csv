@@ -1,2 +1,2 @@
 id,date,prospect,channel,variant,first_line,site_referenced,status,opened,replied,reply_sentiment,converted,notes
-1,2026-02-03,"Osmo",twitter,A,"Shy Dev (Vulnerability-First)","flowfest2025",sent,,,,,""
+1,2026-02-03,"Osmo",twitter,A,"Shy Dev (Vulnerability-First)","flowfest2025",sent,,yes,positive,,"Really helpful feedback"
