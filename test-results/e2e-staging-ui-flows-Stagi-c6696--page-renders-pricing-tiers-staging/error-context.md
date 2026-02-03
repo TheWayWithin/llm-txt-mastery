@@ -1,0 +1,202 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - link "LLM.txt Mastery" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "LLM.txt Mastery" [ref=e9]
+        - generic [ref=e10]:
+          - paragraph [ref=e11]: Built by Jamie Watters
+          - paragraph [ref=e12]: Solopreneur & Tool Builder
+    - main [ref=e13]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - generic [ref=e18]: Get Found by AI
+            - generic [ref=e19]: Join early adopters making their businesses AI-discoverable
+          - generic [ref=e22]:
+            - text: "Step 1: Choose Your Plan"
+            - 'combobox "Step 1: Choose Your Plan" [ref=e23]':
+              - option "🔍 Starter (Free) - Am I invisible?"
+              - option "🛡️ Solo ($4.95/mo) - Stop losing customers"
+              - option "⚔️ Growth ($9.95/mo) - Dominate AI" [selected]
+              - option "👑 Scale ($19.95/mo) - No limits"
+            - generic [ref=e24]:
+              - generic [ref=e26]:
+                - img [ref=e27]
+                - generic [ref=e29]: GROWTH
+              - paragraph [ref=e30]: 35 monthly analyses, up to 500 pages each
+              - generic [ref=e32]:
+                - paragraph [ref=e33]: ⚔️ Dominate AI recommendations across all your properties
+                - paragraph [ref=e34]: Unlimited analyses • 1,000 pages • Bulk processing • Export to CSV/JSON
+              - generic [ref=e35]:
+                - paragraph [ref=e36]: 🏢 Client using React, Angular, or Vue?
+                - paragraph [ref=e37]: JavaScript sites return empty pages without browser rendering. Scale tier includes full JS rendering — capture every page from modern web apps.
+                - button "→ Upgrade to Scale for $19.95/month" [ref=e38] [cursor=pointer]
+        - generic [ref=e39]:
+          - generic [ref=e41]:
+            - img [ref=e42]
+            - generic [ref=e44]: What You Get with GROWTH
+          - list [ref=e46]:
+            - listitem [ref=e47]:
+              - img [ref=e48]
+              - generic [ref=e50]: Dominate AI recommendations for your entire site
+            - listitem [ref=e51]:
+              - img [ref=e52]
+              - generic [ref=e54]: Analyze multiple properties at once (agencies love this)
+            - listitem [ref=e55]:
+              - img [ref=e56]
+              - generic [ref=e58]: Export data to prove ROI to clients or stakeholders
+            - listitem [ref=e59]:
+              - img [ref=e60]
+              - generic [ref=e62]: Process 1,000 pages — handle sites competitors can't
+            - listitem [ref=e63]:
+              - img [ref=e64]
+              - generic [ref=e66]: Never lose a client because their site was "too big"
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - generic [ref=e69]: 🛡️ Real Reasons to Believe
+            - paragraph [ref=e70]: I benchmark competitor tools monthly and add any features they have
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - img [ref=e73]
+              - generic [ref=e75]:
+                - heading "💰 30-Day Money Back Guarantee" [level=4] [ref=e76]
+                - paragraph [ref=e77]: Don't see results? Get every penny back. No questions asked. No hoops.
+            - generic [ref=e78]:
+              - img [ref=e79]
+              - generic [ref=e81]:
+                - heading "⚡ Cancel in 10 Seconds" [level=4] [ref=e82]
+                - paragraph [ref=e83]: One click. No phone calls. No retention tactics. Just cancel.
+            - generic [ref=e84]:
+              - img [ref=e85]
+              - generic [ref=e88]:
+                - heading "👨‍💻 Built by Solopreneur for Solopreneurs" [level=4] [ref=e89]
+                - paragraph [ref=e90]: Not VC-funded. Real indie maker who understands your business needs.
+            - paragraph [ref=e92]: ✅ 89% see measurable improvement • ✅ Results in 24 hours • ✅ Used by 100+ businesses
+        - generic [ref=e95]:
+          - img [ref=e96]
+          - generic [ref=e99]:
+            - heading "Secure & Private" [level=4] [ref=e100]
+            - paragraph [ref=e101]: Your data is encrypted and never shared. We only analyze public content and generate files you control.
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - generic [ref=e104]: "Step 2: Create Your Account"
+            - generic [ref=e105]: Ready to get found by AI? Enter your details below.
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - generic [ref=e108]:
+                - text: Email Address
+                - generic [ref=e109]:
+                  - img [ref=e110]
+                  - textbox "Email Address" [ref=e113]:
+                    - /placeholder: your@email.com
+              - generic [ref=e115]:
+                - text: Password
+                - generic [ref=e116]:
+                  - img [ref=e117]
+                  - textbox "Password" [ref=e120]:
+                    - /placeholder: Create a secure password
+                  - button "Show password" [ref=e121] [cursor=pointer]:
+                    - img [ref=e122]
+              - generic [ref=e125]:
+                - text: Confirm Password
+                - generic [ref=e126]:
+                  - img [ref=e127]
+                  - textbox "Confirm Password" [ref=e130]:
+                    - /placeholder: Confirm your password
+                  - button "Show password" [ref=e131] [cursor=pointer]:
+                    - img [ref=e132]
+              - generic [ref=e135]:
+                - text: By creating an account, you agree to our
+                - link "Terms of Service" [ref=e136] [cursor=pointer]:
+                  - /url: /terms
+                - text: and
+                - link "Privacy Policy" [ref=e137] [cursor=pointer]:
+                  - /url: /privacy
+              - button "Create Account" [disabled]:
+                - text: Create Account
+                - img
+            - paragraph [ref=e139]:
+              - text: Already have an account?
+              - link "Sign in" [ref=e140] [cursor=pointer]:
+                - /url: /login
+    - contentinfo [ref=e141]:
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - heading "LLM.txt Mastery" [level=5] [ref=e145]
+            - paragraph [ref=e146]: Simple, effective AI visibility tools. Built for builders by someone who refuses to let corporate slowness hold back innovation.
+          - generic [ref=e147]:
+            - heading "Resources" [level=5] [ref=e148]
+            - list [ref=e149]:
+              - listitem [ref=e150]:
+                - link "Documentation" [ref=e151] [cursor=pointer]:
+                  - /url: /docs
+              - listitem [ref=e152]:
+                - link "Best Practices" [ref=e153] [cursor=pointer]:
+                  - /url: /docs#best-practices
+              - listitem [ref=e154]:
+                - link "Pricing" [ref=e155] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e156]:
+                - link "Support" [ref=e157] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e158]:
+            - heading "Legal & Connect" [level=5] [ref=e159]
+            - list [ref=e160]:
+              - listitem [ref=e161]:
+                - link "Privacy Policy" [ref=e162] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e163]:
+                - link "Terms of Service" [ref=e164] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e165]:
+                - link "Cookie Policy" [ref=e166] [cursor=pointer]:
+                  - /url: /cookies
+              - listitem [ref=e167]:
+                - link "Contact" [ref=e168] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e169]:
+            - heading "Other Projects" [level=5] [ref=e170]
+            - list [ref=e171]:
+              - listitem [ref=e172]:
+                - link "AI Search Mastery" [ref=e173] [cursor=pointer]:
+                  - /url: https://www.aisearchmastery.com
+                  - text: AI Search Mastery
+                  - img [ref=e174]
+              - listitem [ref=e178]:
+                - link "AI Impact Scanner" [ref=e179] [cursor=pointer]:
+                  - /url: https://www.aimpactscanner.com
+                  - text: AI Impact Scanner
+                  - img [ref=e180]
+              - listitem [ref=e184]:
+                - link "MASTERY-AI Framework" [ref=e185] [cursor=pointer]:
+                  - /url: https://www.aisearchmastery.com/mastery-ai-framework
+                  - text: MASTERY-AI Framework
+                  - img [ref=e186]
+        - generic [ref=e190]:
+          - paragraph [ref=e191]: © 2026 Jamie Watters. No corporate BS. Just tools that work.
+          - paragraph [ref=e192]: Built with integrity by a solopreneur who ships fast and listens to users.
+          - paragraph [ref=e193]:
+            - link "Built by Jamie Watters" [ref=e194] [cursor=pointer]:
+              - /url: https://jamiewatters.work
+              - text: Built by Jamie Watters
+              - img [ref=e195]
+            - generic [ref=e199]: "|"
+            - link "Powered by AGENT-11" [ref=e200] [cursor=pointer]:
+              - /url: https://agent-11.com
+              - text: Powered by AGENT-11
+              - img [ref=e201]
+            - generic [ref=e205]: "|"
+            - link "More from Evolve-7" [ref=e206] [cursor=pointer]:
+              - /url: https://evolve-7.com
+              - text: More from Evolve-7
+              - img [ref=e207]
+```

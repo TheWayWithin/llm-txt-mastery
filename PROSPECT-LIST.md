@@ -60,21 +60,24 @@ These are active Webflow creators with impressive sites. Agencies = potential mu
 
 ---
 
-## Outreach Script (Webflow-specific)
+## Outreach Script (The Honest Dev Approach)
 
 ```
-Hey [Name]! 
+Hi [Name],
 
-Love your work on [Site Name] - the [specific element] is really well done 👏
+I'm a developer who built something for AI optimization — but I'm painfully shy and honestly terrible at outreach. You clearly know what you're doing here.
 
-Quick question: have you looked into AI search visibility for your Webflow sites? 
+Would you be open to a quick look at llmtxtmastery.com? Less interested in a signup than honest feedback on whether this would even land with someone like you.
 
-ChatGPT and Claude are starting to cite websites directly in their responses, and most Webflow sites are invisible to them (no llms.txt file).
+Any tips on how I could do this outreach better would genuinely be more valuable than a conversion 😅
 
-I built a tool specifically for this - would love to offer you a free analysis of [their-site] to show what AI crawlers currently see.
-
-No pressure, just thought it might be useful for you or your clients!
+— Jamie
 ```
+
+### Personalization Tips:
+- Reference their specific work: "Saw [Site Name] — the [detail] caught my eye"
+- For agencies: "You've clearly helped a lot of clients nail their web presence"
+- For indie makers: "Fellow builder here, learning the distribution side the hard way"
 
 ---
 

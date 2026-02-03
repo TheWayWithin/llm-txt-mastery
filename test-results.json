@@ -14,27 +14,6 @@
       "actualWorkers": 1
     },
     "preserveOutput": "always",
-    "reporter": [
-      [
-        "html",
-        null
-      ],
-      [
-        "list",
-        null
-      ],
-      [
-        "json",
-        {
-          "outputFile": "test-results.json"
-        }
-      ]
-    ],
-    "reportSlowTests": {
-      "max": 5,
-      "threshold": 300000
-    },
-    "quiet": false,
     "projects": [
       {
         "outputDir": "/home/ubuntu/clawd/llm-txt-mastery/test-results",
@@ -85,248 +64,266 @@
         "timeout": 30000
       }
     ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
     "shard": null,
+    "tags": [],
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
-    "version": "1.56.0",
+    "version": "1.58.1",
     "workers": 1,
     "webServer": null
   },
   "suites": [
     {
-      "title": "e2e/api-health.spec.ts",
-      "file": "e2e/api-health.spec.ts",
+      "title": "e2e/staging-comprehensive.spec.ts",
+      "file": "e2e/staging-comprehensive.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Railway Backend API Health Tests",
-          "file": "e2e/api-health.spec.ts",
-          "line": 2,
+          "title": "LLM.txt Mastery Staging - Comprehensive Test Suite",
+          "file": "e2e/staging-comprehensive.spec.ts",
+          "line": 18,
           "column": 6,
-          "specs": [
+          "specs": [],
+          "suites": [
             {
-              "title": "Staging Railway backend responds correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
+              "title": "API-Level Tests",
+              "file": "e2e/staging-comprehensive.spec.ts",
+              "line": 345,
+              "column": 8,
+              "specs": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "staging",
-                  "projectName": "staging",
-                  "results": [
+                  "title": "POST /api/auth/register - create user and verify response",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 923,
-                      "errors": [],
-                      "stdout": [
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "staging",
+                      "projectName": "staging",
+                      "results": [
                         {
-                          "text": "Staging API Version: 2.0.0-enhanced\n"
-                        },
-                        {
-                          "text": "Staging features: [\n  \u001b[32m'blockquoteSummary'\u001b[39m,\n  \u001b[32m'dynamicClustering'\u001b[39m,\n  \u001b[32m'semanticTags'\u001b[39m,\n  \u001b[32m'intelligentSequencing'\u001b[39m,\n  \u001b[32m'enhancedMetadata'\u001b[39m,\n  \u001b[32m'contentQuality'\u001b[39m\n]\n"
-                        },
-                        {
-                          "text": "Staging /api/version: 200\n"
-                        },
-                        {
-                          "text": "Staging /api/health: 404\n"
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 762,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-03T03:09:37.569Z",
+                          "annotations": [],
+                          "attachments": []
                         }
                       ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-02T17:39:34.568Z",
-                      "annotations": [],
-                      "attachments": []
+                      "status": "expected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "26c38eac94dbfd85e77d-ccb06e2e3c53e00ac29d",
-              "file": "e2e/api-health.spec.ts",
-              "line": 5,
-              "column": 3
-            },
-            {
-              "title": "Production Railway backend responds correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "6b6da56bdbfe7cacc30f-2cf5adc39ce427831c17",
+                  "file": "e2e/staging-comprehensive.spec.ts",
+                  "line": 346,
+                  "column": 5
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "staging",
-                  "projectName": "staging",
-                  "results": [
+                  "title": "GET /api/auth/verify-email - verify with valid JWT token",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 368,
-                      "errors": [],
-                      "stdout": [
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "staging",
+                      "projectName": "staging",
+                      "results": [
                         {
-                          "text": "Production API Version: 2.0.0-enhanced\n"
-                        },
-                        {
-                          "text": "Production features: [\n  \u001b[32m'blockquoteSummary'\u001b[39m,\n  \u001b[32m'dynamicClustering'\u001b[39m,\n  \u001b[32m'semanticTags'\u001b[39m,\n  \u001b[32m'intelligentSequencing'\u001b[39m,\n  \u001b[32m'enhancedMetadata'\u001b[39m,\n  \u001b[32m'contentQuality'\u001b[39m\n]\n"
-                        },
-                        {
-                          "text": "Production /api/version: 200\n"
-                        },
-                        {
-                          "text": "Production /api/health: 404\n"
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 462,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /home/ubuntu/clawd/llm-txt-mastery/tests/e2e/staging-comprehensive.spec.ts:392:35",
+                            "location": {
+                              "file": "/home/ubuntu/clawd/llm-txt-mastery/tests/e2e/staging-comprehensive.spec.ts",
+                              "column": 35,
+                              "line": 392
+                            },
+                            "snippet": "  390 |       // Verify email\n  391 |       const verifyResponse = await request.get(`${STAGING_API_URL}/api/auth/verify-email?token=${token}`);\n> 392 |       expect(verifyResponse.ok()).toBeTruthy();\n      |                                   ^\n  393 |       \n  394 |       const data = await verifyResponse.json();\n  395 |       expect(data.success).toBe(true);"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/home/ubuntu/clawd/llm-txt-mastery/tests/e2e/staging-comprehensive.spec.ts",
+                                "column": 35,
+                                "line": 392
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  390 |       // Verify email\n  391 |       const verifyResponse = await request.get(`${STAGING_API_URL}/api/auth/verify-email?token=${token}`);\n> 392 |       expect(verifyResponse.ok()).toBeTruthy();\n      |                                   ^\n  393 |       \n  394 |       const data = await verifyResponse.json();\n  395 |       expect(data.success).toBe(true);\n    at /home/ubuntu/clawd/llm-txt-mastery/tests/e2e/staging-comprehensive.spec.ts:392:35"
+                            }
+                          ],
+                          "stdout": [
+                            {
+                              "text": "\nCleaning up 2 test users...\n"
+                            },
+                            {
+                              "text": "\nCleanup completed.\n\n"
+                            }
+                          ],
+                          "stderr": [
+                            {
+                              "text": "✗ Failed to cleanup user test-staging-starter-1770088177602-v92t6c@llmtxtmastery.com: error: column \"email\" does not exist\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mpg-pool\u001b[24m/index.js:45:11\n\u001b[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)\u001b[39m\n    at \u001b[90mfile:///home/ubuntu/clawd/llm-txt-mastery/\u001b[39mtests/e2e/staging-comprehensive.spec.ts:38:9\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:320:11\n    at TimeoutManager.withRunnable \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/timeoutManager.js:67:14\u001b[90m)\u001b[39m\n    at TestInfoImpl._runWithTimeout \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:318:7\u001b[90m)\u001b[39m\n    at FixtureRunner.resolveParametersAndRunFunction \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/fixtureRunner.js:232:5\u001b[90m)\u001b[39m\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:442:13\n    at TestInfoImpl._runAsStep \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:309:7\u001b[90m)\u001b[39m\n    at WorkerMain._runAllHooksForSuite \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:437:9\u001b[90m)\u001b[39m\n    at WorkerMain._runAfterAllHooksForSuite \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:467:5\u001b[90m)\u001b[39m\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:353:13\n    at TestInfoImpl._runAsStep \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:309:7\u001b[90m)\u001b[39m\n    at WorkerMain._runTest \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:331:5\u001b[90m)\u001b[39m\n    at WorkerMain.runTestGroup \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:196:11\u001b[90m)\u001b[39m\n    at process.<anonymous> \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/common/process.js:72:22\u001b[90m)\u001b[39m {\n  length: \u001b[33m105\u001b[39m,\n  severity: \u001b[32m'ERROR'\u001b[39m,\n  code: \u001b[32m'42703'\u001b[39m,\n  detail: \u001b[90mundefined\u001b[39m,\n  hint: \u001b[90mundefined\u001b[39m,\n  position: \u001b[32m'25'\u001b[39m,\n  internalPosition: \u001b[90mundefined\u001b[39m,\n  internalQuery: \u001b[90mundefined\u001b[39m,\n  where: \u001b[90mundefined\u001b[39m,\n  schema: \u001b[90mundefined\u001b[39m,\n  table: \u001b[90mundefined\u001b[39m,\n  column: \u001b[90mundefined\u001b[39m,\n  dataType: \u001b[90mundefined\u001b[39m,\n  constraint: \u001b[90mundefined\u001b[39m,\n  file: \u001b[32m'parse_relation.c'\u001b[39m,\n  line: \u001b[32m'3716'\u001b[39m,\n  routine: \u001b[32m'errorMissingColumn'\u001b[39m\n}\n"
+                            },
+                            {
+                              "text": "✗ Failed to cleanup user test-staging-starter-1770088178373-epac1w@llmtxtmastery.com: error: column \"email\" does not exist\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mpg-pool\u001b[24m/index.js:45:11\n\u001b[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)\u001b[39m\n    at \u001b[90mfile:///home/ubuntu/clawd/llm-txt-mastery/\u001b[39mtests/e2e/staging-comprehensive.spec.ts:38:9\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:320:11\n    at TimeoutManager.withRunnable \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/timeoutManager.js:67:14\u001b[90m)\u001b[39m\n    at TestInfoImpl._runWithTimeout \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:318:7\u001b[90m)\u001b[39m\n    at FixtureRunner.resolveParametersAndRunFunction \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/fixtureRunner.js:232:5\u001b[90m)\u001b[39m\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:442:13\n    at TestInfoImpl._runAsStep \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:309:7\u001b[90m)\u001b[39m\n    at WorkerMain._runAllHooksForSuite \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:437:9\u001b[90m)\u001b[39m\n    at WorkerMain._runAfterAllHooksForSuite \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:467:5\u001b[90m)\u001b[39m\n    at \u001b[90m/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:353:13\n    at TestInfoImpl._runAsStep \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:309:7\u001b[90m)\u001b[39m\n    at WorkerMain._runTest \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:331:5\u001b[90m)\u001b[39m\n    at WorkerMain.runTestGroup \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:196:11\u001b[90m)\u001b[39m\n    at process.<anonymous> \u001b[90m(/home/ubuntu/clawd/llm-txt-mastery/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/common/process.js:72:22\u001b[90m)\u001b[39m {\n  length: \u001b[33m105\u001b[39m,\n  severity: \u001b[32m'ERROR'\u001b[39m,\n  code: \u001b[32m'42703'\u001b[39m,\n  detail: \u001b[90mundefined\u001b[39m,\n  hint: \u001b[90mundefined\u001b[39m,\n  position: \u001b[32m'25'\u001b[39m,\n  internalPosition: \u001b[90mundefined\u001b[39m,\n  internalQuery: \u001b[90mundefined\u001b[39m,\n  where: \u001b[90mundefined\u001b[39m,\n  schema: \u001b[90mundefined\u001b[39m,\n  table: \u001b[90mundefined\u001b[39m,\n  column: \u001b[90mundefined\u001b[39m,\n  dataType: \u001b[90mundefined\u001b[39m,\n  constraint: \u001b[90mundefined\u001b[39m,\n  file: \u001b[32m'parse_relation.c'\u001b[39m,\n  line: \u001b[32m'3716'\u001b[39m,\n  routine: \u001b[32m'errorMissingColumn'\u001b[39m\n}\n"
+                            }
+                          ],
+                          "retry": 0,
+                          "startTime": "2026-02-03T03:09:38.363Z",
+                          "annotations": [],
+                          "attachments": [],
+                          "errorLocation": {
+                            "file": "/home/ubuntu/clawd/llm-txt-mastery/tests/e2e/staging-comprehensive.spec.ts",
+                            "column": 35,
+                            "line": 392
+                          }
                         }
                       ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-02T17:39:35.800Z",
-                      "annotations": [],
-                      "attachments": []
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "26c38eac94dbfd85e77d-6a336d3aa8a843f17a9c",
-              "file": "e2e/api-health.spec.ts",
-              "line": 37,
-              "column": 3
-            },
-            {
-              "title": "Key API endpoints return expected shapes",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "6b6da56bdbfe7cacc30f-5d6b23f9e59c8702581c",
+                  "file": "e2e/staging-comprehensive.spec.ts",
+                  "line": 371,
+                  "column": 5
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "staging",
-                  "projectName": "staging",
-                  "results": [
+                  "title": "POST /api/auth/login - login with created user",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4090,
-                      "errors": [],
-                      "stdout": [
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "staging",
+                      "projectName": "staging",
+                      "results": [
                         {
-                          "text": "Testing Staging API endpoint shapes...\n"
-                        },
-                        {
-                          "text": "Staging validation endpoint: 200\n"
-                        },
-                        {
-                          "text": "Staging usage endpoint: 200\n"
-                        },
-                        {
-                          "text": "Testing Production API endpoint shapes...\n"
-                        },
-                        {
-                          "text": "Production validation endpoint: 200\n"
-                        },
-                        {
-                          "text": "Production usage endpoint: 200\n"
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-03T03:09:38.887Z",
+                          "annotations": [],
+                          "attachments": []
                         }
                       ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-02T17:39:36.177Z",
-                      "annotations": [],
-                      "attachments": []
+                      "status": "skipped"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "26c38eac94dbfd85e77d-247cb4b5173a94e9b304",
-              "file": "e2e/api-health.spec.ts",
-              "line": 69,
-              "column": 3
-            },
-            {
-              "title": "API CORS headers are properly configured",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "6b6da56bdbfe7cacc30f-463d28afe2b47a00462f",
+                  "file": "e2e/staging-comprehensive.spec.ts",
+                  "line": 399,
+                  "column": 5
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "staging",
-                  "projectName": "staging",
-                  "results": [
+                  "title": "GET /api/auth/me - verify authenticated user profile",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 126,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-02T17:39:40.275Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "26c38eac94dbfd85e77d-9a4d6dd10de0b32a8a30",
-              "file": "e2e/api-health.spec.ts",
-              "line": 113,
-              "column": 3
-            },
-            {
-              "title": "API response times are reasonable",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "staging",
-                  "projectName": "staging",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 119,
-                      "errors": [],
-                      "stdout": [
+                      "expectedStatus": "passed",
+                      "projectId": "staging",
+                      "projectName": "staging",
+                      "results": [
                         {
-                          "text": "Staging API response time: 25ms\n"
-                        },
-                        {
-                          "text": "Production API response time: 24ms\n"
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-03T03:09:38.887Z",
+                          "annotations": [],
+                          "attachments": []
                         }
                       ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-02T17:39:40.409Z",
-                      "annotations": [],
-                      "attachments": []
+                      "status": "skipped"
                     }
                   ],
-                  "status": "expected"
+                  "id": "6b6da56bdbfe7cacc30f-e377f57e48fbd5f490ae",
+                  "file": "e2e/staging-comprehensive.spec.ts",
+                  "line": 437,
+                  "column": 5
+                },
+                {
+                  "title": "POST /api/auth/resend-verification - test resend functionality",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "staging",
+                      "projectName": "staging",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-03T03:09:38.887Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6b6da56bdbfe7cacc30f-cc70e16fb525a263a362",
+                  "file": "e2e/staging-comprehensive.spec.ts",
+                  "line": 470,
+                  "column": 5
                 }
-              ],
-              "id": "26c38eac94dbfd85e77d-49df556d71ffcaca2011",
-              "file": "e2e/api-health.spec.ts",
-              "line": 132,
-              "column": 3
+              ]
             }
           ]
         }
@@ -335,11 +332,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-02T17:39:34.067Z",
-    "duration": 6498.467000000001,
-    "expected": 5,
-    "skipped": 0,
-    "unexpected": 0,
+    "startTime": "2026-02-03T03:09:36.469Z",
+    "duration": 2433.397,
+    "expected": 1,
+    "skipped": 3,
+    "unexpected": 1,
     "flaky": 0
   }
 }
