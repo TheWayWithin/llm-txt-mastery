@@ -332,7 +332,14 @@ const keyStorage = new APIKeyStorage();
 export function initializeKeyTracking(): void {
   console.log('🔐 Initializing API Key Management...');
 
-  // Track OpenAI key if present
+  // Track OpenRouter key if present (preferred for LLM calls)
+  if (process.env.OPENROUTER_API_KEY) {
+    keyStorage.registerKey('openrouter', process.env.OPENROUTER_API_KEY, {
+      model: process.env.LLM_MODEL || 'openai/gpt-4o-mini',
+    });
+  }
+
+  // Track OpenAI key if present (used for embeddings, fallback for LLM)
   if (process.env.OPENAI_API_KEY) {
     keyStorage.registerKey('openai', process.env.OPENAI_API_KEY, {
       model_access: ['gpt-4o', 'gpt-4o-mini', 'text-embedding-3-small'],

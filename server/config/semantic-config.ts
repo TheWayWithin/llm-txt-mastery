@@ -56,7 +56,8 @@ export const semanticConfig: SemanticConfig = {
   },
 
   openai: {
-    model: process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small',
+    // Embeddings still use OpenAI directly (OpenRouter embedding support varies)
+    model: process.env.EMBEDDING_MODEL || process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small',
     dimensions: parseInt(process.env.EMBEDDING_DIMENSIONS || '1536'),
     rateLimitPerMinute: parseInt(process.env.EMBEDDING_RATE_LIMIT_PER_MINUTE || '3000'),
     batchSize: parseInt(process.env.EMBEDDING_BATCH_SIZE || '100'),
