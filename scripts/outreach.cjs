@@ -144,6 +144,65 @@ function showRecent(n = 10) {
   console.log('');
 }
 
+function markReplied(id, sentiment = 'positive', notes = '') {
+  if (!fs.existsSync(CSV_PATH)) {
+    console.log('No outreach data yet.');
+    return;
+  }
+  
+  const content = fs.readFileSync(CSV_PATH, 'utf-8');
+  const lines = content.trim().split('\n');
+  
+  let found = false;
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',');
+    if (cols[0] === String(id)) {
+      cols[9] = 'yes';
+      cols[10] = sentiment;
+      cols[12] = `"${notes}"`;
+      lines[i] = cols.join(',');
+      found = true;
+      break;
+    }
+  }
+  
+  if (found) {
+    fs.writeFileSync(CSV_PATH, lines.join('\n') + '\n');
+    console.log(`✅ Marked #${id} as replied (${sentiment})`);
+  } else {
+    console.log(`❌ Outreach #${id} not found`);
+  }
+}
+
+function markConverted(id, notes = '') {
+  if (!fs.existsSync(CSV_PATH)) {
+    console.log('No outreach data yet.');
+    return;
+  }
+  
+  const content = fs.readFileSync(CSV_PATH, 'utf-8');
+  const lines = content.trim().split('\n');
+  
+  let found = false;
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',');
+    if (cols[0] === String(id)) {
+      cols[11] = 'yes';
+      if (notes) cols[12] = `"${notes}"`;
+      lines[i] = cols.join(',');
+      found = true;
+      break;
+    }
+  }
+  
+  if (found) {
+    fs.writeFileSync(CSV_PATH, lines.join('\n') + '\n');
+    console.log(`🎉 Marked #${id} as converted!`);
+  } else {
+    console.log(`❌ Outreach #${id} not found`);
+  }
+}
+
 // Main
 const args = process.argv.slice(2);
 
@@ -157,20 +216,49 @@ if (args[0] === '--list') {
   process.exit(0);
 }
 
+if (args[0] === '--replied') {
+  const id = args[1];
+  const sentiment = args[2] || 'positive'; // positive, neutral, negative
+  const notes = args.slice(3).join(' ');
+  if (!id) {
+    console.log('Usage: node scripts/outreach.cjs --replied <id> [sentiment] [notes]');
+    process.exit(1);
+  }
+  markReplied(id, sentiment, notes);
+  process.exit(0);
+}
+
+if (args[0] === '--converted') {
+  const id = args[1];
+  const notes = args.slice(2).join(' ');
+  if (!id) {
+    console.log('Usage: node scripts/outreach.cjs --converted <id> [notes]');
+    process.exit(1);
+  }
+  markConverted(id, notes);
+  process.exit(0);
+}
+
 if (args.length < 3) {
   console.log(`
 🚀 Outreach Helper
 
 Usage:
-  node scripts/outreach.js "<name>" "<channel>" "<variant>" ["<their-site>"]
+  node scripts/outreach.cjs "<name>" "<channel>" "<variant>" ["<their-site>"]
 
 Examples:
-  node scripts/outreach.js "John Smith" "twitter" "A"
-  node scripts/outreach.js "Jane Doe" "linkedin" "B" "jane-portfolio.com"
+  node scripts/outreach.cjs "John Smith" "twitter" "A"
+  node scripts/outreach.cjs "Jane Doe" "linkedin" "B" "jane-portfolio.com"
+
+Track responses:
+  node scripts/outreach.cjs --replied <id> [sentiment] [notes]
+  node scripts/outreach.cjs --converted <id> [notes]
 
 Options:
-  --list    Show recent outreach
-  --stats   Show A/B test statistics
+  --list       Show recent outreach
+  --stats      Show A/B test statistics
+  --replied    Mark as replied (sentiment: positive/neutral/negative)
+  --converted  Mark as converted (signed up or paid)
 
 Variants:
   A = Shy Dev (vulnerability-first)
