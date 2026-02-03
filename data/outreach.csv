@@ -1,2 +1,7 @@
-id,date,prospect,channel,variant,first_line,site_referenced,status,opened,replied,reply_sentiment,converted,notes
-1,2026-02-03,"Osmo",twitter,A,"Shy Dev (Vulnerability-First)","flowfest2025",sent,,yes,positive,,"Really helpful feedback"
+id,date,prospect,channel,variant,approach,status,replied,reply_sentiment,converted,notes
+1,2026-02-03,@josephberry88,twitter,A,cold,pending_send,,,,"Ready to DM - 7K followers, Awwwards Jury"
+2,2026-02-03,@arthuryuzbashew,twitter,A,cold,pending_send,,,,"Ready to DM - 5.5K followers, MediaFast $2.8K/mo"
+3,2026-02-03,@codebydennis,twitter,A,cold,pending_send,,,,"Ready to DM - 4.6K followers, Osmo co-founder"
+4,2026-02-03,@papertiger,twitter,B,warm,followed,,,,"Day 1: Followed. NYC agency, 2K followers"
+5,2026-02-03,@studio_kanda,twitter,B,warm,followed,,,,"Day 1: Followed. UK agency, 129 followers"
+6,2026-02-03,@shipahe_ad,twitter,B,warm,followed,,,,"Day 1: Followed. ShipAhead founder, 24 followers"
