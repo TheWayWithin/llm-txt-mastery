@@ -13,19 +13,19 @@ These are active Webflow creators with impressive sites. Agencies = potential mu
 | # | Name | Webflow Handle | Site Example | Notes | Twitter |
 |---|------|---------------|--------------|-------|---------|
 | 1 | Osmo (Dennis + Ilja) | @osmo | osmo.supply | Dev toolkit, award-winning | @osmosupply |
-| 2 | Joseph Berry | @josephberry1988 | JB Studio LDN | Awwwards Jury, 761+ clones | @josephberry88 |
-| 3 | Dennis Snellenberg | @dennissnellenberg | Truus | Co-founder Osmo, 113 likes | @codebydennis |
+| 2 | Joseph Berry | @josephberry1988 | JB Studio LDN | Awwwards Jury, 761+ clones | **@josephberry88** |
+| 3 | Dennis Snellenberg | @dennissnellenberg | Truus | Co-founder Osmo, 113 likes | **@codebydennis** |
 | 4 | Aaron Rudyk | @aaron-rudyk | aaronrudyk.com | Premium Partner, 639 clones | LinkedIn only |
-| 5 | Paper Tiger | @paper-tiger | Dria Ventures | Professional agency | Find |
-| 6 | Daymark | @daymark | Pause | Clean design | Find |
-| 7 | Studio Kanda | @studio-kanda | BUNKR Design | Agency potential | Find |
-| 8 | SKAALD | @skaald | LITHOSQUARE | 37 likes | Find |
-| 9 | greaterthan | @greaterthanstudio | Anthem Creative | Agency | Find |
-| 10 | Tilipman Digital | @tilipman-digital | Bland AI | B2B SaaS client | Find |
-| 11 | Become™ | @becomehq | GSAP Flip Layout | 179 clones | Find |
-| 12 | Dariel Curbelo | @darielcurbelo | talcual.studio | Design studio | Find |
-| 13 | Koysor | @akoysor | Streamtime | 39 likes | Find |
-| -- | Ilja van Eck | (via Osmo) | Co-founder Osmo | Award-winning dev | @iljavaneck |
+| 5 | Paper Tiger | @paper-tiger | papertiger.com | NYC agency, 18+ years | **@papertiger** |
+| 6 | Daymark | @daymark | Pause | Clean design | - |
+| 7 | Studio Kanda | @studio-kanda | kanda.studio | UK agency | **@studio_kanda** |
+| 8 | SKAALD | @skaald | LITHOSQUARE | 37 likes | - |
+| 9 | greaterthan | @greaterthanstudio | Anthem Creative | Agency | - |
+| 10 | Tilipman Digital | @tilipman-digital | tilipmandigital.com | Serbia, AI/Web3 focus | LinkedIn (Kristina) |
+| 11 | Become™ | @becomehq | GSAP Flip Layout | 179 clones | - |
+| 12 | Dariel Curbelo | @darielcurbelo | talcual.studio | Design studio | - |
+| 13 | Koysor | @akoysor | Streamtime | 39 likes | - |
+| -- | Ilja van Eck | (via Osmo) | Co-founder Osmo | Award-winning dev | **@iljavaneck** |
 
 ---
 
