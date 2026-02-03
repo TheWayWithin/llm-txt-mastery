@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 export default function ResetPasswordPage() {
   const [, navigate] = useLocation();
@@ -84,7 +85,7 @@ export default function ResetPasswordPage() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/reset-password`,
+        `${getApiBaseUrl()}/api/auth/reset-password`,
         {
           method: 'POST',
           headers: {
