@@ -329,7 +329,7 @@ export default function Home() {
               <span className="text-slate-300">•</span>
               <div className="flex items-center space-x-1">
                 <span className="text-lg">🚀</span>
-                <span>Used by 5,000+ businesses</span>
+                <span>Just launched — join our founding customers</span>
               </div>
             </div>
 
@@ -1036,16 +1036,16 @@ export default function Home() {
                   <p className="text-xs text-gray-600">See results in 30 days</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center shadow">
-                  <p className="text-2xl font-bold text-innovation-teal">94%</p>
-                  <p className="text-xs text-gray-600">Customer retention rate</p>
+                  <p className="text-2xl font-bold text-innovation-teal">🚀</p>
+                  <p className="text-xs text-gray-600">Early access pricing</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center shadow">
-                  <p className="text-2xl font-bold text-innovation-teal">5,000+</p>
-                  <p className="text-xs text-gray-600">Businesses optimized</p>
+                  <p className="text-2xl font-bold text-innovation-teal">🤝</p>
+                  <p className="text-xs text-gray-600">Founding customer perks</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center shadow">
-                  <p className="text-2xl font-bold text-innovation-teal">99.97%</p>
-                  <p className="text-xs text-gray-600">Platform uptime</p>
+                  <p className="text-2xl font-bold text-innovation-teal">💬</p>
+                  <p className="text-xs text-gray-600">Direct founder access</p>
                 </div>
               </div>
 
