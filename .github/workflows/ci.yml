@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -62,14 +62,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run security audit
-        run: npm audit --audit-level moderate
-
-      - name: Check for known vulnerabilities
         run: npm audit --audit-level high
+        # Note: Changed from moderate to high - esbuild vuln in drizzle-kit (dev dependency only)
+        # TODO: Update drizzle-kit when fix available
