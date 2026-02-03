@@ -117,6 +117,27 @@ Found from IH Build Board - these are active builders with custom sites (perfect
 
 ---
 
+## LinkedIn Prospects (Higher Engagement Platform)
+
+Jamie gets 10x more views on LinkedIn. These are Webflow agency founders active on LinkedIn.
+
+| # | Name | Company | LinkedIn | Notes |
+|---|------|---------|----------|-------|
+| 19 | Orlando Osorio | Meaningful (Growth + Webflow) | linkedin.com/in/orlandoosorio | Growth + SEO focus, Mexico City |
+| 20 | Crystal Scott | Graceful Web Studio | linkedin.com/in/crystal-scott-cpwa-3b1875199 | Webflow agency founder |
+| 21 | Payton Clark Smith | Pait Digital | linkedin.com/in/paytonclarksmith | 5+ years Webflow, well-reviewed |
+| 22 | Jacob Sussman | BX Studio | linkedin.com/in/sussmanjacob | Ongoing Optimization focus |
+| 23 | Benedict Ryan | FlowRonin | linkedin.com/in/benedict-ryan | Webflow Professional Partner |
+| 24 | Aaron Rudyk | aaronrudyk.com | linkedin.com/in/aaronrudyk | Premium Partner (also in Webflow list) |
+| 25 | Kristina Tilipman | Tilipman Digital | linkedin.com/in/kristina-uskova | AI/Web3/EdTech focus (also in Webflow list) |
+
+### LinkedIn Outreach Approach:
+1. Connect with personalized note
+2. Engage with their content (like/comment)
+3. After they accept, send DM
+
+---
+
 ## Tracking
 
 | Prospect | Contacted | Response | Free Analysis | Converted | Notes |
