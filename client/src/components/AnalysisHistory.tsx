@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -113,7 +114,7 @@ export function AnalysisHistory() {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/my-analyses`,
+        `${getApiBaseUrl()}/api/auth/my-analyses`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

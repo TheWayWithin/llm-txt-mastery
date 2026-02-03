@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, Loader2, AlertTriangle, XCircle } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RefundEligibility {
@@ -84,7 +85,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
       }
 
       const apiUrl =
-        import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+        getApiBaseUrl();
       const response = await fetch(`${apiUrl}/api/cancel`, {
         method: 'POST',
         headers: {

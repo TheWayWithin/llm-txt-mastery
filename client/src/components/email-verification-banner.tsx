@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Mail, Loader2, CheckCircle2, X } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { toast } from 'sonner';
 
 interface EmailVerificationBannerProps {
@@ -69,7 +70,7 @@ export default function EmailVerificationBanner({
     try {
       const token = sessionStorage.getItem('auth_access_token');
       const apiUrl =
-        import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app';
+        getApiBaseUrl();
       const response = await fetch(`${apiUrl}/api/auth/resend-verification`, {
         method: 'POST',
         headers: {

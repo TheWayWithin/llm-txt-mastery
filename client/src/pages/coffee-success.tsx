@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Coffee, UserCheck } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/auth-api';
@@ -36,7 +37,7 @@ export default function CoffeeSuccess() {
 
         // Try to get account by email (we'll add this endpoint)
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/check-account`,
+          `${getApiBaseUrl()}/api/auth/check-account`,
           {
             method: 'POST',
             headers: {
@@ -53,7 +54,7 @@ export default function CoffeeSuccess() {
             // Account exists, create a temporary login session for the coffee purchase
             // This is safe because we know they just completed payment
             const tempLoginResponse = await fetch(
-              `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/coffee-login`,
+              `${getApiBaseUrl()}/api/auth/coffee-login`,
               {
                 method: 'POST',
                 headers: {

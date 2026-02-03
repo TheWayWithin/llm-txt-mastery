@@ -5,6 +5,7 @@ import { useFlowStateMachine } from '@/hooks/useFlowStateMachine';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Loader2, Mail } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function VerifyEmailPage() {
@@ -34,7 +35,7 @@ export default function VerifyEmailPage() {
   const verifyEmail = async (token: string) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'https://llm-txt-mastery-production.up.railway.app'}/api/auth/verify-email?token=${token}`,
+        `${getApiBaseUrl()}/api/auth/verify-email?token=${token}`,
         {
           method: 'GET',
           headers: {
