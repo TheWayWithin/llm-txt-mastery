@@ -8,7 +8,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // Email configuration
 const EMAIL_FROM = process.env.EMAIL_FROM || 'LLM.txt Mastery <noreply@llmtxtmastery.com>';
 const FRONTEND_URL =
-  process.env.NODE_ENV === 'production' ? 'https://llmtxtmastery.com' : 'http://localhost:5000';
+  process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://llmtxtmastery.com' : 'http://localhost:5000');
 
 // Generate verification token
 export function generateVerificationToken(userId: number, email: string): string {
