@@ -794,6 +794,7 @@ router.get('/verify-email', async (req, res) => {
     res.status(500).json({
       error: 'Email verification failed',
       code: 'VERIFICATION_ERROR',
+      debug: error instanceof Error ? { message: error.message, stack: error.stack?.split('\n').slice(0, 5) } : String(error),
     });
   }
 });
