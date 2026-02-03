@@ -81,16 +81,36 @@ Any tips on how I could do this outreach better would genuinely be more valuable
 
 ---
 
+## Indie Hackers Founders (Custom Sites)
+
+Found from IH Build Board - these are active builders with custom sites (perfect ICP).
+
+| # | Name | Product | Website | Twitter | Revenue | Notes |
+|---|------|---------|---------|---------|---------|-------|
+| 14 | ATHENA | AVENIR | avenir.reym.tech | Find | $0 | Founder directory, vocal about validation |
+| 15 | MaryfromVertex | Fabrik | getfabrik.ai | @getfabrik | $0 | AI memory/context layer for apps |
+| 16 | Arthur | MediaFast | redditfa.com | @arthuryuzbashew | $2.8K/mo | Reddit marketing tool |
+| 17 | redchecker.io | redchecker | redchecker.io | Find | $0 | Reddit post analyzer |
+| 18 | Tom Han | ShipAhead | shipahe.ad | @shipahe_ad | $0 | SaaS boilerplate |
+
+### Why These Are Good Prospects:
+- Custom/native sites (full control over root files)
+- Active builders who understand distribution challenges
+- Tech-savvy, will "get" AI search optimization quickly
+- Already building in public → social proof potential
+
+---
+
 ## Additional Prospect Sources
 
 ### To Research Next:
+- [x] Indie Hackers Build Board ✅ (done 2026-02-03)
 - [ ] Webflow Forum active users (SEO discussions)
 - [ ] Twitter #webflow hashtag
 - [ ] Product Hunt Webflow-related launches
-- [ ] Indie Hackers members with Webflow sites
 
 ### Custom/Native Site Founders (Need separate research):
-- [ ] Indie Hackers "launched" filter
+- [x] Indie Hackers "launched" filter ✅ (done 2026-02-03)
 - [ ] #buildinpublic recent launches
 - [ ] Product Hunt SaaS launches (check tech stack)
 
