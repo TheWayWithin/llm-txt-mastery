@@ -101,22 +101,31 @@ function validateOpenAISecurity(): SecurityValidationResult {
     criticalErrors: []
   };
 
+  const openrouterApiKey = process.env.OPENROUTER_API_KEY;
   const openaiApiKey = process.env.OPENAI_API_KEY;
   const nodeEnv = process.env.NODE_ENV;
 
-  if (!openaiApiKey) {
+  // Check for LLM API key (OpenRouter preferred, OpenAI fallback)
+  if (!openrouterApiKey && !openaiApiKey) {
     if (nodeEnv === 'production') {
-      result.errors.push('ERROR: OPENAI_API_KEY is missing in production');
+      result.errors.push('ERROR: No LLM API key (OPENROUTER_API_KEY or OPENAI_API_KEY) in production');
     } else {
-      result.warnings.push('WARNING: OPENAI_API_KEY is missing (AI features will be disabled)');
+      result.warnings.push('WARNING: No LLM API key set (AI features will be disabled)');
     }
-  } else {
-    // Validate API key format
+  } else if (openrouterApiKey) {
+    // Validate OpenRouter key format
+    if (!openrouterApiKey.startsWith('sk-or-')) {
+      result.warnings.push('WARNING: OPENROUTER_API_KEY may not be valid (expected "sk-or-" prefix)');
+    }
+    console.log('✅ Using OpenRouter for LLM calls');
+  } else if (openaiApiKey) {
+    // Validate OpenAI key format (fallback)
     if (!openaiApiKey.startsWith('sk-')) {
       result.errors.push('ERROR: OPENAI_API_KEY does not appear to be valid (should start with "sk-")');
     } else if (openaiApiKey.length < 40) {
       result.errors.push(`ERROR: OPENAI_API_KEY appears too short (${openaiApiKey.length} chars)`);
     }
+    console.log('⚠️ Using OpenAI directly (consider switching to OpenRouter)');
 
     // Check for test/development keys in production
     if (nodeEnv === 'production' && (

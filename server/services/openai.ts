@@ -1,15 +1,28 @@
 import OpenAI from 'openai';
 import * as cheerio from 'cheerio';
 
-// Initialize OpenAI client - only if API key is available
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR;
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
+// Initialize LLM client via OpenRouter (OpenAI-compatible)
+// Supports any model available on OpenRouter - configure via LLM_MODEL env var
+const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+const llmModel = process.env.LLM_MODEL || 'openai/gpt-4o-mini';
 
-// Log OpenAI initialization status at module load
-console.log('🔑 OpenAI Service Initialization:');
-console.log('  - OPENAI_API_KEY: ' + (apiKey ? apiKey.substring(0, 10) + '...' : 'NOT SET'));
-console.log('  - OpenAI client: ' + (openai ? 'initialized' : 'not initialized (no API key)'));
+// Use OpenRouter if OPENROUTER_API_KEY is set, otherwise fall back to direct OpenAI
+const isOpenRouter = !!process.env.OPENROUTER_API_KEY;
+const openai = apiKey ? new OpenAI({ 
+  apiKey,
+  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+  defaultHeaders: isOpenRouter ? {
+    'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
+    'X-Title': 'LLM.txt Mastery'
+  } : undefined
+}) : null;
+
+// Log LLM initialization status at module load
+console.log('🔑 LLM Service Initialization:');
+console.log('  - Provider: ' + (isOpenRouter ? 'OpenRouter' : 'OpenAI Direct'));
+console.log('  - API Key: ' + (apiKey ? apiKey.substring(0, 10) + '...' : 'NOT SET'));
+console.log('  - Model: ' + llmModel);
+console.log('  - Client: ' + (openai ? 'initialized' : 'not initialized (no API key)'));
 
 export interface ContentAnalysisResult {
   title: string;
@@ -251,9 +264,9 @@ Provide a JSON response with:
 
 Focus on technical accuracy, information density, and AI utility.`;
 
-    console.log(`[AI ANALYSIS] Calling OpenAI API for ${url}`);
+    console.log(`[AI ANALYSIS] Calling LLM API (${llmModel}) for ${url}`);
     const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini', // Using gpt-4o-mini for 93% cost savings with similar quality
+      model: llmModel, // Configured via LLM_MODEL env var
       messages: [
         {
           role: 'system',

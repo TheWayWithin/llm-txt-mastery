@@ -51,22 +51,31 @@ export const OPENAI_MODELS = {
   },
 };
 
-// Get model from environment or use recommended default
-const DEFAULT_MODEL = 'gpt-4o-mini'; // Changed from gpt-4o for cost efficiency
-const selectedModel = process.env.OPENAI_MODEL || DEFAULT_MODEL;
+// Get model from environment - no hardcoded fallback
+const selectedModel = process.env.LLM_MODEL || process.env.OPENAI_MODEL || 'openai/gpt-4o-mini';
 
-// Initialize OpenAI client
-const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR;
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
+// Initialize LLM client via OpenRouter (OpenAI-compatible)
+const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+const isOpenRouter = !!process.env.OPENROUTER_API_KEY;
+const openai = apiKey ? new OpenAI({ 
+  apiKey,
+  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+  defaultHeaders: isOpenRouter ? {
+    'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
+    'X-Title': 'LLM.txt Mastery'
+  } : undefined
+}) : null;
 
 // Log configuration at startup
-console.log('🤖 OpenAI Service Configuration:');
+console.log('🤖 LLM Service Configuration (Enhanced):');
+console.log(`  - Provider: ${isOpenRouter ? 'OpenRouter' : 'OpenAI Direct'}`);
 console.log(`  - API Key: ${apiKey ? 'Configured' : 'NOT SET'}`);
 console.log(`  - Model: ${selectedModel}`);
-if (OPENAI_MODELS[selectedModel]) {
-  const model = OPENAI_MODELS[selectedModel];
-  console.log(`  - Pricing: $${model.pricing.input}/1M input, $${model.pricing.output}/1M output`);
-  console.log(`  - Recommended: ${model.recommended ? '✅ YES' : '❌ NO'}`);
+// Note: Pricing info from OPENAI_MODELS is for reference only - actual pricing via OpenRouter may differ
+const modelKey = selectedModel.replace('openai/', '');
+if (OPENAI_MODELS[modelKey]) {
+  const model = OPENAI_MODELS[modelKey];
+  console.log(`  - Est. Pricing: $${model.pricing.input}/1M input, $${model.pricing.output}/1M output`);
 }
 
 export interface ContentAnalysisResult {
@@ -289,7 +298,9 @@ export function estimateBatchCost(
 } {
   const avgTokensPerPage = { input: 400, output: 100 }; // Based on testing
 
-  const modelPricing = OPENAI_MODELS[model]?.pricing || OPENAI_MODELS[DEFAULT_MODEL].pricing;
+  // Get pricing info - strip openai/ prefix for lookup, fall back to gpt-4o-mini pricing
+  const modelKey = model.replace('openai/', '');
+  const modelPricing = OPENAI_MODELS[modelKey]?.pricing || OPENAI_MODELS['gpt-4o-mini'].pricing;
 
   const inputCost = ((pageCount * avgTokensPerPage.input) / 1_000_000) * modelPricing.input;
   const outputCost = ((pageCount * avgTokensPerPage.output) / 1_000_000) * modelPricing.output;
