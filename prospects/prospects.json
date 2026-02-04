@@ -1,0 +1,301 @@
+{
+  "meta": {
+    "lastScanAt": "2026-02-04T15:50:00Z",
+    "totalProspects": 10,
+    "version": 1
+  },
+  "prospects": [
+    {
+      "id": "osmo",
+      "name": "Osmo (Dennis + Ilja)",
+      "url": "https://osmo.supply",
+      "tier": 2,
+      "channels": {
+        "twitter": "@osmosupply",
+        "website": "https://osmo.supply"
+      },
+      "notes": "Dev toolkit, award-winning Webflow studio. Very active on X, high engagement.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "no-file",
+        "llmsTxtFound": false,
+        "paths_checked": ["/llms.txt", "/.well-known/llms.txt", "/llms-full.txt", "/llms.md"],
+        "details": "No llms.txt file found at any standard path"
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "no-file",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "paper-tiger",
+      "name": "Paper Tiger",
+      "url": "https://papertiger.com",
+      "tier": 1,
+      "channels": {
+        "twitter": "@papertiger",
+        "website": "https://papertiger.com"
+      },
+      "notes": "NYC agency, 18+ years. Multi-site potential (Growth/Scale tier).",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "decent",
+        "llmsTxtFound": true,
+        "path": "/llms.txt",
+        "wordCount": 272,
+        "lineCount": 48,
+        "urlCount": 2,
+        "hasH1": false,
+        "preview": "site: https://www.papertiger.com brand: Paper Tiger mission: Strategic design partner helping brands win new customers...",
+        "issues": ["Missing H1 header (# Title)", "Only 2 URLs linked", "Could add more structured sections"],
+        "details": "Decent file but missing spec-required H1 header and light on linked resources"
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "decent",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "studio-kanda",
+      "name": "Studio Kanda",
+      "url": "https://kanda.studio",
+      "tier": 1,
+      "channels": {
+        "twitter": "@studio_kanda",
+        "website": "https://kanda.studio"
+      },
+      "notes": "UK agency. Multi-site potential.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "no-file",
+        "llmsTxtFound": false,
+        "paths_checked": ["/llms.txt", "/.well-known/llms.txt", "/llms-full.txt", "/llms.md"],
+        "details": "No llms.txt file found at any standard path"
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "no-file",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "joseph-berry",
+      "name": "Joseph Berry / JB Studio",
+      "url": "https://jbstudio.com",
+      "tier": 2,
+      "channels": {
+        "twitter": "@josephberry88",
+        "website": "https://jbstudio.com"
+      },
+      "notes": "Awwwards Jury, 761+ clones. High social proof potential.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "no-file",
+        "llmsTxtFound": false,
+        "paths_checked": ["/llms.txt", "/.well-known/llms.txt", "/llms-full.txt", "/llms.md"],
+        "details": "No llms.txt file found at any standard path"
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "no-file",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "aaron-rudyk",
+      "name": "Aaron Rudyk",
+      "url": "https://aaronrudyk.com",
+      "tier": 2,
+      "channels": {
+        "twitter": null,
+        "linkedin": "Aaron Rudyk",
+        "website": "https://aaronrudyk.com"
+      },
+      "notes": "Premium Partner, 639 clones. LinkedIn only for outreach.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "no-file",
+        "llmsTxtFound": false,
+        "paths_checked": ["/llms.txt", "/.well-known/llms.txt", "/llms-full.txt", "/llms.md"],
+        "details": "No llms.txt file found at any standard path"
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "no-file",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "tilipman-digital",
+      "name": "Tilipman Digital",
+      "url": "https://tilipmandigital.com",
+      "tier": 1,
+      "channels": {
+        "twitter": null,
+        "linkedin": "Kristina (Tilipman Digital)",
+        "website": "https://tilipmandigital.com"
+      },
+      "notes": "Serbia-based, AI/Web3 focus. Has existing llms.txt but auto-generated.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "auto-generated",
+        "llmsTxtFound": true,
+        "path": "/llms.txt",
+        "wordCount": 195365,
+        "lineCount": 13841,
+        "urlCount": 326,
+        "hasH1": true,
+        "preview": "# LLM.txt - Website Content Structure # Generated: 2025-09-03...",
+        "issues": ["Massively over-sized (195K words)", "Auto-generated dump — no curation", "AI models will likely truncate or ignore this", "No clear structure or priority signals"],
+        "details": "Has a file but it's a 195K-word auto-generated content dump. Too noisy for AI to use effectively."
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "auto-generated",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "become",
+      "name": "Become™",
+      "url": "https://becomehq.com",
+      "tier": 1,
+      "channels": {
+        "twitter": null,
+        "website": "https://becomehq.com"
+      },
+      "notes": "GSAP Flip Layout, 179 clones.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "broken",
+        "llmsTxtFound": true,
+        "path": "/llms.txt",
+        "wordCount": 5,
+        "lineCount": 1,
+        "urlCount": 0,
+        "hasH1": false,
+        "preview": "User-agent: *\\nAllow: /\\nDisallow-Training: /\\nSitemap: /sitemap.xml",
+        "issues": ["File contains robots.txt content, not llms.txt", "Only 5 words", "No llms.txt spec compliance at all"],
+        "details": "Has /llms.txt but it's actually robots.txt content pasted into the wrong file. Completely non-functional."
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "broken",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "dennis-snellenberg",
+      "name": "Dennis Snellenberg",
+      "url": "https://dennissnellenberg.com",
+      "tier": 2,
+      "channels": {
+        "twitter": "@codebydennis",
+        "website": "https://dennissnellenberg.com"
+      },
+      "notes": "Co-founder Osmo. Influential in Webflow community.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "no-file",
+        "llmsTxtFound": false,
+        "paths_checked": ["/llms.txt", "/.well-known/llms.txt", "/llms-full.txt", "/llms.md"],
+        "details": "No llms.txt file found at any standard path"
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "no-file",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "streamtime",
+      "name": "Streamtime / Never Not Creative (Koysor)",
+      "url": "https://streamtime.net",
+      "tier": 3,
+      "channels": {
+        "twitter": null,
+        "website": "https://streamtime.net"
+      },
+      "notes": "Has llms.txt but content is from 'Never Not Creative', not Streamtime itself.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "broken",
+        "llmsTxtFound": true,
+        "path": "/llms.txt",
+        "wordCount": 751,
+        "lineCount": 93,
+        "urlCount": 1,
+        "hasH1": true,
+        "preview": "# Never Not Creative > A community supporting creatives across the globe...",
+        "issues": ["Content describes 'Never Not Creative', not Streamtime", "Appears to be copied from wrong site", "Only 1 URL linked"],
+        "details": "File exists but contains content for a completely different organization. Wrong content."
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "broken",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    },
+    {
+      "id": "anthem-creative",
+      "name": "Anthem Creative (greaterthan)",
+      "url": "https://anthemcreative.com",
+      "tier": 1,
+      "channels": {
+        "twitter": null,
+        "website": "https://anthemcreative.com"
+      },
+      "notes": "Agency. Has /llms.txt but serving HTML instead of text.",
+      "scan": {
+        "scannedAt": "2026-02-04T15:50:00Z",
+        "bucket": "broken",
+        "llmsTxtFound": true,
+        "path": "/llms.txt",
+        "wordCount": 3960,
+        "lineCount": 973,
+        "urlCount": 92,
+        "hasH1": false,
+        "preview": "<!DOCTYPE html> <html lang=\"en\"> <head>...",
+        "issues": ["Serving HTML page instead of text/plain", "AI models cannot parse this as llms.txt", "Likely a catch-all redirect to homepage"],
+        "details": "Has /llms.txt URL but it serves the HTML homepage instead of a text file. Completely broken for AI."
+      },
+      "outreach": {
+        "status": "scanned",
+        "pitch": "broken",
+        "channel": null,
+        "sentAt": null,
+        "repliedAt": null,
+        "notes": null
+      }
+    }
+  ]
+}
