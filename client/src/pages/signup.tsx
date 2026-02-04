@@ -606,7 +606,7 @@ export default function SignupPage() {
 
                 <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
                   <p className="text-center text-sm font-bold text-green-800">
-                    ✅ 89% see measurable improvement • ✅ Results in 24 hours • ✅ Used by 100+ businesses
+                    ✅ AI-ready in under 5 minutes • ✅ 30-day money-back guarantee • ✅ Built by a solo dev, for solo devs
                   </p>
                 </div>
               </CardContent>

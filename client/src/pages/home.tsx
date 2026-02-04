@@ -319,7 +319,7 @@ export default function Home() {
             <div className="flex items-center justify-center space-x-2 text-sm text-ai-silver mt-4">
               <div className="flex items-center space-x-1">
                 <span className="text-lg">✅</span>
-                <span>89% see results in 30 days</span>
+                <span>AI-ready in under 5 minutes</span>
               </div>
               <span className="text-slate-300">•</span>
               <div className="flex items-center space-x-1">
@@ -1005,35 +1005,35 @@ export default function Home() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-3xl font-bold text-green-600">326%</p>
-                    <p className="text-sm text-gray-600">Increase in AI-driven traffic</p>
-                    <p className="text-xs text-gray-500 mt-1">in 90 days</p>
+                    <p className="text-3xl font-bold text-green-600">147</p>
+                    <p className="text-sm text-gray-600">AI-optimized pages generated</p>
+                    <p className="text-xs text-gray-500 mt-1">from one analysis</p>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-3xl font-bold text-blue-600">73%</p>
-                    <p className="text-sm text-gray-600">More AI citations</p>
-                    <p className="text-xs text-gray-500 mt-1">across all platforms</p>
+                    <p className="text-3xl font-bold text-blue-600">5 min</p>
+                    <p className="text-sm text-gray-600">Setup to AI-ready</p>
+                    <p className="text-xs text-gray-500 mt-1">no technical skills needed</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-3xl font-bold text-purple-600">24hrs</p>
-                    <p className="text-sm text-gray-600">To first AI citation</p>
-                    <p className="text-xs text-gray-500 mt-1">after implementation</p>
+                    <p className="text-3xl font-bold text-purple-600">$0</p>
+                    <p className="text-sm text-gray-600">To analyze your site</p>
+                    <p className="text-xs text-gray-500 mt-1">free tier available</p>
                   </div>
                 </div>
 
                 <blockquote className="border-l-4 border-innovation-teal pl-4 italic text-gray-700 mb-4">
-                  "We were invisible to AI search before. Now ChatGPT and Claude regularly cite our
-                  calculators. The ROI was immediate – we saw results within 24 hours of
-                  implementing the llms.txt file."
+                  "I built this because my own sites were invisible to AI search. FreecalcHub had
+                  147 pages of calculators that ChatGPT and Claude couldn't find. Now they can.
+                  I'm building this tool so other solo devs don't have to figure it out the hard way."
                 </blockquote>
-                <p className="text-sm text-gray-600">— Jamie Watters, builder of FreeCalcHub</p>
+                <p className="text-sm text-gray-600">— Jamie Watters, solo founder</p>
               </div>
 
               {/* Success Metrics Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
                 <div className="bg-white rounded-lg p-4 text-center shadow">
-                  <p className="text-2xl font-bold text-innovation-teal">89%</p>
-                  <p className="text-xs text-gray-600">See results in 30 days</p>
+                  <p className="text-2xl font-bold text-innovation-teal">⚡</p>
+                  <p className="text-xs text-gray-600">AI-ready in minutes</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center shadow">
                   <p className="text-2xl font-bold text-innovation-teal">🚀</p>
