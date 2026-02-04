@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:${{ env.POSTGRES_VERSION }}
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
@@ -76,7 +76,7 @@ jobs:
           - 5432:5432
 
       redis:
-        image: redis:${{ env.REDIS_VERSION }}
+        image: redis:7
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -160,7 +160,7 @@ jobs:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     services:
       postgres:
-        image: postgres:${{ env.POSTGRES_VERSION }}
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
@@ -173,7 +173,7 @@ jobs:
           - 5432:5432
 
       redis:
-        image: redis:${{ env.REDIS_VERSION }}
+        image: redis:7
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -261,7 +261,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:${{ env.POSTGRES_VERSION }}
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
@@ -274,7 +274,7 @@ jobs:
           - 5432:5432
 
       redis:
-        image: redis:${{ env.REDIS_VERSION }}
+        image: redis:7
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -341,7 +341,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       redis:
-        image: redis:${{ env.REDIS_VERSION }}
+        image: redis:7
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
