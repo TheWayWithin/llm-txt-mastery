@@ -153,11 +153,11 @@ Jamie gets 10x more views on LinkedIn. These are Webflow agency founders active 
 
 | # | Name | Webflow Handle | Site Example | Notes | Twitter |
 |---|------|---------------|--------------|-------|---------|
-| 26 | Flow Ninja | @flow-ninja | flow.ninja | Largest Webflow-exclusive agency, 50+ team, Enterprise Partner | @FlowNinjaHQ |
+| 26 | Flow Ninja | @flow-ninja | flow.ninja | Largest Webflow-exclusive agency, 50+ team, Enterprise Partner | @FlowNinjaStudio |
 | 27 | SVZ Design | @svz | svz.io | 10+ years experience, enterprise security, Rube Goldberg concept | @svzdesign |
-| 28 | Hedrick | @hedrick | hedrick.com | Webflow Enterprise Partner, 5+ years, high-performance sites | **@hedrick_agency** |
+| 28 | Hedrick | @hedrick | hedrick.com | Webflow Enterprise Partner, 5+ years, high-performance sites | **@hedrickagency** |
 | 29 | Digidop | @digidop | digidop.com | Paris-based, Award-winning, Webflow Partner since 2021 | **@digidop_agency** |
-| 30 | Refokus | @refokus | refokus.com | Award-winning creative, UX research-driven, data testing | **@refokus_com** |
+| 30 | Refokus | @refokus | refokus.com | Award-winning creative, UX research-driven, data testing | **@enfocused** |
 | 31 | Shadow Digital | - | shadowdigital.cc | Visual/interactive experts, cutting-edge animation | **@shadowdigitalcc** |
 | 32 | OffBrand | @offbrand | itsoffbrand.com | Creative/unconventional approach, boundary-pushing design | **@itsoffbrand** |
 | 33 | Veza Digital | @veza | vezadigital.com | B2B SaaS focus, Series A-D clients, data-driven approach | **@vezadigital** |
