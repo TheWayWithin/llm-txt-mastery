@@ -13,6 +13,7 @@
  * - Error handling and recovery
  */
 
+import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -185,7 +186,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
   });
 
   describe('Authentication Requirements', () => {
-    it('redirects to login when user is not authenticated', () => {
+    it('redirects to signup when user is not authenticated', () => {
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           authResolved: true,
@@ -196,10 +197,10 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/login');
+      expect(mockNavigate).toHaveBeenCalledWith('/signup');
     });
 
-    it('redirects to login with URL parameter when URL is provided', () => {
+    it('redirects to signup with URL parameter when URL is provided', () => {
       // Mock URL parameter
       Object.defineProperty(window, 'location', {
         value: { search: '?websiteUrl=https://example.com' },
@@ -216,7 +217,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/login?websiteUrl=https%3A//example.com');
+      expect(mockNavigate).toHaveBeenCalledWith('/signup?websiteUrl=https%3A//example.com');
     });
 
     it('does not redirect when user is authenticated', () => {

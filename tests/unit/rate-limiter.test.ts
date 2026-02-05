@@ -87,18 +87,18 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '3');
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '2');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '50');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
       expect(statusSpy).not.toHaveBeenCalled();
     });
 
-    it('should allow up to 3 requests within 24 hours', async () => {
+    it('should allow up to 50 requests within 24 hours', async () => {
       const existingRecord = {
         id: 1,
         identifier: '192.168.1.1',
         identifierType: 'ip',
         endpoint: '/api/validate-llms-txt',
-        requestCount: 2,
+        requestCount: 49,
         windowStart: new Date(Date.now() - 3600000), // 1 hour ago
         windowEnd: new Date(Date.now() + 86400000), // 24 hours from start
       };
@@ -127,13 +127,13 @@ describe('Rate Limiter Middleware', () => {
       expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '0');
     });
 
-    it('should block 4th request within 24 hours', async () => {
+    it('should block 51st request within 24 hours', async () => {
       const existingRecord = {
         id: 1,
         identifier: '192.168.1.1',
         identifierType: 'ip',
         endpoint: '/api/validate-llms-txt',
-        requestCount: 3,
+        requestCount: 50,
         windowStart: new Date(Date.now() - 3600000),
         windowEnd: new Date(Date.now() + 86400000),
       };
@@ -166,7 +166,7 @@ describe('Rate Limiter Middleware', () => {
   });
 
   describe('Authenticated User Rate Limiting', () => {
-    it('should allow starter tier user within limit (5/month)', async () => {
+    it('should allow starter tier user within limit (50/month)', async () => {
       mockReq.user = {
         id: 123,
         email: 'test@example.com',
@@ -193,11 +193,11 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '5');
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '4');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '50');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
     });
 
-    it('should allow coffee (solo) tier user within limit (20/month)', async () => {
+    it('should allow coffee (solo) tier user within limit (100/month)', async () => {
       mockReq.user = {
         id: 456,
         email: 'solo@example.com',
@@ -224,8 +224,8 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '20');
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '19');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '100');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '99');
     });
 
     it('should block coffee tier user at limit', async () => {
@@ -241,7 +241,7 @@ describe('Rate Limiter Middleware', () => {
         identifier: '456',
         identifierType: 'user',
         endpoint: '/api/validate-llms-txt',
-        requestCount: 20,
+        requestCount: 100,
         windowStart: new Date(Date.now() - 86400000),
         windowEnd: new Date(Date.now() + 30 * 86400000),
       };
@@ -270,7 +270,7 @@ describe('Rate Limiter Middleware', () => {
       );
     });
 
-    it('should allow growth tier user within limit (35/month)', async () => {
+    it('should allow growth tier user within limit (200/month)', async () => {
       mockReq.user = {
         id: 789,
         email: 'growth@example.com',
@@ -297,10 +297,10 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '35');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '200');
     });
 
-    it('should allow scale tier user within limit (100/month)', async () => {
+    it('should allow scale tier user within limit (500/month)', async () => {
       mockReq.user = {
         id: 999,
         email: 'scale@example.com',
@@ -327,7 +327,7 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '100');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '500');
     });
   });
 
@@ -362,7 +362,7 @@ describe('Rate Limiter Middleware', () => {
         identifier: '192.168.1.1',
         identifierType: 'ip',
         endpoint: '/api/validate-llms-txt',
-        requestCount: 1,
+        requestCount: 48,
         windowStart: new Date(Date.now() - 3600000),
         windowEnd: new Date(Date.now() + 86400000),
       };
@@ -423,7 +423,7 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '2');
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
     });
   });
 
@@ -502,7 +502,7 @@ describe('Rate Limiter Middleware', () => {
         identifier: '192.168.1.1',
         identifierType: 'ip',
         endpoint: '/api/validate-llms-txt',
-        requestCount: 2,
+        requestCount: 49,
         windowStart: new Date(Date.now() - 3600000),
         windowEnd: new Date(Date.now() + 86400000),
       };
@@ -584,8 +584,8 @@ describe('Rate Limiter Middleware', () => {
       );
 
       expect(mockNext).toHaveBeenCalled();
-      // Should use coffee tier limits (20)
-      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '20');
+      // Should use coffee tier limits (100)
+      expect(setHeaderSpy).toHaveBeenCalledWith('X-RateLimit-Limit', '100');
     });
   });
 });
