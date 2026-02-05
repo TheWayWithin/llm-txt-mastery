@@ -12,6 +12,7 @@
  * 5. Multi-step Analysis → File Generation
  */
 
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -495,7 +496,7 @@ describe('Critical User Flows - Integration Tests', () => {
 
       rerender(<AnalyzePage />);
 
-      expect(mockSetLocation).toHaveBeenCalledWith('/login');
+      expect(mockSetLocation).toHaveBeenCalledWith('/signup');
     });
   });
 
@@ -512,7 +513,7 @@ describe('Critical User Flows - Integration Tests', () => {
       renderWithQueryClient(<AnalyzePage />);
 
       // Should redirect, but let's verify no usage display shows before redirect
-      expect(mockSetLocation).toHaveBeenCalledWith('/login');
+      expect(mockSetLocation).toHaveBeenCalledWith('/signup');
 
       // Test authenticated state
       mockSetLocation.mockClear();
