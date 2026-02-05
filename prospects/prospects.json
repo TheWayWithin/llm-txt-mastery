@@ -1049,9 +1049,9 @@
         "twitter": "@hedrickagency",
         "website": "https://hedrick.com"
       },
-      "notes": "Webflow Enterprise Partner, 5+ years, high-performance sites.",
+      "notes": "Webflow Enterprise Partner, 5+ years, high-performance sites. ACQUIRED by Veza Digital \u2014 consolidate outreach under Veza.",
       "outreach": {
-        "status": "scanned",
+        "status": "dead",
         "pitch": "broken",
         "channel": null,
         "method": null,
@@ -1062,7 +1062,7 @@
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Acquired by Veza Digital. Engage through @vezadigital instead."
       },
       "scan": {
         "scannedAt": "2026-02-05T18:52:57.407Z",
@@ -1250,7 +1250,7 @@
         "twitter": "@vezadigital",
         "website": "https://vezadigital.com"
       },
-      "notes": "B2B SaaS focus, Series A-D clients, data-driven approach.",
+      "notes": "B2B SaaS focus, Series A-D clients, data-driven approach. Also acquired Hedrick (hedrick.io) \u2014 larger combined agency.",
       "outreach": {
         "status": "scanned",
         "pitch": "decent",
