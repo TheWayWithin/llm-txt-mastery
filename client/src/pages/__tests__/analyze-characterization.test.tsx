@@ -217,7 +217,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/signup?websiteUrl=https%3A//example.com');
+      expect(mockNavigate).toHaveBeenCalledWith('/signup?websiteUrl=https%3A%2F%2Fexample.com');
     });
 
     it('does not redirect when user is authenticated', () => {
