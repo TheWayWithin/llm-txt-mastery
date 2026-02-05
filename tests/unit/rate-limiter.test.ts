@@ -157,7 +157,7 @@ describe('Rate Limiter Middleware', () => {
       expect(jsonSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Rate limit exceeded',
-          message: expect.stringContaining('daily limit of 3 validations'),
+          message: expect.stringContaining('daily limit of 50 validations'),
           upgradeUrl: '/pricing',
         })
       );
@@ -265,7 +265,7 @@ describe('Rate Limiter Middleware', () => {
       expect(jsonSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Rate limit exceeded',
-          message: expect.stringContaining('monthly limit of 20 validations'),
+          message: expect.stringContaining('monthly limit of 100 validations'),
         })
       );
     });
