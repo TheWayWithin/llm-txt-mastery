@@ -146,4 +146,60 @@ Jamie gets 10x more views on LinkedIn. These are Webflow agency founders active 
 
 ---
 
+## NEW PROSPECTS - February 2026 Research
+
+**Added:** February 5, 2026
+**Sources:** Webflow Showcase, Awwwards, Agency Directories, Flow Ninja showcase
+
+| # | Name | Webflow Handle | Site Example | Notes | Twitter |
+|---|------|---------------|--------------|-------|---------|
+| 26 | Flow Ninja | @flow-ninja | flow.ninja | Largest Webflow-exclusive agency, 50+ team, Enterprise Partner | @FlowNinjaHQ |
+| 27 | SVZ Design | @svz | svz.io | 10+ years experience, enterprise security, Rube Goldberg concept | @svzdesign |
+| 28 | Hedrick | @hedrick | hedrick.com | Webflow Enterprise Partner, 5+ years, high-performance sites | **@hedrick_agency** |
+| 29 | Digidop | @digidop | digidop.com | Paris-based, Award-winning, Webflow Partner since 2021 | **@digidop_agency** |
+| 30 | Refokus | @refokus | refokus.com | Award-winning creative, UX research-driven, data testing | **@refokus_com** |
+| 31 | Shadow Digital | - | shadowdigital.cc | Visual/interactive experts, cutting-edge animation | **@shadowdigitalcc** |
+| 32 | OffBrand | @offbrand | itsoffbrand.com | Creative/unconventional approach, boundary-pushing design | **@itsoffbrand** |
+| 33 | Veza Digital | @veza | vezadigital.com | B2B SaaS focus, Series A-D clients, data-driven approach | **@vezadigital** |
+| 34 | BRIX Agency | @brix | brixagency.com | Webflow Enterprise Partner, Template Award winner 2022 | **@brix_agency** |
+| 35 | Crew Agency | - | crewagency.com | Collective of experts, specialized team assembly | **@crewagency_** |
+| 36 | Grafit Agency | @grafit | grafit.agency | Holistic approach, custom integrations, scalability focus | **@grafitagency** |
+| 37 | Branded Agency | @branded | brandedagency.com | Enterprise Partner, stunning + functional design | **@branded_agency** |
+| 38 | Flowzai LLC | @flowzai | flowzai.com | Certified Partner, Top Creator, 6000+ customers | **@flowzai_llc** |
+| 39 | Nkenna Amadi | @nkennamadi | nkennamadi.com | 2025 Webflow Awards winner, multiple Awwwards | **@nkenna_amadi** |
+| 40 | Dylan Brouwer | @dylanbrouwer | dylanbrouwer.com | Dutch designer/developer, CSS Design Awards featured | **@dylanbrouwer** |
+| 41 | Irene Butenko | @irenebutenko | irenebutenko.com | Awwwards jury member, UI/UX expert | **@irene_butenko** |
+| 42 | Eliot BESSON | @eliotbesson | eliotbesson.fr | Portfolio 2025 featured on Awwwards | **@eliot_besson** |
+
+### New Prospects Analysis:
+
+**Tier 1: Enterprise Agencies (Premium potential)**
+- Flow Ninja (50+ team, largest exclusive agency)
+- Hedrick (Enterprise Partner, high-performance focus)
+- Veza Digital (B2B SaaS specialist, Series A-D focus)
+- BRIX Agency (Enterprise Partner + awards)
+
+**Tier 2: Award-Winning Studios (Social proof potential)**
+- Refokus (Creative awards, UX-driven)
+- Shadow Digital (Animation/interactive specialists)
+- Nkenna Amadi (2025 Webflow Awards winner)
+- SVZ Design (10+ years, enterprise security)
+
+**Tier 3: Creative Specialists (Niche potential)**
+- OffBrand (Unconventional approach)
+- Digidop (Paris-based, global expansion)
+- Grafit Agency (Custom integrations)
+- Dylan Brouwer (Individual with strong portfolio)
+
+### Why These Are Great Prospects:
+
+**Agency Focus:** Most are agencies with multi-site potential for Growth/Scale tier subscriptions
+**Active Social Presence:** All have Twitter handles and are actively building in public
+**Webflow Expertise:** Many are official Partners or Enterprise Partners
+**Award Recognition:** Several have Awwwards, CSS Design Awards, or Webflow Awards
+**Geographic Diversity:** US, EU (Paris, Netherlands), global reach
+**Specializations:** From B2B SaaS to creative/interactive to enterprise solutions
+
+---
+
 *Update this list as outreach progresses*
