@@ -223,14 +223,12 @@ export default function AnalyzePage() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
-              <Link href="/">
-                <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                  <img
-                    src="/images/logo-primary.png"
+              <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <img
+                  src="/images/logo-primary.png"
                     alt="LLM.txt Mastery"
                     className="h-20 md:h-24 w-auto"
                   />
-                </a>
               </Link>
               <div className="flex items-center space-x-4">
                 <AuthNav />
@@ -271,12 +269,10 @@ export default function AnalyzePage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Link href="/dashboard">
-                    <a>
-                      <Button variant="outline" size="sm">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </a>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Button>
                   </Link>
                   <Button
                     variant="outline"
@@ -340,15 +336,13 @@ export default function AnalyzePage() {
                   </div>
                   {user.tier !== 'scale' && (
                     <Link href="/dashboard?tab=billing">
-                      <a>
-                        <Button variant="outline" size="sm" className="h-7 text-xs">
-                          {user.tier === 'starter'
-                            ? 'Upgrade'
-                            : user.tier === 'solo'
-                              ? 'Billing'
-                              : 'Manage'}
-                        </Button>
-                      </a>
+                      <Button variant="outline" size="sm" className="h-7 text-xs">
+                        {user.tier === 'starter'
+                          ? 'Upgrade'
+                          : user.tier === 'solo'
+                            ? 'Billing'
+                            : 'Manage'}
+                      </Button>
                     </Link>
                   )}
                 </div>
