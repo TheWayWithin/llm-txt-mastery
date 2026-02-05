@@ -2,7 +2,7 @@
   "meta": {
     "lastScanAt": "2026-02-04T15:50:00Z",
     "totalProspects": 10,
-    "version": 1
+    "version": 2
   },
   "prospects": [
     {
@@ -26,8 +26,14 @@
         "status": "scanned",
         "pitch": "no-file",
         "channel": null,
+        "method": null,
+        "template": "no-file",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -58,8 +64,14 @@
         "status": "scanned",
         "pitch": "decent",
         "channel": null,
+        "method": null,
+        "template": "decent",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -84,8 +96,14 @@
         "status": "scanned",
         "pitch": "no-file",
         "channel": null,
+        "method": null,
+        "template": "no-file",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -110,8 +128,14 @@
         "status": "scanned",
         "pitch": "no-file",
         "channel": null,
+        "method": null,
+        "template": "no-file",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -137,8 +161,14 @@
         "status": "scanned",
         "pitch": "no-file",
         "channel": null,
+        "method": null,
+        "template": "no-file",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -170,8 +200,14 @@
         "status": "scanned",
         "pitch": "auto-generated",
         "channel": null,
+        "method": null,
+        "template": "auto-generated",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -202,8 +238,14 @@
         "status": "scanned",
         "pitch": "broken",
         "channel": null,
+        "method": null,
+        "template": "broken",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -228,8 +270,14 @@
         "status": "scanned",
         "pitch": "no-file",
         "channel": null,
+        "method": null,
+        "template": "no-file",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -260,8 +308,14 @@
         "status": "scanned",
         "pitch": "broken",
         "channel": null,
+        "method": null,
+        "template": "broken",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     },
@@ -292,8 +346,14 @@
         "status": "scanned",
         "pitch": "broken",
         "channel": null,
+        "method": null,
+        "template": "broken",
         "sentAt": null,
+        "followUp1At": null,
+        "followUp2At": null,
         "repliedAt": null,
+        "replyType": "none",
+        "convertedAt": null,
         "notes": null
       }
     }
