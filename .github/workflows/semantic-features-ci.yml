@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: pgvector/pgvector:pg15
         env:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
@@ -107,11 +107,6 @@ jobs:
           NODE_ENV: test
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY_TEST }}
         run: |
-          # Install pgvector extension
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-          PGPASSWORD=test_password psql -h localhost -U postgres -d llmtxt_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
           # Run database migrations
           npm run migrate
 
@@ -161,7 +156,7 @@ jobs:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     services:
       postgres:
-        image: postgres:15
+        image: pgvector/pgvector:pg15
         env:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
@@ -203,11 +198,6 @@ jobs:
           REDIS_PORT: 6379
           NODE_ENV: test
         run: |
-          # Install pgvector extension
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-          PGPASSWORD=test_password psql -h localhost -U postgres -d llmtxt_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
           # Run database migrations
           npm run migrate
 
@@ -262,7 +252,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: pgvector/pgvector:pg15
         env:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
@@ -308,11 +298,6 @@ jobs:
           NODE_ENV: test
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY_TEST }}
         run: |
-          # Install pgvector extension
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-          PGPASSWORD=test_password psql -h localhost -U postgres -d llmtxt_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
           # Run database migrations
           npm run migrate
 
@@ -450,13 +435,13 @@ jobs:
           # Check for potential secrets in code
           echo "Checking for sensitive data patterns..."
 
-          # Check for API keys, passwords, etc.
-          if grep -r -i "api[_-]key\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" . | grep -v "\.example" | grep -v "test" | grep -v "spec"; then
+          # Check for API keys, passwords, etc. (exclude node_modules and placeholder patterns)
+          if grep -r -i "api[_-]key\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --exclude-dir=node_modules . | grep -v "\.example" | grep -v "test" | grep -v "spec" | grep -v "placeholder" | grep -v "your_api_key"; then
             echo "❌ Potential API key found in code"
             exit 1
           fi
 
-          if grep -r -i "password\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" . | grep -v "\.example" | grep -v "test" | grep -v "spec"; then
+          if grep -r -i "password\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --exclude-dir=node_modules . | grep -v "\.example" | grep -v "test" | grep -v "spec" | grep -v "placeholder" | grep -v "your_password"; then
             echo "❌ Potential password found in code"
             exit 1
           fi
