@@ -170,35 +170,65 @@ Jamie gets 10x more views on LinkedIn. These are Webflow agency founders active 
 | 40 | Dylan Brouwer | @dylanbrouwer | dylanbrouwer.com | Dutch designer/developer, CSS Design Awards featured | **@dylanbrouwer** |
 | 41 | Irene Butenko | @irenebutenko | irenebutenko.com | Awwwards jury member, UI/UX expert | **@irene_butenko** |
 | 42 | Eliot BESSON | @eliotbesson | eliotbesson.fr | Portfolio 2025 featured on Awwwards | **@eliot_besson** |
+| 43 | Relume Studio | @relume | relume.io | AI-powered Webflow starter kits, component library, massive following | **@relumeio** |
+| 44 | Uprise Studios | @uprise | uprisestudios.com | Full-service agency, conversion-focused, B2B expertise | **@uprisestudios** |
+| 45 | Finsweet | @finsweet | finsweet.com | Advanced Webflow solutions, Client-First system, education focus | **@finsweet** |
+| 46 | Lupo Studio | @lupo | lupo.studio | Award-winning visual design, creative animations | **@lupo_studio** |
+| 47 | Mortierbrigade | @mortierbrigade | mortierbrigade.com | Belgium agency, bold visual approach, international clients | **@mortierbrigade** |
+| 48 | Webstacks | @webstacks | webstacks.com | Enterprise focus, B2B SaaS scaling, Webflow + HubSpot integration | **@webstacks** |
+| 49 | No-Code Arena | - | nocodearena.com | Educational platform + agency, no-code movement leaders | **@nocodearena** |
+| 50 | Flowout | @flowout | flowout.co | UK agency, e-commerce focus, conversion optimization | **@flowoutco** |
+| 51 | Notion Forms | @notionforms | notionforms.io | Webflow integrations specialist, indie maker success story | **@notionforms** |
+| 52 | Koala Digital | - | koala.digital | Australian agency, startup focus, lean methodologies | **@koaladigital_** |
+| 53 | Webflow Joe | @webflowjoe | webflowjoe.com | Solo designer, tutorial content, community influence | **@webflowjoe** |
+| 54 | James Lee Design | @jameslee | jameslee.design | Freelancer with agency reach, premium client roster | **@jameslee_ux** |
+| 55 | Made by Stoev | @stoev | madebystoev.com | Personal brand + client work, experimental approach | **@madebystoev** |
 
 ### New Prospects Analysis:
 
 **Tier 1: Enterprise Agencies (Premium potential)**
 - Flow Ninja (50+ team, largest exclusive agency)
-- Hedrick (Enterprise Partner, high-performance focus)
+- Hedrick (Enterprise Partner, high-performance focus)  
 - Veza Digital (B2B SaaS specialist, Series A-D focus)
 - BRIX Agency (Enterprise Partner + awards)
+- Finsweet (Advanced solutions, Client-First system)
+- Webstacks (Enterprise B2B SaaS scaling)
 
 **Tier 2: Award-Winning Studios (Social proof potential)**
 - Refokus (Creative awards, UX-driven)
 - Shadow Digital (Animation/interactive specialists)
 - Nkenna Amadi (2025 Webflow Awards winner)
 - SVZ Design (10+ years, enterprise security)
+- Relume Studio (AI-powered kits, massive following)
+- Lupo Studio (Award-winning visual design)
+- Uprise Studios (Full-service, conversion-focused)
 
 **Tier 3: Creative Specialists (Niche potential)**
 - OffBrand (Unconventional approach)
 - Digidop (Paris-based, global expansion)
 - Grafit Agency (Custom integrations)
 - Dylan Brouwer (Individual with strong portfolio)
+- Mortierbrigade (Belgium agency, bold visuals)
+- Flowout (UK agency, e-commerce focus)
+- Webflow Joe (Solo designer, tutorial influence)
+- Made by Stoev (Experimental personal brand)
 
 ### Why These Are Great Prospects:
 
 **Agency Focus:** Most are agencies with multi-site potential for Growth/Scale tier subscriptions
 **Active Social Presence:** All have Twitter handles and are actively building in public
-**Webflow Expertise:** Many are official Partners or Enterprise Partners
+**Webflow Expertise:** Many are official Partners or Enterprise Partners  
 **Award Recognition:** Several have Awwwards, CSS Design Awards, or Webflow Awards
-**Geographic Diversity:** US, EU (Paris, Netherlands), global reach
+**Geographic Diversity:** US, EU (Paris, Netherlands, Belgium), UK, Australia - global reach
 **Specializations:** From B2B SaaS to creative/interactive to enterprise solutions
+
+**New Prospect Highlights (43-55):**
+- **Relume Studio** (43): Massive Twitter following, AI-powered tools, perfect product-market fit for AI optimization
+- **Finsweet** (45): Educational focus + advanced solutions = thought leadership potential  
+- **Webstacks** (48): Enterprise B2B SaaS specialist = highest tier potential
+- **No-Code Arena** (49): Movement leaders with educational platform = social proof multiplier
+- **Notion Forms** (51): Indie maker success story = relatable founder angle
+- **Webflow Joe** (53): Tutorial content creator = potential content collaboration
 
 ---
 
