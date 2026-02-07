@@ -219,7 +219,7 @@
         "preview": "# LLM.txt - Website Content Structure # Generated: 2025-09-03...",
         "issues": [
           "Massively over-sized (195K words)",
-          "Auto-generated dump \u2014 no curation",
+          "Auto-generated dump — no curation",
           "AI models will likely truncate or ignore this",
           "No clear structure or priority signals"
         ],
@@ -242,7 +242,7 @@
     },
     {
       "id": "become",
-      "name": "Become\u2122",
+      "name": "Become™",
       "url": "https://becomehq.com",
       "tier": 1,
       "channels": {
@@ -389,7 +389,7 @@
         "details": "Has /llms.txt URL but it serves the HTML homepage instead of a text file. Completely broken for AI."
       },
       "outreach": {
-        "status": "scanned",
+        "status": "dead",
         "pitch": "broken",
         "channel": null,
         "method": null,
@@ -400,7 +400,7 @@
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Domain for sale - anthemcreative.com redirects to domain marketplace"
       }
     },
     {
@@ -439,9 +439,9 @@
         "preview": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"         \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> <html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"> <h",
         "issues": [
           "Serving HTML page instead of text/plain",
-          "Missing H1 header (# Title) \u2014 required by spec"
+          "Missing H1 header (# Title) — required by spec"
         ],
-        "details": "Serving HTML page instead of text/plain. Missing H1 header (# Title) \u2014 required by spec"
+        "details": "Serving HTML page instead of text/plain. Missing H1 header (# Title) — required by spec"
       }
     },
     {
@@ -639,9 +639,9 @@
         "hasH1": false,
         "preview": "<!doctype html> <html lang=\"en\">   <head>     <meta charset=\"UTF-8\" />     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />     <link rel=\"canonical\" href=\"https://getfabrik.ai",
         "issues": [
-          "Missing H1 header (# Title) \u2014 required by spec"
+          "Missing H1 header (# Title) — required by spec"
         ],
-        "details": "Missing H1 header (# Title) \u2014 required by spec"
+        "details": "Missing H1 header (# Title) — required by spec"
       }
     },
     {
@@ -680,10 +680,10 @@
         "preview": "<html lang=\"en\"><head><title>Redirecting...</title></head><body><script>(()=>{\"use strict\";const t=\"offset\",e=\"client\",o=function(){};let n=!1,r=!1;const i={loopDelay:50,maxLoop:5,complete:o},l=[];let",
         "issues": [
           "Serving HTML page instead of text/plain",
-          "Missing H1 header (# Title) \u2014 required by spec",
-          "Only 1 URL(s) \u2014 should link more resources"
+          "Missing H1 header (# Title) — required by spec",
+          "Only 1 URL(s) — should link more resources"
         ],
-        "details": "Serving HTML page instead of text/plain. Missing H1 header (# Title) \u2014 required by spec. Only 1 URL(s) \u2014 should link more resources"
+        "details": "Serving HTML page instead of text/plain. Missing H1 header (# Title) — required by spec. Only 1 URL(s) — should link more resources"
       }
     },
     {
@@ -917,9 +917,9 @@
         "hasH1": true,
         "preview": " # bxstudio.com > bxstudio.com is a domain currently listed for sale (Verified Domain) on GoDaddy. The listing shows a Buy Now / Premium offer with a displayed price and provides 24/7 dedicated suppor",
         "issues": [
-          "Only 1 URL(s) \u2014 should link more resources"
+          "Only 1 URL(s) — should link more resources"
         ],
-        "details": "Only 1 URL(s) \u2014 should link more resources"
+        "details": "Only 1 URL(s) — should link more resources"
       }
     },
     {
@@ -1049,7 +1049,7 @@
         "twitter": "@hedrickagency",
         "website": "https://hedrick.com"
       },
-      "notes": "Webflow Enterprise Partner, 5+ years, high-performance sites. ACQUIRED by Veza Digital \u2014 consolidate outreach under Veza.",
+      "notes": "Webflow Enterprise Partner, 5+ years, high-performance sites. ACQUIRED by Veza Digital — consolidate outreach under Veza.",
       "outreach": {
         "status": "dead",
         "pitch": "broken",
@@ -1075,12 +1075,12 @@
         "hasH1": false,
         "preview": "User-agent: *\\nAllow: /\\nDisallow-Training: /\\nSitemap: /sitemap.xml",
         "issues": [
-          "Missing H1 header (# Title) \u2014 required by spec",
-          "Only 5 words \u2014 too thin to be useful",
-          "No URLs linked \u2014 should reference key pages",
-          "Contains robots.txt content \u2014 wrong file format"
+          "Missing H1 header (# Title) — required by spec",
+          "Only 5 words — too thin to be useful",
+          "No URLs linked — should reference key pages",
+          "Contains robots.txt content — wrong file format"
         ],
-        "details": "Missing H1 header (# Title) \u2014 required by spec. Only 5 words \u2014 too thin to be useful. No URLs linked \u2014 should reference key pages. Contains robots.txt content \u2014 wrong file format"
+        "details": "Missing H1 header (# Title) — required by spec. Only 5 words — too thin to be useful. No URLs linked — should reference key pages. Contains robots.txt content — wrong file format"
       }
     },
     {
@@ -1118,9 +1118,9 @@
         "hasH1": true,
         "preview": "# digidop.com llms.txt  > Digidop is a global Webflow agency specializing in building high-performing, scalable websites. With a business-first approach, we help marketing and IT teams drive growth th",
         "issues": [
-          "25,405 words \u2014 too large, AI models will truncate"
+          "25,405 words — too large, AI models will truncate"
         ],
-        "details": "25,405 words \u2014 too large, AI models will truncate"
+        "details": "25,405 words — too large, AI models will truncate"
       }
     },
     {
@@ -1250,7 +1250,7 @@
         "twitter": "@vezadigital",
         "website": "https://vezadigital.com"
       },
-      "notes": "B2B SaaS focus, Series A-D clients, data-driven approach. Also acquired Hedrick (hedrick.io) \u2014 larger combined agency.",
+      "notes": "B2B SaaS focus, Series A-D clients, data-driven approach. Also acquired Hedrick (hedrick.io) — larger combined agency.",
       "outreach": {
         "status": "scanned",
         "pitch": "decent",
@@ -1324,7 +1324,8 @@
       "tier": 1,
       "channels": {
         "twitter": "@crewagency_",
-        "website": "https://crewagency.com"
+        "website": "https://crewagency.com",
+        "email": "projects@crew.dev"
       },
       "notes": "Collective of experts, specialized team assembly.",
       "outreach": {
