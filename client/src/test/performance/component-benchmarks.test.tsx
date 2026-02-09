@@ -247,7 +247,8 @@ describe('Component Performance Benchmarks', () => {
       // This test documents the bundle size impact for future comparison
       // Note: JSON.stringify on React components is unreliable, so we just verify component exists
       expect(EmailCapture).toBeDefined();
-      const componentSize = EmailCapture ? JSON.stringify(EmailCapture).length : 0;
+      const stringified = EmailCapture ? JSON.stringify(EmailCapture) : null;
+      const componentSize = stringified?.length ?? 0;
 
       // Baseline: Component should be reasonably sized (or 0 if can't serialize)
       expect(componentSize).toBeLessThan(50000); // 50KB serialized
@@ -257,7 +258,8 @@ describe('Component Performance Benchmarks', () => {
     it('should track AnalyzePage component size impact', () => {
       // Note: JSON.stringify on React components is unreliable, so we just verify component exists
       expect(AnalyzePage).toBeDefined();
-      const componentSize = AnalyzePage ? JSON.stringify(AnalyzePage).length : 0;
+      const stringified = AnalyzePage ? JSON.stringify(AnalyzePage) : null;
+      const componentSize = stringified?.length ?? 0;
 
       // Baseline: Page component can be larger but should be reasonable (or 0 if can't serialize)
       expect(componentSize).toBeLessThan(100000); // 100KB serialized

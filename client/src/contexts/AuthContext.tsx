@@ -25,6 +25,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Export the context for advanced use cases
+export { AuthContext };
+
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -78,14 +81,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
             currentUser?.creditsRemaining
           );
           setUser(currentUser);
-        } catch (refreshError) {
+        } catch (refreshError: unknown) {
           console.warn('⚠️ Failed to refresh user data from server:', refreshError);
 
           // Determine if this is a network issue vs auth issue
+          const errMsg = refreshError instanceof Error ? refreshError.message : String(refreshError);
           const isNetworkError =
-            refreshError.message?.includes('fetch') ||
-            refreshError.message?.includes('NetworkError') ||
-            refreshError.message?.includes('Failed to fetch');
+            errMsg?.includes('fetch') ||
+            errMsg?.includes('NetworkError') ||
+            errMsg?.includes('Failed to fetch');
 
           if (isNetworkError) {
             // Network issue - keep stored user data (especially important for Solo users)
@@ -96,9 +100,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
               );
             }
           } else if (
-            refreshError.message?.includes('expired') ||
-            refreshError.message?.includes('invalid') ||
-            refreshError.message?.includes('unauthorized')
+            errMsg?.includes('expired') ||
+            errMsg?.includes('invalid') ||
+            errMsg?.includes('unauthorized')
           ) {
             // Auth issue - tokens are invalid
             console.log('🔒 Authentication tokens invalid, clearing auth state');
@@ -109,14 +113,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.log('❓ Unknown refresh error, keeping stored user data as fallback');
           }
         }
-      } catch (initError) {
+      } catch (initError: unknown) {
         console.error('💥 Critical error during auth initialization:', initError);
 
         // Only clear auth state if we're certain tokens are invalid
+        const errMsg = initError instanceof Error ? initError.message : String(initError);
         const shouldClearAuth =
-          initError.message?.includes('invalid') ||
-          initError.message?.includes('expired') ||
-          initError.message?.includes('unauthorized');
+          errMsg?.includes('invalid') ||
+          errMsg?.includes('expired') ||
+          errMsg?.includes('unauthorized');
 
         if (shouldClearAuth) {
           console.log('🧹 Clearing invalid auth state due to critical error');
@@ -221,20 +226,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         'credits:',
         currentUser.creditsRemaining
       );
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Failed to refresh user data:', error);
 
       // Determine error type for better handling
+      const errMsg = error instanceof Error ? error.message : String(error);
       const isNetworkError =
-        error.message?.includes('fetch') ||
-        error.message?.includes('NetworkError') ||
-        error.message?.includes('Failed to fetch');
+        errMsg?.includes('fetch') ||
+        errMsg?.includes('NetworkError') ||
+        errMsg?.includes('Failed to fetch');
 
       const isAuthError =
-        error.message?.includes('expired') ||
-        error.message?.includes('invalid') ||
-        error.message?.includes('unauthorized') ||
-        error.message?.includes('Session expired');
+        errMsg?.includes('expired') ||
+        errMsg?.includes('invalid') ||
+        errMsg?.includes('unauthorized') ||
+        errMsg?.includes('Session expired');
 
       if (isAuthError) {
         console.log('🔒 Authentication error during refresh - signing out');

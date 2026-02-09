@@ -239,7 +239,7 @@ jobs:
           fi
 
       - name: Upload performance artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-results
@@ -314,7 +314,7 @@ jobs:
         run: npm run test:e2e
 
       - name: Upload Playwright artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
