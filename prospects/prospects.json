@@ -2,7 +2,8 @@
   "meta": {
     "lastScanAt": "2026-02-05T18:53:05.010Z",
     "totalProspects": 41,
-    "version": 2
+    "version": 2,
+    "lastUpdatedAt": "2026-02-09T13:34:55.810Z"
   },
   "prospects": [
     {
@@ -70,18 +71,18 @@
         "details": "Decent file but missing spec-required H1 header and light on linked resources"
       },
       "outreach": {
-        "status": "scanned",
+        "status": "contacted",
         "pitch": "decent",
-        "channel": null,
-        "method": null,
+        "channel": "twitter",
+        "method": "dm",
         "template": "decent",
-        "sentAt": null,
+        "sentAt": "2026-02-08T12:00:00Z",
         "followUp1At": null,
         "followUp2At": null,
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Outreach sent by Jamie (logged 2026-02-09)"
       }
     },
     {
@@ -973,18 +974,18 @@
       },
       "notes": "Largest Webflow-exclusive agency, 50+ team, Enterprise Partner.",
       "outreach": {
-        "status": "scanned",
+        "status": "contacted",
         "pitch": "decent",
-        "channel": null,
-        "method": null,
+        "channel": "twitter",
+        "method": "twitter-reply",
         "template": null,
-        "sentAt": null,
+        "sentAt": "2026-02-08T12:00:00Z",
         "followUp1At": null,
         "followUp2At": null,
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Outreach sent by Jamie (logged 2026-02-09)"
       },
       "scan": {
         "scannedAt": "2026-02-05T18:52:56.245Z",
@@ -1252,18 +1253,18 @@
       },
       "notes": "B2B SaaS focus, Series A-D clients, data-driven approach. Also acquired Hedrick (hedrick.io) — larger combined agency.",
       "outreach": {
-        "status": "scanned",
+        "status": "contacted",
         "pitch": "decent",
-        "channel": null,
-        "method": null,
+        "channel": "twitter",
+        "method": "dm",
         "template": null,
-        "sentAt": null,
+        "sentAt": "2026-02-08T12:00:00Z",
         "followUp1At": null,
         "followUp2At": null,
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Outreach sent by Jamie (logged 2026-02-09)"
       },
       "scan": {
         "scannedAt": "2026-02-05T18:53:00.057Z",
@@ -1290,18 +1291,18 @@
       },
       "notes": "Webflow Enterprise Partner, Template Award winner 2022.",
       "outreach": {
-        "status": "scanned",
+        "status": "contacted",
         "pitch": "decent",
-        "channel": null,
-        "method": null,
+        "channel": "twitter",
+        "method": "dm",
         "template": null,
-        "sentAt": null,
+        "sentAt": "2026-02-08T12:00:00Z",
         "followUp1At": null,
         "followUp2At": null,
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Outreach sent by Jamie (logged 2026-02-09)"
       },
       "scan": {
         "scannedAt": "2026-02-05T18:53:00.264Z",
@@ -1367,18 +1368,18 @@
       },
       "notes": "Holistic approach, custom integrations, scalability focus.",
       "outreach": {
-        "status": "scanned",
+        "status": "contacted",
         "pitch": "no-file",
-        "channel": null,
-        "method": null,
+        "channel": "twitter",
+        "method": "twitter-reply",
         "template": null,
-        "sentAt": null,
+        "sentAt": "2026-02-08T12:00:00Z",
         "followUp1At": null,
         "followUp2At": null,
         "repliedAt": null,
         "replyType": "none",
         "convertedAt": null,
-        "notes": null
+        "notes": "Outreach sent by Jamie (logged 2026-02-09)"
       },
       "scan": {
         "scannedAt": "2026-02-05T18:53:02.008Z",
