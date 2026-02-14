@@ -397,6 +397,123 @@ async function validateUrl(url: string): Promise<UrlValidationResult> {
 }
 
 /**
+ * Validate spec compliance of H2 sections using raw content line-by-line analysis.
+ * Per llmstxt.org spec: H2 sections must only contain "file lists" —
+ * markdown lists where each item has format: - [name](url): optional notes
+ * No plain text, no H3+ headings allowed within H2 sections.
+ */
+function validateSpecCompliance(rawContent: string): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const lines = rawContent.split('\n');
+
+  let insideH2Section = false;
+  let currentH2Name = '';
+  let h3Count = 0;
+  let plainTextInH2Count = 0;
+  let malformedListItemCount = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    const lineNum = i + 1;
+
+    // H1 header - we're before any H2 sections
+    if (trimmed.startsWith('# ') && !trimmed.startsWith('## ')) {
+      insideH2Section = false;
+      continue;
+    }
+
+    // H2 header - start of a file list section
+    if (trimmed.startsWith('## ')) {
+      insideH2Section = true;
+      currentH2Name = trimmed.replace(/^##\s+/, '');
+      continue;
+    }
+
+    // H3+ headings are not part of the spec (only H1 and H2 allowed)
+    if (insideH2Section && /^#{3,}\s+/.test(trimmed)) {
+      h3Count++;
+      // Limit to first 3 to avoid flooding
+      if (h3Count <= 3) {
+        issues.push({
+          severity: 'warning',
+          message: `H3+ heading not allowed in H2 section "${currentH2Name}". Only H1 and H2 headings are part of the llms.txt spec. (Line ${lineNum})`,
+          line: lineNum,
+          suggestion: 'Remove sub-headings from H2 sections. H2 sections should only contain list items in the format: - [name](url): optional notes',
+        });
+      }
+      continue;
+    }
+
+    // Skip empty lines and blockquotes (blockquotes only valid before H2 sections,
+    // but we just skip them here - the H1/blockquote check handles that)
+    if (!insideH2Section || trimmed === '') {
+      // Before any H2 section: paragraphs, blockquotes, etc. are allowed per spec
+      continue;
+    }
+
+    // We're inside an H2 section - only list items with links are allowed
+
+    // Check list items
+    if (trimmed.startsWith('- ')) {
+      // List item - must contain a markdown hyperlink [name](url)
+      const hasLink = /\[([^\]]+)\]\(([^)]+)\)/.test(trimmed);
+      if (!hasLink) {
+        malformedListItemCount++;
+        // Limit reported issues to avoid flooding
+        if (malformedListItemCount <= 5) {
+          issues.push({
+            severity: 'warning',
+            message: `Malformed list item in "${currentH2Name}" section. Expected format: '- [name](url): optional notes'. (Line ${lineNum})`,
+            line: lineNum,
+            suggestion: 'Each list item in an H2 section must contain a markdown hyperlink. Format: - [Page Title](https://example.com/page): Description of this page',
+          });
+        }
+      }
+      continue;
+    }
+
+    // Anything else inside an H2 section is plain text - not allowed per spec
+    plainTextInH2Count++;
+    if (plainTextInH2Count <= 5) {
+      issues.push({
+        severity: 'warning',
+        message: `Plain text content is not allowed directly within H2 sections. Only list items are permitted in "${currentH2Name}" section. (Line ${lineNum})`,
+        line: lineNum,
+        suggestion: 'H2 sections should only contain list items in the format: - [name](url): optional notes. Move plain text before the first H2 section or remove it.',
+      });
+    }
+  }
+
+  // Add summary issues if there were more violations than we reported individually
+  if (plainTextInH2Count > 5) {
+    issues.push({
+      severity: 'warning',
+      message: `${plainTextInH2Count} total lines of plain text found inside H2 sections (${plainTextInH2Count - 5} more not shown). H2 sections should only contain list items per the llmstxt.org spec.`,
+      suggestion: 'Move descriptive text before the first H2 section. H2 sections are "file lists" that should only contain - [name](url): optional notes items.',
+    });
+  }
+
+  if (malformedListItemCount > 5) {
+    issues.push({
+      severity: 'warning',
+      message: `${malformedListItemCount} total malformed list items found (${malformedListItemCount - 5} more not shown). Each must include a markdown hyperlink.`,
+      suggestion: 'Format all list items as: - [Page Title](https://example.com/page): Optional description',
+    });
+  }
+
+  if (h3Count > 3) {
+    issues.push({
+      severity: 'warning',
+      message: `${h3Count} total H3+ headings found (${h3Count - 3} more not shown). Only H1 and H2 headings are part of the llms.txt spec.`,
+      suggestion: 'Remove all H3+ headings. Use H2 sections to organize content into file lists.',
+    });
+  }
+
+  return issues;
+}
+
+/**
  * Validate structure and content of parsed llms.txt
  * Based on official llmstxt.org specification
  */
@@ -446,6 +563,11 @@ async function validateStructure(parsed: ParsedLlmsTxt): Promise<ValidationIssue
       });
     }
   }
+
+  // SPEC COMPLIANCE: Validate H2 section content rules
+  // Per llmstxt.org: H2 sections must only contain file lists (markdown list items with links)
+  const specIssues = validateSpecCompliance(parsed.rawContent);
+  issues.push(...specIssues);
 
   // Validate URLs - CRITICAL for llms.txt value
   if (parsed.urls.length === 0) {
@@ -505,6 +627,7 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
   let missingH1 = false;
   let poorOrganization = false;
   let nonMarkdownUrls = false;
+  let specViolationCount = 0;
 
   for (const issue of issues) {
     if (issue.message.includes('No URLs found')) hasNoUrls = true;
@@ -513,6 +636,12 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
     if (issue.message.includes('Missing required H1 header')) missingH1 = true;
     if (issue.message.includes('No H2 sections found')) poorOrganization = true;
     if (issue.message.includes('not in proper markdown format')) nonMarkdownUrls = true;
+    // Count spec compliance violations (plain text in H2, malformed list items, H3+ headings)
+    if (issue.message.includes('Plain text content is not allowed') ||
+        issue.message.includes('Malformed list item') ||
+        issue.message.includes('H3+ heading not allowed')) {
+      specViolationCount++;
+    }
   }
 
   // CRITICAL PENALTIES - These make the file nearly useless
@@ -539,6 +668,13 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
 
   if (nonMarkdownUrls) {
     score -= 8; // Harder for AI to parse
+  }
+
+  // SPEC COMPLIANCE PENALTIES - H2 section content rules
+  if (specViolationCount > 0) {
+    // Scale penalty: -3 per violation, capped at -15
+    const specPenalty = Math.min(15, specViolationCount * 3);
+    score -= specPenalty;
   }
 
   // MINOR PENALTIES - Polish issues
