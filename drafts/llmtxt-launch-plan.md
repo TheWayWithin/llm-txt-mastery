@@ -81,6 +81,50 @@
 
 ---
 
+## Targeted Prospect Outreach (Scan-Based)
+
+### Strategy: Data-Driven Direct Outreach
+
+We built a prospect scanning system (`prospects/scan-prospects.js`) that checks potential clients' sites for existing llms.txt files and categorizes them into pitch buckets. This gives us **personalized, specific outreach** based on each prospect's actual situation — not generic cold emails.
+
+### Pitch Buckets (by scan result)
+
+| Bucket | Count | Conversion Priority | Template |
+|--------|-------|---------------------|----------|
+| `broken` | 3 (30%) | 🔥 **HIGHEST** — They tried, it's broken. Urgency + specificity. | `templates/broken.md` |
+| `auto-generated` | 1 (10%) | 🔥 High — Have a file but it's a massive dump AI skips. | `templates/auto-generated.md` |
+| `decent` | 1 (10%) | 🟡 Medium — Upgrade/optimization sell. | `templates/decent.md` |
+| `weak` | 0 (0%) | 🔥 High — File exists but useless (<50 words). | `templates/weak.md` |
+| `no-file` | 6 (60%) | 🟡 Medium — Cold education sell, largest pool. | `templates/no-file.md` |
+
+### Outreach Prioritization
+
+**Phase 1 (Week 1-2): Warm leads first**
+- Start with `broken` and `weak` prospects — they've shown intent, the pitch is specific and alarming
+- Example: "Your llms.txt is serving robots.txt content — AI crawlers are getting zero useful info"
+- Track: reply rate, sentiment, conversion by bucket
+
+**Phase 2 (Week 2-3): Upgrade sells**
+- Target `decent` and `auto-generated` — they have something, we can make it better
+- Example: "Your file is 12K words — AI crawlers truncate after ~2K, so most of your content is invisible"
+
+**Phase 3 (Ongoing): Cold outreach at scale**
+- Target `no-file` prospects — largest pool but coldest
+- Example: "Your competitors have llms.txt files. You don't. Here's what AI sees..."
+- Use results from Phase 1-2 to refine messaging
+
+### Tracking & Optimization
+- Full outreach tracking in `prospects.json` (method, template, sent/reply/convert timestamps)
+- Weekly review: conversion rate by bucket → double down on what works
+- Goal: identify the highest-converting bucket and scale outreach to similar prospects
+
+### Pipeline Growth
+- Scan new prospects weekly using `scan-prospects.js`
+- Current pipeline: 42 prospects (PROSPECT-LIST.md)
+- Target: 100+ scanned prospects by end of Month 1
+
+---
+
 ## Directory Submissions Strategy
 *Using launchpad-research.md format structure*
 

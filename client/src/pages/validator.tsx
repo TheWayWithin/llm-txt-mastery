@@ -32,10 +32,18 @@ import {
   Layers,
   FolderOpen,
   ArrowRight,
+  Target,
+  Eye,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthNav } from '@/components/AuthNav';
 import { Switch } from '@/components/ui/switch';
+import Footer from '@/components/footer';
+import PricingPreview from '@/components/landing/PricingPreview';
+import TrustBadges from '@/components/landing/TrustBadges';
+import { useSEO } from '@/hooks/useSEO';
+
+// --- Shared types (same as validate.tsx) ---
 
 interface ValidationIssue {
   severity: 'error' | 'warning' | 'info';
@@ -59,7 +67,6 @@ interface RobotsConflict {
   recommendation: string;
 }
 
-// SPA Detection Types (Sprint 5)
 type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
 
 interface SPAFrameworkIndicators {
@@ -89,7 +96,6 @@ interface SPADetectionResult {
   contentCoverageWarning?: string;
 }
 
-// Sprint 5: File type options
 type LlmsTxtFileType = 'auto' | 'llms.txt' | 'llms-full.txt' | '.well-known' | 'llms.md';
 
 const FILE_TYPE_OPTIONS: { value: LlmsTxtFileType; label: string; path: string }[] = [
@@ -100,7 +106,6 @@ const FILE_TYPE_OPTIONS: { value: LlmsTxtFileType; label: string; path: string }
   { value: 'llms.md', label: 'llms.md', path: '/llms.md' },
 ];
 
-// Sprint 5 Phase 4: Content Depth Analysis
 interface ContentDepthMetrics {
   urlCount: number;
   sectionCount: number;
@@ -120,15 +125,12 @@ interface ValidationResult {
   recommendations: ValidationRecommendation[];
   robotsConflicts?: RobotsConflict[];
   spaDetection?: SPADetectionResult;
-  // Sprint 5: Multi-file support
   fileType?: LlmsTxtFileType;
   detectedPath?: string;
   checkedPaths?: string[];
-  // Sprint 5 Phase 4: Content depth
   contentDepth?: ContentDepthMetrics;
 }
 
-// Sprint 5 Phase 5: Batch validation types
 interface BatchValidationFileResult {
   fileType: LlmsTxtFileType;
   path: string;
@@ -151,7 +153,9 @@ interface BatchValidationResult {
   processingTime: number;
 }
 
-export default function ValidatePage() {
+// --- Component ---
+
+export default function ValidatorPage() {
   const { user, isAuthenticated, getAccessToken } = useAuth();
   const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState(false);
@@ -160,15 +164,17 @@ export default function ValidatePage() {
   const [error, setError] = useState<string | null>(null);
   const [includeRobotsTxt, setIncludeRobotsTxt] = useState(true);
   const [fileType, setFileType] = useState<LlmsTxtFileType>('auto');
-  // Sprint 5 Phase 5: Batch validation state
   const [isBatchValidating, setIsBatchValidating] = useState(false);
   const [batchResult, setBatchResult] = useState<BatchValidationResult | null>(null);
 
+  useSEO({
+    title: 'Free llms.txt Validator - Check Your AI Readiness | LLM.txt Mastery',
+    description: 'Validate your llms.txt file for free. Check robots.txt conflicts, content quality, and framework compatibility. The only validator that catches silent AI blocking issues.',
+  });
+
   const normalizeUrl = (value: string) => {
     if (!value.trim()) return value;
-    if (/^https?:\/\//.test(value)) {
-      return value;
-    }
+    if (/^https?:\/\//.test(value)) return value;
     return `https://${value}`;
   };
 
@@ -186,7 +192,7 @@ export default function ValidatePage() {
     validateUrl(value);
     setError(null);
     setValidationResult(null);
-    setBatchResult(null); // Sprint 5 Phase 5: Reset batch results
+    setBatchResult(null);
   };
 
   const handleValidate = async () => {
@@ -230,7 +236,6 @@ export default function ValidatePage() {
         return;
       }
 
-      // API returns { validation: {...} }
       setValidationResult(data.validation || data);
     } catch (err) {
       setError('Network error. Please check your connection and try again.');
@@ -240,7 +245,6 @@ export default function ValidatePage() {
     }
   };
 
-  // Sprint 5 Phase 5: Batch validation handler
   const handleBatchValidate = async () => {
     if (!isValid || !url) return;
 
@@ -324,6 +328,34 @@ export default function ValidatePage() {
     }
   };
 
+  // Determine post-validation CTA messaging
+  const getPostValidationCTA = () => {
+    if (!validationResult) return null;
+    const score = validationResult.score;
+    if (score >= 90) {
+      return {
+        headline: 'Great Score! Now Generate the Perfect File.',
+        description: 'Your llms.txt is well-structured. Take the next step — let our AI analyzer generate a comprehensive, quality-scored llms.txt that ensures AI systems cite your best content.',
+        ctaText: 'Generate Your llms.txt File',
+        urgency: 'You\'re ahead of 90% of websites. Lock in your advantage.',
+      };
+    }
+    if (score >= 75) {
+      return {
+        headline: 'Good Start — Let\'s Make It Great.',
+        description: 'You\'re close! Our AI-powered generator will fix the remaining issues and create a file optimized for maximum AI visibility.',
+        ctaText: 'Fix & Generate Automatically',
+        urgency: 'Most sites score below 50. A few improvements could set you apart.',
+      };
+    }
+    return {
+      headline: 'Issues Found — We Can Fix This Automatically.',
+      description: 'Don\'t worry — our AI-powered analyzer will scan your entire site, prioritize your best content by quality, and generate a perfect llms.txt file.',
+      ctaText: 'Fix My Site\'s AI Visibility',
+      urgency: 'Without a proper llms.txt, AI systems like ChatGPT and Claude can\'t find your content.',
+    };
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -350,29 +382,48 @@ export default function ValidatePage() {
         </div>
       </header>
 
+      {/* Hero Section */}
+      <section className="bg-gradient-to-b from-white to-slate-50 border-b border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+          <div className="inline-flex items-center justify-center px-4 py-2 bg-innovation-teal/10 border border-innovation-teal/30 rounded-full mb-6">
+            <Shield className="h-4 w-4 text-innovation-teal mr-2" />
+            <span className="text-sm font-semibold text-innovation-teal">100% Free — No Sign-up Required</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-framework-black mb-4">
+            Is Your Website Visible to{' '}
+            <span className="text-innovation-teal">AI Search?</span>
+          </h1>
+          <p className="text-lg text-ai-silver max-w-2xl mx-auto mb-6">
+            ChatGPT, Claude, and Perplexity are crawling websites right now. Validate your llms.txt file
+            in seconds — and find out if AI can actually discover your content.
+          </p>
+
+          {/* Trust Signals */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-ai-silver mb-2">
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span>Official llmstxt.org spec</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span>robots.txt conflict check</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span>Framework detection</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span>All 4 file locations</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-framework-black mb-3">
-            Validate Your llms.txt File
-          </h1>
-          <p className="text-lg text-ai-silver max-w-2xl mx-auto">
-            Check if your llms.txt file follows the official{' '}
-            <a
-              href="https://llmstxt.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-innovation-teal hover:underline inline-flex items-center"
-            >
-              llmstxt.org
-              <ExternalLink className="h-3 w-3 ml-1" />
-            </a>{' '}
-            specification and get actionable recommendations to improve your score.
-          </p>
-        </div>
-
-        {/* Free Tool Banner */}
+        {/* Free Tool Banner for non-authenticated */}
         {!isAuthenticated && (
           <Alert className="mb-6 bg-innovation-teal/10 border-innovation-teal">
             <Info className="h-4 w-4 text-innovation-teal" />
@@ -387,9 +438,13 @@ export default function ValidatePage() {
           </Alert>
         )}
 
-        {/* Validation Input */}
-        <Card className="bg-white shadow-sm border border-slate-200 mb-6">
+        {/* Validation Input Card */}
+        <Card className="bg-white shadow-md border border-slate-200 mb-6">
           <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-framework-black mb-4 flex items-center">
+              <Search className="h-5 w-5 mr-2 text-innovation-teal" />
+              Validate Your llms.txt File
+            </h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -428,7 +483,7 @@ export default function ValidatePage() {
                 </p>
               </div>
 
-              {/* Sprint 5: File Type Selection */}
+              {/* File Type Selection */}
               <div>
                 <Label htmlFor="file-type" className="text-sm font-medium text-framework-black">
                   File Location
@@ -454,7 +509,8 @@ export default function ValidatePage() {
                   onCheckedChange={setIncludeRobotsTxt}
                 />
                 <Label htmlFor="robots-check" className="text-sm text-framework-black cursor-pointer">
-                  Check for robots.txt conflicts
+                  Check for robots.txt conflicts{' '}
+                  <span className="text-innovation-teal font-medium">(unique feature)</span>
                 </Label>
               </div>
 
@@ -464,7 +520,6 @@ export default function ValidatePage() {
                   <span>Official llmstxt.org specification validator</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  {/* Sprint 5 Phase 5: Batch Validation Button */}
                   <Button
                     type="button"
                     variant="outline"
@@ -515,7 +570,7 @@ export default function ValidatePage() {
           </Alert>
         )}
 
-        {/* Sprint 5 Phase 5: Batch Validation Results */}
+        {/* Batch Validation Results */}
         {batchResult && (
           <div className="space-y-6 mb-6">
             <Card className="bg-white shadow-sm border border-slate-200">
@@ -528,7 +583,6 @@ export default function ValidatePage() {
                   </span>
                 </h3>
 
-                {/* File Location Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {batchResult.results.map((fileResult) => (
                     <div
@@ -555,9 +609,7 @@ export default function ValidatePage() {
                       {fileResult.found && fileResult.result ? (
                         <div className="flex items-center justify-between">
                           <span
-                            className={`text-lg font-bold ${getScoreColor(
-                              fileResult.result.score
-                            )}`}
+                            className={`text-lg font-bold ${getScoreColor(fileResult.result.score)}`}
                           >
                             {fileResult.result.score}/100
                           </span>
@@ -578,7 +630,6 @@ export default function ValidatePage() {
                   ))}
                 </div>
 
-                {/* Comparison Summary */}
                 {batchResult.comparison && (
                   <div className="border-t border-slate-200 pt-4">
                     <div className="flex items-start space-x-3">
@@ -614,7 +665,7 @@ export default function ValidatePage() {
                             </p>
                             <ul className="text-xs text-yellow-700 space-y-1">
                               {batchResult.comparison.inconsistencies.map((inc, i) => (
-                                <li key={i}>• {inc}</li>
+                                <li key={i}>&#8226; {inc}</li>
                               ))}
                             </ul>
                           </div>
@@ -661,7 +712,6 @@ export default function ValidatePage() {
                   </div>
                 </div>
 
-                {/* Sprint 5: Show detected file path */}
                 {validationResult.detectedPath && (
                   <div className="mb-4 p-3 bg-slate-50 rounded-lg">
                     <div className="flex items-center space-x-2 text-sm">
@@ -803,7 +853,7 @@ export default function ValidatePage() {
               </Card>
             )}
 
-            {/* Universal Compatibility - SPA Detection (Sprint 5) */}
+            {/* Universal Compatibility - SPA Detection */}
             {validationResult.spaDetection && (
               <Card className="bg-white shadow-sm border border-slate-200">
                 <CardContent className="p-6">
@@ -812,7 +862,6 @@ export default function ValidatePage() {
                     Universal Compatibility
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Framework Detection */}
                     <div className="p-4 bg-slate-50 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <Zap className="h-4 w-4 text-innovation-teal" />
@@ -824,8 +873,6 @@ export default function ValidatePage() {
                           : validationResult.spaDetection.framework.framework}
                       </p>
                     </div>
-
-                    {/* Rendering Strategy */}
                     <div className="p-4 bg-slate-50 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <Server className="h-4 w-4 text-innovation-teal" />
@@ -839,8 +886,6 @@ export default function ValidatePage() {
                         {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' && 'Traditional'}
                       </p>
                     </div>
-
-                    {/* Content Coverage */}
                     <div className="p-4 bg-slate-50 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="h-4 w-4 text-innovation-teal" />
@@ -860,8 +905,6 @@ export default function ValidatePage() {
                       </p>
                     </div>
                   </div>
-
-                  {/* Coverage Warning */}
                   {validationResult.spaDetection.contentCoverageWarning && (
                     <Alert className="mt-4 bg-yellow-50 border-yellow-200">
                       <AlertTriangle className="h-4 w-4 text-yellow-600" />
@@ -870,8 +913,6 @@ export default function ValidatePage() {
                       </AlertDescription>
                     </Alert>
                   )}
-
-                  {/* Technical Details (collapsed by default) */}
                   {validationResult.spaDetection.framework.indicators.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-slate-200">
                       <p className="text-xs text-ai-silver">
@@ -884,7 +925,7 @@ export default function ValidatePage() {
               </Card>
             )}
 
-            {/* Content Depth Analysis (Sprint 5 Phase 4) */}
+            {/* Content Depth Analysis */}
             {validationResult.contentDepth && (
               <Card className="bg-white shadow-sm border border-slate-200">
                 <CardContent className="p-6">
@@ -893,31 +934,24 @@ export default function ValidatePage() {
                     Content Depth Analysis
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    {/* URLs */}
                     <div className="p-4 bg-slate-50 rounded-lg text-center">
                       <p className="text-2xl font-bold text-framework-black">
                         {validationResult.contentDepth.urlCount}
                       </p>
                       <p className="text-xs text-ai-silver">URLs</p>
                     </div>
-
-                    {/* Sections */}
                     <div className="p-4 bg-slate-50 rounded-lg text-center">
                       <p className="text-2xl font-bold text-framework-black">
                         {validationResult.contentDepth.sectionCount}
                       </p>
                       <p className="text-xs text-ai-silver">Sections</p>
                     </div>
-
-                    {/* Words */}
                     <div className="p-4 bg-slate-50 rounded-lg text-center">
                       <p className="text-2xl font-bold text-framework-black">
                         {validationResult.contentDepth.wordCount}
                       </p>
                       <p className="text-xs text-ai-silver">Words</p>
                     </div>
-
-                    {/* Depth Score */}
                     <div className="p-4 bg-slate-50 rounded-lg text-center">
                       <p className={`text-2xl font-bold ${
                         validationResult.contentDepth.depthScore >= 80
@@ -933,8 +967,6 @@ export default function ValidatePage() {
                       <p className="text-xs text-ai-silver">Depth Score</p>
                     </div>
                   </div>
-
-                  {/* Depth Level Badge */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-ai-silver">Content Level:</span>
@@ -984,68 +1016,279 @@ export default function ValidatePage() {
                 </Card>
               )}
 
-            {/* CTA */}
-            <Card className="bg-gradient-to-r from-innovation-teal to-blue-500 text-white shadow-lg">
-              <CardContent className="p-6 text-center">
-                <h3 className="text-2xl font-bold mb-2">Want to improve your score?</h3>
-                <p className="mb-4 text-white/90">
-                  Use our AI-powered analyzer to automatically generate a perfect llms.txt file for
-                  your website.
-                </p>
-                <Link href="/analyze">
-                  <a>
-                    <Button
-                      size="lg"
-                      className="bg-white text-innovation-teal hover:bg-slate-100 font-semibold"
-                    >
-                      Analyze & Generate llms.txt
-                      <ChevronRight className="h-5 w-5 ml-2" />
-                    </Button>
-                  </a>
-                </Link>
-              </CardContent>
-            </Card>
+            {/* POST-VALIDATION SALES FUNNEL CTA */}
+            {(() => {
+              const cta = getPostValidationCTA();
+              if (!cta) return null;
+              return (
+                <Card className="bg-gradient-to-r from-mastery-blue to-innovation-teal text-white shadow-lg border-0">
+                  <CardContent className="p-8 text-center">
+                    <Target className="h-10 w-10 mx-auto mb-4 text-white/80" />
+                    <h3 className="text-2xl sm:text-3xl font-bold mb-3">{cta.headline}</h3>
+                    <p className="text-white/90 mb-2 max-w-2xl mx-auto">{cta.description}</p>
+                    <p className="text-sm text-white/70 mb-6">{cta.urgency}</p>
+                    <div className="flex flex-col sm:flex-row justify-center gap-4">
+                      <Button
+                        size="lg"
+                        className="bg-white text-mastery-blue hover:bg-slate-100 font-semibold px-8"
+                        onClick={() => {
+                          if (user) {
+                            window.location.href = `/analyze?url=${encodeURIComponent(normalizeUrl(url))}`;
+                          } else {
+                            window.location.href = `/signup?url=${encodeURIComponent(normalizeUrl(url))}`;
+                          }
+                        }}
+                      >
+                        {cta.ctaText}
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </Button>
+                      <Link href="/pricing">
+                        <a>
+                          <Button
+                            size="lg"
+                            variant="outline"
+                            className="border-white/50 text-white hover:bg-white/10"
+                          >
+                            View Pricing
+                          </Button>
+                        </a>
+                      </Link>
+                    </div>
+                    <div className="flex items-center justify-center gap-4 mt-6 text-sm text-white/70">
+                      <span className="flex items-center"><CheckCircle className="h-4 w-4 mr-1" /> Free tier available</span>
+                      <span className="flex items-center"><Shield className="h-4 w-4 mr-1" /> 30-day money-back</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
           </div>
         )}
 
-        {/* How It Works */}
-        {!validationResult && !error && (
-          <Card className="bg-white shadow-sm border border-slate-200 mt-6">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-framework-black mb-4">How It Works</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Search className="h-6 w-6 text-innovation-teal" />
+        {/* Pre-Validation Content (only shows before results) */}
+        {!validationResult && !batchResult && !error && (
+          <>
+            {/* How It Works */}
+            <Card className="bg-white shadow-sm border border-slate-200 mt-6 mb-8">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-framework-black mb-4 text-center">
+                  How Validation Works
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search className="h-6 w-6 text-innovation-teal" />
+                    </div>
+                    <h4 className="font-semibold text-framework-black mb-2">1. Enter URL</h4>
+                    <p className="text-sm text-ai-silver">
+                      We'll fetch and analyze your llms.txt file from all standard locations
+                    </p>
                   </div>
-                  <h4 className="font-semibold text-framework-black mb-2">1. Enter URL</h4>
-                  <p className="text-sm text-ai-silver">
-                    We'll fetch and analyze your llms.txt file from your website
-                  </p>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <FileText className="h-6 w-6 text-innovation-teal" />
+                    </div>
+                    <h4 className="font-semibold text-framework-black mb-2">2. Get Your Score</h4>
+                    <p className="text-sm text-ai-silver">
+                      Receive a detailed score based on the official llmstxt.org specification
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <TrendingUp className="h-6 w-6 text-innovation-teal" />
+                    </div>
+                    <h4 className="font-semibold text-framework-black mb-2">3. Take Action</h4>
+                    <p className="text-sm text-ai-silver">
+                      Get recommendations and fix issues automatically with our AI generator
+                    </p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <FileText className="h-6 w-6 text-innovation-teal" />
+              </CardContent>
+            </Card>
+
+            {/* What Makes Our Validator Different */}
+            <section className="mb-8">
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-2 border-innovation-teal/30 p-8">
+                <h3 className="text-2xl font-bold text-framework-black mb-6 text-center">
+                  The Only Validator That Checks What Actually Matters
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <h4 className="font-semibold text-red-800 mb-3">Other Validators:</h4>
+                    <ul className="space-y-2 text-sm text-red-700">
+                      <li className="flex items-start">
+                        <XCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        Only check format compliance
+                      </li>
+                      <li className="flex items-start">
+                        <XCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        Miss robots.txt conflicts that block AI
+                      </li>
+                      <li className="flex items-start">
+                        <XCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        No framework or rendering detection
+                      </li>
+                      <li className="flex items-start">
+                        <XCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        Only check one file location
+                      </li>
+                    </ul>
                   </div>
-                  <h4 className="font-semibold text-framework-black mb-2">2. Get Score</h4>
-                  <p className="text-sm text-ai-silver">
-                    Receive a detailed score based on official llmstxt.org standards
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp className="h-6 w-6 text-innovation-teal" />
+                  <div>
+                    <h4 className="font-semibold text-green-800 mb-3">Our Validator:</h4>
+                    <ul className="space-y-2 text-sm text-green-700">
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <span className="font-medium">robots.txt conflict detection</span>
+                          <span className="text-xs block text-green-600">Catches silent blocking issues</span>
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <span className="font-medium">Content quality scoring</span>
+                          <span className="text-xs block text-green-600">Not just format — actual quality</span>
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <span className="font-medium">15+ framework detection</span>
+                          <span className="text-xs block text-green-600">React, Next.js, Vue, Angular, Astro...</span>
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <span className="font-medium">All 4 file locations</span>
+                          <span className="text-xs block text-green-600">llms.txt, llms-full.txt, .well-known/, llms.md</span>
+                        </div>
+                      </li>
+                    </ul>
                   </div>
-                  <h4 className="font-semibold text-framework-black mb-2">3. Improve</h4>
-                  <p className="text-sm text-ai-silver">
-                    Follow our recommendations to achieve a perfect score
-                  </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </section>
+
+            {/* Social Proof - Quick Stats */}
+            <section className="mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-innovation-teal">47+</p>
+                  <p className="text-xs text-ai-silver">Updates shipped in 2025</p>
+                </div>
+                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-innovation-teal">4</p>
+                  <p className="text-xs text-ai-silver">File locations checked</p>
+                </div>
+                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-innovation-teal">15+</p>
+                  <p className="text-xs text-ai-silver">Frameworks detected</p>
+                </div>
+                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-innovation-teal">100%</p>
+                  <p className="text-xs text-ai-silver">Free — no signup needed</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Pricing Preview */}
+            <PricingPreview
+              highlightTier="growth"
+              showAllTiers={true}
+              className="mb-8"
+            />
+
+            {/* Trust Badges */}
+            <section className="mb-8">
+              <TrustBadges variant="security" compact={true} alignment="center" />
+            </section>
+
+            {/* Why AI Visibility Matters */}
+            <section className="mb-8">
+              <Card className="bg-slate-50 border-slate-200">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-framework-black mb-4 flex items-center">
+                    <Eye className="h-5 w-5 mr-2 text-innovation-teal" />
+                    Why llms.txt Matters for Your Business
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <h4 className="font-medium text-framework-black mb-2">AI Search is Here</h4>
+                      <p className="text-sm text-ai-silver">
+                        ChatGPT, Claude, and Perplexity are replacing traditional search for millions of users. If they can't find your content, you're invisible.
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-framework-black mb-2">llms.txt is the Standard</h4>
+                      <p className="text-sm text-ai-silver">
+                        The{' '}
+                        <a href="https://llmstxt.org" target="_blank" rel="noopener noreferrer" className="text-innovation-teal hover:underline">
+                          llmstxt.org specification
+                        </a>{' '}
+                        tells AI systems exactly what your site offers and which pages matter most.
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-framework-black mb-2">Early Adopter Advantage</h4>
+                      <p className="text-sm text-ai-silver">
+                        Less than 1% of websites have a proper llms.txt file. Set yours up now and be discoverable before your competitors.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Final CTA */}
+            <div className="text-center mb-8">
+              <p className="text-ai-silver mb-4">
+                Ready to make your website AI-discoverable?
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Button
+                  size="lg"
+                  className="bg-mastery-blue hover:bg-mastery-blue/90 text-white px-8 py-3"
+                  onClick={() => {
+                    if (user) {
+                      window.location.href = '/analyze';
+                    } else {
+                      window.location.href = '/signup';
+                    }
+                  }}
+                >
+                  Start Free Analysis
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  Validate Your Site First
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Post-results: Additional conversion content */}
+        {validationResult && (
+          <section className="mt-8 mb-8">
+            <PricingPreview
+              highlightTier="growth"
+              showAllTiers={true}
+              className="mb-8"
+            />
+          </section>
         )}
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

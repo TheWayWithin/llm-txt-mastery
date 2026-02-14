@@ -15,6 +15,9 @@ import {
 } from '@shared/schema';
 import { ValidationError, FormFieldError, ValidationResult } from './error-utils';
 
+// Re-export error types for modules that import from validation-utils
+export { ValidationError, FormFieldError, ValidationResult };
+
 // Re-export shared schemas for convenience
 export {
   emailCaptureSchema,
