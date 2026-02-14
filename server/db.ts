@@ -4,8 +4,8 @@ import * as schema from '@shared/schema';
 
 if (!process.env.DATABASE_URL) {
   console.warn('⚠️  DATABASE_URL not set. Using in-memory storage for testing only!');
-  // For testing only - will use in-memory storage
-  process.env.DATABASE_URL = 'postgresql://localhost:5432/test';
+  // For testing only - includes postgres user to avoid defaulting to OS user (e.g., root in CI)
+  process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/test';
 }
 
 // Simple pool configuration - let it connect lazily when needed

@@ -1,6 +1,7 @@
 import { render, RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactElement } from 'react';
+import { vi } from 'vitest';
 
 // Common wouter mock setup
 export const createWouterMock = () => {
@@ -36,7 +37,7 @@ export const renderWithQueryClient = (
   return render(ui, { wrapper: Wrapper, ...options });
 };
 
-// Mock auth context helper
+// Mock auth context helper - must match AuthContextType interface
 export const createMockAuthContext = (overrides = {}) => {
   return {
     user: null,
@@ -50,6 +51,9 @@ export const createMockAuthContext = (overrides = {}) => {
     canAnalyze: true,
     isAuthenticated: false,
     authResolved: true,
+    // Added Aug 2025 for email-based auth flow
+    recognizeEmailUser: vi.fn().mockResolvedValue(null),
+    emailBasedUser: null,
     ...overrides,
   };
 };
