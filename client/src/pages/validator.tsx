@@ -428,10 +428,10 @@ export default function ValidatorPage() {
           <Alert className="mb-6 bg-innovation-teal/10 border-innovation-teal">
             <Info className="h-4 w-4 text-innovation-teal" />
             <AlertDescription className="text-framework-black">
-              Free validation: 3 checks per day. Want unlimited validations?{' '}
-              <Link href="/signup">
+              Free validation: 3 checks per day. Need unlimited validations + AI-powered llms.txt generation?{' '}
+              <Link href="/pricing">
                 <a className="font-semibold text-innovation-teal hover:underline">
-                  Sign up for free
+                  See plans from $4.95/mo
                 </a>
               </Link>
             </AlertDescription>
