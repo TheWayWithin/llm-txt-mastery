@@ -495,7 +495,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Link href="/validate">
+                <Link href="/validator">
                   <a>
                     <Button
                       size="lg"
