@@ -672,8 +672,8 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
 
   // SPEC COMPLIANCE PENALTIES - H2 section content rules
   if (specViolationCount > 0) {
-    // Scale penalty: -3 per violation, capped at -15
-    const specPenalty = Math.min(15, specViolationCount * 3);
+    // Scale penalty: -3 per violation, capped at -25
+    const specPenalty = Math.min(25, specViolationCount * 3);
     score -= specPenalty;
   }
 
@@ -684,33 +684,36 @@ function calculateScore(parsed: ParsedLlmsTxt, issues: ValidationIssue[]): numbe
     }
   }
 
-  // BONUSES - Reward excellent implementation
-  const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
-  if (hasBlockquote) {
-    const blockquoteLength = hasBlockquote[0].replace(/^>\s+/, '').length;
-    if (blockquoteLength > 100) {
-      score += 5; // Comprehensive description
-    } else if (blockquoteLength > 50) {
-      score += 3; // Good description
+  // BONUSES - Reward excellent implementation (only if no spec violations)
+  // Files with structural spec violations should fix those before earning bonus points
+  if (specViolationCount === 0) {
+    const hasBlockquote = parsed.rawContent.match(/^>\s+.+$/m);
+    if (hasBlockquote) {
+      const blockquoteLength = hasBlockquote[0].replace(/^>\s+/, '').length;
+      if (blockquoteLength > 100) {
+        score += 5; // Comprehensive description
+      } else if (blockquoteLength > 50) {
+        score += 3; // Good description
+      }
     }
-  }
 
-  if (parsed.urls.length >= 20) {
-    score += 10; // Excellent URL coverage
-  } else if (parsed.urls.length >= 10) {
-    score += 5; // Good URL coverage
-  } else if (parsed.urls.length >= 5) {
-    score += 3; // Decent URL coverage
-  }
+    if (parsed.urls.length >= 20) {
+      score += 10; // Excellent URL coverage
+    } else if (parsed.urls.length >= 10) {
+      score += 5; // Good URL coverage
+    } else if (parsed.urls.length >= 5) {
+      score += 3; // Decent URL coverage
+    }
 
-  // Bonus for H2 sections (good organization)
-  const h2Count = Object.keys(parsed.sections).length - 1; // Exclude H1
-  if (h2Count >= 5) {
-    score += 5; // Excellent organization
-  } else if (h2Count >= 3) {
-    score += 3; // Good organization
-  } else if (h2Count >= 2) {
-    score += 2; // Basic organization
+    // Bonus for H2 sections (good organization)
+    const h2Count = Object.keys(parsed.sections).length - 1; // Exclude H1
+    if (h2Count >= 5) {
+      score += 5; // Excellent organization
+    } else if (h2Count >= 3) {
+      score += 3; // Good organization
+    } else if (h2Count >= 2) {
+      score += 2; // Basic organization
+    }
   }
 
   // Ensure score is within 0-100 range
