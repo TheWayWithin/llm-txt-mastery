@@ -69,7 +69,7 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -161,7 +161,7 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -257,7 +257,7 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: llmtxt_test
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
