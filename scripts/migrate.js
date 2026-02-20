@@ -14,7 +14,8 @@
  *   npm run migrate:status       # Check migration status
  */
 
-import { Pool } from '@neondatabase/serverless';
+import pg from 'pg';
+const { Pool } = pg;
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
