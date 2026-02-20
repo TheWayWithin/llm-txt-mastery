@@ -1,7 +1,8 @@
 -- Migration 005: Semantic Enhancement Foundation
 -- Adds pgvector support and semantic analysis tables for LLM.txt Mastery
 
--- Enable pgvector extension
+-- Enable pgvector extension (create extensions schema if it doesn't exist, e.g. in CI)
+CREATE SCHEMA IF NOT EXISTS extensions;
 CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 
 -- Add semantic clustering columns to existing sitemapAnalysis table
@@ -115,4 +116,3 @@ COMMENT ON COLUMN sitemapAnalysis.clustering_metadata IS 'Clustering algorithm m
 COMMENT ON COLUMN sitemapAnalysis.content_embeddings IS 'Cached embeddings metadata for performance optimization';
 
 -- Migration complete
-INSERT INTO pg_stat_statements_info VALUES ('Migration 005: Semantic Enhancement Foundation completed at ' || now());
