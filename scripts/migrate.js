@@ -111,18 +111,11 @@ class MigrationRunner {
     console.log(`🔄 Running migration: ${filename}`);
 
     try {
-      // Split SQL into statements
-      const statements = content
-        .split(/;(?=(?:[^']*'[^']*')*[^']*$)/)
-        .filter((stmt) => stmt.trim().length > 0)
-        .map((stmt) => stmt.trim());
-
-      // Execute each statement
-      for (const statement of statements) {
-        if (statement.trim()) {
-          await this.pool.query(statement);
-        }
-      }
+      // Execute the entire migration file as a single query.
+      // PostgreSQL handles multiple statements in one query natively,
+      // and this avoids breaking on dollar-quoted strings ($$...$$)
+      // used in PL/pgSQL functions and triggers.
+      await this.pool.query(content);
 
       // Record migration as applied
       await this.pool.query(
