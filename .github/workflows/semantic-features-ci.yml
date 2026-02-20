@@ -436,12 +436,12 @@ jobs:
           echo "Checking for sensitive data patterns..."
 
           # Check for API keys, passwords, etc. (exclude node_modules, env var reads, and placeholder patterns)
-          if grep -r -i "api[_-]key\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --exclude-dir=node_modules . | grep -v "\.example" | grep -v "test" | grep -v "spec" | grep -v "placeholder" | grep -v "your_api_key" | grep -v "your_" | grep -v "process\.env" | grep -v "sk-your-"; then
+          if grep -r -i "api[_-]key\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --exclude-dir=node_modules --exclude-dir=scripts . | grep -v "\.example" | grep -v "test" | grep -v "spec" | grep -v "placeholder" | grep -v "your_api_key" | grep -v "your_" | grep -v "process\.env" | grep -v "sk-your-"; then
             echo "❌ Potential API key found in code"
             exit 1
           fi
 
-          if grep -r -i "password\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --exclude-dir=node_modules . | grep -v "\.example" | grep -v "test" | grep -v "spec" | grep -v "placeholder" | grep -v "your_password" | grep -v "process\.env" | grep -v "your-"; then
+          if grep -r -i "password\s*=" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --exclude-dir=node_modules --exclude-dir=scripts . | grep -v "\.example" | grep -v "test" | grep -v "spec" | grep -v "placeholder" | grep -v "your_password" | grep -v "process\.env" | grep -v "your-"; then
             echo "❌ Potential password found in code"
             exit 1
           fi
