@@ -5,8 +5,8 @@
 CREATE SCHEMA IF NOT EXISTS extensions;
 CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 
--- Add semantic clustering columns to existing sitemapAnalysis table
-ALTER TABLE sitemapAnalysis 
+-- Add semantic clustering columns to existing "sitemapAnalysis" table
+ALTER TABLE "sitemapAnalysis" 
 ADD COLUMN IF NOT EXISTS semantic_clusters JSONB DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS clustering_metadata JSONB DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS content_embeddings JSONB DEFAULT NULL;
@@ -36,7 +36,7 @@ CREATE INDEX IF NOT EXISTS idx_embedding_cache_expires_at ON embedding_cache(exp
 -- Create page relationships table for hierarchical clustering
 CREATE TABLE IF NOT EXISTS page_relationships (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   parent_url text NOT NULL,
   child_url text NOT NULL,
   relationship_type text NOT NULL, -- 'hierarchical', 'semantic', 'thematic'
@@ -51,7 +51,7 @@ CREATE INDEX IF NOT EXISTS idx_page_relationships_parent_url ON page_relationshi
 -- Create semantic tags table for enhanced tagging
 CREATE TABLE IF NOT EXISTS semantic_tags (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   url text NOT NULL,
   tags JSONB NOT NULL DEFAULT '[]'::jsonb,
   confidence_scores JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -68,7 +68,7 @@ CREATE INDEX IF NOT EXISTS idx_semantic_tags_tags ON semantic_tags USING gin(tag
 -- Create content clusters table for storing cluster results
 CREATE TABLE IF NOT EXISTS content_clusters (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   cluster_id integer NOT NULL,
   cluster_name text NOT NULL,
   cluster_description text,
@@ -87,7 +87,7 @@ CREATE INDEX IF NOT EXISTS idx_content_clusters_cluster_id ON content_clusters(c
 -- Create enhanced descriptions table for uniqueness tracking
 CREATE TABLE IF NOT EXISTS enhanced_descriptions (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   url text NOT NULL,
   original_description text NOT NULL,
   enhanced_description text NOT NULL,
@@ -111,8 +111,8 @@ COMMENT ON TABLE semantic_tags IS 'AI-generated and rule-based semantic tags for
 COMMENT ON TABLE page_relationships IS 'Relationships between pages (hierarchical, semantic, thematic)';
 COMMENT ON TABLE enhanced_descriptions IS 'Enhanced page descriptions with uniqueness validation';
 
-COMMENT ON COLUMN sitemapAnalysis.semantic_clusters IS 'JSONB array of semantic clusters with page groupings';
-COMMENT ON COLUMN sitemapAnalysis.clustering_metadata IS 'Clustering algorithm metadata and performance metrics';
-COMMENT ON COLUMN sitemapAnalysis.content_embeddings IS 'Cached embeddings metadata for performance optimization';
+COMMENT ON COLUMN "sitemapAnalysis".semantic_clusters IS 'JSONB array of semantic clusters with page groupings';
+COMMENT ON COLUMN "sitemapAnalysis".clustering_metadata IS 'Clustering algorithm metadata and performance metrics';
+COMMENT ON COLUMN "sitemapAnalysis".content_embeddings IS 'Cached embeddings metadata for performance optimization';
 
 -- Migration complete
