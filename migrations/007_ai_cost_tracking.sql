@@ -16,11 +16,10 @@ CREATE INDEX IF NOT EXISTS idx_usage_tracking_cost_cap ON usage_tracking(cost_ca
 
 -- Add monthly cost view for easier monitoring
 CREATE OR REPLACE VIEW monthly_ai_costs AS
-SELECT 
+SELECT
     u.id as user_id,
-    u.username,
-    ec.email,
-    ec.tier,
+    u.email,
+    u.tier,
     DATE_TRUNC('month', CAST(ut.date AS DATE)) as month,
     SUM(ut.actual_ai_cost) / 100.0 as total_ai_cost_usd,
     SUM(ut.actual_tokens_used) as total_tokens,
@@ -30,8 +29,7 @@ SELECT
     BOOL_OR(ut.cost_cap_would_trigger) as would_trigger_cap
 FROM usage_tracking ut
 JOIN users u ON u.id = ut.user_id
-LEFT JOIN email_captures ec ON ec.user_id = u.id
-GROUP BY u.id, u.username, ec.email, ec.tier, DATE_TRUNC('month', CAST(ut.date AS DATE))
+GROUP BY u.id, u.email, u.tier, DATE_TRUNC('month', CAST(ut.date AS DATE))
 ORDER BY month DESC, total_ai_cost_usd DESC;
 
 -- Add comment for documentation
