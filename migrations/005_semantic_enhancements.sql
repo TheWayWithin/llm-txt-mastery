@@ -4,6 +4,7 @@
 -- Enable pgvector extension (create extensions schema if it doesn't exist, e.g. in CI)
 CREATE SCHEMA IF NOT EXISTS extensions;
 CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
+SET search_path TO public, extensions;
 
 -- Add semantic clustering columns to existing "sitemapAnalysis" table
 ALTER TABLE "sitemapAnalysis" 
