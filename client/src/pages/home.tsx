@@ -82,7 +82,8 @@ export default function Home() {
       return response.json();
     },
     enabled: !!effectiveEmail,
-    refetchInterval: 10000,
+    refetchInterval: 60000, // Sprint 2: Reduced from 10s to 60s to prevent excessive polling
+    staleTime: 30000, // Data fresh for 30s prevents refetch storms
   });
 
   // Stable function reference to prevent infinite loops

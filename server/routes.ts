@@ -405,7 +405,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .parse(req.body);
 
       // Get user information (authenticated or email-based)
-      const user = req.user;
+      // SPRINT 2 FIX: Changed const to let - user must be reassignable
+      // so email fallback can populate it for coffee tier credit checks
+      let user = req.user;
 
       // CRITICAL FIX: Properly handle authenticated users
       let userEmail: string;
@@ -464,6 +466,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({
           message: 'Email required for analysis. Please sign up first.',
         });
+      }
+
+      // SPRINT 2 FIX: If user is still undefined (expired JWT) but we have a valid email,
+      // look up the auth user so coffee tier credit checks have access to user.id.
+      // This handles both paths: authUser-only AND emailCapture-with-auth-account.
+      if (!user && userEmail) {
+        const authUserFallback = await authStorage.getUserByEmail(userEmail);
+        if (authUserFallback) {
+          user = authUserFallback;
+          console.log(`🔄 [SPRINT 2] Populated user from email fallback: id=${authUserFallback.id}, tier=${authUserFallback.tier}`);
+        }
       }
 
       // Get user tier (prioritize authenticated user data)
