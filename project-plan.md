@@ -1,5 +1,32 @@
 # Project Plan - LLM.txt Mastery
 
+## Sprint 1: CSR Title Differentiation & Page Scoring Improvements
+
+**Sprint Location**: `/sprints/Sprint-1-CSR-Title-And-Scoring-Improvements.md`
+**Priority**: HIGH - Affects every CSR/SPA site (React, Vue, Angular)
+**Status**: PLANNED
+**Date**: 2026-02-21
+
+### Objective
+Fix two critical output quality issues discovered by running our own validator against llmtxtmastery.com:
+
+### Tasks
+- [ ] **Task 1**: Differentiate identical page titles on CSR sites using URL path context
+  - Files: `server/routes.ts` (new functions + integration in `generateLlmTxtContent`)
+- [ ] **Task 2**: Boost quality scores for high-value URL patterns on CSR sites
+  - Files: `server/services/openai.ts`, `server/services/sitemap-enhanced.ts`
+- [ ] **Task 3**: Fix plural grammar "1 pages" -> "1 page" in two locations
+  - Files: `server/routes.ts` (lines 1939 and 2575)
+- [ ] Testing on staging with real CSR sites
+- [ ] Deploy to production
+
+### Backlog (Future Improvements)
+- [ ] Improve site description when only 1-2 pages analyzed (use meta description fallback)
+- [ ] Homepage always included in Resources section
+- [ ] CSR upsell: show warning + Playwright upgrade CTA for better results
+
+---
+
 ## ✅ COMPLETED: SPRINT 7 - API Enhancement - Tiered Access & JS Rendering
 
 **Mission Type**: API Feature Enhancement
