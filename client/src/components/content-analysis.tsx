@@ -517,7 +517,31 @@ export default function ContentAnalysis({
       {analysisData && analysisData.status === 'completed' && (
         <Card className="bg-white shadow-sm border border-slate-200">
           <CardContent className="p-6">
-            <h4 className="font-semibold text-framework-black mb-4">Analysis Results</h4>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-framework-black">Analysis Results</h4>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={startAnalysisMutation.isPending}
+                onClick={() => {
+                  // Reset all progress state so the UI re-runs
+                  setProgress(0);
+                  setCurrentStepIndex(0);
+                  setCurrentStage('discovery');
+                  setCompletedStages([]);
+                  setAnalysisId(null);
+                  setTotalPages(undefined);
+                  setProcessedPages(0);
+                  setCompletedAnalysisIds(new Set());
+                  setLastError(null);
+                  // Trigger fresh analysis bypassing all caches
+                  startAnalysisMutation.mutate({ url: websiteUrl, force: true, email: userEmail });
+                }}
+              >
+                <RotateCcw className={`h-3.5 w-3.5 mr-1.5 ${startAnalysisMutation.isPending ? 'animate-spin' : ''}`} />
+                Re-analyze
+              </Button>
+            </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-ai-silver">Site Type:</span>

@@ -55,7 +55,8 @@ export async function analyzeDiscoveredPagesWithCache(
   entries: SitemapEntry[],
   userEmail: string,
   tier: UserTier,
-  jsRenderingOptions?: JsRenderingOptions
+  jsRenderingOptions?: JsRenderingOptions,
+  skipCache?: boolean
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   // Add timeout protection to prevent infinite hanging during page analysis
   // Longer timeout for JS rendering (browser operations take more time)
@@ -71,7 +72,7 @@ export async function analyzeDiscoveredPagesWithCache(
 
   try {
     return await Promise.race([
-      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions),
+      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions, skipCache),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -103,7 +104,8 @@ async function performPageAnalysisWithCache(
   entries: SitemapEntry[],
   userEmail: string,
   tier: UserTier,
-  jsRenderingOptions?: JsRenderingOptions
+  jsRenderingOptions?: JsRenderingOptions,
+  skipCache?: boolean
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   const relevantPages = filterRelevantPages(entries, tier);
   const tierLimits = TIER_LIMITS[tier];
@@ -223,7 +225,7 @@ async function performPageAnalysisWithCache(
       const batch = pagesToAnalyze.slice(batchStart, batchEnd);
 
       batchPromises.push(
-        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics, enhancedFetchOptions)
+        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics, enhancedFetchOptions, skipCache)
       );
     }
 
@@ -352,7 +354,8 @@ async function processBatchWithCache(
   tier: UserTier,
   aiPagesLimit: number,
   metrics: AnalysisMetrics,
-  enhancedFetchOptions?: EnhancedFetchOptions
+  enhancedFetchOptions?: EnhancedFetchOptions,
+  skipCache?: boolean
 ): Promise<Array<{ page: DiscoveredPage; success: boolean }>> {
   const results = [];
 
@@ -360,8 +363,8 @@ async function processBatchWithCache(
     try {
       const startTime = Date.now();
 
-      // Check cache first
-      const cached = await getCachedAnalysis(entry.url, tier);
+      // Check cache first (skip when force re-analysis requested)
+      const cached = skipCache ? null : await getCachedAnalysis(entry.url, tier);
 
       if (cached && cached.expiresAt > new Date()) {
         // Check if content has changed
