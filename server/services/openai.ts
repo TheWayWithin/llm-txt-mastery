@@ -32,6 +32,65 @@ export interface ContentAnalysisResult {
   relevance: number;
 }
 
+/**
+ * Truncate a description cleanly, preferring sentence boundaries over word boundaries.
+ */
+function truncateDescription(text: string, maxLength: number = 400): string {
+  if (!text) return 'No description available';
+  if (text.length <= maxLength) return text;
+
+  const truncated = text.substring(0, maxLength);
+
+  // Try to end at a sentence boundary first
+  const lastSentenceEnd = Math.max(
+    truncated.lastIndexOf('. '),
+    truncated.lastIndexOf('! '),
+    truncated.lastIndexOf('? ')
+  );
+
+  if (lastSentenceEnd > maxLength * 0.6) {
+    return truncated.substring(0, lastSentenceEnd + 1);
+  }
+
+  // Also check for a sentence that ends right at the boundary (no trailing space)
+  if (truncated.endsWith('.') || truncated.endsWith('!') || truncated.endsWith('?')) {
+    return truncated;
+  }
+
+  // Fall back to word boundary
+  const lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > maxLength * 0.6) {
+    return truncated.substring(0, lastSpace) + '...';
+  }
+
+  return truncated + '...';
+}
+
+/**
+ * Generate a minimal but honest fallback description from URL path and title
+ * when the AI produces filler text about not being able to extract content.
+ */
+function generateFallbackDescription(url: string, title: string): string {
+  try {
+    const hostname = new URL(url).hostname;
+    const cleanTitle = title.replace(/ [-|–] .*$/, '').trim();
+    if (cleanTitle && cleanTitle.length > 5) {
+      return `${cleanTitle} page on ${hostname}.`;
+    }
+    const path = new URL(url).pathname;
+    const pathSegment = path.split('/').filter(Boolean).pop();
+    if (pathSegment) {
+      const readable = pathSegment
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+      return `${readable} page on ${hostname}.`;
+    }
+    return `Page on ${hostname}.`;
+  } catch {
+    return title || 'No description available';
+  }
+}
+
 export async function analyzePageContent(
   url: string,
   htmlContent: string,
@@ -233,15 +292,8 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
     // Invalid URL, skip floor
   }
 
-  // Ensure description doesn't cut off mid-word
-  let finalDescription = description.substring(0, 300) || 'No description available';
-  if (description.length > 300) {
-    const lastSpace = finalDescription.lastIndexOf(' ');
-    if (lastSpace > 250) {
-      // Only truncate at word boundary if it's not too short
-      finalDescription = finalDescription.substring(0, lastSpace) + '...';
-    }
-  }
+  // Truncate cleanly at sentence or word boundary
+  const finalDescription = truncateDescription(description);
 
   return {
     title: title.substring(0, 100) || 'Untitled Page',
@@ -277,7 +329,7 @@ async function generateAIAnalysis(
 
     // Get main content
     const mainContent = $('main, article, .content, .post, .page, body').first().text().trim();
-    const contentSample = mainContent.substring(0, 2000); // Limit content for API
+    const contentSample = mainContent.substring(0, 4000); // Limit content for API
 
     const prompt = `Analyze this webpage content for AI/LLM accessibility and value.
 
@@ -288,8 +340,10 @@ Content Sample: ${contentSample}
 
 IMPORTANT: The Site Meta Description above may be a generic site-wide default shared by all pages. DO NOT paraphrase it. Instead, describe THIS SPECIFIC PAGE's unique content and purpose based on the Content Sample.
 
+CRITICAL: Never describe what you cannot see or what the content lacks. If the page content is thin or mostly JavaScript/HTML boilerplate, write a brief factual description based on the URL path, page title, and any available meta tags. Do NOT say things like "the content does not provide detailed information" or "although the specific content sample does not provide detailed" or "the sample content does not provide."
+
 Provide a JSON response with:
-1. "description": A unique description of THIS page's specific content (150-300 chars)
+1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence.
 2. "qualityScore": Quality score (1-10) based on content value for AI systems
 3. "category": One of (Documentation, Tutorial, API Reference, Blog, Product, About, Tools, General)
 4. "relevance": Relevance score (1-10) for AI training/reference
@@ -318,13 +372,25 @@ Focus on technical accuracy, information density, and AI utility.`;
 
     const aiResult = JSON.parse(response.choices[0].message.content || '{}');
 
-    // Ensure description doesn't cut off mid-word
-    let enhancedDescription = aiResult.description || htmlResult.description;
-    if (enhancedDescription.length > 300) {
-      const lastSpace = enhancedDescription.lastIndexOf(' ', 300);
-      if (lastSpace > 250) {
-        enhancedDescription = enhancedDescription.substring(0, lastSpace) + '...';
-      }
+    // Truncate cleanly at sentence or word boundary
+    let enhancedDescription = truncateDescription(aiResult.description || htmlResult.description);
+
+    // Detect and replace filler phrases that indicate the AI couldn't extract content
+    const fillerPhrases = [
+      'does not provide detailed',
+      'specific content sample',
+      'content does not provide',
+      'although the specific',
+      'though the sample content',
+      'no detailed information available',
+      'content sample does not',
+      'does not contain sufficient',
+    ];
+    const hasFiller = fillerPhrases.some(phrase =>
+      enhancedDescription.toLowerCase().includes(phrase)
+    );
+    if (hasFiller) {
+      enhancedDescription = generateFallbackDescription(url, htmlResult.title);
     }
 
     return {
