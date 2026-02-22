@@ -1962,23 +1962,35 @@ function addRelationshipContext(page: SelectedPage, relatedPages: SelectedPage[]
   const originalDescription = page.description || '';
 
   if (relatedPages.length === 0) {
-    // No related pages, enhance with URL context to differentiate from duplicates
+    // No related pages - build a descriptive replacement from URL path
     try {
       const url = new URL(page.url);
       const segments = url.pathname.split('/').filter((s) => s.length > 0);
 
-      if (segments.length > 1) {
-        const section = segments[segments.length - 2] || segments[0];
-        const cleanSection = section.replace(/-/g, ' ').replace(/_/g, ' ');
-        return `${originalDescription} (${cleanSection} section)`;
-      } else if (segments.length === 1) {
-        const section = segments[0].replace(/-/g, ' ').replace(/_/g, ' ');
-        return `${originalDescription} (${section} page)`;
+      if (segments.length > 0) {
+        // Build a descriptive label from the last meaningful path segment
+        const lastSegment = segments[segments.length - 1];
+        const pageName = lastSegment
+          .replace(/-/g, ' ')
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        // Use page title if it differs from the original description
+        const titleBased = page.title && page.title.length > 10
+          ? `${pageName} page. ${page.title}.`
+          : `${pageName} page.`;
+
+        return titleBased;
       }
     } catch {
-      // If URL parsing fails, add generic context
-      return `${originalDescription} (specific page content)`;
+      // If URL parsing fails, use title-based fallback
     }
+
+    // Final fallback: use title if available
+    if (page.title && page.title.length > 10) {
+      return page.title;
+    }
+    return originalDescription;
   }
 
   // Add context based on relationships
@@ -2040,13 +2052,27 @@ function generateSiteSummary(
       return url.pathname === '/' || url.pathname === '';
     });
 
-  // If we have a homepage with a good description, use it as the base
-  if (homePage && homePage.description && homePage.description.length > 50) {
-    // Enhance the homepage description with site-wide context
-    const domain = new URL(baseUrl).hostname;
-    const pageTypes = analyzePageTypes(selectedPages);
-    const primaryContent = identifyPrimaryContent(selectedPages);
+  const domain = new URL(baseUrl).hostname;
+  const pageTypes = analyzePageTypes(selectedPages);
+  const primaryContent = identifyPrimaryContent(selectedPages);
 
+  // Check if homepage description is generic (matches >50% of other page descriptions)
+  let homepageDescIsGeneric = false;
+  if (homePage && homePage.description) {
+    const homeDescNorm = homePage.description.trim().toLowerCase().replace(/\s+/g, ' ');
+    const matchCount = selectedPages.filter((p) => {
+      if (p.url === homePage.url) return false;
+      const norm = (p.description || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      return norm === homeDescNorm;
+    }).length;
+    const otherPageCount = selectedPages.length - 1;
+    if (otherPageCount > 0 && matchCount / otherPageCount > 0.5) {
+      homepageDescIsGeneric = true;
+    }
+  }
+
+  // If we have a homepage with a good, unique description, use it as the base
+  if (homePage && homePage.description && homePage.description.length > 50 && !homepageDescIsGeneric) {
     let summary = homePage.description;
 
     // Add context about the site's scope if not already included
@@ -2062,28 +2088,53 @@ function generateSiteSummary(
     return summary;
   }
 
-  // Fallback: Generate a summary from all available page data
-  const domain = new URL(baseUrl).hostname;
-  const pageCount = selectedPages.length;
-  const categories = extractCategories(selectedPages);
-  const pageTypes = analyzePageTypes(selectedPages);
+  // Fallback: Infer product focus from page titles and descriptions
+  const allText = selectedPages
+    .map((p) => `${p.title || ''} ${p.description || ''}`)
+    .join(' ')
+    .toLowerCase();
 
-  // Build a comprehensive summary from available data
-  let summary = `${domain} is a comprehensive website featuring ${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
+  // Detect product focus from frequent terms in page content
+  const focusTerms: { term: string; label: string }[] = [
+    { term: 'llms.txt', label: 'llms.txt generation and AI visibility' },
+    { term: 'llm.txt', label: 'llm.txt file generation' },
+    { term: 'ai visibility', label: 'AI visibility optimization' },
+    { term: 'seo', label: 'SEO and search optimization' },
+    { term: 'api', label: 'API services' },
+    { term: 'saas', label: 'SaaS platform' },
+    { term: 'e-commerce', label: 'e-commerce' },
+    { term: 'analytics', label: 'analytics and insights' },
+  ];
 
-  if (categories.length > 0) {
-    summary += ` covering ${categories.slice(0, 3).join(', ')}`;
-    if (categories.length > 3) {
-      summary += ` and ${categories.length - 3} more categories`;
+  let productFocus = '';
+  for (const { term, label } of focusTerms) {
+    if (allText.includes(term)) {
+      productFocus = label;
+      break;
     }
   }
 
-  if (pageTypes.length > 0) {
-    summary += `. The site provides ${pageTypes.join(', ')}`;
-  }
+  const pageCount = selectedPages.length;
+  let summary = '';
 
-  summary +=
-    ', serving users with organized, accessible content optimized for both human readers and AI systems.';
+  if (productFocus) {
+    summary = `${domain} provides ${productFocus}`;
+    if (pageTypes.length > 0) {
+      summary += `, with ${pageTypes.join(', ')}`;
+    }
+    summary += `. This file covers ${pageCount} key ${pageCount === 1 ? 'page' : 'pages'} for AI consumption.`;
+  } else {
+    // Generic fallback without filler phrases
+    const categories = extractCategories(selectedPages);
+    summary = `${domain}`;
+    if (categories.length > 0) {
+      summary += ` covers ${categories.slice(0, 3).join(', ')}`;
+    }
+    if (pageTypes.length > 0) {
+      summary += `, offering ${pageTypes.join(', ')}`;
+    }
+    summary += `. This file covers ${pageCount} key ${pageCount === 1 ? 'page' : 'pages'} for AI consumption.`;
+  }
 
   return summary;
 }
@@ -2715,17 +2766,35 @@ function generateLlmTxtContent(
 
   // Add Optional section with resource links (spec-compliant H2 with proper list items)
   let optionalSection = `## Optional\n\n`;
-  optionalSection += `- [Review Full Analysis](https://llmtxtmastery.com/analysis/${analysisMetadata?.analysisId || 'view'}): View quality scores and make changes to this file\n`;
   optionalSection += `- [llms.txt Specification](https://llmstxt.org/): Official llmstxt.org format specification\n`;
   if (excludedPages.length > 0) {
     // Differentiate identical titles on excluded pages too
     const titleFixedExcluded = differentiateIdenticalTitles(excludedPages);
     const topExcluded = titleFixedExcluded.slice(0, 10);
     for (const page of topExcluded) {
-      optionalSection += `- [${page.title}](${page.url}): Excluded from main listing (lower relevance)\n`;
+      // Use the page's actual description instead of a generic label
+      let pageLabel = page.description || '';
+      if (!pageLabel || pageLabel.length < 10) {
+        // Generate minimal description from URL path
+        try {
+          const urlObj = new URL(page.url);
+          const segments = urlObj.pathname.split('/').filter((s) => s.length > 0);
+          if (segments.length > 0) {
+            pageLabel = segments[segments.length - 1]
+              .replace(/-/g, ' ')
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase());
+          } else {
+            pageLabel = 'Additional site content';
+          }
+        } catch {
+          pageLabel = 'Additional site content';
+        }
+      }
+      optionalSection += `- [${page.title}](${page.url}): ${pageLabel}\n`;
     }
     if (excluded > 10) {
-      optionalSection += `- [${excluded - 10} more excluded pages](https://llmtxtmastery.com/analysis/${analysisMetadata?.analysisId || 'view'}): View full list in analysis dashboard\n`;
+      optionalSection += `- ${excluded - 10} additional excluded pages not shown\n`;
     }
   }
   optionalSection += '\n';
