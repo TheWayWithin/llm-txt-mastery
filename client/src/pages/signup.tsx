@@ -28,8 +28,13 @@ import {
 } from 'lucide-react';
 import { Link } from 'wouter';
 import Footer from '@/components/footer';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function SignupPage() {
+  useSEO({
+    title: 'Sign Up - LLM.txt Mastery',
+    description: 'Create your free LLM.txt Mastery account.',
+  });
   const [, navigate] = useLocation();
   const { signUp, isAuthenticated, user } = useAuth();
 

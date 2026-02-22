@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
+import { useSEO } from '@/hooks/useSEO';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,10 @@ import { apiRequest } from '@/lib/queryClient';
 import { useUsageTracking } from '@/hooks/useUsageTracking';
 
 export default function AnalyzePage() {
+  useSEO({
+    title: 'Analyze Your Website - LLM.txt Mastery',
+    description: "Analyze your website's AI readiness. Discover all pages, assess content quality, and generate an optimized llms.txt file.",
+  });
   const [, navigate] = useLocation();
   const { user, isAuthenticated, authResolved, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
