@@ -3,8 +3,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Cookie, Shield, Info, Settings, ArrowLeft } from 'lucide-react';
 import Footer from '@/components/footer';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function CookiesPage() {
+  useSEO({
+    title: 'Cookie Policy - LLM.txt Mastery',
+    description: 'Cookie policy for LLM.txt Mastery.',
+  });
   const lastUpdated = 'January 6, 2025';
 
   return (

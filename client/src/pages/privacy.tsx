@@ -1,8 +1,13 @@
 import React from 'react';
 import { Card, CardContent } from '../components/ui/card';
 import { Shield, Lock, Eye, UserCheck } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 export const PrivacyPage: React.FC = () => {
+  useSEO({
+    title: 'Privacy Policy - LLM.txt Mastery',
+    description: 'Privacy policy for LLM.txt Mastery. Your privacy matters - here is exactly what we do and do not do with your data.',
+  });
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">

@@ -12,8 +12,13 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Coffee, Shield, Zap } from 'lucide-react';
 import { Link } from 'wouter';
 import Footer from '@/components/footer';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function LoginPage() {
+  useSEO({
+    title: 'Log In - LLM.txt Mastery',
+    description: 'Log in to your LLM.txt Mastery account.',
+  });
   const [, navigate] = useLocation();
   const { signIn, isAuthenticated, user } = useAuth();
 
