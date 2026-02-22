@@ -1361,6 +1361,16 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     /\/quickstart/i,
     /\/overview/i,
     /\/introduction/i,
+    // Product feature pages (SaaS tools, analyzers, validators, etc.)
+    /\/analy[sz]e/i,
+    /\/validat(e|or)/i,
+    /\/check(er)?/i,
+    /\/scan(ner)?/i,
+    /\/audit/i,
+    /\/generat(e|or)/i,
+    /\/demo/i,
+    /\/playground/i,
+    /\/workspace/i,
   ];
 
   const mediumPriorityPatterns = [
