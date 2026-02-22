@@ -70,8 +70,12 @@ function truncateDescription(text: string, maxLength: number = 400): string {
  * Generate a minimal but honest fallback description from URL path and title
  * when the AI produces filler text about not being able to extract content.
  */
-function generateFallbackDescription(url: string, title: string): string {
+function generateFallbackDescription(url: string, title: string, metaDescription?: string): string {
   try {
+    // Prefer page-specific meta description when available
+    if (metaDescription && metaDescription.length > 30) {
+      return truncateDescription(metaDescription);
+    }
     const hostname = new URL(url).hostname;
     const cleanTitle = title.replace(/ [-|–] .*$/, '').trim();
     if (cleanTitle && cleanTitle.length > 5) {
@@ -331,19 +335,29 @@ async function generateAIAnalysis(
     const mainContent = $('main, article, .content, .post, .page, body').first().text().trim();
     const contentSample = mainContent.substring(0, 4000); // Limit content for API
 
+    // Detect if this is a thin/CSR page where meta description is more reliable than content
+    const contentWords = contentSample.split(/\s+/).filter(w => w.length > 2).length;
+    const isThinContent = contentWords < 50;
+    const metaDescription = $('meta[name="description"]').attr('content') || '';
+    const hasPageSpecificMeta = metaDescription.length > 30;
+
+    const contentGuidance = isThinContent && hasPageSpecificMeta
+      ? `IMPORTANT: The Content Sample is very thin (likely a client-side rendered app). The Meta Description below is page-specific and reliable — use it as the primary source for your description. Expand on it using the URL path and page title for additional context.`
+      : `IMPORTANT: The Meta Description may be a generic site-wide default. Prefer the Content Sample to understand what THIS specific page offers. Only fall back to the meta description if the content sample is insufficient.`;
+
     const prompt = `Analyze this webpage content for AI/LLM accessibility and value.
 
 URL: ${url}
 Title: ${htmlResult.title}
-Site Meta Description: ${htmlResult.description}
+Meta Description: ${metaDescription || htmlResult.description}
 Content Sample: ${contentSample}
 
-IMPORTANT: The Site Meta Description above may be a generic site-wide default shared by all pages. DO NOT paraphrase it. Instead, describe THIS SPECIFIC PAGE's unique content and purpose based on the Content Sample.
+${contentGuidance}
 
-CRITICAL: Never describe what you cannot see or what the content lacks. If the page content is thin or mostly JavaScript/HTML boilerplate, write a brief factual description based on the URL path, page title, and any available meta tags. Do NOT say things like "the content does not provide detailed information" or "although the specific content sample does not provide detailed" or "the sample content does not provide."
+CRITICAL: Never describe what you cannot see or what the content lacks. If the page content is thin, write a factual description based on the URL path, page title, and meta description. Do NOT say things like "the content does not provide detailed information" or "although the specific content sample does not provide detailed" or "the sample content does not provide."
 
 Provide a JSON response with:
-1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence.
+1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence that explains what users can DO on this page.
 2. "qualityScore": Quality score (1-10) based on content value for AI systems
 3. "category": One of (Documentation, Tutorial, API Reference, Blog, Product, About, Tools, General)
 4. "relevance": Relevance score (1-10) for AI training/reference
@@ -390,7 +404,7 @@ Focus on technical accuracy, information density, and AI utility.`;
       enhancedDescription.toLowerCase().includes(phrase)
     );
     if (hasFiller) {
-      enhancedDescription = generateFallbackDescription(url, htmlResult.title);
+      enhancedDescription = generateFallbackDescription(url, htmlResult.title, metaDescription);
     }
 
     return {
