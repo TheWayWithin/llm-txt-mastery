@@ -1,5 +1,58 @@
 # Project Plan - LLM.txt Mastery
 
+## Sprint 2: Coffee Tier Auth Bug & Usage Polling Fix
+
+**Sprint Location**: `/sprints/Sprint-2-Coffee-Tier-Auth-Bug-Fix.md`
+**Priority**: CRITICAL - Coffee tier users (paying customers) cannot analyze websites
+**Status**: PLANNED
+**Date**: 2026-02-22
+
+### Objective
+Fix a bug where Coffee tier users with expired JWTs get a misleading "Authentication required" error when analyzing websites, even though they're correctly identified via email fallback.
+
+### Tasks
+- [x] **Task 1**: Fix `const user` to `let user` in `/api/analyze` and populate from email fallback - `server/routes.ts:408` - ✅ 2026-02-22
+- [x] **Task 2**: Verify no other endpoints have the same bug pattern (confirmed: only `/api/analyze`) - ✅ 2026-02-22
+- [x] **Task 3**: Reduce excessive usage polling (`home.tsx:85` reduced from 10s to 60s) - ✅ 2026-02-22
+- [ ] **Task 4**: Fix auth state zombie session (`AuthContext.tsx:102-110`)
+- [ ] **Task 5**: Test fix on staging with expired JWT scenario
+- [ ] **Task 6**: Deploy to production via develop -> main PR flow
+
+### Backlog (Discovered During Investigation)
+- [ ] CSP blocking Plausible analytics (`plausible.io` not in script-src)
+- [ ] Excessive `<link preload>` warnings (~200+ in console)
+- [ ] Race condition in coffee credit check/consumption (non-atomic)
+- [ ] Inconsistent auth resolution patterns across endpoints
+
+---
+
+## Sprint 1: CSR Title Differentiation & Page Scoring Improvements
+
+**Sprint Location**: `/sprints/Sprint-1-CSR-Title-And-Scoring-Improvements.md`
+**Priority**: HIGH - Affects every CSR/SPA site (React, Vue, Angular)
+**Status**: ✅ COMPLETE
+**Date**: 2026-02-21
+
+### Objective
+Fix two critical output quality issues discovered by running our own validator against llmtxtmastery.com:
+
+### Tasks
+- [x] **Task 1**: Differentiate identical page titles on CSR sites using URL path context - ✅ 2026-02-21
+  - Files: `server/routes.ts` (new functions + integration in `generateLlmTxtContent`)
+- [x] **Task 2**: Boost quality scores for high-value URL patterns on CSR sites - ✅ 2026-02-21
+  - Files: `server/routes.ts` (CSR boost applied after analysis, using `sitemapResult.spaDetection`)
+- [x] **Task 3**: Fix plural grammar "1 pages" -> "1 page" in two locations - ✅ 2026-02-21
+  - Files: `server/routes.ts` (lines 1939 and 2575)
+- [x] Testing on staging with real CSR sites - ✅ 2026-02-21
+- [x] Deploy to production (PR #9 merged, Railway deploy SUCCESS) - ✅ 2026-02-21
+
+### Backlog (Future Improvements)
+- [ ] Improve site description when only 1-2 pages analyzed (use meta description fallback)
+- [ ] Homepage always included in Resources section
+- [ ] CSR upsell: show warning + Playwright upgrade CTA for better results
+
+---
+
 ## ✅ COMPLETED: SPRINT 7 - API Enhancement - Tiered Access & JS Rendering
 
 **Mission Type**: API Feature Enhancement

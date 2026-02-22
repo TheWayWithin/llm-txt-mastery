@@ -110,8 +110,20 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
     // Enhanced content extraction strategy
     description = extractSmartDescription($, url, textContent);
   } else {
-    // Clean up existing meta description
-    description = cleanDescription(description);
+    // Check if meta description is likely a generic site-wide default
+    const metaWordCount = description.split(/\s+/).length;
+    if (metaWordCount < 15) {
+      // Short meta tags are often generic site-wide defaults
+      const smartDesc = extractSmartDescription($, url, textContent);
+      if (smartDesc.length > 30) {
+        description = smartDesc;
+      } else {
+        description = cleanDescription(description);
+      }
+    } else {
+      // Clean up existing meta description
+      description = cleanDescription(description);
+    }
   }
 
   // Add content structure information for better context
@@ -203,6 +215,24 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
 
   qualityScore = Math.max(1, Math.min(10, Math.round(qualityScore * 2) / 2)); // Round to nearest 0.5
 
+  // Homepage minimum score floor: ensure auto-selection (threshold >= 5)
+  try {
+    const parsedUrl = new URL(url);
+    const pathname = parsedUrl.pathname;
+    if ((pathname === '/' || pathname === '') && qualityScore < 6) {
+      console.log(`Homepage score floor applied: ${url} ${qualityScore} → 6`);
+      qualityScore = 6;
+    }
+    // Key page floor: ensure at auto-selection threshold
+    const keyPagePatterns = ['/validate', '/docs', '/features'];
+    if (keyPagePatterns.some((p) => pathname === p || pathname === p + '/') && qualityScore < 5) {
+      console.log(`Key page score floor applied: ${url} ${qualityScore} → 5`);
+      qualityScore = 5;
+    }
+  } catch {
+    // Invalid URL, skip floor
+  }
+
   // Ensure description doesn't cut off mid-word
   let finalDescription = description.substring(0, 300) || 'No description available';
   if (description.length > 300) {
@@ -249,18 +279,20 @@ async function generateAIAnalysis(
     const mainContent = $('main, article, .content, .post, .page, body').first().text().trim();
     const contentSample = mainContent.substring(0, 2000); // Limit content for API
 
-    const prompt = `Analyze this webpage content for AI/LLM accessibility and value. 
+    const prompt = `Analyze this webpage content for AI/LLM accessibility and value.
 
 URL: ${url}
 Title: ${htmlResult.title}
-Meta Description: ${htmlResult.description}
+Site Meta Description: ${htmlResult.description}
 Content Sample: ${contentSample}
 
+IMPORTANT: The Site Meta Description above may be a generic site-wide default shared by all pages. DO NOT paraphrase it. Instead, describe THIS SPECIFIC PAGE's unique content and purpose based on the Content Sample.
+
 Provide a JSON response with:
-1. Enhanced description optimized for AI understanding (150-300 chars)
-2. Quality score (1-10) based on content value for AI systems
-3. Category (Documentation, Tutorial, API Reference, Blog, Product, About, General)
-4. Relevance score (1-10) for AI training/reference
+1. "description": A unique description of THIS page's specific content (150-300 chars)
+2. "qualityScore": Quality score (1-10) based on content value for AI systems
+3. "category": One of (Documentation, Tutorial, API Reference, Blog, Product, About, Tools, General)
+4. "relevance": Relevance score (1-10) for AI training/reference
 
 Focus on technical accuracy, information density, and AI utility.`;
 
@@ -526,6 +558,16 @@ function detectContentCategory(
   const contentLower = textContent.toLowerCase();
   const title = $('title').text().toLowerCase();
 
+  // Homepage guard: never classify as Navigation/Reference (feature lists cause false positives)
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.pathname === '/' || parsedUrl.pathname === '') {
+      return 'Product';
+    }
+  } catch {
+    // Invalid URL, continue with normal detection
+  }
+
   // URL-based detection (highest priority)
   const urlPatterns = [
     { pattern: ['/docs', '/documentation'], category: 'Documentation' },
@@ -539,6 +581,8 @@ function detectContentCategory(
     { pattern: ['/product', '/features'], category: 'Product' },
     { pattern: ['/download', '/install'], category: 'Installation' },
     { pattern: ['/example', '/demo', '/sample'], category: 'Examples' },
+    { pattern: ['/validate', '/validator', '/checker', '/verify'], category: 'Tools' },
+    { pattern: ['/tool', '/calculator', '/generator', '/analyzer'], category: 'Tools' },
   ];
 
   for (const { pattern, category } of urlPatterns) {
@@ -688,6 +732,15 @@ function applyCategoryQualityAdjustments(
     case 'About':
       // Moderate value for company information
       adjustedScore += 0.3;
+      break;
+
+    case 'Tools':
+      // Interactive tools are high-value pages
+      adjustedScore += 1.5;
+      // Forms in tools are interactive features, not contact pages
+      if ($('form, input[type="text"], input[type="url"]').length > 0) {
+        adjustedScore += 0.5;
+      }
       break;
   }
 
