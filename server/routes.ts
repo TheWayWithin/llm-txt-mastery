@@ -607,7 +607,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           jsRenderingEnabled,
           spaDetection: sitemapResult.spaDetection,
-        }
+        },
+        force
       ).catch((error) => {
         console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
         // Ensure the analysis is marked as failed even on unhandled errors
@@ -966,7 +967,8 @@ async function analyzeWebsiteEnhanced(
   userEmail: string,
   tier: UserTier,
   authUserId?: string,
-  jsRenderingOptions?: AnalysisJsRenderingOptions
+  jsRenderingOptions?: AnalysisJsRenderingOptions,
+  force?: boolean
 ) {
   console.log(`\n🚀 [ANALYSIS START] Beginning analysis for ${url}`);
   console.log(`  - User: ${userEmail}`);
@@ -985,7 +987,7 @@ async function analyzeWebsiteEnhanced(
   try {
     // Race the analysis against the timeout
     await Promise.race([
-      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId, jsRenderingOptions),
+      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId, jsRenderingOptions, force),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -1025,7 +1027,8 @@ async function performAnalysisWithTimeout(
   userEmail: string,
   tier: UserTier,
   authUserId?: string,
-  jsRenderingOptions?: AnalysisJsRenderingOptions
+  jsRenderingOptions?: AnalysisJsRenderingOptions,
+  force?: boolean
 ) {
   try {
     const startTime = Date.now();
@@ -1102,7 +1105,8 @@ async function performAnalysisWithTimeout(
         enabled: jsRenderingOptions.jsRenderingEnabled,
         spaDetection: jsRenderingOptions.spaDetection,
         forceAll: jsRenderingOptions.forceJsRendering,
-      } : undefined
+      } : undefined,
+      force
     );
     console.log(
       `Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`
