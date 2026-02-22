@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
+import { useSEO } from '@/hooks/useSEO';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -152,6 +153,10 @@ interface BatchValidationResult {
 }
 
 export default function ValidatePage() {
+  useSEO({
+    title: 'Validate Your llms.txt - LLM.txt Mastery',
+    description: 'Check your llms.txt file against the official specification. Get actionable feedback to improve AI discoverability.',
+  });
   const { user, isAuthenticated, getAccessToken } = useAuth();
   const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState(false);

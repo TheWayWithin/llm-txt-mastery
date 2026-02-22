@@ -1,8 +1,13 @@
 import React from 'react';
 import { Card, CardContent } from '../components/ui/card';
 import { FileText, AlertCircle } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 export const TermsPage: React.FC = () => {
+  useSEO({
+    title: 'Terms of Service - LLM.txt Mastery',
+    description: 'Terms of service for LLM.txt Mastery.',
+  });
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
