@@ -405,7 +405,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .parse(req.body);
 
       // Get user information (authenticated or email-based)
-      const user = req.user;
+      // SPRINT 2 FIX: Changed const to let - user must be reassignable
+      // so email fallback can populate it for coffee tier credit checks
+      let user = req.user;
 
       // CRITICAL FIX: Properly handle authenticated users
       let userEmail: string;
@@ -464,6 +466,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({
           message: 'Email required for analysis. Please sign up first.',
         });
+      }
+
+      // SPRINT 2 FIX: If user is still undefined (expired JWT) but we have a valid email,
+      // look up the auth user so coffee tier credit checks have access to user.id.
+      // This handles both paths: authUser-only AND emailCapture-with-auth-account.
+      if (!user && userEmail) {
+        const authUserFallback = await authStorage.getUserByEmail(userEmail);
+        if (authUserFallback) {
+          user = authUserFallback;
+          console.log(`🔄 [SPRINT 2] Populated user from email fallback: id=${authUserFallback.id}, tier=${authUserFallback.tier}`);
+        }
       }
 
       // Get user tier (prioritize authenticated user data)
@@ -594,7 +607,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           jsRenderingEnabled,
           spaDetection: sitemapResult.spaDetection,
-        }
+        },
+        force
       ).catch((error) => {
         console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
         // Ensure the analysis is marked as failed even on unhandled errors
@@ -953,7 +967,8 @@ async function analyzeWebsiteEnhanced(
   userEmail: string,
   tier: UserTier,
   authUserId?: string,
-  jsRenderingOptions?: AnalysisJsRenderingOptions
+  jsRenderingOptions?: AnalysisJsRenderingOptions,
+  force?: boolean
 ) {
   console.log(`\n🚀 [ANALYSIS START] Beginning analysis for ${url}`);
   console.log(`  - User: ${userEmail}`);
@@ -972,7 +987,7 @@ async function analyzeWebsiteEnhanced(
   try {
     // Race the analysis against the timeout
     await Promise.race([
-      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId, jsRenderingOptions),
+      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId, jsRenderingOptions, force),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -1012,7 +1027,8 @@ async function performAnalysisWithTimeout(
   userEmail: string,
   tier: UserTier,
   authUserId?: string,
-  jsRenderingOptions?: AnalysisJsRenderingOptions
+  jsRenderingOptions?: AnalysisJsRenderingOptions,
+  force?: boolean
 ) {
   try {
     const startTime = Date.now();
@@ -1089,11 +1105,24 @@ async function performAnalysisWithTimeout(
         enabled: jsRenderingOptions.jsRenderingEnabled,
         spaDetection: jsRenderingOptions.spaDetection,
         forceAll: jsRenderingOptions.forceJsRendering,
-      } : undefined
+      } : undefined,
+      force
     );
     console.log(
       `Page analysis completed: ${pages.length} pages analyzed, ${metrics.aiCallsUsed} AI calls, ${metrics.cachedPages} cached`
     );
+
+    // Sprint 1: Apply CSR quality score boost for SPA sites
+    // On CSR sites the crawler only sees the HTML shell, so all pages score low.
+    // Boost high-value URL patterns so they get auto-selected in the frontend.
+    const isCSR = sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
+                  (sitemapResult.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50;
+    if (isCSR && pages.length > 0) {
+      const boostedCount = applyCSRQualityBoost(pages);
+      if (boostedCount > 0) {
+        console.log(`🎯 [Sprint 1] CSR site detected - boosted quality scores for ${boostedCount} high-value pages`);
+      }
+    }
 
     // ULTRA-SIMPLE TRACKING: Just increment the counter
     const newCount = await incrementSimpleUsage(userEmail, tier);
@@ -1592,6 +1621,59 @@ function getUrlDepth(url: string): number {
 }
 
 /**
+ * Sprint 1: Boosts quality scores for high-value URL patterns on CSR/SPA sites.
+ * On CSR sites, the crawler only sees the HTML shell so all pages score similarly low.
+ * This ensures standard pages (about, docs, blog) cross the auto-selection threshold (>= 5).
+ * Only mutates pages in-place when isCSR is true. Returns count of boosted pages.
+ */
+function applyCSRQualityBoost(pages: DiscoveredPage[]): number {
+  const highValuePatterns: Array<{ pattern: RegExp; boost: number }> = [
+    { pattern: /^\/$/, boost: 3 },               // Homepage
+    { pattern: /^\/about\b/, boost: 2 },          // About page
+    { pattern: /^\/docs\b/, boost: 2 },           // Documentation
+    { pattern: /^\/blog\b/, boost: 2 },           // Blog
+    { pattern: /^\/features\b/, boost: 2 },       // Features
+    { pattern: /^\/guides?\b/, boost: 2 },        // Guides
+    { pattern: /^\/getting-started\b/, boost: 2 }, // Getting started
+    { pattern: /^\/pricing\b/, boost: 1 },        // Pricing
+    { pattern: /^\/contact\b/, boost: 1 },        // Contact
+    { pattern: /^\/faq\b/, boost: 1 },            // FAQ
+    { pattern: /^\/help\b/, boost: 1 },           // Help
+    { pattern: /^\/support\b/, boost: 1 },        // Support
+  ];
+
+  let boostedCount = 0;
+
+  for (const page of pages) {
+    try {
+      const pathname = new URL(page.url).pathname;
+      let boost = 0;
+
+      for (const { pattern, boost: pathBoost } of highValuePatterns) {
+        if (pattern.test(pathname)) {
+          boost = Math.max(boost, pathBoost);
+        }
+      }
+
+      // Also boost shallow pages (depth 1) that didn't match a specific pattern
+      if (boost === 0) {
+        const depth = pathname.split('/').filter((s) => s.length > 0).length;
+        if (depth <= 1 && depth > 0) boost = 1;
+      }
+
+      if (boost > 0) {
+        page.qualityScore = Math.min(page.qualityScore + boost, 10);
+        boostedCount++;
+      }
+    } catch {
+      // Skip pages with invalid URLs
+    }
+  }
+
+  return boostedCount;
+}
+
+/**
  * Extracts quality score from page data (assumes it's in analysisMetadata or defaults)
  */
 function getPageQualityScore(page: SelectedPage): number {
@@ -1690,6 +1772,61 @@ function enhancePageDescriptions(pages: SelectedPage[]): SelectedPage[] {
   });
 
   return enhancedPages;
+}
+
+/**
+ * Detects and differentiates identical page titles using URL path context.
+ * Critical for CSR/SPA sites where every page returns the same <title> tag.
+ */
+function differentiateIdenticalTitles(pages: SelectedPage[]): SelectedPage[] {
+  // Group pages by normalized title
+  const titleGroups = new Map<string, number[]>();
+  pages.forEach((page, idx) => {
+    const title = (page.title || '').trim();
+    if (!titleGroups.has(title)) titleGroups.set(title, []);
+    titleGroups.get(title)!.push(idx);
+  });
+
+  // Only process groups where 2+ pages share the same title
+  const enhanced = pages.map((page) => ({ ...page }));
+
+  titleGroups.forEach((indices, sharedTitle) => {
+    if (indices.length < 2 || !sharedTitle) return;
+
+    indices.forEach((idx) => {
+      const page = enhanced[idx];
+      const pathSegment = extractTitleFromUrl(page.url);
+
+      if (pathSegment && pathSegment.toLowerCase() !== sharedTitle.toLowerCase()) {
+        enhanced[idx].title = `${pathSegment} - ${sharedTitle}`;
+      }
+    });
+  });
+
+  return enhanced;
+}
+
+/**
+ * Extracts a human-readable title from a URL path segment.
+ * e.g., "/about" -> "About", "/docs/getting-started" -> "Getting Started"
+ * Returns "Home" for root path.
+ */
+function extractTitleFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    const segments = urlObj.pathname.split('/').filter((s) => s.length > 0);
+    if (segments.length === 0) return 'Home';
+
+    // Use the last meaningful segment
+    const lastSegment = segments[segments.length - 1];
+
+    // Convert slug to title case: "getting-started" -> "Getting Started"
+    return lastSegment
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -1829,23 +1966,35 @@ function addRelationshipContext(page: SelectedPage, relatedPages: SelectedPage[]
   const originalDescription = page.description || '';
 
   if (relatedPages.length === 0) {
-    // No related pages, enhance with URL context to differentiate from duplicates
+    // No related pages - build a descriptive replacement from URL path
     try {
       const url = new URL(page.url);
       const segments = url.pathname.split('/').filter((s) => s.length > 0);
 
-      if (segments.length > 1) {
-        const section = segments[segments.length - 2] || segments[0];
-        const cleanSection = section.replace(/-/g, ' ').replace(/_/g, ' ');
-        return `${originalDescription} (${cleanSection} section)`;
-      } else if (segments.length === 1) {
-        const section = segments[0].replace(/-/g, ' ').replace(/_/g, ' ');
-        return `${originalDescription} (${section} page)`;
+      if (segments.length > 0) {
+        // Build a descriptive label from the last meaningful path segment
+        const lastSegment = segments[segments.length - 1];
+        const pageName = lastSegment
+          .replace(/-/g, ' ')
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        // Use page title if it differs from the original description
+        const titleBased = page.title && page.title.length > 10
+          ? `${pageName} page. ${page.title}.`
+          : `${pageName} page.`;
+
+        return titleBased;
       }
     } catch {
-      // If URL parsing fails, add generic context
-      return `${originalDescription} (specific page content)`;
+      // If URL parsing fails, use title-based fallback
     }
+
+    // Final fallback: use title if available
+    if (page.title && page.title.length > 10) {
+      return page.title;
+    }
+    return originalDescription;
   }
 
   // Add context based on relationships
@@ -1907,13 +2056,27 @@ function generateSiteSummary(
       return url.pathname === '/' || url.pathname === '';
     });
 
-  // If we have a homepage with a good description, use it as the base
-  if (homePage && homePage.description && homePage.description.length > 50) {
-    // Enhance the homepage description with site-wide context
-    const domain = new URL(baseUrl).hostname;
-    const pageTypes = analyzePageTypes(selectedPages);
-    const primaryContent = identifyPrimaryContent(selectedPages);
+  const domain = new URL(baseUrl).hostname;
+  const pageTypes = analyzePageTypes(selectedPages);
+  const primaryContent = identifyPrimaryContent(selectedPages);
 
+  // Check if homepage description is generic (matches >50% of other page descriptions)
+  let homepageDescIsGeneric = false;
+  if (homePage && homePage.description) {
+    const homeDescNorm = homePage.description.trim().toLowerCase().replace(/\s+/g, ' ');
+    const matchCount = selectedPages.filter((p) => {
+      if (p.url === homePage.url) return false;
+      const norm = (p.description || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      return norm === homeDescNorm;
+    }).length;
+    const otherPageCount = selectedPages.length - 1;
+    if (otherPageCount > 0 && matchCount / otherPageCount > 0.5) {
+      homepageDescIsGeneric = true;
+    }
+  }
+
+  // If we have a homepage with a good, unique description, use it as the base
+  if (homePage && homePage.description && homePage.description.length > 50 && !homepageDescIsGeneric) {
     let summary = homePage.description;
 
     // Add context about the site's scope if not already included
@@ -1929,28 +2092,53 @@ function generateSiteSummary(
     return summary;
   }
 
-  // Fallback: Generate a summary from all available page data
-  const domain = new URL(baseUrl).hostname;
-  const pageCount = selectedPages.length;
-  const categories = extractCategories(selectedPages);
-  const pageTypes = analyzePageTypes(selectedPages);
+  // Fallback: Infer product focus from page titles and descriptions
+  const allText = selectedPages
+    .map((p) => `${p.title || ''} ${p.description || ''}`)
+    .join(' ')
+    .toLowerCase();
 
-  // Build a comprehensive summary from available data
-  let summary = `${domain} is a comprehensive website featuring ${pageCount} pages`;
+  // Detect product focus from frequent terms in page content
+  const focusTerms: { term: string; label: string }[] = [
+    { term: 'llms.txt', label: 'llms.txt generation and AI visibility' },
+    { term: 'llm.txt', label: 'llm.txt file generation' },
+    { term: 'ai visibility', label: 'AI visibility optimization' },
+    { term: 'seo', label: 'SEO and search optimization' },
+    { term: 'api', label: 'API services' },
+    { term: 'saas', label: 'SaaS platform' },
+    { term: 'e-commerce', label: 'e-commerce' },
+    { term: 'analytics', label: 'analytics and insights' },
+  ];
 
-  if (categories.length > 0) {
-    summary += ` covering ${categories.slice(0, 3).join(', ')}`;
-    if (categories.length > 3) {
-      summary += ` and ${categories.length - 3} more categories`;
+  let productFocus = '';
+  for (const { term, label } of focusTerms) {
+    if (allText.includes(term)) {
+      productFocus = label;
+      break;
     }
   }
 
-  if (pageTypes.length > 0) {
-    summary += `. The site provides ${pageTypes.join(', ')}`;
-  }
+  const pageCount = selectedPages.length;
+  let summary = '';
 
-  summary +=
-    ', serving users with organized, accessible content optimized for both human readers and AI systems.';
+  if (productFocus) {
+    summary = `${domain} provides ${productFocus}`;
+    if (pageTypes.length > 0) {
+      summary += `, with ${pageTypes.join(', ')}`;
+    }
+    summary += `. This file covers ${pageCount} key ${pageCount === 1 ? 'page' : 'pages'} for AI consumption.`;
+  } else {
+    // Generic fallback without filler phrases
+    const categories = extractCategories(selectedPages);
+    summary = `${domain}`;
+    if (categories.length > 0) {
+      summary += ` covers ${categories.slice(0, 3).join(', ')}`;
+    }
+    if (pageTypes.length > 0) {
+      summary += `, offering ${pageTypes.join(', ')}`;
+    }
+    summary += `. This file covers ${pageCount} key ${pageCount === 1 ? 'page' : 'pages'} for AI consumption.`;
+  }
 
   return summary;
 }
@@ -2497,7 +2685,10 @@ function generateLlmTxtContent(
   const excluded = excludedPages.length;
 
   // Phase 6: Apply content quality improvements before clustering
-  const enhancedPages = enhancePageDescriptions(selectedPages);
+  const descEnhancedPages = enhancePageDescriptions(selectedPages);
+
+  // Phase 7: Differentiate identical titles (critical for CSR/SPA sites)
+  const enhancedPages = differentiateIdenticalTitles(descEnhancedPages);
 
   // Generate comprehensive site summary (using enhanced pages)
   const siteSummary = generateSiteSummary(baseUrl, enhancedPages, allDiscoveredPages);
@@ -2572,23 +2763,42 @@ function generateLlmTxtContent(
   // Build metadata block as plain text (inserted before first H2 section per spec)
   let metadataBlock = '';
   metadataBlock += `Generated by [LLM.txt Mastery](https://llmtxtmastery.com) on ${createdDate}. `;
-  metadataBlock += `${totalFound} pages found, ${analyzed} analyzed, ${enhancedPages.length} included. `;
+  metadataBlock += `${totalFound} ${totalFound === 1 ? 'page' : 'pages'} found, ${analyzed} analyzed, ${enhancedPages.length} included. `;
   metadataBlock += `Average quality: ${avgQuality}/10. `;
   metadataBlock += `${siteStructure.clusterCount} content clusters, ~${estimatedWordCount.toLocaleString()} words total.`;
   metadataBlock += '\n\n';
 
   // Add Optional section with resource links (spec-compliant H2 with proper list items)
   let optionalSection = `## Optional\n\n`;
-  optionalSection += `- [Review Full Analysis](https://llmtxtmastery.com/analysis/${analysisMetadata?.analysisId || 'view'}): View quality scores and make changes to this file\n`;
   optionalSection += `- [llms.txt Specification](https://llmstxt.org/): Official llmstxt.org format specification\n`;
   if (excludedPages.length > 0) {
-    // Include excluded pages as proper list items with links
-    const topExcluded = excludedPages.slice(0, 10);
+    // Differentiate identical titles on excluded pages too
+    const titleFixedExcluded = differentiateIdenticalTitles(excludedPages);
+    const topExcluded = titleFixedExcluded.slice(0, 10);
     for (const page of topExcluded) {
-      optionalSection += `- [${page.title}](${page.url}): Excluded from main listing (lower relevance)\n`;
+      // Use the page's actual description instead of a generic label
+      let pageLabel = page.description || '';
+      if (!pageLabel || pageLabel.length < 10) {
+        // Generate minimal description from URL path
+        try {
+          const urlObj = new URL(page.url);
+          const segments = urlObj.pathname.split('/').filter((s) => s.length > 0);
+          if (segments.length > 0) {
+            pageLabel = segments[segments.length - 1]
+              .replace(/-/g, ' ')
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase());
+          } else {
+            pageLabel = 'Additional site content';
+          }
+        } catch {
+          pageLabel = 'Additional site content';
+        }
+      }
+      optionalSection += `- [${page.title}](${page.url}): ${pageLabel}\n`;
     }
     if (excluded > 10) {
-      optionalSection += `- [${excluded - 10} more excluded pages](https://llmtxtmastery.com/analysis/${analysisMetadata?.analysisId || 'view'}): View full list in analysis dashboard\n`;
+      optionalSection += `- ${excluded - 10} additional excluded pages not shown\n`;
     }
   }
   optionalSection += '\n';
