@@ -147,8 +147,19 @@ function arePagesNearDuplicates(page1: DiscoveredPage, page2: DiscoveredPage): b
   }
 
   // Check for very similar titles (80% similarity threshold)
+  // But only deduplicate if URL paths are also the same -- CSR sites often
+  // return the same generic title for every page, which would collapse all
+  // pages into one without this path check.
   const similarity = calculateStringSimilarity(title1, title2);
   if (similarity > 0.8) {
+    try {
+      const path1 = new URL(page1.url).pathname.replace(/\/$/, '').toLowerCase();
+      const path2 = new URL(page2.url).pathname.replace(/\/$/, '').toLowerCase();
+      if (path1 !== path2) {
+        // Different paths with similar titles -- likely a CSR site, keep both
+        return false;
+      }
+    } catch { /* fall through to duplicate */ }
     return true;
   }
 
