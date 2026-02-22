@@ -1635,6 +1635,14 @@ function applyCSRQualityBoost(pages: DiscoveredPage[]): number {
     { pattern: /^\/features\b/, boost: 2 },       // Features
     { pattern: /^\/guides?\b/, boost: 2 },        // Guides
     { pattern: /^\/getting-started\b/, boost: 2 }, // Getting started
+    // Product feature pages (core SaaS tools)
+    { pattern: /^\/analy[sz]e\b/, boost: 2 },    // Analyzer tools
+    { pattern: /^\/validat(e|or)\b/, boost: 2 },  // Validator tools
+    { pattern: /^\/check(er)?\b/, boost: 2 },     // Checker tools
+    { pattern: /^\/scan(ner)?\b/, boost: 2 },     // Scanner tools
+    { pattern: /^\/generat(e|or)\b/, boost: 2 },  // Generator tools
+    { pattern: /^\/demo\b/, boost: 2 },           // Demo/playground
+    { pattern: /^\/playground\b/, boost: 2 },     // Interactive playground
     { pattern: /^\/pricing\b/, boost: 1 },        // Pricing
     { pattern: /^\/contact\b/, boost: 1 },        // Contact
     { pattern: /^\/faq\b/, boost: 1 },            // FAQ
