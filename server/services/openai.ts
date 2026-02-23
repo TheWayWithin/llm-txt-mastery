@@ -72,24 +72,31 @@ function truncateDescription(text: string, maxLength: number = 400): string {
  */
 function generateFallbackDescription(url: string, title: string, metaDescription?: string): string {
   try {
-    // Prefer page-specific meta description when available
-    if (metaDescription && metaDescription.length > 30) {
+    // Check if meta description is page-specific (not a generic site-wide default)
+    const isGenericMeta = !metaDescription || metaDescription.length < 30 ||
+      /transform your website|intelligent .* generator|free analysis with premium/i.test(metaDescription);
+
+    if (!isGenericMeta && metaDescription) {
       return truncateDescription(metaDescription);
     }
+
     const hostname = new URL(url).hostname;
-    const cleanTitle = title.replace(/ [-|–] .*$/, '').trim();
-    if (cleanTitle && cleanTitle.length > 5) {
-      return `${cleanTitle} page on ${hostname}.`;
-    }
-    const path = new URL(url).pathname;
-    const pathSegment = path.split('/').filter(Boolean).pop();
-    if (pathSegment) {
-      const readable = pathSegment
+    const path = new URL(url).pathname.replace(/^\/|\/$/g, '');
+
+    // Use URL path to generate a meaningful description
+    if (path) {
+      const readable = path
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, c => c.toUpperCase());
+      const cleanTitle = title.replace(/ [-|–] .*$/, '').trim();
+      // If title has page-specific info (differs from path), combine them
+      if (cleanTitle && cleanTitle.length > 5 && cleanTitle.toLowerCase() !== readable.toLowerCase()) {
+        return `${cleanTitle} — the ${readable.toLowerCase()} page on ${hostname}.`;
+      }
       return `${readable} page on ${hostname}.`;
     }
-    return `Page on ${hostname}.`;
+
+    return `Homepage of ${hostname}.`;
   } catch {
     return title || 'No description available';
   }
@@ -335,29 +342,47 @@ async function generateAIAnalysis(
     const mainContent = $('main, article, .content, .post, .page, body').first().text().trim();
     const contentSample = mainContent.substring(0, 4000); // Limit content for API
 
-    // Detect if this is a thin/CSR page where meta description is more reliable than content
+    // Detect if this is a thin/CSR page
     const contentWords = contentSample.split(/\s+/).filter(w => w.length > 2).length;
     const isThinContent = contentWords < 50;
     const metaDescription = $('meta[name="description"]').attr('content') || '';
-    const hasPageSpecificMeta = metaDescription.length > 30;
 
-    const contentGuidance = isThinContent && hasPageSpecificMeta
-      ? `IMPORTANT: The Content Sample is very thin (likely a client-side rendered app). The Meta Description below is page-specific and reliable — use it as the primary source for your description. Expand on it using the URL path and page title for additional context.`
-      : `IMPORTANT: The Meta Description may be a generic site-wide default. Prefer the Content Sample to understand what THIS specific page offers. Only fall back to the meta description if the content sample is insufficient.`;
+    // Detect generic site-wide meta descriptions (common in SPAs where index.html
+    // has one meta tag shared by all routes). Check if it mentions the site name
+    // but NOT the specific page path, or matches known generic patterns.
+    const urlPath = new URL(url).pathname.replace(/^\/|\/$/g, '');
+    const isGenericMeta = metaDescription.length > 0 && (
+      // Contains generic phrases that apply to any page
+      /transform your website|intelligent .* generator|free analysis with premium/i.test(metaDescription) ||
+      // Title is the same site-wide default (SPA symptom)
+      htmlResult.title === $('title').text().trim()
+    );
+    const hasPageSpecificMeta = metaDescription.length > 30 && !isGenericMeta;
+
+    // Build contextual guidance based on what information is available
+    let contentGuidance: string;
+    if (isThinContent && hasPageSpecificMeta) {
+      contentGuidance = `IMPORTANT: The Content Sample is very thin (likely a client-side rendered app). The Meta Description below is page-specific and reliable — use it as the primary source for your description. Expand on it using the URL path and page title for additional context.`;
+    } else if (isThinContent) {
+      contentGuidance = `IMPORTANT: This is a client-side rendered page. The Content Sample is mostly boilerplate and the Meta Description is a generic site-wide default — IGNORE both for description purposes. Instead, derive the page's purpose entirely from the URL path "/${urlPath}" and write a factual description of what a user would find at this URL. For example, a path like "/analyze" is an analysis tool, "/validate" is a validation tool, "/pricing" is a pricing page, "/blog" is a blog page, etc.`;
+    } else {
+      contentGuidance = `IMPORTANT: Use the Content Sample as the primary source for your description. The Meta Description may be a generic site-wide default — only use it if the content sample lacks detail.`;
+    }
 
     const prompt = `Analyze this webpage content for AI/LLM accessibility and value.
 
 URL: ${url}
+Page Path: /${urlPath}
 Title: ${htmlResult.title}
 Meta Description: ${metaDescription || htmlResult.description}
 Content Sample: ${contentSample}
 
 ${contentGuidance}
 
-CRITICAL: Never describe what you cannot see or what the content lacks. If the page content is thin, write a factual description based on the URL path, page title, and meta description. Do NOT say things like "the content does not provide detailed information" or "although the specific content sample does not provide detailed" or "the sample content does not provide."
+CRITICAL: Never describe what you cannot see or what the content lacks. Do NOT say things like "the content does not provide detailed information" or "although the specific content sample does not provide detailed" or "the sample content does not provide." Write a factual, specific description of THIS page.
 
 Provide a JSON response with:
-1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence that explains what users can DO on this page.
+1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence that explains what users can DO on this page. Each page description must be distinct — do not repeat the same description for different pages.
 2. "qualityScore": Quality score (1-10) based on content value for AI systems
 3. "category": One of (Documentation, Tutorial, API Reference, Blog, Product, About, Tools, General)
 4. "relevance": Relevance score (1-10) for AI training/reference
