@@ -1420,11 +1420,9 @@ export function filterRelevantPages(entries: SitemapEntry[], tier?: string): Sit
     return true;
   });
 
-  // For paid tiers, return all filtered pages without prioritization
-  if (isPaidTier) {
-    console.log(`🎯 Paid tier (${tier}): returning all ${filtered.length} filtered pages`);
-    return filtered;
-  }
+  // Priority sorting applies to ALL tiers to ensure the most important pages
+  // are analyzed first when page limits exist (e.g., Coffee tier = 5 pages).
+  // This only re-orders pages, it doesn't remove any.
 
   // Helper function to identify homepage URLs
   const isHomepage = (url: string): boolean => {
