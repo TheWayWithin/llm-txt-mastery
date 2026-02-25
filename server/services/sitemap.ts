@@ -1131,7 +1131,11 @@ export async function fetchPageContent(url: string): Promise<string> {
       );
 
       // Don't retry on certain errors that won't be fixed by retrying
-      if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
+      if (
+        error.message.includes('ENOTFOUND') ||
+        error.message.includes('ECONNREFUSED') ||
+        error.message.includes('HTTP 403') // Server explicitly denied access - retrying won't help
+      ) {
         break;
       }
     }
