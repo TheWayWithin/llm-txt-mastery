@@ -5,6 +5,9 @@ export default {
   content: ['./client/index.html', './client/src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
@@ -61,8 +64,19 @@ export default {
           border: 'var(--sidebar-border)',
           ring: 'var(--sidebar-ring)',
         },
-        // Brand colors for LLM.txt Mastery
+        // Brand colors - AI Search Mastery palette
         'mastery-blue': 'var(--mastery-blue)',
+        'signal-blue': 'var(--signal-blue)',
+        'clarity-teal': 'var(--clarity-teal)',
+        'slate-brand': 'var(--slate-brand)',
+        'ink': 'var(--ink)',
+        'action-amber': 'var(--action-amber)',
+        'stone-brand': 'var(--stone-brand)',
+        'mist': 'var(--mist)',
+        'cloud': 'var(--cloud)',
+        'success': 'var(--success)',
+        'error': 'var(--error)',
+        // Legacy aliases
         'authority-white': 'var(--authority-white)',
         'innovation-teal': 'var(--innovation-teal)',
         'ai-silver': 'var(--ai-silver)',

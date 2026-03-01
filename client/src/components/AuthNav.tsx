@@ -57,7 +57,7 @@ export function AuthNav() {
         <Button variant="outline" onClick={() => setLocation('/login')}>
           Sign In
         </Button>
-        <Button onClick={() => setLocation('/signup')}>Get Started</Button>
+        <Button className="bg-signal-blue hover:bg-[#1D4ED8]" onClick={() => setLocation('/signup')}>Generate Your File</Button>
       </div>
     );
   }

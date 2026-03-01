@@ -82,7 +82,7 @@ export default function Pricing() {
               <Link href="/">
                 <a className="block">
                   <Button variant="outline" className="w-full">
-                    Get Started Free
+                    Start Free
                   </Button>
                 </a>
               </Link>
@@ -100,7 +100,7 @@ export default function Pricing() {
                 </div>
               </div>
               <CardTitle>Solo</CardTitle>
-              <CardDescription>Stop losing customers to competitors</CardDescription>
+              <CardDescription>Help AI find your best content</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
@@ -114,7 +114,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Stop losing to competitors</span>
+                  <span className="text-sm">Help AI find your best content</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
@@ -124,7 +124,7 @@ export default function Pricing() {
               <Link href="/signup?tier=solo">
                 <a className="block">
                   <Button variant="outline" className="w-full">
-                    Start Solo
+                    Generate Your File
                   </Button>
                 </a>
               </Link>
@@ -134,7 +134,7 @@ export default function Pricing() {
           {/* Growth Tier - MOST POPULAR */}
           <Card className="relative border-2 border-innovation-teal hover:shadow-lg transition-shadow bg-teal-50 ring-2 ring-innovation-teal ring-offset-2">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-innovation-teal text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
-              ⭐ MOST POPULAR
+              MOST POPULAR
             </div>
             <CardHeader className="pt-6">
               <div className="flex items-center justify-between mb-2">
@@ -145,7 +145,7 @@ export default function Pricing() {
                 </div>
               </div>
               <CardTitle>Growth</CardTitle>
-              <CardDescription>Dominate AI recommendations</CardDescription>
+              <CardDescription>Be discoverable across AI platforms</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
@@ -169,7 +169,7 @@ export default function Pricing() {
               <Link href="/signup?tier=growth">
                 <a className="block">
                   <Button className="w-full bg-innovation-teal hover:bg-teal-600 text-white">
-                    Start Growth
+                    Generate Your File
                   </Button>
                 </a>
               </Link>
@@ -187,7 +187,7 @@ export default function Pricing() {
                 </div>
               </div>
               <CardTitle>Scale</CardTitle>
-              <CardDescription>No limits. Just results.</CardDescription>
+              <CardDescription>Full coverage for complex sites</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
@@ -211,7 +211,7 @@ export default function Pricing() {
               <Link href="/signup?tier=scale">
                 <a className="block">
                   <Button variant="outline" className="w-full">
-                    Start Scale
+                    Generate Your File
                   </Button>
                 </a>
               </Link>

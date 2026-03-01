@@ -49,7 +49,7 @@ export default function TrustBadges({
       icon: CreditCard,
       text: 'Secure Payments',
       subtext: 'Powered by Stripe',
-      color: 'text-purple-600',
+      color: 'text-signal-blue',
       show: variant === 'payment' || variant === 'full',
     },
     {
