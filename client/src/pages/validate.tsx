@@ -346,10 +346,6 @@ export default function ValidatePage() {
             </Link>
             <div className="flex items-center space-x-4">
               <AuthNav />
-              <div className="text-right hidden md:block">
-                <p className="text-sm text-slate-brand">Built by Jamie Watters</p>
-                <p className="text-xs text-slate-brand">Solopreneur & Tool Builder</p>
-              </div>
             </div>
           </div>
         </div>

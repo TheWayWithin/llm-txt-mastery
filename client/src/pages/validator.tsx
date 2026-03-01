@@ -373,10 +373,6 @@ export default function ValidatorPage() {
             </Link>
             <div className="flex items-center space-x-4">
               <AuthNav />
-              <div className="text-right hidden md:block">
-                <p className="text-sm text-slate-brand">Built by Jamie Watters</p>
-                <p className="text-xs text-slate-brand">Solopreneur & Tool Builder</p>
-              </div>
             </div>
           </div>
         </div>
@@ -1110,7 +1106,7 @@ export default function ValidatorPage() {
             <section className="mb-8">
               <div className="bg-gradient-to-r from-mastery-blue/10 to-signal-blue/10 rounded-lg border-2 border-signal-blue/30 p-8">
                 <h3 className="text-2xl font-bold text-ink mb-6 text-center">
-                  The Only Validator That Checks What Actually Matters
+                  What Makes This Validator Different
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
@@ -1258,7 +1254,7 @@ export default function ValidatorPage() {
                     }
                   }}
                 >
-                  Start Free Analysis
+                  Generate Your File
                 </Button>
                 <Button
                   size="lg"

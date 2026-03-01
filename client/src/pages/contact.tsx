@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
-import { Mail, MessageSquare, Send, Twitter, Linkedin, ExternalLink } from 'lucide-react';
+import { Mail, MessageSquare, Send, Twitter, Linkedin, ExternalLink, Bug, Lightbulb, HandMetal } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSEO } from '@/hooks/useSEO';
 
@@ -190,19 +190,28 @@ export const ContactPage: React.FC = () => {
             <h2 className="text-2xl font-bold mb-4">Why Reach Out?</h2>
             <div className="grid md:grid-cols-3 gap-6 text-ink">
               <div>
-                <h3 className="font-semibold mb-2">🐛 Report Issues</h3>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Bug className="h-4 w-4 text-slate-brand" />
+                  Report Issues
+                </h3>
                 <p className="text-sm">
                   Found a bug or something not working? Let me know and I'll fix it ASAP.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">💡 Feature Requests</h3>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-slate-brand" />
+                  Feature Requests
+                </h3>
                 <p className="text-sm">
                   Have an idea that would make the tool better? I'd love to hear it.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">👋 Just Say Hi</h3>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <HandMetal className="h-4 w-4 text-slate-brand" />
+                  Just Say Hi
+                </h3>
                 <p className="text-sm">
                   Sometimes it's nice to connect with fellow builders. Drop me a line!
                 </p>
