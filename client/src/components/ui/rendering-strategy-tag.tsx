@@ -34,31 +34,31 @@ const strategyConfig: Record<
   SSR: {
     icon: Server,
     label: 'Server-Side',
-    color: 'bg-green-100 text-green-800 border-green-200',
+    color: 'bg-success/10 text-ink border-mist',
     description: 'Content is rendered on the server. Full content is available for analysis.',
   },
   SSG: {
     icon: Zap,
     label: 'Static/SSG',
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
+    color: 'bg-signal-blue/10 text-mastery-blue border-mist',
     description: 'Pre-rendered static pages at build time. Excellent for analysis.',
   },
   CSR: {
     icon: Smartphone,
     label: 'Client-Side',
-    color: 'bg-orange-100 text-orange-800 border-orange-200',
+    color: 'bg-cloud text-ink border-mist',
     description: 'Content is rendered in the browser. Some content may not be captured.',
   },
   HYBRID: {
     icon: Layers,
     label: 'Hybrid',
-    color: 'bg-purple-100 text-purple-800 border-purple-200',
+    color: 'bg-cloud text-ink border-mist',
     description: 'Mix of server and client rendering. Most content should be available.',
   },
   UNKNOWN: {
     icon: HelpCircle,
     label: 'Unknown',
-    color: 'bg-gray-100 text-gray-800 border-gray-200',
+    color: 'bg-cloud text-ink border-mist',
     description: 'Unable to determine rendering strategy.',
   },
 };

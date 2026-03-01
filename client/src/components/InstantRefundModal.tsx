@@ -139,7 +139,7 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center">
-                <AlertTriangle className="h-5 w-5 text-yellow-500 mr-2" />
+                <AlertTriangle className="h-5 w-5 text-action-amber mr-2" />
                 Confirm Instant Refund
               </DialogTitle>
               <DialogDescription>
@@ -149,23 +149,23 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
 
             <div className="space-y-4">
               {/* Refund Amount */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-medium text-green-800 mb-1">Refund Amount</h4>
-                <p className="text-2xl font-bold text-green-700">{eligibility.amountFormatted}</p>
-                <p className="text-sm text-green-600 mt-1">
+              <div className="bg-success/10 border border-mist rounded-lg p-4">
+                <h4 className="font-medium text-ink mb-1">Refund Amount</h4>
+                <p className="text-2xl font-bold text-success">{eligibility.amountFormatted}</p>
+                <p className="text-sm text-success mt-1">
                   Refunded to your original payment method within 5-7 business days
                 </p>
               </div>
 
               {/* Warning - What user will lose */}
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <h4 className="font-medium text-red-800 mb-2 flex items-center">
+              <div className="bg-error/10 border border-mist rounded-lg p-4">
+                <h4 className="font-medium text-error mb-2 flex items-center">
                   <XCircle className="h-4 w-4 mr-2" />
                   You will lose access to:
                 </h4>
                 <ul className="space-y-1">
                   {getTierBenefits().map((benefit, index) => (
-                    <li key={index} className="text-sm text-red-700 flex items-start">
+                    <li key={index} className="text-sm text-error flex items-start">
                       <span className="mr-2">•</span>
                       {benefit}
                     </li>
@@ -209,30 +209,30 @@ export function InstantRefundModal({ isOpen, onClose, eligibility }: InstantRefu
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center text-green-600">
+              <DialogTitle className="flex items-center text-success">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 Refund Processing
               </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
+              <Alert className="border-mist bg-success/10">
+                <CheckCircle className="h-4 w-4 text-success" />
+                <AlertDescription className="text-ink">
                   Your refund of {eligibility.amountFormatted} is being processed.
                 </AlertDescription>
               </Alert>
 
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-medium text-blue-800 mb-1">What happens next?</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
+              <div className="p-4 bg-signal-blue/10 border border-mist rounded-lg">
+                <h4 className="font-medium text-mastery-blue mb-1">What happens next?</h4>
+                <ul className="text-sm text-mastery-blue space-y-1">
                   <li>• Refund will appear in your account within 5-7 business days</li>
                   <li>• Your account has been downgraded to Starter tier</li>
                   <li>• You can upgrade again anytime</li>
                 </ul>
               </div>
 
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-slate-brand text-center">
                 This window will close automatically in 3 seconds...
               </p>
             </div>

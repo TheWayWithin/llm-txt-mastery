@@ -55,13 +55,14 @@ export default function HeroSection({ user }: HeroSectionProps) {
             size="lg"
             className="bg-signal-blue hover:bg-[#1D4ED8] text-white px-8 py-3"
             onClick={() => {
+              (window as any).plausible?.('hero-cta-click', { props: { variant: 'generate' } });
               window.location.href = user ? '/analyze' : '/signup';
             }}
           >
             Generate Your File
           </Button>
           <Link href="/validator">
-            <a>
+            <a onClick={() => (window as any).plausible?.('hero-cta-click', { props: { variant: 'validate' } })}>
               <Button
                 size="lg"
                 variant="outline"

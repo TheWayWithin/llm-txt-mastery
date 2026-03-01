@@ -79,7 +79,7 @@ export function InstantRefundButton() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+        <Loader2 className="h-5 w-5 animate-spin text-stone-brand" />
       </div>
     );
   }
@@ -91,20 +91,20 @@ export function InstantRefundButton() {
 
   return (
     <>
-      <Alert className="border-green-200 bg-green-50">
+      <Alert className="border-mist bg-success/10">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center mb-2">
-              <Shield className="h-5 w-5 text-green-600 mr-2" />
-              <h3 className="font-semibold text-green-800 text-lg">30-Day Money-Back Guarantee</h3>
+              <Shield className="h-5 w-5 text-success mr-2" />
+              <h3 className="font-semibold text-ink text-lg">30-Day Money-Back Guarantee</h3>
               <Badge
                 variant="secondary"
-                className="ml-2 bg-green-100 text-green-700 border-green-300"
+                className="ml-2 bg-success/10 text-success border-mist"
               >
                 Active
               </Badge>
             </div>
-            <AlertDescription className="text-green-700">
+            <AlertDescription className="text-success">
               Not satisfied? Get your <strong>{eligibility.amountFormatted}</strong> back instantly.
               No questions asked, no hoops to jump through.
             </AlertDescription>
@@ -112,7 +112,7 @@ export function InstantRefundButton() {
           <div className="ml-4">
             <Button
               onClick={() => setModalOpen(true)}
-              className="bg-green-600 hover:bg-green-700 text-white font-medium"
+              className="bg-success hover:bg-success/80 text-white font-medium"
             >
               <DollarSign className="h-4 w-4 mr-2" />
               Get Instant Refund

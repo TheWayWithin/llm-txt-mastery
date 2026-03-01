@@ -11,23 +11,23 @@ export const AboutPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cloud">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">From Corporate Programmer to AI Tool Builder</h1>
-          <p className="text-xl text-gray-600">The escape story that led to LLM.txt Mastery</p>
+          <p className="text-xl text-slate-brand">The escape story that led to LLM.txt Mastery</p>
         </div>
 
         {/* Story Section */}
         <Card className="mb-8">
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Code className="mr-3 text-blue-600" />
+              <Code className="mr-3 text-signal-blue" />
               My Story
             </h2>
 
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-ink">
               <p>
                 I started as a programmer writing operating systems in assembler, thinking I had
                 technology figured out. When the pace of change accelerated beyond what I could keep
@@ -51,11 +51,11 @@ export const AboutPage: React.FC = () => {
         <Card className="mb-8">
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Sparkles className="mr-3 text-purple-600" />
+              <Sparkles className="mr-3 text-signal-blue" />
               The Awakening
             </h2>
 
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-ink">
               <p>
                 At first, it was just curiosity—a programmer's instinct to understand the next big
                 thing. But as I dove deeper into AI, something remarkable happened. The spark that
@@ -85,11 +85,11 @@ export const AboutPage: React.FC = () => {
         <Card className="mb-8">
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Rocket className="mr-3 text-green-600" />
+              <Rocket className="mr-3 text-clarity-teal" />
               The Liberation
             </h2>
 
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-ink">
               <p>
                 So I made a choice that changed everything: I became a solopreneur. No staff. No
                 boss. No stupid rules and constraints. Just vision, execution, and focus on the
@@ -116,7 +116,7 @@ export const AboutPage: React.FC = () => {
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-6">Why I Built LLM.txt Mastery</h2>
 
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-ink">
               <p>
                 While everyone else debates the future of AI search, I'm building tools to help
                 websites survive it. I've been tracking AI search behavior since GPT-3 launched,
@@ -142,26 +142,26 @@ export const AboutPage: React.FC = () => {
         </Card>
 
         {/* Call to Action */}
-        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <Card className="bg-mastery-blue text-white">
           <CardContent className="p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">
-              Ready to Fight Back Against AI Traffic Loss?
+              Ready to Make Your Site Visible to AI?
             </h2>
             <p className="mb-6">
               Join me in building a future where creators get credit for their expertise.
             </p>
             <Link
               to="/"
-              className="inline-flex items-center bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center bg-white text-signal-blue px-6 py-3 rounded-lg font-semibold hover:bg-cloud transition-colors"
             >
-              Create Your LLMs.txt File
+              Generate Your File
               <ArrowRight className="ml-2" />
             </Link>
           </CardContent>
         </Card>
 
         {/* Footer Note */}
-        <div className="text-center mt-12 text-gray-600">
+        <div className="text-center mt-12 text-slate-brand">
           <p>
             If you're tired of corporate solutions that don't actually solve anything, these tools
             are for you.

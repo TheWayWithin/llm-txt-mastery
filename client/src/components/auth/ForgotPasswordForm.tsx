@@ -46,21 +46,21 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold text-framework-black">Reset your password</h2>
-        <p className="text-ai-silver">
+        <h2 className="text-2xl font-bold text-ink">Reset your password</h2>
+        <p className="text-slate-brand">
           Enter your email address and we'll send you a link to reset your password.
         </p>
       </div>
 
       {message && (
-        <Alert className="border-green-200 bg-green-50">
-          <AlertDescription className="text-green-800">{message}</AlertDescription>
+        <Alert className="border-mist bg-success/10">
+          <AlertDescription className="text-ink">{message}</AlertDescription>
         </Alert>
       )}
 
       {error && (
-        <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        <Alert className="border-mist bg-error/10">
+          <AlertDescription className="text-error">{error}</AlertDescription>
         </Alert>
       )}
 
@@ -97,7 +97,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
       <Button
         variant="ghost"
         onClick={onBack}
-        className="w-full text-ai-silver hover:text-framework-black"
+        className="w-full text-slate-brand hover:text-ink"
         disabled={isLoading}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />

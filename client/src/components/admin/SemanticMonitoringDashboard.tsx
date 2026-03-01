@@ -174,8 +174,8 @@ export default function SemanticMonitoringDashboard() {
   if (loading && !metrics) {
     return (
       <div className="p-6">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="text-center mt-4 text-gray-600">Loading monitoring dashboard...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-signal-blue mx-auto"></div>
+        <p className="text-center mt-4 text-slate-brand">Loading monitoring dashboard...</p>
       </div>
     );
   }
@@ -197,7 +197,7 @@ export default function SemanticMonitoringDashboard() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Semantic Features Monitoring</h1>
-          <p className="text-gray-600 mt-2">Real-time performance and usage analytics</p>
+          <p className="text-slate-brand mt-2">Real-time performance and usage analytics</p>
         </div>
         <div className="flex items-center gap-4">
           <Select value={timeRange} onValueChange={(value: any) => setTimeRange(value)}>
@@ -223,9 +223,9 @@ export default function SemanticMonitoringDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <Activity className="h-8 w-8 text-blue-600" />
+              <Activity className="h-8 w-8 text-signal-blue" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Requests</p>
+                <p className="text-sm font-medium text-slate-brand">Total Requests</p>
                 <p className="text-2xl font-bold">
                   {metrics.overview.totalRequests.toLocaleString()}
                 </p>
@@ -237,9 +237,9 @@ export default function SemanticMonitoringDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-8 w-8 text-success" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
+                <p className="text-sm font-medium text-slate-brand">Success Rate</p>
                 <p className="text-2xl font-bold">{metrics.overview.successRate.toFixed(1)}%</p>
               </div>
             </div>
@@ -249,9 +249,9 @@ export default function SemanticMonitoringDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <Clock className="h-8 w-8 text-orange-600" />
+              <Clock className="h-8 w-8 text-action-amber" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
+                <p className="text-sm font-medium text-slate-brand">Avg Response Time</p>
                 <p className="text-2xl font-bold">
                   {formatDuration(metrics.overview.avgResponseTime)}
                 </p>
@@ -263,9 +263,9 @@ export default function SemanticMonitoringDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <DollarSign className="h-8 w-8 text-success" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Cost</p>
+                <p className="text-sm font-medium text-slate-brand">Total Cost</p>
                 <p className="text-2xl font-bold">{formatCurrency(metrics.overview.totalCost)}</p>
               </div>
             </div>
@@ -275,9 +275,9 @@ export default function SemanticMonitoringDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <Zap className="h-8 w-8 text-purple-600" />
+              <Zap className="h-8 w-8 text-slate-brand" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Features</p>
+                <p className="text-sm font-medium text-slate-brand">Active Features</p>
                 <p className="text-2xl font-bold">{metrics.overview.activeFeatures.length}</p>
               </div>
             </div>
@@ -290,7 +290,7 @@ export default function SemanticMonitoringDashboard() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <AlertTriangle className="h-5 w-5 text-error" />
               Active Alerts ({metrics.alerts.length})
             </CardTitle>
           </CardHeader>
@@ -305,7 +305,7 @@ export default function SemanticMonitoringDashboard() {
                       </Badge>
                       <span>{alert.message}</span>
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-stone-brand">
                       {new Date(alert.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
@@ -393,7 +393,7 @@ export default function SemanticMonitoringDashboard() {
                   </thead>
                   <tbody>
                     {metrics.featureBreakdown.map((feature) => (
-                      <tr key={feature.feature} className="border-b hover:bg-gray-50">
+                      <tr key={feature.feature} className="border-b hover:bg-cloud">
                         <td className="p-2 font-medium">{feature.feature}</td>
                         <td className="p-2 text-right">{feature.requests.toLocaleString()}</td>
                         <td className="p-2 text-right">{feature.successRate.toFixed(1)}%</td>
@@ -452,7 +452,7 @@ export default function SemanticMonitoringDashboard() {
                       </thead>
                       <tbody>
                         {featureMetrics[selectedFeature].operationBreakdown.map((op) => (
-                          <tr key={op.operation} className="border-b hover:bg-gray-50">
+                          <tr key={op.operation} className="border-b hover:bg-cloud">
                             <td className="p-2 font-medium">{op.operation}</td>
                             <td className="p-2 text-right">{op.requests.toLocaleString()}</td>
                             <td className="p-2 text-right">{op.successRate.toFixed(1)}%</td>

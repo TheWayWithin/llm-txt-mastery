@@ -4,6 +4,7 @@ import { Check, Coffee, Zap, Crown, ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionManagement from '@/components/subscription-management';
+import Footer from '@/components/footer';
 import { useSEO } from '@/hooks/useSEO';
 
 export default function Pricing() {
@@ -13,21 +14,23 @@ export default function Pricing() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-cloud">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/images/logo-primary.png"
-                alt="LLM.txt Mastery"
-                className="h-16 md:h-20 w-auto"
-              />
-            </div>
+            <Link href="/">
+              <a className="flex items-center space-x-3">
+                <img
+                  src="/images/logo-primary.png"
+                  alt="LLM.txt Mastery"
+                  className="h-16 md:h-20 w-auto"
+                />
+              </a>
+            </Link>
             <Link href="/">
               <a>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to App
                 </Button>
@@ -40,10 +43,10 @@ export default function Pricing() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-framework-black mb-4">
+          <h2 className="text-4xl font-bold text-ink mb-4">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-lg text-ai-silver max-w-2xl mx-auto">
+          <p className="text-lg text-slate-brand max-w-2xl mx-auto">
             Start free, upgrade when you need more. No hidden fees, no surprises.
           </p>
         </div>
@@ -51,37 +54,41 @@ export default function Pricing() {
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {/* Starter Tier */}
-          <Card className="relative border-2 hover:shadow-lg transition-shadow">
+          <Card className="relative bg-white border border-mist rounded-lg hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <Check className="h-6 w-6 text-green-600" />
-                <span className="text-2xl font-bold">$0</span>
+                <Check className="h-6 w-6 text-signal-blue" />
+                <span className="text-2xl font-bold text-ink">$0</span>
               </div>
-              <CardTitle>Starter</CardTitle>
-              <CardDescription>Find out if you're invisible to AI</CardDescription>
+              <CardTitle className="text-lg">Starter</CardTitle>
+              <CardDescription className="text-sm">
+                <span className="text-signal-blue font-medium">Best for: Quick check</span>
+                <br />
+                Find out if you're invisible to AI
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Discover if AI can find you</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Discover if AI can find you</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">See your visibility score</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">See your visibility score</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">20 pages analyzed</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">20 pages analyzed</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Basic recommendations</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Basic recommendations</span>
                 </li>
               </ul>
               <Link href="/">
                 <a className="block">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
                     Start Free
                   </Button>
                 </a>
@@ -90,40 +97,44 @@ export default function Pricing() {
           </Card>
 
           {/* Solo Tier */}
-          <Card className="relative border-2 border-orange-400 hover:shadow-lg transition-shadow">
+          <Card className="relative bg-white border border-mist rounded-lg hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <Coffee className="h-6 w-6 text-orange-600" />
+                <Coffee className="h-6 w-6 text-signal-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$4.95</span>
-                  <span className="text-xs text-ai-silver block">/month</span>
+                  <span className="text-2xl font-bold text-ink">$4.95</span>
+                  <span className="text-xs text-slate-brand block">/month</span>
                 </div>
               </div>
-              <CardTitle>Solo</CardTitle>
-              <CardDescription>Help AI find your best content</CardDescription>
+              <CardTitle className="text-lg">Solo</CardTitle>
+              <CardDescription className="text-sm">
+                <span className="text-signal-blue font-medium">Best for: Solopreneurs</span>
+                <br />
+                Help AI find your best content
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm font-medium">AI finds 10x more pages (200)</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">AI finds 10x more pages (200)</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Know which pages convert</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Know which pages convert</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Help AI find your best content</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Quality scoring for every page</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">30-day money-back guarantee</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">30-day money-back guarantee</span>
                 </li>
               </ul>
               <Link href="/signup?tier=solo">
                 <a className="block">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
                     Generate Your File
                   </Button>
                 </a>
@@ -132,43 +143,47 @@ export default function Pricing() {
           </Card>
 
           {/* Growth Tier - MOST POPULAR */}
-          <Card className="relative border-2 border-innovation-teal hover:shadow-lg transition-shadow bg-teal-50 ring-2 ring-innovation-teal ring-offset-2">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-innovation-teal text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
+          <Card className="relative bg-white border border-mist rounded-lg hover:shadow-lg transition-shadow shadow-md border-t-2 border-t-signal-blue">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-signal-blue text-white text-xs px-3 py-1 rounded-full font-semibold">
               MOST POPULAR
             </div>
-            <CardHeader className="pt-6">
+            <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <Zap className="h-6 w-6 text-innovation-teal" />
+                <Zap className="h-6 w-6 text-signal-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$9.95</span>
-                  <span className="text-xs text-ai-silver block">/month</span>
+                  <span className="text-2xl font-bold text-ink">$9.95</span>
+                  <span className="text-xs text-slate-brand block">/month</span>
                 </div>
               </div>
-              <CardTitle>Growth</CardTitle>
-              <CardDescription>Be discoverable across AI platforms</CardDescription>
+              <CardTitle className="text-lg">Growth</CardTitle>
+              <CardDescription className="text-sm">
+                <span className="text-signal-blue font-medium">Best for: Agencies</span>
+                <br />
+                Be discoverable across AI platforms
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm font-medium">Cover 1,000 pages per site</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Cover 1,000 pages per site</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Unlimited daily analyses</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Unlimited daily analyses</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Bulk website processing</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Bulk website processing</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-innovation-teal mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Export to CSV/JSON</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Export to CSV/JSON</span>
                 </li>
               </ul>
               <Link href="/signup?tier=growth">
                 <a className="block">
-                  <Button className="w-full bg-innovation-teal hover:bg-teal-600 text-white">
+                  <Button className="w-full min-h-[44px] bg-signal-blue hover:bg-[#1D4ED8] text-white">
                     Generate Your File
                   </Button>
                 </a>
@@ -177,40 +192,44 @@ export default function Pricing() {
           </Card>
 
           {/* Scale Tier */}
-          <Card className="relative border-2 hover:shadow-lg transition-shadow">
+          <Card className="relative bg-white border border-mist rounded-lg hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <Crown className="h-6 w-6 text-mastery-blue" />
+                <Crown className="h-6 w-6 text-signal-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$19.95</span>
-                  <span className="text-xs text-ai-silver block">/month</span>
+                  <span className="text-2xl font-bold text-ink">$19.95</span>
+                  <span className="text-xs text-slate-brand block">/month</span>
                 </div>
               </div>
-              <CardTitle>Scale</CardTitle>
-              <CardDescription>Full coverage for complex sites</CardDescription>
+              <CardTitle className="text-lg">Scale</CardTitle>
+              <CardDescription className="text-sm">
+                <span className="text-signal-blue font-medium">Best for: Developers</span>
+                <br />
+                Full coverage for complex sites
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm font-medium">JavaScript rendering for React/Angular/Vue</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">JS rendering for React/Angular/Vue</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Unlimited pages per analysis</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Unlimited pages per analysis</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Unlimited AI analysis</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Unlimited AI analysis</span>
                 </li>
                 <li className="flex items-start">
-                  <Check className="h-4 w-4 text-mastery-blue mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Multi-site management</span>
+                  <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-ink">Multi-site management</span>
                 </li>
               </ul>
               <Link href="/signup?tier=scale">
                 <a className="block">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
                     Generate Your File
                   </Button>
                 </a>
@@ -219,12 +238,34 @@ export default function Pricing() {
           </Card>
         </div>
 
-        {/* Original Subscription Management Component */}
+        {/* Value Props */}
+        <div className="text-center mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-slate-brand">
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-success" />
+              <span>84% cheaper than competitors</span>
+            </div>
+            <span className="hidden sm:inline text-mist">|</span>
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-success" />
+              <span>30-day money-back guarantee</span>
+            </div>
+            <span className="hidden sm:inline text-mist">|</span>
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-success" />
+              <span>No credit card required for free tier</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Subscription Management */}
         <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-center mb-6">Manage Your Subscription</h3>
+          <h3 className="text-2xl font-bold text-ink text-center mb-6">Manage Your Subscription</h3>
           <SubscriptionManagement />
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

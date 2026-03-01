@@ -31,13 +31,13 @@ export function UserDashboard() {
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'solo':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-cloud text-ink border-mist';
       case 'growth':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-signal-blue/10 text-mastery-blue border-mist';
       case 'scale':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-cloud text-ink border-mist';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-cloud text-ink border-mist';
     }
   };
 
@@ -97,18 +97,18 @@ export function UserDashboard() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Analysis Credits</span>
-                <span className="text-lg font-bold text-orange-600">
+                <span className="text-lg font-bold text-action-amber">
                   {userProfile.creditsRemaining}
                 </span>
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-stone-brand">
                 Each credit allows one website analysis (up to 200 pages with AI enhancement)
               </div>
             </div>
 
             {userProfile.creditsRemaining === 0 && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                <p className="text-sm text-orange-800 mb-2">
+              <div className="bg-cloud border border-mist rounded-lg p-3">
+                <p className="text-sm text-ink mb-2">
                   No credits remaining. Purchase more to continue analyzing websites.
                 </p>
                 <Button
@@ -130,7 +130,7 @@ export function UserDashboard() {
         {/* Tier Features */}
         <div className="space-y-2">
           <span className="text-sm font-medium">Your Features</span>
-          <div className="text-xs text-gray-600 space-y-1">
+          <div className="text-xs text-slate-brand space-y-1">
             {userProfile.tier === 'starter' && (
               <>
                 <div>• 20 pages per analysis</div>

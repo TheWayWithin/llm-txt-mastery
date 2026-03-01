@@ -264,7 +264,7 @@ export function withABTest<P extends object>(
     const { variant, loading } = useABTest(experimentName);
 
     if (loading) {
-      return <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>;
+      return <div className="animate-pulse bg-mist h-4 w-16 rounded"></div>;
     }
 
     if (!variant) {
@@ -301,7 +301,7 @@ export function ABTestGate({
   const { variant, loading } = useABTest(experimentName);
 
   if (loading) {
-    return <>{loadingComponent || <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>}</>;
+    return <>{loadingComponent || <div className="animate-pulse bg-mist h-4 w-16 rounded"></div>}</>;
   }
 
   return <>{variant === targetVariant ? children : fallback}</>;

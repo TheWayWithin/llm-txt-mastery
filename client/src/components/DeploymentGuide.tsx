@@ -878,13 +878,13 @@ function CodeBlock({ code, language }: { code: string; language?: string }) {
 
   return (
     <div className="relative mt-2 mb-2">
-      <pre className="bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm font-mono">
+      <pre className="bg-ink text-white/90 rounded-lg p-4 overflow-x-auto text-sm font-mono">
         <code>{code}</code>
       </pre>
       <Button
         variant="ghost"
         size="sm"
-        className="absolute top-2 right-2 text-slate-400 hover:text-white hover:bg-slate-700"
+        className="absolute top-2 right-2 text-stone-brand hover:text-white hover:bg-mastery-blue"
         onClick={handleCopy}
       >
         {copied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -910,8 +910,8 @@ function VerificationChecklist({ websiteUrl }: { websiteUrl: string }) {
   const allComplete = Object.values(checks).every(Boolean);
 
   return (
-    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-      <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+    <div className="mt-6 p-4 bg-signal-blue/10 border border-mist rounded-lg">
+      <h4 className="font-semibold text-ink mb-3 flex items-center">
         <CheckCircle className="h-5 w-5 mr-2" />
         Verification Checklist
       </h4>
@@ -927,9 +927,9 @@ function VerificationChecklist({ websiteUrl }: { websiteUrl: string }) {
               type="checkbox"
               checked={checks[key]}
               onChange={() => toggleCheck(key)}
-              className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-mist text-signal-blue focus:ring-signal-blue"
             />
-            <span className={`ml-2 text-sm ${checks[key] ? 'text-blue-700 line-through' : 'text-blue-800'}`}>
+            <span className={`ml-2 text-sm ${checks[key] ? 'text-mastery-blue line-through' : 'text-mastery-blue'}`}>
               {label}
             </span>
             {link && (
@@ -937,7 +937,7 @@ function VerificationChecklist({ websiteUrl }: { websiteUrl: string }) {
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-2 text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="ml-2 text-signal-blue hover:text-mastery-blue opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <ExternalLink className="h-3 w-3" />
               </a>
@@ -946,7 +946,7 @@ function VerificationChecklist({ websiteUrl }: { websiteUrl: string }) {
         ))}
       </div>
       {allComplete && (
-        <div className="mt-3 p-2 bg-green-100 border border-green-200 rounded text-green-800 text-sm flex items-center">
+        <div className="mt-3 p-2 bg-success/10 border border-mist rounded text-ink text-sm flex items-center">
           <Rocket className="h-4 w-4 mr-2" />
           Your llms.txt is deployed and ready for AI systems!
         </div>
@@ -966,21 +966,21 @@ export default function DeploymentGuide({
   const instructions = PLATFORM_INSTRUCTIONS[detectedPlatform] || PLATFORM_INSTRUCTIONS.unknown;
 
   return (
-    <Card className="bg-white shadow-sm border border-slate-200 mt-6">
+    <Card className="bg-white shadow-sm border border-mist mt-6">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 text-xl">
+            <div className="w-10 h-10 bg-signal-blue/10 rounded-full flex items-center justify-center mr-3 text-xl">
               {instructions.icon}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-semibold text-ink">
                 Deploy to {instructions.displayName}
               </h3>
-              <p className="text-sm text-slate-600">{instructions.description}</p>
+              <p className="text-sm text-slate-brand">{instructions.description}</p>
             </div>
           </div>
-          <Globe className="h-6 w-6 text-slate-400" />
+          <Globe className="h-6 w-6 text-stone-brand" />
         </div>
 
         <Accordion type="single" collapsible defaultValue={instructions.methods[0]?.id} className="space-y-2">
@@ -988,12 +988,12 @@ export default function DeploymentGuide({
             <AccordionItem
               key={method.id}
               value={method.id}
-              className="border border-slate-200 rounded-lg overflow-hidden"
+              className="border border-mist rounded-lg overflow-hidden"
             >
-              <AccordionTrigger className="px-4 py-3 hover:bg-slate-50">
+              <AccordionTrigger className="px-4 py-3 hover:bg-cloud">
                 <div className="flex items-center">
                   {method.recommended && (
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded mr-2">
+                    <span className="bg-success/10 text-ink text-xs font-medium px-2 py-0.5 rounded mr-2">
                       Recommended
                     </span>
                   )}
@@ -1001,24 +1001,24 @@ export default function DeploymentGuide({
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
-                <p className="text-sm text-slate-600 mb-4">{method.description}</p>
+                <p className="text-sm text-slate-brand mb-4">{method.description}</p>
                 <div className="space-y-4">
                   {method.steps.map((step, index) => (
                     <div key={index} className="flex">
-                      <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-sm font-semibold mr-3 mt-0.5">
+                      <div className="flex-shrink-0 w-6 h-6 bg-signal-blue/10 text-mastery-blue rounded-full flex items-center justify-center text-sm font-semibold mr-3 mt-0.5">
                         {index + 1}
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium text-slate-900">{step.title}</h5>
-                        <p className="text-sm text-slate-600 mt-1">{step.description}</p>
+                        <h5 className="font-medium text-ink">{step.title}</h5>
+                        <p className="text-sm text-slate-brand mt-1">{step.description}</p>
                         {step.code && <CodeBlock code={step.code} language={step.codeLanguage} />}
                         {step.tip && (
-                          <div className="mt-2 text-sm text-blue-700 bg-blue-50 p-2 rounded flex items-start">
+                          <div className="mt-2 text-sm text-mastery-blue bg-signal-blue/10 p-2 rounded flex items-start">
                             <span className="mr-1">💡</span> {step.tip}
                           </div>
                         )}
                         {step.warning && (
-                          <div className="mt-2 text-sm text-amber-700 bg-amber-50 p-2 rounded flex items-start">
+                          <div className="mt-2 text-sm text-action-amber bg-action-amber/10 p-2 rounded flex items-start">
                             <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" /> {step.warning}
                           </div>
                         )}
@@ -1032,12 +1032,12 @@ export default function DeploymentGuide({
         </Accordion>
 
         {instructions.additionalNotes && instructions.additionalNotes.length > 0 && (
-          <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-            <h4 className="text-sm font-medium text-slate-700 mb-2">Additional Notes:</h4>
-            <ul className="text-sm text-slate-600 space-y-1">
+          <div className="mt-4 p-3 bg-cloud rounded-lg">
+            <h4 className="text-sm font-medium text-ink mb-2">Additional Notes:</h4>
+            <ul className="text-sm text-slate-brand space-y-1">
               {instructions.additionalNotes.map((note, index) => (
                 <li key={index} className="flex items-start">
-                  <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 text-slate-400" />
+                  <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 text-stone-brand" />
                   {note}
                 </li>
               ))}

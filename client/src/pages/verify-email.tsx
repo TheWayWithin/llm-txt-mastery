@@ -116,28 +116,28 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ai-purple/5 via-white to-ai-orange/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cloud flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
             {verificationState === 'loading' && (
-              <div className="w-16 h-16 bg-ai-purple/10 rounded-full flex items-center justify-center">
-                <Loader2 className="h-8 w-8 text-ai-purple animate-spin" />
+              <div className="w-16 h-16 bg-signal-blue/10 rounded-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 text-signal-blue animate-spin" />
               </div>
             )}
             {verificationState === 'success' && (
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="h-8 w-8 text-success" />
               </div>
             )}
             {verificationState === 'already-verified' && (
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-blue-600" />
+              <div className="w-16 h-16 bg-signal-blue/10 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="h-8 w-8 text-signal-blue" />
               </div>
             )}
             {verificationState === 'error' && (
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertCircle className="h-8 w-8 text-red-600" />
+              <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
+                <AlertCircle className="h-8 w-8 text-error" />
               </div>
             )}
           </div>
@@ -171,18 +171,18 @@ export default function VerifyEmailPage() {
           )}
 
           {verificationState === 'success' && (
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
+            <Alert className="border-mist bg-success/10">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <AlertDescription className="text-ink">
                 You can now access all features including password reset and tier upgrades.
               </AlertDescription>
             </Alert>
           )}
 
           {verificationState === 'already-verified' && (
-            <Alert className="border-blue-200 bg-blue-50">
-              <Mail className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-800">
+            <Alert className="border-mist bg-signal-blue/10">
+              <Mail className="h-4 w-4 text-signal-blue" />
+              <AlertDescription className="text-ink">
                 Your email was previously verified. You already have full access to your account.
               </AlertDescription>
             </Alert>
@@ -192,7 +192,7 @@ export default function VerifyEmailPage() {
             {(verificationState === 'success' || verificationState === 'already-verified') && (
               <Button
                 onClick={handleContinue}
-                className="w-full bg-gradient-to-r from-ai-purple to-ai-orange text-white"
+                className="w-full bg-signal-blue hover:bg-[#1D4ED8] text-white"
               >
                 Continue to LLM.txt Mastery
               </Button>
@@ -202,7 +202,7 @@ export default function VerifyEmailPage() {
               <>
                 <Button
                   onClick={handleLogin}
-                  className="w-full bg-gradient-to-r from-ai-purple to-ai-orange text-white"
+                  className="w-full bg-signal-blue hover:bg-[#1D4ED8] text-white"
                 >
                   Go to Login
                 </Button>

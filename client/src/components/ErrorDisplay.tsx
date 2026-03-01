@@ -33,30 +33,30 @@ const ERROR_ICONS = {
 };
 
 const ERROR_COLORS = {
-  network: 'border-blue-200 bg-blue-50',
-  validation: 'border-orange-200 bg-orange-50',
-  auth: 'border-purple-200 bg-purple-50',
-  analysis: 'border-green-200 bg-green-50',
-  payment: 'border-red-200 bg-red-50',
-  unknown: 'border-slate-200 bg-slate-50',
+  network: 'border-mist bg-signal-blue/10',
+  validation: 'border-mist bg-cloud',
+  auth: 'border-mist bg-cloud',
+  analysis: 'border-mist bg-success/10',
+  payment: 'border-mist bg-error/10',
+  unknown: 'border-mist bg-cloud',
 };
 
 const ERROR_TITLE_COLORS = {
-  network: 'text-blue-800',
-  validation: 'text-orange-800',
-  auth: 'text-purple-800',
-  analysis: 'text-green-800',
-  payment: 'text-red-800',
-  unknown: 'text-slate-800',
+  network: 'text-mastery-blue',
+  validation: 'text-ink',
+  auth: 'text-ink',
+  analysis: 'text-ink',
+  payment: 'text-error',
+  unknown: 'text-ink',
 };
 
 const ERROR_TEXT_COLORS = {
-  network: 'text-blue-700',
-  validation: 'text-orange-700',
-  auth: 'text-purple-700',
-  analysis: 'text-green-700',
-  payment: 'text-red-700',
-  unknown: 'text-slate-700',
+  network: 'text-mastery-blue',
+  validation: 'text-action-amber',
+  auth: 'text-slate-brand',
+  analysis: 'text-success',
+  payment: 'text-error',
+  unknown: 'text-ink',
 };
 
 function getErrorTitle(type: ErrorContext['type']): string {
@@ -129,11 +129,11 @@ export default function ErrorDisplay({
 
       <CardContent className="space-y-6">
         {/* Error Info */}
-        <div className="text-center text-sm text-slate-600">
+        <div className="text-center text-sm text-slate-brand">
           <p>Error occurred at {error.timestamp.toLocaleTimeString()}</p>
           {error.code && <p className="font-mono text-xs mt-1">Code: {error.code}</p>}
           {tooManyRetries && (
-            <p className="text-orange-600 font-medium mt-2">
+            <p className="text-action-amber font-medium mt-2">
               Maximum retry attempts reached ({maxRetries})
             </p>
           )}
@@ -142,12 +142,12 @@ export default function ErrorDisplay({
         {/* Suggested Actions */}
         {error.suggestedActions.length > 0 && (
           <div>
-            <h4 className="font-semibold text-slate-800 mb-3">💡 What you can do:</h4>
+            <h4 className="font-semibold text-ink mb-3">💡 What you can do:</h4>
             <ul className="space-y-2">
               {error.suggestedActions.map((action, index) => (
                 <li key={index} className="flex items-start">
-                  <span className="text-blue-500 mr-2 mt-1">•</span>
-                  <span className="text-slate-700 text-sm">{action}</span>
+                  <span className="text-signal-blue mr-2 mt-1">•</span>
+                  <span className="text-ink text-sm">{action}</span>
                 </li>
               ))}
             </ul>
@@ -159,7 +159,7 @@ export default function ErrorDisplay({
           {canRetry && onRetry && (
             <Button
               onClick={onRetry}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 bg-signal-blue hover:bg-[#1D4ED8] text-white"
               size="lg"
             >
               <RotateCcw className="mr-2 h-5 w-5" />
@@ -171,7 +171,7 @@ export default function ErrorDisplay({
             <Button
               onClick={() => onRecover()}
               variant={canRetry ? 'outline' : 'default'}
-              className={`flex-1 ${!canRetry ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300 hover:bg-slate-50'}`}
+              className={`flex-1 ${!canRetry ? 'bg-signal-blue hover:bg-[#1D4ED8] text-white' : 'border-mist hover:bg-cloud'}`}
               size="lg"
             >
               <RefreshCw className="mr-2 h-5 w-5" />
@@ -183,7 +183,7 @@ export default function ErrorDisplay({
             <Button
               onClick={onReset}
               variant="outline"
-              className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+              className="flex-1 border-mist text-success hover:bg-success/10"
               size="lg"
             >
               <Home className="mr-2 h-5 w-5" />
@@ -194,7 +194,7 @@ export default function ErrorDisplay({
 
         {/* Help Section */}
         <div className="border-t pt-4 text-center">
-          <p className="text-slate-600 mb-4 text-sm">Need more help with this error?</p>
+          <p className="text-slate-brand mb-4 text-sm">Need more help with this error?</p>
           <div className="flex justify-center">
             <QuickHelp context={helpContext} />
           </div>

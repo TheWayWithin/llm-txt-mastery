@@ -82,16 +82,16 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-2xl bg-white shadow-lg border-red-200">
-            <CardHeader className="text-center border-b border-red-100 bg-red-50">
+        <div className="min-h-screen bg-cloud flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl bg-white shadow-lg border-mist">
+            <CardHeader className="text-center border-b border-error/20 bg-error/10">
               <div className="flex items-center justify-center mb-4">
-                <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-error/100 rounded-full flex items-center justify-center">
                   <AlertTriangle className="text-white text-2xl" />
                 </div>
               </div>
-              <CardTitle className="text-2xl text-red-700">Oops! Something went wrong</CardTitle>
-              <p className="text-red-600 mt-2">
+              <CardTitle className="text-2xl text-error">Oops! Something went wrong</CardTitle>
+              <p className="text-error mt-2">
                 We encountered an unexpected error while processing your request.
               </p>
             </CardHeader>
@@ -100,17 +100,17 @@ class ErrorBoundary extends Component<Props, State> {
               <div className="space-y-6">
                 {/* Error Details (for development) */}
                 {process.env.NODE_ENV === 'development' && this.state.error && (
-                  <div className="bg-slate-100 border border-slate-200 rounded-lg p-4">
-                    <h4 className="font-semibold text-slate-800 mb-2">Error Details:</h4>
-                    <p className="text-sm text-slate-700 font-mono mb-2">
+                  <div className="bg-cloud border border-mist rounded-lg p-4">
+                    <h4 className="font-semibold text-ink mb-2">Error Details:</h4>
+                    <p className="text-sm text-ink font-mono mb-2">
                       {this.state.error.message}
                     </p>
                     {this.state.error.stack && (
                       <details className="mt-2">
-                        <summary className="text-sm text-slate-600 cursor-pointer hover:text-slate-800">
+                        <summary className="text-sm text-slate-brand cursor-pointer hover:text-ink">
                           Stack Trace
                         </summary>
-                        <pre className="text-xs text-slate-600 mt-2 overflow-auto">
+                        <pre className="text-xs text-slate-brand mt-2 overflow-auto">
                           {this.state.error.stack}
                         </pre>
                       </details>
@@ -119,16 +119,16 @@ class ErrorBoundary extends Component<Props, State> {
                 )}
 
                 {/* User-Friendly Explanation */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <h4 className="font-semibold text-blue-800 mb-3">What happened?</h4>
-                  <p className="text-blue-700 mb-4">
+                <div className="bg-signal-blue/10 border border-mist rounded-lg p-6">
+                  <h4 className="font-semibold text-mastery-blue mb-3">What happened?</h4>
+                  <p className="text-mastery-blue mb-4">
                     The application encountered an unexpected error that prevented it from
                     continuing normally. This is likely a temporary issue that can be resolved by
                     trying again.
                   </p>
 
-                  <h4 className="font-semibold text-blue-800 mb-3">What can you do?</h4>
-                  <ul className="text-blue-700 space-y-2 text-sm">
+                  <h4 className="font-semibold text-mastery-blue mb-3">What can you do?</h4>
+                  <ul className="text-mastery-blue space-y-2 text-sm">
                     <li>• Try refreshing the page to see if the issue resolves</li>
                     <li>• Start over with a fresh session</li>
                     <li>• Check your internet connection</li>
@@ -142,7 +142,7 @@ class ErrorBoundary extends Component<Props, State> {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     onClick={this.handleReset}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="flex-1 bg-signal-blue hover:bg-[#1D4ED8] text-white"
                     size="lg"
                   >
                     <RotateCcw className="mr-2 h-5 w-5" />
@@ -152,7 +152,7 @@ class ErrorBoundary extends Component<Props, State> {
                   <Button
                     onClick={this.handleReload}
                     variant="outline"
-                    className="flex-1 border-slate-300 hover:bg-slate-50"
+                    className="flex-1 border-mist hover:bg-cloud"
                     size="lg"
                   >
                     <RefreshCw className="mr-2 h-5 w-5" />
@@ -162,7 +162,7 @@ class ErrorBoundary extends Component<Props, State> {
                   <Button
                     onClick={this.handleStartOver}
                     variant="outline"
-                    className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+                    className="flex-1 border-mist text-success hover:bg-success/10"
                     size="lg"
                   >
                     <Home className="mr-2 h-5 w-5" />
@@ -172,7 +172,7 @@ class ErrorBoundary extends Component<Props, State> {
 
                 {/* Contact Support */}
                 <div className="border-t pt-6 text-center">
-                  <p className="text-slate-600 mb-4">Still having trouble? We're here to help!</p>
+                  <p className="text-slate-brand mb-4">Still having trouble? We're here to help!</p>
                   <Button
                     variant="outline"
                     onClick={() =>
@@ -182,7 +182,7 @@ class ErrorBoundary extends Component<Props, State> {
                         '_blank'
                       )
                     }
-                    className="border-slate-300 hover:bg-slate-50"
+                    className="border-mist hover:bg-cloud"
                   >
                     <Mail className="mr-2 h-4 w-4" />
                     Contact Support

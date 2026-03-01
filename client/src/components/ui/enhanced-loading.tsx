@@ -37,54 +37,54 @@ export function EnhancedLoading({ state, className, animated = true }: EnhancedL
   const getIcon = () => {
     switch (state.type) {
       case 'loading':
-        return <Loader2 className="h-6 w-6 animate-spin text-innovation-teal" />;
+        return <Loader2 className="h-6 w-6 animate-spin text-signal-blue" />;
       case 'success':
-        return <CheckCircle className="h-6 w-6 text-green-600" />;
+        return <CheckCircle className="h-6 w-6 text-success" />;
       case 'error':
-        return <AlertCircle className="h-6 w-6 text-red-600" />;
+        return <AlertCircle className="h-6 w-6 text-error" />;
       case 'warning':
-        return <AlertCircle className="h-6 w-6 text-yellow-600" />;
+        return <AlertCircle className="h-6 w-6 text-action-amber" />;
       default:
-        return <Loader2 className="h-6 w-6 animate-spin text-innovation-teal" />;
+        return <Loader2 className="h-6 w-6 animate-spin text-signal-blue" />;
     }
   };
 
   const getCardStyles = () => {
     switch (state.type) {
       case 'success':
-        return 'border-green-200 bg-green-50';
+        return 'border-mist bg-success/10';
       case 'error':
-        return 'border-red-200 bg-red-50';
+        return 'border-mist bg-error/10';
       case 'warning':
-        return 'border-yellow-200 bg-yellow-50';
+        return 'border-action-amber/40 bg-action-amber/10';
       default:
-        return 'border-slate-200 bg-white';
+        return 'border-mist bg-white';
     }
   };
 
   const getTitleStyles = () => {
     switch (state.type) {
       case 'success':
-        return 'text-green-800';
+        return 'text-ink';
       case 'error':
-        return 'text-red-800';
+        return 'text-error';
       case 'warning':
-        return 'text-yellow-800';
+        return 'text-ink';
       default:
-        return 'text-framework-black';
+        return 'text-ink';
     }
   };
 
   const getMessageStyles = () => {
     switch (state.type) {
       case 'success':
-        return 'text-green-700';
+        return 'text-success';
       case 'error':
-        return 'text-red-700';
+        return 'text-error';
       case 'warning':
-        return 'text-yellow-700';
+        return 'text-action-amber';
       default:
-        return 'text-ai-silver';
+        return 'text-slate-brand';
     }
   };
 
@@ -102,15 +102,15 @@ export function EnhancedLoading({ state, className, animated = true }: EnhancedL
             {/* Time Estimate */}
             {state.timeEstimate && (
               <div className="flex items-center space-x-2 mb-4">
-                <Clock className="h-4 w-4 text-ai-silver" />
-                <span className="text-sm text-ai-silver">{state.timeEstimate}</span>
+                <Clock className="h-4 w-4 text-slate-brand" />
+                <span className="text-sm text-slate-brand">{state.timeEstimate}</span>
               </div>
             )}
 
             {/* Progress Bar */}
             {(state.showProgress || state.progress !== undefined) && (
               <div className="mb-4">
-                <div className="flex justify-between text-sm text-ai-silver mb-2">
+                <div className="flex justify-between text-sm text-slate-brand mb-2">
                   <span>Progress</span>
                   <span>{Math.round(animatedProgress)}%</span>
                 </div>
@@ -123,8 +123,8 @@ export function EnhancedLoading({ state, className, animated = true }: EnhancedL
               <div className="space-y-2">
                 {state.details.map((detail, index) => (
                   <div key={index} className="flex items-center space-x-2 text-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-innovation-teal flex-shrink-0" />
-                    <span className="text-ai-silver">{detail}</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-signal-blue flex-shrink-0" />
+                    <span className="text-slate-brand">{detail}</span>
                   </div>
                 ))}
               </div>

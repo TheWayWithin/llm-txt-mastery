@@ -45,7 +45,14 @@ export default function FAQSection() {
         <h2 className="text-2xl sm:text-3xl font-bold text-ink mb-8 text-center">
           Frequently asked questions
         </h2>
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion
+          type="single"
+          collapsible
+          className="space-y-2"
+          onValueChange={(value) => {
+            if (value) (window as any).plausible?.('faq-accordion-open', { props: { question: value } });
+          }}
+        >
           {faqs.map((faq) => (
             <AccordionItem key={faq.id} value={faq.id} className="border border-mist rounded-lg px-4">
               <AccordionTrigger className="text-left text-ink font-medium hover:no-underline">
@@ -57,6 +64,17 @@ export default function FAQSection() {
             </AccordionItem>
           ))}
         </Accordion>
+        <p className="text-sm text-slate-brand text-center mt-8">
+          Want to learn more about AI search visibility?{' '}
+          <a
+            href="https://www.aisearchmastery.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-signal-blue hover:underline"
+          >
+            Visit AI Search Mastery
+          </a>
+        </p>
       </div>
     </section>
   );

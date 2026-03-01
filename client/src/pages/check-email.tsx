@@ -50,33 +50,33 @@ export default function CheckEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ai-blue via-innovation-teal to-wisdom-purple flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cloud flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="bg-white/95 backdrop-blur shadow-xl">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 h-16 w-16 bg-innovation-teal/10 rounded-full flex items-center justify-center">
-              <Mail className="h-8 w-8 text-innovation-teal" />
+            <div className="mx-auto mb-4 h-16 w-16 bg-signal-blue/10 rounded-full flex items-center justify-center">
+              <Mail className="h-8 w-8 text-signal-blue" />
             </div>
             <CardTitle className="text-2xl font-bold">Check Your Email</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center space-y-2">
-              <p className="text-ai-silver">We've sent a verification link to:</p>
-              <p className="font-semibold text-framework-black">{email || 'your email address'}</p>
+              <p className="text-slate-brand">We've sent a verification link to:</p>
+              <p className="font-semibold text-ink">{email || 'your email address'}</p>
             </div>
 
-            <div className="bg-innovation-teal/5 rounded-lg p-4 space-y-2">
-              <p className="text-sm text-framework-black font-medium">
+            <div className="bg-signal-blue/5 rounded-lg p-4 space-y-2">
+              <p className="text-sm text-ink font-medium">
                 To complete your registration:
               </p>
-              <ol className="text-sm text-ai-silver space-y-1 ml-4">
+              <ol className="text-sm text-slate-brand space-y-1 ml-4">
                 <li>1. Check your email inbox</li>
                 <li>2. Click the verification link</li>
                 <li>3. You'll be automatically logged in</li>
               </ol>
             </div>
 
-            <div className="text-center text-sm text-ai-silver">
+            <div className="text-center text-sm text-slate-brand">
               <p>Can't find the email? Check your spam folder.</p>
             </div>
 
@@ -84,7 +84,7 @@ export default function CheckEmailPage() {
               <Button
                 onClick={handleResendEmail}
                 disabled={isResending}
-                className="w-full bg-innovation-teal hover:bg-innovation-teal/90"
+                className="w-full bg-signal-blue hover:bg-signal-blue/90"
               >
                 {isResending ? (
                   <>
@@ -109,18 +109,18 @@ export default function CheckEmailPage() {
               </Link>
             </div>
 
-            <div className="text-center text-xs text-ai-silver pt-2 border-t">
+            <div className="text-center text-xs text-slate-brand pt-2 border-t">
               <p>
                 Already verified?{' '}
                 <Link href="/login">
-                  <a className="text-innovation-teal hover:underline">Sign in here</a>
+                  <a className="text-signal-blue hover:underline">Sign in here</a>
                 </Link>
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-white/70 mt-4">
+        <p className="text-center text-xs text-stone-brand mt-4">
           Tip: Keep this tab open - clicking the email link will bring you back here
         </p>
       </div>

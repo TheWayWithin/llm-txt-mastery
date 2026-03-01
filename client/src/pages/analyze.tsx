@@ -210,7 +210,7 @@ export default function AnalyzePage() {
   // Show loading while auth is resolving
   if (!authResolved || authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-cloud flex items-center justify-center">
         <EnhancedLoading state={LOADING_STATES.AUTH_CHECK} />
       </div>
     );
@@ -223,7 +223,7 @@ export default function AnalyzePage() {
 
   return (
     <ErrorBoundary onReset={startNewAnalysis}>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-cloud">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -238,8 +238,8 @@ export default function AnalyzePage() {
               <div className="flex items-center space-x-4">
                 <AuthNav />
                 <div className="text-right hidden md:block">
-                  <p className="text-sm text-ai-silver">Built by Jamie Watters</p>
-                  <p className="text-xs text-ai-silver">Solopreneur & Tool Builder</p>
+                  <p className="text-sm text-slate-brand">Built by Jamie Watters</p>
+                  <p className="text-xs text-slate-brand">Solopreneur & Tool Builder</p>
                 </div>
               </div>
             </div>
@@ -257,17 +257,17 @@ export default function AnalyzePage() {
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* User Welcome & Status */}
           <section className="mb-8">
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-lg border border-mist shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-innovation-teal rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-signal-blue rounded-full flex items-center justify-center">
                     <User className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-semibold text-framework-black">
+                    <h1 className="text-xl font-semibold text-ink">
                       Welcome back, {user.email.split('@')[0]}!
                     </h1>
-                    <p className="text-sm text-ai-silver">
+                    <p className="text-sm text-slate-brand">
                       Ready to analyze your website and generate an optimized llms.txt file?
                     </p>
                   </div>
@@ -297,30 +297,30 @@ export default function AnalyzePage() {
 
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
-                  <Zap className="h-5 w-5 text-innovation-teal" />
+                <div className="flex items-center space-x-3 p-3 bg-cloud rounded-lg">
+                  <Zap className="h-5 w-5 text-signal-blue" />
                   <div>
-                    <p className="text-sm font-medium text-framework-black">Current Tier</p>
-                    <p className="text-xs text-ai-silver">{getTierDisplayName(user.tier)}</p>
+                    <p className="text-sm font-medium text-ink">Current Tier</p>
+                    <p className="text-xs text-slate-brand">{getTierDisplayName(user.tier)}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-innovation-teal" />
+                <div className="flex items-center space-x-3 p-3 bg-cloud rounded-lg">
+                  <BarChart3 className="h-5 w-5 text-signal-blue" />
                   <div>
-                    <p className="text-sm font-medium text-framework-black">
+                    <p className="text-sm font-medium text-ink">
                       {user.tier === 'solo' ? 'Credits' : "Today's Usage"}
                     </p>
-                    <p className="text-xs text-ai-silver">
+                    <p className="text-xs text-slate-brand">
                       {user.tier === 'solo'
                         ? `${usageData?.creditsRemaining || 0} remaining`
                         : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || 3}`}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
-                  <Clock className="h-5 w-5 text-innovation-teal" />
+                <div className="flex items-center space-x-3 p-3 bg-cloud rounded-lg">
+                  <Clock className="h-5 w-5 text-signal-blue" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-framework-black">
+                    <p className="text-sm font-medium text-ink">
                       {user.tier === 'solo'
                         ? 'Manage Subscription'
                         : user.tier === 'starter'
@@ -329,7 +329,7 @@ export default function AnalyzePage() {
                             ? 'Pro Features Active'
                             : 'Enterprise Features'}
                     </p>
-                    <p className="text-xs text-ai-silver">
+                    <p className="text-xs text-slate-brand">
                       {user.tier === 'solo'
                         ? 'View billing & invoices'
                         : user.tier === 'starter'
@@ -401,13 +401,13 @@ export default function AnalyzePage() {
           {/* URL Input - Primary Interface */}
           {(currentState === 'URL_INPUT' || currentState === 'INITIALIZING') && (
             <section className="mb-8">
-              <Card className="bg-white shadow-sm border border-slate-200">
+              <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-framework-black mb-2">
+                    <h2 className="text-2xl font-bold text-ink mb-2">
                       Analyze Your Website
                     </h2>
-                    <p className="text-ai-silver">
+                    <p className="text-slate-brand">
                       Enter your website URL to discover pages and generate an optimized llms.txt
                       file
                     </p>
@@ -423,7 +423,7 @@ export default function AnalyzePage() {
                     <div>
                       <Label
                         htmlFor="website-url"
-                        className="text-sm font-medium text-framework-black"
+                        className="text-sm font-medium text-ink"
                       >
                         Website URL
                       </Label>
@@ -434,46 +434,46 @@ export default function AnalyzePage() {
                           placeholder="www.example.com or https://example.com"
                           value={url}
                           onChange={handleInputChange}
-                          className="pr-12 border-slate-300 focus:ring-innovation-teal focus:border-innovation-teal text-lg py-3"
+                          className="pr-12 border-mist focus:ring-signal-blue focus:border-signal-blue text-lg py-3"
                         />
                         {isValid && (
                           <div className="absolute right-3 top-3">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <CheckCircle className="h-5 w-5 text-success" />
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 text-sm text-ai-silver">
+                      <p className="mt-2 text-sm text-slate-brand">
                         Protocol (https://) is optional - we'll add it automatically
                       </p>
                     </div>
 
                     {/* Sprint 6: Enhanced JS Rendering Toggle - Scale tier only */}
                     {user.tier === 'scale' && (
-                      <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-mastery-blue/10 to-signal-blue/10 rounded-lg border border-mist">
                         <input
                           type="checkbox"
                           id="enhanced-rendering"
                           checked={enhancedRendering}
                           onChange={(e) => setEnhancedRendering(e.target.checked)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                          className="h-4 w-4 text-slate-brand border-mist rounded focus:ring-signal-blue"
                         />
                         <label htmlFor="enhanced-rendering" className="flex-1 cursor-pointer">
-                          <span className="text-sm font-medium text-purple-900">
+                          <span className="text-sm font-medium text-ink">
                             Enhanced JS Rendering
                           </span>
-                          <p className="text-xs text-purple-700">
+                          <p className="text-xs text-slate-brand">
                             Use browser rendering for React, Angular, Vue and other JS-heavy sites
                           </p>
                         </label>
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                        <span className="text-xs bg-cloud text-slate-brand px-2 py-1 rounded">
                           Scale
                         </span>
                       </div>
                     )}
 
                     <div className="flex items-center justify-between pt-4">
-                      <div className="flex items-center space-x-2 text-sm text-ai-silver">
-                        <Info className="h-4 w-4 text-innovation-teal" />
+                      <div className="flex items-center space-x-2 text-sm text-slate-brand">
+                        <Info className="h-4 w-4 text-signal-blue" />
                         <span>
                           {user.tier === 'starter'
                             ? 'AI analysis for first 5 pages'
@@ -485,7 +485,7 @@ export default function AnalyzePage() {
                       <Button
                         type="submit"
                         disabled={!isValid}
-                        className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3 text-lg"
+                        className="bg-signal-blue hover:bg-signal-blue/90 text-white px-8 py-3 text-lg"
                       >
                         <Search className="h-5 w-5 mr-2" />
                         Analyze Website
@@ -548,22 +548,22 @@ export default function AnalyzePage() {
             recentAnalyses &&
             recentAnalyses.length > 0 && (
               <section className="mt-8">
-                <Card className="bg-white shadow-sm border border-slate-200">
+                <Card className="bg-white shadow-sm border border-mist">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-framework-black mb-4">
+                    <h3 className="text-lg font-semibold text-ink mb-4">
                       Recent Analyses
                     </h3>
                     <div className="space-y-3">
                       {recentAnalyses.slice(0, 5).map((analysis: any) => (
                         <div
                           key={analysis.id}
-                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                          className="flex items-center justify-between p-3 bg-cloud rounded-lg hover:bg-cloud transition-colors"
                         >
                           <div className="flex-1">
-                            <p className="font-medium text-framework-black truncate">
+                            <p className="font-medium text-ink truncate">
                               {analysis.websiteUrl}
                             </p>
-                            <p className="text-sm text-ai-silver">
+                            <p className="text-sm text-slate-brand">
                               {analysis.discoveredPages} pages •{' '}
                               {new Date(analysis.createdAt).toLocaleDateString()}
                             </p>

@@ -340,11 +340,11 @@ export default function ContentAnalysis({
 
   const getStepIcon = (stepIndex: number) => {
     if (stepIndex < currentStepIndex) {
-      return <CheckCircle className="h-5 w-5 text-green-500" />;
+      return <CheckCircle className="h-5 w-5 text-success" />;
     } else if (stepIndex === currentStepIndex) {
-      return <Loader2 className="h-5 w-5 text-innovation-teal animate-spin" />;
+      return <Loader2 className="h-5 w-5 text-signal-blue animate-spin" />;
     } else {
-      return <Circle className="h-5 w-5 text-slate-300" />;
+      return <Circle className="h-5 w-5 text-stone-brand" />;
     }
   };
 
@@ -355,15 +355,15 @@ export default function ContentAnalysis({
     const canRetry = retryCount < 3;
 
     return (
-      <Card className="bg-white shadow-sm border border-red-200">
+      <Card className="bg-white shadow-sm border border-mist">
         <CardContent className="p-6">
           <div className="flex items-center mb-4">
-            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3">
+            <div className="w-8 h-8 bg-error/100 rounded-full flex items-center justify-center mr-3">
               <AlertTriangle className="text-white h-5 w-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold text-red-600">Analysis Failed</h3>
-              <p className="text-red-600 text-sm mt-1">
+              <h3 className="text-xl font-semibold text-error">Analysis Failed</h3>
+              <p className="text-error text-sm mt-1">
                 {retryCount > 0 && `Attempt ${retryCount + 1} of 3`}
               </p>
             </div>
@@ -371,7 +371,7 @@ export default function ContentAnalysis({
           </div>
 
           <div className="space-y-4">
-            <p className="text-red-700 bg-red-50 p-3 rounded-lg border border-red-200">
+            <p className="text-error bg-error/10 p-3 rounded-lg border border-mist">
               {displayError}
             </p>
 
@@ -385,7 +385,7 @@ export default function ContentAnalysis({
                 <Button
                   onClick={handleRetry}
                   disabled={startAnalysisMutation.isPending}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 bg-signal-blue hover:bg-[#1D4ED8] text-white"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   {startAnalysisMutation.isPending
@@ -398,7 +398,7 @@ export default function ContentAnalysis({
                 <Button
                   onClick={onReset}
                   variant="outline"
-                  className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+                  className="flex-1 border-mist text-success hover:bg-success/10"
                 >
                   <Home className="mr-2 h-4 w-4" />
                   Start Over
@@ -408,7 +408,7 @@ export default function ContentAnalysis({
 
             {retryCount >= 3 && (
               <div className="text-center pt-4 border-t">
-                <p className="text-sm text-slate-600 mb-3">
+                <p className="text-sm text-slate-brand mb-3">
                   Still having trouble? We're here to help!
                 </p>
                 <Button
@@ -447,40 +447,40 @@ export default function ContentAnalysis({
   return (
     <div className="space-y-6">
       {/* Analysis In Progress */}
-      <Card className="bg-gradient-to-r from-blue-50 to-teal-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-signal-blue/10 to-clarity-teal/10 border-mist">
         <CardContent className="p-6 text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Analyzing Your Website</h3>
+          <h3 className="text-lg font-medium text-ink mb-2">Analyzing Your Website</h3>
 
           {/* URL being analyzed */}
-          <div className="mb-3 px-4 py-2 bg-white/50 border border-blue-100 rounded-lg inline-block">
-            <p className="text-sm text-gray-700 font-medium">
-              <Globe className="inline mr-2 h-4 w-4 text-blue-600" />
+          <div className="mb-3 px-4 py-2 bg-white/50 border border-signal-blue/20 rounded-lg inline-block">
+            <p className="text-sm text-ink font-medium">
+              <Globe className="inline mr-2 h-4 w-4 text-signal-blue" />
               {websiteUrl}
             </p>
           </div>
 
           {coldStartDetected && (
-            <div className="mb-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-800">
+            <div className="mb-3 px-4 py-2 bg-action-amber/10 border border-mist rounded-lg">
+              <p className="text-sm text-ink">
                 <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
                 Waking up services... First request after inactivity may take 30-60 seconds
               </p>
             </div>
           )}
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-sm text-slate-brand mb-2">
             Our AI system is carefully examining your content structure and optimizing it for
             machine readability
           </p>
           {/* Estimated time and tier info display */}
           {totalPages && totalPages > 0 && (
             <div className="mt-3 space-y-2">
-              <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg inline-block">
-                <p className="text-sm text-blue-800">
+              <div className="px-4 py-2 bg-signal-blue/10 border border-mist rounded-lg inline-block">
+                <p className="text-sm text-mastery-blue">
                   <FileText className="inline mr-2 h-4 w-4" />
                   {isLimited ? (
                     <>
                       Analyzing <strong>{actualPagesToAnalyze}</strong> of {totalPages} pages
-                      <span className="text-blue-600 ml-1">({tierDisplayName} tier limit)</span>
+                      <span className="text-signal-blue ml-1">({tierDisplayName} tier limit)</span>
                     </>
                   ) : (
                     <>{totalPages} pages found</>
@@ -489,8 +489,8 @@ export default function ContentAnalysis({
                 </p>
               </div>
               {isLimited && (
-                <div className="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg inline-block">
-                  <p className="text-sm text-amber-700">
+                <div className="px-4 py-2 bg-action-amber/10 border border-mist rounded-lg inline-block">
+                  <p className="text-sm text-action-amber">
                     <AlertTriangle className="inline mr-2 h-4 w-4" />
                     Upgrade to analyze more pages: Growth (500) or Scale (1000)
                   </p>
@@ -515,10 +515,10 @@ export default function ContentAnalysis({
 
       {/* Analysis Results - Show when completed */}
       {analysisData && analysisData.status === 'completed' && (
-        <Card className="bg-white shadow-sm border border-slate-200">
+        <Card className="bg-white shadow-sm border border-mist">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold text-framework-black">Analysis Results</h4>
+              <h4 className="font-semibold text-ink">Analysis Results</h4>
               <Button
                 variant="outline"
                 size="sm"
@@ -544,8 +544,8 @@ export default function ContentAnalysis({
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-ai-silver">Site Type:</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Site Type:</span>
+                <span className="text-ink font-medium">
                   {analysisData.siteType === 'single-page'
                     ? 'Single-Page Site'
                     : analysisData.siteType === 'multi-page'
@@ -554,14 +554,14 @@ export default function ContentAnalysis({
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-ai-silver">Sitemap Found:</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Sitemap Found:</span>
+                <span className="text-ink font-medium">
                   {analysisData.sitemapFound ? 'Yes' : 'No'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-ai-silver">Analysis Method:</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Analysis Method:</span>
+                <span className="text-ink font-medium">
                   {analysisData.analysisMethod === 'sitemap'
                     ? 'Sitemap Discovery'
                     : analysisData.analysisMethod === 'robots.txt'
@@ -574,43 +574,43 @@ export default function ContentAnalysis({
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-ai-silver">Pages Found:</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Pages Found:</span>
+                <span className="text-ink font-medium">
                   {analysisData.totalPagesFound}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-ai-silver">Pages Analyzed:</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Pages Analyzed:</span>
+                <span className="text-ink font-medium">
                   {analysisData.discoveredPages.length}
                 </span>
               </div>
               {analysisData.discoveredPages.length < analysisData.totalPagesFound && (
                 <div className="flex items-center justify-between">
-                  <span className="text-ai-silver">Pages Skipped:</span>
-                  <span className="text-yellow-600 font-medium">
+                  <span className="text-slate-brand">Pages Skipped:</span>
+                  <span className="text-action-amber font-medium">
                     {analysisData.totalPagesFound - analysisData.discoveredPages.length}
                   </span>
                 </div>
               )}
               {analysisData.message && (
-                <div className="pt-3 border-t border-slate-200">
-                  <p className="text-ai-silver text-xs">{analysisData.message}</p>
+                <div className="pt-3 border-t border-mist">
+                  <p className="text-slate-brand text-xs">{analysisData.message}</p>
                 </div>
               )}
               {analysisData.metrics && (
-                <div className="pt-3 border-t border-slate-200 space-y-1">
-                  <p className="text-framework-black text-xs font-semibold">Performance Metrics:</p>
-                  <p className="text-ai-silver text-xs">
+                <div className="pt-3 border-t border-mist space-y-1">
+                  <p className="text-ink text-xs font-semibold">Performance Metrics:</p>
+                  <p className="text-slate-brand text-xs">
                     • Cache hit: {analysisData.metrics.cacheHit ? 'Yes' : 'No'}
                   </p>
-                  <p className="text-ai-silver text-xs">
+                  <p className="text-slate-brand text-xs">
                     • Processing time: {analysisData.metrics.processingTime}s
                   </p>
-                  <p className="text-ai-silver text-xs">
+                  <p className="text-slate-brand text-xs">
                     • API calls: {analysisData.metrics.apiCalls}
                   </p>
-                  <p className="text-ai-silver text-xs">
+                  <p className="text-slate-brand text-xs">
                     • Cost saved: ${analysisData.metrics.costSaved.toFixed(2)}
                   </p>
                 </div>

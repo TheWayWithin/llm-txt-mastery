@@ -8,16 +8,16 @@ export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
 export const getTierDisplayName = (tier: string): string => {
   switch (tier) {
     case 'starter':
-      return 'FREE';
+      return 'Starter';
     case 'coffee':
     case 'solo':
-      return 'SOLO';
+      return 'Solo';
     case 'growth':
-      return 'GROWTH';
+      return 'Growth';
     case 'scale':
-      return 'SCALE';
+      return 'Scale';
     default:
-      return tier.toUpperCase();
+      return tier.charAt(0).toUpperCase() + tier.slice(1);
   }
 };
 
@@ -41,20 +41,20 @@ export const getTierDescription = (tier: string): string => {
 };
 
 /**
- * Get tier color class for styling
+ * Get tier color class for styling (brand-aligned)
  */
 export const getTierColorClass = (tier: string): string => {
   switch (tier) {
     case 'starter':
-      return 'bg-mastery-blue text-white';
+      return 'bg-slate-brand text-white';
     case 'coffee':
     case 'solo':
-      return 'bg-orange-600 text-white';
+      return 'bg-signal-blue text-white';
     case 'growth':
-      return 'bg-green-600 text-white';
+      return 'bg-signal-blue text-white';
     case 'scale':
-      return 'bg-purple-600 text-white';
+      return 'bg-mastery-blue text-white';
     default:
-      return 'bg-gray-600 text-white';
+      return 'bg-slate-brand text-white';
   }
 };

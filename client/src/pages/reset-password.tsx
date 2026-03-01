@@ -120,18 +120,18 @@ export default function ResetPasswordPage() {
 
   if (resetComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-cloud px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="mx-auto w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-success" />
             </div>
-            <CardTitle className="text-xl font-bold text-framework-black">
+            <CardTitle className="text-xl font-bold text-ink">
               Password reset successfully
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-center text-ai-silver">
+            <p className="text-center text-slate-brand">
               Your password has been updated. You can now log in with your new password.
             </p>
 
@@ -147,30 +147,30 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-cloud px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-framework-black">
+          <CardTitle className="text-2xl font-bold text-center text-ink">
             Set new password
           </CardTitle>
-          <p className="text-center text-ai-silver mt-2">Enter your new password below.</p>
+          <p className="text-center text-slate-brand mt-2">Enter your new password below.</p>
         </CardHeader>
         <CardContent>
           {message && (
-            <Alert className="mb-4 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">{message}</AlertDescription>
+            <Alert className="mb-4 border-mist bg-success/10">
+              <AlertDescription className="text-ink">{message}</AlertDescription>
             </Alert>
           )}
 
           {error && (
-            <Alert className="mb-4 border-red-200 bg-red-50">
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
+            <Alert className="mb-4 border-mist bg-error/10">
+              <AlertDescription className="text-error">{error}</AlertDescription>
             </Alert>
           )}
 
           {!token ? (
             <div className="text-center space-y-4">
-              <p className="text-red-600">Invalid or missing reset token.</p>
+              <p className="text-error">Invalid or missing reset token.</p>
               <Link href="/forgot-password">
                 <Button variant="outline" className="w-full">
                   Request new password reset
@@ -195,14 +195,14 @@ export default function ResetPasswordPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-ai-silver hover:text-framework-black"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-brand hover:text-ink"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
 
                 {validationErrors.length > 0 && (
-                  <div className="text-sm text-red-600 space-y-1">
+                  <div className="text-sm text-error space-y-1">
                     <p>Password must have:</p>
                     <ul className="list-disc list-inside space-y-0.5">
                       {validationErrors.map((error, index) => (
@@ -229,7 +229,7 @@ export default function ResetPasswordPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-ai-silver hover:text-framework-black"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-brand hover:text-ink"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -240,7 +240,7 @@ export default function ResetPasswordPage() {
                 </div>
 
                 {confirmPassword && password !== confirmPassword && (
-                  <p className="text-sm text-red-600">Passwords do not match</p>
+                  <p className="text-sm text-error">Passwords do not match</p>
                 )}
               </div>
 
@@ -267,7 +267,7 @@ export default function ResetPasswordPage() {
             </form>
           )}
 
-          <div className="mt-6 text-center text-sm text-ai-silver">
+          <div className="mt-6 text-center text-sm text-slate-brand">
             Remember your password?{' '}
             <Link href="/login" className="text-mastery-blue hover:underline">
               Back to login
