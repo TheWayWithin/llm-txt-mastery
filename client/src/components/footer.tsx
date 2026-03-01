@@ -9,11 +9,11 @@ export default function Footer() {
           {/* About Section */}
           <div>
             <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-white/70">
               Simple, effective AI visibility tools. Generate quality-scored llms.txt files
               that help AI models cite and recommend your business.
             </p>
-            <p className="text-sm text-slate-300 mt-3">
+            <p className="text-sm text-white/70 mt-3">
               <a
                 href="https://www.aisearchmastery.com"
                 target="_blank"
@@ -29,7 +29,7 @@ export default function Footer() {
           {/* Resources Section */}
           <div>
             <h5 className="font-semibold mb-4">Resources</h5>
-            <ul className="text-sm text-slate-300 space-y-2">
+            <ul className="text-sm text-white/70 space-y-2">
               <li>
                 <Link href="/docs">
                   <a className="hover:text-white transition-colors">Documentation</a>
@@ -56,7 +56,7 @@ export default function Footer() {
           {/* Legal Section */}
           <div>
             <h5 className="font-semibold mb-4">Legal & Connect</h5>
-            <ul className="text-sm text-slate-300 space-y-2">
+            <ul className="text-sm text-white/70 space-y-2">
               <li>
                 <Link href="/privacy">
                   <a className="hover:text-white transition-colors">Privacy Policy</a>
@@ -83,7 +83,7 @@ export default function Footer() {
           {/* Other Projects Section */}
           <div>
             <h5 className="font-semibold mb-4">Other Projects</h5>
-            <ul className="text-sm text-slate-300 space-y-2">
+            <ul className="text-sm text-white/70 space-y-2">
               <li>
                 <a
                   href="https://www.aisearchmastery.com"
@@ -122,7 +122,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright Section */}
-        <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-slate-300">
+        <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/70">
           <p>&copy; 2026 AI Search Mastery</p>
           <p className="mt-4">
             <a

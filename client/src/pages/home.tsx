@@ -207,7 +207,7 @@ export default function Home() {
                 <AuthNav />
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="text-white p-2"
+                  className="text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Toggle menu"
                 >
                   {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -217,14 +217,14 @@ export default function Home() {
 
             {/* Mobile overlay menu */}
             {mobileMenuOpen && (
-              <div className="md:hidden fixed inset-0 top-[60px] bg-[#1E3A5F] z-50 flex flex-col items-center pt-8 space-y-6">
-                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-lg text-white">How It Works</a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-lg text-white">Pricing</a>
+              <div className="md:hidden fixed inset-0 top-[60px] bg-[#1E3A5F] z-50 flex flex-col items-center pt-8 space-y-4 overflow-y-auto">
+                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">How It Works</a>
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">Pricing</a>
                 <Link href="/validator">
-                  <a onClick={() => setMobileMenuOpen(false)} className="text-lg text-white">Validator</a>
+                  <a onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">Validator</a>
                 </Link>
                 <Link href="/login">
-                  <a onClick={() => setMobileMenuOpen(false)} className="text-lg text-white">Sign In</a>
+                  <a onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">Sign In</a>
                 </Link>
                 <Button
                   className="bg-signal-blue hover:bg-[#1D4ED8] text-white px-6 min-h-[44px]"
@@ -280,16 +280,16 @@ export default function Home() {
           {/* Welcome Back Message for Authenticated Users - Only show when NOT in URL_INPUT state */}
           {user && currentState !== 'URL_INPUT' && (
             <section className="mb-8">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+              <div className="bg-success/10 border border-mist rounded-lg p-6 text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                    <User className="h-4 w-4 text-green-600" />
+                  <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center mr-3">
+                    <User className="h-4 w-4 text-success" />
                   </div>
-                  <h3 className="text-lg font-semibold text-green-800">
+                  <h3 className="text-lg font-semibold text-ink">
                     Welcome back, {user.email.split('@')[0]}!
                   </h3>
                 </div>
-                <p className="text-green-600 mb-4">
+                <p className="text-success mb-4">
                   {user.tier === 'solo'
                     ? `Your Coffee tier is active! ${
                         user.creditsRemaining > 0
@@ -306,7 +306,7 @@ export default function Home() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-green-700 border-green-300 hover:bg-green-100"
+                        className="text-success border-mist hover:bg-success/10"
                       >
                         <Settings className="h-4 w-4 mr-2" />
                         Go to Dashboard
@@ -316,7 +316,7 @@ export default function Home() {
                   {user.tier === 'solo' && (
                     <Button
                       size="sm"
-                      className="bg-orange-600 hover:bg-orange-700"
+                      className="bg-action-amber hover:bg-action-amber/90"
                       onClick={() => {
                         console.log(
                           '☕ Coffee user starting new analysis - using smart reset to preserve context'
@@ -331,7 +331,7 @@ export default function Home() {
                   {user.tier === 'starter' && (
                     <Button
                       size="sm"
-                      className="bg-orange-600 hover:bg-orange-700"
+                      className="bg-action-amber hover:bg-action-amber/90"
                       onClick={startNewAnalysis}
                     >
                       <Coffee className="h-4 w-4 mr-2" />
@@ -346,8 +346,8 @@ export default function Home() {
           {/* Simple Message for Authenticated Users When URL Input is Visible */}
           {user && currentState === 'URL_INPUT' && (
             <section className="mb-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                <p className="text-green-700">
+              <div className="bg-success/10 border border-mist rounded-lg p-4 text-center">
+                <p className="text-success">
                   <span className="font-medium">Welcome back, {user.email.split('@')[0]}!</span>{' '}
                   Enter a URL below to start your analysis.
                 </p>

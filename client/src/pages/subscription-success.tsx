@@ -22,27 +22,27 @@ export default function SubscriptionSuccess() {
   }, [user, refreshUser]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cloud flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
           {loading ? (
             <>
-              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-500" />
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-signal-blue" />
               <h1 className="text-xl font-semibold mb-2">Processing your subscription...</h1>
-              <p className="text-slate-600">Please wait while we set up your account.</p>
+              <p className="text-slate-brand">Please wait while we set up your account.</p>
             </>
           ) : (
             <>
-              <CheckCircle className="h-16 w-16 mx-auto mb-6 text-green-500" />
-              <h1 className="text-2xl font-bold text-green-800 mb-2">Welcome to your new plan!</h1>
-              <p className="text-slate-600 mb-6">
+              <CheckCircle className="h-16 w-16 mx-auto mb-6 text-success" />
+              <h1 className="text-2xl font-bold text-ink mb-2">Welcome to your new plan!</h1>
+              <p className="text-slate-brand mb-6">
                 Your subscription has been activated successfully. You now have access to all the
                 features of your new tier.
               </p>
 
               {sessionId && (
-                <div className="bg-slate-100 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-slate-600">
+                <div className="bg-cloud rounded-lg p-4 mb-6 border border-mist">
+                  <p className="text-sm text-slate-brand">
                     Session ID: <span className="font-mono text-xs">{sessionId}</span>
                   </p>
                 </div>

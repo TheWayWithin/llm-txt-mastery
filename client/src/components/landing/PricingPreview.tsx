@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Check, Coffee, Zap, Crown } from 'lucide-react';
@@ -94,9 +95,27 @@ export default function PricingPreview({
   ];
 
   const visibleTiers = showAllTiers ? tiers : tiers.filter(t => ['free', 'solo'].includes(t.id));
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasFired = useRef(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasFired.current) {
+          hasFired.current = true;
+          (window as any).plausible?.('pricing-section-view');
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id={id} className={`py-12 ${className}`}>
+    <section ref={sectionRef} id={id} className={`py-12 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-8">

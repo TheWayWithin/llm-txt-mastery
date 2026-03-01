@@ -87,12 +87,12 @@ export default function TierLimitsDisplay({
   if (!limitsData) {
     // Show minimal loading UI while API call is in progress
     return (
-      <Alert className="border-blue-200">
+      <Alert className="border-mist">
         <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-signal-blue"></div>
           <div>
-            <AlertTitle className="text-blue-900">Checking Usage Limits...</AlertTitle>
-            <AlertDescription className="text-sm text-blue-700">
+            <AlertTitle className="text-ink">Checking Usage Limits...</AlertTitle>
+            <AlertDescription className="text-sm text-mastery-blue">
               Verifying your tier and daily usage limits
             </AlertDescription>
           </div>
@@ -113,15 +113,15 @@ export default function TierLimitsDisplay({
   } = limitsData;
 
   return (
-    <Alert className={allowed ? 'border-green-200' : 'border-red-200'}>
+    <Alert className={allowed ? 'border-mist' : 'border-mist'}>
       <div className="flex items-start space-x-3">
         {allowed ? (
-          <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+          <CheckCircle className="h-5 w-5 text-success mt-0.5" />
         ) : (
-          <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+          <XCircle className="h-5 w-5 text-error mt-0.5" />
         )}
         <div className="flex-1">
-          <AlertTitle className={allowed ? 'text-green-900' : 'text-red-900'}>
+          <AlertTitle className={allowed ? 'text-ink' : 'text-error'}>
             {allowed ? '🎯 Ready to Analyze' : '⏰ Daily Limit Reached'}
           </AlertTitle>
           <AlertDescription className="mt-2 space-y-2">
@@ -130,27 +130,27 @@ export default function TierLimitsDisplay({
                 <p>Found {pageCount} pages to analyze.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div className="flex justify-between sm:block">
-                    <span className="text-ai-silver">Your tier:</span>
+                    <span className="text-slate-brand">Your tier:</span>
                     <span className="ml-1 font-medium">{tier.toUpperCase()}</span>
                   </div>
                   <div className="flex justify-between sm:block">
-                    <span className="text-ai-silver">Pages to analyze:</span>
+                    <span className="text-slate-brand">Pages to analyze:</span>
                     <span className="ml-1 font-medium">
                       {Math.min(pageCount, limits.maxPagesPerAnalysis)}
                     </span>
                   </div>
                   <div className="flex justify-between sm:block">
-                    <span className="text-ai-silver">Analyses today:</span>
+                    <span className="text-slate-brand">Analyses today:</span>
                     <span className="ml-1 font-medium">
                       {currentUsage.analysesToday} / {limits.dailyAnalyses}
                     </span>
                   </div>
                   <div className="flex justify-between sm:block">
-                    <span className="text-ai-silver">Est. cost:</span>
+                    <span className="text-slate-brand">Est. cost:</span>
                     <span className="ml-1 font-medium">${estimatedCost.toFixed(3)}</span>
                   </div>
                 </div>
-                <p className="text-sm text-green-700 pt-1">
+                <p className="text-sm text-success pt-1">
                   {tier === 'solo'
                     ? '☕ Premium AI analysis launching - your investment at work!'
                     : tier === 'growth' || tier === 'scale'
@@ -163,11 +163,11 @@ export default function TierLimitsDisplay({
                 <p>{reason}</p>
                 <div className="text-sm space-y-1">
                   <p>
-                    <span className="text-ai-silver">Current usage:</span>
+                    <span className="text-slate-brand">Current usage:</span>
                     <span className="ml-1">{currentUsage.analysesToday} analyses today</span>
                   </p>
                   <p>
-                    <span className="text-ai-silver">Your limit:</span>
+                    <span className="text-slate-brand">Your limit:</span>
                     <span className="ml-1">{limits.dailyAnalyses} analyses per day</span>
                   </p>
                 </div>

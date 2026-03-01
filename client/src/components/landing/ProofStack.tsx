@@ -58,7 +58,7 @@ export default function ProofStack() {
               </div>
             </div>
             <Link href="/validator">
-              <a>
+              <a onClick={() => (window as any).plausible?.('validator-preview-click')}>
                 <Button variant="outline" className="w-full border-signal-blue text-signal-blue hover:bg-signal-blue/10">
                   Validate Your File Free
                 </Button>
@@ -120,6 +120,20 @@ export default function ProofStack() {
             </p>
           </div>
         </div>
+
+        {/* Ecosystem Cross-Link */}
+        <p className="text-sm text-slate-brand text-center">
+          Diagnosed a visibility gap with{' '}
+          <a
+            href="https://www.aimpactscanner.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-signal-blue hover:underline"
+          >
+            AImpactScanner
+          </a>
+          ? Generate a quality-scored llms.txt file to fix it.
+        </p>
       </div>
     </section>
   );

@@ -54,41 +54,41 @@ interface Analysis {
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'completed':
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
+      return <CheckCircle className="h-4 w-4 text-success" />;
     case 'failed':
-      return <AlertCircle className="h-4 w-4 text-red-500" />;
+      return <AlertCircle className="h-4 w-4 text-error" />;
     case 'analyzing':
     case 'processing':
-      return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />;
+      return <Loader2 className="h-4 w-4 text-signal-blue animate-spin" />;
     default:
-      return <Clock className="h-4 w-4 text-yellow-500" />;
+      return <Clock className="h-4 w-4 text-action-amber" />;
   }
 };
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'completed':
-      return 'bg-green-100 text-green-800 border-green-200';
+      return 'bg-success/10 text-ink border-mist';
     case 'failed':
-      return 'bg-red-100 text-red-800 border-red-200';
+      return 'bg-error/10 text-error border-mist';
     case 'analyzing':
     case 'processing':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
+      return 'bg-signal-blue/10 text-mastery-blue border-mist';
     default:
-      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      return 'bg-action-amber/10 text-ink border-action-amber/40';
   }
 };
 
 const getTierColor = (tier: string) => {
   switch (tier) {
     case 'solo':
-      return 'bg-orange-100 text-orange-800 border-orange-200';
+      return 'bg-cloud text-ink border-mist';
     case 'growth':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
+      return 'bg-signal-blue/10 text-mastery-blue border-mist';
     case 'scale':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
+      return 'bg-cloud text-ink border-mist';
     default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+      return 'bg-cloud text-ink border-mist';
   }
 };
 
@@ -169,8 +169,8 @@ export function AnalysisHistory() {
       <Card>
         <CardContent className="flex items-center justify-center py-12">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-gray-600">Loading your analysis history...</p>
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-signal-blue" />
+            <p className="text-slate-brand">Loading your analysis history...</p>
           </div>
         </CardContent>
       </Card>
@@ -194,7 +194,7 @@ export function AnalysisHistory() {
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-brand" />
               <Input
                 placeholder="Search by website URL..."
                 value={searchTerm}
@@ -245,12 +245,12 @@ export function AnalysisHistory() {
                 className="max-w-xs h-auto max-h-48"
               />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-ink mb-2">
               {searchTerm || statusFilter !== 'all'
                 ? 'No matching analyses found'
                 : 'Ready to analyze your first website!'}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slate-brand mb-6">
               {searchTerm || statusFilter !== 'all'
                 ? 'Try adjusting your search or filter criteria'
                 : 'Transform your website content into AI-ready format with our expert analysis tools'}
@@ -258,7 +258,7 @@ export function AnalysisHistory() {
             {!searchTerm && statusFilter === 'all' && (
               <Link href="/">
                 <a>
-                  <Button className="bg-innovation-teal hover:bg-innovation-teal/90">
+                  <Button className="bg-signal-blue hover:bg-signal-blue/90">
                     <Globe className="h-4 w-4 mr-2" />
                     Start New Analysis
                   </Button>
@@ -278,10 +278,10 @@ export function AnalysisHistory() {
                     <div className="flex items-center space-x-3 mb-3">
                       {getStatusIcon(analysis.status)}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 truncate">
+                        <h3 className="font-medium text-ink truncate">
                           {new URL(analysis.url).hostname}
                         </h3>
-                        <p className="text-sm text-gray-500 truncate">{analysis.url}</p>
+                        <p className="text-sm text-stone-brand truncate">{analysis.url}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge className={getStatusColor(analysis.status)}>{analysis.status}</Badge>
@@ -290,7 +290,7 @@ export function AnalysisHistory() {
                     </div>
 
                     {/* Analysis Details */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-brand mb-4">
                       <div>
                         <span className="font-medium">Pages Found:</span>
                         <div>{analysis.discoveredPagesCount}</div>
@@ -311,7 +311,7 @@ export function AnalysisHistory() {
 
                     {/* Processing Time and Metrics */}
                     {analysis.metrics && (
-                      <div className="text-xs text-gray-500 mb-4">
+                      <div className="text-xs text-stone-brand mb-4">
                         Processing: {analysis.processingTime}s
                         {analysis.metrics.aiCallsUsed &&
                           ` • AI calls: ${analysis.metrics.aiCallsUsed}`}
@@ -354,7 +354,7 @@ export function AnalysisHistory() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleRerunAnalysis(analysis.url)}
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        className="text-error border-mist hover:bg-error/10"
                       >
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Retry

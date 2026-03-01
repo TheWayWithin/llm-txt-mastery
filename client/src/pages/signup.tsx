@@ -17,13 +17,13 @@ import {
   EyeOff,
   Mail,
   Lock,
-  User,
   Check,
   X,
   Loader2,
   Shield,
   Zap,
   Coffee,
+  Crown,
   ArrowRight,
 } from 'lucide-react';
 import { Link } from 'wouter';
@@ -72,7 +72,7 @@ export default function SignupPage() {
   // Redirect authenticated users
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('✅ User already authenticated, redirecting to analyze page');
+      console.log('User already authenticated, redirecting to analyze page');
       const targetUrl = websiteUrlParam
         ? `/analyze?url=${encodeURIComponent(websiteUrlParam)}`
         : '/analyze';
@@ -155,7 +155,7 @@ export default function SignupPage() {
       // Handle paid tier checkouts BEFORE creating user (Coffee, Growth, Scale)
       if (selectedTier === 'solo' || selectedTier === 'growth' || selectedTier === 'scale') {
         console.log(
-          `💳 ${selectedTier} tier selected, redirecting to Stripe checkout WITHOUT creating user first`
+          `${selectedTier} tier selected, redirecting to Stripe checkout`
         );
 
         // Track signup attempt (not complete yet since payment pending)
@@ -210,7 +210,7 @@ export default function SignupPage() {
       // Only create user account for starter tier
       await signUp(email, password, confirmPassword, selectedTier);
 
-      console.log('✅ Registration successful');
+      console.log('Registration successful');
 
       // Track successful signup
       trackEvent('signup_complete', {
@@ -251,15 +251,15 @@ export default function SignupPage() {
   const getTierIcon = (tier: string) => {
     switch (tier) {
       case 'starter':
-        return <Shield className="h-5 w-5" />;
+        return <Check className="h-5 w-5" />;
       case 'solo':
         return <Coffee className="h-5 w-5" />;
       case 'growth':
         return <Zap className="h-5 w-5" />;
       case 'scale':
-        return <Zap className="h-5 w-5" />;
+        return <Crown className="h-5 w-5" />;
       default:
-        return <User className="h-5 w-5" />;
+        return <Check className="h-5 w-5" />;
     }
   };
 
@@ -267,45 +267,71 @@ export default function SignupPage() {
     switch (tier) {
       case 'starter':
         return [
-          'Discover if AI can even find your business',
-          'See what pages AI currently sees (spoiler: probably not many)',
-          'Get a wake-up call about your AI visibility',
-          'Understand the gap between you and competitors',
+          'Discover if AI can find your business',
+          'See which pages AI currently indexes',
+          'Get a visibility score for your site',
+          'Basic recommendations to improve',
         ];
       case 'solo':
         return [
-          'AI finds 10x more of your content (200 vs 20 pages)',
-          'Know exactly which pages convert and which don\'t',
-          'Get found for your best services, not just your homepage',
-          'Stop losing customers who never knew you existed',
-          '30-day money-back guarantee — zero risk',
+          'AI finds 10x more of your content (200 pages)',
+          'Know which pages are most likely to be cited',
+          'Quality scoring helps AI prioritize your best content',
+          'Get found for services, not just your homepage',
+          '30-day money-back guarantee',
         ];
       case 'growth':
         return [
-          'Dominate AI recommendations for your entire site',
-          'Analyze multiple properties at once (agencies love this)',
-          'Export data to prove ROI to clients or stakeholders',
-          'Process 1,000 pages — handle sites competitors can\'t',
-          'Never lose a client because their site was "too big"',
+          'Be discoverable across all AI platforms',
+          'Analyze multiple properties at once',
+          'Export data to CSV/JSON for reporting',
+          'Process 1,000 pages per site',
+          'Bulk website processing for agencies',
         ];
       case 'scale':
         return [
           'JavaScript rendering for React, Angular, Vue sites',
-          'Analyze any site, any size, no exceptions',
-          'Full AI analysis on every single page',
-          'Direct support line — your questions answered fast',
+          'Analyze any site, any size — no page limits',
+          'Full AI analysis on every page',
           'Multi-site management for agencies and enterprises',
-          'Complete mastery over your AI visibility',
+          'Direct support for your questions',
         ];
       default:
         return [];
     }
   };
 
+  const getTierUpgradeHint = (tier: string) => {
+    switch (tier) {
+      case 'starter':
+        return {
+          text: 'Solo tier analyzes 10x more pages with quality scoring.',
+          targetTier: 'solo' as const,
+          ctaText: 'See Solo plan ($4.95/mo)',
+        };
+      case 'solo':
+        return {
+          text: 'Need to cover 200+ pages or multiple sites?',
+          targetTier: 'growth' as const,
+          ctaText: 'See Growth plan ($9.95/mo)',
+        };
+      case 'growth':
+        return {
+          text: 'Client using React, Angular, or Vue? Scale includes JS rendering.',
+          targetTier: 'scale' as const,
+          ctaText: 'See Scale plan ($19.95/mo)',
+        };
+      default:
+        return null;
+    }
+  };
+
+  const upgradeHint = getTierUpgradeHint(selectedTier);
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-cloud">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/">
@@ -317,10 +343,6 @@ export default function SignupPage() {
                 />
               </a>
             </Link>
-            <div className="text-right hidden md:block">
-              <p className="text-sm text-slate-600">Built by Jamie Watters</p>
-              <p className="text-xs text-slate-500">Solopreneur & Tool Builder</p>
-            </div>
           </div>
         </div>
       </header>
@@ -330,9 +352,9 @@ export default function SignupPage() {
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             {/* Step 1: Choose Your Plan */}
-            <Card className="w-full">
+            <Card className="w-full bg-white border-mist">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl text-center">Get Found by AI</CardTitle>
+                <CardTitle className="text-2xl text-center text-ink">Get Found by AI</CardTitle>
                 <CardDescription className="text-center">
                   Join early adopters making their businesses AI-discoverable
                 </CardDescription>
@@ -361,163 +383,57 @@ export default function SignupPage() {
 
                         setSelectedTier(newTier);
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
+                      className="w-full px-3 py-2 border border-mist rounded-md focus:outline-none focus:ring-2 focus:ring-signal-blue"
                     >
                       <option value="starter" data-testid="tier-option-starter">
-                        🔍 Starter (Free) - Am I invisible?
+                        Starter (Free) — Quick check
                       </option>
                       <option value="solo" data-testid="tier-option-coffee">
-                        🛡️ Solo ($4.95/mo) - Stop losing customers
+                        Solo ($4.95/mo) — Solopreneurs
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
-                        ⚔️ Growth ($9.95/mo) - Dominate AI
+                        Growth ($9.95/mo) — Agencies
                       </option>
                       <option value="scale" data-testid="tier-option-scale">
-                        👑 Scale ($19.95/mo) - No limits
+                        Scale ($19.95/mo) — Developers
                       </option>
                     </select>
 
                     {/* Selected Tier Details */}
-                    <div
-                      className={`rounded-lg p-4 border-2 mt-2 ${
-                        selectedTier === 'starter'
-                          ? 'bg-amber-50 border-amber-300'
-                          : selectedTier === 'solo'
-                            ? 'bg-green-50 border-green-400'
-                            : selectedTier === 'growth'
-                              ? 'bg-blue-50 border-blue-300'
-                              : 'bg-purple-50 border-purple-300'
-                      }`}
-                    >
+                    <div className="rounded-lg p-4 border border-mist bg-cloud mt-2">
                       <div className="flex items-center justify-between">
                         <Badge className={getTierColorClass(selectedTier)}>
                           {getTierIcon(selectedTier)}
                           <span className="ml-1">{getTierDisplayName(selectedTier)}</span>
                         </Badge>
                       </div>
-                      <p
-                        className={`text-sm font-medium mt-2 ${
-                          selectedTier === 'starter'
-                            ? 'text-amber-700'
-                            : selectedTier === 'solo'
-                              ? 'text-green-700'
-                              : selectedTier === 'growth'
-                                ? 'text-blue-700'
-                                : 'text-purple-700'
-                        }`}
-                      >
+                      <p className="text-sm font-medium mt-2 text-slate-brand">
                         {getTierDescription(selectedTier)}
                       </p>
 
-                      {/* OB Headlines - Marketing Physics */}
-                      <div className="mt-3 p-3 rounded border">
-                        {selectedTier === 'starter' && (
-                          <div className="bg-amber-50 border-amber-300">
-                            <p className="text-sm font-bold text-amber-900 mb-1">
-                              🔍 Find out if you're invisible to AI
-                            </p>
-                            <p className="text-xs text-amber-700">
-                              Discover how AI sees your site (3 analyses/month, 20 pages each)
-                            </p>
-                          </div>
-                        )}
-
-                        {selectedTier === 'solo' && (
-                          <div className="bg-green-50 border-green-300">
-                            <p className="text-sm font-bold text-green-900 mb-1">
-                              🛡️ Stop losing customers to the competitors AI recommends instead of you
-                            </p>
-                            <p className="text-xs text-green-700">
-                              20 analyses/month • 200 pages • AI scoring • 30-day guarantee
-                            </p>
-                          </div>
-                        )}
-
-                        {selectedTier === 'growth' && (
-                          <div className="bg-blue-50 border-blue-300">
-                            <p className="text-sm font-bold text-blue-900 mb-1">
-                              ⚔️ Dominate AI recommendations across all your properties
-                            </p>
-                            <p className="text-xs text-blue-700">
-                              Unlimited analyses • 1,000 pages • Bulk processing • Export to CSV/JSON
-                            </p>
-                          </div>
-                        )}
-
-                        {selectedTier === 'scale' && (
-                          <div className="bg-purple-50 border-purple-300">
-                            <p className="text-sm font-bold text-purple-900 mb-1">
-                              👑 No page limits. No excuses. Just results for your clients.
-                            </p>
-                            <p className="text-xs text-purple-700">
-                              Unlimited pages • Full AI analysis • Multi-site management • Direct support
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* FoMo Section - What you're missing from the next tier */}
-                      {selectedTier === 'starter' && (
-                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-xs font-semibold text-red-800 mb-2">
-                            ⚠️ What you're missing:
-                          </p>
-                          <p className="text-xs text-red-700">
-                            AI only sees 20 of your pages. Your pricing, case studies, testimonials, and best content stay invisible — while competitors with better llms.txt files get found instead.
+                      {/* Upgrade Hint */}
+                      {upgradeHint && (
+                        <div className="mt-3 p-3 bg-white border border-mist rounded-lg">
+                          <p className="text-xs text-slate-brand mb-1">
+                            {upgradeHint.text}
                           </p>
                           <button
                             type="button"
-                            onClick={() => setSelectedTier('solo')}
-                            className="mt-2 text-xs font-bold text-green-700 hover:text-green-900 underline"
+                            onClick={() => setSelectedTier(upgradeHint.targetTier)}
+                            className="mt-1 text-xs font-medium text-signal-blue hover:underline"
                           >
-                            → Upgrade to Solo for just $4.95/month
-                          </button>
-                        </div>
-                      )}
-
-                      {selectedTier === 'solo' && (
-                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-xs font-semibold text-amber-800 mb-2">
-                            📈 Outgrowing Solo?
-                          </p>
-                          <p className="text-xs text-amber-700">
-                            If you have 200+ pages or multiple sites, you're still leaving customers invisible to AI.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedTier('growth')}
-                            className="mt-2 text-xs font-bold text-blue-700 hover:text-blue-900 underline"
-                          >
-                            → Upgrade to Growth for $9.95/month
-                          </button>
-                        </div>
-                      )}
-
-                      {selectedTier === 'growth' && (
-                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-xs font-semibold text-amber-800 mb-2">
-                            🏢 Client using React, Angular, or Vue?
-                          </p>
-                          <p className="text-xs text-amber-700">
-                            JavaScript sites return empty pages without browser rendering. Scale tier includes full JS rendering — capture every page from modern web apps.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedTier('scale')}
-                            className="mt-2 text-xs font-bold text-purple-700 hover:text-purple-900 underline"
-                          >
-                            → Upgrade to Scale for $19.95/month
+                            {upgradeHint.ctaText}
                           </button>
                         </div>
                       )}
 
                       {selectedTier === 'scale' && (
-                        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <p className="text-xs font-semibold text-green-800 mb-1">
-                            ✅ Complete solution — no limits holding you back
+                        <div className="mt-3 p-3 bg-white border border-mist rounded-lg">
+                          <p className="text-xs font-medium text-ink mb-1">
+                            Complete solution — no limits
                           </p>
-                          <p className="text-xs text-green-700">
-                            You've chosen the best. Unlimited pages, unlimited AI analysis, and direct support.
+                          <p className="text-xs text-slate-brand">
+                            Unlimited pages, unlimited AI analysis, and direct support.
                           </p>
                         </div>
                       )}
@@ -527,11 +443,10 @@ export default function SignupPage() {
               </CardContent>
             </Card>
 
-            {/* Benefits & Trust Signals (before form) */}
-            {/* Selected Tier Benefits */}
-            <Card>
+            {/* Benefits */}
+            <Card className="bg-white border-mist">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-ink">
                   {getTierIcon(selectedTier)}
                   <span className="ml-2">What You Get with {getTierDisplayName(selectedTier)}</span>
                 </CardTitle>
@@ -540,91 +455,63 @@ export default function SignupPage() {
                 <ul className="space-y-3">
                   {getTierBenefits(selectedTier).map((benefit, index) => (
                     <li key={index} className="flex items-start">
-                      <Check className={`h-4 w-4 mt-0.5 mr-3 flex-shrink-0 ${
-                        selectedTier === 'starter'
-                          ? 'text-amber-500'
-                          : selectedTier === 'solo'
-                            ? 'text-green-500'
-                            : selectedTier === 'growth'
-                              ? 'text-blue-500'
-                              : 'text-purple-500'
-                      }`} />
-                      <span
-                        className={`text-sm font-medium ${
-                          selectedTier === 'starter'
-                            ? 'text-amber-800'
-                            : selectedTier === 'solo'
-                              ? 'text-green-700'
-                              : selectedTier === 'growth'
-                                ? 'text-blue-700'
-                                : 'text-purple-700'
-                        }`}
-                      >
-                        {benefit}
-                      </span>
+                      <Check className="h-4 w-4 mt-0.5 mr-3 flex-shrink-0 text-success" />
+                      <span className="text-sm text-ink">{benefit}</span>
                     </li>
                   ))}
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Real Reasons to Believe - Marketing Physics RR */}
-            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
+            {/* Trust Signals */}
+            <Card className="bg-white border-mist">
               <CardHeader>
-                <CardTitle className="text-green-800">
-                  🛡️ Real Reasons to Believe
-                </CardTitle>
-                <p className="text-sm text-green-700 mt-1">
-                  I benchmark competitor tools monthly and add any features they have
+                <CardTitle className="text-ink">Why trust us</CardTitle>
+                <p className="text-sm text-slate-brand mt-1">
+                  We benchmark competitor tools monthly and add any features they have
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <Shield className="h-6 w-6 text-green-600 mt-0.5" />
+                  <Shield className="h-6 w-6 text-success mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-bold text-green-800">💰 30-Day Money Back Guarantee</h4>
-                    <p className="text-sm text-green-700">
-                      Don't see results? Get every penny back. No questions asked. No hoops.
+                    <h4 className="font-medium text-ink">30-Day Money Back Guarantee</h4>
+                    <p className="text-sm text-slate-brand">
+                      Don't see results? Get every penny back. No questions asked.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Zap className="h-6 w-6 text-blue-600 mt-0.5" />
+                  <Zap className="h-6 w-6 text-signal-blue mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-bold text-blue-800">⚡ Cancel in 10 Seconds</h4>
-                    <p className="text-sm text-blue-700">
-                      One click. No phone calls. No retention tactics. Just cancel.
+                    <h4 className="font-medium text-ink">Cancel in 10 Seconds</h4>
+                    <p className="text-sm text-slate-brand">
+                      One click. No phone calls. No retention tactics.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <User className="h-6 w-6 text-purple-600 mt-0.5" />
+                  <Coffee className="h-6 w-6 text-slate-brand mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-bold text-purple-800">👨‍💻 Built by Solopreneur for Solopreneurs</h4>
-                    <p className="text-sm text-purple-700">
-                      Not VC-funded. Real indie maker who understands your business needs.
+                    <h4 className="font-medium text-ink">Built by a solopreneur, for solopreneurs</h4>
+                    <p className="text-sm text-slate-brand">
+                      Not VC-funded. Real indie maker who uses these tools daily.
                     </p>
                   </div>
-                </div>
-
-                <div className="bg-white p-3 rounded border-2 border-green-300 mt-4">
-                  <p className="text-center text-sm font-bold text-green-800">
-                    ✅ AI-ready in under 5 minutes • ✅ 30-day money-back guarantee • ✅ Built by a solo dev, for solo devs
-                  </p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Security Notice */}
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-cloud border-mist">
               <CardContent className="pt-6">
                 <div className="flex items-start space-x-3">
-                  <Lock className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <Lock className="h-5 w-5 text-signal-blue mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium text-blue-900">Secure & Private</h4>
-                    <p className="text-sm text-blue-700">
+                    <h4 className="font-medium text-ink">Secure & Private</h4>
+                    <p className="text-sm text-slate-brand">
                       Your data is encrypted and never shared. We only analyze public content and
                       generate files you control.
                     </p>
@@ -633,10 +520,10 @@ export default function SignupPage() {
               </CardContent>
             </Card>
 
-            {/* Step 2: Create Account (Form at the end) */}
-            <Card className="w-full border-2 border-innovation-teal">
-              <CardHeader className="space-y-1 bg-innovation-teal/5">
-                <CardTitle className="text-xl text-center">Step 2: Create Your Account</CardTitle>
+            {/* Step 2: Create Account */}
+            <Card className="w-full border-2 border-signal-blue bg-white">
+              <CardHeader className="space-y-1 bg-signal-blue/5">
+                <CardTitle className="text-xl text-center text-ink">Step 2: Create Your Account</CardTitle>
                 <CardDescription className="text-center">
                   Ready to get found by AI? Enter your details below.
                 </CardDescription>
@@ -653,7 +540,7 @@ export default function SignupPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
                       <Input
                         id="email"
                         data-testid="email-input"
@@ -663,28 +550,28 @@ export default function SignupPage() {
                         placeholder="your@email.com"
                         className={`pl-10 pr-10 ${
                           emailAvailable === false
-                            ? 'border-red-500'
+                            ? 'border-error'
                             : emailAvailable === true
-                              ? 'border-green-500'
+                              ? 'border-success'
                               : ''
                         }`}
                         required
                       />
                       <div className="absolute right-3 top-3 h-4 w-4">
                         {emailChecking ? (
-                          <Loader2 className="animate-spin text-gray-400" />
+                          <Loader2 className="animate-spin text-stone-brand" />
                         ) : emailAvailable === true ? (
-                          <Check className="text-green-500" />
+                          <Check className="text-success" />
                         ) : emailAvailable === false ? (
-                          <X className="text-red-500" />
+                          <X className="text-error" />
                         ) : null}
                       </div>
                     </div>
                     {emailAvailable === false && (
-                      <p className="text-sm text-red-600">This email is already registered</p>
+                      <p className="text-sm text-error">This email is already registered</p>
                     )}
                     {emailAvailable === true && (
-                      <p className="text-sm text-green-600">Email is available</p>
+                      <p className="text-sm text-success">Email is available</p>
                     )}
                   </div>
 
@@ -692,7 +579,7 @@ export default function SignupPage() {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
                       <Input
                         id="password"
                         data-testid="password-input"
@@ -702,9 +589,9 @@ export default function SignupPage() {
                         placeholder="Create a secure password"
                         className={`pl-10 pr-10 ${
                           passwordValidation && !passwordValidation.valid
-                            ? 'border-red-500'
+                            ? 'border-error'
                             : passwordValidation?.valid
-                              ? 'border-green-500'
+                              ? 'border-success'
                               : ''
                         }`}
                         required
@@ -712,7 +599,7 @@ export default function SignupPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        className="absolute right-3 top-3 h-5 w-5 text-stone-brand hover:text-slate-brand p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? (
@@ -727,7 +614,7 @@ export default function SignupPage() {
                     {password.length > 0 && (
                       <div className="space-y-2">
                         {passwordValidation && passwordValidation.errors.length > 0 && (
-                          <div className="text-sm text-red-600 space-y-1">
+                          <div className="text-sm text-error space-y-1">
                             {passwordValidation.errors.map((error, index) => (
                               <p key={index} className="flex items-center">
                                 <X className="h-3 w-3 mr-1 flex-shrink-0" />
@@ -737,7 +624,7 @@ export default function SignupPage() {
                           </div>
                         )}
                         {passwordValidation?.valid && (
-                          <p className="text-sm text-green-600 flex items-center">
+                          <p className="text-sm text-success flex items-center">
                             <Check className="h-3 w-3 mr-1" />
                             Password meets all requirements
                           </p>
@@ -750,7 +637,7 @@ export default function SignupPage() {
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
                       <Input
                         id="confirmPassword"
                         data-testid="confirm-password-input"
@@ -760,9 +647,9 @@ export default function SignupPage() {
                         placeholder="Confirm your password"
                         className={`pl-10 pr-10 ${
                           confirmPassword && password !== confirmPassword
-                            ? 'border-red-500'
+                            ? 'border-error'
                             : confirmPassword && password === confirmPassword && password.length > 0
-                              ? 'border-green-500'
+                              ? 'border-success'
                               : ''
                         }`}
                         required
@@ -770,7 +657,7 @@ export default function SignupPage() {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        className="absolute right-3 top-3 h-5 w-5 text-stone-brand hover:text-slate-brand p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                       >
                         {showConfirmPassword ? (
@@ -781,13 +668,13 @@ export default function SignupPage() {
                       </button>
                     </div>
                     {confirmPassword && password !== confirmPassword && (
-                      <p className="text-sm text-red-600 flex items-center">
+                      <p className="text-sm text-error flex items-center">
                         <X className="h-3 w-3 mr-1" />
                         Passwords do not match
                       </p>
                     )}
                     {confirmPassword && password === confirmPassword && password.length > 0 && (
-                      <p className="text-sm text-green-600 flex items-center">
+                      <p className="text-sm text-success flex items-center">
                         <Check className="h-3 w-3 mr-1" />
                         Passwords match
                       </p>
@@ -795,16 +682,16 @@ export default function SignupPage() {
                   </div>
 
                   {/* Terms Agreement */}
-                  <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
+                  <div className="text-xs text-slate-brand bg-cloud p-3 rounded">
                     By creating an account, you agree to our{' '}
                     <Link href="/terms">
-                      <a className="text-blue-600 hover:text-blue-800 underline">
+                      <a className="text-signal-blue hover:underline">
                         Terms of Service
                       </a>
                     </Link>{' '}
                     and{' '}
                     <Link href="/privacy">
-                      <a className="text-blue-600 hover:text-blue-800 underline">Privacy Policy</a>
+                      <a className="text-signal-blue hover:underline">Privacy Policy</a>
                     </Link>
                   </div>
 
@@ -812,7 +699,7 @@ export default function SignupPage() {
                   <Button
                     type="submit"
                     data-testid="signup-submit"
-                    className="w-full min-h-[48px] px-6 py-3 bg-innovation-teal hover:bg-innovation-teal/90"
+                    className="w-full min-h-[48px] px-6 py-3 bg-signal-blue hover:bg-[#1D4ED8]"
                     size="default"
                     disabled={
                       loading ||
@@ -840,10 +727,10 @@ export default function SignupPage() {
 
                 {/* Login Link */}
                 <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-brand">
                     Already have an account?{' '}
                     <Link href="/login">
-                      <a className="text-blue-600 hover:text-blue-800 font-medium">Sign in</a>
+                      <a className="text-signal-blue hover:underline font-medium">Sign in</a>
                     </Link>
                   </p>
                 </div>

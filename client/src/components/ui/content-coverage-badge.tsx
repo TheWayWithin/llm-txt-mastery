@@ -31,10 +31,10 @@ export function ContentCoverageBadge({
   className,
 }: ContentCoverageBadgeProps) {
   const getCoverageColor = () => {
-    if (coverage >= 95) return 'bg-green-100 text-green-800 border-green-200';
-    if (coverage >= 70) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (coverage >= 40) return 'bg-orange-100 text-orange-800 border-orange-200';
-    return 'bg-red-100 text-red-800 border-red-200';
+    if (coverage >= 95) return 'bg-success/10 text-ink border-mist';
+    if (coverage >= 70) return 'bg-action-amber/10 text-ink border-action-amber/40';
+    if (coverage >= 40) return 'bg-cloud text-ink border-mist';
+    return 'bg-error/10 text-error border-mist';
   };
 
   const getCoverageLabel = () => {
@@ -86,7 +86,7 @@ export function ContentCoverageBadge({
               <span className="font-medium capitalize">{confidence} Confidence</span>
             </div>
             {warning ? (
-              <p className="text-xs text-yellow-600">{warning}</p>
+              <p className="text-xs text-action-amber">{warning}</p>
             ) : (
               <p className="text-xs">
                 Estimated percentage of site content accessible for analysis.

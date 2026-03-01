@@ -49,20 +49,20 @@ export const BlogPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cloud">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Blog</h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-slate-brand">
             Thoughts on AI, web survival, and building tools that matter
           </p>
         </div>
 
         {/* Coming Soon Notice */}
-        <Card className="mb-8 bg-blue-50 border-blue-200">
+        <Card className="mb-8 bg-cloud border-mist">
           <CardContent className="p-6">
-            <p className="text-center text-gray-700">
+            <p className="text-center text-ink">
               <strong>Coming Soon:</strong> Real insights from building AI tools and helping
               websites survive the LLM revolution. No corporate fluff, just practical wisdom from
               the trenches.
@@ -76,8 +76,8 @@ export const BlogPage: React.FC = () => {
             <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-blue-600 font-medium">{post.category}</span>
-                  <div className="flex items-center text-sm text-gray-500 space-x-4">
+                  <span className="text-sm text-signal-blue font-medium">{post.category}</span>
+                  <div className="flex items-center text-sm text-stone-brand space-x-4">
                     <span className="flex items-center">
                       <Calendar className="mr-1" size={14} />
                       {post.date}
@@ -91,8 +91,8 @@ export const BlogPage: React.FC = () => {
                 <CardTitle className="text-2xl">{post.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">{post.excerpt}</p>
-                <div className="flex items-center text-blue-600 font-medium">
+                <p className="text-ink mb-4">{post.excerpt}</p>
+                <div className="flex items-center text-signal-blue font-medium">
                   Read more
                   <ArrowRight className="ml-2" size={16} />
                 </div>
@@ -102,7 +102,7 @@ export const BlogPage: React.FC = () => {
         </div>
 
         {/* Newsletter Signup */}
-        <Card className="mt-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <Card className="mt-12 bg-mastery-blue text-white">
           <CardContent className="p-8">
             <div className="text-center">
               <BookOpen className="mx-auto mb-4" size={48} />
@@ -137,15 +137,15 @@ export const BlogPage: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-4">
             <Card className="text-center p-4">
               <h3 className="font-semibold mb-2">AI & Web Survival</h3>
-              <p className="text-sm text-gray-600">How to thrive when AI is eating the web</p>
+              <p className="text-sm text-slate-brand">How to thrive when AI is eating the web</p>
             </Card>
             <Card className="text-center p-4">
               <h3 className="font-semibold mb-2">Technical Deep Dives</h3>
-              <p className="text-sm text-gray-600">The nitty-gritty of building AI tools</p>
+              <p className="text-sm text-slate-brand">The nitty-gritty of building AI tools</p>
             </Card>
             <Card className="text-center p-4">
               <h3 className="font-semibold mb-2">Solopreneur Life</h3>
-              <p className="text-sm text-gray-600">Escaping corporate to build what matters</p>
+              <p className="text-sm text-slate-brand">Escaping corporate to build what matters</p>
             </Card>
           </div>
         </div>
