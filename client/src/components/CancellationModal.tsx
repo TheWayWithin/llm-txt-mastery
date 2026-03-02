@@ -145,7 +145,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center">
-                <AlertTriangle className="h-5 w-5 text-yellow-500 mr-2" />
+                <AlertTriangle className="h-5 w-5 text-action-amber mr-2" />
                 Cancel Subscription
               </DialogTitle>
               <DialogDescription>
@@ -159,8 +159,8 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
                 <div
                   className={`p-4 rounded-lg border ${
                     refundInfo.eligible
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-gray-50 border-gray-200'
+                      ? 'bg-success/10 border-mist'
+                      : 'bg-cloud border-mist'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -169,14 +169,14 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
                       Refund Eligibility
                     </h4>
                     {refundInfo.eligible && (
-                      <Badge variant="default" className="bg-green-600">
+                      <Badge variant="default" className="bg-success">
                         {refundInfo.amountFormatted}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600">{refundInfo.reason}</p>
+                  <p className="text-sm text-slate-brand">{refundInfo.reason}</p>
                   {refundInfo.guaranteeApplies && (
-                    <p className="text-sm text-green-600 mt-1 font-medium">
+                    <p className="text-sm text-success mt-1 font-medium">
                       ✅ 30-day money-back guarantee applies
                     </p>
                   )}
@@ -184,11 +184,11 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
               )}
 
               {/* What You'll Lose */}
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <h4 className="font-medium text-red-800 mb-2">You will lose access to:</h4>
+              <div className="p-4 bg-error/10 border border-mist rounded-lg">
+                <h4 className="font-medium text-error mb-2">You will lose access to:</h4>
                 <ul className="space-y-1">
                   {getTierLosses().map((loss, index) => (
-                    <li key={index} className="text-sm text-red-700 flex items-start">
+                    <li key={index} className="text-sm text-error flex items-start">
                       <XCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                       {loss}
                     </li>
@@ -266,32 +266,32 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
         {step === 'complete' && (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center text-green-600">
+              <DialogTitle className="flex items-center text-success">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 Cancellation Complete
               </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
+              <Alert className="border-mist bg-success/10">
+                <CheckCircle className="h-4 w-4 text-success" />
+                <AlertDescription className="text-ink">
                   {cancellationResult?.message ||
                     'Your subscription has been cancelled successfully.'}
                 </AlertDescription>
               </Alert>
 
               {refundInfo?.eligible && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-medium text-blue-800 mb-1">Refund Processing</h4>
-                  <p className="text-sm text-blue-700">
+                <div className="p-4 bg-signal-blue/10 border border-mist rounded-lg">
+                  <h4 className="font-medium text-mastery-blue mb-1">Refund Processing</h4>
+                  <p className="text-sm text-mastery-blue">
                     Your refund of {refundInfo.amountFormatted} will be processed within 5-7
                     business days.
                   </p>
                 </div>
               )}
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-slate-brand">
                 <p>Thank you for trying LLM.txt Mastery!</p>
                 <p className="mt-2">
                   If you change your mind, you can always sign up again at any time.

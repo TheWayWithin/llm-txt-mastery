@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
-import { Mail, MessageSquare, Send, Twitter, Linkedin, ExternalLink } from 'lucide-react';
+import { Mail, MessageSquare, Send, Twitter, Linkedin, ExternalLink, Bug, Lightbulb, HandMetal } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSEO } from '@/hooks/useSEO';
 
@@ -28,12 +28,12 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cloud">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Let's Connect</h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-slate-brand">
             Have a question, feedback, or just want to say hi? I'd love to hear from you.
           </p>
         </div>
@@ -44,7 +44,7 @@ export const ContactPage: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <MessageSquare className="mr-3 text-blue-600" />
+                  <MessageSquare className="mr-3 text-signal-blue" />
                   Send a Message
                 </CardTitle>
               </CardHeader>
@@ -122,13 +122,13 @@ export const ContactPage: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Mail className="mr-3 text-purple-600" />
+                  <Mail className="mr-3 text-signal-blue" />
                   Direct Contact
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">For quick questions or feedback:</p>
-                <a href="mailto:support@llmtxtmastery.com" className="text-blue-600 hover:underline">
+                <p className="text-ink mb-4">For quick questions or feedback:</p>
+                <a href="mailto:support@llmtxtmastery.com" className="text-signal-blue hover:underline">
                   support@llmtxtmastery.com
                 </a>
               </CardContent>
@@ -145,7 +145,7 @@ export const ContactPage: React.FC = () => {
                     href="https://jamiewatters.work"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
+                    className="flex items-center text-ink hover:text-mastery-blue transition-colors"
                   >
                     <ExternalLink className="mr-3" size={20} />
                     Build in Public
@@ -154,7 +154,7 @@ export const ContactPage: React.FC = () => {
                     href="https://twitter.com/Jamie_within"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
+                    className="flex items-center text-ink hover:text-mastery-blue transition-colors"
                   >
                     <Twitter className="mr-3" size={20} />
                     @Jamie_within
@@ -163,7 +163,7 @@ export const ContactPage: React.FC = () => {
                     href="https://linkedin.com/in/jamie-watters-solo"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-gray-700 hover:text-blue-600 transition-colors"
+                    className="flex items-center text-ink hover:text-mastery-blue transition-colors"
                   >
                     <Linkedin className="mr-3" size={20} />
                     LinkedIn
@@ -173,9 +173,9 @@ export const ContactPage: React.FC = () => {
             </Card>
 
             {/* Response Time */}
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-cloud border-mist">
               <CardContent className="pt-6">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-ink">
                   <strong>Response Time:</strong> I personally read and respond to every message.
                   Expect a reply within 24-48 hours.
                 </p>
@@ -188,21 +188,30 @@ export const ContactPage: React.FC = () => {
         <Card className="mt-8">
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-4">Why Reach Out?</h2>
-            <div className="grid md:grid-cols-3 gap-6 text-gray-700">
+            <div className="grid md:grid-cols-3 gap-6 text-ink">
               <div>
-                <h3 className="font-semibold mb-2">🐛 Report Issues</h3>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Bug className="h-4 w-4 text-slate-brand" />
+                  Report Issues
+                </h3>
                 <p className="text-sm">
                   Found a bug or something not working? Let me know and I'll fix it ASAP.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">💡 Feature Requests</h3>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-slate-brand" />
+                  Feature Requests
+                </h3>
                 <p className="text-sm">
                   Have an idea that would make the tool better? I'd love to hear it.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">👋 Just Say Hi</h3>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <HandMetal className="h-4 w-4 text-slate-brand" />
+                  Just Say Hi
+                </h3>
                 <p className="text-sm">
                   Sometimes it's nice to connect with fellow builders. Drop me a line!
                 </p>
@@ -212,7 +221,7 @@ export const ContactPage: React.FC = () => {
         </Card>
 
         {/* Footer Note */}
-        <div className="text-center mt-12 text-gray-600">
+        <div className="text-center mt-12 text-slate-brand">
           <p>No corporate support tickets. No automated responses.</p>
           <p className="mt-2">Just direct communication with the person who built this.</p>
         </div>

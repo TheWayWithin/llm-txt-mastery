@@ -17,26 +17,26 @@ export function TierGuaranteeContent({ selectedTier }: TierGuaranteeContentProps
       {/* Tier benefits reminder */}
       <div className="text-center text-sm border-t pt-4">
         {selectedTier === 'starter' ? (
-          <div className="bg-red-50 border border-red-200 p-3 rounded">
-            <span className="text-red-700 font-medium">
+          <div className="bg-error/10 border border-mist p-3 rounded">
+            <span className="text-error font-medium">
               ⚠️ WARNING: Severely limited • Will miss critical pages • Competitors will outrank you
             </span>
           </div>
         ) : selectedTier === 'solo' ? (
-          <div className="bg-green-50 border border-green-200 p-3 rounded">
-            <span className="text-green-700 font-bold">
+          <div className="bg-success/10 border border-mist p-3 rounded">
+            <span className="text-success font-bold">
               🚀 SMART CHOICE: Full power • 30-day guarantee • Cancel instantly • Risk-FREE
             </span>
           </div>
         ) : selectedTier === 'growth' ? (
-          <div className="bg-teal-50 border border-teal-200 p-3 rounded">
-            <span className="text-teal-700">
+          <div className="bg-clarity-teal/10 border border-clarity-teal/30 p-3 rounded">
+            <span className="text-clarity-teal">
               ✓ Professional power • Advanced features • Team collaboration
             </span>
           </div>
         ) : (
-          <div className="bg-blue-50 border border-blue-200 p-3 rounded">
-            <span className="text-blue-700">
+          <div className="bg-signal-blue/10 border border-mist p-3 rounded">
+            <span className="text-mastery-blue">
               ✓ Enterprise control • API access • Direct email support
             </span>
           </div>
@@ -45,40 +45,40 @@ export function TierGuaranteeContent({ selectedTier }: TierGuaranteeContentProps
 
       {/* Dramatic Risk Reversal Section */}
       <div className="border-t pt-6">
-        <div className="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-center text-blue-900 mb-4">
+        <div className="bg-gradient-to-r from-signal-blue/10 to-success/10 border-2 border-mist rounded-lg p-6">
+          <h3 className="text-lg font-bold text-center text-ink mb-4">
             🛡️ ZERO RISK GUARANTEE - We Remove ALL Your Fears
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="bg-white p-3 rounded border">
-              <div className="font-bold text-green-700 mb-2">💰 30-Day Money Back Guarantee</div>
-              <div className="text-gray-700">
+              <div className="font-bold text-success mb-2">💰 30-Day Money Back Guarantee</div>
+              <div className="text-ink">
                 Don't like the results? Get every penny back. No questions asked. No hoops to jump
                 through.
               </div>
             </div>
             <div className="bg-white p-3 rounded border">
-              <div className="font-bold text-blue-700 mb-2">⚡ Cancel Instantly Anytime</div>
-              <div className="text-gray-700">
+              <div className="font-bold text-mastery-blue mb-2">⚡ Cancel Instantly Anytime</div>
+              <div className="text-ink">
                 One click cancellation. No phone calls. No retention tactics. Cancel in 10 seconds.
               </div>
             </div>
             <div className="bg-white p-3 rounded border">
-              <div className="font-bold text-purple-700 mb-2">🏆 Results in 24 Hours or Refund</div>
-              <div className="text-gray-700">
+              <div className="font-bold text-slate-brand mb-2">🏆 Results in 24 Hours or Refund</div>
+              <div className="text-ink">
                 See dramatic improvements within 24 hours or get a full refund immediately.
               </div>
             </div>
             <div className="bg-white p-3 rounded border">
-              <div className="font-bold text-orange-700 mb-2">
+              <div className="font-bold text-action-amber mb-2">
                 🚀 Outperform Competitors or Refund
               </div>
-              <div className="text-gray-700">
+              <div className="text-ink">
                 We find 3x more pages than competitors or you get your money back.
               </div>
             </div>
           </div>
-          <div className="text-center mt-4 text-xs text-blue-600 font-medium">
+          <div className="text-center mt-4 text-xs text-signal-blue font-medium">
             ✅ Secure & Private • ✅ No Spam Ever • ✅ Built by Expert Solopreneur • ✅ Self Not
             VC-Funded
           </div>

@@ -20,7 +20,7 @@ export function AuthNav() {
   if (loading) {
     return (
       <div className="flex items-center space-x-2">
-        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+        <div className="w-8 h-8 bg-mist rounded-full animate-pulse" />
       </div>
     );
   }
@@ -41,13 +41,13 @@ export function AuthNav() {
   const getTierColor = (tier?: string) => {
     switch (tier) {
       case 'solo':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-cloud text-ink border-mist';
       case 'growth':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-signal-blue/10 text-mastery-blue border-mist';
       case 'scale':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-cloud text-ink border-mist';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-cloud text-ink border-mist';
     }
   };
 
@@ -57,7 +57,7 @@ export function AuthNav() {
         <Button variant="outline" onClick={() => setLocation('/login')}>
           Sign In
         </Button>
-        <Button onClick={() => setLocation('/signup')}>Get Started</Button>
+        <Button className="bg-signal-blue hover:bg-[#1D4ED8]" onClick={() => setLocation('/signup')}>Generate Your File</Button>
       </div>
     );
   }
@@ -75,10 +75,10 @@ export function AuthNav() {
 
         {/* Credits Display for Coffee Tier */}
         {user?.tier === 'solo' && (
-          <div className="flex items-center space-x-1 text-sm text-orange-600">
+          <div className="flex items-center space-x-1 text-sm text-action-amber">
             <Coffee className="h-4 w-4" />
             <span className="font-medium">{user.creditsRemaining}</span>
-            <span className="text-gray-500">credits</span>
+            <span className="text-stone-brand">credits</span>
           </div>
         )}
 
@@ -86,7 +86,7 @@ export function AuthNav() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-              <div className="w-7 h-7 bg-gray-200 rounded-full flex items-center justify-center">
+              <div className="w-7 h-7 bg-mist rounded-full flex items-center justify-center">
                 <User className="h-4 w-4" />
               </div>
               <span className="hidden sm:inline-block">{user.email?.split('@')[0]}</span>
@@ -97,7 +97,7 @@ export function AuthNav() {
             <DropdownMenuLabel>
               <div>
                 <div className="font-medium">{user.email}</div>
-                <div className="text-xs text-gray-500 capitalize">{user.tier} tier</div>
+                <div className="text-xs text-stone-brand capitalize">{user.tier} tier</div>
               </div>
             </DropdownMenuLabel>
 
@@ -125,7 +125,7 @@ export function AuthNav() {
 
             <DropdownMenuItem
               onClick={signOut}
-              className="cursor-pointer text-red-600 focus:text-red-600"
+              className="cursor-pointer text-error focus:text-error"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out

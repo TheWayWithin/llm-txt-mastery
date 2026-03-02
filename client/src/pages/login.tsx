@@ -105,9 +105,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-cloud">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/">
@@ -119,10 +119,6 @@ export default function LoginPage() {
                 />
               </a>
             </Link>
-            <div className="text-right hidden md:block">
-              <p className="text-sm text-slate-600">Built by Jamie Watters</p>
-              <p className="text-xs text-slate-500">Solopreneur & Tool Builder</p>
-            </div>
           </div>
         </div>
       </header>
@@ -146,15 +142,15 @@ export default function LoginPage() {
 
               {/* Selected Tier Display */}
               {tierParam && (
-                <div className="bg-slate-50 rounded-lg p-4 border">
+                <div className="bg-cloud rounded-lg p-4 border border-mist">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-700">Selected Plan:</span>
+                    <span className="text-sm font-medium text-ink">Selected Plan:</span>
                     <Badge className={getTierColorClass(tierParam)}>
                       {getTierIcon(tierParam)}
                       <span className="ml-1">{getTierDisplayName(tierParam)}</span>
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-600">{getTierDescription(tierParam)}</p>
+                  <p className="text-xs text-slate-brand">{getTierDescription(tierParam)}</p>
                 </div>
               )}
 
@@ -162,7 +158,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
                   <Input
                     id="email"
                     type="email"
@@ -179,7 +175,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -192,7 +188,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    className="absolute right-3 top-3 h-5 w-5 text-stone-brand hover:text-slate-brand p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -203,14 +199,14 @@ export default function LoginPage() {
               {/* Forgot Password Link */}
               <div className="text-right">
                 <Link href="/forgot-password">
-                  <a className="text-sm text-blue-600 hover:text-blue-800">Forgot your password?</a>
+                  <a className="text-sm text-signal-blue hover:text-mastery-blue">Forgot your password?</a>
                 </Link>
               </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full min-h-[48px] px-6 py-3 bg-innovation-teal hover:bg-innovation-teal/90"
+                className="w-full min-h-[48px] px-6 py-3 bg-signal-blue hover:bg-[#1D4ED8]"
                 size="default"
                 disabled={loading || !email || !password}
               >
@@ -230,20 +226,20 @@ export default function LoginPage() {
 
             {/* Signup Link */}
             <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-brand">
                 Don't have an account?{' '}
                 <Link
                   href={`/signup?tier=${tierParam || 'solo'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}
                 >
-                  <a className="text-blue-600 hover:text-blue-800 font-medium">Sign up for free</a>
+                  <a className="text-signal-blue hover:text-mastery-blue font-medium">Sign up for free</a>
                 </Link>
               </p>
             </div>
 
             {/* Demo Option */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-mist">
               <div className="text-center">
-                <p className="text-sm text-gray-500 mb-3">Want to try it first?</p>
+                <p className="text-sm text-stone-brand mb-3">Want to try it first?</p>
                 <Link href="/">
                   <a>
                     <Button variant="outline" className="w-full">
@@ -258,7 +254,7 @@ export default function LoginPage() {
 
         {/* Trust Signal */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-stone-brand">
             Secure login protected by industry-standard encryption
           </p>
         </div>

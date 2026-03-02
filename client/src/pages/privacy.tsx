@@ -9,15 +9,15 @@ export const PrivacyPage: React.FC = () => {
     description: 'Privacy policy for LLM.txt Mastery. Your privacy matters - here is exactly what we do and do not do with your data.',
   });
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cloud">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-slate-brand">
             Your privacy matters. Here's exactly what we do (and don't do) with your data.
           </p>
-          <p className="text-sm text-gray-500 mt-4">
+          <p className="text-sm text-stone-brand mt-4">
             Last updated: August 19, 2025 • GDPR Compliant
           </p>
         </div>
@@ -28,10 +28,10 @@ export const PrivacyPage: React.FC = () => {
             {/* Introduction */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <Shield className="mr-3 text-blue-600" />
+                <Shield className="mr-3 text-signal-blue" />
                 The Simple Truth
               </h2>
-              <p className="text-gray-700">
+              <p className="text-ink">
                 I'm not a corporation harvesting data. I'm a solopreneur who believes in respecting
                 user privacy. This tool collects only what's necessary to function and nothing more.
               </p>
@@ -40,10 +40,10 @@ export const PrivacyPage: React.FC = () => {
             {/* What We Collect */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <Eye className="mr-3 text-purple-600" />
+                <Eye className="mr-3 text-slate-brand" />
                 What We Collect
               </h2>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-ink">
                 <li>
                   <strong>Email Address:</strong> Only if you provide it for account creation or to
                   receive your analysis
@@ -66,10 +66,10 @@ export const PrivacyPage: React.FC = () => {
             {/* What We Don't Collect */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <Lock className="mr-3 text-green-600" />
+                <Lock className="mr-3 text-success" />
                 What We DON'T Collect
               </h2>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-ink">
                 <li>❌ Personal information beyond what's necessary</li>
                 <li>❌ Tracking cookies or advertising data</li>
                 <li>❌ Your website's content or proprietary information</li>
@@ -81,7 +81,7 @@ export const PrivacyPage: React.FC = () => {
             {/* How We Use It */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">How We Use Your Data</h2>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-ink">
                 <li>✓ To generate and deliver your llms.txt files</li>
                 <li>✓ To send you the analysis results you requested</li>
                 <li>✓ To process payments for premium features</li>
@@ -93,7 +93,7 @@ export const PrivacyPage: React.FC = () => {
             {/* Data Security */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Data Security</h2>
-              <p className="text-gray-700">
+              <p className="text-ink">
                 Your data is stored securely using industry-standard encryption. Website analyses
                 are processed in memory and results are stored temporarily. We use secure HTTPS
                 connections for all data transfers.
@@ -103,10 +103,10 @@ export const PrivacyPage: React.FC = () => {
             {/* Cookies and Analytics */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Cookies and Analytics</h2>
-              <p className="text-gray-700 mb-4">
+              <p className="text-ink mb-4">
                 We use cookies and similar technologies to improve your experience:
               </p>
-              <ul className="space-y-3 text-gray-700">
+              <ul className="space-y-3 text-ink">
                 <li>
                   <strong>Essential Cookies:</strong> Required for the website to function (login,
                   preferences)
@@ -120,7 +120,7 @@ export const PrivacyPage: React.FC = () => {
                   cookie consent
                 </li>
               </ul>
-              <p className="text-gray-700 mt-4">
+              <p className="text-ink mt-4">
                 You can control cookie preferences through our consent banner. Essential cookies
                 cannot be disabled as they're necessary for the service to function properly.
               </p>
@@ -129,8 +129,8 @@ export const PrivacyPage: React.FC = () => {
             {/* Legal Basis for Processing (GDPR) */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Legal Basis for Processing (GDPR)</h2>
-              <p className="text-gray-700 mb-4">We process your personal data based on:</p>
-              <ul className="space-y-2 text-gray-700">
+              <p className="text-ink mb-4">We process your personal data based on:</p>
+              <ul className="space-y-2 text-ink">
                 <li>
                   <strong>Contract Performance:</strong> To provide the llms.txt analysis service
                   you requested
@@ -151,8 +151,8 @@ export const PrivacyPage: React.FC = () => {
             {/* Data Controller Information */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Data Controller Information</h2>
-              <div className="bg-gray-50 p-4 rounded">
-                <p className="text-gray-700">
+              <div className="bg-cloud p-4 rounded">
+                <p className="text-ink">
                   <strong>Data Controller:</strong> Jamie Watters
                   <br />
                   <strong>Business:</strong> LLM.txt Mastery
@@ -167,10 +167,10 @@ export const PrivacyPage: React.FC = () => {
             {/* Third Party Services */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Third-Party Services</h2>
-              <p className="text-gray-700 mb-4">
+              <p className="text-ink mb-4">
                 We use trusted services to operate (all GDPR compliant):
               </p>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-ink">
                 <li>
                   <strong>Stripe:</strong> Payment processing (PCI compliant, EU-approved)
                 </li>
@@ -196,7 +196,7 @@ export const PrivacyPage: React.FC = () => {
             {/* Data Retention */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Data Retention</h2>
-              <p className="text-gray-700">
+              <p className="text-ink">
                 Analysis results are retained for 30 days to allow re-downloading. Account
                 information is kept as long as you maintain an account. You can request deletion at
                 any time by contacting me directly.
@@ -206,11 +206,11 @@ export const PrivacyPage: React.FC = () => {
             {/* International Data Transfers */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">International Data Transfers</h2>
-              <p className="text-gray-700 mb-4">
+              <p className="text-ink mb-4">
                 Some of our service providers are located outside the EU. When we transfer data
                 internationally, we ensure adequate protection through:
               </p>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-ink">
                 <li>
                   ✓ <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European
                   Commission
@@ -228,77 +228,77 @@ export const PrivacyPage: React.FC = () => {
             {/* Your Rights */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <UserCheck className="mr-3 text-indigo-600" />
+                <UserCheck className="mr-3 text-signal-blue" />
                 Your Rights (GDPR Articles 15-22)
               </h2>
-              <p className="text-gray-700 mb-4">
+              <p className="text-ink mb-4">
                 Under GDPR, you have comprehensive rights regarding your personal data:
               </p>
 
               <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-blue-800 mb-2">Article 15 - Right of Access</h3>
-                  <p className="text-gray-700 text-sm">
+                <div className="bg-cloud p-4 rounded-lg border border-mist">
+                  <h3 className="font-bold text-ink mb-2">Article 15 - Right of Access</h3>
+                  <p className="text-ink text-sm">
                     Get a complete copy of your personal data, including how it's processed, who
                     it's shared with, and how long it's stored.
                   </p>
                 </div>
 
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-green-800 mb-2">
+                <div className="bg-cloud p-4 rounded-lg border border-mist">
+                  <h3 className="font-bold text-ink mb-2">
                     Article 16 - Right to Rectification
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-ink text-sm">
                     Correct any inaccurate or incomplete personal data we hold about you.
                   </p>
                 </div>
 
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-red-800 mb-2">
+                <div className="bg-cloud p-4 rounded-lg border border-mist">
+                  <h3 className="font-bold text-ink mb-2">
                     Article 17 - Right to Erasure ("Right to be Forgotten")
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-ink text-sm">
                     Request deletion of your personal data when there's no longer a legitimate
                     reason for processing it.
                   </p>
                 </div>
 
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-yellow-800 mb-2">
+                <div className="bg-cloud p-4 rounded-lg border border-mist">
+                  <h3 className="font-bold text-ink mb-2">
                     Article 18 - Right to Restriction
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-ink text-sm">
                     Limit how we process your data while disputes are resolved or accuracy is
                     verified.
                   </p>
                 </div>
 
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-purple-800 mb-2">
+                <div className="bg-cloud p-4 rounded-lg border border-mist">
+                  <h3 className="font-bold text-ink mb-2">
                     Article 20 - Right to Data Portability
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-ink text-sm">
                     Export your data in a machine-readable format to transfer to another service.
                   </p>
                 </div>
 
-                <div className="bg-indigo-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-indigo-800 mb-2">Article 21 - Right to Object</h3>
-                  <p className="text-gray-700 text-sm">
+                <div className="bg-cloud p-4 rounded-lg border border-mist">
+                  <h3 className="font-bold text-ink mb-2">Article 21 - Right to Object</h3>
+                  <p className="text-ink text-sm">
                     Opt-out of data processing based on legitimate interest or for direct marketing
                     purposes.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg mb-4">
-                <h3 className="font-bold text-gray-800 mb-3">How to Exercise Your Rights</h3>
-                <div className="space-y-3 text-gray-700">
+              <div className="bg-cloud p-6 rounded-lg mb-4">
+                <h3 className="font-bold text-ink mb-3">How to Exercise Your Rights</h3>
+                <div className="space-y-3 text-ink">
                   <p>
                     <strong>Email:</strong>{' '}
                     <a
                       href="mailto:support@llmtxtmastery.com?subject=GDPR%20Data%20Subject%20Request"
-                      className="text-blue-600 hover:underline"
+                      className="text-signal-blue hover:underline"
                     >
                       support@llmtxtmastery.com
                     </a>
@@ -322,15 +322,15 @@ export const PrivacyPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
-                <h3 className="font-bold text-amber-800 mb-2">Right to Complain (Article 77)</h3>
-                <p className="text-gray-700 text-sm">
+              <div className="bg-action-amber/10 border-l-4 border-action-amber p-4">
+                <h3 className="font-bold text-ink mb-2">Right to Complain (Article 77)</h3>
+                <p className="text-ink text-sm">
                   If you're not satisfied with how we handle your request or believe we're not
                   complying with GDPR, you can file a complaint with your local data protection
                   authority. For EU residents, find your
                   <a
                     href="https://edpb.europa.eu/about-edpb/about-edpb/members_en"
-                    className="text-amber-700 hover:underline font-medium"
+                    className="text-action-amber hover:underline font-medium"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -342,9 +342,9 @@ export const PrivacyPage: React.FC = () => {
             </div>
 
             {/* No Corporate BS */}
-            <div className="mb-8 bg-blue-50 border-l-4 border-blue-600 p-6">
-              <h2 className="text-xl font-bold mb-3">No Corporate BS Promise</h2>
-              <p className="text-gray-700">
+            <div className="mb-8 bg-signal-blue/10 border-l-4 border-signal-blue p-6">
+              <h2 className="text-xl font-bold mb-3">Our Privacy Promise</h2>
+              <p className="text-ink">
                 I won't sell your data. I won't share it with advertisers. I won't use dark patterns
                 to trick you into giving up privacy. This is a tool built by someone who values
                 privacy as much as you do.
@@ -354,9 +354,9 @@ export const PrivacyPage: React.FC = () => {
             {/* Contact */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Questions?</h2>
-              <p className="text-gray-700">
+              <p className="text-ink">
                 If you have any privacy concerns or questions, contact me directly at{' '}
-                <a href="mailto:support@llmtxtmastery.com" className="text-blue-600 hover:underline">
+                <a href="mailto:support@llmtxtmastery.com" className="text-signal-blue hover:underline">
                   support@llmtxtmastery.com
                 </a>
                 . No support tickets, no runaround—just direct answers from the person who built
@@ -365,7 +365,7 @@ export const PrivacyPage: React.FC = () => {
             </div>
 
             {/* Updates */}
-            <div className="text-sm text-gray-600 border-t pt-6">
+            <div className="text-sm text-slate-brand border-t pt-6">
               <p>
                 This privacy policy may be updated occasionally. Any significant changes will be
                 communicated via email to registered users. The "Last updated" date at the top will

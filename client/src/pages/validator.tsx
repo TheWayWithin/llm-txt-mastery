@@ -291,27 +291,27 @@ export default function ValidatorPage() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 75) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 75) return 'text-action-amber';
+    return 'text-error';
   };
 
   const getScoreBgColor = (score: number) => {
-    if (score >= 90) return 'bg-green-50 border-green-200';
-    if (score >= 75) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-red-50 border-red-200';
+    if (score >= 90) return 'bg-success/10 border-mist';
+    if (score >= 75) return 'bg-action-amber/10 border-action-amber/40';
+    return 'bg-error/10 border-mist';
   };
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'error':
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-5 w-5 text-error" />;
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+        return <AlertTriangle className="h-5 w-5 text-action-amber" />;
       case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
+        return <Info className="h-5 w-5 text-signal-blue" />;
       default:
-        return <Info className="h-5 w-5 text-gray-500" />;
+        return <Info className="h-5 w-5 text-stone-brand" />;
     }
   };
 
@@ -320,7 +320,7 @@ export default function ValidatorPage() {
       case 'high':
         return <Badge variant="destructive">High</Badge>;
       case 'medium':
-        return <Badge className="bg-yellow-500">Medium</Badge>;
+        return <Badge className="bg-action-amber/100">Medium</Badge>;
       case 'low':
         return <Badge variant="secondary">Low</Badge>;
       default:
@@ -357,7 +357,7 @@ export default function ValidatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-cloud">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -373,48 +373,44 @@ export default function ValidatorPage() {
             </Link>
             <div className="flex items-center space-x-4">
               <AuthNav />
-              <div className="text-right hidden md:block">
-                <p className="text-sm text-ai-silver">Built by Jamie Watters</p>
-                <p className="text-xs text-ai-silver">Solopreneur & Tool Builder</p>
-              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-white to-slate-50 border-b border-slate-200">
+      <section className="bg-gradient-to-b from-white to-slate-50 border-b border-mist">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <div className="inline-flex items-center justify-center px-4 py-2 bg-innovation-teal/10 border border-innovation-teal/30 rounded-full mb-6">
-            <Shield className="h-4 w-4 text-innovation-teal mr-2" />
-            <span className="text-sm font-semibold text-innovation-teal">100% Free — No Sign-up Required</span>
+          <div className="inline-flex items-center justify-center px-4 py-2 bg-signal-blue/10 border border-signal-blue/30 rounded-full mb-6">
+            <Shield className="h-4 w-4 text-signal-blue mr-2" />
+            <span className="text-sm font-semibold text-signal-blue">100% Free — No Sign-up Required</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-framework-black mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink mb-4">
             Is Your Website Visible to{' '}
-            <span className="text-innovation-teal">AI Search?</span>
+            <span className="text-signal-blue">AI Search?</span>
           </h1>
-          <p className="text-lg text-ai-silver max-w-2xl mx-auto mb-6">
+          <p className="text-lg text-slate-brand max-w-2xl mx-auto mb-6">
             ChatGPT, Claude, and Perplexity are crawling websites right now. Validate your llms.txt file
             in seconds — and find out if AI can actually discover your content.
           </p>
 
           {/* Trust Signals */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-ai-silver mb-2">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-brand mb-2">
             <div className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-success" />
               <span>Official llmstxt.org spec</span>
             </div>
             <div className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-success" />
               <span>robots.txt conflict check</span>
             </div>
             <div className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-success" />
               <span>Framework detection</span>
             </div>
             <div className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-success" />
               <span>All 4 file locations</span>
             </div>
           </div>
@@ -425,12 +421,12 @@ export default function ValidatorPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Free Tool Banner for non-authenticated */}
         {!isAuthenticated && (
-          <Alert className="mb-6 bg-innovation-teal/10 border-innovation-teal">
-            <Info className="h-4 w-4 text-innovation-teal" />
-            <AlertDescription className="text-framework-black">
+          <Alert className="mb-6 bg-signal-blue/10 border-signal-blue">
+            <Info className="h-4 w-4 text-signal-blue" />
+            <AlertDescription className="text-ink">
               Free validation: 3 checks per day. Need unlimited validations + AI-powered llms.txt generation?{' '}
               <Link href="/pricing">
-                <a className="font-semibold text-innovation-teal hover:underline">
+                <a className="font-semibold text-signal-blue hover:underline">
                   See plans from $4.95/mo
                 </a>
               </Link>
@@ -439,10 +435,10 @@ export default function ValidatorPage() {
         )}
 
         {/* Validation Input Card */}
-        <Card className="bg-white shadow-md border border-slate-200 mb-6">
+        <Card className="bg-white shadow-md border border-mist mb-6">
           <CardContent className="p-6">
-            <h2 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-              <Search className="h-5 w-5 mr-2 text-innovation-teal" />
+            <h2 className="text-xl font-bold text-ink mb-4 flex items-center">
+              <Search className="h-5 w-5 mr-2 text-signal-blue" />
               Validate Your llms.txt File
             </h2>
             <form
@@ -453,7 +449,7 @@ export default function ValidatorPage() {
               className="space-y-4"
             >
               <div>
-                <Label htmlFor="website-url" className="text-sm font-medium text-framework-black">
+                <Label htmlFor="website-url" className="text-sm font-medium text-ink">
                   Website URL
                 </Label>
                 <div className="relative mt-2">
@@ -463,15 +459,15 @@ export default function ValidatorPage() {
                     placeholder="www.example.com or https://example.com"
                     value={url}
                     onChange={handleInputChange}
-                    className="pr-12 border-slate-300 focus:ring-innovation-teal focus:border-innovation-teal text-lg py-3"
+                    className="pr-12 border-mist focus:ring-signal-blue focus:border-signal-blue text-lg py-3"
                   />
                   {isValid && (
                     <div className="absolute right-3 top-3">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     </div>
                   )}
                 </div>
-                <p className="mt-2 text-sm text-ai-silver">
+                <p className="mt-2 text-sm text-slate-brand">
                   We'll check{' '}
                   {url
                     ? fileType === 'auto'
@@ -485,11 +481,11 @@ export default function ValidatorPage() {
 
               {/* File Type Selection */}
               <div>
-                <Label htmlFor="file-type" className="text-sm font-medium text-framework-black">
+                <Label htmlFor="file-type" className="text-sm font-medium text-ink">
                   File Location
                 </Label>
                 <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
-                  <SelectTrigger className="mt-2 border-slate-300 focus:ring-innovation-teal">
+                  <SelectTrigger className="mt-2 border-mist focus:ring-signal-blue">
                     <SelectValue placeholder="Select file type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -508,15 +504,15 @@ export default function ValidatorPage() {
                   checked={includeRobotsTxt}
                   onCheckedChange={setIncludeRobotsTxt}
                 />
-                <Label htmlFor="robots-check" className="text-sm text-framework-black cursor-pointer">
+                <Label htmlFor="robots-check" className="text-sm text-ink cursor-pointer">
                   Check for robots.txt conflicts{' '}
-                  <span className="text-innovation-teal font-medium">(unique feature)</span>
+                  <span className="text-signal-blue font-medium">(unique feature)</span>
                 </Label>
               </div>
 
               <div className="flex items-center justify-between pt-4">
-                <div className="flex items-center space-x-2 text-sm text-ai-silver">
-                  <Shield className="h-4 w-4 text-innovation-teal" />
+                <div className="flex items-center space-x-2 text-sm text-slate-brand">
+                  <Shield className="h-4 w-4 text-signal-blue" />
                   <span>Official llmstxt.org specification validator</span>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -525,7 +521,7 @@ export default function ValidatorPage() {
                     variant="outline"
                     onClick={handleBatchValidate}
                     disabled={!isValid || isBatchValidating || isValidating}
-                    className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10 px-6 py-3"
+                    className="border-signal-blue text-signal-blue hover:bg-signal-blue/10 px-6 py-3"
                   >
                     {isBatchValidating ? (
                       <>
@@ -542,7 +538,7 @@ export default function ValidatorPage() {
                   <Button
                     type="submit"
                     disabled={!isValid || isValidating || isBatchValidating}
-                    className="bg-innovation-teal hover:bg-innovation-teal/90 text-white px-8 py-3 text-lg"
+                    className="bg-signal-blue hover:bg-signal-blue/90 text-white px-8 py-3 text-lg"
                   >
                     {isValidating ? (
                       <>
@@ -573,12 +569,12 @@ export default function ValidatorPage() {
         {/* Batch Validation Results */}
         {batchResult && (
           <div className="space-y-6 mb-6">
-            <Card className="bg-white shadow-sm border border-slate-200">
+            <Card className="bg-white shadow-sm border border-mist">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-                  <Layers className="h-5 w-5 mr-2 text-innovation-teal" />
+                <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                  <Layers className="h-5 w-5 mr-2 text-signal-blue" />
                   Multi-Path Comparison
-                  <span className="ml-auto text-sm font-normal text-ai-silver">
+                  <span className="ml-auto text-sm font-normal text-slate-brand">
                     {batchResult.processingTime}ms
                   </span>
                 </h3>
@@ -590,22 +586,22 @@ export default function ValidatorPage() {
                       className={`p-4 rounded-lg border-2 ${
                         fileResult.found
                           ? fileResult.result && fileResult.result.score >= 75
-                            ? 'border-green-200 bg-green-50'
-                            : 'border-yellow-200 bg-yellow-50'
-                          : 'border-slate-200 bg-slate-50'
+                            ? 'border-mist bg-success/10'
+                            : 'border-action-amber/40 bg-action-amber/10'
+                          : 'border-mist bg-cloud'
                       }`}
                     >
                       <div className="flex items-center space-x-2 mb-2">
                         <FolderOpen
                           className={`h-4 w-4 ${
-                            fileResult.found ? 'text-green-600' : 'text-slate-400'
+                            fileResult.found ? 'text-success' : 'text-slate-400'
                           }`}
                         />
-                        <span className="text-sm font-medium text-framework-black">
+                        <span className="text-sm font-medium text-ink">
                           {fileResult.fileType}
                         </span>
                       </div>
-                      <p className="text-xs text-ai-silver mb-2">{fileResult.path}</p>
+                      <p className="text-xs text-slate-brand mb-2">{fileResult.path}</p>
                       {fileResult.found && fileResult.result ? (
                         <div className="flex items-center justify-between">
                           <span
@@ -616,8 +612,8 @@ export default function ValidatorPage() {
                           <Badge
                             className={
                               fileResult.result.valid
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
+                                ? 'bg-success/10 text-ink'
+                                : 'bg-error/10 text-error'
                             }
                           >
                             {fileResult.result.valid ? 'Valid' : 'Issues'}
@@ -631,39 +627,39 @@ export default function ValidatorPage() {
                 </div>
 
                 {batchResult.comparison && (
-                  <div className="border-t border-slate-200 pt-4">
+                  <div className="border-t border-mist pt-4">
                     <div className="flex items-start space-x-3">
                       <div
                         className={`p-2 rounded-full ${
                           batchResult.comparison.inconsistencies.length > 0
-                            ? 'bg-yellow-100'
-                            : 'bg-green-100'
+                            ? 'bg-action-amber/10'
+                            : 'bg-success/10'
                         }`}
                       >
                         {batchResult.comparison.inconsistencies.length > 0 ? (
-                          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                          <AlertTriangle className="h-5 w-5 text-action-amber" />
                         ) : (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <CheckCircle className="h-5 w-5 text-success" />
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-semibold text-framework-black">
+                          <span className="font-semibold text-ink">
                             Best File: {batchResult.comparison.bestFile}
                           </span>
-                          <Badge className="bg-innovation-teal text-white">
+                          <Badge className="bg-signal-blue text-white">
                             Score: {batchResult.comparison.bestScore}
                           </Badge>
                         </div>
-                        <p className="text-sm text-ai-silver mb-2">
+                        <p className="text-sm text-slate-brand mb-2">
                           {batchResult.comparison.recommendation}
                         </p>
                         {batchResult.comparison.inconsistencies.length > 0 && (
-                          <div className="bg-yellow-50 rounded-lg p-3 mt-2">
-                            <p className="text-xs font-medium text-yellow-800 mb-1">
+                          <div className="bg-action-amber/10 rounded-lg p-3 mt-2">
+                            <p className="text-xs font-medium text-ink mb-1">
                               Inconsistencies Detected:
                             </p>
-                            <ul className="text-xs text-yellow-700 space-y-1">
+                            <ul className="text-xs text-ink space-y-1">
                               {batchResult.comparison.inconsistencies.map((inc, i) => (
                                 <li key={i}>&#8226; {inc}</li>
                               ))}
@@ -687,17 +683,17 @@ export default function ValidatorPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-framework-black mb-1">
+                    <h2 className="text-2xl font-bold text-ink mb-1">
                       Validation Score
                     </h2>
-                    <p className="text-sm text-ai-silver">
+                    <p className="text-sm text-slate-brand">
                       {validationResult.valid ? (
-                        <span className="flex items-center text-green-600">
+                        <span className="flex items-center text-success">
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Valid llms.txt file
                         </span>
                       ) : (
-                        <span className="flex items-center text-red-600">
+                        <span className="flex items-center text-error">
                           <XCircle className="h-4 w-4 mr-1" />
                           Issues found
                         </span>
@@ -708,34 +704,34 @@ export default function ValidatorPage() {
                     <div className={`text-6xl font-bold ${getScoreColor(validationResult.score)}`}>
                       {validationResult.score}
                     </div>
-                    <div className="text-sm text-ai-silver">out of 100</div>
+                    <div className="text-sm text-slate-brand">out of 100</div>
                   </div>
                 </div>
 
                 {validationResult.detectedPath && (
-                  <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+                  <div className="mb-4 p-3 bg-cloud rounded-lg">
                     <div className="flex items-center space-x-2 text-sm">
-                      <FileText className="h-4 w-4 text-innovation-teal" />
-                      <span className="text-ai-silver">File found at:</span>
-                      <code className="text-framework-black font-mono bg-white px-2 py-0.5 rounded">
+                      <FileText className="h-4 w-4 text-signal-blue" />
+                      <span className="text-slate-brand">File found at:</span>
+                      <code className="text-ink font-mono bg-white px-2 py-0.5 rounded">
                         {validationResult.detectedPath}
                       </code>
                     </div>
                     {validationResult.checkedPaths && validationResult.checkedPaths.length > 1 && (
-                      <p className="text-xs text-ai-silver mt-1 ml-6">
+                      <p className="text-xs text-slate-brand mt-1 ml-6">
                         Checked: {validationResult.checkedPaths.join(', ')}
                       </p>
                     )}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-sm text-ai-silver">
+                <div className="flex items-center justify-between text-sm text-slate-brand">
                   <span className="flex items-center">
                     <Clock className="h-4 w-4 mr-1" />
                     Processed in {validationResult.processingTime}ms
                   </span>
                   {validationResult.score >= 85 && (
-                    <span className="flex items-center text-green-600 font-semibold">
+                    <span className="flex items-center text-success font-semibold">
                       <TrendingUp className="h-4 w-4 mr-1" />
                       Excellent quality!
                     </span>
@@ -746,26 +742,26 @@ export default function ValidatorPage() {
 
             {/* Issues */}
             {validationResult.issues.length > 0 && (
-              <Card className="bg-white shadow-sm border border-slate-200">
+              <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-                    <FileText className="h-5 w-5 mr-2 text-innovation-teal" />
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                    <FileText className="h-5 w-5 mr-2 text-signal-blue" />
                     Issues Found ({validationResult.issues.length})
                   </h3>
                   <div className="space-y-3">
                     {validationResult.issues.map((issue, index) => (
                       <div
                         key={index}
-                        className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg"
+                        className="flex items-start space-x-3 p-3 bg-cloud rounded-lg"
                       >
                         <div className="flex-shrink-0 mt-0.5">{getSeverityIcon(issue.severity)}</div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-framework-black">
+                          <p className="text-sm font-medium text-ink">
                             {issue.message}
                           </p>
                           {issue.suggestion && (
-                            <p className="text-sm text-ai-silver mt-1 flex items-start">
-                              <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5 text-innovation-teal" />
+                            <p className="text-sm text-slate-brand mt-1 flex items-start">
+                              <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5 text-signal-blue" />
                               {issue.suggestion}
                             </p>
                           )}
@@ -782,26 +778,26 @@ export default function ValidatorPage() {
 
             {/* Recommendations */}
             {validationResult.recommendations.length > 0 && (
-              <Card className="bg-white shadow-sm border border-slate-200">
+              <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2 text-innovation-teal" />
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2 text-signal-blue" />
                     Recommendations ({validationResult.recommendations.length})
                   </h3>
                   <div className="space-y-3">
                     {validationResult.recommendations.map((rec, index) => (
                       <div
                         key={index}
-                        className="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg"
+                        className="flex items-start space-x-3 p-4 bg-cloud rounded-lg"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-semibold text-framework-black">
+                            <p className="text-sm font-semibold text-ink">
                               {rec.title}
                             </p>
                             {getPriorityBadge(rec.priority)}
                           </div>
-                          <p className="text-sm text-ai-silver mb-3">{rec.description}</p>
+                          <p className="text-sm text-slate-brand mb-3">{rec.description}</p>
                           {rec.actionUrl && rec.actionLabel && (
                             <Link
                               href={`${rec.actionUrl}?url=${encodeURIComponent(url)}`}
@@ -821,20 +817,20 @@ export default function ValidatorPage() {
 
             {/* Robots.txt Conflicts */}
             {validationResult.robotsConflicts && validationResult.robotsConflicts.length > 0 && (
-              <Card className="bg-white shadow-sm border border-slate-200">
+              <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-                    <Shield className="h-5 w-5 mr-2 text-red-500" />
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                    <Shield className="h-5 w-5 mr-2 text-error" />
                     Robots.txt Conflicts ({validationResult.robotsConflicts.length})
                   </h3>
                   <div className="space-y-3">
                     {validationResult.robotsConflicts.map((conflict, index) => (
                       <div
                         key={index}
-                        className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-2"
+                        className="p-4 bg-error/10 border border-mist rounded-lg space-y-2"
                       >
-                        <p className="text-sm font-semibold text-red-900">{conflict.conflict}</p>
-                        <div className="text-xs text-red-700 space-y-1">
+                        <p className="text-sm font-semibold text-ink">{conflict.conflict}</p>
+                        <div className="text-xs text-error space-y-1">
                           <p>
                             <span className="font-medium">Rule:</span> {conflict.rule}
                           </p>
@@ -842,7 +838,7 @@ export default function ValidatorPage() {
                             <span className="font-medium">Path:</span> {conflict.llmsTxtPath}
                           </p>
                         </div>
-                        <p className="text-sm text-red-800 flex items-start">
+                        <p className="text-sm text-error flex items-start">
                           <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" />
                           {conflict.recommendation}
                         </p>
@@ -855,30 +851,30 @@ export default function ValidatorPage() {
 
             {/* Universal Compatibility - SPA Detection */}
             {validationResult.spaDetection && (
-              <Card className="bg-white shadow-sm border border-slate-200">
+              <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-                    <Laptop className="h-5 w-5 mr-2 text-innovation-teal" />
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                    <Laptop className="h-5 w-5 mr-2 text-signal-blue" />
                     Universal Compatibility
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-slate-50 rounded-lg">
+                    <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Zap className="h-4 w-4 text-innovation-teal" />
-                        <span className="text-sm font-medium text-ai-silver">Framework</span>
+                        <Zap className="h-4 w-4 text-signal-blue" />
+                        <span className="text-sm font-medium text-slate-brand">Framework</span>
                       </div>
-                      <p className="text-lg font-semibold text-framework-black capitalize">
+                      <p className="text-lg font-semibold text-ink capitalize">
                         {validationResult.spaDetection.framework.framework === 'unknown'
                           ? 'Traditional'
                           : validationResult.spaDetection.framework.framework}
                       </p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg">
+                    <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Server className="h-4 w-4 text-innovation-teal" />
-                        <span className="text-sm font-medium text-ai-silver">Rendering</span>
+                        <Server className="h-4 w-4 text-signal-blue" />
+                        <span className="text-sm font-medium text-slate-brand">Rendering</span>
                       </div>
-                      <p className="text-lg font-semibold text-framework-black">
+                      <p className="text-lg font-semibold text-ink">
                         {validationResult.spaDetection.framework.renderingStrategy === 'SSR' && 'Server-Side'}
                         {validationResult.spaDetection.framework.renderingStrategy === 'SSG' && 'Static (SSG)'}
                         {validationResult.spaDetection.framework.renderingStrategy === 'CSR' && 'Client-Side'}
@@ -886,36 +882,36 @@ export default function ValidatorPage() {
                         {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' && 'Traditional'}
                       </p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg">
+                    <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
-                        <FileText className="h-4 w-4 text-innovation-teal" />
-                        <span className="text-sm font-medium text-ai-silver">Content Coverage</span>
+                        <FileText className="h-4 w-4 text-signal-blue" />
+                        <span className="text-sm font-medium text-slate-brand">Content Coverage</span>
                       </div>
                       <p className={`text-lg font-semibold ${
                         validationResult.spaDetection.contentCoverage.estimatedCoverage >= 70
-                          ? 'text-green-600'
+                          ? 'text-success'
                           : validationResult.spaDetection.contentCoverage.estimatedCoverage >= 40
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
+                          ? 'text-action-amber'
+                          : 'text-error'
                       }`}>
                         {validationResult.spaDetection.contentCoverage.estimatedCoverage}%
-                        <span className="text-xs text-ai-silver ml-1">
+                        <span className="text-xs text-slate-brand ml-1">
                           ({validationResult.spaDetection.contentCoverage.confidence})
                         </span>
                       </p>
                     </div>
                   </div>
                   {validationResult.spaDetection.contentCoverageWarning && (
-                    <Alert className="mt-4 bg-yellow-50 border-yellow-200">
-                      <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                      <AlertDescription className="text-yellow-800">
+                    <Alert className="mt-4 bg-action-amber/10 border-action-amber/40">
+                      <AlertTriangle className="h-4 w-4 text-action-amber" />
+                      <AlertDescription className="text-ink">
                         {validationResult.spaDetection.contentCoverageWarning}
                       </AlertDescription>
                     </Alert>
                   )}
                   {validationResult.spaDetection.framework.indicators.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-slate-200">
-                      <p className="text-xs text-ai-silver">
+                    <div className="mt-4 pt-4 border-t border-mist">
+                      <p className="text-xs text-slate-brand">
                         <span className="font-medium">Detection signals:</span>{' '}
                         {validationResult.spaDetection.framework.indicators.join(', ')}
                       </p>
@@ -927,72 +923,72 @@ export default function ValidatorPage() {
 
             {/* Content Depth Analysis */}
             {validationResult.contentDepth && (
-              <Card className="bg-white shadow-sm border border-slate-200">
+              <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-framework-black mb-4 flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2 text-innovation-teal" />
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                    <BarChart3 className="h-5 w-5 mr-2 text-signal-blue" />
                     Content Depth Analysis
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div className="p-4 bg-slate-50 rounded-lg text-center">
-                      <p className="text-2xl font-bold text-framework-black">
+                    <div className="p-4 bg-cloud rounded-lg text-center">
+                      <p className="text-2xl font-bold text-ink">
                         {validationResult.contentDepth.urlCount}
                       </p>
-                      <p className="text-xs text-ai-silver">URLs</p>
+                      <p className="text-xs text-slate-brand">URLs</p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg text-center">
-                      <p className="text-2xl font-bold text-framework-black">
+                    <div className="p-4 bg-cloud rounded-lg text-center">
+                      <p className="text-2xl font-bold text-ink">
                         {validationResult.contentDepth.sectionCount}
                       </p>
-                      <p className="text-xs text-ai-silver">Sections</p>
+                      <p className="text-xs text-slate-brand">Sections</p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg text-center">
-                      <p className="text-2xl font-bold text-framework-black">
+                    <div className="p-4 bg-cloud rounded-lg text-center">
+                      <p className="text-2xl font-bold text-ink">
                         {validationResult.contentDepth.wordCount}
                       </p>
-                      <p className="text-xs text-ai-silver">Words</p>
+                      <p className="text-xs text-slate-brand">Words</p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg text-center">
+                    <div className="p-4 bg-cloud rounded-lg text-center">
                       <p className={`text-2xl font-bold ${
                         validationResult.contentDepth.depthScore >= 80
-                          ? 'text-green-600'
+                          ? 'text-success'
                           : validationResult.contentDepth.depthScore >= 55
-                          ? 'text-blue-600'
+                          ? 'text-signal-blue'
                           : validationResult.contentDepth.depthScore >= 30
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
+                          ? 'text-action-amber'
+                          : 'text-error'
                       }`}>
                         {validationResult.contentDepth.depthScore}
                       </p>
-                      <p className="text-xs text-ai-silver">Depth Score</p>
+                      <p className="text-xs text-slate-brand">Depth Score</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-mist">
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm text-ai-silver">Content Level:</span>
+                      <span className="text-sm text-slate-brand">Content Level:</span>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         validationResult.contentDepth.depthLevel === 'comprehensive'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-success/10 text-ink'
                           : validationResult.contentDepth.depthLevel === 'good'
-                          ? 'bg-blue-100 text-blue-800'
+                          ? 'bg-signal-blue/10 text-mastery-blue'
                           : validationResult.contentDepth.depthLevel === 'basic'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-action-amber/10 text-ink'
+                          : 'bg-error/10 text-error'
                       }`}>
                         {validationResult.contentDepth.depthLevel.charAt(0).toUpperCase() +
                           validationResult.contentDepth.depthLevel.slice(1)}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-3 text-xs text-ai-silver">
+                    <div className="flex items-center space-x-3 text-xs text-slate-brand">
                       {validationResult.contentDepth.hasDescription && (
                         <span className="flex items-center">
-                          <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          <CheckCircle className="h-3 w-3 text-success mr-1" />
                           Description
                         </span>
                       )}
                       {validationResult.contentDepth.hasOptionalSection && (
                         <span className="flex items-center">
-                          <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          <CheckCircle className="h-3 w-3 text-success mr-1" />
                           Optional Section
                         </span>
                       )}
@@ -1005,11 +1001,11 @@ export default function ValidatorPage() {
             {/* Success State - No Issues */}
             {validationResult.issues.length === 0 &&
               validationResult.recommendations.length === 0 && (
-                <Card className="bg-green-50 border-green-200 shadow-sm">
+                <Card className="bg-success/10 border-mist shadow-sm">
                   <CardContent className="p-6 text-center">
-                    <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold text-green-900 mb-2">Perfect Score!</h3>
-                    <p className="text-green-700">
+                    <CheckCircle className="h-16 w-16 text-success mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold text-ink mb-2">Perfect Score!</h3>
+                    <p className="text-success">
                       Your llms.txt file follows all best practices and has no issues.
                     </p>
                   </CardContent>
@@ -1021,7 +1017,7 @@ export default function ValidatorPage() {
               const cta = getPostValidationCTA();
               if (!cta) return null;
               return (
-                <Card className="bg-gradient-to-r from-mastery-blue to-innovation-teal text-white shadow-lg border-0">
+                <Card className="bg-gradient-to-r from-mastery-blue to-signal-blue text-white shadow-lg border-0">
                   <CardContent className="p-8 text-center">
                     <Target className="h-10 w-10 mx-auto mb-4 text-white/80" />
                     <h3 className="text-2xl sm:text-3xl font-bold mb-3">{cta.headline}</h3>
@@ -1030,7 +1026,7 @@ export default function ValidatorPage() {
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                       <Button
                         size="lg"
-                        className="bg-white text-mastery-blue hover:bg-slate-100 font-semibold px-8"
+                        className="bg-white text-mastery-blue hover:bg-cloud font-semibold px-8"
                         onClick={() => {
                           if (user) {
                             window.location.href = `/analyze?url=${encodeURIComponent(normalizeUrl(url))}`;
@@ -1069,36 +1065,36 @@ export default function ValidatorPage() {
         {!validationResult && !batchResult && !error && (
           <>
             {/* How It Works */}
-            <Card className="bg-white shadow-sm border border-slate-200 mt-6 mb-8">
+            <Card className="bg-white shadow-sm border border-mist mt-6 mb-8">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-framework-black mb-4 text-center">
+                <h3 className="text-xl font-bold text-ink mb-4 text-center">
                   How Validation Works
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Search className="h-6 w-6 text-innovation-teal" />
+                    <div className="w-12 h-12 bg-signal-blue/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search className="h-6 w-6 text-signal-blue" />
                     </div>
-                    <h4 className="font-semibold text-framework-black mb-2">1. Enter URL</h4>
-                    <p className="text-sm text-ai-silver">
+                    <h4 className="font-semibold text-ink mb-2">1. Enter URL</h4>
+                    <p className="text-sm text-slate-brand">
                       We'll fetch and analyze your llms.txt file from all standard locations
                     </p>
                   </div>
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <FileText className="h-6 w-6 text-innovation-teal" />
+                    <div className="w-12 h-12 bg-signal-blue/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <FileText className="h-6 w-6 text-signal-blue" />
                     </div>
-                    <h4 className="font-semibold text-framework-black mb-2">2. Get Your Score</h4>
-                    <p className="text-sm text-ai-silver">
+                    <h4 className="font-semibold text-ink mb-2">2. Get Your Score</h4>
+                    <p className="text-sm text-slate-brand">
                       Receive a detailed score based on the official llmstxt.org specification
                     </p>
                   </div>
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-innovation-teal/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <TrendingUp className="h-6 w-6 text-innovation-teal" />
+                    <div className="w-12 h-12 bg-signal-blue/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <TrendingUp className="h-6 w-6 text-signal-blue" />
                     </div>
-                    <h4 className="font-semibold text-framework-black mb-2">3. Take Action</h4>
-                    <p className="text-sm text-ai-silver">
+                    <h4 className="font-semibold text-ink mb-2">3. Take Action</h4>
+                    <p className="text-sm text-slate-brand">
                       Get recommendations and fix issues automatically with our AI generator
                     </p>
                   </div>
@@ -1108,14 +1104,14 @@ export default function ValidatorPage() {
 
             {/* What Makes Our Validator Different */}
             <section className="mb-8">
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-2 border-innovation-teal/30 p-8">
-                <h3 className="text-2xl font-bold text-framework-black mb-6 text-center">
-                  The Only Validator That Checks What Actually Matters
+              <div className="bg-gradient-to-r from-mastery-blue/10 to-signal-blue/10 rounded-lg border-2 border-signal-blue/30 p-8">
+                <h3 className="text-2xl font-bold text-ink mb-6 text-center">
+                  What Makes This Validator Different
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <h4 className="font-semibold text-red-800 mb-3">Other Validators:</h4>
-                    <ul className="space-y-2 text-sm text-red-700">
+                    <h4 className="font-semibold text-error mb-3">Other Validators:</h4>
+                    <ul className="space-y-2 text-sm text-error">
                       <li className="flex items-start">
                         <XCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         Only check format compliance
@@ -1135,34 +1131,34 @@ export default function ValidatorPage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-green-800 mb-3">Our Validator:</h4>
-                    <ul className="space-y-2 text-sm text-green-700">
+                    <h4 className="font-semibold text-ink mb-3">Our Validator:</h4>
+                    <ul className="space-y-2 text-sm text-success">
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">robots.txt conflict detection</span>
-                          <span className="text-xs block text-green-600">Catches silent blocking issues</span>
+                          <span className="text-xs block text-success">Catches silent blocking issues</span>
                         </div>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">Content quality scoring</span>
-                          <span className="text-xs block text-green-600">Not just format — actual quality</span>
+                          <span className="text-xs block text-success">Not just format — actual quality</span>
                         </div>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">15+ framework detection</span>
-                          <span className="text-xs block text-green-600">React, Next.js, Vue, Angular, Astro...</span>
+                          <span className="text-xs block text-success">React, Next.js, Vue, Angular, Astro...</span>
                         </div>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">All 4 file locations</span>
-                          <span className="text-xs block text-green-600">llms.txt, llms-full.txt, .well-known/, llms.md</span>
+                          <span className="text-xs block text-success">llms.txt, llms-full.txt, .well-known/, llms.md</span>
                         </div>
                       </li>
                     </ul>
@@ -1174,21 +1170,21 @@ export default function ValidatorPage() {
             {/* Social Proof - Quick Stats */}
             <section className="mb-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-2xl font-bold text-innovation-teal">47+</p>
-                  <p className="text-xs text-ai-silver">Updates shipped in 2025</p>
+                <div className="bg-white rounded-lg border border-mist p-4 text-center">
+                  <p className="text-2xl font-bold text-signal-blue">47+</p>
+                  <p className="text-xs text-slate-brand">Updates shipped in 2025</p>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-2xl font-bold text-innovation-teal">4</p>
-                  <p className="text-xs text-ai-silver">File locations checked</p>
+                <div className="bg-white rounded-lg border border-mist p-4 text-center">
+                  <p className="text-2xl font-bold text-signal-blue">4</p>
+                  <p className="text-xs text-slate-brand">File locations checked</p>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-2xl font-bold text-innovation-teal">15+</p>
-                  <p className="text-xs text-ai-silver">Frameworks detected</p>
+                <div className="bg-white rounded-lg border border-mist p-4 text-center">
+                  <p className="text-2xl font-bold text-signal-blue">15+</p>
+                  <p className="text-xs text-slate-brand">Frameworks detected</p>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-2xl font-bold text-innovation-teal">100%</p>
-                  <p className="text-xs text-ai-silver">Free — no signup needed</p>
+                <div className="bg-white rounded-lg border border-mist p-4 text-center">
+                  <p className="text-2xl font-bold text-signal-blue">100%</p>
+                  <p className="text-xs text-slate-brand">Free — no signup needed</p>
                 </div>
               </div>
             </section>
@@ -1207,32 +1203,32 @@ export default function ValidatorPage() {
 
             {/* Why AI Visibility Matters */}
             <section className="mb-8">
-              <Card className="bg-slate-50 border-slate-200">
+              <Card className="bg-cloud border-mist">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-framework-black mb-4 flex items-center">
-                    <Eye className="h-5 w-5 mr-2 text-innovation-teal" />
+                  <h3 className="text-lg font-semibold text-ink mb-4 flex items-center">
+                    <Eye className="h-5 w-5 mr-2 text-signal-blue" />
                     Why llms.txt Matters for Your Business
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <h4 className="font-medium text-framework-black mb-2">AI Search is Here</h4>
-                      <p className="text-sm text-ai-silver">
+                      <h4 className="font-medium text-ink mb-2">AI Search is Here</h4>
+                      <p className="text-sm text-slate-brand">
                         ChatGPT, Claude, and Perplexity are replacing traditional search for millions of users. If they can't find your content, you're invisible.
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-framework-black mb-2">llms.txt is the Standard</h4>
-                      <p className="text-sm text-ai-silver">
+                      <h4 className="font-medium text-ink mb-2">llms.txt is the Standard</h4>
+                      <p className="text-sm text-slate-brand">
                         The{' '}
-                        <a href="https://llmstxt.org" target="_blank" rel="noopener noreferrer" className="text-innovation-teal hover:underline">
+                        <a href="https://llmstxt.org" target="_blank" rel="noopener noreferrer" className="text-signal-blue hover:underline">
                           llmstxt.org specification
                         </a>{' '}
                         tells AI systems exactly what your site offers and which pages matter most.
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-framework-black mb-2">Early Adopter Advantage</h4>
-                      <p className="text-sm text-ai-silver">
+                      <h4 className="font-medium text-ink mb-2">Early Adopter Advantage</h4>
+                      <p className="text-sm text-slate-brand">
                         Less than 1% of websites have a proper llms.txt file. Set yours up now and be discoverable before your competitors.
                       </p>
                     </div>
@@ -1243,7 +1239,7 @@ export default function ValidatorPage() {
 
             {/* Final CTA */}
             <div className="text-center mb-8">
-              <p className="text-ai-silver mb-4">
+              <p className="text-slate-brand mb-4">
                 Ready to make your website AI-discoverable?
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -1258,12 +1254,12 @@ export default function ValidatorPage() {
                     }
                   }}
                 >
-                  Start Free Analysis
+                  Generate Your File
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10"
+                  className="border-signal-blue text-signal-blue hover:bg-signal-blue/10"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}

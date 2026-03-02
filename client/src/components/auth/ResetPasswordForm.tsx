@@ -89,9 +89,9 @@ export default function ResetPasswordForm() {
     return (
       <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
         <div className="text-center space-y-4">
-          <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-          <h2 className="text-2xl font-bold text-framework-black">Password Updated!</h2>
-          <p className="text-ai-silver">
+          <CheckCircle className="mx-auto h-12 w-12 text-success" />
+          <h2 className="text-2xl font-bold text-ink">Password Updated!</h2>
+          <p className="text-slate-brand">
             Your password has been successfully updated. You'll be redirected to the login page
             shortly.
           </p>
@@ -110,8 +110,8 @@ export default function ResetPasswordForm() {
     return (
       <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-framework-black">Invalid Reset Link</h2>
-          <p className="text-ai-silver">
+          <h2 className="text-2xl font-bold text-ink">Invalid Reset Link</h2>
+          <p className="text-slate-brand">
             This password reset link is invalid or has expired. Please request a new one.
           </p>
           <Button
@@ -129,13 +129,13 @@ export default function ResetPasswordForm() {
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
       <div className="space-y-6">
         <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold text-framework-black">Set New Password</h2>
-          <p className="text-ai-silver">Please enter your new password below.</p>
+          <h2 className="text-2xl font-bold text-ink">Set New Password</h2>
+          <p className="text-slate-brand">Please enter your new password below.</p>
         </div>
 
         {error && (
-          <Alert className="border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">{error}</AlertDescription>
+          <Alert className="border-mist bg-error/10">
+            <AlertDescription className="text-error">{error}</AlertDescription>
           </Alert>
         )}
 
@@ -161,23 +161,23 @@ export default function ResetPasswordForm() {
                 disabled={isLoading}
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-ai-silver" />
+                  <EyeOff className="h-4 w-4 text-slate-brand" />
                 ) : (
-                  <Eye className="h-4 w-4 text-ai-silver" />
+                  <Eye className="h-4 w-4 text-slate-brand" />
                 )}
               </Button>
             </div>
             {password && (
-              <div className="text-xs text-ai-silver space-y-1">
+              <div className="text-xs text-slate-brand space-y-1">
                 <p>Password must have:</p>
                 <div className="space-y-1">
                   {validatePassword(password).map((issue, index) => (
-                    <p key={index} className="text-red-500">
+                    <p key={index} className="text-error">
                       • {issue}
                     </p>
                   ))}
                   {validatePassword(password).length === 0 && (
-                    <p className="text-green-500">• All requirements met ✓</p>
+                    <p className="text-success">• All requirements met ✓</p>
                   )}
                 </div>
               </div>
@@ -205,14 +205,14 @@ export default function ResetPasswordForm() {
                 disabled={isLoading}
               >
                 {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4 text-ai-silver" />
+                  <EyeOff className="h-4 w-4 text-slate-brand" />
                 ) : (
-                  <Eye className="h-4 w-4 text-ai-silver" />
+                  <Eye className="h-4 w-4 text-slate-brand" />
                 )}
               </Button>
             </div>
             {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-red-500">Passwords do not match</p>
+              <p className="text-xs text-error">Passwords do not match</p>
             )}
           </div>
 

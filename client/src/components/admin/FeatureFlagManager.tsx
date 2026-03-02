@@ -87,8 +87,8 @@ export default function FeatureFlagManager() {
   if (loading && flags.length === 0) {
     return (
       <div className="p-6">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="text-center mt-4 text-gray-600">Loading feature flags...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-signal-blue mx-auto"></div>
+        <p className="text-center mt-4 text-slate-brand">Loading feature flags...</p>
       </div>
     );
   }
@@ -107,7 +107,7 @@ export default function FeatureFlagManager() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Feature Flag Management</h1>
-          <p className="text-gray-600 mt-2">Manage semantic enhancement feature rollouts</p>
+          <p className="text-slate-brand mt-2">Manage semantic enhancement feature rollouts</p>
         </div>
         <Button onClick={refresh} variant="outline" className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4" />
@@ -120,9 +120,9 @@ export default function FeatureFlagManager() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <Settings className="h-8 w-8 text-blue-600" />
+              <Settings className="h-8 w-8 text-signal-blue" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Flags</p>
+                <p className="text-sm font-medium text-slate-brand">Total Flags</p>
                 <p className="text-2xl font-bold">{stats.totalFlags}</p>
               </div>
             </div>
@@ -132,9 +132,9 @@ export default function FeatureFlagManager() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-green-600" />
+              <TrendingUp className="h-8 w-8 text-success" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Enabled</p>
+                <p className="text-sm font-medium text-slate-brand">Enabled</p>
                 <p className="text-2xl font-bold">{stats.enabledFlags}</p>
               </div>
             </div>
@@ -144,9 +144,9 @@ export default function FeatureFlagManager() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-yellow-600" />
+              <TrendingUp className="h-8 w-8 text-action-amber" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">In Rollout</p>
+                <p className="text-sm font-medium text-slate-brand">In Rollout</p>
                 <p className="text-2xl font-bold">{stats.rolloutFlags}</p>
               </div>
             </div>
@@ -156,9 +156,9 @@ export default function FeatureFlagManager() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
-              <Users className="h-8 w-8 text-purple-600" />
+              <Users className="h-8 w-8 text-slate-brand" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">User Overrides</p>
+                <p className="text-sm font-medium text-slate-brand">User Overrides</p>
                 <p className="text-2xl font-bold">{stats.userOverrides}</p>
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function FeatureFlagManager() {
       {/* Health Status */}
       {healthStatus && (
         <Alert
-          className={`mb-6 ${healthStatus.status === 'healthy' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+          className={`mb-6 ${healthStatus.status === 'healthy' ? 'border-mist bg-success/10' : 'border-mist bg-error/10'}`}
         >
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -203,7 +203,7 @@ export default function FeatureFlagManager() {
                             : `${flag.rolloutPercentage}% Rollout`}
                     </Badge>
                   </CardTitle>
-                  <p className="text-gray-600 mt-1">{flag.metadata.description}</p>
+                  <p className="text-slate-brand mt-1">{flag.metadata.description}</p>
                   <div className="flex gap-2 mt-2">
                     {flag.metadata.tags?.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
@@ -315,7 +315,7 @@ export default function FeatureFlagManager() {
                   <div>
                     <h4 className="font-semibold mb-2">User Overrides</h4>
                     {Object.keys(flag.userOverrides).length === 0 ? (
-                      <p className="text-gray-500">No user overrides</p>
+                      <p className="text-stone-brand">No user overrides</p>
                     ) : (
                       <div className="space-y-2">
                         {Object.entries(flag.userOverrides).map(([userId, enabled]) => (

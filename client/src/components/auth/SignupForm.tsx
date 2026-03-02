@@ -150,7 +150,7 @@ export function SignupForm({
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
               <Input
                 id="email"
                 type="email"
@@ -159,35 +159,35 @@ export function SignupForm({
                 placeholder="your@email.com"
                 className={`pl-10 pr-10 ${
                   emailAvailable === false
-                    ? 'border-red-500'
+                    ? 'border-error'
                     : emailAvailable === true
-                      ? 'border-green-500'
+                      ? 'border-success'
                       : ''
                 }`}
                 required
               />
               <div className="absolute right-3 top-3 h-4 w-4">
                 {emailChecking ? (
-                  <Loader2 className="animate-spin text-gray-400" />
+                  <Loader2 className="animate-spin text-stone-brand" />
                 ) : emailAvailable === true ? (
-                  <Check className="text-green-500" />
+                  <Check className="text-success" />
                 ) : emailAvailable === false ? (
-                  <X className="text-red-500" />
+                  <X className="text-error" />
                 ) : null}
               </div>
             </div>
             {emailAvailable === false && (
-              <p className="text-sm text-red-600">This email is already registered</p>
+              <p className="text-sm text-error">This email is already registered</p>
             )}
             {emailAvailable === true && (
-              <p className="text-sm text-green-600">Email is available</p>
+              <p className="text-sm text-success">Email is available</p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -196,9 +196,9 @@ export function SignupForm({
                 placeholder="Create a password"
                 className={`pl-10 pr-10 ${
                   passwordValidation && !passwordValidation.valid
-                    ? 'border-red-500'
+                    ? 'border-error'
                     : passwordValidation?.valid
-                      ? 'border-green-500'
+                      ? 'border-success'
                       : ''
                 }`}
                 required
@@ -206,27 +206,27 @@ export function SignupForm({
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="absolute right-3 top-3 h-5 w-5 text-stone-brand hover:text-slate-brand p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {passwordValidation && passwordValidation.errors.length > 0 && (
-              <div className="text-sm text-red-600 space-y-1">
+              <div className="text-sm text-error space-y-1">
                 {passwordValidation.errors.map((error, index) => (
                   <p key={index}>• {error}</p>
                 ))}
               </div>
             )}
             {passwordValidation?.valid && (
-              <p className="text-sm text-green-600">Password meets all requirements</p>
+              <p className="text-sm text-success">Password meets all requirements</p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
@@ -235,9 +235,9 @@ export function SignupForm({
                 placeholder="Confirm your password"
                 className={`pl-10 pr-10 ${
                   confirmPassword && password !== confirmPassword
-                    ? 'border-red-500'
+                    ? 'border-error'
                     : confirmPassword && password === confirmPassword && password.length > 0
-                      ? 'border-green-500'
+                      ? 'border-success'
                       : ''
                 }`}
                 required
@@ -245,20 +245,20 @@ export function SignupForm({
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="absolute right-3 top-3 h-5 w-5 text-stone-brand hover:text-slate-brand p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {confirmPassword && password !== confirmPassword && (
-              <p className="text-sm text-red-600">Passwords do not match</p>
+              <p className="text-sm text-error">Passwords do not match</p>
             )}
             {confirmPassword && password === confirmPassword && password.length > 0 && (
-              <p className="text-sm text-green-600">Passwords match</p>
+              <p className="text-sm text-success">Passwords match</p>
             )}
           </div>
 
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-stone-brand">
             By creating an account, you agree to our Terms of Service and Privacy Policy
           </div>
 
@@ -281,11 +281,11 @@ export function SignupForm({
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-slate-brand">
             Already have an account?{' '}
             <button
               onClick={onSwitchToLogin}
-              className="text-blue-600 hover:text-blue-800 font-medium min-h-[44px] px-2 py-2"
+              className="text-signal-blue hover:text-mastery-blue font-medium min-h-[44px] px-2 py-2"
             >
               Sign in
             </button>

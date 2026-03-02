@@ -142,7 +142,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-slate-600">Please sign in to manage your subscription.</p>
+          <p className="text-slate-brand">Please sign in to manage your subscription.</p>
         </CardContent>
       </Card>
     );
@@ -153,7 +153,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       <Card>
         <CardContent className="p-6 text-center">
           <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-          <p className="text-slate-600">Loading subscription details...</p>
+          <p className="text-slate-brand">Loading subscription details...</p>
         </CardContent>
       </Card>
     );
@@ -180,15 +180,15 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           {currentTier === 'solo' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center text-orange-600">
+                <div className="flex items-center text-action-amber">
                   <CheckCircle className="h-5 w-5 mr-2" />
                   <span>Coffee Credits</span>
                 </div>
-                <Badge variant="outline" className="text-orange-600 border-orange-200">
+                <Badge variant="outline" className="text-action-amber border-mist">
                   {creditsRemaining} credit{creditsRemaining !== 1 ? 's' : ''} remaining
                 </Badge>
               </div>
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-slate-brand">
                 <p>Each credit allows one full website analysis (up to 200 pages)</p>
                 <p>20 analyses per month • AI-enhanced analysis included</p>
               </div>
@@ -196,7 +196,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <Button
                   onClick={() => setShowCancellation(true)}
                   variant="ghost"
-                  className="w-full min-h-[44px] text-sm text-gray-500 hover:text-red-600 hover:bg-red-50"
+                  className="w-full min-h-[44px] text-sm text-stone-brand hover:text-error hover:bg-error/10"
                   size="sm"
                 >
                   Request Refund (30-day guarantee)
@@ -208,12 +208,12 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           {/* Active Subscription Display */}
           {hasActiveSubscription && currentTier !== 'solo' ? (
             <div className="space-y-4">
-              <div className="flex items-center text-green-600">
+              <div className="flex items-center text-success">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 <span>Active subscription</span>
               </div>
               {subscriptionStatus?.subscriptions && subscriptionStatus.subscriptions.length > 0 && (
-                <div className="text-sm text-slate-600">
+                <div className="text-sm text-slate-brand">
                   <p>
                     Next billing:{' '}
                     {new Date(
@@ -237,7 +237,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <Button
                   onClick={() => setShowCancellation(true)}
                   variant="ghost"
-                  className="w-full min-h-[48px] px-6 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="w-full min-h-[48px] px-6 py-3 text-error hover:text-error hover:bg-error/10"
                   size="default"
                 >
                   <XCircle className="h-5 w-5 mr-2" />
@@ -247,7 +247,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-slate-600">
+              <p className="text-slate-brand">
                 {currentTier === 'starter'
                   ? 'You are currently on the free Starter plan (20 pages).'
                   : currentTier === 'solo'
@@ -255,19 +255,19 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                     : 'No active subscription found.'}
               </p>
               {currentTier === 'starter' && (
-                <div className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-action-amber/10 to-action-amber/20 border border-mist rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-orange-800">☕ Unlock Premium Analysis</h4>
-                    <span className="text-lg font-bold text-orange-600">$4.95</span>
+                    <h4 className="font-medium text-ink">☕ Unlock Premium Analysis</h4>
+                    <span className="text-lg font-bold text-action-amber">$4.95</span>
                   </div>
-                  <p className="text-sm text-orange-700 mb-3">
+                  <p className="text-sm text-action-amber mb-3">
                     Get professional-grade AI analysis • 200 pages • No subscription, just one
                     coffee!
                   </p>
                   <Button
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white min-h-[48px] px-6 py-3"
+                    className="w-full bg-action-amber hover:bg-action-amber/90 text-white min-h-[48px] px-6 py-3"
                     size="default"
                   >
                     {upgrading && selectedTier === 'solo' ? (
@@ -282,16 +282,16 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 </div>
               )}
               {currentTier === 'solo' && creditsRemaining === 0 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <h4 className="font-medium text-orange-800 mb-2">☕ Want Another Analysis?</h4>
-                  <p className="text-sm text-orange-700 mb-3">
+                <div className="bg-cloud border border-mist rounded-lg p-4">
+                  <h4 className="font-medium text-ink mb-2">☕ Want Another Analysis?</h4>
+                  <p className="text-sm text-action-amber mb-3">
                     Each coffee gets you one premium analysis, or go unlimited for continuous access
                   </p>
                   <Button
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
                     variant="outline"
-                    className="w-full border-orange-200 text-orange-600 hover:bg-orange-50 min-h-[48px] px-6 py-3"
+                    className="w-full border-mist text-action-amber hover:bg-cloud min-h-[48px] px-6 py-3"
                     size="default"
                   >
                     {upgrading && selectedTier === 'solo' ? (
@@ -306,7 +306,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 </div>
               )}
               {currentTier !== 'scale' && currentTier !== 'solo' && (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-stone-brand">
                   🚀 Upgrade to unlock unlimited analyses and advanced AI features.
                 </p>
               )}
@@ -319,13 +319,13 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
       {currentTier !== 'scale' && (
         <div className="grid gap-6 md:grid-cols-2">
           {(currentTier === 'starter' || currentTier === 'growth') && currentTier !== 'growth' && (
-            <Card className="border-blue-200">
+            <Card className="border-mist">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{TIER_PRICING.growth.name}</span>
                   <div className="text-right">
                     <div className="text-2xl font-bold">{TIER_PRICING.growth.price}</div>
-                    <div className="text-sm text-slate-500">per {TIER_PRICING.growth.interval}</div>
+                    <div className="text-sm text-stone-brand">per {TIER_PRICING.growth.interval}</div>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -333,7 +333,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <ul className="space-y-2 mb-4">
                   {TIER_PRICING.growth.features.map((feature, index) => (
                     <li key={index} className="flex items-start text-sm py-1">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 text-success mr-3 flex-shrink-0 mt-0.5" />
                       <span className="leading-relaxed">{feature}</span>
                     </li>
                   ))}
@@ -358,13 +358,13 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           )}
 
           {(currentTier === 'starter' || currentTier === 'solo' || currentTier === 'growth') && (
-            <Card className="border-purple-200">
+            <Card className="border-mist">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{TIER_PRICING.scale.name}</span>
                   <div className="text-right">
                     <div className="text-2xl font-bold">{TIER_PRICING.scale.price}</div>
-                    <div className="text-sm text-slate-500">per {TIER_PRICING.scale.interval}</div>
+                    <div className="text-sm text-stone-brand">per {TIER_PRICING.scale.interval}</div>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -372,7 +372,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <ul className="space-y-2 mb-4">
                   {TIER_PRICING.scale.features.map((feature, index) => (
                     <li key={index} className="flex items-start text-sm py-1">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 text-success mr-3 flex-shrink-0 mt-0.5" />
                       <span className="leading-relaxed">{feature}</span>
                     </li>
                   ))}
@@ -380,7 +380,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 <Button
                   onClick={() => handleUpgrade('scale')}
                   disabled={upgrading}
-                  className="w-full bg-purple-600 hover:bg-purple-700 min-h-[48px] px-6 py-3"
+                  className="w-full bg-slate-brand hover:bg-mastery-blue/90 min-h-[48px] px-6 py-3"
                   size="default"
                 >
                   {upgrading && selectedTier === 'scale' ? (
@@ -400,13 +400,13 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
 
       {/* Success Message for Scale Users */}
       {currentTier === 'scale' && hasActiveSubscription && (
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-mist bg-success/10">
           <CardContent className="p-6 text-center">
-            <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-green-800 mb-2">
+            <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-ink mb-2">
               You're on our highest tier!
             </h3>
-            <p className="text-green-700">
+            <p className="text-success">
               You have access to all features including unlimited analysis and API access.
             </p>
           </CardContent>

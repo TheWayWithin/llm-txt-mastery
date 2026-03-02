@@ -103,9 +103,9 @@ export default function EmailVerificationBanner({
 
   if (USE_SIMPLE_DIV) {
     return (
-      <div className="border-2 border-amber-200 bg-amber-50 mb-4 p-4 rounded-lg" role="alert">
+      <div className="border-2 border-mist bg-action-amber/10 mb-4 p-4 rounded-lg" role="alert">
         <div className="flex items-center justify-between">
-          <div className="text-amber-800">
+          <div className="text-ink">
             <span className="font-medium">🔔 Verify your email address</span>
             <span className="ml-2">
               to unlock all features including password reset and tier upgrades.
@@ -114,7 +114,7 @@ export default function EmailVerificationBanner({
           <button
             onClick={handleResendVerification}
             disabled={isResending || resent}
-            className="ml-4 px-3 py-1 border border-amber-300 rounded hover:bg-amber-100"
+            className="ml-4 px-3 py-1 border border-action-amber rounded hover:bg-action-amber/20"
           >
             {resent ? 'Email Sent' : 'Resend Email'}
           </button>
@@ -124,10 +124,10 @@ export default function EmailVerificationBanner({
   }
 
   return (
-    <Alert className="border-amber-200 bg-amber-50 mb-4 relative">
-      <Mail className="h-4 w-4 text-amber-600" />
+    <Alert className="border-mist bg-action-amber/10 mb-4 relative">
+      <Mail className="h-4 w-4 text-action-amber" />
       <AlertDescription className="flex items-center justify-between pr-8">
-        <div className="text-amber-800">
+        <div className="text-ink">
           <span className="font-medium">Verify your email address</span>
           <span className="ml-2">
             to unlock all features including password reset and tier upgrades.
@@ -138,16 +138,16 @@ export default function EmailVerificationBanner({
           size="sm"
           onClick={handleResendVerification}
           disabled={isResending || resent}
-          className="ml-4 shrink-0 border-amber-300 hover:bg-amber-100"
+          className="ml-4 shrink-0 border-action-amber hover:bg-action-amber/20"
         >
           {isResending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {resent && <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />}
+          {resent && <CheckCircle2 className="mr-2 h-4 w-4 text-success" />}
           {resent ? 'Email Sent' : 'Resend Email'}
         </Button>
       </AlertDescription>
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors"
+        className="absolute top-2 right-2 text-action-amber hover:text-ink transition-colors"
         aria-label="Dismiss for 24 hours"
         title="Dismiss for 24 hours"
       >

@@ -74,21 +74,21 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   }
 
   return (
-    <Card className="bg-slate-50 border-slate-200">
+    <Card className="bg-cloud border-mist">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-semibold text-framework-black">
+          <h4 className="text-sm font-semibold text-ink">
             {isCoffeeTier ? '☕ Premium Credits' : "Today's Progress"}
           </h4>
           <span
             className={`text-xs px-2 py-1 rounded font-medium ${
               isCoffeeTier
-                ? 'bg-orange-100 text-orange-800 border border-orange-300'
+                ? 'bg-cloud text-ink border border-mist'
                 : usageData.tier === 'starter'
-                  ? 'bg-green-100 text-green-800 border border-green-300'
+                  ? 'bg-success/10 text-ink border border-mist'
                   : usageData.tier === 'growth'
-                    ? 'bg-teal-100 text-teal-800 border border-teal-300'
-                    : 'bg-blue-100 text-blue-800 border border-blue-300'
+                    ? 'bg-clarity-teal/20 text-clarity-teal border border-clarity-teal/30'
+                    : 'bg-signal-blue/10 text-mastery-blue border border-mist'
             }`}
           >
             {getTierDisplayName(usageData.tier)}
@@ -100,16 +100,16 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           {isCoffeeTier ? (
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-ai-silver">Analysis Credits</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Analysis Credits</span>
+                <span className="text-ink font-medium">
                   {creditsRemaining} {creditsRemaining === 1 ? 'credit' : 'credits'} left
                 </span>
               </div>
               <div className="flex items-center space-x-3">
-                <Coffee className="w-5 h-5 text-orange-600 flex-shrink-0" />
-                <div className="flex-1 bg-orange-100 rounded-full h-3">
+                <Coffee className="w-5 h-5 text-action-amber flex-shrink-0" />
+                <div className="flex-1 bg-cloud rounded-full h-3">
                   <div
-                    className="bg-orange-600 h-3 rounded-full transition-all duration-300"
+                    className="bg-action-amber h-3 rounded-full transition-all duration-300"
                     style={{ width: creditsRemaining > 0 ? '100%' : '0%' }}
                   />
                 </div>
@@ -118,8 +118,8 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           ) : (
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-ai-silver">Daily Analyses</span>
-                <span className="text-framework-black font-medium">
+                <span className="text-slate-brand">Daily Analyses</span>
+                <span className="text-ink font-medium">
                   {currentUsage} / {dailyAnalyses}
                 </span>
               </div>
@@ -130,50 +130,50 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           {/* Statistics Grid */}
           <div className="grid grid-cols-2 gap-3 pt-2">
             <div className="flex items-center space-x-3">
-              <Zap className="w-5 h-5 text-innovation-teal flex-shrink-0" />
+              <Zap className="w-5 h-5 text-signal-blue flex-shrink-0" />
               <div>
-                <p className="text-xs text-ai-silver">Cache Hits</p>
-                <p className="text-sm font-semibold text-framework-black">{cacheHitsToday}</p>
+                <p className="text-xs text-slate-brand">Cache Hits</p>
+                <p className="text-sm font-semibold text-ink">{cacheHitsToday}</p>
               </div>
             </div>
 
             <div className="flex items-center space-x-3">
-              <DollarSign className="w-5 h-5 text-green-600 flex-shrink-0" />
+              <DollarSign className="w-5 h-5 text-success flex-shrink-0" />
               <div>
-                <p className="text-xs text-ai-silver">Saved Today</p>
-                <p className="text-sm font-semibold text-framework-black">${costSaved}</p>
+                <p className="text-xs text-slate-brand">Saved Today</p>
+                <p className="text-sm font-semibold text-ink">${costSaved}</p>
               </div>
             </div>
           </div>
 
           {/* Tier Features */}
-          <div className="pt-2 border-t border-slate-200">
-            <p className="text-xs text-ai-silver mb-1">Your tier includes:</p>
+          <div className="pt-2 border-t border-mist">
+            <p className="text-xs text-slate-brand mb-1">Your tier includes:</p>
             <div className="space-y-1">
               {usageData.tier === 'starter' && (
-                <p className="text-xs text-framework-black">• 3 free analyses per day</p>
+                <p className="text-xs text-ink">• 3 free analyses per day</p>
               )}
               {(usageData.tier === 'solo' || usageData.tier === 'coffee') && (
                 <>
-                  <p className="text-xs text-framework-black">• 20 monthly analysis credits</p>
-                  <p className="text-xs text-framework-black">• Max 200 pages per analysis</p>
-                  <p className="text-xs text-framework-black">• AI analysis for all pages</p>
+                  <p className="text-xs text-ink">• 20 monthly analysis credits</p>
+                  <p className="text-xs text-ink">• Max 200 pages per analysis</p>
+                  <p className="text-xs text-ink">• AI analysis for all pages</p>
                 </>
               )}
               {usageData.tier !== 'solo' && (
                 <>
-                  <p className="text-xs text-framework-black">
+                  <p className="text-xs text-ink">
                     • Max {maxPagesPerAnalysis} pages per analysis
                   </p>
                   {aiPagesLimit > 0 && (
-                    <p className="text-xs text-framework-black">
+                    <p className="text-xs text-ink">
                       • AI analysis for first {aiPagesLimit} pages
                     </p>
                   )}
                 </>
               )}
               {usageData?.smartCaching && (
-                <p className="text-xs text-framework-black">
+                <p className="text-xs text-ink">
                   • Smart caching with change detection
                 </p>
               )}
@@ -182,11 +182,11 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
 
           {/* Upgrade Prompts */}
           {usageData.tier === 'starter' && analysisPercentage >= 100 && (
-            <div className="pt-2 border-t border-slate-200">
-              <p className="text-xs text-red-600 font-medium mb-2">
+            <div className="pt-2 border-t border-mist">
+              <p className="text-xs text-error font-medium mb-2">
                 🚫 Daily limit reached! Upgrade to continue analyzing.
               </p>
-              <p className="text-xs text-ai-silver mb-3">
+              <p className="text-xs text-slate-brand mb-3">
                 Get 20 monthly analyses with AI-enhanced results for just $4.95/month
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
@@ -215,7 +215,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                       });
                     }
                   }}
-                  className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
+                  className="text-xs bg-action-amber text-white px-4 py-3 rounded hover:bg-action-amber/90 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
                   ☕ Coffee Plan ($4.95/month)
                 </button>
@@ -230,8 +230,8 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           )}
 
           {usageData.tier === 'starter' && analysisPercentage >= 67 && analysisPercentage < 100 && (
-            <div className="pt-2 border-t border-slate-200">
-              <p className="text-xs text-amber-600 font-medium mb-2">
+            <div className="pt-2 border-t border-mist">
+              <p className="text-xs text-action-amber font-medium mb-2">
                 ⚡ Almost at your daily limit! Keep the momentum going?
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
@@ -260,7 +260,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                       });
                     }
                   }}
-                  className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
+                  className="text-xs bg-action-amber text-white px-4 py-3 rounded hover:bg-action-amber/90 transition-colors text-center min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
                   ☕ Coffee Plan ($4.95/month)
                 </button>
@@ -275,14 +275,14 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           )}
 
           {isCoffeeTier && creditsRemaining === 0 && (
-            <div className="pt-2 border-t border-slate-200">
-              <p className="text-xs text-ai-silver mb-2">
+            <div className="pt-2 border-t border-mist">
+              <p className="text-xs text-slate-brand mb-2">
                 ☕ Ready for another premium analysis? Perfect timing!
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <a
                   href="/pricing"
-                  className="text-xs bg-orange-600 text-white px-4 py-3 rounded hover:bg-orange-700 transition-colors text-center min-h-[44px] flex items-center justify-center"
+                  className="text-xs bg-action-amber text-white px-4 py-3 rounded hover:bg-action-amber/90 transition-colors text-center min-h-[44px] flex items-center justify-center"
                 >
                   Another Coffee ($5)
                 </a>
@@ -297,8 +297,8 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           )}
 
           {usageData.tier === 'growth' && analysisPercentage >= 80 && (
-            <div className="pt-2 border-t border-slate-200">
-              <p className="text-xs text-ai-silver">
+            <div className="pt-2 border-t border-mist">
+              <p className="text-xs text-slate-brand">
                 🚀 Ready for unlimited AI analysis?
                 <a href="/pricing" className="text-mastery-blue ml-1 hover:underline">
                   Scale up now

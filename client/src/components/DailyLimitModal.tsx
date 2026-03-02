@@ -73,31 +73,31 @@ export default function DailyLimitModal({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <div className="flex items-center space-x-2 mb-2">
-            <AlertCircle className="h-6 w-6 text-red-500" />
+            <AlertCircle className="h-6 w-6 text-error" />
             <DialogTitle className="text-xl">Daily Limit Reached</DialogTitle>
           </div>
           <DialogDescription className="space-y-4 pt-4">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-700 font-medium">
+            <div className="bg-error/10 border border-mist rounded-lg p-4">
+              <p className="text-sm text-error font-medium">
                 You've used all {dailyLimit} of your free daily analyses.
               </p>
-              <p className="text-xs text-red-600 mt-2">
+              <p className="text-xs text-error mt-2">
                 Your limit will reset tomorrow, or upgrade now to continue analyzing websites.
               </p>
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm text-gray-600 font-medium">
+              <p className="text-sm text-slate-brand font-medium">
                 Ready to unlock unlimited analyses?
               </p>
 
               {/* Coffee Tier Highlight */}
-              <div className="border-2 border-orange-400 bg-orange-50 rounded-lg p-4">
+              <div className="border-2 border-action-amber bg-cloud rounded-lg p-4">
                 <div className="flex items-start space-x-3">
-                  <Coffee className="h-6 w-6 text-orange-600 mt-1" />
+                  <Coffee className="h-6 w-6 text-action-amber mt-1" />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-orange-800">Coffee Tier - $4.95/month</h4>
-                    <p className="text-sm text-orange-700 mt-1">
+                    <h4 className="font-semibold text-ink">Coffee Tier - $4.95/month</h4>
+                    <p className="text-sm text-action-amber mt-1">
                       Get 20 monthly analyses with AI-enhanced results for a simple monthly
                       subscription.
                       <br />
@@ -111,7 +111,7 @@ export default function DailyLimitModal({
                     </p>
                     <Button
                       onClick={handleCoffeeCheckout}
-                      className="bg-orange-600 hover:bg-orange-700 text-white mt-3 w-full"
+                      className="bg-action-amber hover:bg-action-amber/90 text-white mt-3 w-full"
                       disabled={isLoading}
                     >
                       {isLoading ? 'Processing...' : '☕ Start Coffee Plan ($4.95/month)'}

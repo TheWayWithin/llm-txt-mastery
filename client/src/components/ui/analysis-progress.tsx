@@ -74,15 +74,15 @@ export function AnalysisProgress({
 
   const getStageIcon = (stage: AnalysisStage, isCompleted: boolean, isCurrent: boolean) => {
     if (isCompleted) {
-      return <CheckCircle className="h-5 w-5 text-green-500" />;
+      return <CheckCircle className="h-5 w-5 text-success" />;
     } else if (isCurrent) {
       return stage.icon ? (
-        <div className="text-innovation-teal animate-pulse">{stage.icon}</div>
+        <div className="text-signal-blue animate-pulse">{stage.icon}</div>
       ) : (
-        <Loader2 className="h-5 w-5 text-innovation-teal animate-spin" />
+        <Loader2 className="h-5 w-5 text-signal-blue animate-spin" />
       );
     } else {
-      return <Circle className="h-5 w-5 text-slate-300" />;
+      return <Circle className="h-5 w-5 text-stone-brand" />;
     }
   };
 
@@ -92,15 +92,15 @@ export function AnalysisProgress({
         {/* Header */}
         <div className="flex flex-col space-y-3 mb-6 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h3 className="text-lg font-semibold text-framework-black">
+            <h3 className="text-lg font-semibold text-ink">
               Content Analysis in Progress
             </h3>
-            <p className="text-sm text-ai-silver leading-relaxed">
+            <p className="text-sm text-slate-brand leading-relaxed">
               {currentStageData?.description || 'Processing your website...'}
             </p>
           </div>
           {showTimeEstimate && (estimatedTotalTime || currentStageData?.estimatedTime) && (
-            <div className="flex items-center space-x-2 text-sm text-ai-silver">
+            <div className="flex items-center space-x-2 text-sm text-slate-brand">
               <Clock className="h-4 w-4 flex-shrink-0" />
               <span>{estimatedTotalTime || currentStageData?.estimatedTime}</span>
             </div>
@@ -109,7 +109,7 @@ export function AnalysisProgress({
 
         {/* Overall Progress */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-ai-silver mb-2">
+          <div className="flex justify-between text-sm text-slate-brand mb-2">
             <span>Overall Progress</span>
             <span>{Math.round(animatedProgress)}%</span>
           </div>
@@ -118,12 +118,12 @@ export function AnalysisProgress({
 
         {/* Page Count Progress */}
         {showPageCount && totalPages > 0 && (
-          <div className="mb-6 p-4 bg-slate-50 rounded-lg">
+          <div className="mb-6 p-4 bg-cloud rounded-lg">
             <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <span className="text-sm font-medium text-framework-black">
+              <span className="text-sm font-medium text-ink">
                 Page Analysis Progress
               </span>
-              <span className="text-sm text-ai-silver">
+              <span className="text-sm text-slate-brand">
                 {processedPages} of {totalPages} pages
               </span>
             </div>
@@ -136,7 +136,7 @@ export function AnalysisProgress({
 
         {/* Stage Progress */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-framework-black mb-3">Analysis Stages</h4>
+          <h4 className="text-sm font-medium text-ink mb-3">Analysis Stages</h4>
 
           {stages.map((stage, index) => {
             const isCompleted = completedStages.includes(stage.id);
@@ -148,8 +148,8 @@ export function AnalysisProgress({
                 key={stage.id}
                 className={cn(
                   'flex items-start space-x-3 p-4 rounded-lg transition-all duration-300',
-                  isCurrent && 'bg-innovation-teal/5 border border-innovation-teal/20',
-                  isCompleted && 'bg-green-50 border border-green-100',
+                  isCurrent && 'bg-signal-blue/5 border border-signal-blue/20',
+                  isCompleted && 'bg-success/10 border border-success/20',
                   isPending && 'opacity-60'
                 )}
               >
@@ -162,29 +162,29 @@ export function AnalysisProgress({
                     <span
                       className={cn(
                         'text-sm font-medium leading-relaxed',
-                        isCompleted && 'text-green-800',
-                        isCurrent && 'text-innovation-teal',
-                        isPending && 'text-slate-500'
+                        isCompleted && 'text-ink',
+                        isCurrent && 'text-signal-blue',
+                        isPending && 'text-stone-brand'
                       )}
                     >
                       {stage.label}
                     </span>
 
                     {isCurrent && (
-                      <span className="text-xs text-innovation-teal font-medium">In Progress</span>
+                      <span className="text-xs text-signal-blue font-medium">In Progress</span>
                     )}
 
                     {isCompleted && (
-                      <span className="text-xs text-green-600 font-medium">Complete</span>
+                      <span className="text-xs text-success font-medium">Complete</span>
                     )}
                   </div>
 
                   <p
                     className={cn(
                       'text-xs mt-2 leading-relaxed',
-                      isCompleted && 'text-green-600',
-                      isCurrent && 'text-slate-700',
-                      isPending && 'text-slate-400'
+                      isCompleted && 'text-success',
+                      isCurrent && 'text-ink',
+                      isPending && 'text-stone-brand'
                     )}
                   >
                     {stage.description}
@@ -197,16 +197,16 @@ export function AnalysisProgress({
 
         {/* Current Stage Details */}
         {currentStageData && (
-          <div className="mt-6 p-4 bg-innovation-teal/5 rounded-lg border border-innovation-teal/20">
+          <div className="mt-6 p-4 bg-signal-blue/5 rounded-lg border border-signal-blue/20">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="text-innovation-teal">
+              <div className="text-signal-blue">
                 {currentStageData.icon || <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
-              <span className="text-sm font-medium text-innovation-teal">
+              <span className="text-sm font-medium text-signal-blue">
                 Currently: {currentStageData.label}
               </span>
             </div>
-            <p className="text-xs text-slate-600">{currentStageData.description}</p>
+            <p className="text-xs text-slate-brand">{currentStageData.description}</p>
           </div>
         )}
       </CardContent>
