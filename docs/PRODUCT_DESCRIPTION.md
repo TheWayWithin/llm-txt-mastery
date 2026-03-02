@@ -1,8 +1,8 @@
 # LLM.txt Mastery - Product Description
 
-**Version**: 2.6
-**Last Updated**: December 19, 2025
-**Changelog**: Sprint 6 - Added JavaScript rendering for React/Angular/Vue sites (Scale tier exclusive), Playwright browser integration, removed model-specific references
+**Version**: 2.7
+**Last Updated**: March 1, 2026
+**Changelog**: Site modernization - Brand alignment (Inter font, design system tokens, modular landing page), Stripe pricing update (Growth $9.95, Scale $19.95), CSP hardening
 
 ---
 
@@ -14,14 +14,13 @@
 
 **Infrastructure**: Fully operational Railway + Netlify split architecture
 **Authentication**: Complete JWT system with customer dashboard ✅ OPERATIONAL
-**Payment Processing**: Stripe Solo tier ($4.95/month) with automatic account creation ✅ OPERATIONAL
+**Payment Processing**: Stripe subscriptions — Solo ($4.95/mo), Growth ($9.95/mo), Scale ($19.95/mo) ✅ OPERATIONAL
 **Customer Journey**: End-to-end flow from URL input to dashboard file management ✅ OPERATIONAL
 **Technical Debt**: Minimal - all critical systems implemented and stable
 
 ### Value Proposition
 
 - **Automated Analysis**: Processes up to 200 pages in 4.8 seconds with 98% sitemap discovery success rate
-- **3.5x More Pages Discovered**: Than nearest working competitor with advanced sitemap discovery
 - **AI-Powered Quality Scoring**: Uses advanced AI models to evaluate and rank content relevance for AI systems
 - **Professional Output**: Generates standards-compliant LLM.txt files with proper formatting and documentation
 - **Customer-Centric Experience**: Advanced retention system ensures genuine value delivery
@@ -34,7 +33,8 @@
 **Frontend**: Netlify (www.llmtxtmastery.com)
 
 - React 18 with TypeScript for type-safe, maintainable code
-- Tailwind CSS with shadcn/ui components for modern, responsive design
+- Tailwind CSS with shadcn/ui components, Inter font, brand design system tokens
+- Modular landing page architecture (`components/landing/` — 8 composable sections)
 - TanStack Query for efficient server state management
 - Wouter for lightweight client-side routing
 
@@ -185,7 +185,7 @@
 - **✅ Smart Reset Functionality**: Seamless multi-analysis workflow without authentication friction
 - **✅ Professional UX**: Users can analyze multiple websites without re-entering email or tier information
 - **✅ Context Preservation**: Usage tracking and tier status maintained across analysis sessions
-- **Responsive Design**: Mobile-optimized interface with modern UI components
+- **Responsive Design**: Mobile-optimized interface with Inter font, brand-aligned color tokens, and Lucide icon system
 - **Email Capture System**: Lead generation with automatic tier recognition
 - **Progress Feedback**: Real-time analysis status with estimated completion times
 - **Account Dashboard**: Post-analysis file management and account overview ✅ IMPLEMENTED
@@ -304,7 +304,7 @@
 **Price**: $0/month
 **Features**:
 
-- 3 analyses per day
+- 3 analyses per month
 - 20 pages maximum per analysis
 - Full AI-powered analysis (advanced quality scoring)
 - 30-day cache retention
@@ -312,7 +312,7 @@
 - Standards-compliant file generation
 - **✅ 5 llms.txt validations/month**
 
-**Ideal For**: Individual users exploring LLM.txt functionality, small personal projects
+**Ideal For**: Individual users exploring LLM.txt functionality, quick one-off checks
 
 ### Solo (Monthly Subscription) ✅ FULLY OPERATIONAL
 
@@ -331,16 +331,16 @@
 - **✅ File Re-access**: Download previous analyses anytime
 - **✅ 20 llms.txt validations/month** (shares monthly credit pool)
 
-**Ideal For**: Regular users, small businesses with ongoing analysis needs
+**Ideal For**: Solopreneurs and small businesses who want AI to find their best content
 
-### Growth (Monthly Subscription) 🔄 READY FOR ACTIVATION
+### Growth (Monthly Subscription) ✅ OPERATIONAL
 
 **Price**: $9.95/month
 **Features**:
 
-- Unlimited daily analyses
-- 1,000 pages maximum per analysis
-- Full AI analysis for 200 pages per analysis
+- 35 analyses per month
+- 500 pages maximum per analysis
+- Full AI analysis
 - 7-day cache retention
 - **✅ File history and account dashboard** (infrastructure complete)
 - Priority support
@@ -348,7 +348,7 @@
 - **✅ Authentication System**: Full account management ready
 - **✅ 35 llms.txt validations/month**
 
-**Ideal For**: Growing businesses, agencies with multiple clients, regular content analysis needs
+**Ideal For**: Agencies managing multiple client websites, growing businesses with regular analysis needs
 
 ### Scale (Monthly Subscription)
 
@@ -356,9 +356,9 @@
 **Features**:
 
 - **✅ JavaScript rendering for React/Angular/Vue sites** (100 renders/month)
-- Unlimited daily analyses
-- Unlimited pages per analysis
-- Unlimited AI analysis
+- 100 analyses per month
+- 1,000 pages maximum per analysis
+- Full AI analysis
 - 3-day cache retention for freshest data
 - Complete file history with search
 - Priority support with dedicated assistance
@@ -367,7 +367,7 @@
 - **✅ 100 llms.txt validations/month**
 - Validation API access for programmatic integration (future enhancement)
 
-**Ideal For**: Large enterprises, development agencies, organizations with extensive website analysis requirements
+**Ideal For**: Development teams, agencies with extensive portfolios, power users needing full coverage
 
 ## Development Roadmap
 
@@ -639,6 +639,7 @@ Based on comprehensive UX analysis using Nielsen's heuristics (scoring 51/100 ov
 - Secure API key management with environment variables
 - PCI-compliant payment processing through Stripe
 - GDPR-compliant data handling with user consent management
+- **CSP Modernization** (March 2026): Hash-based Content Security Policy with iterative third-party allowlisting (Enzuzo, jsdelivr, Google Fonts, Stripe, Plausible)
 
 ### Access Control
 
@@ -706,6 +707,6 @@ This represents a major UX breakthrough that brings the application to professio
 
 ---
 
-_Last Updated: December 19, 2025_
-_Version: 2.6_
-_Status: Production Complete - A+ Security Rating, 98/100 Lighthouse Score_
+_Last Updated: March 1, 2026_
+_Version: 2.7_
+_Status: Production Complete - A+ Security Rating, 98/100 Lighthouse Score, Brand-Aligned Design System_
