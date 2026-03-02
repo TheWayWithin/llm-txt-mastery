@@ -27,8 +27,8 @@ export function AuthOptionsPanel({
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to get started?</h3>
-        <p className="text-sm text-slate-600 mb-6">
+        <h3 className="text-lg font-semibold text-ink mb-2">Ready to get started?</h3>
+        <p className="text-sm text-slate-brand mb-6">
           Choose how you'd like to continue with your{' '}
           <span className="font-medium capitalize">{selectedTier}</span> tier analysis.
         </p>
@@ -41,7 +41,7 @@ export function AuthOptionsPanel({
           variant="outline"
           onClick={onSignIn}
           disabled={disabled || loading}
-          className="min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 text-slate-700 border-slate-300 hover:bg-slate-50 disabled:opacity-50"
+          className="min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 text-ink border-mist hover:bg-cloud disabled:opacity-50"
           size="default"
         >
           <LogIn className="w-5 h-5" />
@@ -55,7 +55,7 @@ export function AuthOptionsPanel({
           disabled={disabled || loading}
           className={`min-h-[56px] px-6 py-4 flex items-center justify-center space-x-2 disabled:opacity-50 ${
             selectedTier === 'solo'
-              ? 'bg-orange-600 hover:bg-orange-700'
+              ? 'bg-action-amber hover:bg-action-amber/90'
               : 'bg-mastery-blue hover:bg-mastery-blue/90'
           }`}
           size="default"
@@ -66,11 +66,11 @@ export function AuthOptionsPanel({
       </div>
 
       {/* Already have account notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-        <p className="text-sm text-blue-700 mb-2">
+      <div className="bg-signal-blue/10 border border-mist rounded-lg p-4 text-center">
+        <p className="text-sm text-mastery-blue mb-2">
           <strong>Returning user?</strong> Click "Sign In" above.
         </p>
-        <p className="text-xs text-blue-600">
+        <p className="text-xs text-signal-blue">
           <strong>New to LLM.txt Mastery?</strong> Click "Sign Up" to create your account.
         </p>
       </div>

@@ -134,7 +134,7 @@ export function withFeatureFlag<P extends object>(
     const { isEnabled, loading } = useFeatureFlag(flag);
 
     if (loading) {
-      return <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>;
+      return <div className="animate-pulse bg-mist h-4 w-16 rounded"></div>;
     }
 
     if (!isEnabled) {
@@ -159,7 +159,7 @@ export function FeatureGate({ flag, children, fallback = null, loading }: Featur
   const { isEnabled, loading: isLoading } = useFeatureFlag(flag);
 
   if (isLoading) {
-    return <>{loading || <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>}</>;
+    return <>{loading || <div className="animate-pulse bg-mist h-4 w-16 rounded"></div>}</>;
   }
 
   return <>{isEnabled ? children : fallback}</>;

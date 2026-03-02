@@ -45,21 +45,21 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="mx-auto max-w-4xl border-slate-200 shadow-lg">
+      <Card className="mx-auto max-w-4xl border-mist shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0">
-              <Shield className="h-6 w-6 text-innovation-teal" />
+              <Shield className="h-6 w-6 text-signal-blue" />
             </div>
 
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-framework-black mb-2">
+              <h3 className="text-lg font-semibold text-ink mb-2">
                 Your Privacy Matters
               </h3>
 
               {!showDetails ? (
                 <>
-                  <p className="text-sm text-ai-silver mb-4">
+                  <p className="text-sm text-slate-brand mb-4">
                     We use cookies to improve your experience and analyze usage patterns. We respect
                     your privacy and won't track you without permission.
                   </p>
@@ -67,7 +67,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                   <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={handleAcceptAll}
-                      className="bg-innovation-teal hover:bg-innovation-teal/90 text-white"
+                      className="bg-signal-blue hover:bg-signal-blue/90 text-white"
                     >
                       Accept All
                     </Button>
@@ -75,7 +75,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     <Button
                       onClick={handleAnalyticsOnly}
                       variant="outline"
-                      className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10"
+                      className="border-signal-blue text-signal-blue hover:bg-signal-blue/10"
                     >
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Analytics Only
@@ -84,7 +84,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     <Button
                       onClick={handleRejectOptional}
                       variant="outline"
-                      className="text-gray-600 hover:bg-gray-100"
+                      className="text-slate-brand hover:bg-cloud"
                     >
                       Essential Only
                     </Button>
@@ -93,7 +93,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                       onClick={() => setShowDetails(!showDetails)}
                       variant="ghost"
                       size="sm"
-                      className="text-gray-500"
+                      className="text-stone-brand"
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       Customize
@@ -103,31 +103,31 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
               ) : (
                 <>
                   <div className="space-y-4 mb-4">
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <h4 className="font-semibold text-green-800 mb-1">
+                    <div className="p-3 bg-success/10 rounded-lg">
+                      <h4 className="font-semibold text-ink mb-1">
                         🍪 Essential Cookies (Always Active)
                       </h4>
-                      <p className="text-sm text-green-700">
+                      <p className="text-sm text-success">
                         Required for login, security, and basic site functionality. Cannot be
                         disabled.
                       </p>
                     </div>
 
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <h4 className="font-semibold text-blue-800 mb-1">
+                    <div className="p-3 bg-signal-blue/10 rounded-lg">
+                      <h4 className="font-semibold text-mastery-blue mb-1">
                         📊 Analytics Cookies (Recommended)
                       </h4>
-                      <p className="text-sm text-blue-700">
+                      <p className="text-sm text-mastery-blue">
                         Help us understand how you use our tool so we can improve it. No personal
                         data shared with third parties.
                       </p>
                     </div>
 
-                    <div className="p-3 bg-purple-50 rounded-lg">
-                      <h4 className="font-semibold text-purple-800 mb-1">
+                    <div className="p-3 bg-cloud rounded-lg">
+                      <h4 className="font-semibold text-ink mb-1">
                         🎯 Marketing Cookies (Optional)
                       </h4>
-                      <p className="text-sm text-purple-700">
+                      <p className="text-sm text-slate-brand">
                         Used to show you relevant updates and improvements. You can always opt out
                         later.
                       </p>
@@ -137,7 +137,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                   <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={handleAcceptAll}
-                      className="bg-innovation-teal hover:bg-innovation-teal/90 text-white"
+                      className="bg-signal-blue hover:bg-signal-blue/90 text-white"
                     >
                       Accept All
                     </Button>
@@ -145,7 +145,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     <Button
                       onClick={handleAnalyticsOnly}
                       variant="outline"
-                      className="border-innovation-teal text-innovation-teal hover:bg-innovation-teal/10"
+                      className="border-signal-blue text-signal-blue hover:bg-signal-blue/10"
                     >
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Analytics Only
@@ -154,7 +154,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                     <Button
                       onClick={handleRejectOptional}
                       variant="outline"
-                      className="text-gray-600 hover:bg-gray-100"
+                      className="text-slate-brand hover:bg-cloud"
                     >
                       Essential Only
                     </Button>
@@ -163,7 +163,7 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                       onClick={() => setShowDetails(false)}
                       variant="ghost"
                       size="sm"
-                      className="text-gray-500"
+                      className="text-stone-brand"
                     >
                       Back to Simple
                     </Button>
@@ -171,13 +171,13 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({ onConsentChange })
                 </>
               )}
 
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-xs text-stone-brand mt-3">
                 Learn more in our{' '}
-                <a href="/privacy" className="text-innovation-teal hover:underline">
+                <a href="/privacy" className="text-signal-blue hover:underline">
                   Privacy Policy
                 </a>{' '}
                 and{' '}
-                <a href="/terms" className="text-innovation-teal hover:underline">
+                <a href="/terms" className="text-signal-blue hover:underline">
                   Terms of Service
                 </a>
               </p>

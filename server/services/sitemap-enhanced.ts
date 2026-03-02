@@ -72,7 +72,7 @@ export async function analyzeDiscoveredPagesWithCache(
 
   try {
     return await Promise.race([
-      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions, skipCache),
+      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions, skipCache, PAGE_ANALYSIS_TIMEOUT),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -105,7 +105,8 @@ async function performPageAnalysisWithCache(
   userEmail: string,
   tier: UserTier,
   jsRenderingOptions?: JsRenderingOptions,
-  skipCache?: boolean
+  skipCache?: boolean,
+  timeBudgetMs?: number
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
   const relevantPages = filterRelevantPages(entries, tier);
   const tierLimits = TIER_LIMITS[tier];
@@ -216,6 +217,17 @@ async function performPageAnalysisWithCache(
   const CONCURRENT_BATCHES = 2;
 
   for (let i = 0; i < pagesToAnalyze.length; i += BATCH_SIZE * CONCURRENT_BATCHES) {
+    // Soft time budget check: stop gracefully at 80% of budget to preserve partial results
+    if (timeBudgetMs) {
+      const elapsed = Date.now() - startTime;
+      const budgetUsed = elapsed / timeBudgetMs;
+      if (budgetUsed >= 0.80) {
+        console.log(`⏱️ Time budget ${Math.round(budgetUsed * 100)}% used (${(elapsed / 1000).toFixed(1)}s/${(timeBudgetMs / 1000).toFixed(0)}s). Stopping to preserve ${pages.length} analyzed pages.`);
+        console.log(`   • Pages remaining: ${pagesToAnalyze.length - i} of ${pagesToAnalyze.length}`);
+        break;
+      }
+    }
+
     const batchPromises = [];
 
     // Create concurrent batches
@@ -494,33 +506,40 @@ async function processBatchWithCache(
         tier,
       });
 
-      // Try one more time with basic HTML extraction only (no AI analysis)
-      try {
-        console.log(`🔄 Attempting fallback HTML extraction for ${entry.url}`);
-        const content = await fetchPageContent(entry.url);
-        const analysis = await analyzePageContent(entry.url, content, false); // Force HTML analysis only
-
-        const page: DiscoveredPage = {
-          url: entry.url,
-          title: analysis.title,
-          description: analysis.description,
-          qualityScore: analysis.qualityScore,
-          category: analysis.category,
-          lastModified: entry.lastmod,
-        };
-
-        results.push({ page, success: true });
-        metrics.htmlExtractionsUsed++;
-        metrics.analyzedPages++;
-
-        console.log(`✅ Fallback HTML extraction succeeded for ${entry.url}`);
-      } catch (fallbackError) {
-        console.error(
-          `❌ Even fallback HTML extraction failed for ${entry.url}:`,
-          fallbackError.message
-        );
-        // Only now mark as failure - this allows real bot protection detection
+      // Skip fallback for 403 errors - server explicitly denied access, retrying won't help
+      const is403 = error.message?.includes('403');
+      if (is403) {
+        console.log(`   ⛔ Skipping fallback for ${entry.url} - access denied (403)`);
         results.push({ page: null as any, success: false });
+      } else {
+        // Try one more time with basic HTML extraction only (no AI analysis)
+        try {
+          console.log(`🔄 Attempting fallback HTML extraction for ${entry.url}`);
+          const content = await fetchPageContent(entry.url);
+          const analysis = await analyzePageContent(entry.url, content, false); // Force HTML analysis only
+
+          const page: DiscoveredPage = {
+            url: entry.url,
+            title: analysis.title,
+            description: analysis.description,
+            qualityScore: analysis.qualityScore,
+            category: analysis.category,
+            lastModified: entry.lastmod,
+          };
+
+          results.push({ page, success: true });
+          metrics.htmlExtractionsUsed++;
+          metrics.analyzedPages++;
+
+          console.log(`✅ Fallback HTML extraction succeeded for ${entry.url}`);
+        } catch (fallbackError) {
+          console.error(
+            `❌ Even fallback HTML extraction failed for ${entry.url}:`,
+            fallbackError.message
+          );
+          // Only now mark as failure - this allows real bot protection detection
+          results.push({ page: null as any, success: false });
+        }
       }
     }
   }

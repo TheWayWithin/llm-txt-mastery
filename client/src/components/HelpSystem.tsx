@@ -223,7 +223,7 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
         <Button
           variant="ghost"
           size="sm"
-          className={`text-blue-600 hover:text-blue-800 hover:bg-blue-50 ${className}`}
+          className={`text-signal-blue hover:text-mastery-blue hover:bg-signal-blue/10 ${className}`}
         >
           <HelpCircle className="h-4 w-4 mr-1" />
           Help
@@ -232,27 +232,27 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center">
-            <Info className="h-5 w-5 mr-2 text-blue-600" />
+            <Info className="h-5 w-5 mr-2 text-signal-blue" />
             {content.title}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          <p className="text-slate-600">{content.description}</p>
+          <p className="text-slate-brand">{content.description}</p>
 
           {content.steps && (
             <div>
-              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
-                <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+              <h4 className="font-semibold text-ink mb-3 flex items-center">
+                <CheckCircle className="h-4 w-4 mr-2 text-success" />
                 Step-by-step Guide
               </h4>
               <ol className="space-y-2">
                 {content.steps.map((step, index) => (
                   <li key={index} className="flex">
-                    <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full mr-3 mt-0.5 flex-shrink-0">
+                    <span className="inline-flex items-center justify-center w-6 h-6 bg-signal-blue/10 text-mastery-blue text-sm font-semibold rounded-full mr-3 mt-0.5 flex-shrink-0">
                       {index + 1}
                     </span>
-                    <span className="text-slate-700">{step}</span>
+                    <span className="text-ink">{step}</span>
                   </li>
                 ))}
               </ol>
@@ -261,12 +261,12 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
 
           {content.tips && (
             <div>
-              <h4 className="font-semibold text-slate-800 mb-3">💡 Pro Tips</h4>
+              <h4 className="font-semibold text-ink mb-3">💡 Pro Tips</h4>
               <ul className="space-y-2">
                 {content.tips.map((tip, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-1">•</span>
-                    <span className="text-slate-700">{tip}</span>
+                    <span className="text-success mr-2 mt-1">•</span>
+                    <span className="text-ink">{tip}</span>
                   </li>
                 ))}
               </ul>
@@ -275,12 +275,12 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
 
           {content.troubleshooting && (
             <div>
-              <h4 className="font-semibold text-slate-800 mb-3">🔧 Troubleshooting</h4>
+              <h4 className="font-semibold text-ink mb-3">🔧 Troubleshooting</h4>
               <div className="space-y-3">
                 {content.troubleshooting.map((item, index) => (
-                  <div key={index} className="border-l-4 border-orange-200 pl-4 py-2">
-                    <p className="font-medium text-orange-800">{item.problem}</p>
-                    <p className="text-orange-700 text-sm mt-1">{item.solution}</p>
+                  <div key={index} className="border-l-4 border-mist pl-4 py-2">
+                    <p className="font-medium text-ink">{item.problem}</p>
+                    <p className="text-action-amber text-sm mt-1">{item.solution}</p>
                   </div>
                 ))}
               </div>
@@ -288,7 +288,7 @@ export function QuickHelp({ context = 'url-input', className = '' }: HelpProps) 
           )}
 
           <div className="border-t pt-4">
-            <p className="text-sm text-slate-600 mb-3">
+            <p className="text-sm text-slate-brand mb-3">
               Still need help? We're here to support you!
             </p>
             <div className="flex flex-wrap gap-3">
@@ -320,21 +320,21 @@ export function InlineHelp({
   variant?: 'info' | 'warning' | 'success';
 }) {
   const bgColor = {
-    info: 'bg-blue-50 border-blue-200',
-    warning: 'bg-orange-50 border-orange-200',
-    success: 'bg-green-50 border-green-200',
+    info: 'bg-signal-blue/10 border-mist',
+    warning: 'bg-cloud border-mist',
+    success: 'bg-success/10 border-mist',
   }[variant];
 
   const textColor = {
-    info: 'text-blue-800',
-    warning: 'text-orange-800',
-    success: 'text-green-800',
+    info: 'text-mastery-blue',
+    warning: 'text-ink',
+    success: 'text-ink',
   }[variant];
 
   const iconColor = {
-    info: 'text-blue-600',
-    warning: 'text-orange-600',
-    success: 'text-green-600',
+    info: 'text-signal-blue',
+    warning: 'text-action-amber',
+    success: 'text-success',
   }[variant];
 
   return (

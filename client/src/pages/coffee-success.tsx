@@ -99,24 +99,24 @@ export default function CoffeeSuccess() {
   }, [email, isAuthenticated, refreshUser, sessionId]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cloud flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
           {loading ? (
             <>
-              <Coffee className="h-12 w-12 animate-pulse mx-auto mb-4 text-orange-500" />
+              <Coffee className="h-12 w-12 animate-pulse mx-auto mb-4 text-signal-blue" />
               <h1 className="text-xl font-semibold mb-2">
                 {autoLoginStatus === 'checking'
                   ? 'Setting up your account...'
                   : 'Brewing your analysis credits...'}
               </h1>
-              <p className="text-slate-600">
+              <p className="text-slate-brand">
                 {autoLoginStatus === 'checking'
                   ? 'Creating your premium account experience'
                   : 'Please wait while we set up your coffee analysis.'}
               </p>
               {autoLoginStatus === 'success' && (
-                <div className="mt-4 flex items-center justify-center text-green-600">
+                <div className="mt-4 flex items-center justify-center text-success">
                   <UserCheck className="h-5 w-5 mr-2" />
                   <span className="text-sm">Account ready!</span>
                 </div>
@@ -131,31 +131,31 @@ export default function CoffeeSuccess() {
                   className="max-w-xs h-auto max-h-32"
                 />
               </div>
-              <h1 className="text-2xl font-bold text-green-800 mb-2">☕ Coffee Analysis Ready!</h1>
+              <h1 className="text-2xl font-bold text-ink mb-2">Solo Analysis Ready!</h1>
 
               {/* Personalized welcome for authenticated users */}
               {isAuthenticated && user && (
-                <div className="bg-green-50 rounded-lg p-4 mb-4 border border-green-200">
-                  <div className="flex items-center justify-center text-green-700 mb-2">
+                <div className="bg-success/10 rounded-lg p-4 mb-4 border border-mist">
+                  <div className="flex items-center justify-center text-success mb-2">
                     <UserCheck className="h-5 w-5 mr-2" />
                     <span className="font-semibold">Welcome back, {user.email}!</span>
                   </div>
-                  <p className="text-sm text-green-600">
-                    Your Coffee tier is now active with premium AI analysis.
+                  <p className="text-sm text-slate-brand">
+                    Your Solo tier is now active with premium AI analysis.
                   </p>
                 </div>
               )}
 
-              <p className="text-slate-600 mb-6">
+              <p className="text-slate-brand mb-6">
                 Your $4.95 purchase was successful! You now have <strong>1 analysis credit</strong>{' '}
                 for premium website analysis with AI enhancement.
                 {isAuthenticated &&
                   ' Your account dashboard is ready with all your files and history.'}
               </p>
 
-              <div className="bg-orange-50 rounded-lg p-4 mb-6 border border-orange-200">
-                <h3 className="font-semibold text-orange-800 mb-2">What you get:</h3>
-                <ul className="text-sm text-orange-700 space-y-1 text-left">
+              <div className="bg-cloud rounded-lg p-4 mb-6 border border-mist">
+                <h3 className="font-semibold text-ink mb-2">What you get:</h3>
+                <ul className="text-sm text-slate-brand space-y-1 text-left">
                   <li>• Up to 200 pages per analysis (10x free tier)</li>
                   <li>• Full AI-enhanced quality scoring</li>
                   <li>• Professional llms.txt file generation</li>
@@ -164,8 +164,8 @@ export default function CoffeeSuccess() {
               </div>
 
               {sessionId && (
-                <div className="bg-slate-100 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-slate-600">
+                <div className="bg-cloud rounded-lg p-4 mb-6 border border-mist">
+                  <p className="text-sm text-slate-brand">
                     Purchase ID: <span className="font-mono text-xs">{sessionId}</span>
                   </p>
                 </div>
@@ -179,7 +179,7 @@ export default function CoffeeSuccess() {
                     {websiteUrl ? (
                       <Link href={`/?url=${encodeURIComponent(websiteUrl)}&coffee=true`}>
                         <a className="block">
-                          <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                          <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <ArrowRight className="h-4 w-4 mr-2" />
                             Continue Analysis of {new URL(websiteUrl).hostname}
                           </Button>
@@ -188,7 +188,7 @@ export default function CoffeeSuccess() {
                     ) : (
                       <Link href="/dashboard">
                         <a className="block">
-                          <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                          <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <UserCheck className="h-4 w-4 mr-2" />
                             Go to Dashboard
                           </Button>
@@ -212,7 +212,7 @@ export default function CoffeeSuccess() {
                         href={`/?url=${encodeURIComponent(websiteUrl)}&email=${encodeURIComponent(email)}&coffee=true`}
                       >
                         <a className="block">
-                          <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                          <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <ArrowRight className="h-4 w-4 mr-2" />
                             Continue Analysis of {new URL(websiteUrl).hostname}
                           </Button>
@@ -221,7 +221,7 @@ export default function CoffeeSuccess() {
                     ) : (
                       <Link href="/">
                         <a className="block">
-                          <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                          <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <ArrowRight className="h-4 w-4 mr-2" />
                             Start Your Analysis
                           </Button>
@@ -232,9 +232,9 @@ export default function CoffeeSuccess() {
                 )}
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  <strong>💡 Pro tip:</strong> Your credit will be automatically used for your next
+              <div className="mt-6 p-4 bg-cloud rounded-lg border border-mist">
+                <p className="text-sm text-slate-brand">
+                  <strong>Pro tip:</strong> Your credit will be automatically used for your next
                   analysis. Enjoy the enhanced AI features!
                 </p>
               </div>

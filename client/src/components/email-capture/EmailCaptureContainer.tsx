@@ -93,7 +93,7 @@ export function EmailCaptureContainer({
           <Mail className="text-mastery-blue" />
           <span>Choose Your Analysis Type</span>
         </CardTitle>
-        <p className="text-sm text-ai-silver">
+        <p className="text-sm text-slate-brand">
           {websiteUrl ? (
             <>
               Generate professional llms.txt files for <strong>{websiteUrl}</strong> in seconds
@@ -110,18 +110,18 @@ export function EmailCaptureContainer({
       <CardContent className="space-y-6">
         {/* Error Display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="bg-error/10 border border-mist rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-red-800 mb-2">Unable to proceed</h4>
-                <p className="text-sm text-red-700 mb-3">{error}</p>
+                <h4 className="text-sm font-semibold text-error mb-2">Unable to proceed</h4>
+                <p className="text-sm text-error mb-3">{error}</p>
                 <div className="flex items-center space-x-3">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleErrorDismiss}
-                    className="border-red-300 text-red-700 hover:bg-red-100"
+                    className="border-mist text-error hover:bg-error/10"
                     disabled={isLoading}
                   >
                     <RotateCcw className="h-4 w-4 mr-1" />
@@ -133,7 +133,7 @@ export function EmailCaptureContainer({
                       variant="outline"
                       size="sm"
                       onClick={handleReset}
-                      className="border-green-300 text-green-700 hover:bg-green-100"
+                      className="border-mist text-success hover:bg-success/10"
                       disabled={isLoading}
                     >
                       <Home className="h-4 w-4 mr-1" />
@@ -161,7 +161,7 @@ export function EmailCaptureContainer({
           <div className="space-y-6">
             {/* Help Section */}
             <div className="flex items-center justify-between border-t pt-4">
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-slate-brand">
                 Need help choosing? <span className="font-medium">Coffee tier</span> is perfect for
                 most users.
               </div>
@@ -185,8 +185,8 @@ export function EmailCaptureContainer({
         {/* Show tier selection prompt when no tier is selected */}
         {!selectedTier && (
           <div className="text-center py-8">
-            <p className="text-slate-600 text-lg">Please select a tier above to continue</p>
-            <p className="text-sm text-slate-500 mt-2">
+            <p className="text-slate-brand text-lg">Please select a tier above to continue</p>
+            <p className="text-sm text-stone-brand mt-2">
               Choose the analysis type that best fits your needs
             </p>
           </div>

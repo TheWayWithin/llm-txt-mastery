@@ -28,7 +28,7 @@ export default function TrustBadges({
       icon: Lock,
       text: 'SSL Encrypted',
       subtext: '256-bit security',
-      color: 'text-green-600',
+      color: 'text-success',
       show: variant === 'security' || variant === 'full',
     },
     {
@@ -42,21 +42,21 @@ export default function TrustBadges({
       icon: Zap,
       text: '99.9% Uptime',
       subtext: 'Always available',
-      color: 'text-innovation-teal',
+      color: 'text-signal-blue',
       show: variant === 'reliability' || variant === 'full',
     },
     {
       icon: CreditCard,
       text: 'Secure Payments',
       subtext: 'Powered by Stripe',
-      color: 'text-purple-600',
+      color: 'text-signal-blue',
       show: variant === 'payment' || variant === 'full',
     },
     {
       icon: DollarSign,
       text: '30-Day Guarantee',
       subtext: 'Risk-free trial',
-      color: 'text-green-600',
+      color: 'text-success',
       show: variant === 'payment' || variant === 'full',
     },
   ];
@@ -74,7 +74,7 @@ export default function TrustBadges({
     // Compact inline version
     return (
       <div
-        className={`flex flex-wrap items-center ${alignmentClasses[alignment]} gap-2 text-xs text-gray-600 ${className}`}
+        className={`flex flex-wrap items-center ${alignmentClasses[alignment]} gap-2 text-xs text-slate-brand ${className}`}
       >
         {visibleBadges.map((badge, idx) => {
           const Icon = badge.icon;
@@ -84,7 +84,7 @@ export default function TrustBadges({
               <span className="hidden sm:inline">{badge.text}</span>
               <span className="inline sm:hidden">{badge.text.split(' ')[0]}</span>
               {idx < visibleBadges.length - 1 && (
-                <span className="ml-2 text-gray-400">•</span>
+                <span className="ml-2 text-stone-brand">•</span>
               )}
             </div>
           );
@@ -103,13 +103,13 @@ export default function TrustBadges({
         return (
           <div
             key={idx}
-            className="flex flex-col items-center justify-center p-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+            className="flex flex-col items-center justify-center p-3 bg-white border border-mist rounded-lg hover:shadow-md transition-shadow"
             role="img"
             aria-label={`${badge.text} - ${badge.subtext}`}
           >
             <Icon className={`h-5 w-5 ${badge.color} mb-1`} />
-            <div className="text-xs font-semibold text-gray-900">{badge.text}</div>
-            <div className="text-[10px] text-gray-500">{badge.subtext}</div>
+            <div className="text-xs font-semibold text-ink">{badge.text}</div>
+            <div className="text-[10px] text-stone-brand">{badge.subtext}</div>
           </div>
         );
       })}

@@ -43,7 +43,7 @@ export default function ResetButton({
         return {
           variant: 'outline' as const,
           size: 'sm' as const,
-          className: `border-green-300 text-green-700 hover:bg-green-50 ${className}`,
+          className: `border-mist text-success hover:bg-success/10 ${className}`,
           children: (
             <>
               <Home className="h-4 w-4 mr-2" />
@@ -55,7 +55,7 @@ export default function ResetButton({
         return {
           variant: 'default' as const,
           size: 'lg' as const,
-          className: `bg-green-600 hover:bg-green-700 text-white ${className}`,
+          className: `bg-success hover:bg-success/80 text-white ${className}`,
           children: (
             <>
               <Home className="h-5 w-5 mr-2" />
@@ -67,7 +67,7 @@ export default function ResetButton({
         return {
           variant: 'outline' as const,
           size: 'default' as const,
-          className: `border-green-300 text-green-700 hover:bg-green-50 ${className}`,
+          className: `border-mist text-success hover:bg-success/10 ${className}`,
           children: (
             <>
               <RotateCcw className="h-4 w-4 mr-2" />
@@ -108,19 +108,19 @@ export default function ResetButton({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center">
-            <Home className="h-5 w-5 mr-2 text-green-600" />
+            <Home className="h-5 w-5 mr-2 text-success" />
             Start Over?
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <p className="text-slate-700">
+          <p className="text-ink">
             This will reset your current progress and return you to the beginning. Any unsaved work
             will be lost.
           </p>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-800">
+          <div className="bg-signal-blue/10 border border-mist rounded-lg p-3">
+            <p className="text-sm text-mastery-blue">
               💡 <strong>Tip:</strong> If you're experiencing an error, try the "Try Again" button
               first - it might resolve the issue without losing your progress.
             </p>
@@ -132,7 +132,7 @@ export default function ResetButton({
             </Button>
             <Button
               onClick={confirmReset}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1 bg-success hover:bg-success/80 text-white"
             >
               <Home className="h-4 w-4 mr-2" />
               Yes, Start Over

@@ -61,13 +61,13 @@ const getTierIcon = (tier: string) => {
 const getTierColor = (tier: string) => {
   switch (tier) {
     case 'solo':
-      return 'bg-orange-100 text-orange-800 border-orange-200';
+      return 'bg-cloud text-ink border-mist';
     case 'growth':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
+      return 'bg-signal-blue/10 text-mastery-blue border-mist';
     case 'scale':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
+      return 'bg-cloud text-ink border-mist';
     default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+      return 'bg-cloud text-ink border-mist';
   }
 };
 
@@ -89,9 +89,9 @@ function AccountOverview() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-600">Email Address</label>
+              <label className="text-sm font-medium text-slate-brand">Email Address</label>
               <div className="flex items-center space-x-2 mt-1">
-                <Mail className="h-4 w-4 text-gray-400" />
+                <Mail className="h-4 w-4 text-stone-brand" />
                 <span className="text-sm">{user.email}</span>
                 {user.emailVerified ? (
                   <Badge variant="secondary" className="text-xs">
@@ -99,7 +99,7 @@ function AccountOverview() {
                     Verified
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-xs text-yellow-600">
+                  <Badge variant="outline" className="text-xs text-slate-brand">
                     Pending verification
                   </Badge>
                 )}
@@ -107,9 +107,9 @@ function AccountOverview() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-600">Member Since</label>
+              <label className="text-sm font-medium text-slate-brand">Member Since</label>
               <div className="flex items-center space-x-2 mt-1">
-                <Calendar className="h-4 w-4 text-gray-400" />
+                <Calendar className="h-4 w-4 text-stone-brand" />
                 <span className="text-sm">
                   {new Date(user.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -143,19 +143,19 @@ function AccountOverview() {
           <div className="space-y-4">
             {/* Coffee Tier Status */}
             {user.tier === 'solo' && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="bg-cloud border border-mist rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-orange-800">Coffee Credits</h4>
-                  <Badge variant="outline" className="text-orange-600 border-orange-300">
+                  <h4 className="font-medium text-ink">Coffee Credits</h4>
+                  <Badge variant="outline" className="text-action-amber border-mist">
                     {user.creditsRemaining} credit{user.creditsRemaining !== 1 ? 's' : ''} remaining
                   </Badge>
                 </div>
-                <p className="text-sm text-orange-700 mb-3">
+                <p className="text-sm text-action-amber mb-3">
                   Each credit allows one full website analysis (up to 200 pages) with AI
                   enhancement.
                 </p>
                 {user.creditsRemaining === 0 && (
-                  <div className="text-sm text-orange-800">
+                  <div className="text-sm text-ink">
                     <p className="mb-2">
                       🎯 <strong>Ready for more analysis?</strong>
                     </p>
@@ -170,12 +170,12 @@ function AccountOverview() {
 
             {/* Starter Tier Status */}
             {user.tier === 'starter' && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-800 mb-2">Free Starter Plan</h4>
-                <p className="text-sm text-gray-600 mb-3">
+              <div className="bg-cloud border border-mist rounded-lg p-4">
+                <h4 className="font-medium text-ink mb-2">Free Starter Plan</h4>
+                <p className="text-sm text-slate-brand mb-3">
                   You're currently on the free plan with basic website analysis (up to 20 pages).
                 </p>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-ink">
                   <strong>Upgrade benefits:</strong> More pages, AI-enhanced analysis, priority
                   support, and more.
                 </p>
@@ -187,20 +187,20 @@ function AccountOverview() {
               <div
                 className={`border rounded-lg p-4 ${
                   user.tier === 'growth'
-                    ? 'bg-blue-50 border-blue-200'
-                    : 'bg-purple-50 border-purple-200'
+                    ? 'bg-signal-blue/10 border-mist'
+                    : 'bg-cloud border-mist'
                 }`}
               >
                 <h4
                   className={`font-medium mb-2 ${
-                    user.tier === 'growth' ? 'text-blue-800' : 'text-purple-800'
+                    user.tier === 'growth' ? 'text-mastery-blue' : 'text-ink'
                   }`}
                 >
                   {user.tier === 'growth' ? 'Growth Plan' : 'Scale Plan'}
                 </h4>
                 <p
                   className={`text-sm mb-3 ${
-                    user.tier === 'growth' ? 'text-blue-700' : 'text-purple-700'
+                    user.tier === 'growth' ? 'text-mastery-blue' : 'text-slate-brand'
                   }`}
                 >
                   You have access to unlimited website analysis and premium features.
@@ -209,7 +209,7 @@ function AccountOverview() {
                   <strong>Active features:</strong>
                   <ul
                     className={`list-disc list-inside mt-1 space-y-1 ${
-                      user.tier === 'growth' ? 'text-blue-600' : 'text-purple-600'
+                      user.tier === 'growth' ? 'text-signal-blue' : 'text-slate-brand'
                     }`}
                   >
                     <li>{user.tier === 'growth' ? '100 monthly analyses (5x Coffee capacity)' : user.tier === 'scale' ? 'Unlimited analyses' : '20 Monthly Analyses'}</li>
@@ -334,16 +334,16 @@ function BillingSection() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-signal-blue"></div>
             </div>
           ) : (
             <div className="space-y-4">
               {subscriptionStatus?.hasActiveSubscription ? (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-success/10 border border-mist rounded-lg">
                     <div>
-                      <h4 className="font-medium text-green-800">Active Subscription</h4>
-                      <p className="text-sm text-green-600">
+                      <h4 className="font-medium text-ink">Active Subscription</h4>
+                      <p className="text-sm text-success">
                         {user.tier === 'growth'
                           ? 'Growth Plan'
                           : user.tier === 'scale'
@@ -351,14 +351,14 @@ function BillingSection() {
                             : 'Active Plan'}
                       </p>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>
+                    <Badge className="bg-success/10 text-ink border-mist">Active</Badge>
                   </div>
 
                   <div className="space-y-3">
                     <Button
                       onClick={handleManageBilling}
                       disabled={portalLoading}
-                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      className="w-full bg-signal-blue hover:bg-[#1D4ED8]"
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />
                       {portalLoading ? 'Opening...' : 'View Billing Details & Invoices'}
@@ -368,7 +368,7 @@ function BillingSection() {
                       onClick={handleManageBilling}
                       disabled={portalLoading}
                       variant="outline"
-                      className="w-full border-orange-300 text-orange-600 hover:bg-orange-50"
+                      className="w-full border-mist text-action-amber hover:bg-cloud"
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       Update Payment Method
@@ -378,13 +378,13 @@ function BillingSection() {
                       onClick={handleManageBilling}
                       disabled={portalLoading}
                       variant="outline"
-                      className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                      className="w-full border-mist text-error hover:bg-error/10"
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Cancel Subscription (Instant)
                     </Button>
 
-                    <div className="text-xs text-gray-500 text-center mt-2">
+                    <div className="text-xs text-stone-brand text-center mt-2">
                       All billing changes are processed securely through Stripe.
                       <br />
                       Cancellations take effect immediately - no hoops to jump through.
@@ -393,19 +393,19 @@ function BillingSection() {
                 </div>
               ) : user.tier === 'solo' ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                    <h4 className="font-medium text-orange-800">Coffee Credits</h4>
-                    <p className="text-sm text-orange-600 mt-1">
+                  <div className="p-4 bg-cloud border border-mist rounded-lg">
+                    <h4 className="font-medium text-ink">Coffee Credits</h4>
+                    <p className="text-sm text-action-amber mt-1">
                       You have {user.creditsRemaining} analysis credit
                       {user.creditsRemaining !== 1 ? 's' : ''} remaining.
                     </p>
-                    <p className="text-xs text-orange-500 mt-2">
+                    <p className="text-xs text-slate-brand mt-2">
                       Coffee tier is a monthly subscription for 20 analyses per month.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-stone-brand">
                   <p>No active subscriptions</p>
                   <p className="text-sm mt-2">
                     Upgrade to Growth or Scale for subscription management
@@ -421,7 +421,7 @@ function BillingSection() {
       <Card data-upgrade-section>
         <CardHeader>
           <CardTitle className="text-xl">🚀 Unlock Your Website's Full Potential</CardTitle>
-          <p className="text-gray-600">
+          <p className="text-slate-brand">
             Choose the plan that matches your ambition. Compare what you're missing:
           </p>
         </CardHeader>
@@ -429,66 +429,66 @@ function BillingSection() {
           <div className="grid gap-6 md:grid-cols-3">
             {/* Solo Tier */}
             <div
-              className={`relative border-2 rounded-lg p-5 ${user.tier === 'solo' ? 'border-orange-400 bg-orange-50' : user.tier === 'starter' ? 'border-orange-300 hover:border-orange-400 hover:bg-orange-50' : 'border-gray-200 opacity-60'} transition-all`}
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'solo' ? 'border-signal-blue bg-cloud' : user.tier === 'starter' ? 'border-mist hover:border-signal-blue hover:bg-cloud' : 'border-mist opacity-60'} transition-all`}
             >
               {user.tier === 'solo' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-action-amber text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
                 </div>
               )}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Coffee className="h-6 w-6 text-orange-600" />
+                  <Coffee className="h-6 w-6 text-action-amber" />
                   <h3 className="font-bold text-lg">Solo</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-orange-600">$4.95</div>
-                  <div className="text-xs text-gray-500">per month</div>
+                  <div className="text-2xl font-bold text-action-amber">$4.95</div>
+                  <div className="text-xs text-stone-brand">per month</div>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
-                <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     ✅ 20 Monthly Analyses
                   </div>
-                  <div className="text-xs text-orange-600">
+                  <div className="text-xs text-slate-brand">
                     vs FREE: Only 3 per day (90 per month max) - Solo gives you 20
                   </div>
                 </div>
 
-                <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     🔄 Keep Your LLM.txt Current
                   </div>
-                  <div className="text-xs text-orange-600">
+                  <div className="text-xs text-slate-brand">
                     Update your file as your site changes - new pages, fresh content
                   </div>
                 </div>
 
-                <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     📄 200 Pages per Analysis
                   </div>
-                  <div className="text-xs text-orange-600">
+                  <div className="text-xs text-slate-brand">
                     vs FREE: Only 20 pages (miss critical content)
                   </div>
                 </div>
 
-                <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     🤖 AI Quality Scoring
                   </div>
-                  <div className="text-xs text-orange-600">
+                  <div className="text-xs text-slate-brand">
                     vs FREE: No AI analysis (basic HTML only)
                   </div>
                 </div>
 
-                <div className="bg-white border border-orange-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-orange-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     💰 Incredible Value
                   </div>
-                  <div className="text-xs text-orange-600">
+                  <div className="text-xs text-slate-brand">
                     20 analyses for just $4.95/month - perfect for solo founders!
                   </div>
                 </div>
@@ -497,7 +497,7 @@ function BillingSection() {
               {user.tier === 'starter' ? (
                 <Button
                   data-testid="upgrade-to-coffee"
-                  className="w-full bg-orange-600 hover:bg-orange-700 font-bold"
+                  className="w-full bg-action-amber hover:bg-action-amber/90 font-bold"
                   onClick={() => handleUpgrade('solo')}
                   disabled={upgradeLoading === 'solo'}
                 >
@@ -506,11 +506,11 @@ function BillingSection() {
                     : '🚀 UPGRADE TO SOLO - Beat Competitors Now'}
                 </Button>
               ) : user.tier === 'solo' ? (
-                <div className="text-center py-2 text-orange-600 font-medium">
+                <div className="text-center py-2 text-action-amber font-medium">
                   ✅ You're Using Solo Plan
                 </div>
               ) : (
-                <div className="text-center py-2 text-gray-400 text-sm">
+                <div className="text-center py-2 text-stone-brand text-sm">
                   You've upgraded past this plan
                 </div>
               )}
@@ -518,77 +518,77 @@ function BillingSection() {
 
             {/* Growth Tier */}
             <div
-              className={`relative border-2 rounded-lg p-5 ${user.tier === 'growth' ? 'border-blue-400 bg-blue-50' : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50'} transition-all transform hover:scale-105`}
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'growth' ? 'border-signal-blue bg-signal-blue/10' : 'border-mist hover:border-signal-blue hover:bg-signal-blue/10'} transition-all transform hover:scale-105`}
             >
               {user.tier === 'growth' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-signal-blue text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
                 </div>
               )}
               {user.tier !== 'growth' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-success text-white text-xs px-3 py-1 rounded-full font-bold">
                   🔥 POPULAR CHOICE
                 </div>
               )}
 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Zap className="h-6 w-6 text-blue-600" />
+                  <Zap className="h-6 w-6 text-signal-blue" />
                   <h3 className="font-bold text-lg">Growth</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">$9.95</div>
-                  <div className="text-xs text-gray-500">per month</div>
+                  <div className="text-2xl font-bold text-signal-blue">$9.95</div>
+                  <div className="text-xs text-stone-brand">per month</div>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
-                <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-mastery-blue mb-1">
                     🚀 EVERYTHING in Solo +
                   </div>
-                  <div className="text-xs text-blue-600">All Solo benefits included</div>
+                  <div className="text-xs text-signal-blue">All Solo benefits included</div>
                 </div>
 
-                <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-mastery-blue mb-1">
                     📄 500 Pages per Analysis
                   </div>
-                  <div className="text-xs text-blue-600">vs Solo: 2.5x more content discovery</div>
+                  <div className="text-xs text-signal-blue">vs Solo: 2.5x more content discovery</div>
                 </div>
 
-                <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-mastery-blue mb-1">
                     ⚡ Priority Processing
                   </div>
-                  <div className="text-xs text-blue-600">Skip the queue, get results faster</div>
+                  <div className="text-xs text-signal-blue">Skip the queue, get results faster</div>
                 </div>
 
-                <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-mastery-blue mb-1">
                     🎯 Advanced Analytics
                   </div>
-                  <div className="text-xs text-blue-600">
+                  <div className="text-xs text-signal-blue">
                     Content quality insights & optimization tips
                   </div>
                 </div>
 
-                <div className="bg-white border border-blue-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-mastery-blue mb-1">
                     📂 Analysis History
                   </div>
-                  <div className="text-xs text-blue-600">Track your progress over time</div>
+                  <div className="text-xs text-signal-blue">Track your progress over time</div>
                 </div>
               </div>
 
               {user.tier === 'growth' ? (
-                <div className="text-center py-2 text-blue-600 font-medium">
+                <div className="text-center py-2 text-signal-blue font-medium">
                   ✅ You're Using Growth Plan
                 </div>
               ) : (
                 <Button
                   data-testid="upgrade-to-growth"
-                  className="w-full bg-blue-600 hover:bg-blue-700 font-bold"
+                  className="w-full bg-signal-blue hover:bg-[#1D4ED8] font-bold"
                   onClick={() => handleUpgrade('growth')}
                   disabled={upgradeLoading === 'growth'}
                 >
@@ -603,88 +603,88 @@ function BillingSection() {
 
             {/* Scale Tier */}
             <div
-              className={`relative border-2 rounded-lg p-5 ${user.tier === 'scale' ? 'border-purple-400 bg-purple-50' : 'border-purple-300 hover:border-purple-400 hover:bg-purple-50'} transition-all transform hover:scale-105`}
+              className={`relative border-2 rounded-lg p-5 ${user.tier === 'scale' ? 'border-mastery-blue bg-cloud' : 'border-mastery-blue/70 hover:border-mastery-blue hover:bg-cloud'} transition-all transform hover:scale-105`}
             >
               {user.tier === 'scale' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-brand text-white text-xs px-3 py-1 rounded-full font-bold">
                   YOUR CURRENT PLAN
                 </div>
               )}
               {user.tier !== 'scale' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-brand text-white text-xs px-3 py-1 rounded-full font-bold">
                   👑 ULTIMATE POWER
                 </div>
               )}
 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Crown className="h-6 w-6 text-purple-600" />
+                  <Crown className="h-6 w-6 text-slate-brand" />
                   <h3 className="font-bold text-lg">Scale</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-purple-600">$19.95</div>
-                  <div className="text-xs text-gray-500">per month</div>
+                  <div className="text-2xl font-bold text-slate-brand">$19.95</div>
+                  <div className="text-xs text-stone-brand">per month</div>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
-                <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     🚀 EVERYTHING in Growth +
                   </div>
-                  <div className="text-xs text-purple-600">All Growth benefits included</div>
+                  <div className="text-xs text-slate-brand">All Growth benefits included</div>
                 </div>
 
-                <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     ♾️ UNLIMITED Pages
                   </div>
-                  <div className="text-xs text-purple-600">
+                  <div className="text-xs text-slate-brand">
                     Analyze massive sites (capped at $19.95 AI cost)
                   </div>
                 </div>
 
-                <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     🤖 Full AI Analysis
                   </div>
-                  <div className="text-xs text-purple-600">
+                  <div className="text-xs text-slate-brand">
                     AI processes ALL pages (not just samples)
                   </div>
                 </div>
 
-                <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">🔗 API Access</div>
-                  <div className="text-xs text-purple-600">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">🔗 API Access</div>
+                  <div className="text-xs text-slate-brand">
                     Integrate with your tools & workflows
                   </div>
                 </div>
 
-                <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     🏢 Multi-Site Management
                   </div>
-                  <div className="text-xs text-purple-600">Perfect for agencies & enterprises</div>
+                  <div className="text-xs text-slate-brand">Perfect for agencies & enterprises</div>
                 </div>
 
-                <div className="bg-white border border-purple-200 rounded-md p-3">
-                  <div className="text-sm font-semibold text-purple-800 mb-1">
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
                     📞 Direct Support Line
                   </div>
-                  <div className="text-xs text-purple-600">
+                  <div className="text-xs text-slate-brand">
                     Email support@llmtxtmastery.com for priority help
                   </div>
                 </div>
               </div>
 
               {user.tier === 'scale' ? (
-                <div className="text-center py-2 text-purple-600 font-medium">
+                <div className="text-center py-2 text-slate-brand font-medium">
                   ✅ You're Using Scale Plan
                 </div>
               ) : (
                 <Button
                   data-testid="upgrade-to-scale"
-                  className="w-full bg-purple-600 hover:bg-purple-700 font-bold"
+                  className="w-full bg-slate-brand hover:bg-mastery-blue/90 font-bold"
                   onClick={() => handleUpgrade('scale')}
                   disabled={upgradeLoading === 'scale'}
                 >
@@ -701,12 +701,12 @@ function BillingSection() {
           </div>
 
           {/* Guarantee Section */}
-          <div className="mt-8 bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
-            <h4 className="font-bold text-green-800 text-lg mb-2">🛡️ ZERO RISK GUARANTEE</h4>
-            <p className="text-green-700 text-sm mb-3">
+          <div className="mt-8 bg-success/10 border-2 border-mist rounded-lg p-6 text-center">
+            <h4 className="font-bold text-ink text-lg mb-2">🛡️ ZERO RISK GUARANTEE</h4>
+            <p className="text-success text-sm mb-3">
               Try any plan for 30 days. Not satisfied? Get every penny back, no questions asked.
             </p>
-            <div className="flex justify-center space-x-6 text-xs text-green-600">
+            <div className="flex justify-center space-x-6 text-xs text-success">
               <span>✅ 30-Day Money Back</span>
               <span>✅ Cancel Anytime</span>
               <span>✅ No Contracts</span>
@@ -815,15 +815,15 @@ function ValidatorSection() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 75) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 75) return 'text-action-amber';
+    return 'text-error';
   };
 
   const getScoreBgColor = (score: number) => {
-    if (score >= 90) return 'bg-green-50 border-green-200';
-    if (score >= 75) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-red-50 border-red-200';
+    if (score >= 90) return 'bg-success/10 border-mist';
+    if (score >= 75) return 'bg-action-amber/10 border-action-amber/40';
+    return 'bg-error/10 border-mist';
   };
 
   return (
@@ -837,7 +837,7 @@ function ValidatorSection() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-slate-brand mb-4">
             Enter your website URL to validate your llms.txt file against the official specification.
           </p>
           <div className="space-y-4">
@@ -847,12 +847,12 @@ function ValidatorSection() {
                 placeholder="www.example.com or https://example.com"
                 value={url}
                 onChange={handleInputChange}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-innovation-teal"
+                className="flex-1 px-3 py-2 border border-mist rounded-md focus:outline-none focus:ring-2 focus:ring-signal-blue"
               />
               <Button
                 onClick={handleValidate}
                 disabled={!isValid || isValidating}
-                className="bg-innovation-teal hover:bg-innovation-teal/90"
+                className="bg-signal-blue hover:bg-signal-blue/90"
               >
                 {isValidating ? 'Validating...' : 'Validate'}
               </Button>
@@ -860,11 +860,11 @@ function ValidatorSection() {
 
             {/* Sprint 5: File type selector */}
             <div className="space-y-2">
-              <Label htmlFor="file-type-dashboard" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="file-type-dashboard" className="text-sm font-medium text-ink">
                 File Location
               </Label>
               <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
-                <SelectTrigger className="border-gray-300 focus:ring-innovation-teal">
+                <SelectTrigger className="border-mist focus:ring-signal-blue">
                   <SelectValue placeholder="Select file type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -878,7 +878,7 @@ function ValidatorSection() {
             </div>
 
             {url && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-stone-brand">
                 Will check: {normalizeUrl(url)}{fileType === 'auto'
                   ? ' at all standard locations'
                   : FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}
@@ -890,7 +890,7 @@ function ValidatorSection() {
                 checked={includeRobotsTxt}
                 onCheckedChange={setIncludeRobotsTxt}
               />
-              <Label htmlFor="robots-check-dashboard" className="text-sm text-gray-700 cursor-pointer">
+              <Label htmlFor="robots-check-dashboard" className="text-sm text-ink cursor-pointer">
                 Check for robots.txt conflicts
               </Label>
             </div>
@@ -900,9 +900,9 @@ function ValidatorSection() {
 
       {/* Error Display */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-mist bg-error/10">
           <CardContent className="p-4">
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-error">{error}</p>
           </CardContent>
         </Card>
       )}
@@ -915,17 +915,17 @@ function ValidatorSection() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <h3 className="text-xl font-bold text-ink mb-1">
                     Validation Score
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-brand">
                     {validationResult.valid ? (
-                      <span className="flex items-center text-green-600">
+                      <span className="flex items-center text-success">
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Valid llms.txt file
                       </span>
                     ) : (
-                      <span className="flex items-center text-red-600">
+                      <span className="flex items-center text-error">
                         <ExternalLink className="h-4 w-4 mr-1" />
                         Issues found
                       </span>
@@ -936,7 +936,7 @@ function ValidatorSection() {
                   <div className={`text-5xl font-bold ${getScoreColor(validationResult.score)}`}>
                     {validationResult.score}
                   </div>
-                  <div className="text-sm text-gray-500">out of 100</div>
+                  <div className="text-sm text-stone-brand">out of 100</div>
                 </div>
               </div>
             </CardContent>
@@ -953,13 +953,13 @@ function ValidatorSection() {
                   {validationResult.issues.map((issue: any, index: number) => (
                     <div
                       key={index}
-                      className="p-3 bg-gray-50 rounded-md border border-gray-200"
+                      className="p-3 bg-cloud rounded-md border border-mist"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{issue.message}</p>
+                          <p className="text-sm font-medium text-ink">{issue.message}</p>
                           {issue.suggestion && (
-                            <p className="text-xs text-gray-600 mt-1">💡 {issue.suggestion}</p>
+                            <p className="text-xs text-slate-brand mt-1">💡 {issue.suggestion}</p>
                           )}
                         </div>
                         <Badge
@@ -993,12 +993,12 @@ function ValidatorSection() {
                   {validationResult.recommendations.map((rec: any, index: number) => (
                     <div
                       key={index}
-                      className="p-3 bg-blue-50 rounded-md border border-blue-200"
+                      className="p-3 bg-signal-blue/10 rounded-md border border-mist"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-blue-900">{rec.title}</p>
-                          <p className="text-xs text-blue-700 mt-1">{rec.description}</p>
+                          <p className="text-sm font-semibold text-ink">{rec.title}</p>
+                          <p className="text-xs text-mastery-blue mt-1">{rec.description}</p>
                         </div>
                         <Badge variant="outline" className="ml-2">
                           {rec.priority}
@@ -1024,11 +1024,11 @@ function ValidatorSection() {
           {validationResult.score === 100 &&
             validationResult.issues.length === 0 &&
             validationResult.recommendations.length === 0 && (
-              <Card className="bg-green-50 border-green-200">
+              <Card className="bg-success/10 border-mist">
                 <CardContent className="p-6 text-center">
-                  <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
-                  <h3 className="text-xl font-bold text-green-900 mb-2">Perfect Score!</h3>
-                  <p className="text-green-700">
+                  <CheckCircle className="h-12 w-12 text-success mx-auto mb-3" />
+                  <h3 className="text-xl font-bold text-ink mb-2">Perfect Score!</h3>
+                  <p className="text-success">
                     Your llms.txt file follows all best practices.
                   </p>
                 </CardContent>
@@ -1091,13 +1091,13 @@ function SettingsSection() {
             <Separator />
 
             <div>
-              <h4 className="font-medium mb-2 text-red-600">Danger Zone</h4>
+              <h4 className="font-medium mb-2 text-error">Danger Zone</h4>
               <div className="space-y-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleSignOut}
-                  className="text-red-600 border-red-300 hover:bg-red-50"
+                  className="text-error border-mist hover:bg-error/10"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -1105,7 +1105,7 @@ function SettingsSection() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-red-600 border-red-300 hover:bg-red-50"
+                  className="text-error border-mist hover:bg-error/10"
                 >
                   Delete Account
                 </Button>
@@ -1137,7 +1137,7 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-cloud">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -1149,8 +1149,8 @@ export default function Dashboard() {
                   className="h-16 md:h-20 w-auto"
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                  <p className="text-sm text-gray-600">Welcome back, {user?.email}</p>
+                  <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
+                  <p className="text-sm text-slate-brand">Welcome back, {user?.email}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Check, Coffee, Zap, Crown } from 'lucide-react';
@@ -8,20 +9,21 @@ export type TierType = 'free' | 'solo' | 'growth' | 'scale';
 interface PricingPreviewProps {
   highlightTier?: TierType;
   showAllTiers?: boolean;
-  ctaText?: string;
   className?: string;
+  id?: string;
 }
 
 export default function PricingPreview({
   highlightTier = 'solo',
   showAllTiers = true,
-  ctaText = 'Start Free Analysis',
   className = '',
+  id,
 }: PricingPreviewProps) {
   const tiers = [
     {
       id: 'free' as TierType,
-      name: 'STARTER',
+      name: 'Starter',
+      bestFor: 'Quick check',
       price: '$0',
       period: '',
       icon: Check,
@@ -32,88 +34,95 @@ export default function PricingPreview({
         '20 pages analyzed',
         'Basic recommendations',
       ],
-      cta: 'Get Started Free',
-      borderColor: 'border-green-500',
-      bgColor: 'bg-white',
-      iconColor: 'text-green-600',
+      cta: 'Start Free',
       ctaVariant: 'outline' as const,
       badge: null,
     },
     {
       id: 'solo' as TierType,
-      name: 'SOLO',
+      name: 'Solo',
+      bestFor: 'Solopreneurs',
       price: '$4.95',
       period: '/mo',
       icon: Coffee,
-      description: 'Stop losing customers to competitors',
+      description: 'Help AI find your best content',
       features: [
         'AI finds 10x more pages (200)',
         'Know which pages convert',
-        'Stop losing to competitors',
+        'Quality scoring for every page',
         '30-day money-back guarantee',
       ],
-      cta: 'Start Solo',
-      borderColor: 'border-orange-400',
-      bgColor: 'bg-white',
-      iconColor: 'text-orange-600',
+      cta: 'Generate Your File',
       ctaVariant: 'outline' as const,
       badge: null,
     },
     {
       id: 'growth' as TierType,
-      name: 'GROWTH',
+      name: 'Growth',
+      bestFor: 'Agencies',
       price: '$9.95',
       period: '/mo',
       icon: Zap,
-      description: 'Dominate AI recommendations',
+      description: 'Be discoverable across AI platforms',
       features: [
         'Cover 1,000 pages per site',
         'Unlimited daily analyses',
         'Bulk website processing',
         'Export to CSV/JSON',
       ],
-      cta: 'Start Growth',
-      borderColor: 'border-innovation-teal',
-      bgColor: 'bg-teal-50',
-      iconColor: 'text-innovation-teal',
+      cta: 'Generate Your File',
       ctaVariant: 'default' as const,
       badge: 'MOST POPULAR',
-      badgeBg: 'bg-innovation-teal',
     },
     {
       id: 'scale' as TierType,
-      name: 'SCALE',
+      name: 'Scale',
+      bestFor: 'Developers',
       price: '$19.95',
       period: '/mo',
       icon: Crown,
-      description: 'No limits. Just results.',
+      description: 'Full coverage for complex sites',
       features: [
         'JS rendering for React/Angular/Vue',
         'Unlimited pages per analysis',
         'Unlimited AI analysis',
         'Multi-site management',
       ],
-      cta: 'Start Scale',
-      borderColor: 'border-mastery-blue',
-      bgColor: 'bg-white',
-      iconColor: 'text-mastery-blue',
+      cta: 'Generate Your File',
       ctaVariant: 'outline' as const,
       badge: null,
     },
   ];
 
-  // Filter tiers based on showAllTiers and screen size
   const visibleTiers = showAllTiers ? tiers : tiers.filter(t => ['free', 'solo'].includes(t.id));
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasFired = useRef(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasFired.current) {
+          hasFired.current = true;
+          (window as any).plausible?.('pricing-section-view');
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className={`py-12 ${className}`}>
+    <section ref={sectionRef} id={id} className={`py-12 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-framework-black mb-3">
+          <h2 className="text-3xl sm:text-4xl font-bold text-ink mb-3">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-base sm:text-lg text-ai-silver max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-brand max-w-2xl mx-auto">
             Start free, upgrade when you need more
           </p>
         </div>
@@ -127,29 +136,33 @@ export default function PricingPreview({
             return (
               <Card
                 key={tier.id}
-                className={`relative border-2 ${tier.borderColor} ${tier.bgColor} hover:shadow-lg transition-shadow ${
-                  isHighlighted ? 'shadow-md' : ''
+                className={`relative bg-white border border-mist rounded-lg hover:shadow-lg transition-shadow ${
+                  isHighlighted ? 'shadow-md border-t-2 border-t-signal-blue' : ''
                 }`}
               >
                 {/* Badge for highlighted tier */}
                 {tier.badge && (
-                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 ${tier.badgeBg} text-white text-xs px-3 py-1 rounded-full font-semibold`}>
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-signal-blue text-white text-xs px-3 py-1 rounded-full font-semibold">
                     {tier.badge}
                   </div>
                 )}
 
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
-                    <Icon className={`h-6 w-6 ${tier.iconColor}`} />
+                    <Icon className="h-6 w-6 text-signal-blue" />
                     <div className="text-right">
-                      <span className="text-2xl sm:text-3xl font-bold">{tier.price}</span>
+                      <span className="text-2xl sm:text-3xl font-bold text-ink">{tier.price}</span>
                       {tier.period && (
-                        <span className="text-xs text-ai-silver block">{tier.period}</span>
+                        <span className="text-xs text-slate-brand block">{tier.period}</span>
                       )}
                     </div>
                   </div>
                   <CardTitle className="text-lg">{tier.name}</CardTitle>
-                  <CardDescription className="text-sm">{tier.description}</CardDescription>
+                  <CardDescription className="text-sm">
+                    <span className="text-signal-blue font-medium">Best for: {tier.bestFor}</span>
+                    <br />
+                    {tier.description}
+                  </CardDescription>
                 </CardHeader>
 
                 <CardContent>
@@ -157,20 +170,22 @@ export default function PricingPreview({
                   <ul className="space-y-2 mb-6">
                     {tier.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start">
-                        <Check className={`h-4 w-4 ${tier.iconColor} mr-2 mt-0.5 flex-shrink-0`} />
-                        <span className="text-sm">{feature}</span>
+                        <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-ink">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-                  {/* CTA Button - Minimum 44px height for touch targets */}
+                  {/* CTA Button */}
                   <Link href={tier.id === 'free' ? '/' : `/signup?tier=${tier.id}`}>
                     <Button
                       variant={tier.ctaVariant}
                       className={`w-full min-h-[44px] ${
                         tier.id === 'growth'
-                          ? 'bg-innovation-teal hover:bg-teal-600 text-white'
-                          : ''
+                          ? 'bg-signal-blue hover:bg-[#1D4ED8] text-white'
+                          : tier.ctaVariant === 'outline'
+                            ? 'border-signal-blue text-signal-blue hover:bg-signal-blue/10'
+                            : ''
                       }`}
                     >
                       {tier.cta}
@@ -184,20 +199,20 @@ export default function PricingPreview({
 
         {/* Value Props Footer */}
         <div className="text-center">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-slate-brand">
             <div className="flex items-center gap-2">
-              <span className="text-green-600 font-semibold">✓</span>
+              <Check className="h-4 w-4 text-success" />
               <span>84% cheaper than competitors</span>
             </div>
-            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline text-mist">|</span>
             <div className="flex items-center gap-2">
-              <span className="text-green-600">🛡️</span>
+              <Check className="h-4 w-4 text-success" />
               <span>30-day money-back guarantee</span>
             </div>
-            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline text-mist">|</span>
             <div className="flex items-center gap-2">
-              <span className="text-green-600">✓</span>
-              <span>No credit card required for FREE</span>
+              <Check className="h-4 w-4 text-success" />
+              <span>No credit card required for free tier</span>
             </div>
           </div>
         </div>

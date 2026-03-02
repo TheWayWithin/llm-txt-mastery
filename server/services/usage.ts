@@ -12,7 +12,7 @@ import {
 } from '@shared/schema';
 import { authStorage } from '../services/auth-storage';
 import { TIER_LIMITS } from './cache';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gt } from 'drizzle-orm';
 
 // CRITICAL FIX: Shared user resolution logic to prevent race conditions
 // Both trackUsage() and getTodayUsage() use this to ensure consistent behavior
@@ -356,7 +356,6 @@ export async function trackUsage(
             costCapWouldTrigger && !existingUsage[0].costCapWouldTrigger
               ? new Date()
               : existingUsage[0].costCapTriggeredAt,
-          updatedAt: new Date(),
         })
         .where(eq(usageTracking.id, existingUsage[0].id))
         .returning();

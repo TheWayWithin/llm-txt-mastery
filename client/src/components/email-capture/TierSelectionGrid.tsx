@@ -36,7 +36,7 @@ export function TierSelectionGrid({
       >
         {/* Starter Tier */}
         <div
-          className={`relative border-2 border-red-300 rounded-lg bg-red-50 hover:bg-red-100 transition-colors p-4 ${
+          className={`relative border-2 border-mist rounded-lg bg-error/10 hover:bg-error/10 transition-colors p-4 ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
           onClick={() => handleTierClick('starter')}
@@ -47,7 +47,7 @@ export function TierSelectionGrid({
             className="absolute top-4 right-4"
             disabled={disabled}
           />
-          <div className="absolute -top-3 left-4 bg-red-600 text-white text-xs px-2 py-1 rounded">
+          <div className="absolute -top-3 left-4 bg-error text-white text-xs px-2 py-1 rounded">
             ⚠️ SEVERELY LIMITED
           </div>
           <div className="pr-8">
@@ -56,9 +56,9 @@ export function TierSelectionGrid({
               className={`flex items-center space-x-2 mt-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <img src="/images/tier-free.png" alt="Free Tier" className="w-6 h-6 opacity-60" />
-              <span className="font-medium text-lg text-red-700">Free (But Crippled)</span>
+              <span className="font-medium text-lg text-error">Free (But Crippled)</span>
             </Label>
-            <p className="text-sm text-red-600 mt-2">
+            <p className="text-sm text-error mt-2">
               ❌ Only 3 analyses per day (then locked out)
               <br />
               ❌ Severely limited to 20 pages only
@@ -67,7 +67,7 @@ export function TierSelectionGrid({
               <br />
               ❌ Basic HTML extraction only
               <br />
-              <span className="text-xs font-medium text-red-700 mt-1 block">
+              <span className="text-xs font-medium text-error mt-1 block">
                 ⚠️ WARNING: AI sees only 20 pages - missing your pricing, features, case studies &
                 what makes you unique!
               </span>
@@ -77,7 +77,7 @@ export function TierSelectionGrid({
 
         {/* Coffee Tier */}
         <div
-          className={`relative border-4 border-green-500 rounded-lg bg-gradient-to-br from-green-50 to-orange-50 hover:from-green-100 hover:to-orange-100 transition-colors p-4 shadow-lg ${
+          className={`relative border-4 border-success rounded-lg bg-gradient-to-br from-success/10 to-action-amber/10 hover:from-success/20 hover:to-action-amber/20 transition-colors p-4 shadow-lg ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
           onClick={() => handleTierClick('solo')}
@@ -88,7 +88,7 @@ export function TierSelectionGrid({
             className="absolute top-4 right-4"
             disabled={disabled}
           />
-          <div className="absolute -top-3 left-4 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+          <div className="absolute -top-3 left-4 bg-success text-white text-xs px-3 py-1 rounded-full font-bold">
             🏆 CRUSH YOUR COMPETITION
           </div>
           <div className="pr-8">
@@ -97,9 +97,9 @@ export function TierSelectionGrid({
               className={`flex items-center space-x-2 mt-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <img src="/images/tier-coffee.png" alt="Coffee Tier" className="w-8 h-8" />
-              <span className="font-bold text-xl text-green-800">Coffee Power ($4.95/month)</span>
+              <span className="font-bold text-xl text-ink">Coffee Power ($4.95/month)</span>
             </Label>
-            <p className="text-sm font-medium text-green-700 mt-2">
+            <p className="text-sm font-medium text-success mt-2">
               ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly
               <br />
               ✅ 20 analyses per month (credits reset monthly)
@@ -112,7 +112,7 @@ export function TierSelectionGrid({
               <br />
               ✅ Beat competitors who use broken tools
               <br />
-              <span className="text-xs font-bold text-green-800 mt-2 block bg-green-100 p-2 rounded">
+              <span className="text-xs font-bold text-ink mt-2 block bg-success/10 p-2 rounded">
                 🚀 All guarantees included - see below for details
               </span>
             </p>
@@ -121,7 +121,7 @@ export function TierSelectionGrid({
 
         {/* Growth Tier */}
         <div
-          className={`relative border rounded-lg hover:bg-slate-50 transition-colors p-4 ${
+          className={`relative border rounded-lg hover:bg-cloud transition-colors p-4 ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
           onClick={() => handleTierClick('growth')}
@@ -140,7 +140,7 @@ export function TierSelectionGrid({
               <img src="/images/tier-growth.png" alt="Growth Tier" className="w-6 h-6" />
               <span className="font-medium text-lg">Professional Power ($9.95/mo)</span>
             </Label>
-            <p className="text-sm text-ai-silver mt-2">
+            <p className="text-sm text-slate-brand mt-2">
               • Unlimited analyses
               <br />
               • 500 pages per analysis
@@ -153,7 +153,7 @@ export function TierSelectionGrid({
 
         {/* Scale Tier */}
         <div
-          className={`relative border rounded-lg hover:bg-slate-50 transition-colors p-4 ${
+          className={`relative border rounded-lg hover:bg-cloud transition-colors p-4 ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
           onClick={() => handleTierClick('scale')}
@@ -172,7 +172,7 @@ export function TierSelectionGrid({
               <img src="/images/tier-scale.png" alt="Scale Tier" className="w-6 h-6" />
               <span className="font-medium text-lg">Agency & API ($19.95/mo)</span>
             </Label>
-            <p className="text-sm text-ai-silver mt-2">
+            <p className="text-sm text-slate-brand mt-2">
               • Full API access
               <br />
               • Unlimited pages

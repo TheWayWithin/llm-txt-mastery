@@ -62,7 +62,7 @@ export function LoginForm({
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
               <Input
                 id="email"
                 type="email"
@@ -78,7 +78,7 @@ export function LoginForm({
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-stone-brand" />
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -91,7 +91,7 @@ export function LoginForm({
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="absolute right-3 top-3 h-5 w-5 text-stone-brand hover:text-slate-brand p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -102,7 +102,7 @@ export function LoginForm({
             <button
               type="button"
               onClick={onSwitchToForgotPassword}
-              className="text-sm text-blue-600 hover:text-blue-800 min-h-[44px] px-2 py-2"
+              className="text-sm text-signal-blue hover:text-mastery-blue min-h-[44px] px-2 py-2"
               disabled={loading}
             >
               Forgot password?
@@ -120,11 +120,11 @@ export function LoginForm({
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-slate-brand">
             Don't have an account?{' '}
             <button
               onClick={onSwitchToSignup}
-              className="text-blue-600 hover:text-blue-800 font-medium min-h-[44px] px-2 py-2"
+              className="text-signal-blue hover:text-mastery-blue font-medium min-h-[44px] px-2 py-2"
             >
               Sign up
             </button>
