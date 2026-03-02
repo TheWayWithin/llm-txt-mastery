@@ -25,14 +25,14 @@ export const TIER_PRICES = {
     interval: 'month', // Monthly recurring
   },
   growth: {
-    priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1SHYFqIiC84gpR8HpyMNpxpr',
-    amount: 1495, // $14.95 in cents
+    priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1RmlSgIiC84gpR8HPCONRuzq',
+    amount: 995, // $9.95 in cents
     currency: 'usd',
     interval: 'month',
   },
   scale: {
-    priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_1SHYThIiC84gpR8HCHc48wmF',
-    amount: 2995, // $29.95 in cents
+    priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_1RmlUEIiC84gpR8HVAI1HP4U',
+    amount: 1995, // $19.95 in cents
     currency: 'usd',
     interval: 'month',
   },
