@@ -20,23 +20,29 @@ export const stripe = getStripe;
 export const TIER_PRICES = {
   solo: {
     priceId: process.env.STRIPE_LLM_TXT_SOLO_PRICE_ID || 'price_1S0lZnIiC84gpR8HCqUGxmaD',
-    amount: 495, // $4.95 in cents
+    annualPriceId: process.env.STRIPE_LLM_TXT_SOLO_ANNUAL_PRICE_ID || '',
+    amount: 495, // $4.95/mo in cents
+    annualAmount: 4740, // $47.40/yr in cents ($3.95/mo × 12)
     currency: 'usd',
-    interval: 'month', // Monthly recurring
+    interval: 'month',
   },
   growth: {
     priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1RmlSgIiC84gpR8HPCONRuzq',
-    amount: 995, // $9.95 in cents
+    annualPriceId: process.env.STRIPE_LLM_TXT_GROWTH_ANNUAL_PRICE_ID || '',
+    amount: 995, // $9.95/mo in cents
+    annualAmount: 9540, // $95.40/yr in cents ($7.95/mo × 12)
     currency: 'usd',
     interval: 'month',
   },
   scale: {
     priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_1RmlUEIiC84gpR8HVAI1HP4U',
-    amount: 1995, // $19.95 in cents
+    annualPriceId: process.env.STRIPE_LLM_TXT_SCALE_ANNUAL_PRICE_ID || '',
+    amount: 1995, // $19.95/mo in cents
+    annualAmount: 19140, // $191.40/yr in cents ($15.95/mo × 12)
     currency: 'usd',
     interval: 'month',
   },
-} as const;
+};
 
 export interface CreateCustomerParams {
   email: string;
