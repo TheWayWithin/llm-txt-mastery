@@ -1,4 +1,5 @@
 import type { Express } from 'express';
+import express from 'express';
 import { z } from 'zod';
 import {
   stripe,
@@ -519,8 +520,8 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
-  // Stripe webhook handler
-  app.post('/api/stripe/webhook', async (req, res) => {
+  // Stripe webhook handler — express.raw() reads the body before any parsing
+  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     try {
       const signature = req.headers['stripe-signature'] as string;
       // req.body is a raw Buffer from express.raw() middleware
