@@ -136,6 +136,12 @@ export async function createCheckoutSession(params: {
         userId: params.userId,
         ...(params.metadata || {}),
       },
+      subscription_data: {
+        metadata: {
+          userId: params.userId,
+          ...(params.metadata || {}),
+        },
+      },
     });
 
     console.log(`Created checkout session: ${session.id} for customer: ${params.customerId}`);
