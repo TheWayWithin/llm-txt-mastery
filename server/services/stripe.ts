@@ -260,7 +260,7 @@ export async function createPortalSession(
 /**
  * Validate webhook signature
  */
-export function validateWebhookSignature(payload: string, signature: string): Stripe.Event {
+export function validateWebhookSignature(payload: string | Buffer, signature: string): Stripe.Event {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     throw new Error('STRIPE_WEBHOOK_SECRET is required');

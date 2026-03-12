@@ -523,8 +523,8 @@ export function registerStripeRoutes(app: Express) {
   app.post('/api/stripe/webhook', async (req, res) => {
     try {
       const signature = req.headers['stripe-signature'] as string;
-      // Use rawBody captured before express.json() parsed it
-      const payload = (req as any).rawBody || req.body;
+      // req.body is a raw Buffer from express.raw() middleware
+      const payload = req.body;
 
       if (!signature) {
         return res.status(400).json({ message: 'Missing stripe signature' });
