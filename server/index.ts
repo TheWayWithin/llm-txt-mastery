@@ -71,6 +71,21 @@ app.use(securityMonitoring);
 app.use(enhancedInputValidation);
 app.use(apiSecurityHeaders);
 
+// Capture raw body for Stripe webhook signature verification BEFORE json parsing
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path === '/api/stripe/webhook') {
+    let rawData = '';
+    req.setEncoding('utf8');
+    req.on('data', (chunk: string) => { rawData += chunk; });
+    req.on('end', () => {
+      (req as any).rawBody = rawData;
+      next();
+    });
+  } else {
+    next();
+  }
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
