@@ -71,21 +71,14 @@ app.use(securityMonitoring);
 app.use(enhancedInputValidation);
 app.use(apiSecurityHeaders);
 
-// Capture raw body for Stripe webhook signature verification BEFORE json parsing
-app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.path === '/api/stripe/webhook') {
-    const chunks: Buffer[] = [];
-    req.on('data', (chunk: Buffer) => { chunks.push(chunk); });
-    req.on('end', () => {
-      (req as any).rawBody = Buffer.concat(chunks).toString('utf8');
-      next();
-    });
-  } else {
-    next();
-  }
-});
+// Raw body for Stripe webhook — must run before express.json()
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
-app.use(express.json({ limit: '10mb' }));
+// JSON parsing for all other routes (skip webhook — already handled above)
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path === '/api/stripe/webhook') return next();
+  express.json({ limit: '10mb' })(req, res, next);
+});
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
 
