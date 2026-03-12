@@ -1,3 +1,4 @@
+import express from 'express';
 import type { Express } from 'express';
 import { z } from 'zod';
 import {
@@ -519,8 +520,8 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
-  // Stripe webhook handler
-  app.post('/api/stripe/webhook', async (req, res) => {
+  // Stripe webhook handler — must receive raw body for signature verification
+  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     try {
       const signature = req.headers['stripe-signature'] as string;
       const payload = req.body;
