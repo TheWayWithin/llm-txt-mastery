@@ -74,11 +74,10 @@ app.use(apiSecurityHeaders);
 // Capture raw body for Stripe webhook signature verification BEFORE json parsing
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path === '/api/stripe/webhook') {
-    let rawData = '';
-    req.setEncoding('utf8');
-    req.on('data', (chunk: string) => { rawData += chunk; });
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk: Buffer) => { chunks.push(chunk); });
     req.on('end', () => {
-      (req as any).rawBody = rawData;
+      (req as any).rawBody = Buffer.concat(chunks).toString('utf8');
       next();
     });
   } else {
