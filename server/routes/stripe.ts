@@ -731,7 +731,7 @@ async function handleCheckoutCompleted(session: any) {
             );
 
             // Send verification email
-            const { sendVerificationEmail } = await import('../services/auth');
+            const { sendVerificationEmail } = await import('../services/email');
             sendVerificationEmail(authUser).catch((error) => {
               console.error('Failed to send verification email:', error);
             });
