@@ -283,11 +283,15 @@ export function validateWebhookSignature(payload: string | Buffer, signature: st
 }
 
 /**
- * Get tier from price ID
+ * Get tier from price ID (monthly or annual)
  */
 export function getTierFromPriceId(priceId: string): 'solo' | 'growth' | 'scale' | null {
+  if (!priceId) return null;
   if (priceId === TIER_PRICES.solo.priceId) return 'solo';
+  if (TIER_PRICES.solo.annualPriceId && priceId === TIER_PRICES.solo.annualPriceId) return 'solo';
   if (priceId === TIER_PRICES.growth.priceId) return 'growth';
+  if (TIER_PRICES.growth.annualPriceId && priceId === TIER_PRICES.growth.annualPriceId) return 'growth';
   if (priceId === TIER_PRICES.scale.priceId) return 'scale';
+  if (TIER_PRICES.scale.annualPriceId && priceId === TIER_PRICES.scale.annualPriceId) return 'scale';
   return null;
 }
