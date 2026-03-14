@@ -777,7 +777,17 @@ async function handleSubscriptionUpdate(subscription: any) {
     }
 
     const priceId = subscription.items?.data[0]?.price?.id;
-    const tier = getTierFromPriceId(priceId) || 'starter';
+    // Check metadata first (more reliable), fall back to price ID lookup
+    const tierFromMetadata = subscription.metadata?.tier as string | undefined;
+    const tierFromPrice = getTierFromPriceId(priceId);
+    const tier = (tierFromMetadata || tierFromPrice) as 'solo' | 'growth' | 'scale' | null;
+
+    if (!tier) {
+      console.warn(
+        `handleSubscriptionUpdate: unknown price ${priceId} and no metadata tier — skipping tier update to avoid clobbering with 'starter'`
+      );
+      return;
+    }
 
     console.log(
       `Subscription updated for user: ${userId}, tier: ${tier}, status: ${subscription.status}`
