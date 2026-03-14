@@ -200,12 +200,16 @@ export default function SignupPage() {
 
         const data = await response.json();
 
+        if (!response.ok) {
+          throw new Error(data.message || `Server error ${response.status}`);
+        }
+
         if (data.url) {
           // Redirect to Stripe checkout
           window.location.href = data.url;
           return;
         } else {
-          throw new Error('Failed to create checkout session');
+          throw new Error(data.message || 'No checkout URL returned');
         }
       }
 
