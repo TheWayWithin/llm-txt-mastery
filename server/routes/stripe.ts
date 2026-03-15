@@ -340,21 +340,27 @@ export function registerStripeRoutes(app: Express) {
         return res.json({ sessionId: session.id, url: session.url });
       }
 
-      // Monthly Solo: one-time payment checkout session
+      // Monthly Solo: subscription checkout (recurring)
       const priceId = TIER_PRICES.solo.priceId;
 
-      let successUrl = `${req.headers.origin}/coffee-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}`;
+      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=solo&billing=monthly`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
 
-      const session = await createOneTimeCheckoutSession({
+      const session = await createCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
         successUrl,
         cancelUrl: `${req.headers.origin}/coffee-cancel`,
         userId: emailCapture.id.toString(),
-        productType: 'coffee',
+        metadata: {
+          ...metadata,
+          email: userEmail,
+          tier: 'solo',
+          billing: 'monthly',
+          websiteUrl: websiteUrl || '',
+        },
       });
 
       res.json({
