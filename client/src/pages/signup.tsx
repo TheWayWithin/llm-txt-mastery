@@ -288,19 +288,19 @@ export default function SignupPage() {
         ];
       case 'growth':
         return [
-          'Be discoverable across all AI platforms',
-          'Analyze multiple properties at once',
-          'Export data to CSV/JSON for reporting',
-          'Process 1,000 pages per site',
+          '35 analyses/month with 500 pages each',
           'Bulk website processing for agencies',
+          'Export data to CSV/JSON for reporting',
+          'Priority processing — skip the queue',
+          'Everything in Solo included',
         ];
       case 'scale':
         return [
-          'JavaScript rendering for React, Angular, Vue sites',
-          'Analyze any site, any size — no page limits',
-          'Full AI analysis on every page',
-          'Multi-site management for agencies and enterprises',
-          'Direct support for your questions',
+          '100 analyses/month with 1,000 pages each',
+          'JavaScript rendering for React, Angular, Vue',
+          'API access for automation & integration',
+          'Multi-site management for agencies',
+          'Everything in Growth included',
         ];
       default:
         return [];
@@ -445,7 +445,7 @@ export default function SignupPage() {
                             Complete solution — no limits
                           </p>
                           <p className="text-xs text-slate-brand">
-                            Unlimited pages, unlimited AI analysis, and direct support.
+                            1,000 pages per scan, JS rendering, API access, and priority support.
                           </p>
                         </div>
                       )}
