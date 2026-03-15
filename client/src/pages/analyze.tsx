@@ -475,7 +475,9 @@ export default function AnalyzePage() {
                             ? 'AI analysis for first 5 pages'
                             : user.tier === 'solo'
                               ? `${user.creditsRemaining || 0} premium analyses remaining`
-                              : 'Unlimited AI-enhanced analysis'}
+                              : user.tier === 'growth'
+                                ? '35 AI-enhanced analyses/month'
+                                : '100 AI-enhanced analyses/month'}
                         </span>
                       </div>
                       <Button

@@ -203,7 +203,7 @@ function AccountOverview() {
                     user.tier === 'growth' ? 'text-mastery-blue' : 'text-slate-brand'
                   }`}
                 >
-                  You have access to unlimited website analysis and premium features.
+                  You have access to premium website analysis and advanced features.
                 </p>
                 <div className="text-sm">
                   <strong>Active features:</strong>
@@ -212,7 +212,7 @@ function AccountOverview() {
                       user.tier === 'growth' ? 'text-signal-blue' : 'text-slate-brand'
                     }`}
                   >
-                    <li>{user.tier === 'growth' ? '100 monthly analyses (5x Coffee capacity)' : user.tier === 'scale' ? 'Unlimited analyses' : '20 Monthly Analyses'}</li>
+                    <li>{user.tier === 'growth' ? '35 monthly analyses, 500 pages each' : user.tier === 'scale' ? '100 monthly analyses, 1,000 pages each' : '20 Monthly Analyses'}</li>
                     <li>AI-enhanced analysis</li>
                     <li>Priority support</li>
                     {user.tier === 'scale' && (
