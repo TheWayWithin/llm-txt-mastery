@@ -222,11 +222,11 @@ export default function Pricing() {
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Cover 1,000 pages per site</span>
+                  <span className="text-sm text-ink">35 analyses/month, 500 pages each</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Unlimited daily analyses</span>
+                  <span className="text-sm text-ink">Priority processing</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
@@ -284,11 +284,11 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Unlimited pages per analysis</span>
+                  <span className="text-sm text-ink">100 analyses/month, 1,000 pages each</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Unlimited AI analysis</span>
+                  <span className="text-sm text-ink">API access for automation</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
