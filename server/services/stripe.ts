@@ -20,23 +20,29 @@ export const stripe = getStripe;
 export const TIER_PRICES = {
   solo: {
     priceId: process.env.STRIPE_LLM_TXT_SOLO_PRICE_ID || 'price_1S0lZnIiC84gpR8HCqUGxmaD',
-    amount: 495, // $4.95 in cents
+    annualPriceId: process.env.STRIPE_LLM_TXT_SOLO_ANNUAL_PRICE_ID || '',
+    amount: 495, // $4.95/mo in cents
+    annualAmount: 4740, // $47.40/yr in cents ($3.95/mo × 12)
     currency: 'usd',
-    interval: 'month', // Monthly recurring
+    interval: 'month',
   },
   growth: {
     priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1RmlSgIiC84gpR8HPCONRuzq',
-    amount: 995, // $9.95 in cents
+    annualPriceId: process.env.STRIPE_LLM_TXT_GROWTH_ANNUAL_PRICE_ID || '',
+    amount: 995, // $9.95/mo in cents
+    annualAmount: 9540, // $95.40/yr in cents ($7.95/mo × 12)
     currency: 'usd',
     interval: 'month',
   },
   scale: {
     priceId: process.env.STRIPE_LLM_TXT_SCALE_PRICE_ID || 'price_1RmlUEIiC84gpR8HVAI1HP4U',
-    amount: 1995, // $19.95 in cents
+    annualPriceId: process.env.STRIPE_LLM_TXT_SCALE_ANNUAL_PRICE_ID || '',
+    amount: 1995, // $19.95/mo in cents
+    annualAmount: 19140, // $191.40/yr in cents ($15.95/mo × 12)
     currency: 'usd',
     interval: 'month',
   },
-} as const;
+};
 
 export interface CreateCustomerParams {
   email: string;
@@ -129,6 +135,12 @@ export async function createCheckoutSession(params: {
       metadata: {
         userId: params.userId,
         ...(params.metadata || {}),
+      },
+      subscription_data: {
+        metadata: {
+          userId: params.userId,
+          ...(params.metadata || {}),
+        },
       },
     });
 
@@ -254,7 +266,7 @@ export async function createPortalSession(
 /**
  * Validate webhook signature
  */
-export function validateWebhookSignature(payload: string, signature: string): Stripe.Event {
+export function validateWebhookSignature(payload: string | Buffer, signature: string): Stripe.Event {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     throw new Error('STRIPE_WEBHOOK_SECRET is required');
@@ -271,11 +283,15 @@ export function validateWebhookSignature(payload: string, signature: string): St
 }
 
 /**
- * Get tier from price ID
+ * Get tier from price ID (monthly or annual)
  */
 export function getTierFromPriceId(priceId: string): 'solo' | 'growth' | 'scale' | null {
+  if (!priceId) return null;
   if (priceId === TIER_PRICES.solo.priceId) return 'solo';
+  if (TIER_PRICES.solo.annualPriceId && priceId === TIER_PRICES.solo.annualPriceId) return 'solo';
   if (priceId === TIER_PRICES.growth.priceId) return 'growth';
+  if (TIER_PRICES.growth.annualPriceId && priceId === TIER_PRICES.growth.annualPriceId) return 'growth';
   if (priceId === TIER_PRICES.scale.priceId) return 'scale';
+  if (TIER_PRICES.scale.annualPriceId && priceId === TIER_PRICES.scale.annualPriceId) return 'scale';
   return null;
 }

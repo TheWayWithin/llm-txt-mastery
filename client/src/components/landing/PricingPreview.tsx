@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Check, Coffee, Zap, Crown } from 'lucide-react';
@@ -19,13 +19,18 @@ export default function PricingPreview({
   className = '',
   id,
 }: PricingPreviewProps) {
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+
   const tiers = [
     {
       id: 'free' as TierType,
       name: 'Starter',
       bestFor: 'Quick check',
-      price: '$0',
+      monthlyPrice: '$0',
+      annualPrice: '$0',
+      monthlyOriginal: null as string | null,
       period: '',
+      annualPeriod: '',
       icon: Check,
       description: 'Find out if you\'re invisible to AI',
       features: [
@@ -42,8 +47,11 @@ export default function PricingPreview({
       id: 'solo' as TierType,
       name: 'Solo',
       bestFor: 'Solopreneurs',
-      price: '$4.95',
+      monthlyPrice: '$4.95',
+      annualPrice: '$3.95',
+      monthlyOriginal: '$4.95',
       period: '/mo',
+      annualPeriod: 'per month, billed annually',
       icon: Coffee,
       description: 'Help AI find your best content',
       features: [
@@ -60,13 +68,16 @@ export default function PricingPreview({
       id: 'growth' as TierType,
       name: 'Growth',
       bestFor: 'Agencies',
-      price: '$9.95',
+      monthlyPrice: '$9.95',
+      annualPrice: '$7.95',
+      monthlyOriginal: '$9.95',
       period: '/mo',
+      annualPeriod: 'per month, billed annually',
       icon: Zap,
       description: 'Be discoverable across AI platforms',
       features: [
-        'Cover 1,000 pages per site',
-        'Unlimited daily analyses',
+        '35 analyses/month, 500 pages each',
+        'Priority processing',
         'Bulk website processing',
         'Export to CSV/JSON',
       ],
@@ -78,15 +89,18 @@ export default function PricingPreview({
       id: 'scale' as TierType,
       name: 'Scale',
       bestFor: 'Developers',
-      price: '$19.95',
+      monthlyPrice: '$19.95',
+      annualPrice: '$15.95',
+      monthlyOriginal: '$19.95',
       period: '/mo',
+      annualPeriod: 'per month, billed annually',
       icon: Crown,
       description: 'Full coverage for complex sites',
       features: [
+        '100 analyses/month, 1,000 pages each',
         'JS rendering for React/Angular/Vue',
-        'Unlimited pages per analysis',
-        'Unlimited AI analysis',
-        'Multi-site management',
+        'API access for automation',
+        'Priority support',
       ],
       cta: 'Generate Your File',
       ctaVariant: 'outline' as const,
@@ -118,13 +132,42 @@ export default function PricingPreview({
     <section ref={sectionRef} id={id} className={`py-12 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h2 className="text-3xl sm:text-4xl font-bold text-ink mb-3">
             Simple, Transparent Pricing
           </h2>
           <p className="text-base sm:text-lg text-slate-brand max-w-2xl mx-auto">
             Start free, upgrade when you need more
           </p>
+        </div>
+
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
+            <button
+              onClick={() => setBilling('monthly')}
+              className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${
+                billing === 'monthly'
+                  ? 'bg-white text-ink shadow-sm'
+                  : 'text-slate-brand hover:text-ink'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBilling('annual')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium transition-all ${
+                billing === 'annual'
+                  ? 'bg-white text-ink shadow-sm'
+                  : 'text-slate-brand hover:text-ink'
+              }`}
+            >
+              Annual
+              <span className="bg-success text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+                2 months free
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Pricing Grid */}
@@ -151,9 +194,21 @@ export default function PricingPreview({
                   <div className="flex items-center justify-between mb-2">
                     <Icon className="h-6 w-6 text-signal-blue" />
                     <div className="text-right">
-                      <span className="text-2xl sm:text-3xl font-bold text-ink">{tier.price}</span>
-                      {tier.period && (
-                        <span className="text-xs text-slate-brand block">{tier.period}</span>
+                      {billing === 'annual' && tier.monthlyOriginal ? (
+                        <>
+                          <div className="flex items-baseline gap-1 justify-end">
+                            <span className="text-sm text-slate-brand line-through">{tier.monthlyOriginal}</span>
+                            <span className="text-2xl sm:text-3xl font-bold text-ink">{tier.annualPrice}</span>
+                          </div>
+                          <span className="text-xs text-slate-brand block">{tier.annualPeriod}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-2xl sm:text-3xl font-bold text-ink">{tier.monthlyPrice}</span>
+                          {tier.period && (
+                            <span className="text-xs text-slate-brand block">{tier.period}</span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -177,7 +232,7 @@ export default function PricingPreview({
                   </ul>
 
                   {/* CTA Button */}
-                  <Link href={tier.id === 'free' ? '/' : `/signup?tier=${tier.id}`}>
+                  <Link href={tier.id === 'free' ? '/' : `/signup?tier=${tier.id}${billing === 'annual' ? '&billing=annual' : ''}`}>
                     <Button
                       variant={tier.ctaVariant}
                       className={`w-full min-h-[44px] ${

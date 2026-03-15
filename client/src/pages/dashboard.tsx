@@ -203,7 +203,7 @@ function AccountOverview() {
                     user.tier === 'growth' ? 'text-mastery-blue' : 'text-slate-brand'
                   }`}
                 >
-                  You have access to unlimited website analysis and premium features.
+                  You have access to premium website analysis and advanced features.
                 </p>
                 <div className="text-sm">
                   <strong>Active features:</strong>
@@ -212,7 +212,7 @@ function AccountOverview() {
                       user.tier === 'growth' ? 'text-signal-blue' : 'text-slate-brand'
                     }`}
                   >
-                    <li>{user.tier === 'growth' ? '100 monthly analyses (5x Coffee capacity)' : user.tier === 'scale' ? 'Unlimited analyses' : '20 Monthly Analyses'}</li>
+                    <li>{user.tier === 'growth' ? '35 monthly analyses, 500 pages each' : user.tier === 'scale' ? '100 monthly analyses, 1,000 pages each' : '20 Monthly Analyses'}</li>
                     <li>AI-enhanced analysis</li>
                     <li>Priority support</li>
                     {user.tier === 'scale' && (
@@ -552,6 +552,13 @@ function BillingSection() {
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-mastery-blue mb-1">
+                    📊 35 Monthly Analyses
+                  </div>
+                  <div className="text-xs text-signal-blue">vs Solo: 75% more analyses per month</div>
+                </div>
+
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-mastery-blue mb-1">
                     📄 500 Pages per Analysis
                   </div>
                   <div className="text-xs text-signal-blue">vs Solo: 2.5x more content discovery</div>
@@ -559,31 +566,28 @@ function BillingSection() {
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-mastery-blue mb-1">
-                    ⚡ Priority Processing
+                    📦 Bulk Website Processing
                   </div>
-                  <div className="text-xs text-signal-blue">Skip the queue, get results faster</div>
+                  <div className="text-xs text-signal-blue">Analyze multiple sites at once</div>
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-mastery-blue mb-1">
-                    🎯 Advanced Analytics
+                    📥 Export to CSV/JSON
                   </div>
                   <div className="text-xs text-signal-blue">
-                    Content quality insights & optimization tips
+                    Share reports with clients and teams
                   </div>
-                </div>
-
-                <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-mastery-blue mb-1">
-                    📂 Analysis History
-                  </div>
-                  <div className="text-xs text-signal-blue">Track your progress over time</div>
                 </div>
               </div>
 
               {user.tier === 'growth' ? (
                 <div className="text-center py-2 text-signal-blue font-medium">
                   ✅ You're Using Growth Plan
+                </div>
+              ) : user.tier === 'scale' ? (
+                <div className="text-center py-2 text-stone-brand text-sm">
+                  You've upgraded past this plan
                 </div>
               ) : (
                 <Button
@@ -637,19 +641,28 @@ function BillingSection() {
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-ink mb-1">
-                    ♾️ UNLIMITED Pages
+                    📊 100 Monthly Analyses
                   </div>
                   <div className="text-xs text-slate-brand">
-                    Analyze massive sites (capped at $19.95 AI cost)
+                    vs Growth: ~3x more analyses per month
                   </div>
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-ink mb-1">
-                    🤖 Full AI Analysis
+                    📄 1,000 Pages per Analysis
                   </div>
                   <div className="text-xs text-slate-brand">
-                    AI processes ALL pages (not just samples)
+                    vs Growth: 2x more pages per scan
+                  </div>
+                </div>
+
+                <div className="bg-white border border-mist rounded-md p-3">
+                  <div className="text-sm font-semibold text-ink mb-1">
+                    ⚛️ JavaScript Rendering
+                  </div>
+                  <div className="text-xs text-slate-brand">
+                    React, Angular, Vue & SPA sites fully supported
                   </div>
                 </div>
 
@@ -662,14 +675,7 @@ function BillingSection() {
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-ink mb-1">
-                    🏢 Multi-Site Management
-                  </div>
-                  <div className="text-xs text-slate-brand">Perfect for agencies & enterprises</div>
-                </div>
-
-                <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    📞 Direct Support Line
+                    📞 Priority Support
                   </div>
                   <div className="text-xs text-slate-brand">
                     Email support@llmtxtmastery.com for priority help

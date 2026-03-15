@@ -71,8 +71,15 @@ app.use(securityMonitoring);
 app.use(enhancedInputValidation);
 app.use(apiSecurityHeaders);
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+// Skip all body parsing for Stripe webhook — express.raw() is applied at the route level
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path === '/api/stripe/webhook') return next();
+  express.json({ limit: '10mb' })(req, res, next);
+});
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path === '/api/stripe/webhook') return next();
+  express.urlencoded({ extended: false, limit: '10mb' })(req, res, next);
+});
 app.use(cookieParser());
 
 app.use((req, res, next) => {

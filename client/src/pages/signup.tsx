@@ -44,6 +44,7 @@ export default function SignupPage() {
   const tierParam =
     (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale') || 'growth';
   const websiteUrlParam = urlParams.get('websiteUrl') || '';
+  const billingParam = (urlParams.get('billing') as 'monthly' | 'annual') || 'monthly';
 
   // Form state
   const [email, setEmail] = useState(emailParam);
@@ -188,6 +189,7 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: email,
+            billing: billingParam,
             ...(websiteUrlParam && { websiteUrl: websiteUrlParam }), // Only include if not empty
             metadata: {
               password: btoa(password), // Will be used by webhook to create user
@@ -198,12 +200,16 @@ export default function SignupPage() {
 
         const data = await response.json();
 
+        if (!response.ok) {
+          throw new Error(data.message || `Server error ${response.status}`);
+        }
+
         if (data.url) {
           // Redirect to Stripe checkout
           window.location.href = data.url;
           return;
         } else {
-          throw new Error('Failed to create checkout session');
+          throw new Error(data.message || 'No checkout URL returned');
         }
       }
 
@@ -282,19 +288,19 @@ export default function SignupPage() {
         ];
       case 'growth':
         return [
-          'Be discoverable across all AI platforms',
-          'Analyze multiple properties at once',
-          'Export data to CSV/JSON for reporting',
-          'Process 1,000 pages per site',
+          '35 analyses/month with 500 pages each',
           'Bulk website processing for agencies',
+          'Export data to CSV/JSON for reporting',
+          'Priority processing — skip the queue',
+          'Everything in Solo included',
         ];
       case 'scale':
         return [
-          'JavaScript rendering for React, Angular, Vue sites',
-          'Analyze any site, any size — no page limits',
-          'Full AI analysis on every page',
-          'Multi-site management for agencies and enterprises',
-          'Direct support for your questions',
+          '100 analyses/month with 1,000 pages each',
+          'JavaScript rendering for React, Angular, Vue',
+          'API access for automation & integration',
+          'Multi-site management for agencies',
+          'Everything in Growth included',
         ];
       default:
         return [];
@@ -389,13 +395,19 @@ export default function SignupPage() {
                         Starter (Free) — Quick check
                       </option>
                       <option value="solo" data-testid="tier-option-coffee">
-                        Solo ($4.95/mo) — Solopreneurs
+                        {billingParam === 'annual'
+                          ? 'Solo ($3.95/mo, billed $47.40/yr) — Solopreneurs'
+                          : 'Solo ($4.95/mo) — Solopreneurs'}
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
-                        Growth ($9.95/mo) — Agencies
+                        {billingParam === 'annual'
+                          ? 'Growth ($7.95/mo, billed $95.40/yr) — Agencies'
+                          : 'Growth ($9.95/mo) — Agencies'}
                       </option>
                       <option value="scale" data-testid="tier-option-scale">
-                        Scale ($19.95/mo) — Developers
+                        {billingParam === 'annual'
+                          ? 'Scale ($15.95/mo, billed $191.40/yr) — Developers'
+                          : 'Scale ($19.95/mo) — Developers'}
                       </option>
                     </select>
 
@@ -433,7 +445,7 @@ export default function SignupPage() {
                             Complete solution — no limits
                           </p>
                           <p className="text-xs text-slate-brand">
-                            Unlimited pages, unlimited AI analysis, and direct support.
+                            1,000 pages per scan, JS rendering, API access, and priority support.
                           </p>
                         </div>
                       )}

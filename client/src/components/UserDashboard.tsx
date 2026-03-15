@@ -148,20 +148,18 @@ export function UserDashboard() {
             )}
             {userProfile.tier === 'growth' && (
               <>
-                <div>• 500 pages per analysis</div>
-                <div>• Unlimited AI analysis</div>
-                <div>• File history</div>
-                <div>• Priority support</div>
-                <div>• Smart caching</div>
+                <div>• 35 analyses/month, 500 pages each</div>
+                <div>• Bulk website processing</div>
+                <div>• Export to CSV/JSON</div>
+                <div>• Priority processing</div>
               </>
             )}
             {userProfile.tier === 'scale' && (
               <>
-                <div>• Unlimited pages per analysis</div>
-                <div>• Full AI analysis (capped at $19.95)</div>
-                <div>• API access for integrations</div>
-                <div>• Multi-site management</div>
-                <div>• Direct email support line</div>
+                <div>• 100 analyses/month, 1,000 pages each</div>
+                <div>• JS rendering (React/Angular/Vue)</div>
+                <div>• API access for automation</div>
+                <div>• Priority support</div>
               </>
             )}
           </div>

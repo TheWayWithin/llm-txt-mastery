@@ -10,6 +10,9 @@ import { initAnalytics } from '@/lib/analytics';
 import { initializeConsent } from '@/lib/consent-init';
 import Home from '@/pages/home';
 import CoffeeSuccess from '@/pages/coffee-success';
+import CoffeeCancel from '@/pages/coffee-cancel';
+import SubscriptionSuccess from '@/pages/subscription-success';
+import SubscriptionCancel from '@/pages/subscription-cancel';
 import Dashboard from '@/pages/dashboard';
 import Pricing from '@/pages/pricing';
 import VerifyEmail from '@/pages/verify-email';
@@ -55,6 +58,9 @@ function Router() {
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/check-email" component={CheckEmailPage} />
       <Route path="/coffee-success" component={CoffeeSuccess} />
+      <Route path="/coffee-cancel" component={CoffeeCancel} />
+      <Route path="/subscription-success" component={SubscriptionSuccess} />
+      <Route path="/subscription-cancel" component={SubscriptionCancel} />
       <Route path="/verify-email" component={VerifyEmail} />
       <Route component={NotFound} />
     </Switch>

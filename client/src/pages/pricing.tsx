@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Check, Coffee, Zap, Crown, ArrowLeft } from 'lucide-react';
@@ -8,6 +9,8 @@ import Footer from '@/components/footer';
 import { useSEO } from '@/hooks/useSEO';
 
 export default function Pricing() {
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+
   useSEO({
     title: 'Pricing - Simple, Transparent Plans',
     description: 'Choose from Starter (free), Solo, Growth, or Scale plans. Generate AI-ready llms.txt files with no hidden fees.',
@@ -42,13 +45,42 @@ export default function Pricing() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2 className="text-4xl font-bold text-ink mb-4">
             Simple, Transparent Pricing
           </h2>
           <p className="text-lg text-slate-brand max-w-2xl mx-auto">
             Start free, upgrade when you need more. No hidden fees, no surprises.
           </p>
+        </div>
+
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center mb-10">
+          <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
+            <button
+              onClick={() => setBilling('monthly')}
+              className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${
+                billing === 'monthly'
+                  ? 'bg-white text-ink shadow-sm'
+                  : 'text-slate-brand hover:text-ink'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBilling('annual')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium transition-all ${
+                billing === 'annual'
+                  ? 'bg-white text-ink shadow-sm'
+                  : 'text-slate-brand hover:text-ink'
+              }`}
+            >
+              Annual
+              <span className="bg-success text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+                2 months free
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Pricing Grid */}
@@ -102,8 +134,20 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Coffee className="h-6 w-6 text-signal-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-ink">$4.95</span>
-                  <span className="text-xs text-slate-brand block">/month</span>
+                  {billing === 'annual' ? (
+                    <>
+                      <div className="flex items-baseline gap-1 justify-end">
+                        <span className="text-sm text-slate-brand line-through">$4.95</span>
+                        <span className="text-2xl font-bold text-ink">$3.95</span>
+                      </div>
+                      <span className="text-xs text-slate-brand block">per month, billed annually</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold text-ink">$4.95</span>
+                      <span className="text-xs text-slate-brand block">/month</span>
+                    </>
+                  )}
                 </div>
               </div>
               <CardTitle className="text-lg">Solo</CardTitle>
@@ -132,7 +176,7 @@ export default function Pricing() {
                   <span className="text-sm text-ink">30-day money-back guarantee</span>
                 </li>
               </ul>
-              <Link href="/signup?tier=solo">
+              <Link href={`/signup?tier=solo${billing === 'annual' ? '&billing=annual' : ''}`}>
                 <a className="block">
                   <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
                     Generate Your File
@@ -151,8 +195,20 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Zap className="h-6 w-6 text-signal-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-ink">$9.95</span>
-                  <span className="text-xs text-slate-brand block">/month</span>
+                  {billing === 'annual' ? (
+                    <>
+                      <div className="flex items-baseline gap-1 justify-end">
+                        <span className="text-sm text-slate-brand line-through">$9.95</span>
+                        <span className="text-2xl font-bold text-ink">$7.95</span>
+                      </div>
+                      <span className="text-xs text-slate-brand block">per month, billed annually</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold text-ink">$9.95</span>
+                      <span className="text-xs text-slate-brand block">/month</span>
+                    </>
+                  )}
                 </div>
               </div>
               <CardTitle className="text-lg">Growth</CardTitle>
@@ -166,11 +222,11 @@ export default function Pricing() {
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Cover 1,000 pages per site</span>
+                  <span className="text-sm text-ink">35 analyses/month, 500 pages each</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Unlimited daily analyses</span>
+                  <span className="text-sm text-ink">Priority processing</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
@@ -181,7 +237,7 @@ export default function Pricing() {
                   <span className="text-sm text-ink">Export to CSV/JSON</span>
                 </li>
               </ul>
-              <Link href="/signup?tier=growth">
+              <Link href={`/signup?tier=growth${billing === 'annual' ? '&billing=annual' : ''}`}>
                 <a className="block">
                   <Button className="w-full min-h-[44px] bg-signal-blue hover:bg-[#1D4ED8] text-white">
                     Generate Your File
@@ -197,8 +253,20 @@ export default function Pricing() {
               <div className="flex items-center justify-between mb-2">
                 <Crown className="h-6 w-6 text-signal-blue" />
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-ink">$19.95</span>
-                  <span className="text-xs text-slate-brand block">/month</span>
+                  {billing === 'annual' ? (
+                    <>
+                      <div className="flex items-baseline gap-1 justify-end">
+                        <span className="text-sm text-slate-brand line-through">$19.95</span>
+                        <span className="text-2xl font-bold text-ink">$15.95</span>
+                      </div>
+                      <span className="text-xs text-slate-brand block">per month, billed annually</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold text-ink">$19.95</span>
+                      <span className="text-xs text-slate-brand block">/month</span>
+                    </>
+                  )}
                 </div>
               </div>
               <CardTitle className="text-lg">Scale</CardTitle>
@@ -216,18 +284,18 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Unlimited pages per analysis</span>
+                  <span className="text-sm text-ink">100 analyses/month, 1,000 pages each</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Unlimited AI analysis</span>
+                  <span className="text-sm text-ink">API access for automation</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-ink">Multi-site management</span>
                 </li>
               </ul>
-              <Link href="/signup?tier=scale">
+              <Link href={`/signup?tier=scale${billing === 'annual' ? '&billing=annual' : ''}`}>
                 <a className="block">
                   <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
                     Generate Your File

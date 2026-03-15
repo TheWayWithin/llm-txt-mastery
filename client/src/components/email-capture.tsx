@@ -200,7 +200,7 @@ export default function EmailCapture({
                 <p className="text-sm font-medium text-success mt-2">
                   ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly
                   <br />
-                  ✅ UNLIMITED daily analyses (destroy daily limits)
+                  ✅ 20 monthly analyses (vs 3 on free)
                   <br />
                   ✅ Keep your LLMs.txt file CURRENT - update it as your site evolves
                   <br />
@@ -229,12 +229,12 @@ export default function EmailCapture({
                   <span className="font-medium text-lg">Professional Power ($9.95/mo)</span>
                 </Label>
                 <p className="text-sm text-slate-brand mt-2">
-                  • Unlimited analyses
+                  • 35 analyses/month, 500 pages each
                   <br />
-                  • 500 pages per analysis
+                  • Bulk website processing
                   <br />
-                  • Team collaboration
-                  <br />• Priority support
+                  • Export to CSV/JSON
+                  <br />• Priority processing
                 </p>
               </div>
             </div>
@@ -251,12 +251,12 @@ export default function EmailCapture({
                   <span className="font-medium text-lg">Agency & API ($19.95/mo)</span>
                 </Label>
                 <p className="text-sm text-slate-brand mt-2">
-                  • Full API access
+                  • 100 analyses/month, 1,000 pages each
                   <br />
-                  • Unlimited pages
+                  • JS rendering (React/Angular/Vue)
                   <br />
-                  • Multi-site management
-                  <br />• Direct email support
+                  • API access for automation
+                  <br />• Priority support
                 </p>
               </div>
             </div>
