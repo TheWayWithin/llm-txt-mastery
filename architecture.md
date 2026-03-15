@@ -1,8 +1,8 @@
 # LLM.txt Mastery - System Architecture Documentation
 
-**Version**: 3.3
-**Last Updated**: December 19, 2025
-**Changelog**: Sprint 6 - Added JavaScript rendering for React/Angular/Vue sites (Scale tier exclusive), Playwright browser integration
+**Version**: 3.4
+**Last Updated**: March 1, 2026
+**Changelog**: Site modernization - Brand alignment (Inter font, design system tokens, modular landing architecture), Stripe pricing update (Growth $9.95, Scale $19.95), CSP hardening with third-party dependency allowlisting
 
 ---
 
@@ -708,9 +708,8 @@ Validation API Access   │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
 │                                                                                 │
 │  Supported Products & Pricing:                                                 │
 │  • Solo Tier (code: coffee): $4.95/month (20 credits, 30-day guarantee)       │
-│  • Growth Tier: $9.95/month (100 analyses, enhanced features)                 │
-│  • Scale Tier: $19.95/month (unlimited analyses, priority support)            │
-│  • Enterprise: Custom pricing (unlimited usage, API access)                    │
+│  • Growth Tier: $9.95/month (35 analyses/month, enhanced features)            │
+│  • Scale Tier: $19.95/month (100 analyses/month, priority support)           │
 │                                                                                 │
 │  Advanced Security & Compliance:                                               │
 │  • Webhook signature verification (multiple endpoint support)                  │
@@ -1015,7 +1014,9 @@ The system implements a sophisticated 6-phase enhancement pipeline for generatin
 - Content gap identification
 - Recommendations for improvement
 
-### Coffee Tier Credit System
+### Solo Tier Credit System
+
+**Note**: The Solo tier uses internal code name "coffee" throughout the codebase. Customer-facing displays show "Solo" via display mapping in `tier-utils.ts`.
 
 **Innovative Freemium Model:**
 
@@ -1396,7 +1397,7 @@ if (estimatedCost > tierLimit) {
 
 **Learning**: Cost optimization is essential for sustainable freemium model
 
-#### 2. Coffee Tier Innovation (Business Model Success)
+#### 2. Solo Tier Innovation (Business Model Success)
 
 **Innovation**: $4.95 monthly subscription with 30-day guarantee
 **Results**:
@@ -1488,6 +1489,7 @@ if (usage.reachedLimit) {
 - **Hash-based CSP** for Google Tag Manager (SHA-256 authentication)
 - Removed 'unsafe-inline' and 'unsafe-eval' from Content Security Policy
 - Security headers: X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy
+- **CSP Third-Party Allowlisting** (March 2026): Iterative allowlisting for Enzuzo consent manager (`*.enzuzo.com`), jsdelivr CDN (`cdn.jsdelivr.net`), Google Fonts, Stripe, and Plausible analytics
 
 ### Performance Optimization History
 
@@ -1517,6 +1519,37 @@ if (usage.reachedLimit) {
 - **netlify.toml**: Force redirects for SEO files (served before SPA fallback)
 - **Google Search Console**: Sitemap submitted, 11 URLs discovered and indexing
 
+### Frontend Design System (March 2026)
+
+**Brand-Aligned Design Tokens** (defined in `index.css` + `tailwind.config.ts`):
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--mastery-blue` | `#1E3A5F` | Header, footer backgrounds |
+| `--signal-blue` | `#2563EB` | Primary CTAs, interactive elements |
+| `--clarity-teal` | `#0D9488` | Success accents, checkmarks |
+| `--action-amber` | `#D97706` | Warnings, attention elements |
+| `--ink` | `#1E293B` | Body text |
+| `--slate-brand` | `#475569` | Secondary text |
+| `--cloud` | `#F1F5F9` | Alternating section backgrounds |
+| `--mist` | `#E2E8F0` | Borders, dividers |
+
+**Typography**: Inter (Google Fonts) — weights 400, 500, 600, 700
+
+**Modular Landing Architecture** (`client/src/components/landing/`):
+- `HeroSection.tsx` — Problem-led headline, dual CTA
+- `ProblemAmplification.tsx` — Three pain-point cards
+- `SolutionIntro.tsx` — 3-step visual workflow
+- `ProofStack.tsx` — Sample output, validator preview, benchmarks
+- `AudienceCards.tsx` — Solopreneur/Agency/Developer targeting
+- `PricingPreview.tsx` — 4-tier card grid with brand styling
+- `FAQSection.tsx` — Accordion FAQ
+- `FounderStory.tsx` — Builder narrative
+
+**Icon System**: Lucide React icons throughout (no emoji in UI). Systematic replacement completed across all components.
+
+**Section Rhythm**: Alternating White (`#FFFFFF`) / Cloud (`#F1F5F9`) backgrounds for visual hierarchy.
+
 ### Operational Maturity Assessment
 
 #### Current State: Level 3 (Automated)
@@ -1544,7 +1577,7 @@ The LLM.txt Mastery architecture represents a sophisticated, production-ready Sa
 
 - **Dual Authentication System**: Supports both legacy and modern authentication flows
 - **Enhanced LLMs.txt Generation**: Unique 6-phase optimization system providing competitive advantage
-- **Coffee Tier Innovation**: Creative freemium model with $5 entry point and 30-day guarantee
+- **Solo Tier Innovation**: Creative freemium model with $4.95 entry point and 30-day guarantee
 - **AI Cost Optimization**: 93% cost reduction through strategic GPT-4o-mini implementation
 - **Comprehensive Usage Tracking**: Real-time monitoring with cost cap enforcement
 - **Production-Grade Security**: Multi-layer protection with JWT authentication and bot detection
@@ -1555,10 +1588,10 @@ The system is designed with clear evolution paths from the current monolithic ar
 **Business Impact:**
 The architecture directly enables the business model with sophisticated freemium support, multiple payment tiers, comprehensive usage tracking, and AI cost optimization that maintains healthy unit economics across all customer segments.
 
-**Last Updated**: December 19, 2025
-**Architecture Version**: 3.3
-**Status**: Production Ready - A+ Security, 98/100 Lighthouse ✅
-**Next Review**: Q1 2026 (Microservices evaluation)
+**Last Updated**: March 1, 2026
+**Architecture Version**: 3.4
+**Status**: Production Ready - A+ Security, 98/100 Lighthouse, Brand-Aligned Design System ✅
+**Next Review**: Q2 2026
 
 ---
 
@@ -1820,8 +1853,8 @@ Production Implementation:
 
 **Current Implementation**: Sophisticated freemium SaaS model
 
-- **Coffee Tier Innovation**: $4.95 monthly subscription with 20 credits + 30-day guarantee
-- **Subscription Management**: Growth ($25) and Scale ($100) tiers with lifecycle management
+- **Solo Tier Innovation**: $4.95 monthly subscription with 20 credits + 30-day guarantee
+- **Subscription Management**: Growth ($9.95) and Scale ($19.95) tiers with lifecycle management
 - **Usage Enforcement**: Real-time limits with intelligent upgrade recommendations
 - **Payment Processing**: Stripe integration with webhook handling and refund processing
 - **Cost Management**: AI cost tracking with 60% revenue cap enforcement

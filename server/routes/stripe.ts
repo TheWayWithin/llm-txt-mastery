@@ -1,4 +1,5 @@
 import type { Express } from 'express';
+import express from 'express';
 import { z } from 'zod';
 import {
   stripe,
@@ -77,10 +78,11 @@ export function registerStripeRoutes(app: Express) {
         userEmail: req.user?.email,
       });
 
-      const { email, websiteUrl, metadata } = z
+      const { email, websiteUrl, metadata, billing } = z
         .object({
           email: z.string().email().optional(),
           websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
+          billing: z.enum(['monthly', 'annual']).optional().default('monthly'),
           metadata: z
             .object({
               password: z.string().optional(),
@@ -98,7 +100,7 @@ export function registerStripeRoutes(app: Express) {
         return res.status(400).json({ message: 'Email is required' });
       }
 
-      console.log(`✅ Processing Growth checkout for: ${userEmail}`);
+      console.log(`✅ Processing Growth checkout for: ${userEmail} (billing: ${billing})`);
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -116,13 +118,16 @@ export function registerStripeRoutes(app: Express) {
         userId: emailCapture.id.toString(),
       });
 
-      // Create subscription checkout session for Growth tier
-      const priceId = TIER_PRICES.growth.priceId;
+      // Select price ID based on billing interval
+      const priceId =
+        billing === 'annual' && TIER_PRICES.growth.annualPriceId
+          ? TIER_PRICES.growth.annualPriceId
+          : TIER_PRICES.growth.priceId;
 
       const encodedEmail = encodeURIComponent(userEmail);
       const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
 
-      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=growth`;
+      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=growth&billing=${billing}`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
@@ -137,6 +142,7 @@ export function registerStripeRoutes(app: Express) {
           ...metadata,
           email: userEmail,
           tier: 'growth',
+          billing,
           websiteUrl: websiteUrl || '',
         },
       });
@@ -173,10 +179,11 @@ export function registerStripeRoutes(app: Express) {
         userEmail: req.user?.email,
       });
 
-      const { email, websiteUrl, metadata } = z
+      const { email, websiteUrl, metadata, billing } = z
         .object({
           email: z.string().email().optional(),
           websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
+          billing: z.enum(['monthly', 'annual']).optional().default('monthly'),
           metadata: z
             .object({
               password: z.string().optional(),
@@ -194,7 +201,7 @@ export function registerStripeRoutes(app: Express) {
         return res.status(400).json({ message: 'Email is required' });
       }
 
-      console.log(`✅ Processing Scale checkout for: ${userEmail}`);
+      console.log(`✅ Processing Scale checkout for: ${userEmail} (billing: ${billing})`);
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -212,13 +219,16 @@ export function registerStripeRoutes(app: Express) {
         userId: emailCapture.id.toString(),
       });
 
-      // Create subscription checkout session for Scale tier
-      const priceId = TIER_PRICES.scale.priceId;
+      // Select price ID based on billing interval
+      const priceId =
+        billing === 'annual' && TIER_PRICES.scale.annualPriceId
+          ? TIER_PRICES.scale.annualPriceId
+          : TIER_PRICES.scale.priceId;
 
       const encodedEmail = encodeURIComponent(userEmail);
       const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
 
-      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=scale`;
+      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=scale&billing=${billing}`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
@@ -233,6 +243,7 @@ export function registerStripeRoutes(app: Express) {
           ...metadata,
           email: userEmail,
           tier: 'scale',
+          billing,
           websiteUrl: websiteUrl || '',
         },
       });
@@ -260,13 +271,20 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
-  // Create one-time checkout session for coffee tier
+  // Create checkout session for solo tier (one-time monthly, or annual subscription)
   app.post('/api/stripe/create-coffee-checkout', optionalAuth, apiLimiter, async (req, res) => {
     try {
-      const { email, websiteUrl } = z
+      const { email, websiteUrl, billing, metadata } = z
         .object({
           email: z.string().email().optional(),
           websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
+          billing: z.enum(['monthly', 'annual']).optional().default('monthly'),
+          metadata: z
+            .object({
+              password: z.string().optional(),
+              tier: z.string().optional(),
+            })
+            .optional(),
         })
         .parse(req.body);
 
@@ -293,25 +311,56 @@ export function registerStripeRoutes(app: Express) {
         userId: emailCapture.id.toString(), // Use email capture ID
       });
 
-      // Create one-time payment checkout session
-      const priceId = TIER_PRICES.coffee.priceId;
-
       // Encode website URL and email for success redirect
       const encodedWebsiteUrl = websiteUrl ? encodeURIComponent(websiteUrl) : '';
       const encodedEmail = encodeURIComponent(userEmail);
 
-      let successUrl = `${req.headers.origin}/coffee-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}`;
+      if (billing === 'annual' && TIER_PRICES.solo.annualPriceId) {
+        // Annual Solo: subscription checkout
+        let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=solo&billing=annual`;
+        if (websiteUrl) {
+          successUrl += `&website=${encodedWebsiteUrl}`;
+        }
+
+        const session = await createCheckoutSession({
+          customerId: stripeCustomer.id,
+          priceId: TIER_PRICES.solo.annualPriceId,
+          successUrl,
+          cancelUrl: `${req.headers.origin}/coffee-cancel`,
+          userId: emailCapture.id.toString(),
+          metadata: {
+            ...metadata,
+            email: userEmail,
+            tier: 'solo',
+            billing: 'annual',
+            websiteUrl: websiteUrl || '',
+          },
+        });
+
+        return res.json({ sessionId: session.id, url: session.url });
+      }
+
+      // Monthly Solo: subscription checkout (recurring)
+      const priceId = TIER_PRICES.solo.priceId;
+
+      let successUrl = `${req.headers.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&email=${encodedEmail}&tier=solo&billing=monthly`;
       if (websiteUrl) {
         successUrl += `&website=${encodedWebsiteUrl}`;
       }
 
-      const session = await createOneTimeCheckoutSession({
+      const session = await createCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
         successUrl,
         cancelUrl: `${req.headers.origin}/coffee-cancel`,
         userId: emailCapture.id.toString(),
-        productType: 'coffee',
+        metadata: {
+          ...metadata,
+          email: userEmail,
+          tier: 'solo',
+          billing: 'monthly',
+          websiteUrl: websiteUrl || '',
+        },
       });
 
       res.json({
@@ -477,10 +526,11 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
-  // Stripe webhook handler
-  app.post('/api/stripe/webhook', async (req, res) => {
+  // Stripe webhook handler — express.raw() reads the body before any parsing
+  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     try {
       const signature = req.headers['stripe-signature'] as string;
+      // req.body is a raw Buffer from express.raw() middleware
       const payload = req.body;
 
       if (!signature) {
@@ -687,7 +737,7 @@ async function handleCheckoutCompleted(session: any) {
             );
 
             // Send verification email
-            const { sendVerificationEmail } = await import('../services/auth');
+            const { sendVerificationEmail } = await import('../services/email');
             sendVerificationEmail(authUser).catch((error) => {
               console.error('Failed to send verification email:', error);
             });
@@ -733,7 +783,17 @@ async function handleSubscriptionUpdate(subscription: any) {
     }
 
     const priceId = subscription.items?.data[0]?.price?.id;
-    const tier = getTierFromPriceId(priceId) || 'starter';
+    // Check metadata first (more reliable), fall back to price ID lookup
+    const tierFromMetadata = subscription.metadata?.tier as string | undefined;
+    const tierFromPrice = getTierFromPriceId(priceId);
+    const tier = (tierFromMetadata || tierFromPrice) as 'solo' | 'growth' | 'scale' | null;
+
+    if (!tier) {
+      console.warn(
+        `handleSubscriptionUpdate: unknown price ${priceId} and no metadata tier — skipping tier update to avoid clobbering with 'starter'`
+      );
+      return;
+    }
 
     console.log(
       `Subscription updated for user: ${userId}, tier: ${tier}, status: ${subscription.status}`

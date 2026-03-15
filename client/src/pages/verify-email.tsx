@@ -68,30 +68,29 @@ export default function VerifyEmailPage() {
             console.log('✅ Updated stored user emailVerified status');
           }
 
-          // Trigger EMAIL_VERIFIED event to update flow state machine
-          if (updatedUser) {
-            console.log('🔄 Triggering EMAIL_VERIFIED event for smooth transition to URL input');
-            actions.verifyEmail(updatedUser);
-          }
-
-          // Auto-redirect to analyze page after successful verification
+          // Auto-redirect after successful verification
           setTimeout(() => {
-            // Check if there's a pending analysis URL
-            const pendingUrl = localStorage.getItem('pendingAnalysisUrl');
-            const targetUrl = pendingUrl
-              ? `/analyze?url=${encodeURIComponent(pendingUrl)}`
-              : '/analyze';
-
-            // Clean up localStorage
             localStorage.removeItem('pendingVerificationEmail');
             localStorage.removeItem('pendingAnalysisUrl');
 
-            console.log('✅ Auto-redirecting to:', targetUrl);
-            window.location.href = targetUrl;
-          }, 2000); // Wait 2 seconds to show success message
+            if (updatedUser) {
+              // Already logged in — go straight to analyze
+              const pendingUrl = localStorage.getItem('pendingAnalysisUrl');
+              const targetUrl = pendingUrl
+                ? `/analyze?url=${encodeURIComponent(pendingUrl)}`
+                : '/analyze';
+              console.log('✅ Logged in, redirecting to:', targetUrl);
+              window.location.href = targetUrl;
+            } else {
+              // Not logged in (post-payment new user) — go to login
+              console.log('✅ Not logged in, redirecting to /login');
+              window.location.href = '/login?verified=true';
+            }
+          }, 2000);
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
-          // Don't fail the verification, just log the error
+          // Fall back to login page
+          setTimeout(() => { window.location.href = '/login?verified=true'; }, 2000);
         }
       } else {
         setVerificationState('error');
