@@ -28,7 +28,8 @@ export function AuthNav() {
   const getTierIcon = (tier?: string) => {
     switch (tier) {
       case 'solo':
-        return <Coffee className="h-3 w-3" />;
+      case 'coffee':
+        return <BarChart3 className="h-3 w-3" />;
       case 'growth':
         return <Zap className="h-3 w-3" />;
       case 'scale':
