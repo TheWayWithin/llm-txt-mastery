@@ -64,9 +64,10 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
       smartCaching: true,
     },
   },
+  // 'coffee' is a legacy alias for 'solo' — kept for backward compatibility with existing DB records
   coffee: {
-    dailyAnalyses: 20, // Same as solo (legacy tier with credit system)
-    maxPagesPerAnalysis: 200, // Same as solo
+    dailyAnalyses: 20,
+    maxPagesPerAnalysis: 200,
     aiPagesLimit: 200,
     cacheDurationDays: 7,
     features: {

@@ -188,7 +188,7 @@ describe('EmailCapture Component - Characterization Tests', () => {
           'tier_selected',
           expect.objectContaining({
             tier_selected: 'growth',
-            previous_tier: 'coffee',
+            previous_tier: 'solo',
             website_url: 'https://example.com',
             event_category: 'engagement',
           })
@@ -245,7 +245,7 @@ describe('EmailCapture Component - Characterization Tests', () => {
       expect(analytics.trackEvent).toHaveBeenCalledWith(
         'login_click',
         expect.objectContaining({
-          tier_selected: 'coffee',
+          tier_selected: 'solo',
           website_url: 'https://example.com',
           event_category: 'auth',
         })
@@ -256,7 +256,7 @@ describe('EmailCapture Component - Characterization Tests', () => {
       expect(analytics.trackEvent).toHaveBeenCalledWith(
         'signup_click',
         expect.objectContaining({
-          tier_selected: 'coffee',
+          tier_selected: 'solo',
           website_url: 'https://example.com',
           event_category: 'auth',
         })

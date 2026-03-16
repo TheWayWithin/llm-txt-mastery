@@ -221,7 +221,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
     });
 
     it('does not redirect when user is authenticated', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -240,7 +240,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('Header and Navigation', () => {
     beforeEach(() => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -267,7 +267,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('User Welcome Section', () => {
     it('displays personalized welcome message', () => {
-      const mockUser = createMockUser({ email: 'john@example.com', tier: 'coffee' });
+      const mockUser = createMockUser({ email: 'john@example.com', tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -285,7 +285,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
     });
 
     it('shows dashboard link', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -303,7 +303,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('User Statistics Display', () => {
     it('displays current tier information', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -335,7 +335,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
     });
 
     it('displays tier-specific credit information', () => {
-      const mockUser = createMockUser({ tier: 'coffee', creditsRemaining: 5 });
+      const mockUser = createMockUser({ tier: 'solo', creditsRemaining: 5 });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -401,7 +401,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('URL Input Interface', () => {
     beforeEach(() => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -470,7 +470,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
         writable: true,
       });
 
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -491,7 +491,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
         writable: true,
       });
 
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -508,7 +508,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
     it('allows URL input changes', async () => {
       const user = userEvent.setup();
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -546,7 +546,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('Component State Management', () => {
     it('does not show progress breadcrumb in URL_INPUT state', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -561,7 +561,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
     });
 
     it('does not show analysis components in initial state', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -579,7 +579,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
     });
 
     it('does not show error display in normal state', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -596,7 +596,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('Modal States', () => {
     it('does not show auth modal by default', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -611,7 +611,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
     });
 
     it('does not show daily limit modal by default', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -628,7 +628,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('Recent Analyses Section', () => {
     it('does not show recent analyses when array is empty', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -673,7 +673,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
 
   describe('Error Boundary Integration', () => {
     it('wraps content in error boundary', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -690,7 +690,7 @@ describe('Analyze Page Component - Characterization Tests', () => {
   describe('Form Submission Handling', () => {
     it('prevents default form submission', async () => {
       const user = userEvent.setup();
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,

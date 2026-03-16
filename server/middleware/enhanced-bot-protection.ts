@@ -132,7 +132,7 @@ export const costProtectionLimiter = rateLimit({
     if (req.user?.id) {
       return req.user.tier === 'scale' ? 100 : 
              req.user.tier === 'growth' ? 50 : 
-             req.user.tier === 'coffee' ? 20 : 10;
+             (req.user.tier === 'solo' || req.user.tier === 'coffee') ? 20 : 10;
     }
     
     // Suspicious requests get very low limits
