@@ -251,27 +251,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Email required' });
       }
 
-      // Update email capture to Coffee tier
+      // Update email capture to Solo tier
       const existingCapture = await storage.getEmailCapture(email);
       if (existingCapture) {
-        await storage.updateEmailCapture(email, { tier: 'coffee' });
-        console.log(`Manually updated ${email} to Coffee tier`);
+        await storage.updateEmailCapture(email, { tier: 'solo' });
+        console.log(`Manually updated ${email} to Solo tier`);
         res.json({
-          message: 'Successfully updated to Coffee tier',
-          tier: 'coffee',
+          message: 'Successfully updated to Solo tier',
+          tier: 'solo',
           previousTier: existingCapture.tier,
         });
       } else {
-        // Create new Coffee tier email capture
+        // Create new Solo tier email capture
         await storage.createEmailCapture({
           email,
-          tier: 'coffee',
+          tier: 'solo',
           websiteUrl: null,
         });
-        console.log(`Created Coffee tier record for ${email}`);
+        console.log(`Created Solo tier record for ${email}`);
         res.json({
-          message: 'Created Coffee tier record',
-          tier: 'coffee',
+          message: 'Created Solo tier record',
+          tier: 'solo',
           previousTier: 'none',
         });
       }
@@ -378,7 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           analysesToday: simpleUsage.count,
         },
         estimatedCost: 0,
-        suggestedUpgrade: allowed ? null : 'coffee',
+        suggestedUpgrade: allowed ? null : 'solo',
       });
     } catch (error) {
       console.error('Limit check error:', error);
@@ -521,9 +521,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // For coffee tier users, check credits instead of daily limits
-      if (tier === 'coffee') {
-        console.log(`[ANALYZE] Coffee tier detected, user object:`, {
+      // For Solo tier users, check credits instead of daily limits
+      if (tier === 'solo' || tier === 'coffee') {
+        console.log(`[ANALYZE] Solo tier detected, user object:`, {
           hasUser: !!user,
           userId: user?.id,
           userEmail: user?.email,
@@ -531,24 +531,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
 
         if (!user?.id) {
-          console.error(`[ANALYZE] Coffee tier user but no user.id available`);
+          console.error(`[ANALYZE] Solo tier user but no user.id available`);
           return res.status(400).json({
-            message: 'Authentication required for Coffee tier. Please log in again.',
-            tier: 'coffee',
+            message: 'Authentication required for Solo tier. Please log in again.',
+            tier: 'solo',
           });
         }
 
         console.log(
-          `[ANALYZE] Checking Coffee tier credits for user ${user.email} (id: ${user.id})`
+          `[ANALYZE] Checking Solo tier credits for user ${user.email} (id: ${user.id})`
         );
         const creditCheck = await checkCoffeeCredits(user.id.toString());
         console.log(`[ANALYZE] Credit check result:`, creditCheck);
         if (!creditCheck.hasCredits) {
           return res.status(403).json({
             message:
-              'No coffee credits remaining. Purchase more credits or upgrade to Growth tier for unlimited analyses.',
+              'Monthly analysis limit reached. Your analyses reset on your next billing cycle, or upgrade to Growth for more.',
             currentCredits: creditCheck.creditsRemaining,
-            tier: 'coffee',
+            tier: 'solo',
             suggestedUpgrade: 'growth',
           });
         }
@@ -754,18 +754,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.debug('Could not fetch cache hits:', e);
       }
 
-      // CRITICAL FIX: Get credits for Coffee tier users
+      // Get credits for Solo tier users (handles both 'solo' and legacy 'coffee')
       let creditsRemaining = 0;
-      if (tier === 'coffee') {
+      if (tier === 'solo' || tier === 'coffee') {
         try {
           // Check auth_users table for credits
           const authUser = await authStorage.getUserByEmail(email);
-          if (authUser && authUser.tier === 'coffee') {
+          if (authUser && (authUser.tier === 'solo' || authUser.tier === 'coffee')) {
             creditsRemaining = authUser.creditsRemaining || 0;
-            console.log(`[USAGE API] Coffee tier user ${email} has ${creditsRemaining} credits`);
+            console.log(`[USAGE API] Solo tier user ${email} has ${creditsRemaining} credits`);
           }
         } catch (e) {
-          console.debug('Could not fetch coffee credits:', e);
+          console.debug('Could not fetch solo credits:', e);
         }
       }
 
@@ -787,8 +787,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         features: limits.features,
       };
 
-      // Add credits for Coffee tier
-      if (tier === 'coffee') {
+      // Add credits for Solo tier
+      if (tier === 'solo' || tier === 'coffee') {
         responseData.creditsRemaining = creditsRemaining;
       }
 
@@ -1147,10 +1147,10 @@ async function performAnalysisWithTimeout(
       console.debug(`[USAGE] Complex tracking failed (ignored):`, error.message);
     });
 
-    // Consume coffee credit if user is on coffee tier
-    if (tier === 'coffee') {
+    // Consume Solo credit if user is on Solo tier
+    if (tier === 'solo' || tier === 'coffee') {
       try {
-        console.log(`[CREDIT] Consuming coffee credit for ${userEmail}`);
+        console.log(`[CREDIT] Consuming Solo credit for ${userEmail}`);
 
         // Use authUserId if available (from JWT auth), otherwise resolve from email
         let userId = authUserId;

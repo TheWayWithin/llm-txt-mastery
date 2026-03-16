@@ -159,7 +159,9 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
     );
   }
 
-  const currentTier = subscriptionStatus?.tier || 'starter';
+  // Normalize legacy 'coffee' tier to 'solo'
+  const rawTier = subscriptionStatus?.tier || 'starter';
+  const currentTier = rawTier === ('coffee' as any) ? 'solo' : rawTier;
   const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription || false;
   const creditsRemaining = subscriptionStatus?.creditsRemaining || 0;
 
@@ -251,23 +253,22 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                 {currentTier === 'starter'
                   ? 'You are currently on the free Starter plan (20 pages).'
                   : currentTier === 'solo'
-                    ? `You have coffee credits for premium analysis.`
+                    ? `You have an active Solo subscription with ${creditsRemaining} analyses remaining this month.`
                     : 'No active subscription found.'}
               </p>
               {currentTier === 'starter' && (
-                <div className="bg-gradient-to-r from-action-amber/10 to-action-amber/20 border border-mist rounded-lg p-4">
+                <div className="bg-gradient-to-r from-signal-blue/10 to-signal-blue/20 border border-mist rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-ink">☕ Unlock Premium Analysis</h4>
-                    <span className="text-lg font-bold text-action-amber">$4.95</span>
+                    <h4 className="font-medium text-ink">Unlock Premium Analysis</h4>
+                    <span className="text-lg font-bold text-signal-blue">$4.95/mo</span>
                   </div>
-                  <p className="text-sm text-action-amber mb-3">
-                    Get professional-grade AI analysis • 200 pages • No subscription, just one
-                    coffee!
+                  <p className="text-sm text-slate-brand mb-3">
+                    20 monthly analyses with AI-powered insights, up to 200 pages each
                   </p>
                   <Button
                     onClick={handleCoffeePurchase}
                     disabled={upgrading}
-                    className="w-full bg-action-amber hover:bg-action-amber/90 text-white min-h-[48px] px-6 py-3"
+                    className="w-full bg-signal-blue hover:bg-signal-blue/90 text-white min-h-[48px] px-6 py-3"
                     size="default"
                   >
                     {upgrading && selectedTier === 'solo' ? (
@@ -276,38 +277,30 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
                         Processing...
                       </>
                     ) : (
-                      '☕ Buy Me Coffee'
+                      'Subscribe to Solo ($4.95/mo)'
                     )}
                   </Button>
                 </div>
               )}
               {currentTier === 'solo' && creditsRemaining === 0 && (
                 <div className="bg-cloud border border-mist rounded-lg p-4">
-                  <h4 className="font-medium text-ink mb-2">☕ Want Another Analysis?</h4>
-                  <p className="text-sm text-action-amber mb-3">
-                    Each coffee gets you one premium analysis, or go unlimited for continuous access
+                  <h4 className="font-medium text-ink mb-2">Monthly Limit Reached</h4>
+                  <p className="text-sm text-slate-brand mb-3">
+                    Your 20 monthly analyses have been used. They reset on your next billing cycle, or upgrade to Growth for 35/month.
                   </p>
                   <Button
-                    onClick={handleCoffeePurchase}
-                    disabled={upgrading}
+                    onClick={() => window.location.href = '/pricing'}
                     variant="outline"
-                    className="w-full border-mist text-action-amber hover:bg-cloud min-h-[48px] px-6 py-3"
+                    className="w-full border-mist text-signal-blue hover:bg-cloud min-h-[48px] px-6 py-3"
                     size="default"
                   >
-                    {upgrading && selectedTier === 'solo' ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                        Processing...
-                      </>
-                    ) : (
-                      '☕ Another Coffee Please ($4.95)'
-                    )}
+                    Upgrade to Growth ($9.95/mo)
                   </Button>
                 </div>
               )}
-              {currentTier !== 'scale' && currentTier !== 'solo' && (
+              {currentTier !== 'scale' && currentTier !== 'solo' && currentTier !== 'starter' && (
                 <p className="text-sm text-stone-brand">
-                  🚀 Upgrade to unlock unlimited analyses and advanced AI features.
+                  Upgrade to unlock more analyses and advanced AI features.
                 </p>
               )}
             </div>

@@ -174,7 +174,7 @@ export default function SignupPage() {
         // Determine the correct endpoint based on tier
         let endpoint = '';
         if (selectedTier === 'solo') {
-          endpoint = '/api/stripe/create-coffee-checkout';
+          endpoint = '/api/stripe/create-solo-checkout';
         } else if (selectedTier === 'growth') {
           endpoint = '/api/stripe/create-growth-checkout';
         } else if (selectedTier === 'scale') {
