@@ -44,7 +44,7 @@ const demoAnalyses = [
       message: 'Successfully analyzed website using sitemap discovery.',
       totalPagesFound: 3,
       userEmail: DEMO_USER_EMAIL,
-      tier: 'coffee' as UserTier,
+      tier: 'solo' as UserTier,
       metrics: {
         cacheHit: false,
         processingTime: 2500,
@@ -110,7 +110,7 @@ const demoAnalyses = [
       message: 'Successfully analyzed comprehensive website with AI-powered content scoring.',
       totalPagesFound: 5,
       userEmail: DEMO_USER_EMAIL,
-      tier: 'coffee' as UserTier,
+      tier: 'solo' as UserTier,
       metrics: {
         cacheHit: false,
         processingTime: 4200,
@@ -152,7 +152,7 @@ export async function ensureDemoData(): Promise<void> {
           userId: DEMO_USER_ID,
           email: DEMO_USER_EMAIL,
           websiteUrl: 'https://example.com',
-          tier: 'coffee',
+          tier: 'solo',
         });
         console.log(`  ✅ Created email capture for demo user`);
       }

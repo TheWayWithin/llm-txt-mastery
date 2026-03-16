@@ -25,7 +25,7 @@ const mockRefreshUser = vi.fn();
 let mockUserState = {
   id: 1,
   email: 'test@example.com',
-  tier: 'coffee' as const,
+  tier: 'solo' as const,
   creditsRemaining: 5,
   username: 'testuser',
 };
@@ -54,7 +54,7 @@ describe('Full Refund Flow Integration', () => {
     mockUserState = {
       id: 1,
       email: 'test@example.com',
-      tier: 'coffee' as const,
+      tier: 'solo' as const,
       creditsRemaining: 5,
       username: 'testuser',
     };
@@ -74,7 +74,7 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     // Mock successful refund
@@ -161,7 +161,7 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
@@ -186,7 +186,7 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any)
@@ -222,7 +222,7 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     const mockErrorResponse = {
@@ -264,7 +264,7 @@ describe('Full Refund Flow Integration', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({

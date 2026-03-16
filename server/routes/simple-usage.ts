@@ -44,9 +44,9 @@ router.get('/api/simple-usage/:email', async (req, res) => {
       const authUser = await authStorage.getUserByEmail(email);
       if (authUser) {
         actualTier = authUser.tier;
-        if (authUser.tier === 'coffee') {
+        if (authUser.tier === 'solo' || authUser.tier === 'coffee') {
           creditsRemaining = authUser.creditsRemaining || 0;
-          console.log(`[SIMPLE-USAGE] Coffee tier user ${email} has ${creditsRemaining} credits`);
+          console.log(`[SIMPLE-USAGE] Solo tier user ${email} has ${creditsRemaining} credits`);
         }
       }
     } catch (authError) {
@@ -69,7 +69,8 @@ router.get('/api/simple-usage/:email', async (req, res) => {
     // Determine tier limits - must match TIER_LIMITS in cache.ts
     const tierLimits = {
       starter: 3,
-      coffee: 20,   // Match TIER_LIMITS.coffee.dailyAnalyses
+      solo: 20,     // Match TIER_LIMITS.solo.dailyAnalyses
+      coffee: 20,   // Legacy alias for solo
       growth: 35,   // Match TIER_LIMITS.growth.dailyAnalyses
       scale: 100,   // Match TIER_LIMITS.scale.dailyAnalyses
     };
@@ -84,8 +85,8 @@ router.get('/api/simple-usage/:email', async (req, res) => {
       },
     };
 
-    // Add credits for Coffee tier users
-    if (actualTier === 'coffee' && creditsRemaining !== undefined) {
+    // Add credits for Solo tier users (handles both 'solo' and legacy 'coffee')
+    if ((actualTier === 'solo' || actualTier === 'coffee') && creditsRemaining !== undefined) {
       response.creditsRemaining = creditsRemaining;
     }
 

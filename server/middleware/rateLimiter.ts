@@ -31,7 +31,8 @@ export interface RateLimitConfig {
   maxRequests: {
     anonymous: number;
     starter: number;
-    coffee: number;
+    solo: number;
+    coffee: number; // Legacy alias for solo
     growth: number;
     scale: number;
   };
@@ -53,7 +54,8 @@ export const validationRateLimit: RateLimitConfig = {
   maxRequests: {
     anonymous: isProduction ? 10 : 50,  // 10/day in prod, 50/day in staging/dev (increased for testing)
     starter: 50,       // 50 per month (increased for testing)
-    coffee: 100,       // 100 credits (Solo tier) - increased for testing
+    solo: 100,         // 100 credits (Solo tier) - increased for testing
+    coffee: 100,       // Legacy alias for solo
     growth: 200,       // 200 per month (increased for testing)
     scale: 500,       // 500 per month (increased for testing)
   },
@@ -80,12 +82,12 @@ export async function rateLimitMiddleware(
     const identifier = user ? user.id.toString() : (req.ip || 'unknown');
     const identifierType = user ? 'user' : 'ip';
 
-    // Get tier - normalize "solo" to "coffee" for backend consistency
+    // Get tier - normalize legacy "coffee" to "solo"
     let tier = user?.tier || 'anonymous';
 
-    // Map display tier to backend tier if needed
-    if (tier === 'solo') {
-      tier = 'coffee';
+    // Map legacy coffee tier to solo
+    if (tier === 'coffee') {
+      tier = 'solo';
     }
 
     // Determine limit and window

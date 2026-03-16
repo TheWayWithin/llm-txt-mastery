@@ -167,7 +167,7 @@ describe('Component Performance Benchmarks', () => {
 
   describe('Analyze Page Performance', () => {
     it('should render within acceptable time limits (baseline)', () => {
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -187,7 +187,7 @@ describe('Component Performance Benchmarks', () => {
 
     it('should handle URL input changes efficiently', async () => {
       const user = userEvent.setup();
-      const mockUser = createMockUser({ tier: 'coffee' });
+      const mockUser = createMockUser({ tier: 'solo' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -225,7 +225,7 @@ describe('Component Performance Benchmarks', () => {
 
       // Measure auth state change time
       const updateTime = measurePerformance(() => {
-        const mockUser = createMockUser({ tier: 'coffee' });
+        const mockUser = createMockUser({ tier: 'solo' });
         mockUseAuth.mockReturnValue(
           createMockAuthContext({
             user: mockUser,
@@ -299,7 +299,7 @@ describe('Component Performance Benchmarks', () => {
       const complexUser = createMockUser({
         id: '12345',
         email: 'complex-user@example.com',
-        tier: 'coffee',
+        tier: 'solo',
         creditsRemaining: 100,
         emailVerified: true,
       });

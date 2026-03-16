@@ -9,7 +9,7 @@ const mockGetAccessToken = vi.fn();
 const mockUser = {
   id: 1,
   email: 'test@example.com',
-  tier: 'coffee' as const,
+  tier: 'solo' as const,
   creditsRemaining: 5,
   username: 'testuser',
 };
@@ -51,7 +51,7 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
@@ -77,7 +77,7 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$0.00',
       reason: 'Beyond 30-day guarantee period',
       guaranteeApplies: false,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
@@ -99,7 +99,7 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Beyond 30-day guarantee period',
       guaranteeApplies: false, // Key: guarantee doesn't apply
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
@@ -156,7 +156,7 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
@@ -183,7 +183,7 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
@@ -213,7 +213,7 @@ describe('InstantRefundButton', () => {
       amountFormatted: '$4.95',
       reason: 'Within 30-day guarantee period',
       guaranteeApplies: true,
-      tier: 'coffee',
+      tier: 'solo',
     };
 
     (global.fetch as any).mockResolvedValue({
