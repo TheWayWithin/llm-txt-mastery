@@ -715,13 +715,17 @@ async function handleCheckoutCompleted(session: any) {
         try {
           let authUser = await authStorage.getUserByEmail(customerEmail);
 
+          // Solo tier needs creditsRemaining set to monthly allocation
+          const initialCredits = tier === 'solo' ? COFFEE_TIER_CREDITS : 0;
+
           if (authUser) {
             // Update existing authenticated user's tier for subscription
             await authStorage.updateUser(authUser.id, {
               tier: tier as any,
               stripeCustomerId: session.customer,
+              ...(tier === 'solo' ? { creditsRemaining: initialCredits } : {}),
             });
-            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier`);
+            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier${tier === 'solo' ? ` with ${initialCredits} credits` : ''}`);
           } else if (encodedPassword) {
             // Create new auth user (coming from signup flow with password)
             const { hashPassword } = await import('../services/auth');
@@ -733,7 +737,7 @@ async function handleCheckoutCompleted(session: any) {
               passwordHash,
               emailVerified: false, // Will be verified later
               tier: tier as any,
-              creditsRemaining: 0, // Not used for subscription tiers
+              creditsRemaining: initialCredits, // Solo gets 20, others get 0
               stripeCustomerId: session.customer,
             });
             console.log(

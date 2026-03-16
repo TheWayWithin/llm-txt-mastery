@@ -100,7 +100,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
           {isSoloTier ? (
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-brand">Analysis Credits</span>
+                <span className="text-slate-brand">Monthly Analyses</span>
                 <span className="text-ink font-medium">
                   {creditsRemaining} {creditsRemaining === 1 ? 'analysis' : 'analyses'} left
                 </span>
