@@ -27,7 +27,7 @@ export const TIER_PRICES = {
     interval: 'month',
   },
   growth: {
-    priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1RmlSgIiC84gpR8HPCONRuzq',
+    priceId: process.env.STRIPE_LLM_TXT_GROWTH_PRICE_ID || 'price_1TBkXmIiC84gpR8H7tlgInp3',
     annualPriceId: process.env.STRIPE_LLM_TXT_GROWTH_ANNUAL_PRICE_ID || '',
     amount: 995, // $9.95/mo in cents
     annualAmount: 9540, // $95.40/yr in cents ($7.95/mo × 12)
