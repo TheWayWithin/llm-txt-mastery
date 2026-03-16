@@ -290,11 +290,11 @@ export default function Home() {
                   </h3>
                 </div>
                 <p className="text-success mb-4">
-                  {user.tier === 'solo'
-                    ? `Your Coffee tier is active! ${
+                  {(user.tier === 'solo' || user.tier === 'coffee')
+                    ? `Your Solo subscription is active! ${
                         user.creditsRemaining > 0
-                          ? `${user.creditsRemaining} premium analyses remaining.`
-                          : 'Ready for unlimited premium analysis!'
+                          ? `${user.creditsRemaining} of 20 analyses remaining this month.`
+                          : 'Monthly analyses used — resets on your next billing cycle.'
                       }`
                     : user.tier === 'starter'
                       ? 'Ready for your next analysis?'
