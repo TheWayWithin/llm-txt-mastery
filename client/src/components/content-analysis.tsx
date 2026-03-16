@@ -103,8 +103,7 @@ export default function ContentAnalysis({
 
   // Calculate tier limit for display - use effectiveTier which updates from API
   const tierLimit = TIER_PAGE_LIMITS[effectiveTier] || 20;
-  const tierDisplayName = effectiveTier === 'coffee' ? 'Coffee' :
-    effectiveTier === 'solo' ? 'Solo' :
+  const tierDisplayName = (effectiveTier === 'solo' || effectiveTier === 'coffee') ? 'Solo' :
     effectiveTier === 'growth' ? 'Growth' :
     effectiveTier === 'scale' ? 'Scale' : 'Starter';
 

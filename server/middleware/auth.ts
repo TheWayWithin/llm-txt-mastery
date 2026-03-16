@@ -90,9 +90,10 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
 
 // Require specific tier middleware
 export function requireTier(minTier: UserTier) {
-  const tierLevels: Record<UserTier, number> = {
+  const tierLevels: Record<string, number> = {
     starter: 0,
-    coffee: 1,
+    solo: 1,
+    coffee: 1, // Legacy alias — same level as solo
     growth: 2,
     scale: 3,
   };
@@ -216,7 +217,8 @@ export function handleAuthError(error: any, req: Request, res: Response, next: N
 }
 
 // Combined middleware for common patterns
-export const requireCoffeeAuth = [authenticate, requireTier('coffee')];
+export const requireSoloAuth = [authenticate, requireTier('solo')];
+export const requireCoffeeAuth = requireSoloAuth; // Legacy alias
 export const requireGrowthAuth = [authenticate, requireTier('growth')];
 export const requireScaleAuth = [authenticate, requireTier('scale')];
 export const requireVerifiedAuth = [authenticate, requireEmailVerified];

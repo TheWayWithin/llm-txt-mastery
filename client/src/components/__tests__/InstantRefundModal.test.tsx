@@ -10,7 +10,7 @@ const mockRefreshUser = vi.fn();
 const mockUser = {
   id: 1,
   email: 'test@example.com',
-  tier: 'coffee' as const,
+  tier: 'solo' as const,
   creditsRemaining: 5,
   username: 'testuser',
 };
@@ -30,7 +30,7 @@ describe('InstantRefundModal', () => {
     amountFormatted: '$4.95',
     reason: 'Within 30-day guarantee period',
     guaranteeApplies: true,
-    tier: 'coffee',
+    tier: 'solo',
   };
 
   const mockOnClose = vi.fn();

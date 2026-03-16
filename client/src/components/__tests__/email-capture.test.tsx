@@ -157,7 +157,7 @@ describe('EmailCapture Component', () => {
 
     // Wait for form submission
     await waitFor(() => {
-      expect(onEmailCaptured).toHaveBeenCalledWith('test@example.com', 'coffee');
+      expect(onEmailCaptured).toHaveBeenCalledWith('test@example.com', 'solo');
     });
   });
 

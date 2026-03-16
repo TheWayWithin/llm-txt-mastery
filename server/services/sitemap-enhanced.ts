@@ -125,7 +125,7 @@ async function performPageAnalysisWithCache(
   console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
   console.log(`   • Found ${totalDiscovered} total pages from sitemap/crawl`);
   console.log(
-    `   • Filtered out ${filteredOut} pages (${tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
+    `   • Filtered out ${filteredOut} pages (${(tier === 'solo' || tier === 'coffee') ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
   );
   console.log(`   • ${afterFiltering} pages passed filter`);
   console.log(`   • Tier limit: ${tierLimits.maxPagesPerAnalysis} pages max`);

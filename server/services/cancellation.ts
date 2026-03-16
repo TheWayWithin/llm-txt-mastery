@@ -56,9 +56,9 @@ export async function calculateRefundAmount(
       };
     }
 
-    // Coffee tier (monthly subscription)
-    if (tier === 'coffee') {
-      console.log(`[REFUND DEBUG] Processing Coffee tier refund check`);
+    // Solo tier (monthly subscription) — handles both 'solo' and legacy 'coffee'
+    if (tier === 'solo' || tier === 'coffee') {
+      console.log(`[REFUND DEBUG] Processing Solo tier refund check`);
       // Find the most recent coffee purchase
       const coffeeCredits = await db
         .select()
@@ -243,7 +243,7 @@ export async function requestCancellation(
       .returning();
 
     // Process based on tier
-    if (user.tier === 'coffee') {
+    if (user.tier === 'solo' || user.tier === 'coffee') {
       // Handle coffee tier cancellation
       if (refundCalc.eligible && immediateRefund) {
         await processCoffeeTierRefund(userId, cancellationRecord.id, refundCalc.amount);
