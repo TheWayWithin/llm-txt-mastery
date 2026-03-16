@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { User, Coffee, Crown, Zap, Star, LogOut, Settings, CreditCard, Search } from 'lucide-react';
+import { User, BarChart3, Crown, Zap, Star, LogOut, Settings, CreditCard, Search } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { getTierDisplayName } from '@/lib/tier-utils';
 
@@ -73,12 +73,12 @@ export function AuthNav() {
           </Badge>
         )}
 
-        {/* Credits Display for Coffee Tier */}
-        {user?.tier === 'solo' && (
-          <div className="flex items-center space-x-1 text-sm text-action-amber">
-            <Coffee className="h-4 w-4" />
-            <span className="font-medium">{user.creditsRemaining}</span>
-            <span className="text-stone-brand">credits</span>
+        {/* Analyses Display for Solo Tier */}
+        {(user?.tier === 'solo' || user?.tier === 'coffee') && (
+          <div className="flex items-center space-x-1 text-sm text-signal-blue">
+            <BarChart3 className="h-4 w-4" />
+            <span className="font-medium">{user.creditsRemaining}/20</span>
+            <span className="text-stone-brand">analyses</span>
           </div>
         )}
 

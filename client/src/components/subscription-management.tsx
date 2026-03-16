@@ -182,17 +182,17 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
           {currentTier === 'solo' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center text-action-amber">
+                <div className="flex items-center text-signal-blue">
                   <CheckCircle className="h-5 w-5 mr-2" />
-                  <span>Coffee Credits</span>
+                  <span>Solo Subscription</span>
                 </div>
-                <Badge variant="outline" className="text-action-amber border-mist">
-                  {creditsRemaining} credit{creditsRemaining !== 1 ? 's' : ''} remaining
+                <Badge variant="outline" className="text-signal-blue border-mist">
+                  {creditsRemaining} of 20 analyses remaining
                 </Badge>
               </div>
               <div className="text-sm text-slate-brand">
-                <p>Each credit allows one full website analysis (up to 200 pages)</p>
-                <p>20 analyses per month • AI-enhanced analysis included</p>
+                <p>Up to 200 pages per analysis with AI enhancement</p>
+                <p>20 analyses per month • Resets each billing cycle</p>
               </div>
               {creditsRemaining > 0 && (
                 <Button

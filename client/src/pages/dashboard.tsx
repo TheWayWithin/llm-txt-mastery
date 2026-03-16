@@ -142,26 +142,24 @@ function AccountOverview() {
         <CardContent>
           <div className="space-y-4">
             {/* Coffee Tier Status */}
-            {user.tier === 'solo' && (
+            {(user.tier === 'solo' || user.tier === 'coffee') && (
               <div className="bg-cloud border border-mist rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-ink">Coffee Credits</h4>
-                  <Badge variant="outline" className="text-action-amber border-mist">
-                    {user.creditsRemaining} credit{user.creditsRemaining !== 1 ? 's' : ''} remaining
+                  <h4 className="font-medium text-ink">Monthly Analyses</h4>
+                  <Badge variant="outline" className="text-signal-blue border-mist">
+                    {user.creditsRemaining} of 20 remaining
                   </Badge>
                 </div>
-                <p className="text-sm text-action-amber mb-3">
-                  Each credit allows one full website analysis (up to 200 pages) with AI
-                  enhancement.
+                <p className="text-sm text-slate-brand mb-3">
+                  Your Solo subscription includes 20 analyses per month, up to 200 pages each with AI enhancement.
                 </p>
                 {user.creditsRemaining === 0 && (
                   <div className="text-sm text-ink">
                     <p className="mb-2">
-                      🎯 <strong>Ready for more analysis?</strong>
+                      Your monthly analyses reset on your next billing cycle.
                     </p>
                     <p>
-                      Purchase another Coffee credit or upgrade to unlimited access with Growth or
-                      Scale plans.
+                      Need more? Upgrade to Growth ($9.95/mo) for 35 analyses per month.
                     </p>
                   </div>
                 )}
@@ -394,13 +392,12 @@ function BillingSection() {
               ) : user.tier === 'solo' ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-cloud border border-mist rounded-lg">
-                    <h4 className="font-medium text-ink">Coffee Credits</h4>
-                    <p className="text-sm text-action-amber mt-1">
-                      You have {user.creditsRemaining} analysis credit
-                      {user.creditsRemaining !== 1 ? 's' : ''} remaining.
+                    <h4 className="font-medium text-ink">Solo Subscription</h4>
+                    <p className="text-sm text-signal-blue mt-1">
+                      You have {user.creditsRemaining} of 20 analyses remaining this month.
                     </p>
                     <p className="text-xs text-slate-brand mt-2">
-                      Coffee tier is a monthly subscription for 20 analyses per month.
+                      Solo subscription includes 20 analyses per month, resetting each billing cycle.
                     </p>
                   </div>
                 </div>
