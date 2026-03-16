@@ -22,9 +22,10 @@ import {
   Loader2,
   Shield,
   Zap,
-  Coffee,
+  BarChart3,
   Crown,
   ArrowRight,
+  User,
 } from 'lucide-react';
 import { Link } from 'wouter';
 import Footer from '@/components/footer';
@@ -44,7 +45,7 @@ export default function SignupPage() {
   const tierParam =
     (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale') || 'growth';
   const websiteUrlParam = urlParams.get('websiteUrl') || '';
-  const billingParam = (urlParams.get('billing') as 'monthly' | 'annual') || 'monthly';
+  const initialBilling = (urlParams.get('billing') as 'monthly' | 'annual') || 'annual';
 
   // Form state
   const [email, setEmail] = useState(emailParam);
@@ -53,6 +54,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedTier, setSelectedTier] = useState(tierParam);
+  const [billing, setBilling] = useState<'monthly' | 'annual'>(initialBilling);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -189,7 +191,7 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: email,
-            billing: billingParam,
+            billing: billing,
             ...(websiteUrlParam && { websiteUrl: websiteUrlParam }), // Only include if not empty
             metadata: {
               password: btoa(password), // Will be used by webhook to create user
@@ -259,7 +261,7 @@ export default function SignupPage() {
       case 'starter':
         return <Check className="h-5 w-5" />;
       case 'solo':
-        return <Coffee className="h-5 w-5" />;
+        return <BarChart3 className="h-5 w-5" />;
       case 'growth':
         return <Zap className="h-5 w-5" />;
       case 'scale':
@@ -395,21 +397,54 @@ export default function SignupPage() {
                         Starter (Free) — Quick check
                       </option>
                       <option value="solo" data-testid="tier-option-coffee">
-                        {billingParam === 'annual'
+                        {billing === 'annual'
                           ? 'Solo ($3.95/mo, billed $47.40/yr) — Solopreneurs'
                           : 'Solo ($4.95/mo) — Solopreneurs'}
                       </option>
                       <option value="growth" data-testid="tier-option-growth">
-                        {billingParam === 'annual'
+                        {billing === 'annual'
                           ? 'Growth ($7.95/mo, billed $95.40/yr) — Agencies'
                           : 'Growth ($9.95/mo) — Agencies'}
                       </option>
                       <option value="scale" data-testid="tier-option-scale">
-                        {billingParam === 'annual'
+                        {billing === 'annual'
                           ? 'Scale ($15.95/mo, billed $191.40/yr) — Developers'
                           : 'Scale ($19.95/mo) — Developers'}
                       </option>
                     </select>
+
+                    {/* Billing Toggle */}
+                    {selectedTier !== 'starter' && (
+                      <div className="flex items-center justify-center mt-3">
+                        <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setBilling('monthly')}
+                            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                              billing === 'monthly'
+                                ? 'bg-white text-ink shadow-sm'
+                                : 'text-slate-brand hover:text-ink'
+                            }`}
+                          >
+                            Monthly
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBilling('annual')}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                              billing === 'annual'
+                                ? 'bg-white text-ink shadow-sm'
+                                : 'text-slate-brand hover:text-ink'
+                            }`}
+                          >
+                            Annual
+                            <span className="bg-success text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
+                              Save 20%
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Selected Tier Details */}
                     <div className="rounded-lg p-4 border border-mist bg-cloud mt-2">
@@ -505,7 +540,7 @@ export default function SignupPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Coffee className="h-6 w-6 text-slate-brand mt-0.5 flex-shrink-0" />
+                  <User className="h-6 w-6 text-slate-brand mt-0.5 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium text-ink">Built by a solopreneur, for solopreneurs</h4>
                     <p className="text-sm text-slate-brand">

@@ -9,7 +9,7 @@ import Footer from '@/components/footer';
 import { useSEO } from '@/hooks/useSEO';
 
 export default function Pricing() {
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
 
   useSEO({
     title: 'Pricing - Simple, Transparent Plans',
