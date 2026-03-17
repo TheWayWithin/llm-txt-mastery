@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Mail, ArrowRight, BarChart3 } from 'lucide-react';
@@ -10,25 +10,27 @@ export default function SubscriptionSuccess() {
   const { isAuthenticated, user, refreshUser } = useAuth();
   const [, navigate] = useLocation();
   const [redirecting, setRedirecting] = useState(false);
+  const hasStartedRedirect = useRef(false);
 
   const email = searchParams.get('email') || '';
   const tier = searchParams.get('tier') || 'growth';
   const upgraded = searchParams.get('upgraded') === 'true';
   const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
 
-  // If user is already authenticated (upgrade flow), refresh their data and redirect
+  // If user is already authenticated (upgrade flow), refresh once and redirect
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !hasStartedRedirect.current) {
+      hasStartedRedirect.current = true;
       setRedirecting(true);
-      // Refresh user data so tier is up to date from webhook
+      // Refresh user data once so tier is up to date from webhook
       refreshUser?.();
-      // Give webhook a moment to process, then redirect
-      const timer = setTimeout(() => {
-        navigate('/analyze');
+      // Redirect after brief confirmation
+      setTimeout(() => {
+        window.location.href = '/analyze';
       }, 2000);
-      return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, user, navigate, refreshUser]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user]);
 
   // Authenticated user upgrade flow — brief confirmation then redirect
   if (isAuthenticated && user) {
