@@ -237,6 +237,7 @@ function BillingSection() {
   const [loading, setLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState<string | null>(null);
+  const [upgradeBilling, setUpgradeBilling] = useState<'monthly' | 'annual'>('annual');
 
   useEffect(() => {
     loadSubscriptionStatus();
@@ -298,6 +299,7 @@ function BillingSection() {
         },
         body: JSON.stringify({
           email: user?.email || '',
+          billing: upgradeBilling,
         }),
       });
 
@@ -421,6 +423,34 @@ function BillingSection() {
           <p className="text-slate-brand">
             Choose the plan that matches your ambition. Compare what you're missing:
           </p>
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center mt-4">
+            <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
+              <button
+                onClick={() => setUpgradeBilling('monthly')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  upgradeBilling === 'monthly'
+                    ? 'bg-white text-ink shadow-sm'
+                    : 'text-slate-brand hover:text-ink'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setUpgradeBilling('annual')}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  upgradeBilling === 'annual'
+                    ? 'bg-white text-ink shadow-sm'
+                    : 'text-slate-brand hover:text-ink'
+                }`}
+              >
+                Annual
+                <span className="bg-success text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
+                  Save 20%
+                </span>
+              </button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
@@ -439,8 +469,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Solo</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-action-amber">$4.95</div>
-                  <div className="text-xs text-stone-brand">per month</div>
+                  <div className="text-2xl font-bold text-action-amber">{upgradeBilling === 'annual' ? '$3.95' : '$4.95'}</div>
+                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
                 </div>
               </div>
 
@@ -534,8 +564,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Growth</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-signal-blue">$9.95</div>
-                  <div className="text-xs text-stone-brand">per month</div>
+                  <div className="text-2xl font-bold text-signal-blue">{upgradeBilling === 'annual' ? '$7.95' : '$9.95'}</div>
+                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
                 </div>
               </div>
 
@@ -623,8 +653,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Scale</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-brand">$19.95</div>
-                  <div className="text-xs text-stone-brand">per month</div>
+                  <div className="text-2xl font-bold text-slate-brand">{upgradeBilling === 'annual' ? '$15.95' : '$19.95'}</div>
+                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
                 </div>
               </div>
 
