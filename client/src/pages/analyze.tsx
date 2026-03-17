@@ -309,7 +309,7 @@ export default function AnalyzePage() {
                     <p className="text-xs text-slate-brand">
                       {(user.tier === 'solo' || user.tier === 'coffee')
                         ? `${usageData?.creditsRemaining || 0} of 20 remaining`
-                        : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || 3}`}
+                        : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || (user.tier === 'scale' ? 100 : user.tier === 'growth' ? 35 : 3)}`}
                     </p>
                   </div>
                 </div>
