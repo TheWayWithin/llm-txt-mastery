@@ -43,7 +43,7 @@ export default function DailyLimitModal({
 
     setIsLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/stripe/create-coffee-checkout', {
+      const response = await apiRequest('POST', '/api/stripe/create-solo-checkout', {
         email: userEmail,
         websiteUrl: websiteUrl || 'https://example.com', // Fallback URL if none provided
       });

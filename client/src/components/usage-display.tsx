@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Zap, TrendingUp, DollarSign, Clock, Coffee } from 'lucide-react';
+import { Zap, TrendingUp, DollarSign, Clock, BarChart3 } from 'lucide-react';
 import { getTierDisplayName, getTierColorClass } from '@/lib/tier-utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -49,23 +49,23 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   // Handle both data structures - from props (nested) and from API (flat)
   const currentUsage = usageData?.currentUsage ?? usageData?.usage?.analysesToday ?? 0;
   const dailyAnalyses = usageData?.dailyAnalyses ?? usageData?.limits?.dailyAnalyses ?? 3;
-  // Coffee tier should have 200 pages per analysis
+  // Solo tier should have 200 pages per analysis
   const maxPagesPerAnalysis =
     usageData?.maxPagesPerAnalysis ??
     usageData?.limits?.maxPagesPerAnalysis ??
-    (usageData?.tier === 'solo' ? 200 : 20);
+    ((usageData?.tier === 'solo' || usageData?.tier === 'coffee') ? 200 : 20);
   const aiPagesLimit = usageData?.aiPagesLimit ?? usageData?.limits?.aiPagesLimit ?? 0;
   const cacheHitsToday = usageData?.cacheHitsToday ?? usageData?.usage?.cacheHitsToday ?? 0;
 
   const analysisPercentage = (currentUsage / dailyAnalyses) * 100;
   const costSaved = cacheHitsToday ? (cacheHitsToday * 0.03 * 0.7).toFixed(2) : '0.00';
-  const isCoffeeTier = usageData.tier === 'solo';
+  const isSoloTier = usageData.tier === 'solo' || usageData.tier === 'coffee';
   const creditsRemaining = usageData?.creditsRemaining || 0;
 
-  // Debug logging for Coffee tier
-  if (isCoffeeTier) {
-    console.log('[UsageDisplay] Coffee tier data:', {
-      creditsRemaining: `${creditsRemaining} credits`,
+  // Debug logging for Solo tier
+  if (isSoloTier) {
+    console.log('[UsageDisplay] Solo tier data:', {
+      creditsRemaining: `${creditsRemaining} analyses remaining`,
       rawCredits: usageData?.creditsRemaining,
       maxPagesPerAnalysis: maxPagesPerAnalysis,
       rawMaxPages: usageData?.limits?.maxPagesPerAnalysis,
@@ -78,11 +78,11 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-semibold text-ink">
-            {isCoffeeTier ? '☕ Premium Credits' : "Today's Progress"}
+            {isSoloTier ? 'Monthly Analyses' : "Today's Progress"}
           </h4>
           <span
             className={`text-xs px-2 py-1 rounded font-medium ${
-              isCoffeeTier
+              isSoloTier
                 ? 'bg-cloud text-ink border border-mist'
                 : usageData.tier === 'starter'
                   ? 'bg-success/10 text-ink border border-mist'
@@ -97,19 +97,19 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
 
         <div className="space-y-3">
           {/* Credits for Coffee Tier or Daily Analyses for Others */}
-          {isCoffeeTier ? (
+          {isSoloTier ? (
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-brand">Analysis Credits</span>
+                <span className="text-slate-brand">Monthly Analyses</span>
                 <span className="text-ink font-medium">
-                  {creditsRemaining} {creditsRemaining === 1 ? 'credit' : 'credits'} left
+                  {creditsRemaining} {creditsRemaining === 1 ? 'analysis' : 'analyses'} left
                 </span>
               </div>
               <div className="flex items-center space-x-3">
-                <Coffee className="w-5 h-5 text-action-amber flex-shrink-0" />
+                <BarChart3 className="w-5 h-5 text-signal-blue flex-shrink-0" />
                 <div className="flex-1 bg-cloud rounded-full h-3">
                   <div
-                    className="bg-action-amber h-3 rounded-full transition-all duration-300"
+                    className="bg-signal-blue h-3 rounded-full transition-all duration-300"
                     style={{ width: creditsRemaining > 0 ? '100%' : '0%' }}
                   />
                 </div>
@@ -195,7 +195,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                     try {
                       const response = await apiRequest(
                         'POST',
-                        '/api/stripe/create-coffee-checkout',
+                        '/api/stripe/create-solo-checkout',
                         {
                           email: userEmail,
                         }
@@ -240,7 +240,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                     try {
                       const response = await apiRequest(
                         'POST',
-                        '/api/stripe/create-coffee-checkout',
+                        '/api/stripe/create-solo-checkout',
                         {
                           email: userEmail,
                         }
@@ -274,23 +274,23 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
             </div>
           )}
 
-          {isCoffeeTier && creditsRemaining === 0 && (
+          {isSoloTier && creditsRemaining === 0 && (
             <div className="pt-2 border-t border-mist">
               <p className="text-xs text-slate-brand mb-2">
-                ☕ Ready for another premium analysis? Perfect timing!
+                Monthly analysis limit reached. Your analyses reset on your next billing cycle.
               </p>
               <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <a
                   href="/pricing"
-                  className="text-xs bg-action-amber text-white px-4 py-3 rounded hover:bg-action-amber/90 transition-colors text-center min-h-[44px] flex items-center justify-center"
+                  className="text-xs bg-signal-blue text-white px-4 py-3 rounded hover:bg-signal-blue/90 transition-colors text-center min-h-[44px] flex items-center justify-center"
                 >
-                  Another Coffee ($5)
+                  Upgrade to Growth
                 </a>
                 <a
-                  href="/pricing"
+                  href="/dashboard"
                   className="text-xs text-mastery-blue hover:underline py-3 text-center min-h-[44px] flex items-center justify-center"
                 >
-                  Go unlimited
+                  Manage Subscription
                 </a>
               </div>
             </div>

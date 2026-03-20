@@ -304,12 +304,12 @@ export default function AnalyzePage() {
                   <BarChart3 className="h-5 w-5 text-signal-blue" />
                   <div>
                     <p className="text-sm font-medium text-ink">
-                      {user.tier === 'solo' ? 'Credits' : "Today's Usage"}
+                      {(user.tier === 'solo' || user.tier === 'coffee') ? 'Monthly Analyses' : "Today's Usage"}
                     </p>
                     <p className="text-xs text-slate-brand">
-                      {user.tier === 'solo'
-                        ? `${usageData?.creditsRemaining || 0} remaining`
-                        : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || 3}`}
+                      {(user.tier === 'solo' || user.tier === 'coffee')
+                        ? `${usageData?.creditsRemaining || 0} of 20 remaining`
+                        : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || (user.tier === 'scale' ? 100 : user.tier === 'growth' ? 35 : 3)}`}
                     </p>
                   </div>
                 </div>

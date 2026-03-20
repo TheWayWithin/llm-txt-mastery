@@ -215,7 +215,7 @@ router.post('/login', authLimiter, async (req, res) => {
       const demoUser = {
         id: -1,
         email: 'demo@llmtxtmastery.com',
-        tier: 'coffee' as UserTier,
+        tier: 'solo' as UserTier,
         emailVerified: true,
         creditsRemaining: 20,
         createdAt: new Date(),
@@ -600,17 +600,16 @@ router.post('/coffee-login', async (req, res) => {
       });
     }
 
-    // Verify this is a recent coffee purchase by checking if user has coffee tier
-    // Additional security: only allow if user has coffee tier (updated by webhook)
-    if (user.tier !== 'coffee') {
+    // Verify this is a Solo purchase by checking if user has solo/coffee tier
+    if (user.tier !== 'solo' && user.tier !== 'coffee') {
       console.log(
-        '❌ Coffee login failed: Invalid tier for',
+        '❌ Solo login failed: Invalid tier for',
         email,
-        '- expected coffee, got:',
+        '- expected solo, got:',
         user.tier
       );
       return res.status(403).json({
-        error: 'Coffee tier not found for user',
+        error: 'Solo tier not found for user',
         code: 'INVALID_TIER',
       });
     }
@@ -1064,15 +1063,15 @@ router.post('/admin/reset-coffee-credits', async (req, res) => {
       });
     }
 
-    if (user.tier !== 'coffee') {
+    if (user.tier !== 'solo' && user.tier !== 'coffee') {
       return res.status(400).json({
-        error: 'User is not on Coffee tier',
-        code: 'NOT_COFFEE_TIER',
+        error: 'User is not on Solo tier',
+        code: 'NOT_SOLO_TIER',
         userTier: user.tier,
       });
     }
 
-    // Reset credits to proper Coffee tier allocation
+    // Reset credits to proper Solo tier allocation
     await authStorage.updateUser(user.id, {
       creditsRemaining: COFFEE_TIER_CREDITS,
     });
@@ -1081,7 +1080,7 @@ router.post('/admin/reset-coffee-credits', async (req, res) => {
     const { handleSubscriptionRenewal } = await import('../services/usage');
     await handleSubscriptionRenewal(user.id);
 
-    console.log(`[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Coffee tier user: ${email}`);
+    console.log(`[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Solo tier user: ${email}`);
 
     res.json({
       success: true,
@@ -1113,13 +1112,15 @@ router.post('/admin/fix-coffee-credits', async (req, res) => {
 
     const COFFEE_TIER_CREDITS = 20;
 
-    // Find all Coffee tier users with less than 20 credits
+    // Find all Solo/Coffee tier users with less than 20 credits
+    const soloUsers = await authStorage.getUsersByTier('solo');
     const coffeeUsers = await authStorage.getUsersByTier('coffee');
-    const usersToFix = coffeeUsers.filter(
+    const allSoloUsers = [...soloUsers, ...coffeeUsers];
+    const usersToFix = allSoloUsers.filter(
       (user) => (user.creditsRemaining || 0) < COFFEE_TIER_CREDITS
     );
 
-    console.log(`Found ${usersToFix.length} Coffee tier users needing credit adjustment`);
+    console.log(`Found ${usersToFix.length} Solo tier users needing credit adjustment`);
 
     const fixes = [];
 

@@ -19,7 +19,7 @@ export default function PricingPreview({
   className = '',
   id,
 }: PricingPreviewProps) {
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
 
   const tiers = [
     {

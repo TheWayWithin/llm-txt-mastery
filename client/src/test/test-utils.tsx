@@ -63,7 +63,7 @@ export const createMockUser = (overrides = {}) => {
   return {
     id: '1',
     email: 'test@example.com',
-    tier: 'coffee',
+    tier: 'solo',
     ...overrides,
   };
 };

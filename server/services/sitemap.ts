@@ -1299,7 +1299,7 @@ export function getBrowserRenderingStatus(): {
 
 export function filterRelevantPages(entries: SitemapEntry[], tier?: string): SitemapEntry[] {
   // For paid tiers, use less aggressive filtering
-  const isPaidTier = tier && ['coffee', 'growth', 'scale'].includes(tier);
+  const isPaidTier = tier && ['solo', 'coffee', 'growth', 'scale'].includes(tier);
 
   const excludePatterns = [
     /\.(jpg|jpeg|png|gif|pdf|zip|xml|json|css|js|woff|woff2|ttf|eot|ico|svg)$/i,
