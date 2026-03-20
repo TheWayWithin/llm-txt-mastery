@@ -2,8 +2,8 @@
 
 ## Latest: Sprint 9 — Solo Subscription Migration
 
-**Date**: 2026-03-16
-**Status**: Sprint 9 DEPLOYED TO STAGING, testing in progress
+**Date**: 2026-03-20
+**Status**: ✅ COMPLETE — merged to main, deployed to production
 
 ### What Happened
 
@@ -11,17 +11,12 @@
 2. **All 'coffee' tier references replaced with 'solo'** — backward compatible with existing DB records (reads handle both)
 3. **New route `/api/stripe/create-solo-checkout`** registered (legacy `/create-coffee-checkout` kept as alias)
 4. **Dashboard UI overhauled** — "Coffee Credits" → "Monthly Analyses", "0 credits" → "0/20 analyses", coffee icons → blue chart icons
-5. **Bug found during testing: new Solo subscribers got 0 credits** — webhook checkout handler set `creditsRemaining: 0` for Solo (was written for Growth/Scale). Fixed to set 20 for Solo.
-6. **Bug found: `Coffee is not defined` crash** — removed Coffee icon import but missed a reference in `AuthNav.getTierIcon()`. Fixed.
-7. **Billing toggle added to signup page** — Monthly/Annual toggle with "Save 20%" badge, defaults to annual
-8. **All pricing pages default to annual view** — landing page, pricing page, signup page
-9. **Stripe test mode prices fixed** — Growth was $25 (should be $9.95), Scale was $99 (should be $19.95). Created new prices, archived old ones, updated Railway staging env vars.
-10. **Upgrade flow fixed** — subscription-success page now detects authenticated users and auto-redirects to /analyze instead of showing verification email instructions
-11. **Infinite refreshUser loop fixed** — subscription-success useEffect was re-triggering on every user state change. Added ref guard.
-12. **Dashboard upgrade cards** — added billing toggle (Monthly/Annual), shows annual prices, passes billing preference to Stripe checkout
-13. **Status card tier limit fix** — "Today's Usage 0/3" was hardcoded fallback; now shows tier-appropriate limit (Scale=100, Growth=35)
+5. **Billing toggle added** to signup page, pricing page, landing page, dashboard upgrade cards — all default to annual
+6. **Stripe test mode prices fixed** — Growth was $25→$9.95, Scale was $99→$19.95
+7. **Upgrade flow fixed** — redirects to /analyze (not verification page), infinite refresh loop fixed
+8. **Stripe product names updated** — "Coffee Analysis" → "LLM.txt Mastery - Solo Plan" (both test and live)
 
-### Bugs Found During Testing
+### Bugs Found & Fixed During Testing (8 total)
 
 | Bug | Root Cause | Fix |
 |-----|-----------|-----|
@@ -34,11 +29,21 @@
 | "Today's Usage 0/3" for Scale tier | Hardcoded fallback `|| 3` in status card | Use tier-appropriate default |
 | Dashboard upgrades always monthly | No billing toggle, didn't pass billing to API | Added toggle, pass billing param |
 
-### Issue Discovered: JS Rendering Quality Regression (Sprint 10)
+### Outstanding Issues Found During Testing (NOT yet fixed)
 
-**Severity**: High — Scale tier produces worse output than Solo tier
+#### 1. Cancellation Flow Broken (Sprint 11 — HIGH PRIORITY)
+- **"Instant Cancel" button returns 400 error** — `processSubscriptionCancellation()` in `cancellation.ts` looks for active Stripe subscriptions, but if user already cancelled via Stripe portal, there are none → throws "No active subscription found"
+- **Stripe portal cancel UX is confusing** — user confirms cancel but lands on page with only "Don't cancel" button
+- **Tier doesn't update after Stripe portal cancel** — dashboard still shows Scale/Growth even after Stripe confirms cancel (webhook may not have processed, or UI cache stale)
+- **"No active subscriptions" + "You're Using Scale Plan"** shown simultaneously — inconsistent state
+- **Downgrading to 'starter' is wrong** — there's no real free account. Starter shows on pricing but can't be selected. Cancelled users should NOT get a free tier.
+- **Sprint 11 created**: `/sprints/Sprint-11-Cancellation-Flow-Fix.md`
 
-When "Enhanced JS Rendering" is enabled on a React SPA (llmtxtmastery.com), every page gets the same generic meta description. Root cause: `generateFallbackDescription()` in `openai.ts` returns the generic `<meta name="description">` tag when it's >30 chars, even for SPAs where it's the same for every route. Sprint 10 created to fix this and auto-detect JS rendering need.
+#### 2. JS Rendering Quality Regression (Sprint 10)
+- **Scale tier with JS rendering produces worse output than Solo without it** — every page on llmtxtmastery.com (React SPA) gets identical generic meta description
+- **Root cause**: `generateFallbackDescription()` in `openai.ts:73-103` returns generic `<meta description>` even for SPAs
+- **Also**: "Enhanced JS Rendering" is a manual checkbox — should auto-detect from SPA detection
+- **Sprint 10 created**: `/sprints/Sprint-10-JS-Rendering-Quality-Fix.md`
 
 ---
 

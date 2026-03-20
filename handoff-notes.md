@@ -1,66 +1,87 @@
 # Handoff Notes
 
 ## Current State
-**Active Sprint**: Sprint 9 (Solo Migration) — deployed to staging, tested, ready for production merge
-**Next Sprint**: Sprint 10 (JS Rendering Quality Fix) — planned, ready to start
-**Last Updated**: 2026-03-16
-**Branch**: `develop` (all Sprint 9 changes merged)
+**Completed**: Sprint 9 (Solo Migration) — merged to main, deployed to production 2026-03-20
+**Next Sprint**: Sprint 11 (Cancellation Flow Fix) — HIGH PRIORITY, ready to start
+**After That**: Sprint 10 (JS Rendering Quality Fix)
+**Last Updated**: 2026-03-20
+**Branch**: `main` is up to date with all Sprint 9 changes
 
 ---
 
-## Sprint 9: What's Done
+## What Needs To Be Done Next: Sprint 11 (Cancellation Flow)
 
-Solo tier fully migrated from coffee credits to recurring subscription. All 'coffee' references replaced with 'solo' across 27+ files. Tested on staging with real Stripe test checkouts.
+**Sprint doc**: `/sprints/Sprint-11-Cancellation-Flow-Fix.md`
 
-**Key changes:**
-- Route: `/api/stripe/create-solo-checkout` (old `/create-coffee-checkout` kept as alias)
-- All tier writes → 'solo', all reads handle both 'solo' and 'coffee' for backward compat
-- Dashboard shows "Monthly Analyses" / "0/20 analyses" — no more "Coffee Credits" / "0 credits"
-- Billing toggle on signup + dashboard + pricing — all default to annual
-- Upgrade flow redirects to /analyze (not verification page)
-- Stripe test mode prices fixed: Growth $9.95, Scale $19.95
+### The Problems
 
-**What remains for Sprint 9:**
-- Merge develop → main for production deployment
-- Quick smoke test on production after deploy
+1. **"Instant Cancel" button returns 400 error** when subscription was already cancelled via Stripe portal
+   - File: `server/services/cancellation.ts` → `processSubscriptionCancellation()` (line 386)
+   - It calls `stripe().subscriptions.list({ status: 'active' })` — finds nothing → throws error
+   - Fix: handle the "already cancelled" case gracefully
 
----
+2. **Tier doesn't downgrade after Stripe portal cancel** — webhook `customer.subscription.deleted` should fire `handleSubscriptionCancelled()` in `server/routes/stripe.ts` (line 865) which sets tier to 'starter', but either:
+   - Webhook didn't fire (check Stripe webhook logs)
+   - UI didn't refresh (cached user data)
 
-## Sprint 10: JS Rendering Quality Fix (Ready to Start)
+3. **Inconsistent UI state** — "No active subscriptions" message appears but tier badge still shows Scale
 
-**Problem**: Scale tier with JS rendering produces worse output than Solo without it. Every page on a React SPA gets the same generic meta description.
+4. **Downgrading to 'starter' is fundamentally wrong** — there is no real free account:
+   - Starter shows on pricing but can't be selected for signup
+   - Cancelled users should NOT get unlimited free analyses
+   - Need a new state: 'cancelled' or 'inactive'
+   - Within 30 days: instant refund + immediate access removal
+   - After 30 days: access until end of billing period, then account deactivated
 
-**Root cause**: `generateFallbackDescription()` in `openai.ts:73-103` returns the generic `<meta name="description">` tag (>30 chars) even though it's the same for every SPA route. The AI generates good unique descriptions, but filler phrase detection replaces them with this generic fallback.
+### Key Files for Sprint 11
 
-**Plan** (Sprint doc: `/sprints/Sprint-10-JS-Rendering-Quality-Fix.md`):
-1. Remove "Enhanced JS Rendering" checkbox — auto-detect from SPA detection
-2. Fix fallback: never return generic meta for SPAs
-3. Extract visible body text from rendered DOM for AI analysis
-4. Scale output must be >= Solo quality on same site
-
-**Key files:**
-- `server/services/openai.ts` — `generateFallbackDescription()` (line 73), `generateAIAnalysis()` (line 318), filler detection (line 428)
-- `server/services/sitemap-enhanced.ts` — JS rendering decision (line 114)
-- `server/services/browserRenderer.ts` — DOM text extraction needed
-- `client/src/pages/analyze.tsx` — remove checkbox
-
----
-
-## Environment Notes
-
-- **Staging frontend**: Netlify auto-deploys from `develop`
-- **Staging backend**: Railway auto-deploys from `develop` (staging environment)
-- **Production**: Both deploy from `main`
-- **Stripe test prices** (staging):
-  - Solo monthly: `price_1TB1zqIiC84gpR8HHF8hJ5rF`
-  - Growth monthly: `price_1TBkXmIiC84gpR8H7tlgInp3` (new, was $25)
-  - Scale monthly: `price_1TBlFrIiC84gpR8HGIBEzagu` (new, was $99)
+| File | What to Change |
+|------|---------------|
+| `server/services/cancellation.ts` | Fix 400 error, implement two cancel paths (refund vs end-of-period) |
+| `server/routes/cancellation.ts` | Error handling for already-cancelled subscriptions |
+| `server/routes/stripe.ts:865` | `handleSubscriptionCancelled()` — change from 'starter' to 'cancelled' |
+| `server/middleware/auth.ts` | Block 'cancelled' users from protected endpoints |
+| `client/src/pages/dashboard.tsx` | Billing tab — show correct cancel state, remove confusing dual buttons |
+| `client/src/pages/analyze.tsx` | Block cancelled users, show re-subscribe CTA |
+| `shared/schema.ts:347` | Consider adding 'cancelled' to UserTier type |
 
 ---
 
-## Warnings
+## Sprint 10 (JS Rendering Quality) — After Sprint 11
+
+**Sprint doc**: `/sprints/Sprint-10-JS-Rendering-Quality-Fix.md`
+
+**Problem**: Scale tier with "Enhanced JS Rendering" checkbox produces worse output than Solo without it. Every page on a React SPA gets the same generic meta description instead of unique AI descriptions.
+
+**Root cause**: `generateFallbackDescription()` in `server/services/openai.ts:73-103` returns the generic `<meta name="description">` tag (>30 chars) for every SPA route.
+
+**Key changes needed**:
+- Remove checkbox, auto-detect from SPA detection
+- Fix fallback: never return generic meta for SPAs
+- Extract visible body text from rendered DOM
+- Key files: `openai.ts`, `sitemap-enhanced.ts`, `browserRenderer.ts`, `analyze.tsx`
+
+---
+
+## Environment Reference
+
+| Environment | Frontend | Backend | Deploys From |
+|-------------|----------|---------|-------------|
+| Production | https://llmtxtmastery.com | https://llm-txt-mastery-production.up.railway.app | `main` |
+| Staging | https://develop--llm-txt-mastery.netlify.app | https://llm-txt-mastery-staging.up.railway.app | `develop` |
+
+**Stripe test mode prices** (staging only):
+- Solo monthly: `price_1TB1zqIiC84gpR8HHF8hJ5rF`
+- Growth monthly: `price_1TBkXmIiC84gpR8H7tlgInp3`
+- Scale monthly: `price_1TBlFrIiC84gpR8HGIBEzagu`
+
+---
+
+## Important Context
 
 - The `coffee` tier still exists in the database for legacy users — all code handles both 'solo' and 'coffee' in reads
-- `TIER_LIMITS` in `cache.ts` has both 'solo' and 'coffee' entries (identical values)
+- `TIER_LIMITS` in `server/services/cache.ts` has both 'solo' and 'coffee' entries (identical values)
 - Production Stripe prices are DIFFERENT from test prices — don't mix them up
-- The `createOneTimeCheckoutSession` function still exists in `stripe.ts` for backward compat but is no longer called for new Solo signups
+- `createOneTimeCheckoutSession` still exists in `server/services/stripe.ts` for backward compat but is no longer called for new Solo signups
+- The billing toggle on signup/dashboard/pricing all default to annual
+- Stripe product names were updated in both test and live mode to "LLM.txt Mastery - Solo Plan"
