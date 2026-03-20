@@ -164,7 +164,7 @@ describe('Critical User Flows - Integration Tests', () => {
     it('should allow authenticated user to go directly to analysis', () => {
       const mockUser = createMockUser({
         email: 'user@example.com',
-        tier: 'coffee',
+        tier: 'solo',
         creditsRemaining: 5,
       });
 
@@ -270,7 +270,7 @@ describe('Critical User Flows - Integration Tests', () => {
 
       // Test coffee tier limits
       const coffeeUser = createMockUser({
-        tier: 'coffee',
+        tier: 'solo',
         creditsRemaining: 3,
       });
       mockUseAuth.mockReturnValue(

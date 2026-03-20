@@ -183,7 +183,7 @@ export default function TierLimitsDisplay({
                           try {
                             const response = await apiRequest(
                               'POST',
-                              '/api/stripe/create-coffee-checkout',
+                              '/api/stripe/create-solo-checkout',
                               {
                                 email,
                                 websiteUrl: url,

@@ -193,19 +193,19 @@ export function registerCancellationRoutes(app: Express) {
         {
           name: '30-Day Money-Back Guarantee',
           description: 'Not satisfied? Get a full refund within 30 days of purchase.',
-          applies_to: ['coffee', 'growth', 'scale'],
+          applies_to: ['solo', 'growth', 'scale'],
           conditions: 'No questions asked',
         },
         {
           name: 'Cancel Anytime',
           description: 'Cancel your subscription at any time with one click.',
-          applies_to: ['growth', 'scale'],
+          applies_to: ['solo', 'growth', 'scale'],
           conditions: 'Prorated refund for unused time',
         },
         {
           name: 'Results Guarantee',
           description: 'See improvements within 24 hours or get your money back.',
-          applies_to: ['coffee', 'growth', 'scale'],
+          applies_to: ['solo', 'growth', 'scale'],
           conditions: 'Must complete at least one analysis',
         },
       ],

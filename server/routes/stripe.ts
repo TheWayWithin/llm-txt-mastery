@@ -5,7 +5,6 @@ import {
   stripe,
   createStripeCustomer,
   createCheckoutSession,
-  createOneTimeCheckoutSession,
   createPortalSession,
   getStripeCustomer,
   getCustomerSubscriptions,
@@ -271,8 +270,9 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
-  // Create checkout session for solo tier (one-time monthly, or annual subscription)
-  app.post('/api/stripe/create-coffee-checkout', optionalAuth, apiLimiter, async (req, res) => {
+  // Create checkout session for solo tier (recurring subscription)
+  // Supports both new route name and legacy route name for backward compatibility
+  const handleSoloCheckout = async (req: any, res: any) => {
     try {
       const { email, websiteUrl, billing, metadata } = z
         .object({
@@ -326,7 +326,7 @@ export function registerStripeRoutes(app: Express) {
           customerId: stripeCustomer.id,
           priceId: TIER_PRICES.solo.annualPriceId,
           successUrl,
-          cancelUrl: `${req.headers.origin}/coffee-cancel`,
+          cancelUrl: `${req.headers.origin}/subscription-cancel`,
           userId: emailCapture.id.toString(),
           metadata: {
             ...metadata,
@@ -352,7 +352,7 @@ export function registerStripeRoutes(app: Express) {
         customerId: stripeCustomer.id,
         priceId,
         successUrl,
-        cancelUrl: `${req.headers.origin}/coffee-cancel`,
+        cancelUrl: `${req.headers.origin}/subscription-cancel`,
         userId: emailCapture.id.toString(),
         metadata: {
           ...metadata,
@@ -368,13 +368,17 @@ export function registerStripeRoutes(app: Express) {
         url: session.url,
       });
     } catch (error) {
-      console.error('Coffee checkout session creation failed:', error);
+      console.error('Solo checkout session creation failed:', error);
       res.status(400).json({
         message:
-          error instanceof Error ? error.message : 'Failed to create coffee checkout session',
+          error instanceof Error ? error.message : 'Failed to create solo checkout session',
       });
     }
-  });
+  };
+
+  // Register both new and legacy route names
+  app.post('/api/stripe/create-solo-checkout', optionalAuth, apiLimiter, handleSoloCheckout);
+  app.post('/api/stripe/create-coffee-checkout', optionalAuth, apiLimiter, handleSoloCheckout);
 
   // Create subscription upgrade session (handles proration automatically)
   app.post('/api/stripe/create-upgrade-session', requireAuth, apiLimiter, async (req, res) => {
@@ -516,7 +520,7 @@ export function registerStripeRoutes(app: Express) {
       res.json({
         tier: authUser.tier,
         subscriptionStatus: null, // TODO: Add subscription status to auth_users if needed
-        hasActiveSubscription: ['growth', 'scale'].includes(authUser.tier),
+        hasActiveSubscription: ['solo', 'coffee', 'growth', 'scale'].includes(authUser.tier),
         creditsRemaining: authUser.creditsRemaining || 0,
         subscriptions: [], // TODO: Link subscriptions to auth_users if needed
       });
@@ -605,9 +609,9 @@ async function handleCheckoutCompleted(session: any) {
       `Checkout completed for user: ${userId}, payment type: ${paymentType || 'subscription'}`
     );
 
-    if (paymentType === 'one_time' && productType === 'coffee') {
-      // Handle one-time coffee purchase
-      console.log(`Processing coffee purchase for user: ${userId}`);
+    if (paymentType === 'one_time' && (productType === 'coffee' || productType === 'solo')) {
+      // Handle legacy one-time purchase (kept for backward compatibility with existing coffee purchases)
+      console.log(`Processing legacy one-time Solo purchase for user: ${userId}`);
 
       // Get customer email from Stripe session
       const customerEmail = session.customer_details?.email || session.customer_email;
@@ -628,7 +632,7 @@ async function handleCheckoutCompleted(session: any) {
 
       await storage.updateUserProfile(userId, {
         creditsRemaining: currentCredits + COFFEE_TIER_CREDITS,
-        tier: 'coffee', // Update tier to coffee
+        tier: 'solo', // Update tier to solo (was 'coffee')
       });
 
       // CRITICAL FIX: Update emailCaptures table with Coffee tier
@@ -637,16 +641,16 @@ async function handleCheckoutCompleted(session: any) {
           const existingCapture = await storage.getEmailCapture(customerEmail);
           if (existingCapture) {
             // Update existing email capture to Coffee tier
-            await storage.updateEmailCapture(customerEmail, { tier: 'coffee' });
-            console.log(`Updated email capture for ${customerEmail} to Coffee tier`);
+            await storage.updateEmailCapture(customerEmail, { tier: 'solo' });
+            console.log(`Updated email capture for ${customerEmail} to Solo tier`);
           } else {
             // Create new email capture record for Coffee tier
             await storage.createEmailCapture({
               email: customerEmail,
-              tier: 'coffee',
+              tier: 'solo',
               websiteUrl: null,
             });
-            console.log(`Created email capture for ${customerEmail} as Coffee tier`);
+            console.log(`Created email capture for ${customerEmail} as Solo tier`);
           }
         } catch (error) {
           console.error(`Failed to update email capture for ${customerEmail}:`, error);
@@ -661,10 +665,10 @@ async function handleCheckoutCompleted(session: any) {
           if (authUser) {
             // Update existing authenticated user's tier and credits
             await authStorage.updateUser(authUser.id, {
-              tier: 'coffee',
+              tier: 'solo',
               creditsRemaining: (authUser.creditsRemaining || 0) + COFFEE_TIER_CREDITS,
             });
-            console.log(`Updated authenticated user ${customerEmail} to Coffee tier with credits`);
+            console.log(`Updated authenticated user ${customerEmail} to Solo tier with credits`);
           } else {
             // Create new auth user account for auto-login
             // Generate a temporary password - user will need to set one when they first login
@@ -676,11 +680,11 @@ async function handleCheckoutCompleted(session: any) {
               email: customerEmail,
               passwordHash,
               emailVerified: false, // They'll need to verify later
-              tier: 'coffee',
+              tier: 'solo',
               creditsRemaining: COFFEE_TIER_CREDITS,
             });
 
-            console.log(`Created new auth user ${customerEmail} with Coffee tier for auto-login`);
+            console.log(`Created new auth user ${customerEmail} with Solo tier for auto-login`);
 
             // TODO: Send welcome email with account setup instructions
             // For now, the user can use auto-login from coffee-success page
@@ -711,13 +715,17 @@ async function handleCheckoutCompleted(session: any) {
         try {
           let authUser = await authStorage.getUserByEmail(customerEmail);
 
+          // Solo tier needs creditsRemaining set to monthly allocation
+          const initialCredits = tier === 'solo' ? COFFEE_TIER_CREDITS : 0;
+
           if (authUser) {
             // Update existing authenticated user's tier for subscription
             await authStorage.updateUser(authUser.id, {
               tier: tier as any,
               stripeCustomerId: session.customer,
+              ...(tier === 'solo' ? { creditsRemaining: initialCredits } : {}),
             });
-            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier`);
+            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier${tier === 'solo' ? ` with ${initialCredits} credits` : ''}`);
           } else if (encodedPassword) {
             // Create new auth user (coming from signup flow with password)
             const { hashPassword } = await import('../services/auth');
@@ -729,7 +737,7 @@ async function handleCheckoutCompleted(session: any) {
               passwordHash,
               emailVerified: false, // Will be verified later
               tier: tier as any,
-              creditsRemaining: 0, // Not used for subscription tiers
+              creditsRemaining: initialCredits, // Solo gets 20, others get 0
               stripeCustomerId: session.customer,
             });
             console.log(
@@ -939,13 +947,13 @@ async function handlePaymentSucceeded(invoice: any) {
       // Get the user from auth_users table
       const authUser = await authStorage.getUserByEmail(customerEmail);
 
-      if (authUser && authUser.tier === 'coffee') {
-        // Reset credits to 20 for Coffee tier renewal
+      if (authUser && (authUser.tier === 'solo' || authUser.tier === 'coffee')) {
+        // Reset credits to 20 for Solo tier renewal
         await authStorage.updateUser(authUser.id, {
           creditsRemaining: COFFEE_TIER_CREDITS,
         });
         console.log(
-          `[RENEWAL] Reset credits to ${COFFEE_TIER_CREDITS} for Coffee tier user: ${customerEmail}`
+          `[RENEWAL] Reset credits to ${COFFEE_TIER_CREDITS} for Solo tier user: ${customerEmail}`
         );
 
         // Also call the handleSubscriptionRenewal function from usage.ts

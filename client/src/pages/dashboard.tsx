@@ -142,26 +142,24 @@ function AccountOverview() {
         <CardContent>
           <div className="space-y-4">
             {/* Coffee Tier Status */}
-            {user.tier === 'solo' && (
+            {(user.tier === 'solo' || user.tier === 'coffee') && (
               <div className="bg-cloud border border-mist rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-ink">Coffee Credits</h4>
-                  <Badge variant="outline" className="text-action-amber border-mist">
-                    {user.creditsRemaining} credit{user.creditsRemaining !== 1 ? 's' : ''} remaining
+                  <h4 className="font-medium text-ink">Monthly Analyses</h4>
+                  <Badge variant="outline" className="text-signal-blue border-mist">
+                    {user.creditsRemaining} of 20 remaining
                   </Badge>
                 </div>
-                <p className="text-sm text-action-amber mb-3">
-                  Each credit allows one full website analysis (up to 200 pages) with AI
-                  enhancement.
+                <p className="text-sm text-slate-brand mb-3">
+                  Your Solo subscription includes 20 analyses per month, up to 200 pages each with AI enhancement.
                 </p>
                 {user.creditsRemaining === 0 && (
                   <div className="text-sm text-ink">
                     <p className="mb-2">
-                      🎯 <strong>Ready for more analysis?</strong>
+                      Your monthly analyses reset on your next billing cycle.
                     </p>
                     <p>
-                      Purchase another Coffee credit or upgrade to unlimited access with Growth or
-                      Scale plans.
+                      Need more? Upgrade to Growth ($9.95/mo) for 35 analyses per month.
                     </p>
                   </div>
                 )}
@@ -239,6 +237,7 @@ function BillingSection() {
   const [loading, setLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState<string | null>(null);
+  const [upgradeBilling, setUpgradeBilling] = useState<'monthly' | 'annual'>('annual');
 
   useEffect(() => {
     loadSubscriptionStatus();
@@ -284,7 +283,7 @@ function BillingSection() {
       // Determine the endpoint based on tier
       let endpoint = '';
       if (tier === 'solo') {
-        endpoint = '/api/stripe/create-coffee-checkout';
+        endpoint = '/api/stripe/create-solo-checkout';
       } else if (tier === 'growth') {
         endpoint = '/api/stripe/create-growth-checkout';
       } else if (tier === 'scale') {
@@ -300,6 +299,7 @@ function BillingSection() {
         },
         body: JSON.stringify({
           email: user?.email || '',
+          billing: upgradeBilling,
         }),
       });
 
@@ -394,13 +394,12 @@ function BillingSection() {
               ) : user.tier === 'solo' ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-cloud border border-mist rounded-lg">
-                    <h4 className="font-medium text-ink">Coffee Credits</h4>
-                    <p className="text-sm text-action-amber mt-1">
-                      You have {user.creditsRemaining} analysis credit
-                      {user.creditsRemaining !== 1 ? 's' : ''} remaining.
+                    <h4 className="font-medium text-ink">Solo Subscription</h4>
+                    <p className="text-sm text-signal-blue mt-1">
+                      You have {user.creditsRemaining} of 20 analyses remaining this month.
                     </p>
                     <p className="text-xs text-slate-brand mt-2">
-                      Coffee tier is a monthly subscription for 20 analyses per month.
+                      Solo subscription includes 20 analyses per month, resetting each billing cycle.
                     </p>
                   </div>
                 </div>
@@ -424,6 +423,34 @@ function BillingSection() {
           <p className="text-slate-brand">
             Choose the plan that matches your ambition. Compare what you're missing:
           </p>
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center mt-4">
+            <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
+              <button
+                onClick={() => setUpgradeBilling('monthly')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  upgradeBilling === 'monthly'
+                    ? 'bg-white text-ink shadow-sm'
+                    : 'text-slate-brand hover:text-ink'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setUpgradeBilling('annual')}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  upgradeBilling === 'annual'
+                    ? 'bg-white text-ink shadow-sm'
+                    : 'text-slate-brand hover:text-ink'
+                }`}
+              >
+                Annual
+                <span className="bg-success text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
+                  Save 20%
+                </span>
+              </button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
@@ -442,8 +469,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Solo</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-action-amber">$4.95</div>
-                  <div className="text-xs text-stone-brand">per month</div>
+                  <div className="text-2xl font-bold text-action-amber">{upgradeBilling === 'annual' ? '$3.95' : '$4.95'}</div>
+                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
                 </div>
               </div>
 
@@ -537,8 +564,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Growth</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-signal-blue">$9.95</div>
-                  <div className="text-xs text-stone-brand">per month</div>
+                  <div className="text-2xl font-bold text-signal-blue">{upgradeBilling === 'annual' ? '$7.95' : '$9.95'}</div>
+                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
                 </div>
               </div>
 
@@ -626,8 +653,8 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Scale</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-brand">$19.95</div>
-                  <div className="text-xs text-stone-brand">per month</div>
+                  <div className="text-2xl font-bold text-slate-brand">{upgradeBilling === 'annual' ? '$15.95' : '$19.95'}</div>
+                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
                 </div>
               </div>
 

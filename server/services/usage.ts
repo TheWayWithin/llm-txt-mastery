@@ -121,10 +121,10 @@ export interface UsageCheckResult {
 // Get user's current tier (simplified to use emailCaptures only for now)
 export async function getUserTier(userEmail: string): Promise<UserTier> {
   try {
-    // Temporary manual override for Coffee tier customer
+    // Temporary manual override for Solo tier customer
     if (userEmail === 'jamie.watters.mail@icloud.com') {
-      console.log(`Manual override: ${userEmail} set to Coffee tier`);
-      return 'coffee';
+      console.log(`Manual override: ${userEmail} set to Solo tier`);
+      return 'solo';
     }
 
     // Check emailCaptures table directly (where Coffee tier is stored)
@@ -199,7 +199,7 @@ export async function checkUsageLimits(
     // Check daily analysis limit
     if (analysesToday >= limits.dailyAnalyses) {
       const suggestedUpgrade =
-        tier === 'starter' ? 'coffee' : tier === 'coffee' ? 'growth' : 'scale';
+        tier === 'starter' ? 'solo' : (tier === 'solo' || tier === 'coffee') ? 'growth' : 'scale';
 
       // Create user-friendly messaging based on tier
       let reason: string;
@@ -458,7 +458,8 @@ export async function checkAiCostCap(
   // Get tier-specific budget
   const monthlyBudgets = {
     starter: 0, // No AI for starter tier
-    coffee: 3.0, // Conservative limit for coffee tier
+    solo: 3.0, // Conservative limit for solo tier
+    coffee: 3.0, // Legacy alias for solo tier
     growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
     scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00'),
   };
@@ -604,23 +605,24 @@ export async function getUserTierFromAuth(
   }
 }
 
-// Monthly credit reset for Coffee tier subscriptions
+// Monthly credit reset for Solo tier subscriptions (handles both 'solo' and legacy 'coffee' DB records)
 export async function resetMonthlyCredits(): Promise<void> {
   try {
-    console.log('[CREDIT RESET] Starting monthly credit reset for Coffee tier users');
+    console.log('[CREDIT RESET] Starting monthly credit reset for Solo tier users');
 
-    // Get all Coffee tier users from auth_users table
+    // Get all Solo and legacy Coffee tier users from auth_users table
+    const soloTierUsers = await db.select().from(authUsers).where(eq(authUsers.tier, 'solo'));
     const coffeeTierUsers = await db.select().from(authUsers).where(eq(authUsers.tier, 'coffee'));
+    const allSoloUsers = [...soloTierUsers, ...coffeeTierUsers];
 
-    console.log(`[CREDIT RESET] Found ${coffeeTierUsers.length} Coffee tier users`);
+    console.log(`[CREDIT RESET] Found ${allSoloUsers.length} Solo tier users (${soloTierUsers.length} solo + ${coffeeTierUsers.length} legacy coffee)`);
 
-    // Reset credits to the proper Coffee tier allocation for each user
-    const coffeeCredits = TIER_LIMITS.coffee.dailyAnalyses;
-    for (const user of coffeeTierUsers) {
+    const soloCredits = TIER_LIMITS.solo.dailyAnalyses;
+    for (const user of allSoloUsers) {
       await authStorage.updateUser(user.id, {
-        creditsRemaining: coffeeCredits, // Reset to full monthly allocation
+        creditsRemaining: soloCredits, // Reset to full monthly allocation
       });
-      console.log(`[CREDIT RESET] Reset credits to ${coffeeCredits} for user ${user.email}`);
+      console.log(`[CREDIT RESET] Reset credits to ${soloCredits} for user ${user.email}`);
     }
 
     console.log('[CREDIT RESET] Monthly credit reset completed');
@@ -633,13 +635,13 @@ export async function resetMonthlyCredits(): Promise<void> {
 export async function handleSubscriptionRenewal(userId: number): Promise<void> {
   try {
     const user = await authStorage.getUserById(userId);
-    if (user && user.tier === 'coffee') {
-      const coffeeCredits = TIER_LIMITS.coffee.dailyAnalyses;
+    if (user && (user.tier === 'solo' || user.tier === 'coffee')) {
+      const soloCredits = TIER_LIMITS.solo.dailyAnalyses;
       await authStorage.updateUser(userId, {
-        creditsRemaining: coffeeCredits, // Reset to full credits on renewal
+        creditsRemaining: soloCredits, // Reset to full credits on renewal
       });
       console.log(
-        `[SUBSCRIPTION] Reset credits to ${coffeeCredits} for renewed Coffee subscription: ${user.email}`
+        `[SUBSCRIPTION] Reset credits to ${soloCredits} for renewed Solo subscription: ${user.email}`
       );
     }
   } catch (error) {
