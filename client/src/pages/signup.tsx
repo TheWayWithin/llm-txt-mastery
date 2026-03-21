@@ -43,7 +43,7 @@ export default function SignupPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const emailParam = urlParams.get('email') || '';
   const tierParam =
-    (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale') || 'growth';
+    (urlParams.get('tier') as 'starter' | 'solo' | 'growth' | 'scale' | 'trial') || 'growth';
   const websiteUrlParam = urlParams.get('websiteUrl') || '';
   const initialBilling = (urlParams.get('billing') as 'monthly' | 'annual') || 'annual';
 
@@ -155,15 +155,18 @@ export default function SignupPage() {
         throw new Error('Passwords do not match');
       }
 
-      // Handle paid tier checkouts BEFORE creating user (Coffee, Growth, Scale)
-      if (selectedTier === 'solo' || selectedTier === 'growth' || selectedTier === 'scale') {
+      // Handle paid tier checkouts BEFORE creating user (Solo, Growth, Scale, Trial)
+      if (selectedTier === 'solo' || selectedTier === 'growth' || selectedTier === 'scale' || selectedTier === 'trial') {
+        const isTrial = selectedTier === 'trial';
+        const displayTier = isTrial ? 'growth' : selectedTier;
         console.log(
-          `${selectedTier} tier selected, redirecting to Stripe checkout`
+          `${displayTier} tier selected${isTrial ? ' (7-day free trial)' : ''}, redirecting to Stripe checkout`
         );
 
         // Track signup attempt (not complete yet since payment pending)
         trackEvent('signup_stripe_redirect', {
-          tier_selected: selectedTier,
+          tier_selected: displayTier,
+          is_trial: isTrial ? 'true' : 'false',
           website_url: websiteUrlParam,
           event_category: 'auth',
         });
@@ -171,13 +174,14 @@ export default function SignupPage() {
         // Store credentials temporarily for after payment
         sessionStorage.setItem('pendingSignupEmail', email);
         sessionStorage.setItem('pendingSignupPassword', btoa(password)); // Basic encoding for session storage
-        sessionStorage.setItem('pendingSignupTier', selectedTier);
+        sessionStorage.setItem('pendingSignupTier', displayTier);
 
         // Determine the correct endpoint based on tier
+        // Trial uses the Growth checkout endpoint with trial flag
         let endpoint = '';
         if (selectedTier === 'solo') {
           endpoint = '/api/stripe/create-solo-checkout';
-        } else if (selectedTier === 'growth') {
+        } else if (selectedTier === 'growth' || selectedTier === 'trial') {
           endpoint = '/api/stripe/create-growth-checkout';
         } else if (selectedTier === 'scale') {
           endpoint = '/api/stripe/create-scale-checkout';
@@ -191,11 +195,12 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: email,
-            billing: billing,
-            ...(websiteUrlParam && { websiteUrl: websiteUrlParam }), // Only include if not empty
+            billing: isTrial ? 'monthly' : billing, // Trial always starts monthly
+            trial: isTrial,
+            ...(websiteUrlParam && { websiteUrl: websiteUrlParam }),
             metadata: {
               password: btoa(password), // Will be used by webhook to create user
-              tier: selectedTier,
+              tier: 'growth', // Trial maps to growth tier
             },
           }),
         });
@@ -262,6 +267,7 @@ export default function SignupPage() {
         return <Check className="h-5 w-5" />;
       case 'solo':
         return <BarChart3 className="h-5 w-5" />;
+      case 'trial':
       case 'growth':
         return <Zap className="h-5 w-5" />;
       case 'scale':
@@ -287,6 +293,14 @@ export default function SignupPage() {
           'Quality scoring helps AI prioritize your best content',
           'Get found for services, not just your homepage',
           '30-day money-back guarantee',
+        ];
+      case 'trial':
+        return [
+          '7 days free — Growth tier features',
+          '35 analyses/month with 500 pages each',
+          'AI-enhanced analysis and priority processing',
+          'Cancel anytime — no charge if cancelled within trial',
+          'Converts to Growth ($9.95/mo) after 7 days',
         ];
       case 'growth':
         return [
@@ -393,8 +407,8 @@ export default function SignupPage() {
                       }}
                       className="w-full px-3 py-2 border border-mist rounded-md focus:outline-none focus:ring-2 focus:ring-signal-blue"
                     >
-                      <option value="starter" data-testid="tier-option-starter">
-                        Starter (Free) — Quick check
+                      <option value="trial" data-testid="tier-option-trial">
+                        Free Trial (7 days) — Growth features, no charge
                       </option>
                       <option value="solo" data-testid="tier-option-coffee">
                         {billing === 'annual'
@@ -414,7 +428,7 @@ export default function SignupPage() {
                     </select>
 
                     {/* Billing Toggle */}
-                    {selectedTier !== 'starter' && (
+                    {selectedTier !== 'starter' && selectedTier !== 'trial' && (
                       <div className="flex items-center justify-center mt-3">
                         <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
                           <button
