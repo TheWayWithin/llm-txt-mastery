@@ -91,6 +91,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
 // Require specific tier middleware
 export function requireTier(minTier: UserTier) {
   const tierLevels: Record<string, number> = {
+    cancelled: -1, // Cancelled users blocked from all tier-gated endpoints
     starter: 0,
     solo: 1,
     coffee: 1, // Legacy alias — same level as solo

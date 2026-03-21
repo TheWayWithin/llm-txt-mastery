@@ -47,33 +47,33 @@ The cancellation flow is broken and the business logic is wrong:
 
 ### Phase 1: Fix Immediate Bugs
 
-- [ ] Fix "Instant Cancel" 400 error — handle case where Stripe subscription already cancelled
-- [ ] Fix tier not updating after Stripe portal cancel — verify webhook fires, force UI refresh
-- [ ] Fix inconsistent state — "No active subscriptions" + "Scale Plan" shown simultaneously
-- [ ] Remove "Cancel Subscription (Instant)" duplicate button — use single clear cancellation flow
+- [x] Fix "Instant Cancel" 400 error — handle case where Stripe subscription already cancelled
+- [x] Fix tier not updating after Stripe portal cancel — webhook now sets 'cancelled' not 'starter'
+- [x] Fix inconsistent state — "No active subscriptions" + "Scale Plan" shown simultaneously
+- [x] Remove "Cancel Subscription (Instant)" duplicate button — replaced with in-app CancellationModal
 
 ### Phase 2: Implement Correct Cancellation Logic
 
-- [ ] **Refund path** (within 30 days): instant refund + immediate access revocation
-- [ ] **Cancel path** (after 30 days): cancel at period end via Stripe `cancel_at_period_end`
-- [ ] Create "cancelled" account state — not 'starter', a new state like 'cancelled' or 'inactive'
-- [ ] Add `subscriptionEndsAt` field to track when access expires
-- [ ] Show countdown: "Your access ends on [date]" during grace period
+- [x] **Refund path** (within 30 days): instant refund + immediate access revocation
+- [x] **Cancel path** (after 30 days): cancel at period end via Stripe `cancel_at_period_end`
+- [x] Create "cancelled" account state — added 'cancelled' to UserTier across 16 files
+- [x] Add `subscriptionEndsAt` field — returned from API, shown in cancellation modal
+- [x] Show message: "Your access ends on [date]" during cancel-at-period-end flow
 
 ### Phase 3: Post-Cancellation UX
 
-- [ ] Cancelled users can log in but see "subscription ended" screen
-- [ ] Show re-subscribe CTA with previous plan pre-selected
-- [ ] Historical analyses remain viewable (read-only)
+- [x] Cancelled users can log in but see "Subscription Ended" screen on dashboard
+- [x] Show re-subscribe CTA on dashboard and analyze page
+- [x] Historical analyses remain viewable (read-only via fileHistory: true in cancelled tier)
 - [ ] Remove Starter tier from pricing page (or clearly mark as "Free Trial" with limited scope)
-- [ ] Block analyze/generate endpoints for cancelled users
+- [x] Block analyze/generate endpoints for cancelled users (tier level -1 in auth middleware)
 
 ### Phase 4: Clean Up Starter Tier
 
-- [ ] Decide: keep Starter as a limited trial, or remove entirely
-- [ ] If keeping: make it a 7-day trial with clear expiry, not a permanent free tier
-- [ ] If removing: update pricing page, signup flow, all tier references
-- [ ] Update cancellation downgrade path to use 'cancelled' instead of 'starter'
+- [x] Decide: 7-day free trial at Growth level with credit card required
+- [x] Replaced Starter with "Free Trial" on pricing page and landing page
+- [x] Signup flow: tier=trial routes through Growth checkout with trial_period_days: 7
+- [x] Update cancellation downgrade path to use 'cancelled' instead of 'starter'
 
 ### Phase 5: Testing
 
