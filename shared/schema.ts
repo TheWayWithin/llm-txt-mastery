@@ -344,7 +344,7 @@ export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type UserProfile = typeof userProfiles.$inferSelect;
 
 // Tier-based types
-export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
+export type UserTier = 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
 
 // ===================================================================
 // ENHANCED SPA DETECTION TYPES (Sprint 1: Phase 1)
@@ -759,4 +759,5 @@ export const API_TIER_LIMITS: Record<UserTier, {
   solo: { maxPagesPerAnalysis: 200, aiPagesLimit: 200, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
   growth: { maxPagesPerAnalysis: 500, aiPagesLimit: 500, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
   scale: { maxPagesPerAnalysis: 1000, aiPagesLimit: 1000, jsRenderingEnabled: true, jsRendersPerMonth: 100 },
+  cancelled: { maxPagesPerAnalysis: 0, aiPagesLimit: 0, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
 };

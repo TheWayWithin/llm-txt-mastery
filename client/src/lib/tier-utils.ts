@@ -1,6 +1,6 @@
 // Utility functions for handling user tiers
 
-export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
+export type UserTier = 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
 
 /**
  * Get user-friendly display name for tier
@@ -16,6 +16,8 @@ export const getTierDisplayName = (tier: string): string => {
       return 'Growth';
     case 'scale':
       return 'Scale';
+    case 'cancelled':
+      return 'Cancelled';
     default:
       return tier.charAt(0).toUpperCase() + tier.slice(1);
   }
@@ -35,6 +37,8 @@ export const getTierDescription = (tier: string): string => {
       return '35 monthly analyses, up to 500 pages each';
     case 'scale':
       return '100 monthly analyses, up to 1000 pages each';
+    case 'cancelled':
+      return 'Subscription ended — re-subscribe to continue';
     default:
       return 'Custom tier';
   }
@@ -54,6 +58,8 @@ export const getTierColorClass = (tier: string): string => {
       return 'bg-signal-blue text-white';
     case 'scale':
       return 'bg-mastery-blue text-white';
+    case 'cancelled':
+      return 'bg-error text-white';
     default:
       return 'bg-slate-brand text-white';
   }

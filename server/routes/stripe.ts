@@ -880,36 +880,34 @@ async function handleSubscriptionCancelled(subscription: any) {
 
     console.log(`Subscription cancelled for user: ${userId}`);
 
+    // Set tier to 'cancelled' — NOT 'starter' (no free tier access after cancellation)
     await storage.updateUserProfile(userId, {
-      tier: 'starter',
+      tier: 'cancelled',
       subscriptionStatus: 'cancelled',
     });
 
-    // CRITICAL FIX: Downgrade both auth_users and emailCaptures when subscription is cancelled
+    // Downgrade both auth_users and emailCaptures
     let customerEmail = null;
     try {
-      // Get customer email from Stripe
       const customer = await getStripeCustomer(subscription.customer);
       customerEmail = customer?.email;
 
       if (customerEmail) {
-        // Downgrade auth_users table
         const authUser = await authStorage.getUserByEmail(customerEmail);
         if (authUser) {
           await authStorage.updateUser(authUser.id, {
-            tier: 'starter',
+            tier: 'cancelled',
           });
           console.log(
-            `Downgraded auth_users for ${customerEmail} to starter tier (subscription cancelled)`
+            `Set auth_users for ${customerEmail} to cancelled tier (subscription ended)`
           );
         }
 
-        // Downgrade emailCaptures
         const existingCapture = await storage.getEmailCapture(customerEmail);
         if (existingCapture) {
-          await storage.updateEmailCapture(customerEmail, { tier: 'starter' });
+          await storage.updateEmailCapture(customerEmail, { tier: 'cancelled' });
           console.log(
-            `Downgraded emailCaptures for ${customerEmail} to starter tier (subscription cancelled)`
+            `Set emailCaptures for ${customerEmail} to cancelled tier (subscription ended)`
           );
         }
       } else {

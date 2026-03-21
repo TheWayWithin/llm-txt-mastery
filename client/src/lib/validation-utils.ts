@@ -304,7 +304,7 @@ export const tierUtils = {
   /**
    * Valid tier options
    */
-  validTiers: ['starter', 'solo', 'growth', 'scale'] as const,
+  validTiers: ['starter', 'solo', 'growth', 'scale', 'cancelled'] as const,
 
   /**
    * Check if tier is valid
@@ -322,6 +322,7 @@ export const tierUtils = {
       solo: 'Solo ($4.95)',
       growth: 'Growth ($14.95)',
       scale: 'Scale ($29.95)',
+      cancelled: 'Cancelled',
     };
     return displayNames[tier] || tier;
   },
@@ -335,6 +336,7 @@ export const tierUtils = {
       solo: ['AI-enhanced analysis', '20 analyses per month', '200 pages per analysis', 'Priority support'],
       growth: ['Advanced AI analysis', '35 analyses per month', '500 pages per analysis', 'Smart caching'],
       scale: ['Enterprise AI analysis', '100 analyses per month', '1,000 pages per analysis', 'API access'],
+      cancelled: ['View previous analyses (read-only)'],
     };
     return features[tier] || [];
   },

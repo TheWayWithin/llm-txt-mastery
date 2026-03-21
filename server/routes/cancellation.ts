@@ -27,12 +27,11 @@ export function registerCancellationRoutes(app: Express) {
         return res.status(401).json({ message: 'Authentication required' });
       }
 
-      // Check if user has already cancelled
-      const existingCancellation = await getCancellationStatus(authUser.id);
-      if (existingCancellation.hasCancelled) {
+      // If user is already cancelled, return friendly message
+      if (authUser.tier === 'cancelled') {
         return res.status(400).json({
-          message: 'You have already cancelled your subscription',
-          cancellation: existingCancellation.cancellation,
+          success: false,
+          message: 'Your subscription is already cancelled.',
         });
       }
 
@@ -48,6 +47,7 @@ export function registerCancellationRoutes(app: Express) {
           success: true,
           message: result.message,
           cancellationId: result.cancellationId,
+          subscriptionEndsAt: result.subscriptionEndsAt || null,
         });
       } else {
         res.status(400).json({
@@ -108,6 +108,7 @@ export function registerCancellationRoutes(app: Express) {
 
       res.json({
         hasCancelled: status.hasCancelled,
+        isCancelled: authUser.tier === 'cancelled',
         cancellation: status.cancellation
           ? {
               id: status.cancellation.id,
@@ -152,7 +153,6 @@ export function registerCancellationRoutes(app: Express) {
         return res.status(401).json({ message: 'Authentication required' });
       }
 
-      // Check eligibility first
       const eligibility = await checkRefundEligibility(authUser.id);
 
       if (!eligibility.eligible) {
@@ -162,7 +162,6 @@ export function registerCancellationRoutes(app: Express) {
         });
       }
 
-      // Process refund request as a cancellation
       const result = await requestCancellation({
         userId: authUser.id,
         reason: `Manual refund request: ${reason}`,
@@ -198,15 +197,9 @@ export function registerCancellationRoutes(app: Express) {
         },
         {
           name: 'Cancel Anytime',
-          description: 'Cancel your subscription at any time with one click.',
+          description: 'Cancel your subscription at any time. Access continues until end of billing period.',
           applies_to: ['solo', 'growth', 'scale'],
-          conditions: 'Prorated refund for unused time',
-        },
-        {
-          name: 'Results Guarantee',
-          description: 'See improvements within 24 hours or get your money back.',
-          applies_to: ['solo', 'growth', 'scale'],
-          conditions: 'Must complete at least one analysis',
+          conditions: 'Access until billing period ends',
         },
       ],
       process: {
@@ -214,7 +207,8 @@ export function registerCancellationRoutes(app: Express) {
           "Click 'Cancel Subscription' in your dashboard",
           'Select optional cancellation reason',
           'Confirm cancellation',
-          'Refund processed within 5-7 business days',
+          'Within 30 days: instant refund, access ends immediately',
+          'After 30 days: access until billing period ends, then cancelled',
         ],
         support_email: 'support@llmtxtmastery.com',
       },
