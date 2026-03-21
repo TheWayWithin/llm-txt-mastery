@@ -77,11 +77,12 @@ export function registerStripeRoutes(app: Express) {
         userEmail: req.user?.email,
       });
 
-      const { email, websiteUrl, metadata, billing } = z
+      const { email, websiteUrl, metadata, billing, trial } = z
         .object({
           email: z.string().email().optional(),
           websiteUrl: z.union([z.string().url(), z.literal('')]).optional(),
           billing: z.enum(['monthly', 'annual']).optional().default('monthly'),
+          trial: z.boolean().optional().default(false),
           metadata: z
             .object({
               password: z.string().optional(),
@@ -99,7 +100,7 @@ export function registerStripeRoutes(app: Express) {
         return res.status(400).json({ message: 'Email is required' });
       }
 
-      console.log(`✅ Processing Growth checkout for: ${userEmail} (billing: ${billing})`);
+      console.log(`✅ Processing Growth checkout for: ${userEmail} (billing: ${billing}, trial: ${trial})`);
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -142,8 +143,10 @@ export function registerStripeRoutes(app: Express) {
           email: userEmail,
           tier: 'growth',
           billing,
+          trial: trial ? 'true' : '',
           websiteUrl: websiteUrl || '',
         },
+        ...(trial ? { trialDays: 7 } : {}),
       });
 
       res.json({
@@ -705,9 +708,10 @@ async function handleCheckoutCompleted(session: any) {
         session.metadata?.tier || getTierFromPriceId(session.metadata?.priceId) || 'starter';
       const encodedPassword = session.metadata?.password; // Base64 encoded password from signup flow
 
+      const isTrial = session.metadata?.trial === 'true';
       await storage.updateUserProfile(userId, {
         subscriptionId: session.subscription,
-        subscriptionStatus: 'active',
+        subscriptionStatus: isTrial ? 'trialing' : 'active',
       });
 
       // CRITICAL FIX: Create or update auth_users for Growth/Scale subscription
@@ -880,36 +884,34 @@ async function handleSubscriptionCancelled(subscription: any) {
 
     console.log(`Subscription cancelled for user: ${userId}`);
 
+    // Set tier to 'cancelled' — NOT 'starter' (no free tier access after cancellation)
     await storage.updateUserProfile(userId, {
-      tier: 'starter',
+      tier: 'cancelled',
       subscriptionStatus: 'cancelled',
     });
 
-    // CRITICAL FIX: Downgrade both auth_users and emailCaptures when subscription is cancelled
+    // Downgrade both auth_users and emailCaptures
     let customerEmail = null;
     try {
-      // Get customer email from Stripe
       const customer = await getStripeCustomer(subscription.customer);
       customerEmail = customer?.email;
 
       if (customerEmail) {
-        // Downgrade auth_users table
         const authUser = await authStorage.getUserByEmail(customerEmail);
         if (authUser) {
           await authStorage.updateUser(authUser.id, {
-            tier: 'starter',
+            tier: 'cancelled',
           });
           console.log(
-            `Downgraded auth_users for ${customerEmail} to starter tier (subscription cancelled)`
+            `Set auth_users for ${customerEmail} to cancelled tier (subscription ended)`
           );
         }
 
-        // Downgrade emailCaptures
         const existingCapture = await storage.getEmailCapture(customerEmail);
         if (existingCapture) {
-          await storage.updateEmailCapture(customerEmail, { tier: 'starter' });
+          await storage.updateEmailCapture(customerEmail, { tier: 'cancelled' });
           console.log(
-            `Downgraded emailCaptures for ${customerEmail} to starter tier (subscription cancelled)`
+            `Set emailCaptures for ${customerEmail} to cancelled tier (subscription ended)`
           );
         }
       } else {

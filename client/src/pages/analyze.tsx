@@ -139,6 +139,10 @@ export default function AnalyzePage() {
     if (!isValid || !url) return;
 
     // Check if user has reached daily limit
+    if (user?.tier === 'cancelled') {
+      return; // Cancelled users cannot analyze
+    }
+
     if (isLimitReached && user?.tier === 'starter') {
       setShowDailyLimitModal(true);
       return;
@@ -251,6 +255,25 @@ export default function AnalyzePage() {
 
         {/* Main Content */}
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Cancelled User Block */}
+          {user.tier === 'cancelled' && (
+            <div className="mb-8 bg-error/5 border border-error/20 rounded-lg p-6 text-center">
+              <h2 className="text-lg font-semibold text-error mb-2">Subscription Ended</h2>
+              <p className="text-slate-brand mb-4">
+                Your subscription has been cancelled. Re-subscribe to continue analyzing websites.
+              </p>
+              <p className="text-sm text-slate-brand mb-4">
+                Your previous analyses are still available in your{' '}
+                <Link href="/dashboard" className="text-signal-blue underline">dashboard</Link>.
+              </p>
+              <Link href="/dashboard">
+                <Button className="bg-signal-blue hover:bg-[#1D4ED8]">
+                  Re-subscribe
+                </Button>
+              </Link>
+            </div>
+          )}
+
           {/* User Welcome & Status */}
           <section className="mb-8">
             <div className="bg-white rounded-lg border border-mist shadow-sm p-6">

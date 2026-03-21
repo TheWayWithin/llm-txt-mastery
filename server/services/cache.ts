@@ -106,6 +106,19 @@ export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
       apiAccess: true,
     },
   },
+  cancelled: {
+    dailyAnalyses: 0,
+    maxPagesPerAnalysis: 0,
+    aiPagesLimit: 0,
+    cacheDurationDays: 0,
+    features: {
+      htmlExtraction: false,
+      aiAnalysis: false,
+      fileHistory: true, // Read-only access to historical analyses
+      prioritySupport: false,
+      smartCaching: false,
+    },
+  },
 };
 
 // Generate URL hash for cache key

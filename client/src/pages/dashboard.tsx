@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InstantRefundButton } from '@/components/InstantRefundButton';
+import { CancellationModal } from '@/components/CancellationModal';
 import {
   User,
   CreditCard,
@@ -36,6 +37,7 @@ import {
   CheckCircle,
   FileText,
   ArrowRight,
+  XCircle,
 } from 'lucide-react';
 import {
   getSubscriptionStatus,
@@ -53,6 +55,8 @@ const getTierIcon = (tier: string) => {
       return <Zap className="h-4 w-4" />;
     case 'scale':
       return <Crown className="h-4 w-4" />;
+    case 'cancelled':
+      return <XCircle className="h-4 w-4" />;
     default:
       return <User className="h-4 w-4" />;
   }
@@ -66,10 +70,39 @@ const getTierColor = (tier: string) => {
       return 'bg-signal-blue/10 text-mastery-blue border-mist';
     case 'scale':
       return 'bg-cloud text-ink border-mist';
+    case 'cancelled':
+      return 'bg-error/10 text-error border-error/20';
     default:
       return 'bg-cloud text-ink border-mist';
   }
 };
+
+function CancellationButton() {
+  const [showModal, setShowModal] = useState(false);
+  const { refreshUser } = useAuth();
+
+  return (
+    <>
+      <Button
+        onClick={() => setShowModal(true)}
+        variant="outline"
+        className="w-full border-mist text-error hover:bg-error/10"
+      >
+        <XCircle className="h-4 w-4 mr-2" />
+        Cancel Subscription
+      </Button>
+      <CancellationModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={() => {
+          setShowModal(false);
+          refreshUser();
+          window.location.reload();
+        }}
+      />
+    </>
+  );
+}
 
 function AccountOverview() {
   const { user, refreshUser } = useAuth();
@@ -163,6 +196,19 @@ function AccountOverview() {
                     </p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Cancelled State */}
+            {user.tier === 'cancelled' && (
+              <div className="bg-error/5 border border-error/20 rounded-lg p-4">
+                <h4 className="font-medium text-error mb-2">Subscription Ended</h4>
+                <p className="text-sm text-slate-brand mb-3">
+                  Your subscription has been cancelled. You can still view your previous analyses, but new analyses are disabled.
+                </p>
+                <p className="text-sm text-ink mb-4">
+                  Re-subscribe to continue analyzing websites and generating llms.txt files.
+                </p>
               </div>
             )}
 
@@ -374,20 +420,10 @@ function BillingSection() {
                       Update Payment Method
                     </Button>
 
-                    <Button
-                      onClick={handleManageBilling}
-                      disabled={portalLoading}
-                      variant="outline"
-                      className="w-full border-mist text-error hover:bg-error/10"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Cancel Subscription (Instant)
-                    </Button>
+                    <CancellationButton />
 
                     <div className="text-xs text-stone-brand text-center mt-2">
                       All billing changes are processed securely through Stripe.
-                      <br />
-                      Cancellations take effect immediately - no hoops to jump through.
                     </div>
                   </div>
                 </div>
@@ -401,6 +437,18 @@ function BillingSection() {
                     <p className="text-xs text-slate-brand mt-2">
                       Solo subscription includes 20 analyses per month, resetting each billing cycle.
                     </p>
+                  </div>
+                </div>
+              ) : user.tier === 'cancelled' ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-error/5 border border-error/20 rounded-lg">
+                    <div>
+                      <h4 className="font-medium text-error">Subscription Ended</h4>
+                      <p className="text-sm text-slate-brand">
+                        Your subscription has been cancelled. Re-subscribe below to continue.
+                      </p>
+                    </div>
+                    <Badge className="bg-error/10 text-error border-error/20">Cancelled</Badge>
                   </div>
                 </div>
               ) : (
