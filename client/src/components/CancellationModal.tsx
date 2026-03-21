@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertTriangle, CheckCircle, XCircle, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 interface RefundEligibility {
   eligible: boolean;
@@ -31,7 +32,7 @@ interface CancellationModalProps {
 }
 
 export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationModalProps) {
-  const { user, getAccessToken } = useAuth();
+  const { user, getAccessToken, refreshUser } = useAuth();
   const [step, setStep] = useState<'confirm' | 'reason' | 'processing' | 'complete'>('confirm');
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,22 +40,22 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
   const [refundInfo, setRefundInfo] = useState<RefundEligibility | null>(null);
   const [cancellationResult, setCancellationResult] = useState<any>(null);
 
-  // Check refund eligibility when modal opens
-  useState(() => {
+  useEffect(() => {
     if (isOpen && user) {
+      setStep('confirm');
+      setError(null);
+      setReason('');
       checkRefundEligibility();
     }
-  });
+  }, [isOpen]);
 
   const checkRefundEligibility = async () => {
     try {
       const token = getAccessToken();
       if (!token) return;
 
-      const response = await fetch('/api/refund/eligibility', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch(`${getApiBaseUrl()}/api/refund/eligibility`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -72,11 +73,9 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
 
     try {
       const token = getAccessToken();
-      if (!token) {
-        throw new Error('Authentication required');
-      }
+      if (!token) throw new Error('Authentication required');
 
-      const response = await fetch('/api/cancel', {
+      const response = await fetch(`${getApiBaseUrl()}/api/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,6 +92,8 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
       if (response.ok && data.success) {
         setCancellationResult(data);
         setStep('complete');
+        // Refresh user data to reflect new tier
+        await refreshUser();
         if (onSuccess) {
           setTimeout(onSuccess, 3000);
         }
@@ -110,22 +111,20 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
     switch (user?.tier) {
       case 'solo':
         return [
-          'Access to AI-enhanced analysis',
+          'AI-enhanced website analysis',
           'Remaining analysis credits',
           '200-page analysis capability',
-          'Premium support',
         ];
       case 'growth':
         return [
-          '100 monthly analyses (5x more than Coffee)',
-          '1,000-page analysis capability',
+          '35 monthly analyses',
+          '500-page analysis capability',
           'Priority processing',
-          'Advanced features',
         ];
       case 'scale':
         return [
-          'Unlimited analyses',
-          'Unlimited page processing',
+          '100 monthly analyses',
+          '1,000-page processing',
           'API access',
           'Priority support',
         ];
@@ -134,7 +133,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
     }
   };
 
-  if (!user || user.tier === 'starter') {
+  if (!user || user.tier === 'starter' || user.tier === 'cancelled') {
     return null;
   }
 
@@ -154,31 +153,37 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
             </DialogHeader>
 
             <div className="space-y-4">
-              {/* Refund Information */}
+              {/* Refund / Cancel-at-period-end Information */}
               {refundInfo && (
                 <div
                   className={`p-4 rounded-lg border ${
-                    refundInfo.eligible
+                    refundInfo.guaranteeApplies
                       ? 'bg-success/10 border-mist'
-                      : 'bg-cloud border-mist'
+                      : 'bg-signal-blue/5 border-mist'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium flex items-center">
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      Refund Eligibility
-                    </h4>
-                    {refundInfo.eligible && (
-                      <Badge variant="default" className="bg-success">
-                        {refundInfo.amountFormatted}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-slate-brand">{refundInfo.reason}</p>
-                  {refundInfo.guaranteeApplies && (
-                    <p className="text-sm text-success mt-1 font-medium">
-                      ✅ 30-day money-back guarantee applies
-                    </p>
+                  {refundInfo.guaranteeApplies ? (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium flex items-center">
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          30-Day Money-Back Guarantee
+                        </h4>
+                        <Badge variant="default" className="bg-success">
+                          {refundInfo.amountFormatted}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-slate-brand">
+                        You'll receive a full refund and your access will end immediately.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h4 className="font-medium mb-2">Cancel at End of Billing Period</h4>
+                      <p className="text-sm text-slate-brand">
+                        {refundInfo.reason}
+                      </p>
+                    </>
                   )}
                 </div>
               )}
@@ -196,11 +201,9 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
                 </ul>
               </div>
 
-              {/* Alternative Actions */}
               <Alert>
                 <AlertDescription>
-                  Need help? Contact support@llmtxtmastery.com before cancelling. We're here to help
-                  resolve any issues.
+                  Need help? Contact support@llmtxtmastery.com before cancelling.
                 </AlertDescription>
               </Alert>
             </div>
@@ -281,7 +284,7 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
                 </AlertDescription>
               </Alert>
 
-              {refundInfo?.eligible && (
+              {refundInfo?.eligible && refundInfo?.guaranteeApplies && (
                 <div className="p-4 bg-signal-blue/10 border border-mist rounded-lg">
                   <h4 className="font-medium text-mastery-blue mb-1">Refund Processing</h4>
                   <p className="text-sm text-mastery-blue">
@@ -291,10 +294,25 @@ export function CancellationModal({ isOpen, onClose, onSuccess }: CancellationMo
                 </div>
               )}
 
+              {cancellationResult?.subscriptionEndsAt && (
+                <div className="p-4 bg-signal-blue/10 border border-mist rounded-lg">
+                  <h4 className="font-medium text-mastery-blue mb-1">Access Until Period End</h4>
+                  <p className="text-sm text-mastery-blue">
+                    You'll have full access until{' '}
+                    {new Date(cancellationResult.subscriptionEndsAt).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                    .
+                  </p>
+                </div>
+              )}
+
               <div className="text-sm text-slate-brand">
-                <p>Thank you for trying LLM.txt Mastery!</p>
+                <p>Thank you for using LLM.txt Mastery.</p>
                 <p className="mt-2">
-                  If you change your mind, you can always sign up again at any time.
+                  You can re-subscribe at any time from your dashboard.
                 </p>
               </div>
             </div>

@@ -428,11 +428,12 @@ export const analyticsHelpers = {
 
   // Conversion events
   trackEmailCapture: (emailTier: UserTier, websiteUrl?: string) => {
-    const tierValues = {
+    const tierValues: Record<UserTier, number> = {
       starter: 0,
       solo: 4.95,
       growth: 14.95,
       scale: 29.95,
+      cancelled: 0,
     };
 
     analytics.track('email_capture', {
@@ -497,11 +498,12 @@ export const analyticsHelpers = {
 
   // Upgrade events
   trackUpgradeClick: (fromTier: UserTier, toTier: UserTier) => {
-    const tierValues = {
+    const tierValues: Record<UserTier, number> = {
       starter: 0,
       solo: 4.95,
       growth: 14.95,
       scale: 29.95,
+      cancelled: 0,
     };
 
     analytics.track('upgrade_click', {
