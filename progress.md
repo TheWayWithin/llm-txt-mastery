@@ -1,9 +1,62 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest: Sprint 9 — Solo Subscription Migration
+## Latest: Sprint 11 — Cancellation Flow Overhaul + 7-Day Free Trial
 
-**Date**: 2026-03-16
-**Status**: Sprint 9 DEPLOYED TO STAGING, testing in progress
+**Date**: 2026-03-21
+**Status**: MERGED TO DEVELOP — deploying to staging for testing
+
+### What Happened
+
+#### Phase 1-3: Cancellation Flow Fix (16 files, 481 insertions, 372 deletions)
+
+1. **Added `'cancelled'` tier** — new UserTier across entire stack (shared/schema.ts, auth middleware, cache, analytics, validation, flow state machine, auth-api, tier-utils, supabase types)
+2. **Cancelled tier has zero access** — 0 analyses, 0 pages, all features disabled except read-only history. Auth middleware sets cancelled at level -1 (blocks all tier-gated endpoints)
+3. **Fixed 400 error on "Instant Cancel"** — `processSubscriptionCancellation` now handles already-cancelled subscriptions gracefully instead of throwing "No active subscription found"
+4. **Implemented two cancel paths**:
+   - **Within 30 days**: instant refund + immediate access revocation (tier set to 'cancelled')
+   - **After 30 days**: `cancel_at_period_end` via Stripe — user keeps access until billing period ends, then `customer.subscription.deleted` webhook fires and sets tier to 'cancelled'
+5. **Webhook handler updated** — `handleSubscriptionCancelled` now sets tier to `'cancelled'` instead of `'starter'` across all three tables (user_profiles, auth_users, emailCaptures)
+6. **Cancel route returns `subscriptionEndsAt`** — ISO date for cancel-at-period-end flow, shown in modal
+7. **Dashboard updated** — cancelled users see red "Subscription Ended" state in both Current Plan and Billing sections, with re-subscribe CTA
+8. **Analyze page blocks cancelled users** — shows banner with re-subscribe link, prevents form submission
+9. **CancellationModal rewritten** — uses `getApiBaseUrl()`, shows period-end messaging, refreshes user after cancellation, resets state on open
+10. **Removed confusing "Cancel Subscription (Instant)" button** — replaced with in-app CancellationButton that opens the CancellationModal
+
+#### Phase 4: 7-Day Free Trial (6 files, 74 insertions, 42 deletions)
+
+11. **Replaced Starter tier with "Free Trial"** on pricing page and landing page PricingPreview
+12. **Trial gives full Growth features** — 35 analyses/month, 500 pages each, AI analysis, priority processing
+13. **Credit card required upfront** — Stripe collects card during checkout, no charge for 7 days
+14. **After 7 days: auto-converts to Growth ($9.95/mo)** — user can cancel during trial for no charge
+15. **Backend: `createCheckoutSession` supports `trialDays` param** — passes `trial_period_days: 7` to Stripe `subscription_data`
+16. **Growth checkout accepts `trial` flag** — when true, creates subscription with 7-day trial
+17. **Signup page: `tier=trial`** routes through Growth checkout with trial=true, billing forced to monthly
+18. **Pricing cards updated** — "7 DAYS FREE" badge, "$0 for 7 days", Growth features listed, "Then $9.95/mo — cancel anytime"
+
+### Files Changed (22 total across merge)
+
+**Backend (8 files):**
+- `shared/schema.ts` — UserTier + API_TIER_LIMITS
+- `server/services/cancellation.ts` — complete rewrite
+- `server/routes/cancellation.ts` — subscriptionEndsAt, better errors
+- `server/routes/stripe.ts` — webhook cancelled→cancelled, trial support
+- `server/services/stripe.ts` — trialDays param
+- `server/services/cache.ts` — cancelled TIER_LIMITS
+- `server/middleware/auth.ts` — cancelled at level -1
+- `server/supabase.ts` — tier types
+
+**Frontend (11 files):**
+- `client/src/lib/auth-api.ts`, `tier-utils.ts`, `validation-utils.ts`, `analytics-utils.ts`
+- `client/src/hooks/useFlowStateMachine.ts`
+- `client/src/pages/dashboard.tsx`, `analyze.tsx`, `signup.tsx`, `pricing.tsx`
+- `client/src/components/CancellationModal.tsx`, `subscription-management.tsx`, `landing/PricingPreview.tsx`
+
+---
+
+## Previous: Sprint 9 — Solo Subscription Migration
+
+**Date**: 2026-03-20
+**Status**: ✅ COMPLETE — merged to main, deployed to production
 
 ### What Happened
 
@@ -11,34 +64,15 @@
 2. **All 'coffee' tier references replaced with 'solo'** — backward compatible with existing DB records (reads handle both)
 3. **New route `/api/stripe/create-solo-checkout`** registered (legacy `/create-coffee-checkout` kept as alias)
 4. **Dashboard UI overhauled** — "Coffee Credits" → "Monthly Analyses", "0 credits" → "0/20 analyses", coffee icons → blue chart icons
-5. **Bug found during testing: new Solo subscribers got 0 credits** — webhook checkout handler set `creditsRemaining: 0` for Solo (was written for Growth/Scale). Fixed to set 20 for Solo.
-6. **Bug found: `Coffee is not defined` crash** — removed Coffee icon import but missed a reference in `AuthNav.getTierIcon()`. Fixed.
-7. **Billing toggle added to signup page** — Monthly/Annual toggle with "Save 20%" badge, defaults to annual
-8. **All pricing pages default to annual view** — landing page, pricing page, signup page
-9. **Stripe test mode prices fixed** — Growth was $25 (should be $9.95), Scale was $99 (should be $19.95). Created new prices, archived old ones, updated Railway staging env vars.
-10. **Upgrade flow fixed** — subscription-success page now detects authenticated users and auto-redirects to /analyze instead of showing verification email instructions
-11. **Infinite refreshUser loop fixed** — subscription-success useEffect was re-triggering on every user state change. Added ref guard.
-12. **Dashboard upgrade cards** — added billing toggle (Monthly/Annual), shows annual prices, passes billing preference to Stripe checkout
-13. **Status card tier limit fix** — "Today's Usage 0/3" was hardcoded fallback; now shows tier-appropriate limit (Scale=100, Growth=35)
+5. **Billing toggle added** to signup page, pricing page, landing page, dashboard upgrade cards — all default to annual
+6. **Stripe test mode prices fixed** — Growth was $25→$9.95, Scale was $99→$19.95
+7. **Upgrade flow fixed** — redirects to /analyze (not verification page), infinite refresh loop fixed
+8. **Stripe product names updated** — "Coffee Analysis" → "LLM.txt Mastery - Solo Plan" (both test and live)
 
-### Bugs Found During Testing
+### Outstanding Issues Found During Sprint 9 Testing
 
-| Bug | Root Cause | Fix |
-|-----|-----------|-----|
-| New Solo subscribers get 0 analyses | `handleCheckoutCompleted` subscription path sets `creditsRemaining: 0` | Set to 20 for Solo tier |
-| `ReferenceError: Coffee is not defined` crash | Removed import but missed reference in `getTierIcon` | Replaced with BarChart3 |
-| Stripe Growth shows $25 on checkout | Test mode price ID pointed to old $25 price | Created new $9.95 price, updated env var |
-| Stripe Scale shows $99 on checkout | Test mode price ID pointed to old $99 price | Created new $19.95 price, updated env var |
-| Upgrade shows "check your email" page | subscription-success page had no auth awareness | Detect authenticated user, redirect to /analyze |
-| Infinite API refresh loop | `refreshUser` in useEffect dependency array | Added useRef guard, call once only |
-| "Today's Usage 0/3" for Scale tier | Hardcoded fallback `|| 3` in status card | Use tier-appropriate default |
-| Dashboard upgrades always monthly | No billing toggle, didn't pass billing to API | Added toggle, pass billing param |
-
-### Issue Discovered: JS Rendering Quality Regression (Sprint 10)
-
-**Severity**: High — Scale tier produces worse output than Solo tier
-
-When "Enhanced JS Rendering" is enabled on a React SPA (llmtxtmastery.com), every page gets the same generic meta description. Root cause: `generateFallbackDescription()` in `openai.ts` returns the generic `<meta name="description">` tag when it's >30 chars, even for SPAs where it's the same for every route. Sprint 10 created to fix this and auto-detect JS rendering need.
+#### 1. Cancellation Flow Broken → Fixed in Sprint 11
+#### 2. JS Rendering Quality Regression → Sprint 10
 
 ---
 
