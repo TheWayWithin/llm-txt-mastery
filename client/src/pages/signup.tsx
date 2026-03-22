@@ -195,7 +195,7 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: email,
-            billing: isTrial ? 'monthly' : billing, // Trial always starts monthly
+            billing: billing, // Trial defaults to annual like other tiers
             trial: isTrial,
             ...(websiteUrlParam && { websiteUrl: websiteUrlParam }),
             metadata: {
@@ -428,7 +428,7 @@ export default function SignupPage() {
                     </select>
 
                     {/* Billing Toggle */}
-                    {selectedTier !== 'starter' && selectedTier !== 'trial' && (
+                    {selectedTier !== 'starter' && (
                       <div className="flex items-center justify-center mt-3">
                         <div className="inline-flex items-center bg-mist rounded-lg p-1 gap-1">
                           <button
