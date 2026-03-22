@@ -300,7 +300,9 @@ export default function SignupPage() {
           '35 analyses/month with 500 pages each',
           'AI-enhanced analysis and priority processing',
           'Cancel anytime — no charge if cancelled within trial',
-          'Converts to Growth ($9.95/mo) after 7 days',
+          billing === 'annual'
+            ? 'Then $7.95/mo (billed $95.40/yr) after 7 days'
+            : 'Then $9.95/mo after 7 days',
         ];
       case 'growth':
         return [
