@@ -121,7 +121,9 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Then $9.95/mo — cancel anytime</span>
+                  <span className="text-sm text-ink">
+                    {billing === 'annual' ? 'Then $7.95/mo (billed annually) — cancel anytime' : 'Then $9.95/mo — cancel anytime'}
+                  </span>
                 </li>
               </ul>
               <Link href="/signup?tier=trial">

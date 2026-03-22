@@ -37,7 +37,7 @@ export default function PricingPreview({
         '35 analyses, 500 pages each',
         'AI-enhanced analysis',
         'Priority processing',
-        'Then $9.95/mo — cancel anytime',
+        billing === 'annual' ? 'Then $7.95/mo (billed annually) — cancel anytime' : 'Then $9.95/mo — cancel anytime',
       ],
       cta: 'Start Free Trial',
       ctaVariant: 'outline' as const,
