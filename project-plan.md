@@ -1,5 +1,30 @@
 # Project Plan - LLM.txt Mastery
 
+## Sprint 11: Cancellation & Refund Flow Overhaul + 7-Day Free Trial
+
+**Sprint Location**: `/sprints/Sprint-11-Cancellation-Flow-Fix.md`
+**Priority**: HIGH
+**Status**: ✅ COMPLETE — merged to develop, deploying to staging
+**Date**: 2026-03-21
+
+### Objective
+Fix broken cancellation flow, implement correct business logic with two cancel paths, add 'cancelled' tier, and replace Starter with 7-day free trial at Growth level.
+
+### Tasks
+- [x] **Phase 1: Fix Immediate Bugs** — 400 error, tier not updating, inconsistent state, duplicate buttons ✅ 2026-03-21
+- [x] **Phase 2: Correct Cancellation Logic** — refund path, cancel-at-period-end, 'cancelled' tier ✅ 2026-03-21
+- [x] **Phase 3: Post-Cancellation UX** — subscription ended screen, re-subscribe CTA, block cancelled users ✅ 2026-03-21
+- [x] **Phase 4: Replace Starter with 7-Day Free Trial** — Growth features, credit card required, Stripe trial ✅ 2026-03-21
+- [ ] **Phase 5: Staging Testing** — test all flows on staging with Stripe test mode
+- [ ] **Phase 5b: Production Deploy** — merge develop → main
+
+### Commits (develop branch)
+1. `dd9f22d` — feat: overhaul cancellation flow with two cancel paths and 'cancelled' tier (16 files)
+2. `2a6418e` — feat: replace Starter tier with 7-day free trial at Growth level (6 files)
+3. `d71945e` — docs: update Sprint 11 progress
+
+---
+
 ## Sprint 10: JS Rendering Auto-Detection & Quality Fix
 
 **Sprint Location**: `/sprints/Sprint-10-JS-Rendering-Quality-Fix.md`
@@ -23,11 +48,8 @@ Fix JS rendering quality regression where Scale tier with "Enhanced JS Rendering
 
 **Sprint Location**: `/sprints/Sprint-9-Solo-Subscription-Migration.md`
 **Priority**: High
-**Status**: IN PROGRESS — deployed to staging, testing
+**Status**: ✅ COMPLETE — merged to main, deployed to production 2026-03-20
 **Date**: 2026-03-15
-
-### Objective
-Migrate Solo tier from coffee credits to recurring subscription. Remove all coffee/credit legacy code.
 
 ### Tasks
 - [x] **Phase 1: Dashboard UI** — remove coffee credits display, show subscription info ✅ 2026-03-16
@@ -37,20 +59,8 @@ Migrate Solo tier from coffee credits to recurring subscription. Remove all coff
 - [x] **Phase 4b: Billing toggle** — signup + dashboard + pricing default to annual ✅ 2026-03-16
 - [x] **Phase 4c: Stripe test prices** — Growth $9.95, Scale $19.95 (were $25/$99) ✅ 2026-03-16
 - [x] **Phase 4d: Upgrade flow** — redirect to /analyze, not verification page ✅ 2026-03-16
-- [ ] **Phase 5: Production deploy** — merge develop → main
-- [ ] **Phase 5b: Verify production** — test signup/upgrade flows on production
-
-### Commits (develop branch)
-1. `703ea92` — feat: migrate Solo tier from coffee credits to recurring subscription (27 files)
-2. `20c3409` — fix: Solo subscribers get 20 analyses on signup, remove all coffee UI text
-3. `3b76dbc` — fix: crash from removed Coffee icon import in AuthNav
-4. `883838e` — feat: add billing toggle to signup page, default all pricing to annual
-5. `2020cf1` — fix: update Growth test mode fallback price ID from $25 to $9.95
-6. `4817c7d` — fix: update Scale test mode fallback price ID from $99 to $19.95
-7. `4190a08` — fix: status card shows correct tier limit instead of defaulting to 3
-8. `b9419f2` — feat: add billing toggle to dashboard upgrade cards, default to annual
-9. `0501022` — fix: upgrade flow redirects to analyze page instead of verification screen
-10. `fac0b94` — fix: prevent infinite refreshUser loop on upgrade success page
+- [x] **Phase 5: Production deploy** — merged develop → main ✅ 2026-03-20
+- [x] **Phase 5b: Verify production** — tested on production ✅ 2026-03-20
 
 ---
 

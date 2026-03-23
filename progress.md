@@ -1,6 +1,59 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest: Sprint 9 — Solo Subscription Migration
+## Latest: Sprint 11 — Cancellation Flow Overhaul + 7-Day Free Trial
+
+**Date**: 2026-03-21
+**Status**: MERGED TO DEVELOP — deploying to staging for testing
+
+### What Happened
+
+#### Phase 1-3: Cancellation Flow Fix (16 files, 481 insertions, 372 deletions)
+
+1. **Added `'cancelled'` tier** — new UserTier across entire stack (shared/schema.ts, auth middleware, cache, analytics, validation, flow state machine, auth-api, tier-utils, supabase types)
+2. **Cancelled tier has zero access** — 0 analyses, 0 pages, all features disabled except read-only history. Auth middleware sets cancelled at level -1 (blocks all tier-gated endpoints)
+3. **Fixed 400 error on "Instant Cancel"** — `processSubscriptionCancellation` now handles already-cancelled subscriptions gracefully instead of throwing "No active subscription found"
+4. **Implemented two cancel paths**:
+   - **Within 30 days**: instant refund + immediate access revocation (tier set to 'cancelled')
+   - **After 30 days**: `cancel_at_period_end` via Stripe — user keeps access until billing period ends, then `customer.subscription.deleted` webhook fires and sets tier to 'cancelled'
+5. **Webhook handler updated** — `handleSubscriptionCancelled` now sets tier to `'cancelled'` instead of `'starter'` across all three tables (user_profiles, auth_users, emailCaptures)
+6. **Cancel route returns `subscriptionEndsAt`** — ISO date for cancel-at-period-end flow, shown in modal
+7. **Dashboard updated** — cancelled users see red "Subscription Ended" state in both Current Plan and Billing sections, with re-subscribe CTA
+8. **Analyze page blocks cancelled users** — shows banner with re-subscribe link, prevents form submission
+9. **CancellationModal rewritten** — uses `getApiBaseUrl()`, shows period-end messaging, refreshes user after cancellation, resets state on open
+10. **Removed confusing "Cancel Subscription (Instant)" button** — replaced with in-app CancellationButton that opens the CancellationModal
+
+#### Phase 4: 7-Day Free Trial (6 files, 74 insertions, 42 deletions)
+
+11. **Replaced Starter tier with "Free Trial"** on pricing page and landing page PricingPreview
+12. **Trial gives full Growth features** — 35 analyses/month, 500 pages each, AI analysis, priority processing
+13. **Credit card required upfront** — Stripe collects card during checkout, no charge for 7 days
+14. **After 7 days: auto-converts to Growth ($9.95/mo)** — user can cancel during trial for no charge
+15. **Backend: `createCheckoutSession` supports `trialDays` param** — passes `trial_period_days: 7` to Stripe `subscription_data`
+16. **Growth checkout accepts `trial` flag** — when true, creates subscription with 7-day trial
+17. **Signup page: `tier=trial`** routes through Growth checkout with trial=true, billing forced to monthly
+18. **Pricing cards updated** — "7 DAYS FREE" badge, "$0 for 7 days", Growth features listed, "Then $9.95/mo — cancel anytime"
+
+### Files Changed (22 total across merge)
+
+**Backend (8 files):**
+- `shared/schema.ts` — UserTier + API_TIER_LIMITS
+- `server/services/cancellation.ts` — complete rewrite
+- `server/routes/cancellation.ts` — subscriptionEndsAt, better errors
+- `server/routes/stripe.ts` — webhook cancelled→cancelled, trial support
+- `server/services/stripe.ts` — trialDays param
+- `server/services/cache.ts` — cancelled TIER_LIMITS
+- `server/middleware/auth.ts` — cancelled at level -1
+- `server/supabase.ts` — tier types
+
+**Frontend (11 files):**
+- `client/src/lib/auth-api.ts`, `tier-utils.ts`, `validation-utils.ts`, `analytics-utils.ts`
+- `client/src/hooks/useFlowStateMachine.ts`
+- `client/src/pages/dashboard.tsx`, `analyze.tsx`, `signup.tsx`, `pricing.tsx`
+- `client/src/components/CancellationModal.tsx`, `subscription-management.tsx`, `landing/PricingPreview.tsx`
+
+---
+
+## Previous: Sprint 9 — Solo Subscription Migration
 
 **Date**: 2026-03-20
 **Status**: ✅ COMPLETE — merged to main, deployed to production
@@ -16,34 +69,10 @@
 7. **Upgrade flow fixed** — redirects to /analyze (not verification page), infinite refresh loop fixed
 8. **Stripe product names updated** — "Coffee Analysis" → "LLM.txt Mastery - Solo Plan" (both test and live)
 
-### Bugs Found & Fixed During Testing (8 total)
+### Outstanding Issues Found During Sprint 9 Testing
 
-| Bug | Root Cause | Fix |
-|-----|-----------|-----|
-| New Solo subscribers get 0 analyses | `handleCheckoutCompleted` subscription path sets `creditsRemaining: 0` | Set to 20 for Solo tier |
-| `ReferenceError: Coffee is not defined` crash | Removed import but missed reference in `getTierIcon` | Replaced with BarChart3 |
-| Stripe Growth shows $25 on checkout | Test mode price ID pointed to old $25 price | Created new $9.95 price, updated env var |
-| Stripe Scale shows $99 on checkout | Test mode price ID pointed to old $99 price | Created new $19.95 price, updated env var |
-| Upgrade shows "check your email" page | subscription-success page had no auth awareness | Detect authenticated user, redirect to /analyze |
-| Infinite API refresh loop | `refreshUser` in useEffect dependency array | Added useRef guard, call once only |
-| "Today's Usage 0/3" for Scale tier | Hardcoded fallback `|| 3` in status card | Use tier-appropriate default |
-| Dashboard upgrades always monthly | No billing toggle, didn't pass billing to API | Added toggle, pass billing param |
-
-### Outstanding Issues Found During Testing (NOT yet fixed)
-
-#### 1. Cancellation Flow Broken (Sprint 11 — HIGH PRIORITY)
-- **"Instant Cancel" button returns 400 error** — `processSubscriptionCancellation()` in `cancellation.ts` looks for active Stripe subscriptions, but if user already cancelled via Stripe portal, there are none → throws "No active subscription found"
-- **Stripe portal cancel UX is confusing** — user confirms cancel but lands on page with only "Don't cancel" button
-- **Tier doesn't update after Stripe portal cancel** — dashboard still shows Scale/Growth even after Stripe confirms cancel (webhook may not have processed, or UI cache stale)
-- **"No active subscriptions" + "You're Using Scale Plan"** shown simultaneously — inconsistent state
-- **Downgrading to 'starter' is wrong** — there's no real free account. Starter shows on pricing but can't be selected. Cancelled users should NOT get a free tier.
-- **Sprint 11 created**: `/sprints/Sprint-11-Cancellation-Flow-Fix.md`
-
-#### 2. JS Rendering Quality Regression (Sprint 10)
-- **Scale tier with JS rendering produces worse output than Solo without it** — every page on llmtxtmastery.com (React SPA) gets identical generic meta description
-- **Root cause**: `generateFallbackDescription()` in `openai.ts:73-103` returns generic `<meta description>` even for SPAs
-- **Also**: "Enhanced JS Rendering" is a manual checkbox — should auto-detect from SPA detection
-- **Sprint 10 created**: `/sprints/Sprint-10-JS-Rendering-Quality-Fix.md`
+#### 1. Cancellation Flow Broken → Fixed in Sprint 11
+#### 2. JS Rendering Quality Regression → Sprint 10
 
 ---
 

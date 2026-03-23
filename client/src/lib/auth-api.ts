@@ -6,7 +6,7 @@ const API_BASE_URL = getApiBaseUrl();
 export interface AuthUser {
   id: number;
   email: string;
-  tier: 'starter' | 'solo' | 'growth' | 'scale';
+  tier: 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
   creditsRemaining: number;
   emailVerified: boolean;
   createdAt: string;

@@ -160,7 +160,7 @@ export default function SubscriptionManagement({ onUpgradeSuccess }: Subscriptio
   }
 
   // Normalize legacy 'coffee' tier to 'solo'
-  const rawTier = subscriptionStatus?.tier || 'starter';
+  const rawTier = subscriptionStatus?.tier || user?.tier || 'starter';
   const currentTier = rawTier === ('coffee' as any) ? 'solo' : rawTier;
   const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription || false;
   const creditsRemaining = subscriptionStatus?.creditsRemaining || 0;

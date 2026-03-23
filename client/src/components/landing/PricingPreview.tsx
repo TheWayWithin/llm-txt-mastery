@@ -24,24 +24,24 @@ export default function PricingPreview({
   const tiers = [
     {
       id: 'free' as TierType,
-      name: 'Starter',
-      bestFor: 'Quick check',
+      name: 'Free Trial',
+      bestFor: 'Try everything free',
       monthlyPrice: '$0',
       annualPrice: '$0',
       monthlyOriginal: null as string | null,
-      period: '',
-      annualPeriod: '',
-      icon: Check,
-      description: 'Find out if you\'re invisible to AI',
+      period: 'for 7 days',
+      annualPeriod: 'for 7 days',
+      icon: Zap,
+      description: 'Full Growth features, no charge for 7 days',
       features: [
-        'Discover if AI can find you',
-        'See your visibility score',
-        '20 pages analyzed',
-        'Basic recommendations',
+        '35 analyses, 500 pages each',
+        'AI-enhanced analysis',
+        'Priority processing',
+        billing === 'annual' ? 'Then $7.95/mo (billed annually) — cancel anytime' : 'Then $9.95/mo — cancel anytime',
       ],
-      cta: 'Start Free',
+      cta: 'Start Free Trial',
       ctaVariant: 'outline' as const,
-      badge: null,
+      badge: '7 DAYS FREE',
     },
     {
       id: 'solo' as TierType,
@@ -232,7 +232,7 @@ export default function PricingPreview({
                   </ul>
 
                   {/* CTA Button */}
-                  <Link href={tier.id === 'free' ? '/' : `/signup?tier=${tier.id}${billing === 'annual' ? '&billing=annual' : ''}`}>
+                  <Link href={tier.id === 'free' ? '/signup?tier=trial' : `/signup?tier=${tier.id}${billing === 'annual' ? '&billing=annual' : ''}`}>
                     <Button
                       variant={tier.ctaVariant}
                       className={`w-full min-h-[44px] ${
@@ -267,7 +267,7 @@ export default function PricingPreview({
             <span className="hidden sm:inline text-mist">|</span>
             <div className="flex items-center gap-2">
               <Check className="h-4 w-4 text-success" />
-              <span>No credit card required for free tier</span>
+              <span>7-day free trial, cancel anytime</span>
             </div>
           </div>
         </div>

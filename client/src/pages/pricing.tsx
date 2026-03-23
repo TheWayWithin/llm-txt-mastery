@@ -85,43 +85,51 @@ export default function Pricing() {
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {/* Starter Tier */}
+          {/* Free Trial Tier */}
           <Card className="relative bg-white border border-mist rounded-lg hover:shadow-lg transition-shadow">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-success text-white text-xs px-3 py-1 rounded-full font-semibold">
+              7 DAYS FREE
+            </div>
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <Check className="h-6 w-6 text-signal-blue" />
-                <span className="text-2xl font-bold text-ink">$0</span>
+                <Zap className="h-6 w-6 text-signal-blue" />
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-ink">$0</span>
+                  <span className="text-xs text-slate-brand block">for 7 days</span>
+                </div>
               </div>
-              <CardTitle className="text-lg">Starter</CardTitle>
+              <CardTitle className="text-lg">Free Trial</CardTitle>
               <CardDescription className="text-sm">
-                <span className="text-signal-blue font-medium">Best for: Quick check</span>
+                <span className="text-signal-blue font-medium">Best for: Try everything free</span>
                 <br />
-                Find out if you're invisible to AI
+                Full Growth features, no charge for 7 days
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Discover if AI can find you</span>
+                  <span className="text-sm text-ink">35 analyses, 500 pages each</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">See your visibility score</span>
+                  <span className="text-sm text-ink">AI-enhanced analysis</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">20 pages analyzed</span>
+                  <span className="text-sm text-ink">Priority processing</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Basic recommendations</span>
+                  <span className="text-sm text-ink">
+                    {billing === 'annual' ? 'Then $7.95/mo (billed annually) — cancel anytime' : 'Then $9.95/mo — cancel anytime'}
+                  </span>
                 </li>
               </ul>
-              <Link href="/">
+              <Link href="/signup?tier=trial">
                 <a className="block">
                   <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
-                    Start Free
+                    Start Free Trial
                   </Button>
                 </a>
               </Link>

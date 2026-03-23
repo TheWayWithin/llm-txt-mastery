@@ -12,7 +12,7 @@ export interface AuthUser {
   email: string;
   emailVerified: boolean;
   createdAt: string;
-  tier: 'starter' | 'coffee' | 'growth' | 'scale';
+  tier: 'starter' | 'coffee' | 'growth' | 'scale' | 'cancelled' | 'cancelled';
 }
 
 // Helper functions for authentication
@@ -67,7 +67,7 @@ export async function getCurrentUser() {
 export async function createUserProfile(
   userId: string,
   email: string,
-  tier: 'starter' | 'coffee' | 'growth' | 'scale' = 'starter'
+  tier: 'starter' | 'coffee' | 'growth' | 'scale' | 'cancelled' = 'starter'
 ) {
   const { data, error } = await supabase
     .from('user_profiles')
@@ -105,7 +105,7 @@ export async function getUserProfile(userId: string) {
 // Update user tier
 export async function updateUserTier(
   userId: string,
-  tier: 'starter' | 'coffee' | 'growth' | 'scale'
+  tier: 'starter' | 'coffee' | 'growth' | 'scale' | 'cancelled'
 ) {
   const { data, error } = await supabase
     .from('user_profiles')
