@@ -1,49 +1,57 @@
 # Handoff Notes
 
 ## Current State
-**Completed**: Sprint 9 (Solo Migration) — merged to main, deployed to production 2026-03-20
-**Next Sprint**: Sprint 11 (Cancellation Flow Fix) — HIGH PRIORITY, ready to start
+**Completed**: Sprint 11 (Cancellation Flow + 7-Day Free Trial) — merged to `develop`
+**Status**: Deploying to staging for testing
+**Next**: Test on staging, then merge `develop` → `main` for production
 **After That**: Sprint 10 (JS Rendering Quality Fix)
-**Last Updated**: 2026-03-20
-**Branch**: `main` is up to date with all Sprint 9 changes
+**Last Updated**: 2026-03-21
+**Branch**: `develop` (Sprint 11 merged)
 
 ---
 
-## What Needs To Be Done Next: Sprint 11 (Cancellation Flow)
+## What To Test on Staging
 
-**Sprint doc**: `/sprints/Sprint-11-Cancellation-Flow-Fix.md`
+### Cancellation Flows
+1. **Cancel within 30 days** — should get instant refund, tier immediately set to `cancelled`
+2. **Cancel after 30 days** — should set `cancel_at_period_end`, user keeps access until period ends
+3. **Cancel already-cancelled subscription** — should show friendly "already cancelled" message (no 400 error)
+4. **Stripe portal cancel** → webhook should set tier to `cancelled` (not `starter`)
+5. **Cancelled user tries to analyze** — should see "Subscription Ended" banner, form blocked
+6. **Cancelled user dashboard** — should see red "Subscription Ended" state, re-subscribe CTA
+7. **Re-subscribe after cancellation** — pick a plan, go through checkout, tier should update
 
-### The Problems
+### Free Trial Flow
+8. **Sign up via "Free Trial"** on pricing page → should go to `/signup?tier=trial`
+9. **Stripe checkout** — should show $0.00 due today, card required, "7-day free trial" messaging
+10. **After checkout** — user should have Growth tier (35 analyses, 500 pages)
+11. **Check Stripe dashboard** — subscription should show `trialing` status with 7-day trial
 
-1. **"Instant Cancel" button returns 400 error** when subscription was already cancelled via Stripe portal
-   - File: `server/services/cancellation.ts` → `processSubscriptionCancellation()` (line 386)
-   - It calls `stripe().subscriptions.list({ status: 'active' })` — finds nothing → throws error
-   - Fix: handle the "already cancelled" case gracefully
+### Staging URLs
+- Frontend: https://develop--llm-txt-mastery.netlify.app
+- Backend: https://llm-txt-mastery-staging.up.railway.app
 
-2. **Tier doesn't downgrade after Stripe portal cancel** — webhook `customer.subscription.deleted` should fire `handleSubscriptionCancelled()` in `server/routes/stripe.ts` (line 865) which sets tier to 'starter', but either:
-   - Webhook didn't fire (check Stripe webhook logs)
-   - UI didn't refresh (cached user data)
+### Stripe Test Cards
+- Success: `4242 4242 4242 4242`
+- Any future expiry, any CVC
 
-3. **Inconsistent UI state** — "No active subscriptions" message appears but tier badge still shows Scale
+---
 
-4. **Downgrading to 'starter' is fundamentally wrong** — there is no real free account:
-   - Starter shows on pricing but can't be selected for signup
-   - Cancelled users should NOT get unlimited free analyses
-   - Need a new state: 'cancelled' or 'inactive'
-   - Within 30 days: instant refund + immediate access removal
-   - After 30 days: access until end of billing period, then account deactivated
+## What Was Built: Sprint 11
 
-### Key Files for Sprint 11
+### Commit 1: Cancellation Flow Overhaul (16 files)
+- `'cancelled'` tier with zero access across entire stack
+- Two cancel paths: instant refund (30-day guarantee) vs cancel-at-period-end
+- Fixed 400 error on already-cancelled subscriptions
+- Webhook sets `'cancelled'` not `'starter'`
+- Dashboard + analyze page block cancelled users with re-subscribe CTA
+- In-app CancellationModal replaces confusing Stripe portal button
 
-| File | What to Change |
-|------|---------------|
-| `server/services/cancellation.ts` | Fix 400 error, implement two cancel paths (refund vs end-of-period) |
-| `server/routes/cancellation.ts` | Error handling for already-cancelled subscriptions |
-| `server/routes/stripe.ts:865` | `handleSubscriptionCancelled()` — change from 'starter' to 'cancelled' |
-| `server/middleware/auth.ts` | Block 'cancelled' users from protected endpoints |
-| `client/src/pages/dashboard.tsx` | Billing tab — show correct cancel state, remove confusing dual buttons |
-| `client/src/pages/analyze.tsx` | Block cancelled users, show re-subscribe CTA |
-| `shared/schema.ts:347` | Consider adding 'cancelled' to UserTier type |
+### Commit 2: 7-Day Free Trial (6 files)
+- Starter replaced with "Free Trial" on pricing + landing page
+- Credit card required, 7 days free, then $9.95/mo (Growth)
+- Stripe `trial_period_days: 7` on subscription
+- Signup page handles `tier=trial` → Growth checkout with trial flag
 
 ---
 
@@ -82,6 +90,8 @@
 - The `coffee` tier still exists in the database for legacy users — all code handles both 'solo' and 'coffee' in reads
 - `TIER_LIMITS` in `server/services/cache.ts` has both 'solo' and 'coffee' entries (identical values)
 - Production Stripe prices are DIFFERENT from test prices — don't mix them up
-- `createOneTimeCheckoutSession` still exists in `server/services/stripe.ts` for backward compat but is no longer called for new Solo signups
 - The billing toggle on signup/dashboard/pricing all default to annual
-- Stripe product names were updated in both test and live mode to "LLM.txt Mastery - Solo Plan"
+- **`cancelled` tier** — users downgrade to this instead of 'starter' on cancellation (level -1 in auth middleware)
+- **Cancel-at-period-end** — subscription stays active in Stripe until period ends, then `customer.subscription.deleted` webhook fires and sets tier to 'cancelled'
+- **7-day free trial** — uses Growth checkout with `trial_period_days: 7`, card collected upfront, $9.95/mo after trial
+- **Starter tier still exists** in code as safety net for legacy/direct URL access, but removed from all pricing UI

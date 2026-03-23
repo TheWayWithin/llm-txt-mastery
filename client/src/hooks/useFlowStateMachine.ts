@@ -20,7 +20,7 @@ export type FlowState =
   | 'ERROR';
 
 // User tier type
-export type UserTier = 'starter' | 'solo' | 'growth' | 'scale';
+export type UserTier = 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
 
 // Events that can trigger state transitions
 export type FlowEvent =

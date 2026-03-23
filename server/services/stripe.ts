@@ -118,6 +118,7 @@ export async function createCheckoutSession(params: {
   cancelUrl: string;
   userId: string;
   metadata?: Record<string, string>;
+  trialDays?: number;
 }): Promise<Stripe.Checkout.Session> {
   try {
     const session = await stripe().checkout.sessions.create({
@@ -141,6 +142,7 @@ export async function createCheckoutSession(params: {
           userId: params.userId,
           ...(params.metadata || {}),
         },
+        ...(params.trialDays ? { trial_period_days: params.trialDays } : {}),
       },
     });
 
