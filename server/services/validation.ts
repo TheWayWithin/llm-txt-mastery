@@ -82,6 +82,54 @@ export interface ContentDepthMetrics {
   depthScore: number; // 0-100 specific to content depth
 }
 
+/**
+ * Sprint 12: Compliance section result
+ */
+export interface ComplianceSectionResult {
+  score: number; // 0-100
+  issues: string[];
+  passed: string[];
+}
+
+/**
+ * Sprint 12: Stale entry detected during freshness check
+ */
+export interface StaleEntry {
+  url: string;
+  listedTitle: string;
+  currentTitle?: string;
+  status: 'removed' | 'title_changed' | 'unreachable';
+  details: string;
+}
+
+/**
+ * Sprint 12: Full compliance analysis result
+ */
+export interface ComplianceResult {
+  score: number; // 0-100
+  grade: 'A' | 'B' | 'C' | 'D';
+  sections: {
+    specStructure: ComplianceSectionResult;
+    contentQuality: ComplianceSectionResult & {
+      details: {
+        descriptiveness: number;
+        completeness: number;
+        urlDescriptionRatio: number;
+      };
+    };
+    freshness: ComplianceSectionResult & {
+      staleEntries: StaleEntry[];
+      missingPages: string[];
+    };
+    sizeOptimization: ComplianceSectionResult & {
+      tokenCount: number;
+      recommendation: string;
+    };
+  };
+  formatDetected: 'standard' | 'full' | 'mini' | 'custom';
+  recommendations: string[];
+}
+
 export interface ValidationResult {
   valid: boolean;
   score: number; // 0-100
@@ -95,6 +143,8 @@ export interface ValidationResult {
   checkedPaths?: string[]; // All paths checked (for auto-detect mode)
   // Sprint 5 Phase 4: Content depth analysis
   contentDepth?: ContentDepthMetrics;
+  // Sprint 12: Compliance analysis
+  compliance?: ComplianceResult;
   cached: boolean;
   processingTime: number;
 }
@@ -1162,6 +1212,263 @@ function generateFileTypeRecommendations(
 }
 
 /**
+ * Sprint 12: Calculate compliance analysis
+ * Evaluates spec structure, content quality, freshness, and size optimization
+ */
+async function calculateCompliance(
+  parsed: ParsedLlmsTxt,
+  issues: ValidationIssue[],
+  fileType: LlmsTxtFileType,
+  url: string
+): Promise<ComplianceResult> {
+  // === SPEC STRUCTURE (weight: 40%) ===
+  const specPassed: string[] = [];
+  const specIssues: string[] = [];
+
+  // Check H1 title
+  const hasH1 = Object.keys(parsed.sections).length > 0;
+  if (hasH1) specPassed.push('Title (H1) present');
+  else specIssues.push('Missing required H1 title');
+
+  // Check blockquote description
+  const hasBlockquote = !!parsed.rawContent.match(/^>\s+.+$/m);
+  if (hasBlockquote) specPassed.push('Description (blockquote) present');
+  else specIssues.push('Missing blockquote description');
+
+  // Check URLs/Resources section
+  const h2Sections = Object.keys(parsed.sections).filter(key => !key.match(/^#/));
+  if (h2Sections.length > 0) specPassed.push('URL sections present');
+  else specIssues.push('No H2 sections with URLs');
+
+  // Check URL descriptions
+  const urlLines = parsed.rawContent.split('\n').filter(l => /^\s*-\s+\[/.test(l));
+  const urlsWithDesc = urlLines.filter(l => /\]\([^)]+\)\s*:\s*.+/.test(l));
+  const urlDescRatio = urlLines.length > 0 ? urlsWithDesc.length / urlLines.length : 0;
+  if (urlDescRatio >= 0.8) specPassed.push('URL descriptions present (>80%)');
+  else if (urlDescRatio >= 0.5) specIssues.push(`Only ${Math.round(urlDescRatio * 100)}% of URLs have descriptions`);
+  else specIssues.push('Most URLs missing descriptions');
+
+  // Check for empty sections
+  const emptySections = Object.entries(parsed.sections).filter(([, content]) => content?.trim().length === 0);
+  if (emptySections.length === 0) specPassed.push('No empty sections');
+  else specIssues.push(`${emptySections.length} empty section(s)`);
+
+  // Check for spec violations from existing issues
+  const specViolations = issues.filter(i =>
+    i.message.includes('Plain text content is not allowed') ||
+    i.message.includes('Malformed list item') ||
+    i.message.includes('H3+ heading not allowed')
+  );
+  if (specViolations.length === 0) specPassed.push('No spec format violations');
+  else specIssues.push(`${specViolations.length} spec format violation(s)`);
+
+  // Check minimum URL count
+  if (parsed.urls.length >= 3) specPassed.push(`${parsed.urls.length} URLs listed`);
+  else if (parsed.urls.length > 0) specIssues.push(`Only ${parsed.urls.length} URL(s) — minimum 3 recommended`);
+  else specIssues.push('No URLs found');
+
+  const specTotal = specPassed.length + specIssues.length;
+  const specScore = specTotal > 0 ? Math.round((specPassed.length / specTotal) * 100) : 0;
+
+  // === CONTENT QUALITY (weight: 30%) ===
+  const qualityPassed: string[] = [];
+  const qualityIssues: string[] = [];
+
+  // Descriptiveness check — look for generic/vague descriptions
+  const genericPhrases = ['this page', 'information about', 'click here', 'learn more', 'read more', 'various', 'different'];
+  const descriptions = urlLines.map(l => {
+    const match = l.match(/\]\([^)]+\)\s*:\s*(.+)/);
+    return match ? match[1].trim() : '';
+  }).filter(d => d.length > 0);
+
+  let genericCount = 0;
+  for (const desc of descriptions) {
+    const lower = desc.toLowerCase();
+    if (genericPhrases.some(p => lower.includes(p)) || desc.length < 20) {
+      genericCount++;
+    }
+  }
+  const descriptiveness = descriptions.length > 0
+    ? Math.round(((descriptions.length - genericCount) / descriptions.length) * 100)
+    : 0;
+
+  if (descriptiveness >= 80) qualityPassed.push('Descriptions are specific and descriptive');
+  else if (descriptiveness >= 50) qualityIssues.push(`${100 - descriptiveness}% of descriptions are generic or too short`);
+  else qualityIssues.push('Most descriptions are generic or vague');
+
+  // Completeness — URL count relative to expected
+  const completeness = Math.min(100, Math.round((parsed.urls.length / 10) * 100));
+  if (parsed.urls.length >= 10) qualityPassed.push('Good page coverage (10+ URLs)');
+  else if (parsed.urls.length >= 5) qualityPassed.push('Moderate page coverage');
+  else qualityIssues.push('Low page coverage — add more important pages');
+
+  // Description ratio
+  if (urlDescRatio >= 0.9) qualityPassed.push('Nearly all URLs have descriptions');
+  else if (urlDescRatio >= 0.5) qualityIssues.push('Some URLs missing descriptions');
+
+  const qualityTotal = qualityPassed.length + qualityIssues.length;
+  const qualityScore = qualityTotal > 0 ? Math.round((qualityPassed.length / qualityTotal) * 100) : 0;
+
+  // === FRESHNESS (weight: 20%) - check if listed URLs are still valid ===
+  const freshnessPassed: string[] = [];
+  const freshnessIssues: string[] = [];
+  const staleEntries: StaleEntry[] = [];
+  const missingPages: string[] = [];
+
+  // Check up to 20 URLs for freshness (rate limited)
+  const urlsToCheck = parsed.urls.slice(0, 20);
+  if (urlsToCheck.length > 0) {
+    const checks = await Promise.allSettled(
+      urlsToCheck.map(async (checkUrl) => {
+        try {
+          validateUrlSecurity(checkUrl);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 5000);
+          try {
+            const resp = await fetch(checkUrl, {
+              method: 'HEAD',
+              signal: controller.signal,
+              redirect: 'follow',
+              headers: { 'User-Agent': 'LLMTxtMastery-Validator/1.0' },
+            });
+            clearTimeout(timeout);
+            return { url: checkUrl, status: resp.status, ok: resp.ok };
+          } finally {
+            clearTimeout(timeout);
+          }
+        } catch {
+          return { url: checkUrl, status: 0, ok: false };
+        }
+      })
+    );
+
+    let accessibleCount = 0;
+    for (const result of checks) {
+      if (result.status === 'fulfilled') {
+        const { url: checkedUrl, status, ok } = result.value;
+        if (ok) {
+          accessibleCount++;
+        } else if (status === 404) {
+          staleEntries.push({
+            url: checkedUrl,
+            listedTitle: urlLines.find(l => l.includes(checkedUrl))?.match(/\[([^\]]+)\]/)?.[1] || '',
+            status: 'removed',
+            details: 'Page returns 404 — likely removed',
+          });
+        } else if (status === 0) {
+          staleEntries.push({
+            url: checkedUrl,
+            listedTitle: '',
+            status: 'unreachable',
+            details: 'URL is unreachable (timeout or DNS failure)',
+          });
+        }
+      }
+    }
+
+    if (staleEntries.length === 0) freshnessPassed.push('All checked URLs are accessible');
+    else freshnessIssues.push(`${staleEntries.length} stale or broken URL(s) found`);
+
+    if (accessibleCount === urlsToCheck.length) freshnessPassed.push('100% URL accessibility');
+    else freshnessIssues.push(`${urlsToCheck.length - accessibleCount}/${urlsToCheck.length} URLs not accessible`);
+  }
+
+  const freshnessTotal = freshnessPassed.length + freshnessIssues.length;
+  const freshnessScore = freshnessTotal > 0 ? Math.round((freshnessPassed.length / freshnessTotal) * 100) : 100;
+
+  // === SIZE OPTIMIZATION (weight: 10%) ===
+  const sizePassed: string[] = [];
+  const sizeIssues: string[] = [];
+
+  // Approximate token count (words * 1.3)
+  const words = parsed.rawContent.split(/\s+/).filter(w => w.length > 0).length;
+  const tokenCount = Math.round(words * 1.3);
+
+  let sizeRecommendation = '';
+  if (tokenCount <= 2000) {
+    sizePassed.push(`Token count (${tokenCount}) fits all context windows`);
+    sizeRecommendation = 'Optimal size — fits all LLM context windows';
+  } else if (tokenCount <= 4000) {
+    sizePassed.push(`Token count (${tokenCount}) fits most context windows`);
+    sizeRecommendation = 'Good size — fits most LLM context windows (GPT-4, Claude, Gemini)';
+  } else if (tokenCount <= 8000) {
+    sizeIssues.push(`Token count (${tokenCount}) may be too large for some models`);
+    sizeRecommendation = 'Consider creating an llms-mini.txt for smaller context windows';
+  } else {
+    sizeIssues.push(`Token count (${tokenCount}) exceeds recommended limits`);
+    sizeRecommendation = 'File is very large — create an llms-mini.txt for token-constrained models';
+  }
+
+  const sizeTotal = sizePassed.length + sizeIssues.length;
+  const sizeScore = sizeTotal > 0 ? Math.round((sizePassed.length / sizeTotal) * 100) : 100;
+
+  // === FORMAT DETECTION ===
+  let formatDetected: 'standard' | 'full' | 'mini' | 'custom' = 'standard';
+  if (fileType === 'llms-full.txt' || (words > 2000 && parsed.urls.length > 20)) {
+    formatDetected = 'full';
+  } else if (parsed.urls.length <= 5 && words < 200) {
+    formatDetected = 'mini';
+  } else if (fileType === 'llms.txt' || fileType === 'auto' || fileType === '.well-known') {
+    formatDetected = 'standard';
+  } else {
+    formatDetected = 'custom';
+  }
+
+  // === WEIGHTED COMPOSITE SCORE ===
+  const compositeScore = Math.round(
+    specScore * 0.40 +
+    qualityScore * 0.30 +
+    freshnessScore * 0.20 +
+    sizeScore * 0.10
+  );
+
+  // === GRADE ===
+  let grade: 'A' | 'B' | 'C' | 'D';
+  if (compositeScore >= 95) grade = 'A';
+  else if (compositeScore >= 80) grade = 'B';
+  else if (compositeScore >= 60) grade = 'C';
+  else grade = 'D';
+
+  // === COMPLIANCE RECOMMENDATIONS ===
+  const compRecommendations: string[] = [];
+  if (specIssues.length > 0) compRecommendations.push('Fix spec structure issues: ' + specIssues[0]);
+  if (qualityIssues.length > 0) compRecommendations.push('Improve content quality: ' + qualityIssues[0]);
+  if (staleEntries.length > 0) compRecommendations.push(`Remove or update ${staleEntries.length} stale URL(s)`);
+  if (tokenCount > 4000) compRecommendations.push('Consider creating an llms-mini.txt for smaller models');
+  if (urlDescRatio < 0.8) compRecommendations.push('Add descriptions to all URLs for better AI comprehension');
+
+  return {
+    score: compositeScore,
+    grade,
+    sections: {
+      specStructure: { score: specScore, issues: specIssues, passed: specPassed },
+      contentQuality: {
+        score: qualityScore,
+        issues: qualityIssues,
+        passed: qualityPassed,
+        details: { descriptiveness, completeness, urlDescriptionRatio: Math.round(urlDescRatio * 100) },
+      },
+      freshness: {
+        score: freshnessScore,
+        issues: freshnessIssues,
+        passed: freshnessPassed,
+        staleEntries,
+        missingPages,
+      },
+      sizeOptimization: {
+        score: sizeScore,
+        issues: sizeIssues,
+        passed: sizePassed,
+        tokenCount,
+        recommendation: sizeRecommendation,
+      },
+    },
+    formatDetected,
+    recommendations: compRecommendations,
+  };
+}
+
+/**
  * Validate llms.txt file at given URL
  *
  * Phase 1A Implementation - Real validation logic
@@ -1201,6 +1508,15 @@ export async function validateLlmsTxt(
 
     // Step 5.6: Add file-type-specific recommendations based on content depth
     recommendations = generateFileTypeRecommendations(contentDepth, fetchResult.fileType, recommendations);
+
+    // Step 5.7: Sprint 12 — Compliance analysis
+    let compliance: ComplianceResult | undefined;
+    try {
+      compliance = await calculateCompliance(parsed, issues, fetchResult.fileType, url);
+      console.log(`Compliance for ${url}: grade=${compliance.grade}, score=${compliance.score}, format=${compliance.formatDetected}`);
+    } catch (error) {
+      console.warn('Compliance calculation failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
+    }
 
     // Step 6: Handle robots.txt conflicts (Phase 1C)
     let robotsConflicts: RobotsConflict[] | undefined;
@@ -1244,6 +1560,7 @@ export async function validateLlmsTxt(
       detectedPath: fetchResult.detectedPath,
       checkedPaths: requestedFileType === 'auto' ? fetchResult.checkedPaths : undefined,
       contentDepth, // Sprint 5 Phase 4
+      compliance, // Sprint 12
       cached: false,
       processingTime,
     };
