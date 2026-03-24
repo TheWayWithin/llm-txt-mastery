@@ -223,6 +223,184 @@ Website: https://yoursite.com
           </CardContent>
         </Card>
 
+        {/* Sprint 12: llms.txt Formats Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FileText className="mr-3 text-signal-blue" />
+              llms.txt Formats Explained
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-brand mb-4">
+              LLM.txt Mastery generates three output formats from a single crawl, each designed for different AI consumption scenarios.
+            </p>
+            <div className="space-y-4">
+              <div className="bg-cloud rounded-lg p-4">
+                <h4 className="font-semibold text-ink mb-1">llms.txt (Standard)</h4>
+                <p className="text-sm text-slate-brand">
+                  The default format per the llmstxt.org specification. Contains your site title, description,
+                  section headings, and linked pages with brief annotations. Ideal for general AI discovery.
+                </p>
+              </div>
+              <div className="bg-cloud rounded-lg p-4">
+                <h4 className="font-semibold text-ink mb-1">llms-full.txt (Full)</h4>
+                <p className="text-sm text-slate-brand">
+                  An expanded version with complete page content inline, not just links.
+                  Gives AI models richer context without requiring follow-up fetches. Best for comprehensive
+                  AI understanding of your site.
+                </p>
+              </div>
+              <div className="bg-cloud rounded-lg p-4">
+                <h4 className="font-semibold text-ink mb-1">llms-mini.txt (Mini)</h4>
+                <p className="text-sm text-slate-brand">
+                  A condensed version optimized for smaller context windows. Keeps only your top 5 most
+                  important pages with truncated descriptions. Useful for models with limited token budgets.
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-brand mt-4">
+              <strong>Recommendation:</strong> Deploy all three. AI crawlers will choose the version that fits
+              their context window. The standard llms.txt is required; the full and mini variants are optional
+              but recommended for maximum compatibility.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Sprint 12: Compliance Grading Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Shield className="mr-3 text-signal-blue" />
+              Compliance Grading
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-brand mb-4">
+              Every validated file receives an A/B/C/D compliance grade based on how well it follows the
+              official llmstxt.org specification. The grade is a weighted composite of four dimensions.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-sm">A</span>
+                <div>
+                  <p className="font-semibold text-ink text-sm">Grade A (95%+)</p>
+                  <p className="text-xs text-slate-brand">Fully spec-compliant with excellent content quality</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm">B</span>
+                <div>
+                  <p className="font-semibold text-ink text-sm">Grade B (80-94%)</p>
+                  <p className="text-xs text-slate-brand">Core structure correct with minor issues</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-sm">C</span>
+                <div>
+                  <p className="font-semibold text-ink text-sm">Grade C (60-79%)</p>
+                  <p className="text-xs text-slate-brand">Basic structure but missing key elements</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-red-100 text-red-700 rounded-full flex items-center justify-center font-bold text-sm">D</span>
+                <div>
+                  <p className="font-semibold text-ink text-sm">Grade D (below 60%)</p>
+                  <p className="text-xs text-slate-brand">Significant issues — requires regeneration</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-slate-brand">
+              <strong>Scoring weights:</strong> Spec Structure (40%), Content Quality (30%), Freshness (20%), Size Optimization (10%).
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Sprint 12: Deployment Guide Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Globe className="mr-3 text-signal-blue" />
+              Deploying Your llms.txt
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-brand mb-4">
+              Generating the file is only step one. AI crawlers need to be <strong>told</strong> the file
+              exists through discovery mechanisms. Without these, crawlers have to guess.
+            </p>
+            <div className="space-y-4">
+              <div className="bg-cloud rounded-lg p-4">
+                <h4 className="font-semibold text-ink mb-2">1. Upload the File</h4>
+                <p className="text-sm text-slate-brand mb-2">
+                  Upload llms.txt (and optionally llms-full.txt, llms-mini.txt) to your website's root directory.
+                </p>
+                <code className="text-xs bg-white px-2 py-1 rounded border border-mist">
+                  https://yourdomain.com/llms.txt
+                </code>
+              </div>
+              <div className="bg-cloud rounded-lg p-4">
+                <h4 className="font-semibold text-ink mb-2">2. Add HTML Discovery Tag</h4>
+                <p className="text-sm text-slate-brand mb-2">
+                  Add this tag to the {'<head>'} section of every page:
+                </p>
+                <code className="text-xs bg-white px-2 py-1 rounded border border-mist block overflow-x-auto">
+                  {'<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">'}
+                </code>
+              </div>
+              <div className="bg-cloud rounded-lg p-4">
+                <h4 className="font-semibold text-ink mb-2">3. Update robots.txt</h4>
+                <p className="text-sm text-slate-brand mb-2">
+                  Add this directive to your robots.txt file:
+                </p>
+                <code className="text-xs bg-white px-2 py-1 rounded border border-mist block">
+                  Llms-Txt: https://yourdomain.com/llms.txt
+                </code>
+              </div>
+            </div>
+            <p className="text-sm text-slate-brand mt-4">
+              After deployment, use our <strong>Verify Deployment</strong> button in the generation flow
+              to confirm all discovery mechanisms are working.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Sprint 12: Discovery Mechanisms Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Zap className="mr-3 text-signal-blue" />
+              How AI Crawlers Discover llms.txt
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-brand mb-4">
+              AI crawlers use several methods to find llms.txt files. Using all three maximizes
+              your discoverability.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="bg-cloud rounded-lg p-4 text-center">
+                <h4 className="font-semibold text-ink mb-1 text-sm">Well-Known Path</h4>
+                <p className="text-xs text-slate-brand">
+                  Crawlers check /llms.txt at the root, similar to /robots.txt or /sitemap.xml.
+                </p>
+              </div>
+              <div className="bg-cloud rounded-lg p-4 text-center">
+                <h4 className="font-semibold text-ink mb-1 text-sm">HTML Link Tag</h4>
+                <p className="text-xs text-slate-brand">
+                  A {'<link>'} tag in your page head explicitly points crawlers to the file.
+                </p>
+              </div>
+              <div className="bg-cloud rounded-lg p-4 text-center">
+                <h4 className="font-semibold text-ink mb-1 text-sm">robots.txt Reference</h4>
+                <p className="text-xs text-slate-brand">
+                  The Llms-Txt: directive provides another discovery path for crawlers.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Resources Section */}
         <Card className="mb-8">
           <CardHeader>

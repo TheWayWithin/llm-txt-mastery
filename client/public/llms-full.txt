@@ -1,0 +1,150 @@
+# LLM.txt Mastery — Complete Documentation
+
+> LLM.txt Mastery is a SaaS platform for validating, generating, and deploying llms.txt files. It helps website owners make their content discoverable by AI systems like ChatGPT, Claude, and Perplexity through quality-scored, spec-compliant llms.txt files with deployment guidance.
+
+## Product Overview
+
+LLM.txt Mastery solves the problem of AI discoverability. When AI search engines (ChatGPT, Claude, Perplexity, Gemini) look for information to cite, they need structured content they can parse. The llms.txt standard provides this — a single file that tells AI systems what your website is about and which pages matter most.
+
+Most websites don't have an llms.txt file. Those that do often have poorly structured ones that mix high-value content with boilerplate pages like privacy policies and cookie consent. LLM.txt Mastery generates quality-scored files that prioritize your most citation-worthy content.
+
+## Core Features
+
+### 1. Validator
+
+The validator checks existing llms.txt files against the official llmstxt.org specification. Available free at https://llmtxtmastery.com/validator with no signup required.
+
+**What it checks:**
+- Spec compliance: title present (H1), description present (blockquote), URLs section with descriptions, optional sections correctly formatted
+- Content quality: descriptiveness of entries, completeness of site coverage, accuracy vs live page content
+- URL accessibility: HEAD request to each listed URL, flags broken links (404, 500, timeouts)
+- robots.txt conflicts: detects when robots.txt rules block AI crawlers from pages listed in llms.txt
+- Framework detection: identifies React, Vue, Angular, Svelte, Next.js, Nuxt, Gatsby, Astro, WordPress, and 10+ other frameworks
+- Rendering strategy: detects SSR, SSG, CSR, and hybrid rendering approaches
+- File locations: checks all 4 standard locations (/llms.txt, /.well-known/llms.txt, /llms-full.txt, /llms.md)
+- Freshness: compares llms.txt content against current live site pages
+- Token count: calculates token usage and context window fit
+
+**Output:**
+- Quality score (0-100)
+- Compliance grade (A/B/C/D)
+- Per-section breakdown with specific issues
+- Prioritized fix recommendations
+- robots.txt conflict report
+
+### 2. Generator
+
+The generator crawls your website, discovers pages, scores them for AI citation potential, and produces structured llms.txt files. Available at https://llmtxtmastery.com/analyze (requires account).
+
+**Discovery methods (in priority order):**
+1. Parse sitemap.xml
+2. Check robots.txt for sitemap references
+3. Homepage link crawling
+4. Fallback deep crawl
+
+**Page analysis includes:**
+- AI-generated descriptions specific to each page's actual content
+- Quality scoring (1-10) based on content depth, uniqueness, technical relevance, and AI citation potential
+- Category tagging (tool, article, form, static, educational, transactional, informational)
+- Content clustering by topic
+- Word count and content depth metrics
+
+**Output formats:**
+- **llms.txt** (standard): Structured summary with page descriptions, quality-scored and prioritized
+- **llms-full.txt** (extended): Complete markdown extraction of all page content for full LLM ingestion
+- **llms-mini.txt** (minimal): Token-constrained version — title, 2-sentence description, top 5 URLs only
+
+All three formats are generated from a single crawl — no re-crawling required.
+
+### 3. Deployment Guidance
+
+After generating your files, LLM.txt Mastery provides a complete deployment package:
+
+**Step 1: File download** — Download your llms.txt in any format (standard, full, mini, or zip of all three)
+
+**Step 2: HTML discovery tag** — Copy-paste code generated for your specific domain:
+```html
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">
+```
+
+**Step 3: robots.txt directive** — Copy-paste line for your domain:
+```
+Llms-Txt: https://yourdomain.com/llms.txt
+```
+
+**Deployment verification** — Automated checker confirms:
+- File accessible at expected URL (HTTP 200)
+- HTML discovery tag present in page head
+- robots.txt Llms-Txt directive present
+- Correct Content-Type header (text/plain)
+- Deployed file matches generated file (hash comparison)
+
+**Platform-specific guides** for WordPress, Shopify, Squarespace, Wix, Webflow, Next.js, and static/custom sites.
+
+## Pricing
+
+| Tier | Price | Analyses/Month | Pages/Analysis | Key Features |
+|------|-------|----------------|----------------|--------------|
+| Free Trial | $0 for 7 days | 35 | 500 | All features, credit card required, then $9.95/mo |
+| Solo | $4.95/mo ($3.95/mo annual) | 20 | 200 | Quality scoring, AI descriptions |
+| Growth | $9.95/mo ($7.95/mo annual) | 35 | 500 | Priority processing, CSV/JSON export, bulk processing |
+| Scale | $19.95/mo ($15.95/mo annual) | 100 | 1,000 | JavaScript rendering, API access, multi-site management |
+
+All paid plans include a 30-day money-back guarantee.
+
+## API Reference
+
+Public API v1 available for Growth and Scale tiers.
+
+**Base URL:** https://llm-txt-mastery-production.up.railway.app/api/v1
+
+**Authentication:** API key in Authorization header
+
+**Endpoints:**
+- `GET /api/v1/status` — Health check (no auth required)
+- `POST /api/v1/analyze` — Submit URL for analysis, returns job ID
+- `GET /api/v1/analysis/:id` — Retrieve analysis results with discovered pages
+- `POST /api/v1/generate` — Generate llms.txt from analysis results
+- `GET /api/v1/download/:id` — Download generated file (supports format parameter)
+- `GET /api/v1/usage` — Get API usage statistics
+
+**Rate limits:**
+- Growth: 1,000 calls/day
+- Scale: 10,000 calls/day
+
+## Technical Architecture
+
+- **Frontend:** React 18 + TypeScript + Vite, hosted on Netlify
+- **Backend:** Express.js + TypeScript, hosted on Railway
+- **Database:** PostgreSQL via Neon (managed)
+- **Payments:** Stripe (subscriptions, trials, refunds)
+- **Authentication:** JWT + bcrypt with HttpOnly cookies
+- **AI:** OpenAI API for page content analysis and description generation
+
+## Pages
+
+- [Home](https://llmtxtmastery.com/) — Landing page with product overview, features, social proof, pricing preview, and FAQs
+- [Validator](https://llmtxtmastery.com/validator) — Free llms.txt validation tool with instant quality scoring (no signup)
+- [Validate](https://llmtxtmastery.com/validate) — Detailed validation with batch comparison across all 4 file locations
+- [Analyze](https://llmtxtmastery.com/analyze) — Website analysis and llms.txt generation (requires account)
+- [Dashboard](https://llmtxtmastery.com/dashboard) — User dashboard with subscription status, usage tracking, analysis history
+- [Pricing](https://llmtxtmastery.com/pricing) — Subscription tier comparison with annual/monthly toggle
+- [Documentation](https://llmtxtmastery.com/docs) — llms.txt format guide, best practices, deployment instructions
+- [Blog](https://llmtxtmastery.com/blog) — Articles on AI visibility, competitive analysis, build-in-public updates
+- [About](https://llmtxtmastery.com/about) — Product background and mission
+- [Contact](https://llmtxtmastery.com/contact) — Support form and inquiries
+- [Signup](https://llmtxtmastery.com/signup) — Account registration with email verification
+- [Login](https://llmtxtmastery.com/login) — Email/password authentication
+- [Privacy Policy](https://llmtxtmastery.com/privacy) — Data collection and protection practices
+- [Terms of Service](https://llmtxtmastery.com/terms) — Usage terms and conditions
+- [Cookie Policy](https://llmtxtmastery.com/cookies) — Cookie usage and GDPR compliance
+
+## Related Products
+
+- [AI Search Mastery](https://www.aisearchmastery.com) — Parent brand providing AI visibility education and tools
+- [AImpact Scanner](https://www.aimpactscanner.com) — 27-factor AI visibility scanner across 8 pillars
+- [MASTERY-AI Framework](https://www.aisearchmastery.com/mastery-ai-framework) — AI optimization methodology
+
+## llms.txt Specification
+
+This product implements the [llms.txt standard](https://llmstxt.org/) — a proposed convention for websites to provide LLM-friendly content summaries. The specification defines a structured markdown file at the `/llms.txt` path that helps AI systems understand a website's purpose, structure, and most important content.

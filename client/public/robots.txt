@@ -18,3 +18,6 @@ Allow: /terms
 Allow: /cookies
 
 Sitemap: https://llmtxtmastery.com/sitemap.xml
+
+# LLM-readable content
+Llms-Txt: https://llmtxtmastery.com/llms.txt

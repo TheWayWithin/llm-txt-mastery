@@ -12,13 +12,13 @@ export default function SolutionIntro() {
       icon: FileText,
       number: '2',
       title: 'Generate',
-      description: 'AI evaluates each page for citation potential and generates a quality-scored llms.txt file.',
+      description: 'AI evaluates each page for citation potential and generates quality-scored llms.txt, llms-full.txt, and llms-mini.txt files with A/B/C/D compliance grading.',
     },
     {
       icon: Upload,
       number: '3',
       title: 'Deploy',
-      description: 'Download your file and upload it to your site root. AI models start finding your content.',
+      description: 'Download your files, add the HTML discovery tag and robots.txt directive. Verify deployment with our automated checker.',
     },
   ];
 

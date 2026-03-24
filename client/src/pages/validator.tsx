@@ -117,6 +117,42 @@ interface ContentDepthMetrics {
   depthScore: number;
 }
 
+// Sprint 12: Compliance types
+interface ComplianceSectionResult {
+  score: number;
+  issues: string[];
+  passed: string[];
+}
+
+interface StaleEntry {
+  url: string;
+  listedTitle: string;
+  currentTitle?: string;
+  status: 'removed' | 'title_changed' | 'unreachable';
+  details: string;
+}
+
+interface ComplianceResult {
+  score: number;
+  grade: 'A' | 'B' | 'C' | 'D';
+  sections: {
+    specStructure: ComplianceSectionResult;
+    contentQuality: ComplianceSectionResult & {
+      details: { descriptiveness: number; completeness: number; urlDescriptionRatio: number };
+    };
+    freshness: ComplianceSectionResult & {
+      staleEntries: StaleEntry[];
+      missingPages: string[];
+    };
+    sizeOptimization: ComplianceSectionResult & {
+      tokenCount: number;
+      recommendation: string;
+    };
+  };
+  formatDetected: 'standard' | 'full' | 'mini' | 'custom';
+  recommendations: string[];
+}
+
 interface ValidationResult {
   valid: boolean;
   score: number;
@@ -129,6 +165,7 @@ interface ValidationResult {
   detectedPath?: string;
   checkedPaths?: string[];
   contentDepth?: ContentDepthMetrics;
+  compliance?: ComplianceResult;
 }
 
 interface BatchValidationFileResult {
@@ -412,6 +449,14 @@ export default function ValidatorPage() {
             <div className="flex items-center space-x-1">
               <CheckCircle className="h-4 w-4 text-success" />
               <span>All 4 file locations</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span>Compliance grading (A/B/C/D)</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span>Token count analysis</span>
             </div>
           </div>
         </div>
@@ -700,11 +745,25 @@ export default function ValidatorPage() {
                       )}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <div className={`text-6xl font-bold ${getScoreColor(validationResult.score)}`}>
-                      {validationResult.score}
+                  <div className="flex items-center gap-4">
+                    {/* Sprint 12: Compliance Grade Badge */}
+                    {validationResult.compliance && (
+                      <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl font-bold text-3xl text-white ${
+                        validationResult.compliance.grade === 'A' ? 'bg-emerald-500' :
+                        validationResult.compliance.grade === 'B' ? 'bg-blue-500' :
+                        validationResult.compliance.grade === 'C' ? 'bg-amber-500' :
+                        'bg-red-500'
+                      }`}>
+                        {validationResult.compliance.grade}
+                        <span className="text-[10px] font-normal -mt-1 opacity-80">grade</span>
+                      </div>
+                    )}
+                    <div className="text-right">
+                      <div className={`text-6xl font-bold ${getScoreColor(validationResult.score)}`}>
+                        {validationResult.score}
+                      </div>
+                      <div className="text-sm text-slate-brand">out of 100</div>
                     </div>
-                    <div className="text-sm text-slate-brand">out of 100</div>
                   </div>
                 </div>
 
@@ -739,6 +798,146 @@ export default function ValidatorPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Sprint 12: Compliance Breakdown */}
+            {validationResult.compliance && (
+              <Card className="bg-white shadow-sm border border-mist">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
+                    <Shield className="h-5 w-5 mr-2 text-signal-blue" />
+                    Spec Compliance — Grade {validationResult.compliance.grade} ({validationResult.compliance.score}%)
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {/* Spec Structure */}
+                    <div className="p-4 bg-cloud rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-ink">Spec Structure</span>
+                        <span className={`text-sm font-bold ${
+                          validationResult.compliance.sections.specStructure.score >= 80 ? 'text-emerald-600' :
+                          validationResult.compliance.sections.specStructure.score >= 60 ? 'text-amber-600' : 'text-red-600'
+                        }`}>{validationResult.compliance.sections.specStructure.score}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div className={`h-2 rounded-full ${
+                          validationResult.compliance.sections.specStructure.score >= 80 ? 'bg-emerald-500' :
+                          validationResult.compliance.sections.specStructure.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                        }`} style={{ width: `${validationResult.compliance.sections.specStructure.score}%` }} />
+                      </div>
+                      {validationResult.compliance.sections.specStructure.passed.map((p, i) => (
+                        <p key={i} className="text-xs text-emerald-700 flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" /> {p}
+                        </p>
+                      ))}
+                      {validationResult.compliance.sections.specStructure.issues.map((issue, i) => (
+                        <p key={i} className="text-xs text-red-600 flex items-center gap-1">
+                          <XCircle className="h-3 w-3" /> {issue}
+                        </p>
+                      ))}
+                    </div>
+
+                    {/* Content Quality */}
+                    <div className="p-4 bg-cloud rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-ink">Content Quality</span>
+                        <span className={`text-sm font-bold ${
+                          validationResult.compliance.sections.contentQuality.score >= 80 ? 'text-emerald-600' :
+                          validationResult.compliance.sections.contentQuality.score >= 60 ? 'text-amber-600' : 'text-red-600'
+                        }`}>{validationResult.compliance.sections.contentQuality.score}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div className={`h-2 rounded-full ${
+                          validationResult.compliance.sections.contentQuality.score >= 80 ? 'bg-emerald-500' :
+                          validationResult.compliance.sections.contentQuality.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                        }`} style={{ width: `${validationResult.compliance.sections.contentQuality.score}%` }} />
+                      </div>
+                      {validationResult.compliance.sections.contentQuality.passed.map((p, i) => (
+                        <p key={i} className="text-xs text-emerald-700 flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" /> {p}
+                        </p>
+                      ))}
+                      {validationResult.compliance.sections.contentQuality.issues.map((issue, i) => (
+                        <p key={i} className="text-xs text-red-600 flex items-center gap-1">
+                          <XCircle className="h-3 w-3" /> {issue}
+                        </p>
+                      ))}
+                    </div>
+
+                    {/* Freshness */}
+                    <div className="p-4 bg-cloud rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-ink">Freshness</span>
+                        <span className={`text-sm font-bold ${
+                          validationResult.compliance.sections.freshness.score >= 80 ? 'text-emerald-600' :
+                          validationResult.compliance.sections.freshness.score >= 60 ? 'text-amber-600' : 'text-red-600'
+                        }`}>{validationResult.compliance.sections.freshness.score}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div className={`h-2 rounded-full ${
+                          validationResult.compliance.sections.freshness.score >= 80 ? 'bg-emerald-500' :
+                          validationResult.compliance.sections.freshness.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                        }`} style={{ width: `${validationResult.compliance.sections.freshness.score}%` }} />
+                      </div>
+                      {validationResult.compliance.sections.freshness.passed.map((p, i) => (
+                        <p key={i} className="text-xs text-emerald-700 flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" /> {p}
+                        </p>
+                      ))}
+                      {validationResult.compliance.sections.freshness.staleEntries.length > 0 && (
+                        <div className="mt-1">
+                          {validationResult.compliance.sections.freshness.staleEntries.map((entry, i) => (
+                            <p key={i} className="text-xs text-red-600 flex items-center gap-1">
+                              <XCircle className="h-3 w-3" /> {entry.url.substring(0, 50)}... — {entry.details}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Size Optimization */}
+                    <div className="p-4 bg-cloud rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-ink">Size & Tokens</span>
+                        <span className={`text-sm font-bold ${
+                          validationResult.compliance.sections.sizeOptimization.score >= 80 ? 'text-emerald-600' :
+                          validationResult.compliance.sections.sizeOptimization.score >= 60 ? 'text-amber-600' : 'text-red-600'
+                        }`}>{validationResult.compliance.sections.sizeOptimization.score}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div className={`h-2 rounded-full ${
+                          validationResult.compliance.sections.sizeOptimization.score >= 80 ? 'bg-emerald-500' :
+                          validationResult.compliance.sections.sizeOptimization.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                        }`} style={{ width: `${validationResult.compliance.sections.sizeOptimization.score}%` }} />
+                      </div>
+                      <p className="text-xs text-slate-brand mb-1">
+                        ~{validationResult.compliance.sections.sizeOptimization.tokenCount.toLocaleString()} tokens
+                      </p>
+                      <p className="text-xs text-slate-brand">
+                        {validationResult.compliance.sections.sizeOptimization.recommendation}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Format detected */}
+                  <div className="flex items-center gap-2 text-sm text-slate-brand">
+                    <span>Format detected:</span>
+                    <Badge className="bg-signal-blue/10 text-signal-blue">
+                      {validationResult.compliance.formatDetected}
+                    </Badge>
+                  </div>
+
+                  {/* Compliance recommendations */}
+                  {validationResult.compliance.recommendations.length > 0 && (
+                    <div className="mt-4 p-3 bg-amber-50 rounded-lg">
+                      <p className="text-xs font-semibold text-amber-800 mb-1">Recommendations to improve grade:</p>
+                      {validationResult.compliance.recommendations.map((rec, i) => (
+                        <p key={i} className="text-xs text-amber-700 ml-2">• {rec}</p>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Issues */}
             {validationResult.issues.length > 0 && (

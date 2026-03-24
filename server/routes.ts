@@ -849,27 +849,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const selectedOnly = selectedPages.filter((page) => page.selected);
       const excludedPages = selectedPages.filter((page) => !page.selected);
 
-      // Generate LLMs.txt content with analysis metadata
+      const metadataCtx = { ...analysis.analysisMetadata, analysisId };
+
+      // Sprint 12: Generate all 3 formats from same data
       const llmContent = generateLlmTxtContent(
         analysis.url,
         selectedOnly,
         excludedPages,
         analysis.discoveredPages || [],
-        { ...analysis.analysisMetadata, analysisId }
+        metadataCtx
+      );
+      const llmFullContent = generateLlmFullTxtContent(
+        analysis.url,
+        selectedOnly,
+        analysis.discoveredPages || [],
+        metadataCtx
+      );
+      const llmMiniContent = generateLlmMiniTxtContent(
+        analysis.url,
+        selectedOnly,
+        analysis.discoveredPages || [],
+        metadataCtx
       );
 
-      // Save generated file
+      // Save standard format (backward compatible)
       const llmFile = await storage.createLlmFile({
         analysisId,
         selectedPages: selectedOnly,
         content: llmContent,
       });
 
+      // Approximate token counts (words * 1.3)
+      const tokenCount = (text: string) => Math.round(text.split(/\s+/).filter(w => w.length > 0).length * 1.3);
+
       res.json({
         id: llmFile.id,
         content: llmContent,
         pageCount: selectedOnly.length,
         fileSize: Buffer.byteLength(llmContent, 'utf8'),
+        // Sprint 12: Multi-format response
+        formats: {
+          standard: {
+            content: llmContent,
+            fileSize: Buffer.byteLength(llmContent, 'utf8'),
+            tokenCount: tokenCount(llmContent),
+            filename: 'llms.txt',
+          },
+          full: {
+            content: llmFullContent,
+            fileSize: Buffer.byteLength(llmFullContent, 'utf8'),
+            tokenCount: tokenCount(llmFullContent),
+            filename: 'llms-full.txt',
+          },
+          mini: {
+            content: llmMiniContent,
+            fileSize: Buffer.byteLength(llmMiniContent, 'utf8'),
+            tokenCount: tokenCount(llmMiniContent),
+            filename: 'llms-mini.txt',
+          },
+        },
       });
     } catch (error) {
       console.error('Generate file error:', error);
@@ -901,22 +939,150 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Download LLMs.txt file
+  // Download LLMs.txt file (Sprint 12: supports format parameter)
   app.get('/api/download/:id', async (req, res) => {
     try {
       const fileId = parseInt(req.params.id);
+      const format = (req.query.format as string) || 'standard';
       const llmFile = await storage.getLlmFile(fileId);
 
       if (!llmFile) {
         return res.status(404).json({ message: 'File not found' });
       }
 
+      // Get the analysis to regenerate other formats if needed
+      let content = llmFile.content;
+      let filename = 'llms.txt';
+
+      if (format === 'full' || format === 'mini') {
+        const analysis = llmFile.analysisId ? await storage.getAnalysis(llmFile.analysisId) : null;
+        if (analysis && llmFile.selectedPages) {
+          const selectedOnly = (llmFile.selectedPages as SelectedPage[]).filter((p: SelectedPage) => p.selected !== false);
+          if (format === 'full') {
+            content = generateLlmFullTxtContent(analysis.url, selectedOnly, analysis.discoveredPages || []);
+            filename = 'llms-full.txt';
+          } else {
+            content = generateLlmMiniTxtContent(analysis.url, selectedOnly, analysis.discoveredPages || []);
+            filename = 'llms-mini.txt';
+          }
+        }
+      }
+
       res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Disposition', 'attachment; filename="llms.txt"');
-      res.send(llmFile.content);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(content);
     } catch (error) {
       console.error('Download error:', error);
       res.status(500).json({ message: 'Failed to download file' });
+    }
+  });
+
+  // Sprint 12: Deployment verification endpoint
+  app.post('/api/verify-deployment', async (req, res) => {
+    try {
+      const { domain } = z.object({
+        domain: z.string().min(1, 'Domain is required'),
+      }).parse(req.body);
+
+      // Normalize domain
+      const baseUrl = domain.startsWith('http') ? domain : `https://${domain}`;
+      const urlObj = new URL(baseUrl);
+      const origin = urlObj.origin;
+
+      const checks: Array<{
+        name: string;
+        status: 'pass' | 'fail' | 'error';
+        details: string;
+      }> = [];
+
+      // Check 1: File accessible
+      try {
+        const fileResp = await fetch(`${origin}/llms.txt`, {
+          method: 'HEAD',
+          redirect: 'follow',
+          headers: { 'User-Agent': 'LLMTxtMastery-Verifier/1.0' },
+          signal: AbortSignal.timeout(10000),
+        });
+        checks.push({
+          name: 'file_accessible',
+          status: fileResp.ok ? 'pass' : 'fail',
+          details: fileResp.ok ? `Found (HTTP ${fileResp.status})` : `Not found (HTTP ${fileResp.status})`,
+        });
+
+        // Check 4: Content-Type header (only if file exists)
+        if (fileResp.ok) {
+          const contentType = fileResp.headers.get('content-type') || '';
+          checks.push({
+            name: 'content_type',
+            status: contentType.includes('text/plain') ? 'pass' : 'fail',
+            details: contentType.includes('text/plain')
+              ? `Correct (${contentType})`
+              : `Expected text/plain, got ${contentType || 'none'}`,
+          });
+        } else {
+          checks.push({ name: 'content_type', status: 'fail', details: 'Cannot check — file not found' });
+        }
+      } catch {
+        checks.push({ name: 'file_accessible', status: 'error', details: 'Failed to reach server' });
+        checks.push({ name: 'content_type', status: 'error', details: 'Cannot check — server unreachable' });
+      }
+
+      // Check 2: HTML discovery tag
+      try {
+        const htmlResp = await fetch(origin, {
+          method: 'GET',
+          redirect: 'follow',
+          headers: { 'User-Agent': 'LLMTxtMastery-Verifier/1.0' },
+          signal: AbortSignal.timeout(10000),
+        });
+        const html = await htmlResp.text();
+        const hasLinkTag = /<link[^>]*rel=["']alternate["'][^>]*href=["'][^"']*llms\.txt["']/i.test(html);
+        checks.push({
+          name: 'html_tag',
+          status: hasLinkTag ? 'pass' : 'fail',
+          details: hasLinkTag ? 'Discovery tag found in <head>' : 'No <link rel="alternate" href="/llms.txt"> found',
+        });
+      } catch {
+        checks.push({ name: 'html_tag', status: 'error', details: 'Failed to fetch homepage' });
+      }
+
+      // Check 3: robots.txt directive
+      try {
+        const robotsResp = await fetch(`${origin}/robots.txt`, {
+          method: 'GET',
+          redirect: 'follow',
+          headers: { 'User-Agent': 'LLMTxtMastery-Verifier/1.0' },
+          signal: AbortSignal.timeout(10000),
+        });
+        const robotsText = await robotsResp.text();
+        const hasDirective = /Llms-Txt:/i.test(robotsText);
+        checks.push({
+          name: 'robots_directive',
+          status: hasDirective ? 'pass' : 'fail',
+          details: hasDirective ? 'Llms-Txt directive found' : 'No Llms-Txt directive in robots.txt',
+        });
+      } catch {
+        checks.push({ name: 'robots_directive', status: 'error', details: 'Failed to fetch robots.txt' });
+      }
+
+      const passed = checks.filter(c => c.status === 'pass').length;
+      const total = checks.length;
+
+      res.json({
+        domain: urlObj.hostname,
+        checks,
+        score: passed,
+        total,
+        status: passed === total ? 'fully_deployed' : passed >= Math.ceil(total / 2) ? 'partially_deployed' : 'not_deployed',
+        message: passed === total
+          ? 'Fully deployed — AI crawlers can discover your llms.txt'
+          : `${passed}/${total} checks passed — complete the remaining steps`,
+      });
+    } catch (error) {
+      console.error('Verify deployment error:', error);
+      res.status(400).json({
+        message: error instanceof Error ? error.message : 'Verification failed',
+      });
     }
   });
 
@@ -2814,6 +2980,87 @@ function generateLlmTxtContent(
 
   // Insert metadata block between header (H1 + blockquote) and content (H2 sections)
   return header + metadataBlock + content + optionalSection;
+}
+
+/**
+ * Sprint 12: Generate llms-full.txt format
+ * Complete markdown extraction with full page content for LLM ingestion
+ */
+function generateLlmFullTxtContent(
+  baseUrl: string,
+  selectedPages: SelectedPage[],
+  allDiscoveredPages: DiscoveredPage[] = [],
+  analysisMetadata: any = {}
+): string {
+  const createdDate = new Date().toISOString().split('T')[0];
+  const siteName = new URL(baseUrl).hostname.replace(/^www\./, '');
+  const enhancedPages = differentiateIdenticalTitles(enhancePageDescriptions(selectedPages));
+  const siteSummary = generateSiteSummary(baseUrl, enhancedPages, allDiscoveredPages);
+  const avgQuality = calculateAverageQuality(enhancedPages);
+
+  let output = `# ${siteName}\n\n`;
+  output += `> ${siteSummary}\n\n`;
+  output += `Generated by [LLM.txt Mastery](https://llmtxtmastery.com) on ${createdDate}. `;
+  output += `Full content extraction of ${enhancedPages.length} pages. Average quality: ${avgQuality}/10.\n\n`;
+
+  // Cluster pages for organization
+  const clusteredPages = clusterPagesIntoCategories(enhancedPages);
+
+  clusteredPages.forEach((pages, category) => {
+    output += `## ${category}\n\n`;
+
+    const sequencedPages = intelligentPageSequencing(pages);
+    for (const page of sequencedPages) {
+      output += `### ${page.title}\n\n`;
+      output += `**URL**: ${page.url}\n`;
+      if (page.qualityScore) output += `**Quality Score**: ${page.qualityScore}/10\n`;
+      output += `\n${page.description}\n\n`;
+      output += `---\n\n`;
+    }
+  });
+
+  output += `## Optional\n\n`;
+  output += `- [llms.txt Specification](https://llmstxt.org/): Official llmstxt.org format specification\n`;
+  output += `- [llms.txt (standard version)](${baseUrl}/llms.txt): Compact summary version\n`;
+
+  return output;
+}
+
+/**
+ * Sprint 12: Generate llms-mini.txt format
+ * Token-constrained minimal version — title, 2-sentence description, top 5 URLs
+ */
+function generateLlmMiniTxtContent(
+  baseUrl: string,
+  selectedPages: SelectedPage[],
+  allDiscoveredPages: DiscoveredPage[] = [],
+  analysisMetadata: any = {}
+): string {
+  const siteName = new URL(baseUrl).hostname.replace(/^www\./, '');
+  const enhancedPages = differentiateIdenticalTitles(enhancePageDescriptions(selectedPages));
+
+  // Sort by quality score descending, take top 5
+  const topPages = [...enhancedPages]
+    .sort((a, b) => (b.qualityScore || 0) - (a.qualityScore || 0))
+    .slice(0, 5);
+
+  // Generate concise 2-sentence summary
+  const siteSummary = generateSiteSummary(baseUrl, enhancedPages, allDiscoveredPages);
+  const shortSummary = siteSummary.split('.').slice(0, 2).join('.') + '.';
+
+  let output = `# ${siteName}\n\n`;
+  output += `> ${shortSummary}\n\n`;
+  output += `## Resources\n\n`;
+
+  for (const page of topPages) {
+    // Truncate description to 80 chars for mini format
+    const shortDesc = page.description.length > 80
+      ? page.description.substring(0, 77) + '...'
+      : page.description;
+    output += `- [${page.title}](${page.url}): ${shortDesc}\n`;
+  }
+
+  return output;
 }
 
 // Helper function to get today's usage (imported from usage service)
