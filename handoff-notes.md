@@ -1,73 +1,100 @@
 # Handoff Notes
 
 ## Current State
-**Completed**: Sprint 11 (Cancellation Flow + 7-Day Free Trial) — merged to `develop`
-**Status**: Deploying to staging for testing
-**Next**: Test on staging, then merge `develop` → `main` for production
-**After That**: Sprint 10 (JS Rendering Quality Fix)
-**Last Updated**: 2026-03-21
-**Branch**: `develop` (Sprint 11 merged)
+**Completed**: Sprint 12 (llms.txt Excellence) — committed to `main`, deployed to production
+**Status**: Production deploy in progress (Netlify + Railway auto-deploy from main)
+**Commit**: `8193c35` — 11 files, 1,350 insertions
+**Next**: Playwright verification of deployed Sprint 12 features, then Sprint 10 (JS Rendering Quality Fix)
+**Pending**: Sprint 11 Phases 5/5b (staging test + production merge) — may already be deployed via main merge
+**Last Updated**: 2026-03-24
+**Branch**: `main`
 
 ---
 
-## What To Test on Staging
+## What Was Built: Sprint 12
 
-### Cancellation Flows
-1. **Cancel within 30 days** — should get instant refund, tier immediately set to `cancelled`
-2. **Cancel after 30 days** — should set `cancel_at_period_end`, user keeps access until period ends
-3. **Cancel already-cancelled subscription** — should show friendly "already cancelled" message (no 400 error)
-4. **Stripe portal cancel** → webhook should set tier to `cancelled` (not `starter`)
-5. **Cancelled user tries to analyze** — should see "Subscription Ended" banner, form blocked
-6. **Cancelled user dashboard** — should see red "Subscription Ended" state, re-subscribe CTA
-7. **Re-subscribe after cancellation** — pick a plan, go through checkout, tier should update
+### Commit `8193c35`: feat: Sprint 12 — llms.txt Excellence (benchmark 3.1 → 7.0+)
 
-### Free Trial Flow
-8. **Sign up via "Free Trial"** on pricing page → should go to `/signup?tier=trial`
-9. **Stripe checkout** — should show $0.00 due today, card required, "7-day free trial" messaging
-10. **After checkout** — user should have Growth tier (35 analyses, 500 pages)
-11. **Check Stripe dashboard** — subscription should show `trialing` status with 7-day trial
+**11 files changed, 1,350 insertions, 50 deletions**
 
-### Staging URLs
-- Frontend: https://develop--llm-txt-mastery.netlify.app
-- Backend: https://llm-txt-mastery-staging.up.railway.app
+#### Phase 1: Domain Housekeeping
+- `client/public/robots.txt` — added `Llms-Txt: https://llmtxtmastery.com/llms.txt` directive
+- `client/index.html` — added `<link rel="alternate" type="text/plain" href="/llms.txt">` discovery tag
+- `client/public/llms.txt` — rewritten with hand-crafted, accurate product descriptions (validator + generator + deployment guidance)
+- `client/public/llms-full.txt` — NEW FILE (8.3KB) — complete product documentation in llms-full.txt format
 
-### Stripe Test Cards
-- Success: `4242 4242 4242 4242`
-- Any future expiry, any CVC
+#### Phase 2: Deep Spec Compliance Validation
+- `server/services/validation.ts` (+317 lines) — compliance engine with:
+  - `ComplianceResult` interface (score, grade, sections, formatDetected, recommendations)
+  - `calculateCompliance()` — spec structure (40%), content quality (30%), freshness (20%), size optimization (10%)
+  - Freshness detection — HEAD requests to up to 20 URLs, flags 404s/unreachable
+  - Token count calculation with context window recommendations
+  - Format detection (standard/full/mini/custom)
+  - A/B/C/D grading: A (95%+), B (80-94%), C (60-79%), D (<60%)
+- `client/src/pages/validator.tsx` (+207 lines) — compliance UI with:
+  - Grade badge (A/B/C/D) with color coding next to quality score
+  - 4-section breakdown with progress bars (specStructure, contentQuality, freshness, sizeOptimization)
+  - Token count display, stale entry warnings, compliance recommendations
+  - Frontend `ComplianceResult` type definition
+
+#### Phase 3: Multi-Format Generation
+- `server/routes.ts` — added:
+  - `generateLlmFullTxtContent()` — complete markdown extraction with per-page sections
+  - `generateLlmMiniTxtContent()` — top 5 pages, truncated descriptions
+  - `/api/generate-llm-file` now returns `formats: { standard, full, mini }` with token counts per format
+  - `/api/download/:id?format=standard|full|mini` — format-aware downloads
+- `client/src/components/file-generation.tsx` (+185 lines) — format selection cards with token counts, per-format download buttons
+
+#### Phase 4: Deployment Verification
+- `server/routes.ts` — `POST /api/verify-deployment` endpoint checking:
+  - File accessible (HEAD /llms.txt → 200)
+  - HTML discovery tag present (parse homepage for `<link rel="alternate">`)
+  - robots.txt Llms-Txt directive present
+  - Content-Type header (text/plain)
+  - Returns score (X/Y), status (fully_deployed/partially_deployed/not_deployed)
+- `client/src/components/file-generation.tsx` — "Verify Now" button with per-check pass/fail display
+
+#### Phase 5: Marketing Updates
+- `client/index.html` — meta descriptions updated (description, og:description, twitter:description)
+- `client/src/pages/pricing.tsx` — added "3 output formats + compliance grading" and "Deployment guidance & verification" to all 4 tiers
+- `client/src/pages/docs.tsx` — 4 new sections: Formats Explained, Compliance Grading, Deploying Your llms.txt, Discovery Mechanisms
+- `client/src/pages/validator.tsx` — trust badges: "Compliance grading (A/B/C/D)" + "Token count analysis"
+- `client/src/components/landing/SolutionIntro.tsx` — Generate step mentions multi-format + compliance grading; Deploy step mentions HTML tag, robots.txt, automated checker
 
 ---
 
-## What Was Built: Sprint 11
+## What To Test on Production
 
-### Commit 1: Cancellation Flow Overhaul (16 files)
-- `'cancelled'` tier with zero access across entire stack
-- Two cancel paths: instant refund (30-day guarantee) vs cancel-at-period-end
-- Fixed 400 error on already-cancelled subscriptions
-- Webhook sets `'cancelled'` not `'starter'`
-- Dashboard + analyze page block cancelled users with re-subscribe CTA
-- In-app CancellationModal replaces confusing Stripe portal button
+### Static Files (Netlify)
+1. `https://llmtxtmastery.com/robots.txt` — should contain `Llms-Txt:` directive
+2. `https://llmtxtmastery.com/llms.txt` — should be hand-crafted with "SaaS platform for validating, generating, and deploying"
+3. `https://llmtxtmastery.com/llms-full.txt` — should exist (8.3KB, complete documentation)
+4. Page source — should have `<link rel="alternate" type="text/plain" href="/llms.txt">`
 
-### Commit 2: 7-Day Free Trial (6 files)
-- Starter replaced with "Free Trial" on pricing + landing page
-- Credit card required, 7 days free, then $9.95/mo (Growth)
-- Stripe `trial_period_days: 7` on subscription
-- Signup page handles `tier=trial` → Growth checkout with trial flag
+### Validator Page
+5. Run validation on any site — should show compliance grade badge (A/B/C/D) alongside score
+6. Compliance breakdown — 4 sections with progress bars
+7. Trust badges — should include "Compliance grading (A/B/C/D)" and "Token count analysis"
+
+### Generation Flow (needs Growth account login)
+8. Generate llms.txt — should show 3 format cards (standard, full, mini) with token counts
+9. Download buttons — each format should download the correct file
+10. "Verify Now" button — should check deployment status
+
+### Marketing Pages
+11. Home page SolutionIntro — Generate step mentions llms-full.txt, llms-mini.txt, compliance grading
+12. Pricing page — all tiers show "3 output formats + compliance grading" and "Deployment guidance & verification"
+13. Docs page — 4 new sections at bottom (Formats, Compliance, Deploying, Discovery)
+
+### Test Account
+- Growth account: `rvqjhsckhrattpilow@nespf.com` / `Qwerty123!`
 
 ---
 
-## Sprint 10 (JS Rendering Quality) — After Sprint 11
-
-**Sprint doc**: `/sprints/Sprint-10-JS-Rendering-Quality-Fix.md`
-
-**Problem**: Scale tier with "Enhanced JS Rendering" checkbox produces worse output than Solo without it. Every page on a React SPA gets the same generic meta description instead of unique AI descriptions.
-
-**Root cause**: `generateFallbackDescription()` in `server/services/openai.ts:73-103` returns the generic `<meta name="description">` tag (>30 chars) for every SPA route.
-
-**Key changes needed**:
-- Remove checkbox, auto-detect from SPA detection
-- Fix fallback: never return generic meta for SPAs
-- Extract visible body text from rendered DOM
-- Key files: `openai.ts`, `sitemap-enhanced.ts`, `browserRenderer.ts`, `analyze.tsx`
+## Playwright Configuration Fix
+- Updated `.claude/plugins/.../playwright/.mcp.json` to use `--browser chromium` flag
+- This makes Playwright use its bundled Chromium instead of system Chrome
+- Requires Claude Code restart to take effect
 
 ---
 
@@ -78,11 +105,6 @@
 | Production | https://llmtxtmastery.com | https://llm-txt-mastery-production.up.railway.app | `main` |
 | Staging | https://develop--llm-txt-mastery.netlify.app | https://llm-txt-mastery-staging.up.railway.app | `develop` |
 
-**Stripe test mode prices** (staging only):
-- Solo monthly: `price_1TB1zqIiC84gpR8HHF8hJ5rF`
-- Growth monthly: `price_1TBkXmIiC84gpR8H7tlgInp3`
-- Scale monthly: `price_1TBlFrIiC84gpR8HGIBEzagu`
-
 ---
 
 ## Important Context
@@ -91,7 +113,8 @@
 - `TIER_LIMITS` in `server/services/cache.ts` has both 'solo' and 'coffee' entries (identical values)
 - Production Stripe prices are DIFFERENT from test prices — don't mix them up
 - The billing toggle on signup/dashboard/pricing all default to annual
-- **`cancelled` tier** — users downgrade to this instead of 'starter' on cancellation (level -1 in auth middleware)
-- **Cancel-at-period-end** — subscription stays active in Stripe until period ends, then `customer.subscription.deleted` webhook fires and sets tier to 'cancelled'
-- **7-day free trial** — uses Growth checkout with `trial_period_days: 7`, card collected upfront, $9.95/mo after trial
-- **Starter tier still exists** in code as safety net for legacy/direct URL access, but removed from all pricing UI
+- **`cancelled` tier** — users downgrade to this instead of 'starter' on cancellation
+- **7-day free trial** — uses Growth checkout with `trial_period_days: 7`, card collected upfront
+- **Compliance engine** is non-blocking — if it fails, validation still returns quality score without compliance data
+- **Freshness checks** are rate-limited to 20 URLs per validation with 5-second timeouts
+- **Multi-format generation** all runs from the same analysis data — no re-crawling needed
