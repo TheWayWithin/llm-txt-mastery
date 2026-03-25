@@ -1,5 +1,26 @@
 # Project Plan - LLM.txt Mastery
 
+## Sprint 12: AI Search Arena — llms.txt Excellence
+
+**Sprint Location**: `/sprints/Sprint-12-Benchmark-LLMsTxt-Excellence.md`
+**Priority**: HIGH — biggest competitive moat opportunity
+**Status**: ✅ COMPLETE — committed and deployed to production
+**Date**: 2026-03-24
+**Commit**: `8193c35`
+**Benchmark Brief**: `/docs/Ideation/benchmark-improvement-brief.md`
+
+### Objective
+Improve AI Search Arena llms.txt Generation score from 3.1 to 7.0+ by implementing deep spec compliance validation, multi-format generation, and deployment guidance with verification.
+
+### Tasks
+- [x] **Phase 1: Domain Housekeeping (LT-4)** — robots.txt directive, HTML discovery tag, improve our own llms.txt, create llms-full.txt, footer link ✅ 2026-03-23
+- [x] **Phase 2: Deep Spec Compliance Validation (LT-1)** — spec compliance engine, content quality scoring, freshness detection, size optimisation, format detection, compliance grade (A/B/C/D), validator UI update ✅ 2026-03-23
+- [x] **Phase 3: Multi-Format Generation (LT-2)** — llms-full.txt + llms-mini.txt generation, format selection UI, download endpoint with format param ✅ 2026-03-24
+- [x] **Phase 4: Deployment Guidance & Verification (LT-2B)** — POST /api/verify-deployment endpoint, verification UI with per-check pass/fail ✅ 2026-03-24
+- [x] **Phase 5: Page & Marketing Updates** — meta descriptions, pricing features, docs sections, validator trust badges, SolutionIntro copy, format cards in file-generation ✅ 2026-03-24
+
+---
+
 ## Sprint 11: Cancellation & Refund Flow Overhaul + 7-Day Free Trial
 
 **Sprint Location**: `/sprints/Sprint-11-Cancellation-Flow-Fix.md`
