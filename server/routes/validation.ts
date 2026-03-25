@@ -214,6 +214,8 @@ router.post(
           checkedPaths: result.checkedPaths,
           // Sprint 5 Phase 4: Content depth analysis
           contentDepth: result.contentDepth,
+          // Sprint 12: Compliance analysis
+          compliance: result.compliance,
           processingTime: result.processingTime,
           createdAt: createdAt,
         },
