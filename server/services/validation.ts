@@ -1317,6 +1317,7 @@ async function calculateCompliance(
 
   // Check up to 20 URLs for freshness (rate limited)
   const urlsToCheck = parsed.urls.slice(0, 20);
+  let accessibleCount = 0;
   if (urlsToCheck.length > 0) {
     const checks = await Promise.allSettled(
       urlsToCheck.map(async (checkUrl) => {
@@ -1341,8 +1342,6 @@ async function calculateCompliance(
         }
       })
     );
-
-    let accessibleCount = 0;
     for (const result of checks) {
       if (result.status === 'fulfilled') {
         const { url: checkedUrl, status, ok } = result.value;
@@ -1370,11 +1369,24 @@ async function calculateCompliance(
     else freshnessIssues.push(`${staleEntries.length} stale or broken URL(s) found`);
 
     if (accessibleCount === urlsToCheck.length) freshnessPassed.push('100% URL accessibility');
-    else freshnessIssues.push(`${urlsToCheck.length - accessibleCount}/${urlsToCheck.length} URLs not accessible`);
+    else if (accessibleCount > 0) freshnessIssues.push(`${urlsToCheck.length - accessibleCount}/${urlsToCheck.length} URLs not accessible`);
+    else freshnessIssues.push('No URLs were accessible');
   }
 
-  const freshnessTotal = freshnessPassed.length + freshnessIssues.length;
-  const freshnessScore = freshnessTotal > 0 ? Math.round((freshnessPassed.length / freshnessTotal) * 100) : 100;
+  // Proportional freshness scoring: based on actual accessibility rate rather than binary pass/fail
+  // A single timeout or unreachable URL out of 20 should not drop freshness to 0%
+  const urlsCheckedCount = urlsToCheck.length;
+  let freshnessScore: number;
+  if (urlsCheckedCount > 0) {
+    const accessibilityRate = accessibleCount / urlsCheckedCount;
+    freshnessScore = Math.round(accessibilityRate * 100);
+    // Also factor in pass/fail checks for edge cases (no URLs to check)
+    if (freshnessPassed.length > 0 && freshnessIssues.length === 0) {
+      freshnessScore = 100;
+    }
+  } else {
+    freshnessScore = 100; // No URLs to check = no freshness issues
+  }
 
   // === SIZE OPTIMIZATION (weight: 10%) ===
   const sizePassed: string[] = [];
@@ -1385,22 +1397,25 @@ async function calculateCompliance(
   const tokenCount = Math.round(words * 1.3);
 
   let sizeRecommendation = '';
+  let sizeScore: number;
   if (tokenCount <= 2000) {
     sizePassed.push(`Token count (${tokenCount}) fits all context windows`);
     sizeRecommendation = 'Optimal size — fits all LLM context windows';
+    sizeScore = 100;
   } else if (tokenCount <= 4000) {
     sizePassed.push(`Token count (${tokenCount}) fits most context windows`);
     sizeRecommendation = 'Good size — fits most LLM context windows (GPT-4, Claude, Gemini)';
+    sizeScore = 100;
   } else if (tokenCount <= 8000) {
-    sizeIssues.push(`Token count (${tokenCount}) may be too large for some models`);
-    sizeRecommendation = 'Consider creating an llms-mini.txt for smaller context windows';
+    sizePassed.push(`Token count (${tokenCount}) fits large context windows`);
+    sizeIssues.push('Consider creating an llms-mini.txt for smaller context windows');
+    sizeRecommendation = 'Good size for modern LLMs — consider an llms-mini.txt for token-constrained models';
+    sizeScore = 75; // Still usable, just not optimal for all models
   } else {
     sizeIssues.push(`Token count (${tokenCount}) exceeds recommended limits`);
     sizeRecommendation = 'File is very large — create an llms-mini.txt for token-constrained models';
+    sizeScore = 25; // Very large, needs a mini version
   }
-
-  const sizeTotal = sizePassed.length + sizeIssues.length;
-  const sizeScore = sizeTotal > 0 ? Math.round((sizePassed.length / sizeTotal) * 100) : 100;
 
   // === FORMAT DETECTION ===
   let formatDetected: 'standard' | 'full' | 'mini' | 'custom' = 'standard';
