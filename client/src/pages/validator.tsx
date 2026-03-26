@@ -34,6 +34,9 @@ import {
   ArrowRight,
   Target,
   Eye,
+  Wrench,
+  Copy,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthNav } from '@/components/AuthNav';
@@ -166,6 +169,7 @@ interface ValidationResult {
   checkedPaths?: string[];
   contentDepth?: ContentDepthMetrics;
   compliance?: ComplianceResult;
+  rawContent?: string;
 }
 
 interface BatchValidationFileResult {
@@ -203,6 +207,8 @@ export default function ValidatorPage() {
   const [fileType, setFileType] = useState<LlmsTxtFileType>('auto');
   const [isBatchValidating, setIsBatchValidating] = useState(false);
   const [batchResult, setBatchResult] = useState<BatchValidationResult | null>(null);
+  const [showQuickFix, setShowQuickFix] = useState(false);
+  const [quickFixCopied, setQuickFixCopied] = useState(false);
 
   useSEO({
     title: 'Free llms.txt Validator - Check Your AI Readiness | LLM.txt Mastery',
@@ -364,6 +370,74 @@ export default function ValidatorPage() {
         return <Badge variant="outline">{priority}</Badge>;
     }
   };
+
+  // Sprint 13: Quick Fix logic — auto-corrects common formatting issues
+  const applyQuickFix = (raw: string): { fixed: string; changes: string[] } => {
+    let fixed = raw;
+    const changes: string[] = [];
+
+    // Fix 1: Missing H1 title — add one if absent
+    if (!/^#\s+.+/m.test(fixed)) {
+      // Try to infer title from first non-empty line
+      const firstContentLine = fixed.split('\n').find(l => l.trim().length > 0);
+      if (firstContentLine && !firstContentLine.startsWith('#') && !firstContentLine.startsWith('>')) {
+        fixed = `# ${firstContentLine.trim()}\n\n${fixed}`;
+        changes.push('Added missing H1 title from first content line');
+      } else if (!firstContentLine?.startsWith('#')) {
+        fixed = `# My Website\n\n${fixed}`;
+        changes.push('Added placeholder H1 title (edit to match your site name)');
+      }
+    }
+
+    // Fix 2: Missing blockquote description — add one after H1 if absent
+    const h1Match = fixed.match(/^#\s+.+$/m);
+    if (h1Match && !/^>\s+.+/m.test(fixed)) {
+      const h1Index = fixed.indexOf(h1Match[0]);
+      const afterH1 = h1Index + h1Match[0].length;
+      fixed = fixed.slice(0, afterH1) + '\n\n> A brief description of this website and its purpose.\n' + fixed.slice(afterH1);
+      changes.push('Added placeholder blockquote description (edit to describe your site)');
+    }
+
+    // Fix 3: Malformed list items — fix common patterns
+    // Fix "- URL" without brackets → "- [URL](URL)"
+    const lines = fixed.split('\n');
+    const fixedLines = lines.map(line => {
+      const plainUrlItem = line.match(/^(\s*)-\s+(https?:\/\/\S+)$/);
+      if (plainUrlItem) {
+        const [, indent, itemUrl] = plainUrlItem;
+        const pageName = itemUrl.replace(/https?:\/\//, '').split('/').filter(Boolean).pop() || 'Page';
+        changes.push(`Fixed malformed list item: plain URL → linked format`);
+        return `${indent}- [${pageName}](${itemUrl}): Description needed`;
+      }
+      // Fix "- text" without link → leave as-is but note
+      return line;
+    });
+    fixed = fixedLines.join('\n');
+
+    // Fix 4: Ensure file ends with newline
+    if (!fixed.endsWith('\n')) {
+      fixed += '\n';
+      changes.push('Added trailing newline');
+    }
+
+    // Fix 5: Remove consecutive blank lines (more than 2)
+    const before = fixed;
+    fixed = fixed.replace(/\n{4,}/g, '\n\n\n');
+    if (fixed !== before) {
+      changes.push('Cleaned up excessive blank lines');
+    }
+
+    // Deduplicate change messages
+    const uniqueChanges = [...new Set(changes)];
+
+    return { fixed, changes: uniqueChanges };
+  };
+
+  const quickFixResult = validationResult?.rawContent
+    ? applyQuickFix(validationResult.rawContent)
+    : null;
+
+  const hasFixableIssues = quickFixResult && quickFixResult.changes.length > 0;
 
   // Determine post-validation CTA messaging
   const getPostValidationCTA = () => {
@@ -970,6 +1044,98 @@ export default function ValidatorPage() {
                         </Badge>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Sprint 13: Quick Fix */}
+            {hasFixableIssues && validationResult.rawContent && quickFixResult && (
+              <Card className="bg-white shadow-sm border border-mist">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-ink flex items-center">
+                      <Wrench className="h-5 w-5 mr-2 text-signal-blue" />
+                      Quick Fix ({quickFixResult.changes.length} issue{quickFixResult.changes.length !== 1 ? 's' : ''})
+                    </h3>
+                    <Button
+                      onClick={() => setShowQuickFix(!showQuickFix)}
+                      variant="outline"
+                      className="border-signal-blue text-signal-blue hover:bg-signal-blue/10"
+                    >
+                      {showQuickFix ? 'Hide Preview' : 'Show Before/After'}
+                    </Button>
+                  </div>
+
+                  <p className="text-sm text-slate-brand mb-3">
+                    We detected formatting issues that can be auto-corrected. Review the changes and download the fixed file.
+                  </p>
+
+                  {/* Changes list */}
+                  <div className="space-y-2 mb-4">
+                    {quickFixResult.changes.map((change, i) => (
+                      <div key={i} className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span className="text-ink">{change}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Before/After Preview */}
+                  {showQuickFix && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <h4 className="text-sm font-semibold text-red-600 mb-2">Before (Original)</h4>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 max-h-64 overflow-y-auto">
+                          <pre className="text-xs font-mono whitespace-pre-wrap text-red-900">
+                            {validationResult.rawContent.slice(0, 2000)}
+                            {validationResult.rawContent.length > 2000 && '\n... (truncated)'}
+                          </pre>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-emerald-600 mb-2">After (Fixed)</h4>
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 max-h-64 overflow-y-auto">
+                          <pre className="text-xs font-mono whitespace-pre-wrap text-emerald-900">
+                            {quickFixResult.fixed.slice(0, 2000)}
+                            {quickFixResult.fixed.length > 2000 && '\n... (truncated)'}
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      onClick={() => {
+                        navigator.clipboard.writeText(quickFixResult.fixed);
+                        setQuickFixCopied(true);
+                        setTimeout(() => setQuickFixCopied(false), 2000);
+                      }}
+                      variant="outline"
+                      className="border-mist text-mastery-blue hover:bg-signal-blue/10"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      {quickFixCopied ? 'Copied!' : 'Copy Fixed File'}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        const blob = new Blob([quickFixResult.fixed], { type: 'text/plain' });
+                        const blobUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.download = 'llms.txt';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(blobUrl);
+                      }}
+                      className="bg-signal-blue hover:bg-signal-blue/90 text-white"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Fixed File
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

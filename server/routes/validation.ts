@@ -216,6 +216,8 @@ router.post(
           contentDepth: result.contentDepth,
           // Sprint 12: Compliance analysis
           compliance: result.compliance,
+          // Sprint 13: Raw content for Quick Fix feature
+          rawContent: result.rawContent,
           processingTime: result.processingTime,
           createdAt: createdAt,
         },

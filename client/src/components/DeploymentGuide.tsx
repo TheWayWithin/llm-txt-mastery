@@ -114,6 +114,19 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
             description: 'Upload the downloaded llms.txt file to the root directory (same level as wp-config.php)',
           },
           {
+            title: 'Add HTML discovery tag',
+            description: 'Edit your theme\'s header.php (Appearance → Theme File Editor → header.php) and add this inside the <head> tag:',
+            code: '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">',
+            codeLanguage: 'html',
+            tip: 'Or use Yoast SEO → Settings → "Insert code in header" to add this without editing theme files',
+          },
+          {
+            title: 'Update robots.txt',
+            description: 'Go to Yoast SEO → Tools → File Editor (or edit robots.txt directly in your root) and add:',
+            code: 'Llms-Txt: https://yourdomain.com/llms.txt',
+            tip: 'Replace yourdomain.com with your actual domain name',
+          },
+          {
             title: 'Verify the upload',
             description: 'Visit yourdomain.com/llms.txt in your browser to confirm it\'s accessible',
           },
@@ -166,6 +179,8 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
       'Make sure the file has proper permissions (644 is typical)',
       'Some caching plugins may need cache cleared after upload',
       'If using Cloudflare, you may need to purge cache',
+      'Add the HTML discovery tag via your theme\'s header.php or use Yoast/RankMath to inject <head> code',
+      'Edit robots.txt via Yoast SEO → Tools → File Editor, or edit the file directly in your root',
     ],
   },
 
@@ -197,6 +212,18 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
             title: 'Add redirect rule',
             description: 'Create a redirect from /llms.txt to your CDN file URL',
             code: '/llms.txt → https://cdn.shopify.com/s/files/1/xxxx/xxxx/files/llms.txt',
+          },
+          {
+            title: 'Add HTML discovery tag',
+            description: 'Go to Online Store → Themes → Edit code → Layout → theme.liquid. Add this inside the <head> tag:',
+            code: '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">',
+            codeLanguage: 'html',
+          },
+          {
+            title: 'Update robots.txt',
+            description: 'Go to Settings → Custom data → robots.txt (or use a Shopify app like "Robots.txt Editor") and add:',
+            code: 'Llms-Txt: https://yourdomain.com/llms.txt',
+            warning: 'Shopify\'s robots.txt is auto-generated. Use an app or liquid template to append directives.',
           },
         ],
       },
@@ -346,7 +373,7 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
     platform: 'next',
     displayName: 'Next.js',
     icon: '⚡',
-    description: 'Add to your public folder',
+    description: 'Add to your public folder with discovery mechanisms',
     methods: [
       {
         id: 'public-folder',
@@ -359,6 +386,18 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
             description: 'Place llms.txt in your Next.js project\'s public/ folder',
             code: 'cp llms.txt public/llms.txt',
             codeLanguage: 'bash',
+          },
+          {
+            title: 'Add HTML discovery tag',
+            description: 'In your layout file (app/layout.tsx for App Router, or pages/_document.tsx for Pages Router), add inside <head>:',
+            code: '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version" />',
+            codeLanguage: 'html',
+            tip: 'For App Router, use Next.js metadata API: export const metadata = { alternates: { types: { "text/plain": "/llms.txt" } } }',
+          },
+          {
+            title: 'Update robots.txt',
+            description: 'Add to public/robots.txt (or use next-sitemap config):',
+            code: 'Llms-Txt: https://yourdomain.com/llms.txt',
           },
           {
             title: 'Commit and deploy',
@@ -637,6 +676,17 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
             description: 'Use a service like Cloudflare to redirect /llms.txt to your hosted file',
             warning: 'Squarespace doesn\'t support custom files at root - external hosting required',
           },
+          {
+            title: 'Add HTML discovery tag',
+            description: 'Go to Settings → Advanced → Code Injection → Header. Add:',
+            code: '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">',
+            codeLanguage: 'html',
+          },
+          {
+            title: 'Update robots.txt',
+            description: 'Go to Settings → SEO → robots.txt. Add the directive:',
+            code: 'Llms-Txt: https://yourdomain.com/llms.txt',
+          },
         ],
       },
       {
@@ -679,6 +729,17 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
             description: 'You could create a subdomain that points to your hosted file',
             warning: 'Wix doesn\'t allow custom files at the domain root',
           },
+          {
+            title: 'Add HTML discovery tag',
+            description: 'Go to Settings → Custom Code → Head Code. Add:',
+            code: '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">',
+            codeLanguage: 'html',
+          },
+          {
+            title: 'Update robots.txt',
+            description: 'Go to SEO Tools → robots.txt Editor. Add the directive:',
+            code: 'Llms-Txt: https://yourdomain.com/llms.txt',
+          },
         ],
       },
     ],
@@ -717,6 +778,17 @@ const PLATFORM_INSTRUCTIONS: Record<DetectedPlatform, PlatformInstructions> = {
             title: 'Add redirect rule',
             description: 'Redirect /llms.txt to your asset URL',
             code: '/llms.txt → https://uploads-ssl.webflow.com/xxx/llms.txt',
+          },
+          {
+            title: 'Add HTML discovery tag',
+            description: 'Go to Project Settings → Custom Code → Head Code. Add:',
+            code: '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">',
+            codeLanguage: 'html',
+          },
+          {
+            title: 'Update robots.txt',
+            description: 'Go to Project Settings → SEO → robots.txt. Add:',
+            code: 'Llms-Txt: https://yourdomain.com/llms.txt',
           },
         ],
       },

@@ -1,5 +1,25 @@
 # Project Plan - LLM.txt Mastery
 
+## Sprint 13: Benchmark Completion Polish
+
+**Sprint Location**: `/sprints/Sprint-13-Benchmark-Completion-Polish.md`
+**Priority**: HIGH — push llms.txt Excellence score from ~7.0 to 7.5+
+**Status**: ✅ COMPLETE
+**Date**: 2026-03-25
+**Benchmark Brief**: `/docs/Ideation/benchmark-improvement-brief.md`
+
+### Objective
+Close remaining gaps from AI Search Arena benchmark (LT-1, LT-2, LT-2B completion items) with deployment UX polish, multi-format enhancements, platform guides, and validator quick fix.
+
+### Tasks
+- [x] **Phase 1: Deployment UX Polish (LT-2B)** — Copy buttons for deployment snippets (HTML tag, robots.txt), enhanced deployment score display (X/5 with status label) ✅ 2026-03-25
+- [x] **Phase 2: Multi-Format Enhancements (LT-2)** — Zip download for all 3 formats (JSZip), side-by-side format comparison preview, token counts already display ✅ 2026-03-25
+- [x] **Phase 3: Platform-Specific Deployment Guides (LT-2B)** — Added HTML tag + robots.txt instructions to WordPress, Shopify, Squarespace, Wix, Webflow, Next.js guides. Auto-detect already implemented. ✅ 2026-03-25
+- [x] **Phase 4: Validator Quick Fix (LT-1)** — Quick Fix button on validator results, auto-corrects missing H1/blockquote/malformed list items, before/after preview, download/copy corrected file ✅ 2026-03-25
+- [x] **Phase 5: Docs & Pricing Updates** — Updated docs.tsx with Quick Fix section + deployment enhancements, updated pricing features text ✅ 2026-03-25
+
+---
+
 ## Sprint 12: AI Search Arena — llms.txt Excellence
 
 **Sprint Location**: `/sprints/Sprint-12-Benchmark-LLMsTxt-Excellence.md`

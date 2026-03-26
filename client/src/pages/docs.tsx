@@ -316,6 +316,38 @@ Website: https://yoursite.com
           </CardContent>
         </Card>
 
+        {/* Sprint 13: Quick Fix Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FileText className="mr-3 text-signal-blue" />
+              Quick Fix — Auto-Correct Formatting Issues
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-brand mb-4">
+              When the validator detects fixable formatting issues, you'll see a <strong>Quick Fix</strong> button
+              that auto-corrects common problems. Review the before/after preview, then download the corrected file.
+            </p>
+            <div className="space-y-3 mb-4">
+              <div className="bg-cloud rounded-lg p-3">
+                <h4 className="font-semibold text-ink text-sm mb-1">Issues Auto-Fixed</h4>
+                <ul className="text-sm text-slate-brand space-y-1">
+                  <li>• Missing H1 title — adds one from your first content line</li>
+                  <li>• Missing blockquote description — adds a placeholder you can customize</li>
+                  <li>• Malformed list items — converts plain URLs to proper linked format</li>
+                  <li>• Excessive blank lines and missing trailing newlines</li>
+                </ul>
+              </div>
+            </div>
+            <p className="text-sm text-slate-brand">
+              <strong>Tip:</strong> Quick Fix handles structural formatting. For content improvements
+              (better descriptions, more pages), use our AI-powered <strong>Generator</strong> to create a
+              comprehensive file from scratch.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Sprint 12: Deployment Guide Section */}
         <Card className="mb-8">
           <CardHeader>
@@ -360,8 +392,17 @@ Website: https://yoursite.com
             </div>
             <p className="text-sm text-slate-brand mt-4">
               After deployment, use our <strong>Verify Deployment</strong> button in the generation flow
-              to confirm all discovery mechanisms are working.
+              to confirm all discovery mechanisms are working. You'll see an explicit <strong>deployment
+              score (X/5)</strong> with individual check results.
             </p>
+            <div className="mt-4 bg-signal-blue/5 rounded-lg p-4 border border-signal-blue/20">
+              <h4 className="font-semibold text-ink mb-2">New: Bulk Download & Platform Guides</h4>
+              <ul className="text-sm text-slate-brand space-y-1">
+                <li>• <strong>Download All (zip)</strong> — Download all 3 formats (llms.txt, llms-full.txt, llms-mini.txt) as a single zip file</li>
+                <li>• <strong>Format Comparison</strong> — Side-by-side view showing what each format includes, token counts, and size</li>
+                <li>• <strong>Platform-Specific Guides</strong> — Step-by-step deployment instructions for WordPress, Shopify, Squarespace, Wix, Webflow, and Next.js including HTML tag and robots.txt setup</li>
+              </ul>
+            </div>
           </CardContent>
         </Card>
 
