@@ -145,6 +145,8 @@ export interface ValidationResult {
   contentDepth?: ContentDepthMetrics;
   // Sprint 12: Compliance analysis
   compliance?: ComplianceResult;
+  // Sprint 13: Raw content for Quick Fix feature
+  rawContent?: string;
   cached: boolean;
   processingTime: number;
 }
@@ -1561,6 +1563,7 @@ export async function validateLlmsTxt(
       checkedPaths: requestedFileType === 'auto' ? fetchResult.checkedPaths : undefined,
       contentDepth, // Sprint 5 Phase 4
       compliance, // Sprint 12
+      rawContent: parsed.rawContent, // Sprint 13: for Quick Fix
       cached: false,
       processingTime,
     };

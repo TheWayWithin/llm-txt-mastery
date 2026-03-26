@@ -1,134 +1,73 @@
 # Handoff Notes
 
 ## Current State
-**Completed**: Sprint 12 (llms.txt Excellence) — committed to `main`, deployed to production
-**Status**: Production deploy in progress (Netlify + Railway auto-deploy from main)
-**Commit**: `8193c35` — 11 files, 1,350 insertions
-**Next**: Playwright verification of deployed Sprint 12 features, then Sprint 10 (JS Rendering Quality Fix)
-**Pending**: Sprint 11 Phases 5/5b (staging test + production merge) — may already be deployed via main merge
-**Last Updated**: 2026-03-24
+**Completed**: Sprint 13 (Benchmark Completion Polish) — all 5 phases implemented
+**Status**: Ready for commit and deploy
+**Next**: Playwright verification of Sprint 13 features, then Sprint 14 (Drift Monitoring) or Sprint 10 (JS Rendering Quality Fix)
+**Pending**: Sprint 12 Playwright test plan (in previous handoff) still needs execution
+**Last Updated**: 2026-03-25
 **Branch**: `main`
 
 ---
 
-## What Was Built: Sprint 12
+## What Was Built: Sprint 13
 
-### Commit `8193c35`: feat: Sprint 12 — llms.txt Excellence (benchmark 3.1 → 7.0+)
+### Phase 1: Deployment UX Polish
+- New "Discovery Mechanisms — Copy & Deploy" card in `file-generation.tsx` with:
+  - HTML `<link>` tag snippet with copy button (domain-specific)
+  - `robots.txt` directive snippet with copy button (domain-specific)
+- Enhanced verification score display: prominent X/5 badge with "Fully Deployed" / "Partially Deployed" / "Not Deployed" label
 
-**11 files changed, 1,350 insertions, 50 deletions**
+### Phase 2: Multi-Format Enhancements
+- **JSZip dependency added** — client-side zip creation
+- "Download All (zip)" button fetches all 3 formats and bundles into `llms-txt-bundle.zip`
+- "Compare Formats" toggle shows side-by-side grid with token counts, file sizes, and what each format includes
 
-#### Phase 1: Domain Housekeeping
-- `client/public/robots.txt` — added `Llms-Txt: https://llmtxtmastery.com/llms.txt` directive
-- `client/index.html` — added `<link rel="alternate" type="text/plain" href="/llms.txt">` discovery tag
-- `client/public/llms.txt` — rewritten with hand-crafted, accurate product descriptions (validator + generator + deployment guidance)
-- `client/public/llms-full.txt` — NEW FILE (8.3KB) — complete product documentation in llms-full.txt format
+### Phase 3: Platform Deployment Guides Enhanced
+- All 6 key platforms now include HTML tag + robots.txt steps with copyable code:
+  - WordPress: header.php / Yoast for `<link>`, Yoast File Editor for robots.txt
+  - Shopify: theme.liquid for `<link>`, app or redirect for robots.txt
+  - Squarespace: Code Injection for `<link>`, SEO settings for robots.txt
+  - Wix: Custom Code for `<link>`, robots.txt Editor
+  - Webflow: Custom Code for `<link>`, SEO settings for robots.txt
+  - Next.js: layout.tsx / _document.tsx for `<link>`, public/robots.txt
 
-#### Phase 2: Deep Spec Compliance Validation
-- `server/services/validation.ts` (+317 lines) — compliance engine with:
-  - `ComplianceResult` interface (score, grade, sections, formatDetected, recommendations)
-  - `calculateCompliance()` — spec structure (40%), content quality (30%), freshness (20%), size optimization (10%)
-  - Freshness detection — HEAD requests to up to 20 URLs, flags 404s/unreachable
-  - Token count calculation with context window recommendations
-  - Format detection (standard/full/mini/custom)
-  - A/B/C/D grading: A (95%+), B (80-94%), C (60-79%), D (<60%)
-- `client/src/pages/validator.tsx` (+207 lines) — compliance UI with:
-  - Grade badge (A/B/C/D) with color coding next to quality score
-  - 4-section breakdown with progress bars (specStructure, contentQuality, freshness, sizeOptimization)
-  - Token count display, stale entry warnings, compliance recommendations
-  - Frontend `ComplianceResult` type definition
+### Phase 4: Validator Quick Fix
+- Backend: `rawContent` field added to `ValidationResult` interface and API response
+- Frontend "Quick Fix" card appears when fixable issues detected:
+  - Auto-corrects: missing H1, missing blockquote, plain URL → linked format, excessive blank lines
+  - Before/After preview (red/green columns)
+  - Copy corrected file + Download corrected file buttons
 
-#### Phase 3: Multi-Format Generation
-- `server/routes.ts` — added:
-  - `generateLlmFullTxtContent()` — complete markdown extraction with per-page sections
-  - `generateLlmMiniTxtContent()` — top 5 pages, truncated descriptions
-  - `/api/generate-llm-file` now returns `formats: { standard, full, mini }` with token counts per format
-  - `/api/download/:id?format=standard|full|mini` — format-aware downloads
-- `client/src/components/file-generation.tsx` (+185 lines) — format selection cards with token counts, per-format download buttons
+### Phase 5: Docs & Pricing
+- docs.tsx: Quick Fix documentation section + deployment enhancements callout
+- pricing.tsx: Feature text updated across all 4 tiers
 
-#### Phase 4: Deployment Verification
-- `server/routes.ts` — `POST /api/verify-deployment` endpoint checking:
-  - File accessible (HEAD /llms.txt → 200)
-  - HTML discovery tag present (parse homepage for `<link rel="alternate">`)
-  - robots.txt Llms-Txt directive present
-  - Content-Type header (text/plain)
-  - Returns score (X/Y), status (fully_deployed/partially_deployed/not_deployed)
-- `client/src/components/file-generation.tsx` — "Verify Now" button with per-check pass/fail display
-
-#### Phase 5: Marketing Updates
-- `client/index.html` — meta descriptions updated (description, og:description, twitter:description)
-- `client/src/pages/pricing.tsx` — added "3 output formats + compliance grading" and "Deployment guidance & verification" to all 4 tiers
-- `client/src/pages/docs.tsx` — 4 new sections: Formats Explained, Compliance Grading, Deploying Your llms.txt, Discovery Mechanisms
-- `client/src/pages/validator.tsx` — trust badges: "Compliance grading (A/B/C/D)" + "Token count analysis"
-- `client/src/components/landing/SolutionIntro.tsx` — Generate step mentions multi-format + compliance grading; Deploy step mentions HTML tag, robots.txt, automated checker
+### Files Changed (7 files + package.json)
+- `server/services/validation.ts` — `rawContent` on ValidationResult
+- `server/routes/validation.ts` — pass rawContent to API response
+- `client/src/components/file-generation.tsx` — deploy snippets, zip, comparison, enhanced score
+- `client/src/components/DeploymentGuide.tsx` — HTML tag + robots.txt per platform
+- `client/src/pages/validator.tsx` — Quick Fix feature
+- `client/src/pages/docs.tsx` — new sections
+- `client/src/pages/pricing.tsx` — updated feature text
+- `package.json` + `package-lock.json` — JSZip dependency
 
 ---
 
-## Sprint 12 Playwright Test Plan
+## Outstanding
 
-**Status**: NOT YET RUN — run with `/coord test` or manually after Claude Code restart
-**Prerequisite**: Playwright MCP must use `--browser chromium` (config updated, needs restart)
-**Test Account**: Growth tier — `rvqjhsckhrattpilow@nespf.com` / `Qwerty123!`
-**Target**: Production — https://llmtxtmastery.com
+### Sprint 13 Remaining
+- [ ] Playwright test plan for Sprint 13 features (copy buttons, zip download, platform guides, quick fix)
 
-### Phase 1: Static File Verification (no login needed)
+### Sprint 12 Playwright Tests (from previous handoff)
+- [ ] All tests listed in previous handoff notes still need execution
+- **Test Account**: Growth tier — `rvqjhsckhrattpilow@nespf.com` / `Qwerty123!`
 
-| # | Test | URL/Action | Expected | Status |
-|---|------|-----------|----------|--------|
-| 1.1 | robots.txt has Llms-Txt directive | Navigate to `https://llmtxtmastery.com/robots.txt` | Contains `Llms-Txt: https://llmtxtmastery.com/llms.txt` | [ ] |
-| 1.2 | llms.txt is hand-crafted | Navigate to `https://llmtxtmastery.com/llms.txt` | First line: `# LLM.txt Mastery`, description mentions "SaaS platform for validating, generating, and deploying" | [ ] |
-| 1.3 | llms-full.txt exists | Navigate to `https://llmtxtmastery.com/llms-full.txt` | Page loads (not 404), contains "Complete Documentation" | [ ] |
-| 1.4 | HTML discovery link tag | View page source of `https://llmtxtmastery.com` | Contains `<link rel="alternate" type="text/plain" href="/llms.txt"` | [ ] |
-| 1.5 | Meta description updated | View page source of `https://llmtxtmastery.com` | Description contains "Generate, validate, and deploy spec-compliant llms.txt files" | [ ] |
-
-### Phase 2: Validator Page (no login needed)
-
-| # | Test | URL/Action | Expected | Status |
-|---|------|-----------|----------|--------|
-| 2.1 | Trust badges include new items | Navigate to `https://llmtxtmastery.com/validator` | Trust signals section shows "Compliance grading (A/B/C/D)" and "Token count analysis" | [ ] |
-| 2.2 | Run validation | Enter `https://llmtxtmastery.com` in validator, click validate | Results show quality score AND compliance grade badge (A/B/C/D letter) | [ ] |
-| 2.3 | Compliance breakdown visible | After validation completes | 4-section breakdown: Spec Structure, Content Quality, Freshness, Size & Tokens — each with progress bar | [ ] |
-| 2.4 | Token count displayed | After validation completes | Size & Tokens section shows approximate token count with recommendation text | [ ] |
-
-### Phase 3: Marketing Pages (no login needed)
-
-| # | Test | URL/Action | Expected | Status |
-|---|------|-----------|----------|--------|
-| 3.1 | Home — SolutionIntro updated | Navigate to `https://llmtxtmastery.com`, scroll to "How LLM.txt Mastery fixes this" | Generate step mentions "llms-full.txt" and "compliance grading"; Deploy step mentions "HTML discovery tag" and "automated checker" | [ ] |
-| 3.2 | Pricing — new features on all tiers | Navigate to `https://llmtxtmastery.com/pricing` | Each tier card (Free Trial, Solo, Growth, Scale) shows "3 output formats + compliance grading" and "Deployment guidance & verification" | [ ] |
-| 3.3 | Docs — new sections exist | Navigate to `https://llmtxtmastery.com/docs`, scroll down | 4 new sections visible: "llms.txt Formats Explained", "Compliance Grading", "Deploying Your llms.txt", "How AI Crawlers Discover llms.txt" | [ ] |
-
-### Phase 4: Authenticated Flow (login required)
-
-**Login**: Navigate to `https://llmtxtmastery.com/login`, enter `rvqjhsckhrattpilow@nespf.com` / `Qwerty123!`
-
-| # | Test | URL/Action | Expected | Status |
-|---|------|-----------|----------|--------|
-| 4.1 | Login works | Login with Growth credentials | Redirected to dashboard, shows Growth tier | [ ] |
-| 4.2 | Start analysis | Navigate to `/analyze`, enter a URL (e.g. `https://example.com`), start analysis | Analysis begins, pages discovered | [ ] |
-| 4.3 | Generate shows 3 format cards | After analysis completes, select pages, generate file | File generation shows 3 cards: llms.txt (Standard), llms-full.txt (Full), llms-mini.txt (Mini) with token counts | [ ] |
-| 4.4 | Download standard format | Click download on standard card | Downloads file named `llms.txt` | [ ] |
-| 4.5 | Download full format | Click download on full card | Downloads file named `llms-full.txt` | [ ] |
-| 4.6 | Download mini format | Click download on mini card | Downloads file named `llms-mini.txt` | [ ] |
-| 4.7 | Deployment guide visible | Scroll below file generation | Platform-specific deployment guide section visible | [ ] |
-| 4.8 | Verify deployment button | Click "Verify Now" button | Shows verification results with per-check pass/fail (file_accessible, html_tag, robots_directive, content_type) | [ ] |
-
-### Execution Instructions
-
-```
-1. Restart Claude Code (to pick up Playwright --browser chromium config)
-2. Run: /coord test handoff-notes.md
-   OR manually: use Playwright MCP to navigate to each URL and verify
-3. For each test, use browser_snapshot to check content, browser_take_screenshot for visual evidence
-4. Mark [ ] → [x] in this plan as tests pass
-5. Log any failures in progress.md
-```
-
----
-
-## Playwright Configuration Fix
-- Updated `.claude/plugins/.../playwright/.mcp.json` to use `--browser chromium` flag
-- This makes Playwright use its bundled Chromium instead of system Chrome
-- Requires Claude Code restart to take effect
+### Other Sprints
+- Sprint 10 (JS Rendering Quality Fix) — READY, not started
+- Sprint 11 Phases 5/5b (staging test + production merge) — may be superseded
+- Sprint 14 (Drift Monitoring) — planned
 
 ---
 
@@ -143,12 +82,9 @@
 
 ## Important Context
 
-- The `coffee` tier still exists in the database for legacy users — all code handles both 'solo' and 'coffee' in reads
-- `TIER_LIMITS` in `server/services/cache.ts` has both 'solo' and 'coffee' entries (identical values)
-- Production Stripe prices are DIFFERENT from test prices — don't mix them up
-- The billing toggle on signup/dashboard/pricing all default to annual
+- **JSZip** added as production dependency for client-side zip creation
+- **rawContent** is now exposed in the validation API — it's the raw llms.txt file content. This is intentional for the Quick Fix feature.
+- The Quick Fix logic runs entirely client-side — no server round-trip needed after initial validation
+- Platform guides in DeploymentGuide.tsx cover 16 platforms total (6 key + 10 others)
+- The `coffee` tier still exists in the database for legacy users
 - **`cancelled` tier** — users downgrade to this instead of 'starter' on cancellation
-- **7-day free trial** — uses Growth checkout with `trial_period_days: 7`, card collected upfront
-- **Compliance engine** is non-blocking — if it fails, validation still returns quality score without compliance data
-- **Freshness checks** are rate-limited to 20 URLs per validation with 5-second timeouts
-- **Multi-format generation** all runs from the same analysis data — no re-crawling needed

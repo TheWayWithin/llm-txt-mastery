@@ -125,7 +125,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guidance & verification</span>
+                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
@@ -193,7 +193,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guidance & verification</span>
+                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
@@ -266,7 +266,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guidance & verification</span>
+                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
                 </li>
               </ul>
               <Link href={`/signup?tier=growth${billing === 'annual' ? '&billing=annual' : ''}`}>
@@ -332,7 +332,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guidance & verification</span>
+                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
                 </li>
               </ul>
               <Link href={`/signup?tier=scale${billing === 'annual' ? '&billing=annual' : ''}`}>
