@@ -340,7 +340,7 @@ async function generateAIAnalysis(
 
     // Get main content
     const mainContent = $('main, article, .content, .post, .page, body').first().text().trim();
-    const contentSample = mainContent.substring(0, 4000); // Limit content for API
+    const contentSample = mainContent.substring(0, 8000); // MiniMax M2.5 has 196K context, use more
 
     // Detect if this is a thin/CSR page
     const contentWords = contentSample.split(/\s+/).filter(w => w.length > 2).length;
@@ -366,7 +366,7 @@ async function generateAIAnalysis(
     } else if (isThinContent) {
       contentGuidance = `IMPORTANT: This is a client-side rendered page. The Content Sample is mostly boilerplate and the Meta Description is a generic site-wide default — IGNORE both for description purposes. Instead, derive the page's purpose entirely from the URL path "/${urlPath}" and write a factual description of what a user would find at this URL. For example, a path like "/analyze" is an analysis tool, "/validate" is a validation tool, "/pricing" is a pricing page, "/blog" is a blog page, etc.`;
     } else {
-      contentGuidance = `IMPORTANT: Use the Content Sample as the primary source for your description. The Meta Description may be a generic site-wide default — only use it if the content sample lacks detail.`;
+      contentGuidance = `IMPORTANT: The Meta Description may be a generic site-wide default shared by all pages on this domain. DO NOT paraphrase it. Instead, describe THIS SPECIFIC PAGE's unique content and purpose based on the Content Sample. If the Meta Description is identical across pages, each page's description in the output MUST still be distinct — base it on the actual content, not the meta tag. Use the Content Sample as the primary source for your description.`;
     }
 
     const prompt = `Analyze this webpage content for AI/LLM accessibility and value.
@@ -379,10 +379,14 @@ Content Sample: ${contentSample}
 
 ${contentGuidance}
 
-CRITICAL: Never describe what you cannot see or what the content lacks. Do NOT say things like "the content does not provide detailed information" or "although the specific content sample does not provide detailed" or "the sample content does not provide." Write a factual, specific description of THIS page.
+CRITICAL RULES:
+1. Never describe what you cannot see or what the content lacks. Do NOT say "the content does not provide" or similar.
+2. Write a factual, specific description of THIS page based on its unique content.
+3. Do NOT paraphrase or rephrase the Meta Description. If the Meta Description is generic or shared across the site, IGNORE it entirely and describe the page based on its Content Sample and URL path.
+4. Each page's description MUST be unique — never produce the same description for different URLs.
 
 Provide a JSON response with:
-1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence that explains what users can DO on this page. Each page description must be distinct — do not repeat the same description for different pages.
+1. "description": A unique description of THIS page's specific content (150-400 chars). Must be a complete sentence that explains what users can DO or LEARN on this page. Base this on actual page content, not the meta tag.
 2. "qualityScore": Quality score (1-10) based on content value for AI systems
 3. "category": One of (Documentation, Tutorial, API Reference, Blog, Product, About, Tools, General)
 4. "relevance": Relevance score (1-10) for AI training/reference
@@ -404,7 +408,7 @@ Focus on technical accuracy, information density, and AI utility.`;
         },
       ],
       response_format: { type: 'json_object' },
-      max_tokens: 500,
+      max_tokens: 800,
       temperature: 0.3,
     });
     console.log(`[AI ANALYSIS] OpenAI API call successful for ${url}`);

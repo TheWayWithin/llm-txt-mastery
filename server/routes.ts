@@ -835,6 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               title: z.string(),
               description: z.string(),
               selected: z.boolean(),
+              bodyContent: z.string().optional(),
             })
           ),
         })
@@ -845,9 +846,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Analysis not found' });
       }
 
+      // Enrich selectedPages with bodyContent from stored analysis (Sprint 15)
+      const discoveredMap = new Map(
+        (analysis.discoveredPages || []).map(dp => [dp.url, dp])
+      );
+      const enrichedPages = selectedPages.map(page => {
+        const discovered = discoveredMap.get(page.url);
+        return {
+          ...page,
+          bodyContent: page.bodyContent || discovered?.bodyContent,
+        };
+      });
+
       // Filter only selected pages
-      const selectedOnly = selectedPages.filter((page) => page.selected);
-      const excludedPages = selectedPages.filter((page) => !page.selected);
+      const selectedOnly = enrichedPages.filter((page) => page.selected);
+      const excludedPages = enrichedPages.filter((page) => !page.selected);
 
       const metadataCtx = { ...analysis.analysisMetadata, analysisId };
 
@@ -1452,191 +1465,85 @@ function generateSemanticTags(page: SelectedPage): string[] {
   const description = page.description?.toLowerCase() || '';
   const content = `${title} ${description}`;
 
-  // Content type tags
-  if (
-    url.includes('/blog') ||
-    url.includes('/article') ||
-    url.includes('/post') ||
-    title.includes('blog') ||
-    content.includes('article')
-  ) {
-    tags.push('[article]');
-  } else if (
-    url.includes('/product') ||
-    url.includes('/shop') ||
-    content.includes('product') ||
-    content.includes('buy') ||
-    content.includes('purchase')
-  ) {
-    tags.push('[product]');
-  } else if (
-    url.includes('/tool') ||
-    url.includes('/calculator') ||
-    url.includes('/converter') ||
-    content.includes('calculator') ||
-    content.includes('tool') ||
-    content.includes('converter')
-  ) {
-    tags.push('[tool]');
-  } else if (
-    url.includes('/guide') ||
-    url.includes('/tutorial') ||
-    url.includes('/how-to') ||
-    content.includes('guide') ||
-    content.includes('tutorial') ||
-    content.includes('how to')
-  ) {
-    tags.push('[guide]');
-  } else if (
-    url.includes('/api') ||
-    url.includes('/docs') ||
-    url.includes('/documentation') ||
-    content.includes('api') ||
-    content.includes('documentation')
-  ) {
-    tags.push('[api-doc]');
-  } else if (
-    url === '/' ||
-    url.includes('/home') ||
-    url.includes('/index') ||
-    title.includes('home') ||
-    title.includes('welcome')
-  ) {
-    tags.push('[landing]');
-  } else if (
-    url.includes('/category') ||
-    url.includes('/section') ||
-    content.includes('category') ||
-    content.includes('section')
-  ) {
-    tags.push('[category]');
+  // Sprint 15: Content-type tags ONLY — no rendering/access tags like [static], [form], [public]
+  // These describe what the content IS, not how it's rendered
+
+  // URL path is the strongest signal
+  try {
+    const pathname = new URL(page.url).pathname.toLowerCase();
+
+    // About/informational pages
+    if (pathname.match(/\/(about|team|company|who-we-are)/)) {
+      tags.push('[informational]');
+    }
+    // Contact pages
+    else if (pathname.match(/\/(contact|get-in-touch|reach-us)/)) {
+      tags.push('[contact]');
+    }
+    // Legal/policy pages — no tags (these go to Optional section)
+    else if (pathname.match(/\/(privacy|terms|cookies|legal|tos|gdpr|disclaimer)/)) {
+      // No tags for legal pages
+    }
+    // Blog/article pages
+    else if (pathname.match(/\/(blog|article|post|news)/)) {
+      tags.push('[article]');
+    }
+    // Guide/tutorial pages
+    else if (pathname.match(/\/(guide|tutorial|how-to|learn)/)) {
+      tags.push('[guide]');
+    }
+    // Documentation/API pages
+    else if (pathname.match(/\/(docs|documentation|api|reference)/)) {
+      tags.push('[article]');
+    }
+    // Tool/interactive pages
+    else if (pathname.match(/\/(tool|calculator|converter|analyzer|validator|generate|analyze)/)) {
+      tags.push('[tool]');
+    }
+    // Product/pricing pages
+    else if (pathname.match(/\/(product|features|pricing|plans|shop)/)) {
+      tags.push('[product]');
+    }
+    // Homepage
+    else if (pathname === '/' || pathname === '') {
+      tags.push('[product]');
+    }
+  } catch {
+    // Invalid URL, fall through to content-based detection
   }
 
-  // Interaction tags
-  if (
-    content.includes('form') ||
-    content.includes('submit') ||
-    content.includes('contact') ||
-    url.includes('/contact') ||
-    url.includes('/form')
-  ) {
-    tags.push('[form]');
-  } else if (
-    content.includes('calculator') ||
-    content.includes('interactive') ||
-    content.includes('simulator') ||
-    url.includes('/calc')
-  ) {
-    tags.push('[interactive]');
-  } else if (content.includes('calculate') && !tags.includes('[interactive]')) {
-    tags.push('[calculator]');
-  } else {
-    tags.push('[static]');
+  // Content-based detection as fallback (only if no URL-based tag found)
+  if (tags.length === 0) {
+    if (content.includes('blog') || content.includes('article') || content.includes('posted on')) {
+      tags.push('[article]');
+    } else if (content.includes('guide') || content.includes('tutorial') || content.includes('how to')) {
+      tags.push('[guide]');
+    } else if (content.includes('tool') || content.includes('calculator') || content.includes('analyzer')) {
+      tags.push('[tool]');
+    } else if (content.includes('product') || content.includes('pricing') || content.includes('buy')) {
+      tags.push('[product]');
+    } else if (content.includes('about') || content.includes('our team') || content.includes('our mission')) {
+      tags.push('[informational]');
+    } else if (content.includes('contact') || content.includes('reach us') || content.includes('get in touch')) {
+      tags.push('[contact]');
+    }
   }
 
-  // Purpose tags
+  // Add secondary purpose tag if applicable
   if (
-    content.includes('learn') ||
-    content.includes('education') ||
-    content.includes('tutorial') ||
-    content.includes('course') ||
-    content.includes('training')
+    tags[0] !== '[guide]' && tags[0] !== '[article]' &&
+    (content.includes('learn') || content.includes('education') || content.includes('tutorial') || content.includes('course'))
   ) {
     tags.push('[educational]');
   } else if (
-    content.includes('buy') ||
-    content.includes('purchase') ||
-    content.includes('order') ||
-    content.includes('checkout') ||
-    content.includes('pricing')
-  ) {
-    tags.push('[transactional]');
-  } else if (
-    content.includes('about') ||
-    content.includes('information') ||
-    content.includes('overview') ||
-    content.includes('details') ||
-    url.includes('/about')
+    tags[0] !== '[informational]' &&
+    (content.includes('about') || content.includes('overview') || url.includes('/about'))
   ) {
     tags.push('[informational]');
-  } else if (
-    content.includes('navigate') ||
-    content.includes('menu') ||
-    content.includes('directory') ||
-    url.includes('/sitemap') ||
-    url.includes('/directory')
-  ) {
-    tags.push('[navigational]');
   }
 
-  // Technical tags
-  if (
-    content.includes('login') ||
-    content.includes('signin') ||
-    content.includes('account') ||
-    content.includes('dashboard') ||
-    url.includes('/login') ||
-    url.includes('/account')
-  ) {
-    tags.push('[requires-auth]');
-  } else {
-    tags.push('[public]');
-  }
-
-  if (
-    content.includes('beta') ||
-    content.includes('preview') ||
-    content.includes('experimental') ||
-    url.includes('/beta') ||
-    url.includes('/preview')
-  ) {
-    tags.push('[beta]');
-  }
-
-  if (
-    content.includes('deprecated') ||
-    content.includes('obsolete') ||
-    content.includes('legacy') ||
-    url.includes('/deprecated') ||
-    url.includes('/legacy')
-  ) {
-    tags.push('[deprecated]');
-  }
-
-  // Remove duplicates and limit to most relevant tags
-  const uniqueTags = [...new Set(tags)];
-
-  // Prioritize tags: content type > interaction > purpose > technical
-  const priorityOrder = [
-    '[article]',
-    '[product]',
-    '[tool]',
-    '[guide]',
-    '[api-doc]',
-    '[landing]',
-    '[category]',
-    '[interactive]',
-    '[form]',
-    '[calculator]',
-    '[static]',
-    '[educational]',
-    '[transactional]',
-    '[informational]',
-    '[navigational]',
-    '[requires-auth]',
-    '[public]',
-    '[beta]',
-    '[deprecated]',
-  ];
-
-  const sortedTags = uniqueTags.sort((a, b) => {
-    const aIndex = priorityOrder.indexOf(a);
-    const bIndex = priorityOrder.indexOf(b);
-    return (aIndex === -1 ? 1000 : aIndex) - (bIndex === -1 ? 1000 : bIndex);
-  });
-
-  // Return top 3 most relevant tags
-  return sortedTags.slice(0, 3);
+  // Max 2 tags per entry
+  return [...new Set(tags)].slice(0, 2);
 }
 
 /**
@@ -2234,6 +2141,15 @@ function generateSiteSummary(
   const pageTypes = analyzePageTypes(selectedPages);
   const primaryContent = identifyPrimaryContent(selectedPages);
 
+  // Sprint 15: Extract site name from homepage title (before | or - separator)
+  let siteName = domain;
+  if (homePage && homePage.title) {
+    const titleParts = homePage.title.split(/\s*[|\-–—]\s*/);
+    if (titleParts[0] && titleParts[0].trim().length > 2 && titleParts[0].trim().length < 50) {
+      siteName = titleParts[0].trim();
+    }
+  }
+
   // Check if homepage description is generic (matches >50% of other page descriptions)
   let homepageDescIsGeneric = false;
   if (homePage && homePage.description) {
@@ -2253,6 +2169,11 @@ function generateSiteSummary(
   if (homePage && homePage.description && homePage.description.length > 50 && !homepageDescIsGeneric) {
     let summary = homePage.description;
 
+    // Sprint 15: Replace generic "This page" with actual site name
+    summary = summary.replace(/^This page\b/i, siteName);
+    summary = summary.replace(/^This website\b/i, siteName);
+    summary = summary.replace(/^This site\b/i, siteName);
+
     // Add context about the site's scope if not already included
     if (pageTypes.length > 0 && !summary.toLowerCase().includes('offering')) {
       summary += ` The site offers ${pageTypes.join(', ')}.`;
@@ -2264,6 +2185,19 @@ function generateSiteSummary(
     }
 
     return summary;
+  }
+
+  // Sprint 15: If homepage desc is generic (SPA pattern), build composite from top unique pages
+  if (homepageDescIsGeneric) {
+    const uniqueDescs = selectedPages
+      .filter(p => p.description && p.url !== homePage?.url)
+      .map(p => p.description)
+      .filter((desc, idx, arr) => arr.indexOf(desc) === idx) // deduplicate
+      .slice(0, 3);
+    if (uniqueDescs.length >= 2) {
+      const composite = `${siteName} features ${uniqueDescs.map(d => d.replace(/\.$/, '').toLowerCase()).join(', ')}.`;
+      return composite;
+    }
   }
 
   // Fallback: Infer product focus from page titles and descriptions
@@ -2296,7 +2230,7 @@ function generateSiteSummary(
   let summary = '';
 
   if (productFocus) {
-    summary = `${domain} provides ${productFocus}`;
+    summary = `${siteName} provides ${productFocus}`;
     if (pageTypes.length > 0) {
       summary += `, with ${pageTypes.join(', ')}`;
     }
@@ -2304,7 +2238,7 @@ function generateSiteSummary(
   } else {
     // Generic fallback without filler phrases
     const categories = extractCategories(selectedPages);
-    summary = `${domain}`;
+    summary = `${siteName}`;
     if (categories.length > 0) {
       summary += ` covers ${categories.slice(0, 3).join(', ')}`;
     }
@@ -2858,8 +2792,22 @@ function generateLlmTxtContent(
   const analyzed = allDiscoveredPages.length;
   const excluded = excludedPages.length;
 
+  // Sprint 15: Auto-filter legal/boilerplate pages to Optional section
+  const legalPattern = /\/(privacy|terms|cookies|cookie-policy|legal|tos|gdpr|disclaimer|imprint)/i;
+  const legalPages: SelectedPage[] = [];
+  const contentPages = selectedPages.filter(page => {
+    try {
+      const pathname = new URL(page.url).pathname;
+      if (legalPattern.test(pathname)) {
+        legalPages.push(page);
+        return false;
+      }
+    } catch { /* keep page if URL parse fails */ }
+    return true;
+  });
+
   // Phase 6: Apply content quality improvements before clustering
-  const descEnhancedPages = enhancePageDescriptions(selectedPages);
+  const descEnhancedPages = enhancePageDescriptions(contentPages);
 
   // Phase 7: Differentiate identical titles (critical for CSR/SPA sites)
   const enhancedPages = differentiateIdenticalTitles(descEnhancedPages);
@@ -2946,6 +2894,11 @@ function generateLlmTxtContent(
   // Add Optional section with resource links (spec-compliant H2 with proper list items)
   let optionalSection = `## Optional\n\n`;
   optionalSection += `- [llms.txt Specification](https://llmstxt.org/): Official llmstxt.org format specification\n`;
+  // Sprint 15: Include auto-filtered legal pages in Optional
+  for (const page of legalPages) {
+    const label = page.description && page.description.length >= 10 ? page.description : page.title;
+    optionalSection += `- [${page.title}](${page.url}): ${label}\n`;
+  }
   if (excludedPages.length > 0) {
     // Differentiate identical titles on excluded pages too
     const titleFixedExcluded = differentiateIdenticalTitles(excludedPages);
@@ -3006,6 +2959,11 @@ function generateLlmFullTxtContent(
   // Cluster pages for organization
   const clusteredPages = clusterPagesIntoCategories(enhancedPages);
 
+  // Build a map of bodyContent from allDiscoveredPages for enrichment
+  const bodyContentMap = new Map(
+    allDiscoveredPages.filter(dp => dp.bodyContent).map(dp => [dp.url, dp.bodyContent])
+  );
+
   clusteredPages.forEach((pages, category) => {
     output += `## ${category}\n\n`;
 
@@ -3015,6 +2973,11 @@ function generateLlmFullTxtContent(
       output += `**URL**: ${page.url}\n`;
       if (page.qualityScore) output += `**Quality Score**: ${page.qualityScore}/10\n`;
       output += `\n${page.description}\n\n`;
+      // Sprint 15: Include actual page body content if available
+      const pageBodyContent = page.bodyContent || bodyContentMap.get(page.url);
+      if (pageBodyContent && pageBodyContent.length > 100) {
+        output += `#### Content\n\n${pageBodyContent}\n\n`;
+      }
       output += `---\n\n`;
     }
   });
