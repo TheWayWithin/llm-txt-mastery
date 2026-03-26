@@ -195,6 +195,7 @@ export interface DiscoveredPage {
   qualityScore: number;
   category: string;
   lastModified?: string;
+  bodyContent?: string; // Raw extracted text content (up to 4000 chars) for llms-full.txt
 }
 
 export interface SiteAnalysisResult {
@@ -222,6 +223,7 @@ export interface SelectedPage {
   selected: boolean;
   category?: string;
   qualityScore?: number;
+  bodyContent?: string; // Raw extracted text content for llms-full.txt
 }
 
 export const urlAnalysisSchema = z.object({

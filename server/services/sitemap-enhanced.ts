@@ -483,6 +483,15 @@ async function processBatchWithCache(
         metrics.estimatedCost += 0.001; // Basic processing cost
       }
 
+      // Extract body content for llms-full.txt (Strip nav, footer, sidebar, script, style)
+      const $body = cheerio.load(content);
+      $body('script, style, nav, header, footer, aside, .sidebar, .menu, .navigation, .nav, .footer, .header, noscript, iframe').remove();
+      const mainEl = $body('main, article, .content, #content, [role="main"]').first();
+      const rawBodyText = (mainEl.length > 0 ? mainEl.text() : $body('body').text())
+        .replace(/\s+/g, ' ')
+        .trim();
+      const bodyContent = rawBodyText.length > 50 ? rawBodyText.substring(0, 4000) : undefined;
+
       const page: DiscoveredPage = {
         url: entry.url,
         title: analysis.title,
@@ -490,6 +499,7 @@ async function processBatchWithCache(
         qualityScore: analysis.qualityScore,
         category: analysis.category,
         lastModified: entry.lastmod,
+        bodyContent,
       };
 
       // Cache the result
