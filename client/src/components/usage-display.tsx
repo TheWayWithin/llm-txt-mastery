@@ -60,7 +60,8 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
   const analysisPercentage = (currentUsage / dailyAnalyses) * 100;
   const costSaved = cacheHitsToday ? (cacheHitsToday * 0.03 * 0.7).toFixed(2) : '0.00';
   const isSoloTier = usageData.tier === 'solo' || usageData.tier === 'coffee';
-  const creditsRemaining = usageData?.creditsRemaining || 0;
+  const monthlyLimit = isSoloTier ? (dailyAnalyses || 20) : 20;
+  const creditsRemaining = Math.min(usageData?.creditsRemaining || 0, monthlyLimit);
 
   // Debug logging for Solo tier
   if (isSoloTier) {
@@ -110,7 +111,7 @@ export default function UsageDisplay({ userEmail, usageData: propUsageData }: Us
                 <div className="flex-1 bg-cloud rounded-full h-3">
                   <div
                     className="bg-signal-blue h-3 rounded-full transition-all duration-300"
-                    style={{ width: creditsRemaining > 0 ? '100%' : '0%' }}
+                    style={{ width: `${Math.min((creditsRemaining / monthlyLimit) * 100, 100)}%` }}
                   />
                 </div>
               </div>

@@ -78,7 +78,7 @@ export function AuthNav() {
         {(user?.tier === 'solo' || user?.tier === 'coffee') && (
           <div className="flex items-center space-x-1 text-sm text-signal-blue">
             <BarChart3 className="h-4 w-4" />
-            <span className="font-medium">{user.creditsRemaining}/20</span>
+            <span className="font-medium">{Math.min(user.creditsRemaining ?? 0, 20)}/20</span>
             <span className="text-stone-brand">analyses</span>
           </div>
         )}

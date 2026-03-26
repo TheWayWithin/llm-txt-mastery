@@ -331,7 +331,7 @@ export default function AnalyzePage() {
                     </p>
                     <p className="text-xs text-slate-brand">
                       {(user.tier === 'solo' || user.tier === 'coffee')
-                        ? `${usageData?.creditsRemaining || 0} of 20 remaining`
+                        ? `${Math.min(usageData?.creditsRemaining || 0, 20)} of 20 remaining`
                         : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || (user.tier === 'scale' ? 100 : user.tier === 'growth' ? 35 : 3)}`}
                     </p>
                   </div>
@@ -497,7 +497,7 @@ export default function AnalyzePage() {
                           {user.tier === 'starter'
                             ? 'AI analysis for first 5 pages'
                             : user.tier === 'solo'
-                              ? `${user.creditsRemaining || 0} premium analyses remaining`
+                              ? `${Math.min(user.creditsRemaining || 0, 20)} premium analyses remaining`
                               : user.tier === 'growth'
                                 ? '35 AI-enhanced analyses/month'
                                 : '100 AI-enhanced analyses/month'}

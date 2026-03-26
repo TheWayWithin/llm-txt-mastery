@@ -787,9 +787,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         features: limits.features,
       };
 
-      // Add credits for Solo tier
+      // Add credits for Solo tier (capped at tier limit to prevent display bugs)
       if (tier === 'solo' || tier === 'coffee') {
-        responseData.creditsRemaining = creditsRemaining;
+        const monthlyLimit = limits.dailyAnalyses; // 20 for solo
+        responseData.creditsRemaining = Math.min(creditsRemaining, monthlyLimit);
       }
 
       res.json(responseData);
