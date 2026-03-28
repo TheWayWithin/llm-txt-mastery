@@ -1889,6 +1889,82 @@ function differentiateIdenticalTitles(pages: SelectedPage[]): SelectedPage[] {
 }
 
 /**
+ * Sprint 15: Post-generation dedup — rewrites any remaining duplicate descriptions.
+ * Runs after all other enhancements as a final safety net.
+ * For each group of pages sharing the same description, replaces the description
+ * with a unique one derived from the page's URL path and title.
+ */
+function deduplicateDescriptions(pages: SelectedPage[]): SelectedPage[] {
+  const result = pages.map((p) => ({ ...p }));
+
+  // Group by normalized description
+  const groups = new Map<string, number[]>();
+  result.forEach((page, idx) => {
+    const norm = (page.description || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!groups.has(norm)) groups.set(norm, []);
+    groups.get(norm)!.push(idx);
+  });
+
+  // Rewrite duplicates
+  groups.forEach((indices) => {
+    if (indices.length < 2) return;
+
+    // Keep the first occurrence as-is (usually the highest-quality match)
+    for (let i = 1; i < indices.length; i++) {
+      const idx = indices[i];
+      const page = result[idx];
+      const rewritten = buildUniqueDescription(page);
+      if (rewritten) {
+        result[idx].description = rewritten;
+      }
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Builds a unique description for a page from its URL path and title.
+ * Used as a fallback when the AI produced a duplicate description.
+ */
+function buildUniqueDescription(page: SelectedPage): string | null {
+  try {
+    const url = new URL(page.url);
+    const segments = url.pathname.split('/').filter((s) => s.length > 0);
+
+    // Build a readable page name from the URL path
+    const pageName = segments.length > 0
+      ? segments[segments.length - 1]
+          .replace(/[-_]/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+      : 'Home';
+
+    // Build context from the full path (e.g., "blog/fundamentals" → "Blog > Fundamentals")
+    const breadcrumb = segments
+      .map((s) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()))
+      .join(' > ');
+
+    // Use title if it's meaningfully different from the path-derived name
+    const title = (page.title || '').replace(/\s*[|–—-]\s*.*$/, '').trim();
+    const titleDiffers = title.length > 10 &&
+      title.toLowerCase() !== pageName.toLowerCase() &&
+      !title.toLowerCase().includes(url.hostname);
+
+    if (titleDiffers && segments.length > 1) {
+      return `${title}. Located at ${breadcrumb} on ${url.hostname}.`;
+    } else if (titleDiffers) {
+      return `${title} — the ${pageName.toLowerCase()} section of ${url.hostname}.`;
+    } else if (segments.length > 1) {
+      return `${pageName} page in the ${breadcrumb} section of ${url.hostname}.`;
+    } else {
+      return `${pageName} page on ${url.hostname}.`;
+    }
+  } catch {
+    return page.title ? `${page.title}.` : null;
+  }
+}
+
+/**
  * Extracts a human-readable title from a URL path segment.
  * e.g., "/about" -> "About", "/docs/getting-started" -> "Getting Started"
  * Returns "Home" for root path.
@@ -2811,7 +2887,10 @@ function generateLlmTxtContent(
   const descEnhancedPages = enhancePageDescriptions(contentPages);
 
   // Phase 7: Differentiate identical titles (critical for CSR/SPA sites)
-  const enhancedPages = differentiateIdenticalTitles(descEnhancedPages);
+  const titleFixedPages = differentiateIdenticalTitles(descEnhancedPages);
+
+  // Sprint 15: Final dedup — rewrite any remaining duplicate descriptions using URL path
+  const enhancedPages = deduplicateDescriptions(titleFixedPages);
 
   // Generate comprehensive site summary (using enhanced pages)
   const siteSummary = generateSiteSummary(baseUrl, enhancedPages, allDiscoveredPages);
