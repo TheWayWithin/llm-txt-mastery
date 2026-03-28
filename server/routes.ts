@@ -1897,12 +1897,14 @@ function differentiateIdenticalTitles(pages: SelectedPage[]): SelectedPage[] {
 function deduplicateDescriptions(pages: SelectedPage[]): SelectedPage[] {
   const result = pages.map((p) => ({ ...p }));
 
-  // Group by normalized description — strip parenthetical context added by enhancePageDescriptions
-  // e.g., "Some description (detailed view with 3 related pages)" → "some description"
+  // Group by normalized description core — strip ALL trailing parenthetical context
+  // added by enhancePageDescriptions, e.g., "(detailed view with 3 related pages)",
+  // "(overview; see also: Page Title)", "Includes 42 structured items and 12 sections."
   const groups = new Map<string, number[]>();
   result.forEach((page, idx) => {
     const norm = (page.description || '')
-      .replace(/\s*\((?:overview|detailed view|related content|see also)[^)]*\)\s*$/i, '')
+      .replace(/\s*\([^)]*\)\s*$/g, '')         // Strip trailing parentheticals
+      .replace(/\s*Includes \d+ structured items.*$/i, '') // Strip "Includes N structured items..."
       .trim().toLowerCase().replace(/\s+/g, ' ');
     if (!groups.has(norm)) groups.set(norm, []);
     groups.get(norm)!.push(idx);
