@@ -1897,10 +1897,13 @@ function differentiateIdenticalTitles(pages: SelectedPage[]): SelectedPage[] {
 function deduplicateDescriptions(pages: SelectedPage[]): SelectedPage[] {
   const result = pages.map((p) => ({ ...p }));
 
-  // Group by normalized description
+  // Group by normalized description — strip parenthetical context added by enhancePageDescriptions
+  // e.g., "Some description (detailed view with 3 related pages)" → "some description"
   const groups = new Map<string, number[]>();
   result.forEach((page, idx) => {
-    const norm = (page.description || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const norm = (page.description || '')
+      .replace(/\s*\((?:overview|detailed view|related content|see also)[^)]*\)\s*$/i, '')
+      .trim().toLowerCase().replace(/\s+/g, ' ');
     if (!groups.has(norm)) groups.set(norm, []);
     groups.get(norm)!.push(idx);
   });
