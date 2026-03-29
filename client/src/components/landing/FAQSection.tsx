@@ -32,6 +32,11 @@ const faqs = [
     answer: 'We recommend regenerating your file whenever you publish significant new content — typically monthly. The paid tiers include ongoing analyses so you can keep your file current as your site evolves.',
   },
   {
+    id: 'what-formats',
+    question: 'What are the three output formats?',
+    answer: 'We generate three files from a single analysis. llms.txt (Standard) is the official format — a structured index of your pages for AI discovery. llms-full.txt (Full) includes the actual content of each page inline, so AI models get deep context without making follow-up requests. llms-mini.txt (Mini) is an ultra-compact summary — just your top 5 pages in under 500 tokens, designed for AI agents that need quick site classification. We\'re the only generator that produces all three formats.',
+  },
+  {
     id: 'which-ai-models',
     question: 'Which AI models read llms.txt?',
     answer: 'The llms.txt specification is supported by ChatGPT (OpenAI), Claude (Anthropic), Perplexity, and other AI assistants. As AI search grows, having a structured file that tells these models about your content gives you a significant advantage over sites without one.',
