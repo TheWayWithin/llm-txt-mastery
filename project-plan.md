@@ -1,5 +1,28 @@
 # Project Plan - LLM.txt Mastery
 
+## Sprint 15: Generation Quality Overhaul
+
+**Sprint Location**: `/sprints/Sprint-15-Generation-Quality-Overhaul.md`
+**Priority**: CRITICAL — core product output quality
+**Status**: ✅ COMPLETE — deployed to production
+**Date**: 2026-03-28
+
+### Objective
+Fix all generation quality issues from deep dive audit — upgrade LLM model, restore dedup guidance, fix llms-full.txt, fix blockquote, clean tags, filter legal pages, fix validator scoring.
+
+### Tasks
+- [x] **Phase 1: Upgrade LLM Model** — `gpt-4o-mini` → `minimax/minimax-m2.5`, content sample 4KB→8KB, max_tokens 500→800 ✅ 2026-03-26
+- [x] **Phase 2: Restore Dedup Guidance** — "DO NOT paraphrase site-wide meta" warning + uniqueness rules in AI prompt ✅ 2026-03-26
+- [x] **Phase 3: Fix llms-full.txt** — `bodyContent` field on DiscoveredPage/SelectedPage, extract body text in sitemap-enhanced, #### Content sections in full format ✅ 2026-03-26
+- [x] **Phase 4: Fix Blockquote** — Extract site name from `<title>`, replace "This page" with brand name, composite summary for SPA sites ✅ 2026-03-26
+- [x] **Phase 5: Clean Category Tags** — Rewrite generateSemanticTags(), content-type only, max 2 tags, removed [static][form][public] ✅ 2026-03-26
+- [x] **Phase 6: Auto-Filter Legal Pages** — Privacy/Terms/Cookies auto-moved to Optional section ✅ 2026-03-26
+- [x] **Validator Fix: Proportional Scoring** — Freshness + size scoring changed from binary to proportional ✅ 2026-03-26
+- [x] **Post-Generation Dedup** — Final safety net rewriting remaining duplicate descriptions using URL path + title ✅ 2026-03-28
+- [x] **Quality Test Suite** — `tests/generation-quality.test.ts` covering 5 site types with 6 quality checks each ✅ 2026-03-28
+
+---
+
 ## Sprint 13: Benchmark Completion Polish
 
 **Sprint Location**: `/sprints/Sprint-13-Benchmark-Completion-Polish.md`
