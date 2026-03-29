@@ -1,9 +1,92 @@
 # Progress Log - LLM.txt Mastery
 
-## Latest: Sprint 13 — Benchmark Completion Polish
+## Latest: Sprint 15 — Generation Quality Overhaul
+
+**Date**: 2026-03-28
+**Status**: ✅ COMPLETE — deployed to production
+**Sprint Doc**: `/sprints/Sprint-15-Generation-Quality-Overhaul.md`
+**Commits**: `aa3beb7` (main Sprint 15), `2b14def` (validator fix), `8ba2291` (dedup), `262c7bd` (dedup v2), `762bebb` (dedup v3)
+
+### Objective
+Fix all generation quality issues identified in the deep dive audit — upgrade LLM model, restore dedup guidance, fix llms-full.txt, fix blockquote, clean tags, filter legal pages.
+
+### What Was Delivered
+
+#### Phase 1: LLM Model Upgrade
+- **Model**: `openai/gpt-4o-mini` → `minimax/minimax-m2.5` via OpenRouter (both staging + production Railway env vars)
+- **Content sample**: 4KB → 8KB (MiniMax has 196K context)
+- **Max tokens**: 500 → 800 for richer descriptions
+- **Cost**: ~$0.02 → ~$0.04 per 20-page analysis (negligible increase)
+
+#### Phase 2: Restore Dedup Guidance
+- Restored "DO NOT paraphrase site-wide meta description" warning in AI prompt (Sprint 12 regression)
+- Added stronger uniqueness rules: "each page's description MUST be unique — never produce the same description for different URLs"
+- Added generic meta detection: when content is rich, warns AI to use content sample over meta tag
+
+#### Phase 3: llms-full.txt Body Content Extraction
+- Added `bodyContent?: string` field to `DiscoveredPage` and `SelectedPage` interfaces in `shared/schema.ts`
+- `sitemap-enhanced.ts`: Extracts main body text during page analysis (strips nav/footer/script/style, up to 4000 chars)
+- `routes.ts`: llms-full.txt now includes `#### Content` sections with actual page text
+- Zod validation updated to accept optional `bodyContent`
+- **Result**: llms-full.txt went from ~19K chars (just summaries) to ~77K chars (real content) for aisearchmastery.com
+
+#### Phase 4: Blockquote Site Name
+- Extracts site name from homepage `<title>` tag (before `|` or `-` separator)
+- Replaces "This page/website/site" with actual brand name in blockquote
+- When homepage description is generic (SPA pattern), builds composite from top 3 unique page descriptions
+- Fallback summaries now use site name instead of domain
+
+#### Phase 5: Clean Category Tags
+- Complete rewrite of `generateSemanticTags()` — URL path is now primary signal
+- **Removed**: `[static]`, `[form]`, `[public]`, `[transactional]`, `[navigational]`, `[requires-auth]`
+- **Kept**: `[article]`, `[guide]`, `[tool]`, `[product]`, `[informational]`, `[contact]`, `[educational]`
+- Max 2 tags per entry (was 3)
+- `/about` → `[informational]`, `/contact` → `[contact]`, legal pages → no tags
+
+#### Phase 6: Auto-Filter Legal Pages
+- Pages matching `/privacy`, `/terms`, `/cookies`, `/cookie-policy`, `/legal`, `/tos`, `/gdpr`, `/disclaimer`, `/imprint` auto-moved to `## Optional` section
+- Legal pages no longer appear in main content sections
+
+#### Validator Scoring Fix (discovered during testing)
+- **Freshness scoring**: Changed from binary (0% or 100%) to proportional (19/20 accessible = 95%). Single URL timeout no longer drops 20%-weighted score to 0%.
+- **Size scoring**: Token counts in 4000-8000 range now score 75% instead of 0%. Added pass entry alongside recommendation.
+
+#### Post-Generation Dedup
+- Added `deduplicateDescriptions()` as final safety net after all other enhancements
+- Strips relationship context suffixes before comparing (parentheticals, "Includes N structured items...")
+- Rewrites remaining duplicates using URL path + title to produce unique descriptions
+
+### Files Changed (5 files)
+- `server/services/openai.ts` — AI prompt, content sample 4KB→8KB, max_tokens 500→800
+- `server/routes.ts` — semantic tags rewrite, blockquote fix, legal filtering, llms-full.txt content, dedup
+- `server/services/sitemap-enhanced.ts` — bodyContent extraction during page analysis
+- `server/services/validation.ts` — proportional freshness/size scoring
+- `shared/schema.ts` — bodyContent field on DiscoveredPage and SelectedPage
+
+### Testing
+- **New feature tests**: 7/7 PASS (unique descriptions, blockquote site name, clean tags, legal filtering, full format content, description quality, login+analysis)
+- **Regression tests**: 10/10 PASS (health, landing, auth, navigation, validator, docs, pricing, static files, logout, console errors)
+- **Cross-site quality tests**: Tested across Next.js SSR, Static/Marketing, Minimal marketing sites (test suite at `tests/generation-quality.test.ts`)
+- **Validator scoring**: Confirmed proportional freshness (100%) and size (100%) on production
+
+### Issues Encountered
+
+#### 1. Validator scoring was binary (not a generation bug)
+- **Symptom**: Generated file scored B+ instead of target Grade A
+- **Root cause**: Freshness scoring was binary — single URL timeout dropped 20%-weighted score from 100% to 0%. Size scoring had no pass entry for 4K-8K range.
+- **Fix**: Made both proportional. Freshness now uses actual accessibility rate. Size gives 75% for 4K-8K range.
+
+#### 2. Post-enhancement dedup missed duplicates
+- **Symptom**: 2-4 duplicate descriptions on sites with 96-180 pages
+- **Root cause**: `enhancePageDescriptions()` appends relationship context like "(detailed view with 3 related pages)" making identical descriptions appear unique to dedup
+- **Fix**: Strip all trailing parentheticals and structured-items suffixes before comparing
+
+---
+
+## Previous: Sprint 13 — Benchmark Completion Polish
 
 **Date**: 2026-03-25
-**Status**: COMPLETE — ready for commit
+**Status**: ✅ COMPLETE — committed `0f29d2b`, deployed to production
 **Sprint Doc**: `/sprints/Sprint-13-Benchmark-Completion-Polish.md`
 
 ### Objective

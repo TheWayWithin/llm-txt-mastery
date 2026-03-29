@@ -1,73 +1,58 @@
 # Handoff Notes
 
 ## Current State
-**Completed**: Sprint 13 (Benchmark Completion Polish) — all 5 phases implemented
-**Status**: Ready for commit and deploy
-**Next**: Playwright verification of Sprint 13 features, then Sprint 14 (Drift Monitoring) or Sprint 10 (JS Rendering Quality Fix)
-**Pending**: Sprint 12 Playwright test plan (in previous handoff) still needs execution
-**Last Updated**: 2026-03-25
-**Branch**: `main`
+**Completed**: Sprint 15 (Generation Quality Overhaul) — all 6 phases + validator fix + dedup fix
+**Status**: Deployed to production and staging (both aligned at commit `762bebb`)
+**Next**: Sprint 10 (JS Rendering Quality Fix) or Sprint 14 (Drift Monitoring)
+**Last Updated**: 2026-03-28
+**Branch**: `main` and `develop` aligned
 
 ---
 
-## What Was Built: Sprint 13
+## What Was Built: Sprint 15
 
-### Phase 1: Deployment UX Polish
-- New "Discovery Mechanisms — Copy & Deploy" card in `file-generation.tsx` with:
-  - HTML `<link>` tag snippet with copy button (domain-specific)
-  - `robots.txt` directive snippet with copy button (domain-specific)
-- Enhanced verification score display: prominent X/5 badge with "Fully Deployed" / "Partially Deployed" / "Not Deployed" label
+### Summary
+Complete overhaul of llms.txt generation quality — switched LLM model, fixed duplicate descriptions, added real body content to llms-full.txt, fixed blockquote to use site names, cleaned semantic tags, auto-filtered legal pages, and fixed validator scoring bugs.
 
-### Phase 2: Multi-Format Enhancements
-- **JSZip dependency added** — client-side zip creation
-- "Download All (zip)" button fetches all 3 formats and bundles into `llms-txt-bundle.zip`
-- "Compare Formats" toggle shows side-by-side grid with token counts, file sizes, and what each format includes
+### Key Changes
+| Phase | What | Key Files |
+|-------|------|-----------|
+| 1 | LLM model `gpt-4o-mini` → `minimax/minimax-m2.5` | Railway env vars (both envs) |
+| 2 | Restored dedup guidance in AI prompt | `server/services/openai.ts` |
+| 3 | `bodyContent` extraction for llms-full.txt | `shared/schema.ts`, `server/services/sitemap-enhanced.ts`, `server/routes.ts` |
+| 4 | Blockquote uses site name from `<title>` | `server/routes.ts` |
+| 5 | Semantic tags rewrite (content-type only, max 2) | `server/routes.ts` |
+| 6 | Legal pages auto-filtered to Optional | `server/routes.ts` |
+| Fix | Validator freshness/size scoring proportional | `server/services/validation.ts` |
+| Fix | Post-generation dedup for remaining duplicates | `server/routes.ts` |
 
-### Phase 3: Platform Deployment Guides Enhanced
-- All 6 key platforms now include HTML tag + robots.txt steps with copyable code:
-  - WordPress: header.php / Yoast for `<link>`, Yoast File Editor for robots.txt
-  - Shopify: theme.liquid for `<link>`, app or redirect for robots.txt
-  - Squarespace: Code Injection for `<link>`, SEO settings for robots.txt
-  - Wix: Custom Code for `<link>`, robots.txt Editor
-  - Webflow: Custom Code for `<link>`, SEO settings for robots.txt
-  - Next.js: layout.tsx / _document.tsx for `<link>`, public/robots.txt
-
-### Phase 4: Validator Quick Fix
-- Backend: `rawContent` field added to `ValidationResult` interface and API response
-- Frontend "Quick Fix" card appears when fixable issues detected:
-  - Auto-corrects: missing H1, missing blockquote, plain URL → linked format, excessive blank lines
-  - Before/After preview (red/green columns)
-  - Copy corrected file + Download corrected file buttons
-
-### Phase 5: Docs & Pricing
-- docs.tsx: Quick Fix documentation section + deployment enhancements callout
-- pricing.tsx: Feature text updated across all 4 tiers
-
-### Files Changed (7 files + package.json)
-- `server/services/validation.ts` — `rawContent` on ValidationResult
-- `server/routes/validation.ts` — pass rawContent to API response
-- `client/src/components/file-generation.tsx` — deploy snippets, zip, comparison, enhanced score
-- `client/src/components/DeploymentGuide.tsx` — HTML tag + robots.txt per platform
-- `client/src/pages/validator.tsx` — Quick Fix feature
-- `client/src/pages/docs.tsx` — new sections
-- `client/src/pages/pricing.tsx` — updated feature text
-- `package.json` + `package-lock.json` — JSZip dependency
+### Test Results
+- **New feature tests**: 7/7 PASS
+- **Regression tests**: 10/10 PASS
+- **Cross-site quality**: Tested Next.js SSR, Static/Marketing, Minimal marketing sites
+- **Test suite**: `tests/generation-quality.test.ts` (reusable, run with `npx tsx tests/generation-quality.test.ts staging`)
 
 ---
 
-## Outstanding
+## Recently Completed
 
-### Sprint 13 Remaining
-- [ ] Playwright test plan for Sprint 13 features (copy buttons, zip download, platform guides, quick fix)
+### Sprint 13 — Benchmark Completion Polish (2026-03-25) ✅
+- Copy buttons for deployment snippets, zip download, format comparison
+- Platform guides (WordPress, Shopify, Squarespace, Wix, Webflow, Next.js)
+- Validator Quick Fix (auto-correct missing H1/blockquote/malformed list items)
+- Commits: `0f29d2b`, `aa1d938` (usage bug fix)
 
-### Sprint 12 Playwright Tests (from previous handoff)
-- [ ] All tests listed in previous handoff notes still need execution
-- **Test Account**: Growth tier — `rvqjhsckhrattpilow@nespf.com` / `Qwerty123!`
+### Usage Display Bug Fix (2026-03-26) ✅
+- Solo tier showed 37/20 analyses — capped creditsRemaining at tier limit via `Math.min()`
 
-### Other Sprints
-- Sprint 10 (JS Rendering Quality Fix) — READY, not started
-- Sprint 11 Phases 5/5b (staging test + production merge) — may be superseded
-- Sprint 14 (Drift Monitoring) — planned
+---
+
+## Queued Sprints
+
+| Sprint | Status | Priority |
+|--------|--------|----------|
+| 10: JS Rendering Quality Fix | READY | HIGH |
+| 14: Drift Monitoring | Planned | MEDIUM |
 
 ---
 
@@ -82,9 +67,13 @@
 
 ## Important Context
 
-- **JSZip** added as production dependency for client-side zip creation
-- **rawContent** is now exposed in the validation API — it's the raw llms.txt file content. This is intentional for the Quick Fix feature.
-- The Quick Fix logic runs entirely client-side — no server round-trip needed after initial validation
-- Platform guides in DeploymentGuide.tsx cover 16 platforms total (6 key + 10 others)
-- The `coffee` tier still exists in the database for legacy users
-- **`cancelled` tier** — users downgrade to this instead of 'starter' on cancellation
+- **MiniMax M2.5** (`minimax/minimax-m2.5`) is the production LLM model — accessed via OpenRouter, same API shape as OpenAI
+- **`bodyContent`** field is optional on DiscoveredPage/SelectedPage — backward compatible with existing analyses
+- **Content extraction** uses cheerio to strip nav/footer/script/style, takes main content area, truncates to 4000 chars
+- **Semantic tags** now URL-path-based: `[article]`, `[guide]`, `[tool]`, `[product]`, `[informational]`, `[contact]`, `[educational]`
+- **Legal filtering** uses URL pattern matching: `/privacy`, `/terms`, `/cookies`, `/legal`, `/tos`, `/gdpr`, `/disclaimer`, `/imprint`
+- **Validator freshness** is now proportional (19/20 = 95%, not binary 0/100)
+- **Post-generation dedup** strips parenthetical context and structured-items suffixes before comparing descriptions
+- **Test account**: `jamie.watters.mail@icloud.com` / `Qwerty123!` (Solo tier)
+- The `coffee` tier still exists in DB for legacy users — code handles both `solo` and `coffee`
+- **`cancelled` tier** — users downgrade to this on cancellation
