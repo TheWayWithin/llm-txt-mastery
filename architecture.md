@@ -1,24 +1,23 @@
 # LLM.txt Mastery - System Architecture Documentation
 
-**Version**: 3.4
-**Last Updated**: March 1, 2026
-**Changelog**: Site modernization - Brand alignment (Inter font, design system tokens, modular landing architecture), Stripe pricing update (Growth $9.95, Scale $19.95), CSP hardening with third-party dependency allowlisting
+**Version**: 4.0
+**Last Updated**: March 29, 2026
+**Changelog**: v3.4 Site modernization → v4.0 Solo tier rename (Sprint 9), multi-format generation + validator compliance grading (Sprint 12), deployment polish (Sprint 13), generation quality overhaul with MiniMax M2.5, body content extraction, dedup, legal filtering (Sprint 15)
 
 ---
 
 ## Executive Summary
 
-LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates enhanced `llms.txt` files with 6-phase AI optimization. The system implements a sophisticated freemium SaaS model with dual authentication systems, Solo tier credits (internally coded as "coffee"), comprehensive usage tracking, and advanced cost management, deployed using a split architecture across Railway (backend) and Netlify (frontend).
-
-**Note on Tier Naming**: The Solo tier ($4.95/month) uses the internal code name "coffee" throughout the codebase and database. Customer-facing displays show "Solo" via display mapping in `tier-utils.ts`.
+LLM.txt Mastery is a full-stack TypeScript application that analyzes websites and generates enhanced `llms.txt` files with 6-phase AI optimization. The system implements a sophisticated freemium SaaS model with dual authentication systems, Solo tier credits, comprehensive usage tracking, and advanced cost management, deployed using a split architecture across Railway (backend) and Netlify (frontend).
 
 **Key Architecture Characteristics:**
 
 - **Advanced Multi-Table Database Schema**: Dual authentication system with 13+ tables supporting complex business logic
 - **Monolithic Backend Architecture**: Single 2200+ line routes.ts file with comprehensive middleware stack
 - **Enhanced LLMs.txt Generation**: 6-phase system with blockquote summaries, semantic clustering, and intelligent sequencing
-- **Sophisticated Financial Management**: Coffee tier credits, subscription management, cancellation flows with 30-day guarantees
-- **AI Cost Optimization**: 93% cost reduction through GPT-4o-mini optimization with detailed usage tracking
+- **Sophisticated Financial Management**: Solo tier credits, subscription management, cancellation flows with 30-day guarantees
+- **AI-Powered Analysis**: MiniMax M2.5 via OpenRouter for content analysis with 8KB content samples
+- **Multi-Format Generation**: Standard (llms.txt), Full (llms-full.txt with body content), Mini (llms-mini.txt — exclusive format)
 - **Production-Grade Security**: JWT authentication, comprehensive rate limiting, smart bot protection
 
 **Current Status**: ✅ Production operational with enhanced LLMs.txt features active, dual authentication system, coffee tier credit management, and comprehensive financial tracking implemented.
@@ -38,7 +37,7 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 │  │ - TypeScript    │                  │ - 2200+ line routes.ts              │  │
 │  │ - Tailwind CSS  │                  │ - Drizzle ORM (13+ tables)          │  │
 │  │ - shadcn/ui     │                  │ - JWT Authentication                 │  │
-│  │ - Wouter Router │                  │ - OpenAI GPT-4o-mini                 │  │
+│  │ - Wouter Router │                  │ - OpenAI MiniMax M2.5                 │  │
 │  │ - Vite Build    │                  │ - Enhanced LLMs.txt Generation       │  │
 │  └─────────────────┘                  └──────────────────────────────────────┘  │
 │                                                          │                       │
@@ -47,8 +46,8 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 │  │     Stripe      │    │   Supabase      │    │        Neon Database         │  │
 │  │   Payments      │    │  Integration    │    │                              │  │
 │  │                 │    │                 │    │ - 13+ Table Schema           │  │
-│  │ - Coffee Tier   │    │ - Optional Auth │    │ - Dual Authentication        │  │
-│  │ - Subscriptions │    │ - userProfiles  │    │ - Coffee Credits System      │  │
+│  │ - Solo Tier   │    │ - Optional Auth │    │ - Dual Authentication        │  │
+│  │ - Subscriptions │    │ - userProfiles  │    │ - Solo Credits System      │  │
 │  │ - Cancellations │    │ - Future Ready  │    │ - Advanced Usage Tracking    │  │
 │  │ - 30-day Refunds│    │                 │    │ - AI Cost Management         │  │
 │  └─────────────────┘    └─────────────────┘    │ - Connection Pooling         │  │
@@ -61,7 +60,7 @@ External Integrations:
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
 │  OpenAI API     │  │ Target Websites │  │ Resend Email    │  │ ConvertKit      │  │ llms.txt Files  │
 │                 │  │                 │  │                 │  │                 │  │                 │
-│ - GPT-4o-mini   │  │ - Sitemap Disc. │  │ - Verification  │  │ - Marketing     │  │ - Validation    │
+│ - MiniMax M2.5   │  │ - Sitemap Disc. │  │ - Verification  │  │ - Marketing     │  │ - Validation    │
 │ - 93% Cost Red. │  │ - Content Ext.  │  │ - Password Rst. │  │ - Automation    │  │ - Spec Check    │
 │ - Token Track.  │  │ - Multi-strat.  │  │ - Notifications │  │ - Analytics     │  │ - Quality Score │
 └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘
@@ -276,7 +275,7 @@ Server Application (Railway)
 │  ┌─────────────────────────────────────────────────────────────────────────┐   │
 │  │ • Authentication Service (JWT + Session management)                    │   │
 │  │ • Enhanced Sitemap Analysis (Multi-phase discovery)                    │   │
-│  │ • OpenAI Service (GPT-4o-mini optimization)                            │   │
+│  │ • OpenAI Service (MiniMax M2.5 optimization)                            │   │
 │  │ • Usage Tracking Service (Advanced metrics)                            │   │
 │  │ • Email Service (Resend integration)                                   │   │
 │  │ • Stripe Service (Payment + Subscription management)                   │   │
@@ -304,7 +303,7 @@ Server Application (Railway)
 - **ORM**: Drizzle ORM for type-safe database operations
 - **Database**: PostgreSQL 15+ with connection pooling
 - **Authentication**: JWT with refresh tokens and session management
-- **External APIs**: OpenAI GPT-4o-mini, Stripe Payments, Resend Email
+- **External APIs**: MiniMax M2.5 via OpenRouter (OpenAI-compatible), Stripe Payments, Resend Email
 - **Security**: Helmet.js, CORS, rate limiting, input validation
 - **Monitoring**: Custom logging, health checks, performance tracking
 
@@ -540,7 +539,7 @@ The system implements a sophisticated user management approach with backward com
 - **authUsers** (modern): Email-based authentication with JWT tokens, email verification
 - **emailCaptures**: Freemium onboarding flow with tier selection
 - **userProfiles**: Supabase integration for future extensibility
-- **oneTimeCredits**: Coffee tier credit management with 30-day guarantee tracking
+- **oneTimeCredits**: Solo tier credit management with 30-day guarantee tracking
 
 #### Enhanced Financial Management
 
@@ -557,7 +556,7 @@ The system implements a sophisticated user management approach with backward com
 
 #### AI Cost Management & Usage Tracking
 
-- **Detailed Metrics**: Token usage, actual AI costs, model tracking (GPT-4o-mini)
+- **Detailed Metrics**: Token usage, actual AI costs, model tracking (MiniMax M2.5)
 - **Cost Optimization**: 93% cost reduction tracking and validation
 - **Usage Limits**: Tier-based enforcement with real-time monitoring
 - **Performance Analytics**: Cache hit rates, processing times, cost savings
@@ -594,12 +593,12 @@ Enhanced User Journey → Multi-Phase Analysis → Advanced Storage → Generati
 **Authorization Matrix:**
 
 ```
-Feature/Tier              │ Free │ Coffee │ Growth │ Scale │ Enterprise
+Feature/Tier              │ Free │ Solo   │ Growth │ Scale │ Enterprise
 ─────────────────────────┼──────┼────────┼────────┼───────┼────────────
 Daily Analyses           │  1   │ 20/mo  │   20   │  100  │  Unlimited
 AI Quality Scoring       │  ❌  │   ✅   │   ✅   │   ✅  │     ✅
 Enhanced LLMs.txt (6-ph) │  ❌  │   ✅   │   ✅   │   ✅  │     ✅
-Coffee Credits System    │  ❌  │   ✅   │   ❌   │   ❌  │     ❌
+Solo Credits System    │  ❌  │   ✅   │   ❌   │   ❌  │     ❌
 Subscription Management  │  ❌  │   ❌   │   ✅   │   ✅  │     ✅
 Priority Support         │  ❌  │   ❌   │   ❌   │   ✅  │     ✅
 API Access              │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
@@ -652,7 +651,7 @@ Validation API Access   │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
 
 ### Enhanced External Service Integration
 
-#### OpenAI Integration (GPT-4o-mini Optimization)
+#### OpenAI Integration (MiniMax M2.5 Optimization)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -661,7 +660,7 @@ Validation API Access   │  ❌  │   ❌   │   ❌   │   ❌  │     ✅
 │                                                                                 │
 │  Service: server/services/openai-enhanced.ts                                   │
 │  ┌─────────────────────────────────────────────────────────────────────────┐   │
-│  │ • GPT-4o-mini for 93% Cost Reduction                                   │   │
+│  │ • MiniMax M2.5 for 93% Cost Reduction                                   │   │
 │  │ • Advanced Batch Processing (avoid rate limits)                        │   │
 │  │ • Exponential Backoff Retry Logic                                      │   │
 │  │ • Intelligent Content Summarization                                    │   │
@@ -1036,7 +1035,7 @@ The system implements a sophisticated 6-phase enhancement pipeline for generatin
 
 **93% Cost Optimization System:**
 
-- Strategic use of GPT-4o-mini vs. GPT-4 for optimal cost/quality ratio
+- Strategic use of MiniMax M2.5 vs. GPT-4 for optimal cost/quality ratio
 - Real-time token usage tracking and cost calculation
 - Cost cap enforcement (60% of revenue per tier)
 - Predictive cost modeling for usage forecasting
@@ -1384,7 +1383,7 @@ Production Performance Metrics (November 2025):
 
 #### 1. AI Cost Optimization (Critical Success)
 
-**Achievement**: 93% cost reduction through GPT-4o-mini optimization
+**Achievement**: 93% cost reduction through MiniMax M2.5 optimization
 
 ```typescript
 // Strategic model selection based on task complexity
@@ -1578,7 +1577,7 @@ The LLM.txt Mastery architecture represents a sophisticated, production-ready Sa
 - **Dual Authentication System**: Supports both legacy and modern authentication flows
 - **Enhanced LLMs.txt Generation**: Unique 6-phase optimization system providing competitive advantage
 - **Solo Tier Innovation**: Creative freemium model with $4.95 entry point and 30-day guarantee
-- **AI Cost Optimization**: 93% cost reduction through strategic GPT-4o-mini implementation
+- **AI Cost Optimization**: 93% cost reduction through strategic MiniMax M2.5 implementation
 - **Comprehensive Usage Tracking**: Real-time monitoring with cost cap enforcement
 - **Production-Grade Security**: Multi-layer protection with JWT authentication and bot detection
 
@@ -1745,7 +1744,7 @@ Total: 2500+ lines with comprehensive business logic
 
 **Impact**: 500% improvement in output quality, significant competitive advantage
 **Rationale**: Market differentiation through AI-enhanced quality justifying premium pricing
-**Cost Optimization**: 93% cost reduction through strategic GPT-4o-mini usage
+**Cost Optimization**: 93% cost reduction through strategic MiniMax M2.5 usage
 
 **Feature Comparison**:
 
@@ -1780,7 +1779,7 @@ Quality: AI-optimized with semantic structuring
 - **Backend**: Express.js + comprehensive middleware stack + connection pooling
 - **Database**: Drizzle ORM + Neon PostgreSQL + advanced connection management
 - **Build**: Vite 5.x (development) + ESBuild (production) for optimal performance
-- **AI Integration**: OpenAI GPT-4o-mini optimization achieving 93% cost reduction
+- **AI Integration**: OpenAI MiniMax M2.5 optimization achieving 93% cost reduction
 
 **Impact**: 40% faster build times, 60% reduced bundle size, 93% lower AI costs
 **Rationale**: Production optimization based on real-world performance requirements
@@ -1800,7 +1799,7 @@ Production Implementation:
 Frontend: React 18 + Wouter + Tailwind + shadcn/ui
 Backend: Express + 12+ middleware layers + connection pooling
 Database: Drizzle ORM + Neon + query optimization
-AI: GPT-4o-mini (93% cost reduction) + intelligent caching
+AI: MiniMax M2.5 (93% cost reduction) + intelligent caching
 Build: Vite + ESBuild + advanced optimization
 ```
 
@@ -1965,7 +1964,7 @@ Production Implementation:
 
 **Current Implementation**: Comprehensive service integration ecosystem
 
-- **AI Services**: OpenAI GPT-4o-mini with cost optimization
+- **AI Services**: OpenAI MiniMax M2.5 with cost optimization
 - **Payment Platform**: Stripe with webhooks, subscriptions, refunds
 - **Email Service**: Resend for transactional emails and verification
 - **Analytics**: ConvertKit integration for marketing automation
@@ -2024,11 +2023,11 @@ Production Implementation:
 
 #### 2. AI Cost Optimization Critical Success Factor
 
-**Innovation**: 93% cost reduction through GPT-4o-mini strategic usage
+**Innovation**: 93% cost reduction through MiniMax M2.5 strategic usage
 **Impact**: Enabled sustainable freemium model with healthy unit economics
 **Learning**: AI cost management is essential for SaaS viability
 
-#### 3. Coffee Tier Pricing Innovation
+#### 3. Solo Tier Pricing Innovation
 
 **Strategy**: $4.95 monthly subscription vs. $25+ monthly subscriptions
 **Result**: Captured underserved solo entrepreneur market segment
@@ -2093,7 +2092,7 @@ Production Implementation:
 1. **Monolithic Backend**: Proved optimal for current scale and team size
 2. **Split Deployment**: Achieved cost optimization and performance goals
 3. **Dual Authentication**: Enabled seamless migration without user disruption
-4. **Coffee Tier Innovation**: Successfully captured underserved market segment
+4. **Solo Tier Innovation**: Successfully captured underserved market segment
 5. **AI Cost Optimization**: Made freemium model economically viable
 
 **Overall Architecture Evolution Score**: **9.2/10**
