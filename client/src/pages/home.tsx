@@ -34,6 +34,7 @@ import ProofStack from '@/components/landing/ProofStack';
 import AudienceCards from '@/components/landing/AudienceCards';
 import PricingPreview from '@/components/landing/PricingPreview';
 import FAQSection from '@/components/landing/FAQSection';
+import FormatShowcase from '@/components/landing/FormatShowcase';
 import FounderStory from '@/components/landing/FounderStory';
 import { useSEO } from '@/hooks/useSEO';
 
@@ -266,6 +267,7 @@ export default function Home() {
             <HeroSection user={user} />
             <ProblemAmplification />
             <SolutionIntro />
+            <FormatShowcase />
             <ProofStack />
             <AudienceCards />
             <PricingPreview id="pricing" highlightTier="growth" showAllTiers={true} className="bg-cloud" />
