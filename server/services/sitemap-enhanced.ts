@@ -111,10 +111,16 @@ async function performPageAnalysisWithCache(
   const relevantPages = filterRelevantPages(entries, tier);
   const tierLimits = TIER_LIMITS[tier];
 
-  // Sprint 6: Determine if JS rendering should be used
-  const useJsRendering = tier === 'scale' && jsRenderingOptions?.enabled === true;
+  // Sprint 10: Auto-detect JS rendering — enabled flag comes from route-level SPA auto-detection
+  // Also supports per-page auto-detection via shouldUseJsRendering() in sitemap.ts
+  const useJsRendering = tier === 'scale' && (
+    jsRenderingOptions?.enabled === true ||
+    jsRenderingOptions?.spaDetection?.framework.renderingStrategy === 'CSR' ||
+    jsRenderingOptions?.spaDetection?.framework.framework === 'angular' ||
+    (jsRenderingOptions?.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50
+  );
   if (useJsRendering) {
-    console.log(`🎯 [Sprint 6] JS rendering enabled for Scale tier analysis`);
+    console.log(`🎯 [Sprint 10] JS rendering auto-enabled for Scale tier analysis (${jsRenderingOptions?.spaDetection?.framework.framework} / ${jsRenderingOptions?.spaDetection?.framework.renderingStrategy})`);
   }
 
   // Enhanced logging for transparency
