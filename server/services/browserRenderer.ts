@@ -28,6 +28,9 @@ export interface BrowserRenderResult {
   renderTimeMs: number;
   error?: string;
   wasJsRendered: boolean;
+  // Sprint 10: Extracted from rendered DOM (may differ from HTML shell)
+  renderedTitle?: string;
+  headings?: string[];
 }
 
 export interface RenderOptions {
@@ -236,16 +239,31 @@ export async function renderPage(
 
     // Extract content
     const html = await page.content();
-    const text = await page.evaluate(() => {
+    const { text, renderedTitle, headings } = await page.evaluate(() => {
       // Remove script and style content from text extraction
       const clone = document.body.cloneNode(true) as HTMLElement;
       clone.querySelectorAll('script, style, noscript').forEach(el => el.remove());
-      return clone.innerText || '';
+      const bodyText = clone.innerText || '';
+
+      // Sprint 10: Extract document.title (may differ from HTML shell <title>)
+      const title = document.title || '';
+
+      // Sprint 10: Extract heading hierarchy for content signals
+      const headingEls = document.querySelectorAll('h1, h2, h3');
+      const headingTexts: string[] = [];
+      headingEls.forEach(el => {
+        const text = (el as HTMLElement).innerText?.trim();
+        if (text && text.length > 0 && text.length < 200) {
+          headingTexts.push(text);
+        }
+      });
+
+      return { text: bodyText, renderedTitle: title, headings: headingTexts.slice(0, 20) };
     });
 
     const renderTime = Date.now() - startTime;
 
-    console.log(`[BrowserRenderer] Rendered ${url} in ${renderTime}ms (${(html.length / 1024).toFixed(1)} KB HTML)`);
+    console.log(`[BrowserRenderer] Rendered ${url} in ${renderTime}ms (${(html.length / 1024).toFixed(1)} KB HTML, ${headings.length} headings)`);
 
     return {
       success: true,
@@ -253,7 +271,9 @@ export async function renderPage(
       text,
       url,
       renderTimeMs: renderTime,
-      wasJsRendered: true
+      wasJsRendered: true,
+      renderedTitle,
+      headings,
     };
 
   } catch (error) {
