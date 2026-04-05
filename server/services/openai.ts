@@ -102,10 +102,17 @@ function generateFallbackDescription(url: string, title: string, metaDescription
   }
 }
 
+// Sprint 10: Optional metadata from JS-rendered DOM
+export interface RenderedPageMetadata {
+  renderedTitle?: string;
+  headings?: string[];
+}
+
 export async function analyzePageContent(
   url: string,
   htmlContent: string,
-  useAI: boolean = false
+  useAI: boolean = false,
+  renderedMetadata?: RenderedPageMetadata
 ): Promise<ContentAnalysisResult> {
   // Validate inputs first
   if (!htmlContent || htmlContent.trim().length === 0) {
@@ -126,7 +133,7 @@ export async function analyzePageContent(
     if (useAI) {
       if (process.env.OPENAI_API_KEY) {
         console.log('✅ Using AI analysis for:', url);
-        return await generateAIAnalysis(url, htmlContent);
+        return await generateAIAnalysis(url, htmlContent, renderedMetadata);
       } else {
         console.log('⚠️ OPENAI_API_KEY not set - falling back to HTML extraction for:', url);
         return generateHTMLAnalysis(url, htmlContent);
@@ -317,13 +324,19 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
 
 async function generateAIAnalysis(
   url: string,
-  htmlContent: string
+  htmlContent: string,
+  renderedMetadata?: RenderedPageMetadata
 ): Promise<ContentAnalysisResult> {
   console.log(`[AI ANALYSIS] Starting AI analysis for ${url}`);
   console.log(`[AI ANALYSIS] OpenAI client: ${openai ? 'available' : 'not available'}`);
 
   // First extract basic info using HTML parsing
   const htmlResult = generateHTMLAnalysis(url, htmlContent);
+
+  // Sprint 10: Use rendered title if available (more accurate for SPAs)
+  if (renderedMetadata?.renderedTitle && renderedMetadata.renderedTitle.length > 3) {
+    htmlResult.title = renderedMetadata.renderedTitle;
+  }
 
   // If OpenAI client is not initialized, fall back to HTML analysis
   if (!openai) {
@@ -369,12 +382,17 @@ async function generateAIAnalysis(
       contentGuidance = `IMPORTANT: The Meta Description may be a generic site-wide default shared by all pages on this domain. DO NOT paraphrase it. Instead, describe THIS SPECIFIC PAGE's unique content and purpose based on the Content Sample. If the Meta Description is identical across pages, each page's description in the output MUST still be distinct — base it on the actual content, not the meta tag. Use the Content Sample as the primary source for your description.`;
     }
 
+    // Sprint 10: Include heading hierarchy from rendered DOM if available
+    const headingsSection = renderedMetadata?.headings?.length
+      ? `\nPage Headings: ${renderedMetadata.headings.slice(0, 10).join(' | ')}`
+      : '';
+
     const prompt = `Analyze this webpage content for AI/LLM accessibility and value.
 
 URL: ${url}
 Page Path: /${urlPath}
 Title: ${htmlResult.title}
-Meta Description: ${metaDescription || htmlResult.description}
+Meta Description: ${metaDescription || htmlResult.description}${headingsSection}
 Content Sample: ${contentSample}
 
 ${contentGuidance}
@@ -418,7 +436,7 @@ Focus on technical accuracy, information density, and AI utility.`;
     // Truncate cleanly at sentence or word boundary
     let enhancedDescription = truncateDescription(aiResult.description || htmlResult.description);
 
-    // Detect and replace filler phrases that indicate the AI couldn't extract content
+    // Sprint 10: Expanded filler phrase detection — catches AI refusal/hedging patterns
     const fillerPhrases = [
       'does not provide detailed',
       'specific content sample',
@@ -428,6 +446,17 @@ Focus on technical accuracy, information density, and AI utility.`;
       'no detailed information available',
       'content sample does not',
       'does not contain sufficient',
+      'the page appears to be',
+      'insufficient content to',
+      'content is unavailable',
+      'unable to determine',
+      'no meaningful content',
+      'could not extract',
+      'content was not accessible',
+      'appears to be a placeholder',
+      'limited information available',
+      'based on the available content',
+      'the content sample is',
     ];
     const hasFiller = fillerPhrases.some(phrase =>
       enhancedDescription.toLowerCase().includes(phrase)

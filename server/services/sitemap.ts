@@ -1175,6 +1175,11 @@ export interface EnhancedFetchResult {
   renderTimeMs?: number;
   /** Error message if any */
   error?: string;
+  // Sprint 10: Extracted from rendered DOM for stronger AI signals
+  /** Rendered document.title (may differ from HTML shell) */
+  renderedTitle?: string;
+  /** Heading hierarchy (h1/h2/h3) from rendered DOM */
+  headings?: string[];
 }
 
 /**
@@ -1256,6 +1261,8 @@ export async function fetchPageContentEnhanced(
             content: result.html,
             wasJsRendered: true,
             renderTimeMs: result.renderTimeMs,
+            renderedTitle: result.renderedTitle,
+            headings: result.headings,
           };
         } else {
           console.log(`[EnhancedFetch] JS render failed for ${url}: ${result.error}, falling back to HTTP`);
@@ -1497,11 +1504,16 @@ async function delayedFetch(
     // Use enhanced fetch if options provided (Scale tier with JS rendering)
     let content: string;
     let wasJsRendered = false;
+    let renderedMetadata: { renderedTitle?: string; headings?: string[] } | undefined;
 
     if (enhancedOptions && shouldUseJsRendering(enhancedOptions)) {
       const result = await fetchPageContentEnhanced(entry.url, enhancedOptions);
       content = result.content;
       wasJsRendered = result.wasJsRendered;
+      // Sprint 10: Pass rendered DOM metadata for stronger AI signals
+      if (result.renderedTitle || result.headings?.length) {
+        renderedMetadata = { renderedTitle: result.renderedTitle, headings: result.headings };
+      }
 
       if (result.error && !content) {
         throw new Error(result.error);
@@ -1510,7 +1522,7 @@ async function delayedFetch(
       content = await fetchPageContent(entry.url);
     }
 
-    const analysis = await analyzePageContent(entry.url, content, useAI);
+    const analysis = await analyzePageContent(entry.url, content, useAI, renderedMetadata);
 
     return {
       url: entry.url,

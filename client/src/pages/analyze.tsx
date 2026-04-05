@@ -58,9 +58,6 @@ export default function AnalyzePage() {
   const [url, setUrl] = useState(websiteUrlParam);
   const [isValid, setIsValid] = useState(false);
 
-  // Sprint 6: Enhanced JS rendering for Scale tier
-  const [enhancedRendering, setEnhancedRendering] = useState(false);
-
   // State machine for analysis flow (authenticated version)
   const {
     currentState,
@@ -466,30 +463,6 @@ export default function AnalyzePage() {
                       </p>
                     </div>
 
-                    {/* Sprint 6: Enhanced JS Rendering Toggle - Scale tier only */}
-                    {user.tier === 'scale' && (
-                      <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-mastery-blue/10 to-signal-blue/10 rounded-lg border border-mist">
-                        <input
-                          type="checkbox"
-                          id="enhanced-rendering"
-                          checked={enhancedRendering}
-                          onChange={(e) => setEnhancedRendering(e.target.checked)}
-                          className="h-4 w-4 text-slate-brand border-mist rounded focus:ring-signal-blue"
-                        />
-                        <label htmlFor="enhanced-rendering" className="flex-1 cursor-pointer">
-                          <span className="text-sm font-medium text-ink">
-                            Enhanced JS Rendering
-                          </span>
-                          <p className="text-xs text-slate-brand">
-                            Use browser rendering for React, Angular, Vue and other JS-heavy sites
-                          </p>
-                        </label>
-                        <span className="text-xs bg-cloud text-slate-brand px-2 py-1 rounded">
-                          Scale
-                        </span>
-                      </div>
-                    )}
-
                     <div className="flex items-center justify-between pt-4">
                       <div className="flex items-center space-x-2 text-sm text-slate-brand">
                         <Info className="h-4 w-4 text-signal-blue" />
@@ -537,7 +510,6 @@ export default function AnalyzePage() {
               onAnalysisComplete={handleAnalysisComplete}
               onReset={startNewAnalysis}
               useAI={user.tier !== 'starter'}
-              enhancedRendering={enhancedRendering}
               onProgressUpdate={(stage, totalPages, processedPages) => {
                 actions.updateAnalysisProgress(stage, totalPages, processedPages);
               }}

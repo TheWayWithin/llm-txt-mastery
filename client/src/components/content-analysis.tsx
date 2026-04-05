@@ -28,8 +28,6 @@ interface ContentAnalysisProps {
   onReset?: () => void;
   useAI?: boolean;
   onProgressUpdate?: (stage: string, totalPages?: number, processedPages?: number) => void;
-  // Sprint 6: Enhanced JS rendering for Scale tier
-  enhancedRendering?: boolean;
 }
 
 interface AnalysisStep {
@@ -84,7 +82,6 @@ export default function ContentAnalysis({
   onReset,
   useAI = false,
   onProgressUpdate,
-  enhancedRendering = false,
 }: ContentAnalysisProps) {
   const queryClient = useQueryClient();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -128,7 +125,7 @@ export default function ContentAnalysis({
 
       try {
         // Use real sitemap analysis endpoint with email for tier-based analysis
-        const response = await apiRequest('POST', '/api/analyze', { url, force, email, enhancedRendering });
+        const response = await apiRequest('POST', '/api/analyze', { url, force, email });
         clearTimeout(coldStartTimer);
         return response.json();
       } catch (error) {
