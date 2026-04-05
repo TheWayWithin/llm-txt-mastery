@@ -394,13 +394,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         url,
         force = false,
         email,
-        enhancedRendering = false, // Sprint 6: Scale tier JS rendering
       } = z
         .object({
           url: z.string(),
           force: z.boolean().optional().default(false),
           email: z.string().optional(),
-          enhancedRendering: z.boolean().optional().default(false), // Sprint 6
         })
         .parse(req.body);
 
@@ -482,33 +480,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user tier (prioritize authenticated user data)
       const tier = await getUserTierFromAuth(user, userEmail);
 
-      // Sprint 6: Validate enhanced rendering is only available for Scale tier with quota
-      let jsRenderingEnabled = enhancedRendering && tier === 'scale';
-      let jsRenderQuotaInfo: { hasQuota: boolean; rendersRemaining: number } = { hasQuota: true, rendersRemaining: 100 };
-
-      if (enhancedRendering && tier !== 'scale') {
-        console.log(`⚠️ [Sprint 6] Enhanced rendering requested but user is ${tier} tier (Scale required)`);
-      }
-
-      // Check quota for Scale tier users
-      if (jsRenderingEnabled && user?.id) {
-        jsRenderQuotaInfo = await checkJsRenderQuota(user.id);
-        if (!jsRenderQuotaInfo.hasQuota) {
-          console.log(`⚠️ [Sprint 6] JS render quota exhausted for user ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} remaining)`);
-          jsRenderingEnabled = false;
-        } else {
-          console.log(`🎯 [Sprint 6] Enhanced JS rendering enabled for Scale tier user: ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} renders remaining)`);
-        }
-      } else if (jsRenderingEnabled) {
-        console.log(`🎯 [Sprint 6] Enhanced JS rendering enabled for Scale tier user: ${userEmail}`);
-      }
-
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
 
-      // Quick page count check
+      // Quick page count check (also runs SPA detection)
       const sitemapResult = await fetchSitemap(normalizedUrl);
       const pageCount = sitemapResult.entries.length;
+
+      // Sprint 10: Auto-detect JS rendering need for Scale tier based on SPA detection
+      // JS rendering is auto-enabled when: Scale tier + site is CSR/SPA (no manual checkbox)
+      const spaDetected = sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
+                          sitemapResult.spaDetection?.framework.framework === 'angular' ||
+                          (sitemapResult.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50;
+      let jsRenderingEnabled = tier === 'scale' && spaDetected;
+      let jsRenderQuotaInfo: { hasQuota: boolean; rendersRemaining: number } = { hasQuota: true, rendersRemaining: 100 };
+
+      if (jsRenderingEnabled) {
+        console.log(`🎯 [Sprint 10] Auto-detected SPA/CSR site — JS rendering auto-enabled for Scale tier user: ${userEmail}`);
+        console.log(`   Framework: ${sitemapResult.spaDetection?.framework.framework}, Strategy: ${sitemapResult.spaDetection?.framework.renderingStrategy}, Coverage: ${sitemapResult.spaDetection?.contentCoverage.estimatedCoverage}%`);
+      } else if (tier === 'scale' && !spaDetected) {
+        console.log(`ℹ️ [Sprint 10] SSR/SSG site detected — skipping JS rendering for faster analysis`);
+      }
+
+      // Check quota for Scale tier users with auto-detected JS rendering
+      if (jsRenderingEnabled && user?.id) {
+        jsRenderQuotaInfo = await checkJsRenderQuota(user.id);
+        if (!jsRenderQuotaInfo.hasQuota) {
+          console.log(`⚠️ [Sprint 10] JS render quota exhausted for user ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} remaining)`);
+          jsRenderingEnabled = false;
+        } else {
+          console.log(`🎯 [Sprint 10] JS render quota: ${jsRenderQuotaInfo.rendersRemaining} renders remaining`);
+        }
+      }
 
       // Check usage limits (for non-authenticated users or non-coffee tier)
       const usageCheck = await checkUsageLimits(userEmail, pageCount);
@@ -642,15 +645,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'analyzing',
         estimatedDuration: Math.min(300, pageCount * 0.5), // 0.5 seconds per page estimate
         pageCount: Math.min(pageCount, TIER_LIMITS[tier].maxPagesPerAnalysis),
-        // Sprint 6: JS rendering info
+        // Sprint 10: Auto-detected JS rendering info
         jsRenderingAvailable: tier === 'scale',
-        jsRenderingEnabled: jsRenderingEnabled,
+        jsRenderingEnabled,
+        jsRenderingAutoDetected: spaDetected,
         jsRenderQuota: tier === 'scale' ? {
           remaining: jsRenderQuotaInfo.rendersRemaining,
           limit: getJsRenderMonthlyLimit(),
         } : undefined,
-        spaDetected: sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
-                     sitemapResult.spaDetection?.contentCoverage.estimatedCoverage < 50,
+        spaDetected,
       });
     } catch (error) {
       console.error('Analysis error:', error);
@@ -1272,9 +1275,9 @@ async function performAnalysisWithTimeout(
     // Analyze pages with smart caching
     console.log(`Starting page analysis for ${sitemapResult.entries.length} pages`);
 
-    // Sprint 6: Log JS rendering status
+    // Sprint 10: Log JS rendering status (auto-detected)
     if (jsRenderingOptions?.jsRenderingEnabled) {
-      console.log(`🎯 [Sprint 6] JS rendering enabled for this analysis`);
+      console.log(`🎯 [Sprint 10] JS rendering auto-enabled for this analysis`);
     }
 
     const { pages, metrics } = await analyzeDiscoveredPagesWithCache(
