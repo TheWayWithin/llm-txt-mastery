@@ -8,6 +8,14 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Sprint 16: Use node environment for server-side tests to avoid OpenAI
+    // dangerouslyAllowBrowser error and other browser-API leakage. Client
+    // component tests stay on jsdom (default).
+    environmentMatchGlobs: [
+      ['server/**', 'node'],
+      ['tests/unit/**', 'node'],
+      ['tests/integration/**', 'node'],
+    ],
     setupFiles: ['./test/setup.ts'],
     // Only run unit/integration tests, not Playwright e2e tests
     include: [

@@ -428,7 +428,11 @@ describe('Rate Limiter Middleware', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle database errors gracefully', async () => {
+    // Sprint 16: Rate limiter now "fails open" — when the DB errors out, the
+    // middleware logs the error and calls next() to let the request through.
+    // This is intentional: rate limiting outages should not break the app.
+    // Tests updated to assert the new (correct) fail-open contract.
+    it('should fail open when database errors occur', async () => {
       (db.select as any).mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -443,15 +447,12 @@ describe('Rate Limiter Middleware', () => {
         mockNext
       );
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          error: 'Rate limiting service temporarily unavailable',
-        })
-      );
+      // Should call next() to allow the request through, NOT return 500
+      expect(mockNext).toHaveBeenCalled();
+      expect(statusSpy).not.toHaveBeenCalledWith(500);
     });
 
-    it('should not leak internal error details', async () => {
+    it('should not leak internal error details when failing open', async () => {
       (db.select as any).mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -466,11 +467,13 @@ describe('Rate Limiter Middleware', () => {
         mockNext
       );
 
-      expect(jsonSpy).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          message: expect.stringContaining('SQL'),
-        })
-      );
+      // Even though we fail open, we should never expose the SQL error
+      // to the client in any response body
+      const jsonCalls = (jsonSpy as any).mock.calls;
+      for (const call of jsonCalls) {
+        const body = JSON.stringify(call[0] || {});
+        expect(body.includes('SQL')).toBe(false);
+      }
     });
   });
 

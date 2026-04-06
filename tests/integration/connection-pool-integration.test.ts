@@ -329,8 +329,10 @@ describe('Connection Pool Integration Tests', () => {
       const finalStats = testConnectionPool.getStats();
       const finalMemory = parseInt(finalStats.memoryUsage.replace('MB', ''));
 
-      // Memory should increase but not dramatically
-      expect(finalMemory).toBeGreaterThan(initialMemory);
+      // Sprint 16: memoryUsage is reported in integer MB. 50 small connection
+      // agents may not add a full MB, so use >= (not >) and just verify
+      // memory doesn't dramatically increase.
+      expect(finalMemory).toBeGreaterThanOrEqual(initialMemory);
       expect(finalMemory - initialMemory).toBeLessThan(50); // Less than 50MB increase
 
       expect(finalStats.activeAgents).toBe(50);
