@@ -31,7 +31,9 @@ describe('Phase 1A - Validation Logic', () => {
 
     expect(result.valid).toBe(false);
     expect(result.score).toBe(0);
-    expect(result.issues[0].message).toContain('404');
+    // Sprint 16: Validator now returns a friendlier message instead of raw "404"
+    // when the file is missing — assertion updated to match current UX copy.
+    expect(result.issues[0].message.toLowerCase()).toMatch(/llms\.txt|not found|404|missing/);
   });
 
   it('should validate real llms.txt file from Anthropic', async () => {

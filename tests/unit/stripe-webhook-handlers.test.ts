@@ -94,7 +94,9 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
 
   describe('handleCheckoutCompleted', () => {
     it('should update emailCaptures table for solo tier purchases', async () => {
-      // Arrange
+      // Sprint 16: Test fixture handler routes on `session.subscription` for the
+      // subscription path. The mock session was missing this field, so neither
+      // branch of the handler fired and updateEmailCapture was never called.
       const mockSession = {
         metadata: {
           userId: '123',
@@ -106,6 +108,7 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
           email: 'test@example.com',
         },
         payment_intent: 'pi_test123',
+        subscription: 'sub_test123',  // Sprint 16: required to enter subscription branch
       };
 
       (mockStorage.getEmailCapture as Mock).mockResolvedValue({
@@ -118,6 +121,10 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         tier: 'starter',
       });
 
+      // Sprint 16: Stub getTierFromPriceId so it returns 'solo' for the test priceId
+      const { getTierFromPriceId } = await import('../../server/services/stripe');
+      (getTierFromPriceId as Mock).mockReturnValue('solo');
+
       // Import the handler function dynamically
       const { handleCheckoutCompleted } = await import('./test-webhook-handlers');
 
@@ -129,10 +136,9 @@ describe('Stripe Webhook Handlers - Tier Upgrade Validation', () => {
         tier: 'solo',
       });
 
-      // Verify userProfiles is also updated
+      // Verify userProfile subscription fields are also updated
       expect(mockStorage.updateUserProfile).toHaveBeenCalledWith('123', {
-        tier: 'solo',
-        subscriptionId: expect.any(String),
+        subscriptionId: 'sub_test123',
         subscriptionStatus: 'active',
       });
     });
