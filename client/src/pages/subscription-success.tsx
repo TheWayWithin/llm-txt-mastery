@@ -29,7 +29,8 @@ export default function SubscriptionSuccess() {
         window.location.href = '/analyze';
       }, 2000);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Note: refreshUser intentionally omitted from deps to prevent infinite loop.
+    // The hasStartedRedirect ref guards against re-execution.
   }, [isAuthenticated, user]);
 
   // Authenticated user upgrade flow — brief confirmation then redirect
