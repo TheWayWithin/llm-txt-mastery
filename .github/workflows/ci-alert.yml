@@ -1,0 +1,111 @@
+name: CI Failure Alert
+
+# Runs AFTER the main CI pipeline and creates a GitHub issue if it failed.
+# This is a free-plan workaround for branch protection (which requires Pro).
+# The issue acts as a visible, trackable "CI is broken" signal.
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types: [completed]
+    branches: [main, develop]
+
+jobs:
+  alert-on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+
+    steps:
+      - name: Create or update CI failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 CI failing on \`${context.payload.workflow_run.head_branch}\``;
+            const runUrl = context.payload.workflow_run.html_url;
+            const commit = context.payload.workflow_run.head_sha.substring(0, 7);
+            const branch = context.payload.workflow_run.head_branch;
+
+            const body = [
+              `## CI Pipeline Failed`,
+              ``,
+              `| Field | Value |`,
+              `|-------|-------|`,
+              `| Branch | \`${branch}\` |`,
+              `| Commit | \`${commit}\` |`,
+              `| Run | [View logs](${runUrl}) |`,
+              `| Time | ${new Date().toISOString()} |`,
+              ``,
+              `**Action needed:** Check the failing step in the run logs and fix before merging further.`,
+              ``,
+              `This issue was auto-created by the CI Failure Alert workflow.`,
+              `It will be auto-closed when CI passes again.`,
+            ].join('\n');
+
+            // Check if there's already an open CI failure issue for this branch
+            const { data: existingIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'ci-failure',
+              per_page: 10,
+            });
+
+            const branchIssue = existingIssues.find(i => i.title.includes(branch));
+
+            if (branchIssue) {
+              // Update existing issue with latest failure
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: branchIssue.number,
+                body: `Still failing — commit \`${commit}\` ([logs](${runUrl}))`,
+              });
+              console.log(`Updated existing issue #${branchIssue.number}`);
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ci-failure'],
+              });
+              console.log('Created new CI failure issue');
+            }
+
+  close-on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Auto-close CI failure issues for this branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.workflow_run.head_branch;
+
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'ci-failure',
+              per_page: 10,
+            });
+
+            for (const issue of openIssues) {
+              if (issue.title.includes(branch)) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `✅ CI is green again on \`${branch}\`. Auto-closing.`,
+                });
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                });
+                console.log(`Closed issue #${issue.number}`);
+              }
+            }
