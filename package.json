@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
+    "prepare": "husky",
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "rm -rf dist && echo 'Building Phase 2 with cookie-parser + uuid dependencies' && npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
@@ -204,6 +205,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^17.3.0",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "supertest": "^7.1.4",
