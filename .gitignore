@@ -173,3 +173,4 @@ CLAUDE.md.backup-*
 .env.mcp
 # Local Netlify folder
 .netlify
+prospects/prospects.json
