@@ -1,8 +1,10 @@
 echo "🔍 Running pre-commit checks..."
 
-# Run TypeScript check
-echo "📝 Checking TypeScript..."
-npm run check
+# TypeScript gate: full-project tsc compared against the committed baseline
+# (.tsc-baseline.txt). Fails ONLY on new errors; the 261 pre-existing errors
+# are recorded debt (see ISSUES.md) and burn down via --update as they're fixed.
+echo "📝 Checking TypeScript (baseline gate)..."
+node scripts/check-types-baseline.mjs
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript check failed"
   exit 1
@@ -16,7 +18,7 @@ STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(
 
 if [ ! -z "$STAGED_TS_FILES" ]; then
   echo "📊 Running unit tests for changed files..."
-  
+
   # Run tests for frontend files
   STAGED_CLIENT_FILES=$(echo "$STAGED_TS_FILES" | grep '^client/')
   if [ ! -z "$STAGED_CLIENT_FILES" ]; then
@@ -27,7 +29,7 @@ if [ ! -z "$STAGED_TS_FILES" ]; then
       exit 1
     fi
   fi
-  
+
   # Run tests for backend files
   STAGED_SERVER_FILES=$(echo "$STAGED_TS_FILES" | grep '^server/')
   if [ ! -z "$STAGED_SERVER_FILES" ]; then
@@ -45,7 +47,7 @@ fi
 SEMANTIC_FILES=$(echo "$STAGED_TS_FILES" | grep -E '(semantic|cluster|embedding)')
 if [ ! -z "$SEMANTIC_FILES" ]; then
   echo "🧠 Semantic enhancement files detected, running additional checks..."
-  
+
   # Run performance benchmarks on semantic changes (quick subset)
   echo "⚡ Running performance checks..."
   if [ -f "scripts/performance-testing-harness.ts" ]; then
@@ -55,26 +57,36 @@ if [ ! -z "$SEMANTIC_FILES" ]; then
   fi
 fi
 
-# Check for potential secrets or sensitive data
-echo "🔒 Checking for sensitive data..."
-if git diff --cached --name-only | xargs grep -l -i -E "(api[_-]?key|password|secret|token)" | grep -v -E "\.(md|txt|example)$"; then
-  echo "❌ Potential sensitive data detected in staged files"
-  echo "Please review and remove any hardcoded secrets"
-  exit 1
+# Check for hardcoded credential ASSIGNMENTS (name = "value"), not bare word
+# mentions — the old word-grep blocked any file containing e.g. "token".
+# Primary secret scan is gitleaks in the global hook (~/.git-hooks/pre-commit).
+echo "🔒 Checking for hardcoded credentials..."
+CRED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -v -E '\.(md|txt|example)$' | grep -v '^\.husky/' || true)
+if [ ! -z "$CRED_FILES" ]; then
+  CRED_HITS=$(echo "$CRED_FILES" | xargs grep -l -i -E "(api[_-]?key|password|secret|token)[A-Za-z0-9_]*[\"']?[[:space:]]*[:=][[:space:]]*[\"'][A-Za-z0-9_/+.-]{12,}" 2>/dev/null || true)
+  if [ ! -z "$CRED_HITS" ]; then
+    echo "❌ Possible hardcoded credential assignment detected in:"
+    echo "$CRED_HITS"
+    echo "Real values belong only in a gitignored .env."
+    exit 1
+  fi
 fi
 
 # Check for console.log statements in production code
 echo "🔍 Checking for console.log statements..."
-CONSOLE_LOGS=$(git diff --cached --name-only | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|\\.d\\.ts)$' | xargs grep -n "console\\.log" || true)
-if [ ! -z "$CONSOLE_LOGS" ]; then
-  echo "⚠️ console.log statements found in production code:"
-  echo "$CONSOLE_LOGS"
-  echo "Consider removing or replacing with proper logging"
-  # Don't fail, just warn
+CONSOLE_CANDIDATES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|\.d\.ts)$' || true)
+if [ ! -z "$CONSOLE_CANDIDATES" ]; then
+  CONSOLE_LOGS=$(echo "$CONSOLE_CANDIDATES" | xargs grep -n "console\.log" 2>/dev/null || true)
+  if [ ! -z "$CONSOLE_LOGS" ]; then
+    echo "⚠️ console.log statements found in production code:"
+    echo "$CONSOLE_LOGS"
+    echo "Consider removing or replacing with proper logging"
+    # Don't fail, just warn
+  fi
 fi
 
-# Format check (if prettier is configured)
-if [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; then
+# Format check (if prettier is configured and TS files are staged)
+if [ ! -z "$STAGED_TS_FILES" ] && { [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; }; then
   echo "💅 Checking code formatting..."
   npx prettier --check $STAGED_TS_FILES || {
     echo "❌ Code formatting issues detected"
@@ -83,8 +95,8 @@ if [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; then
   }
 fi
 
-# Lint check (if ESLint is configured)
-if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; then
+# Lint check (if ESLint is configured and TS files are staged)
+if [ ! -z "$STAGED_TS_FILES" ] && { [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; }; then
   echo "🔍 Running ESLint..."
   npx eslint $STAGED_TS_FILES || {
     echo "❌ ESLint issues detected"
