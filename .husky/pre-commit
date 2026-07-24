@@ -30,12 +30,11 @@ if [ ! -z "$STAGED_TS_FILES" ]; then
     fi
   fi
 
-  # Run tests for backend files
+  # Run tests for backend files (vitest is this repo's runner; jest is not installed)
   STAGED_SERVER_FILES=$(echo "$STAGED_TS_FILES" | grep '^server/')
   if [ ! -z "$STAGED_SERVER_FILES" ]; then
     echo "🖥️ Testing backend changes..."
-    # Run Jest for backend files
-    npx jest --findRelatedTests $STAGED_SERVER_FILES --coverage=false --passWithNoTests
+    npx vitest related --run --passWithNoTests $STAGED_SERVER_FILES
     if [ $? -ne 0 ]; then
       echo "❌ Backend tests failed"
       exit 1
