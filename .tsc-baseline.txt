@@ -44,22 +44,21 @@
 1	client/src/pages/verify-email.tsx|TS1345|An expression of type 'void' cannot be tested for truthiness.
 1	server/middleware/enhanced-bot-protection.ts|TS2353|Object literal may only specify known properties, and 'trustProxy' does not exist in type 'Partial<Options>'.
 2	server/routes-backup.ts|TS18048|'usageCheck.reason' is possibly 'undefined'.
-1	server/routes-backup.ts|TS2345|Argument of type 'string' is not assignable to parameter of type '"growth" | "scale" | "coffee" | "starter"'.
+1	server/routes-backup.ts|TS2345|Argument of type 'string' is not assignable to parameter of type '"starter" | "growth" | "scale" | "coffee"'.
 1	server/routes-backup.ts|TS2345|Argument of type 'string' is not assignable to parameter of type 'UserTier'.
 1	server/routes-backup.ts|TS2769|No overload matches this call.
 2	server/routes-backup.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<UserTier, Omit<TierLimits, "tier">>'.
-4	server/routes.ts|TS18046|'error' is of type 'unknown'.
 2	server/routes.ts|TS2300|Duplicate identifier 'getTodayUsage'.
 3	server/routes.ts|TS2322|Type '"error"' is not assignable to type '"sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"'.
 2	server/routes.ts|TS2339|Property 'analysisMetadata' does not exist on type 'SelectedPage'.
 1	server/routes.ts|TS2339|Property 'creditsRemaining' does not exist on type '{ tier: string; usage: { analysesToday: number; pagesProcessedToday: number; cacheHitsToday: number; costToday: number; }; limits: { dailyAnalyses: any; maxPagesPerAnalysis: any; aiPagesLimit: any; }; features: any; }'.
-1	server/routes.ts|TS2339|Property 'updatedAt' does not exist on type '{ tier: string; id: number; email: string; createdAt: Date | null; userId: number | null; websiteUrl: string | null; }'.
-1	server/routes.ts|TS2345|Argument of type '{ tier: string; id: number; email: string; passwordHash: string; emailVerified: boolean | null; creditsRemaining: number | null; stripeCustomerId: string | null; createdAt: Date | null; updatedAt: Date | null; jsRendersUsedThisMonth: number | null; jsRendersResetAt: Date | null; } | undefined' is not assignable to parameter of type '{ id: string; email: string; tier: UserTier; } | undefined'.
+1	server/routes.ts|TS2339|Property 'updatedAt' does not exist on type '{ id: number; email: string; tier: string; createdAt: Date | null; userId: number | null; websiteUrl: string | null; }'.
+1	server/routes.ts|TS2345|Argument of type '{ id: number; email: string; passwordHash: string; emailVerified: boolean | null; tier: string; creditsRemaining: number | null; stripeCustomerId: string | null; createdAt: Date | null; updatedAt: Date | null; jsRendersUsedThisMonth: number | null; jsRendersResetAt: Date | null; } | undefined' is not assignable to parameter of type '{ id: string; email: string; tier: UserTier; } | undefined'.
 1	server/routes.ts|TS2345|Argument of type 'number' is not assignable to parameter of type 'string'.
-1	server/routes.ts|TS2353|Object literal may only specify known properties, and 'error' does not exist in type '{ siteType: "unknown" | "single-page" | "multi-page"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
-1	server/routes.ts|TS2353|Object literal may only specify known properties, and 'jsRenderingEnabled' does not exist in type '{ siteType: "unknown" | "single-page" | "multi-page"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
-2	server/routes.ts|TS2367|This comparison appears to be unintentional because the types '"growth" | "scale" | "starter" | "cancelled"' and '"coffee"' have no overlap.
-1	server/routes.ts|TS2741|Property 'message' is missing in type '{ totalPagesFound: number; tier: UserTier; siteType: "unknown" | "single-page" | "multi-page"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; spaDetection: SPADetectionResult | undefined; contentCoveragePercentage: number | undefined; renderingStrategy: Renderin...' but required in type '{ siteType: "unknown" | "single-page" | "multi-page"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
+1	server/routes.ts|TS2353|Object literal may only specify known properties, and 'error' does not exist in type '{ siteType: "single-page" | "multi-page" | "unknown"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
+1	server/routes.ts|TS2353|Object literal may only specify known properties, and 'jsRenderingEnabled' does not exist in type '{ siteType: "single-page" | "multi-page" | "unknown"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
+2	server/routes.ts|TS2367|This comparison appears to be unintentional because the types '"starter" | "growth" | "scale" | "cancelled"' and '"coffee"' have no overlap.
+1	server/routes.ts|TS2741|Property 'message' is missing in type '{ totalPagesFound: number; tier: UserTier; siteType: "single-page" | "multi-page" | "unknown"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; spaDetection: SPADetectionResult | undefined; contentCoveragePercentage: number | undefined; renderingStrategy: Renderin...' but required in type '{ siteType: "single-page" | "multi-page" | "unknown"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
 1	server/routes.ts|TS7053|Element implicitly has an 'any' type because expression of type '"costCapWouldTrigger"' can't be used to index type 'AnalysisMetrics'.
 2	server/routes.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<UserTier, Omit<TierLimits, "tier">>'.
 1	server/routes/ab-testing.ts|TS2345|Argument of type '{ createdBy: any; name: string; metrics: { name: string; type: "count" | "conversion_rate" | "click_through_rate" | "average_value"; eventType: string; description?: string | undefined; isPrimary?: boolean | undefined; }[]; ... 4 more ...; targetingRules?: { ...; }[] | undefined; }' is not assignable to parameter of type '{ name: string; description?: string | undefined; featureFlag?: string | undefined; variants: ExperimentVariant[]; metrics: ExperimentMetric[]; targetingRules?: TargetingRule[] | undefined; trafficAllocation?: number | undefined; createdBy: string; }'.
@@ -67,7 +66,7 @@
 3	server/routes/api-v1.ts|TS2339|Property 'length' does not exist on type '{ pages: DiscoveredPage[]; metrics: AnalysisMetrics; }'.
 3	server/routes/api-v1.ts|TS2339|Property 'pages' does not exist on type 'SitemapResult'.
 2	server/routes/api-v1.ts|TS2339|Property 'source' does not exist on type 'SitemapResult'.
-1	server/routes/api-v1.ts|TS2353|Object literal may only specify known properties, and 'apiKeyId' does not exist in type '{ siteType: "unknown" | "single-page" | "multi-page"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
+1	server/routes/api-v1.ts|TS2353|Object literal may only specify known properties, and 'apiKeyId' does not exist in type '{ siteType: "single-page" | "multi-page" | "unknown"; sitemapFound: boolean; analysisMethod: "sitemap" | "robots.txt" | "homepage-only" | "fallback-crawl"; message: string; totalPagesFound: number; ... 6 more ...; processingTime?: number | undefined; }'.
 1	server/routes/api-v1.ts|TS2554|Expected 3-5 arguments, but got 2.
 1	server/routes/api-v1.ts|TS2740|Type '{ pages: DiscoveredPage[]; metrics: AnalysisMetrics; }' is missing the following properties from type 'DiscoveredPage[]': length, pop, push, concat, and 29 more.
 3	server/routes/auth.ts|TS2304|Cannot find name 'COFFEE_TIER_CREDITS'.
@@ -81,9 +80,7 @@
 1	server/services/alert-system.ts|TS2484|Export declaration conflicts with exported declaration of 'AlertRule'.
 1	server/services/alert-system.ts|TS2484|Export declaration conflicts with exported declaration of 'NotificationChannel'.
 2	server/services/api-key-manager.ts|TS2353|Object literal may only specify known properties, and 'resolved' does not exist in type 'Omit<SecurityAlert, "resolved">'.
-3	server/services/auth.ts|TS18046|'error' is of type 'unknown'.
 2	server/services/auth.ts|TS2769|No overload matches this call.
-1	server/services/cache.ts|TS18046|'error' is of type 'unknown'.
 1	server/services/cache.ts|TS2353|Object literal may only specify known properties, and 'coffee' does not exist in type 'Record<UserTier, Omit<TierLimits, "tier">>'.
 1	server/services/cache.ts|TS2554|Expected 1 arguments, but got 2.
 1	server/services/cache.ts|TS2769|No overload matches this call.
@@ -91,12 +88,9 @@
 10	server/services/convertkit.ts|TS2339|Property 'id' does not exist on type 'never'.
 1	server/services/convertkit.ts|TS2739|Type '{ id: string; }' is missing the following properties from type 'ConvertKitSubscriber': email, state, created_at, fields, tags
 6	server/services/feature-flags.ts|TS2531|Object is possibly 'null'.
-1	server/services/google-analytics.ts|TS18046|'error' is of type 'unknown'.
 1	server/services/google-analytics.ts|TS2739|Type '{ startDate: string; endDate: string; }' is missing the following properties from type '{ start_date: string; end_date: string; }': start_date, end_date
 1	server/services/keep-alive.ts|TS2353|Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
 5	server/services/openai-enhanced.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 'gpt-4o': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-4o-mini': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-3.5-turbo': { ...; }; }'.
-1	server/services/openai.ts|TS18046|'cheerioError' is of type 'unknown'.
-4	server/services/openai.ts|TS18046|'error' is of type 'unknown'.
 5	server/services/openai.ts|TS7006|Parameter '_' implicitly has an 'any' type.
 5	server/services/openai.ts|TS7006|Parameter 'el' implicitly has an 'any' type.
 2	server/services/openai.ts|TS7006|Parameter 'p' implicitly has an 'any' type.
@@ -117,16 +111,12 @@
 1	server/services/semantic-monitoring.ts|TS2322|Type 'null' is not assignable to type 'Redis'.
 2	server/services/simple-tracker.ts|TS2322|Type '{}' is not assignable to type 'number'.
 1	server/services/simple-tracker.ts|TS2322|Type '{}' is not assignable to type 'string'.
-4	server/services/sitemap-enhanced.ts|TS18046|'error' is of type 'unknown'.
-1	server/services/sitemap-enhanced.ts|TS18046|'fallbackError' is of type 'unknown'.
 3	server/services/sitemap-enhanced.ts|TS2339|Property 'actualCostUSD' does not exist on type 'ContentAnalysisResult'.
 2	server/services/sitemap-enhanced.ts|TS2339|Property 'model' does not exist on type 'ContentAnalysisResult'.
 2	server/services/sitemap-enhanced.ts|TS2339|Property 'tokensUsed' does not exist on type 'ContentAnalysisResult'.
-1	server/services/sitemap-enhanced.ts|TS2367|This comparison appears to be unintentional because the types '"growth" | "scale" | "starter" | "cancelled"' and '"coffee"' have no overlap.
+1	server/services/sitemap-enhanced.ts|TS2367|This comparison appears to be unintentional because the types '"starter" | "growth" | "scale" | "cancelled"' and '"coffee"' have no overlap.
 1	server/services/sitemap-enhanced.ts|TS7053|Element implicitly has an 'any' type because expression of type '"costCapWouldTrigger"' can't be used to index type 'AnalysisMetrics'.
-20	server/services/sitemap.ts|TS18046|'error' is of type 'unknown'.
 1	server/services/stripe.ts|TS2322|Type '"2024-06-20"' is not assignable to type '"2025-08-27.basil"'.
-9	server/services/usage.ts|TS18046|'error' is of type 'unknown'.
 2	server/services/usage.ts|TS18047|'authUser.creditsRemaining' is possibly 'null'.
 1	server/services/usage.ts|TS18047|'creditsRemaining' is possibly 'null'.
 1	server/services/usage.ts|TS2322|Type 'number | null' is not assignable to type 'number'.
@@ -150,5 +140,4 @@
 1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ id: number; date: string; userId: number; analysesCount: number; validationsCount: number; pagesProcessed: number; aiCallsCount: number; htmlExtractionsCount: number; cacheHits: number; totalCost: number; ... 4 more ...; costCapTriggeredAt: Date | null; }'.
 1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'username' does not exist in type '{ tier: string; id: string; email: string; creditsRemaining: number; stripeCustomerId: string | null; createdAt: Date | null; updatedAt: Date | null; subscriptionId: string | null; subscriptionStatus: string | null; }'.
 1	server/storage.ts|TS2420|Class 'DatabaseStorage' incorrectly implements interface 'IStorage'.
-1	server/test-model-comparison.ts|TS18046|'error' is of type 'unknown'.
 1	shared/schema.ts|TS2322|Type 'boolean' is not assignable to type 'never'.

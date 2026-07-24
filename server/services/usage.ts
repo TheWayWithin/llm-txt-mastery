@@ -1,5 +1,6 @@
 import { storage } from '../storage';
 import { db } from '../db';
+import { errorMessage, errorField } from '../lib/errors';
 import {
   UserTier,
   UsageTracking,
@@ -172,9 +173,9 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
   } catch (error) {
     console.error('🚨 [GET USAGE] ERROR:', error);
     console.error('🚨 [GET USAGE] Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
+      message: errorMessage(error),
+      code: errorField(error, 'code'),
+      detail: errorField(error, 'detail'),
     });
     return null;
   }
@@ -392,12 +393,12 @@ export async function trackUsage(
   } catch (error) {
     console.error('🚨 [USAGE TRACKING] ERROR:', error);
     console.error('🚨 [USAGE TRACKING] Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
-      table: error.table,
-      column: error.column,
-      constraint: error.constraint,
+      message: errorMessage(error),
+      code: errorField(error, 'code'),
+      detail: errorField(error, 'detail'),
+      table: errorField(error, 'table'),
+      column: errorField(error, 'column'),
+      constraint: errorField(error, 'constraint'),
     });
   }
 }

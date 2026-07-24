@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { errorMessage } from '../lib/errors';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AuthUser, JWTPayload, UserTier } from '@shared/schema';
@@ -109,7 +110,7 @@ export function verifyAccessToken(token: string): JWTPayload | null {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;
   } catch (error) {
-    console.error('Access token verification failed:', error.message);
+    console.error('Access token verification failed:', errorMessage(error));
     return null;
   }
 }
@@ -122,7 +123,7 @@ export function verifyRefreshToken(token: string): { userId: number; type: strin
     }
     return { userId: decoded.userId, type: decoded.type };
   } catch (error) {
-    console.error('Refresh token verification failed:', error.message);
+    console.error('Refresh token verification failed:', errorMessage(error));
     return null;
   }
 }
@@ -212,7 +213,7 @@ export function verifyEmailVerificationToken(
     }
     return { userId: decoded.userId, email: decoded.email };
   } catch (error) {
-    console.error('Email verification token failed:', error.message);
+    console.error('Email verification token failed:', errorMessage(error));
     return null;
   }
 }

@@ -1,4 +1,5 @@
 import type { Express } from 'express';
+import { errorMessage } from './lib/errors';
 import { createServer, type Server } from 'http';
 import { z } from 'zod';
 import {
@@ -648,7 +649,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 totalPagesFound: 0,
                 userEmail: userEmail,
                 tier,
-                error: error.message,
+                error: errorMessage(error),
               },
             })
             .catch((updateError) => {
@@ -1268,11 +1269,11 @@ async function analyzeWebsiteEnhanced(
         siteType: 'unknown',
         sitemapFound: false,
         analysisMethod: 'error',
-        message: error.message || 'Analysis failed due to unexpected error',
+        message: errorMessage(error) || 'Analysis failed due to unexpected error',
         totalPagesFound: 0,
         userEmail,
         tier,
-        error: error.message,
+        error: errorMessage(error),
       },
     });
   }
@@ -1522,11 +1523,11 @@ async function performAnalysisWithTimeout(
         siteType: 'unknown',
         sitemapFound: false,
         analysisMethod: 'error',
-        message: error.message || 'Analysis failed due to unexpected error',
+        message: errorMessage(error) || 'Analysis failed due to unexpected error',
         totalPagesFound: 0,
         userEmail,
         tier,
-        error: error.message,
+        error: errorMessage(error),
       },
     });
   }

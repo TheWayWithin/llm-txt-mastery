@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import * as cheerio from 'cheerio';
+import { errorMessage, errorField } from '../lib/errors';
 
 // Initialize LLM client via OpenRouter (OpenAI-compatible)
 // Supports any model available on OpenRouter - configure via LLM_MODEL env var
@@ -174,7 +175,7 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   try {
     $ = cheerio.load(htmlContent);
   } catch (cheerioError) {
-    throw new Error(`Failed to parse HTML for ${url}: ${cheerioError.message}`);
+    throw new Error(`Failed to parse HTML for ${url}: ${errorMessage(cheerioError)}`);
   }
 
   // Extract text content for analysis first (needed by other functions)
@@ -489,11 +490,12 @@ Focus on technical accuracy, information density, and AI utility.`;
     };
   } catch (error) {
     console.error(`[AI ANALYSIS ERROR] Failed for ${url}:`, error);
-    if (error.response) {
-      console.error(`[AI ANALYSIS ERROR] Response status: ${error.response.status}`);
-      console.error(`[AI ANALYSIS ERROR] Response data:`, error.response.data);
+    const response = errorField(error, 'response');
+    if (response) {
+      console.error(`[AI ANALYSIS ERROR] Response status: ${errorField(response, 'status')}`);
+      console.error(`[AI ANALYSIS ERROR] Response data:`, errorField(response, 'data'));
     }
-    if (error.message?.includes('401')) {
+    if (errorMessage(error).includes('401')) {
       console.error(`[AI ANALYSIS ERROR] Authentication failed - check if OPENAI_API_KEY is valid`);
     }
     console.log(`[AI ANALYSIS] Falling back to HTML analysis for ${url}`);

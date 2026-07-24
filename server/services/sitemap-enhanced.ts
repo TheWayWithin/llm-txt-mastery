@@ -1,4 +1,5 @@
 import { DiscoveredPage, UserTier, SPADetectionResult } from '@shared/schema';
+import { errorMessage } from '../lib/errors';
 import {
   fetchPageContent,
   filterRelevantPages,
@@ -537,16 +538,16 @@ async function processBatchWithCache(
       results.push({ page, success: true });
     } catch (error) {
       console.error(`🚨 ANALYSIS FAILURE for ${entry.url}:`, {
-        error: error.message,
-        stack: error.stack,
-        type: error.constructor.name,
+        error: errorMessage(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        type: error instanceof Error ? error.constructor.name : typeof error,
         url: entry.url,
         userEmail,
         tier,
       });
 
       // Skip fallback for 403 errors - server explicitly denied access, retrying won't help
-      const is403 = error.message?.includes('403');
+      const is403 = errorMessage(error).includes('403');
       if (is403) {
         console.log(`   ⛔ Skipping fallback for ${entry.url} - access denied (403)`);
         results.push({ page: null as any, success: false });
@@ -574,7 +575,7 @@ async function processBatchWithCache(
         } catch (fallbackError) {
           console.error(
             `❌ Even fallback HTML extraction failed for ${entry.url}:`,
-            fallbackError.message
+            errorMessage(fallbackError)
           );
           // Only now mark as failure - this allows real bot protection detection
           results.push({ page: null as any, success: false });
