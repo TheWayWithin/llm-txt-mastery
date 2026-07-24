@@ -330,7 +330,7 @@ export const insertOneTimeCreditSchema = createInsertSchema(oneTimeCredits).pick
   productType: true,
   priceId: true,
   stripePaymentIntentId: true,
-  expiresAt: true,
+  // expiresAt intentionally absent: the column was removed from the table above
 });
 
 export const insertUserProfileSchema = createInsertSchema(userProfiles).pick({
@@ -518,6 +518,7 @@ export const userLoginSchema = z.object({
 });
 
 export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
 export type AuthUser = typeof authUsers.$inferSelect;
 export type InsertAuthUser = z.infer<typeof insertAuthUserSchema>;
 export type UserSession = typeof userSessions.$inferSelect;

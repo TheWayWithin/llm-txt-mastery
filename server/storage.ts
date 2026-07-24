@@ -231,7 +231,7 @@ export class MemStorage implements IStorage {
       id,
       userId: insertEmailCapture.userId || null,
       email: insertEmailCapture.email,
-      websiteUrl: insertEmailCapture.websiteUrl,
+      websiteUrl: insertEmailCapture.websiteUrl ?? null,
       tier: insertEmailCapture.tier || 'starter',
       createdAt: new Date(),
     };
@@ -336,7 +336,6 @@ export class MemStorage implements IStorage {
           existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
         cacheHits: existing.cacheHits + (insertUsage.cacheHits || 0),
         totalCost: existing.totalCost + (insertUsage.totalCost || 0),
-        updatedAt: new Date(),
       };
       this.usageTracking.set(key, updated);
       return updated;
@@ -347,13 +346,18 @@ export class MemStorage implements IStorage {
         userId: insertUsage.userId,
         date: insertUsage.date,
         analysesCount: insertUsage.analysesCount || 0,
+        validationsCount: 0, // not part of the insert schema; DB default is 0
         pagesProcessed: insertUsage.pagesProcessed || 0,
         aiCallsCount: insertUsage.aiCallsCount || 0,
         htmlExtractionsCount: insertUsage.htmlExtractionsCount || 0,
         cacheHits: insertUsage.cacheHits || 0,
         totalCost: insertUsage.totalCost || 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        // Mirror the DB column defaults
+        actualTokensUsed: 0,
+        actualAiCost: 0,
+        modelUsed: null,
+        costCapWouldTrigger: false,
+        costCapTriggeredAt: null,
       };
       this.usageTracking.set(key, usage);
       return usage;
@@ -403,8 +407,15 @@ export class MemStorage implements IStorage {
 
   // User profile methods
   async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    // Mirror the DB column defaults for fields the insert schema leaves optional
     const newProfile: UserProfile = {
-      ...profile,
+      id: profile.id,
+      email: profile.email,
+      tier: profile.tier ?? 'starter',
+      creditsRemaining: profile.creditsRemaining ?? 0,
+      stripeCustomerId: profile.stripeCustomerId ?? null,
+      subscriptionId: profile.subscriptionId ?? null,
+      subscriptionStatus: profile.subscriptionStatus ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -442,9 +453,18 @@ export class MemStorage implements IStorage {
   // One-time credit methods
   async createOneTimeCredit(credit: InsertOneTimeCredit): Promise<OneTimeCredit> {
     const id = this.currentCreditId++;
+    // Mirror the DB column defaults for fields the insert schema leaves optional
     const newCredit: OneTimeCredit = {
       id,
-      ...credit,
+      userId: credit.userId,
+      creditsRemaining: credit.creditsRemaining ?? 0,
+      creditsTotal: credit.creditsTotal ?? 0,
+      productType: credit.productType ?? 'solo',
+      priceId: credit.priceId ?? null,
+      stripePaymentIntentId: credit.stripePaymentIntentId ?? null,
+      purchasedAt: new Date(),
+      refunded: false,
+      refundedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -632,7 +652,6 @@ export class DatabaseStorage implements IStorage {
         tier: updates.tier,
         websiteUrl: updates.websiteUrl,
         userId: updates.userId,
-        updatedAt: new Date(),
       })
       .where(eq(emailCaptures.email, email))
       .returning();
@@ -706,7 +725,6 @@ export class DatabaseStorage implements IStorage {
             existing.htmlExtractionsCount + (insertUsage.htmlExtractionsCount || 0),
           cacheHits: existing.cacheHits + (insertUsage.cacheHits || 0),
           totalCost: existing.totalCost + (insertUsage.totalCost || 0),
-          updatedAt: new Date(),
         })
         .where(eq(usageTracking.id, existing.id))
         .returning();
@@ -748,6 +766,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User profile methods (placeholder - using users table instead of separate profiles)
+  async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    // Required by IStorage (MemStorage implements it); no live caller yet
+    const [created] = await db.insert(userProfiles).values(profile).returning();
+    return created;
+  }
+
   async getUserProfile(id: string): Promise<UserProfile | undefined> {
     const userId = parseInt(id);
     if (isNaN(userId)) return undefined;
@@ -756,13 +780,15 @@ export class DatabaseStorage implements IStorage {
     const [authUser] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
     if (!authUser) return undefined;
 
-    // Map authUser to UserProfile format
+    // Map authUser to UserProfile format (UserProfile has no username field)
     return {
       id: authUser.id.toString(),
-      username: authUser.email.split('@')[0], // Use email prefix as username fallback
       email: authUser.email,
       tier: authUser.tier,
-      creditsRemaining: authUser.creditsRemaining, // Correctly from auth_users table
+      creditsRemaining: authUser.creditsRemaining ?? 0, // Correctly from auth_users table
+      stripeCustomerId: authUser.stripeCustomerId,
+      subscriptionId: null,
+      subscriptionStatus: null,
       createdAt: authUser.createdAt || new Date(),
       updatedAt: authUser.updatedAt || new Date(),
     };
@@ -775,14 +801,18 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.id, emailCapture.userId));
     if (!user) return undefined;
 
+    // emailCaptures has no credits column and the legacy users table has no
+    // timestamps, so these values have always been the fallbacks
     return {
       id: user.id.toString(),
-      username: user.username,
       email: emailCapture.email,
       tier: emailCapture.tier || 'starter',
-      creditsRemaining: emailCapture.creditsRemaining || 0,
-      createdAt: user.createdAt || new Date(),
-      updatedAt: user.updatedAt || new Date(),
+      creditsRemaining: 0,
+      stripeCustomerId: null,
+      subscriptionId: null,
+      subscriptionStatus: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
   }
 
@@ -797,9 +827,9 @@ export class DatabaseStorage implements IStorage {
     if (updates.tier || updates.creditsRemaining !== undefined) {
       const emailCapture = await this.getEmailCaptureByUserId(userId);
       if (emailCapture) {
+        // emailCaptures carries no credits column; only the tier can be mirrored here
         await this.updateEmailCapture(emailCapture.email, {
           tier: updates.tier,
-          creditsRemaining: updates.creditsRemaining,
         });
       }
     }

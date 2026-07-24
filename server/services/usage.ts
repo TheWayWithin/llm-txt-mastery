@@ -14,7 +14,7 @@ import {
 } from '@shared/schema';
 import { authStorage } from '../services/auth-storage';
 import { TIER_LIMITS } from './cache';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, sql } from 'drizzle-orm';
 
 // CRITICAL FIX: Shared user resolution logic to prevent race conditions
 // Both trackUsage() and getTodayUsage() use this to ensure consistent behavior
@@ -313,7 +313,10 @@ export async function trackUsage(
           );
           // Continue with the found userId
           const foundUserId = emailCapture.userId;
-          await storage.createUsageTracking({
+          // createOrUpdateUsage is the method both storage classes implement;
+          // the old name here (createUsageTracking) existed on neither, so this
+          // rescue path always threw straight into the catch below
+          await storage.createOrUpdateUsage({
             userId: foundUserId,
             date: today,
             analysesCount: 1,
@@ -535,7 +538,7 @@ export async function checkCoffeeCredits(
       return { hasCredits: false, creditsRemaining: 0 };
     }
 
-    const creditsRemaining = authUser.creditsRemaining;
+    const creditsRemaining = authUser.creditsRemaining ?? 0;
     console.log(
       `[DEBUG] Found user ${authUser.email} with ${creditsRemaining} credits (tier: ${authUser.tier})`
     );
@@ -569,7 +572,7 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
       .from(authUsers)
       .where(eq(authUsers.id, numericUserId));
 
-    if (!authUser || authUser.creditsRemaining <= 0) {
+    if (!authUser || (authUser.creditsRemaining ?? 0) <= 0) {
       console.log(
         `[DEBUG] User ${authUser?.email || 'unknown'} has ${authUser?.creditsRemaining || 0} credits - cannot consume`
       );
@@ -577,7 +580,7 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
     }
 
     // Consume one credit directly in auth_users table
-    const newCredits = authUser.creditsRemaining - 1;
+    const newCredits = (authUser.creditsRemaining ?? 0) - 1;
     await db
       .update(authUsers)
       .set({ creditsRemaining: newCredits })
@@ -670,8 +673,11 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const result = await db.execute(
-      `
+    // NOTE (LTM-ISS-6): this query still references email_captures, which is not
+    // the table's real name ("emailCaptures"), so it fails and the catch below
+    // returns null — exactly as the previous two-argument db.execute call did.
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const result = await db.execute(sql`
       SELECT 
         COUNT(*) as days_active,
         SUM(analyses_count) as total_analyses,
@@ -682,11 +688,9 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
         AVG(analyses_count) as avg_analyses_per_day,
         AVG(pages_processed) as avg_pages_per_day
       FROM usage_tracking 
-      WHERE user_id = (SELECT id FROM email_captures WHERE email = $1 LIMIT 1)
-      AND date >= $2
-    `,
-      [userEmail, startDate.toISOString().split('T')[0]]
-    );
+      WHERE user_id = (SELECT id FROM email_captures WHERE email = ${userEmail} LIMIT 1)
+      AND date >= ${startDateStr}
+    `);
 
     return (
       result.rows?.[0] || {

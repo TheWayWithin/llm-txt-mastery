@@ -30,24 +30,3 @@
 2	server/services/simple-tracker.ts|TS2322|Type '{}' is not assignable to type 'number'.
 1	server/services/simple-tracker.ts|TS2322|Type '{}' is not assignable to type 'string'.
 1	server/services/stripe.ts|TS2322|Type '"2024-06-20"' is not assignable to type '"2025-08-27.basil"'.
-2	server/services/usage.ts|TS18047|'authUser.creditsRemaining' is possibly 'null'.
-1	server/services/usage.ts|TS18047|'creditsRemaining' is possibly 'null'.
-1	server/services/usage.ts|TS2322|Type 'number | null' is not assignable to type 'number'.
-1	server/services/usage.ts|TS2339|Property 'createUsageTracking' does not exist on type 'MemStorage | DatabaseStorage'.
-1	server/services/usage.ts|TS2554|Expected 1 arguments, but got 2.
-1	server/storage.ts|TS2305|Module '"@shared/schema"' has no exported member 'InsertUser'.
-1	server/storage.ts|TS2322|Type '{ createdAt: Date; updatedAt: Date; id: string; email: string; tier?: string | undefined; creditsRemaining?: number | undefined; stripeCustomerId?: string | null | undefined; subscriptionId?: string | ... 1 more ... | undefined; subscriptionStatus?: string | ... 1 more ... | undefined; }' is not assignable to type '{ id: string; email: string; tier: string; creditsRemaining: number; stripeCustomerId: string | null; createdAt: Date | null; updatedAt: Date | null; subscriptionId: string | null; subscriptionStatus: string | null; }'.
-1	server/storage.ts|TS2322|Type '{ createdAt: Date; updatedAt: Date; userId: number; id: number; creditsRemaining?: number | undefined; stripePaymentIntentId?: string | null | undefined; creditsTotal?: number | undefined; ... 4 more ...; refundedAt?: Date | ... 1 more ... | undefined; }' is not assignable to type '{ id: number; creditsRemaining: number; createdAt: Date | null; updatedAt: Date | null; userId: number; stripePaymentIntentId: string | null; creditsTotal: number; productType: string; priceId: string | null; purchasedAt: Date; refunded: boolean; refundedAt: Date | null; }'.
-1	server/storage.ts|TS2322|Type 'number | null' is not assignable to type 'number'.
-1	server/storage.ts|TS2322|Type 'string | null | undefined' is not assignable to type 'string | null'.
-1	server/storage.ts|TS2339|Property 'createdAt' does not exist on type '{ id: number; username: string; password: string; }'.
-1	server/storage.ts|TS2339|Property 'creditsRemaining' does not exist on type '{ id: number; email: string; tier: string; createdAt: Date | null; userId: number | null; websiteUrl: string | null; }'.
-1	server/storage.ts|TS2339|Property 'updatedAt' does not exist on type '{ id: number; username: string; password: string; }'.
-1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'createdAt' does not exist in type '{ date: string; id: number; userId: number; analysesCount: number; validationsCount: number; pagesProcessed: number; aiCallsCount: number; htmlExtractionsCount: number; cacheHits: number; totalCost: number; ... 4 more ...; costCapTriggeredAt: Date | null; }'.
-1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'creditsRemaining' does not exist in type 'Partial<{ id: number; email: string; tier: string; createdAt: Date | null; userId: number | null; websiteUrl: string | null; }>'.
-1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ date: string; id: number; userId: number; analysesCount: number; validationsCount: number; pagesProcessed: number; aiCallsCount: number; htmlExtractionsCount: number; cacheHits: number; totalCost: number; ... 4 more ...; costCapTriggeredAt: Date | null; }'.
-1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ date?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; userId?: number | SQL<unknown> | PgColumn<...> | undefined; ... 12 more ...; costCapTriggeredAt?: SQL<...> | ... 3 more ... | undefined; }'.
-1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ email?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; id?: number | SQL<unknown> | PgColumn<...> | undefined; tier?: string | ... 2 more ... | undefined; createdAt?: SQL<...> | ... 3 more ... | undefined; userId?: number | ... 3 more ... | undefined; websiteUrl?: s...'.
-1	server/storage.ts|TS2353|Object literal may only specify known properties, and 'username' does not exist in type '{ id: string; email: string; tier: string; creditsRemaining: number; stripeCustomerId: string | null; createdAt: Date | null; updatedAt: Date | null; subscriptionId: string | null; subscriptionStatus: string | null; }'.
-1	server/storage.ts|TS2420|Class 'DatabaseStorage' incorrectly implements interface 'IStorage'.
-1	shared/schema.ts|TS2322|Type 'boolean' is not assignable to type 'never'.
