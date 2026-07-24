@@ -26,8 +26,18 @@ export const EMBEDDING_MODELS = {
   },
 };
 
-// Model configuration with pricing (as of Jan 2025)
-export const OPENAI_MODELS = {
+// Model configuration with pricing (as of Jan 2025). Keyed by model id; looked
+// up with env-configured strings, so unknown ids miss (call sites guard).
+export const OPENAI_MODELS: Record<
+  string,
+  {
+    name: string;
+    description: string;
+    pricing: { input: number; output: number };
+    maxTokens: number;
+    recommended: boolean;
+  }
+> = {
   'gpt-4o': {
     name: 'gpt-4o',
     description: 'Most capable, highest quality',

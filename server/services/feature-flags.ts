@@ -198,6 +198,7 @@ class FeatureFlagService {
     ];
 
     // Initialize flags if they don't exist
+    if (!this.redis) throw new Error('Redis client unavailable');
     for (const flag of defaultFlags) {
       const exists = await this.redis.hexists(this.cacheKey, flag.name);
       if (!exists) {
@@ -269,6 +270,7 @@ class FeatureFlagService {
       }
 
       // Fetch from Redis
+      if (!this.redis) throw new Error('Redis client unavailable');
       const flagData = await this.redis.hget(this.cacheKey, flagName);
       if (!flagData) return null;
 
@@ -290,6 +292,7 @@ class FeatureFlagService {
    */
   async getAllFlags(): Promise<FeatureFlag[]> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       const flagsData = await this.redis.hgetall(this.cacheKey);
       const flags: FeatureFlag[] = [];
 
@@ -327,6 +330,7 @@ class FeatureFlagService {
         },
       };
 
+      if (!this.redis) throw new Error('Redis client unavailable');
       await this.redis.hset(this.cacheKey, flagName, JSON.stringify(updatedFlag));
 
       // Clear local cache
@@ -445,6 +449,7 @@ class FeatureFlagService {
    */
   async healthCheck(): Promise<{ status: 'healthy' | 'degraded' | 'unhealthy'; details: any }> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       await this.redis.ping();
       const stats = await this.getStats();
 

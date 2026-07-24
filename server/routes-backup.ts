@@ -189,8 +189,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (isConvertKitConfigured()) {
           try {
             let limitType: 'daily_analyses' | 'page_limit' | 'ai_limit' = 'page_limit';
-            if (usageCheck.reason.includes('daily')) limitType = 'daily_analyses';
-            if (usageCheck.reason.includes('AI')) limitType = 'ai_limit';
+            if (usageCheck.reason?.includes('daily')) limitType = 'daily_analyses';
+            if (usageCheck.reason?.includes('AI')) limitType = 'ai_limit';
 
             await triggerUpgradeSequence(userEmail, tier, limitType);
           } catch (error) {
@@ -218,7 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If force flag is not set and we have a completed analysis, return it
       if (!force && existingAnalysis && existingAnalysis.status === 'completed') {
         // Check if it's recent enough based on tier cache duration
-        const analysisAge = Date.now() - new Date(existingAnalysis.createdAt).getTime();
+        // null createdAt has always coerced to the epoch (stale -> refetch)
+        const analysisAge = Date.now() - new Date(existingAnalysis.createdAt ?? 0).getTime();
         const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
 
         if (analysisAge < maxAge) {

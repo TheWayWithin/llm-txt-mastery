@@ -177,9 +177,10 @@ export class EmbeddingCache {
       const cached = await redisClient.mget(...keys);
 
       for (let i = 0; i < contentHashes.length; i++) {
-        if (cached[i]) {
+        const cachedValue = cached[i];
+        if (cachedValue) {
           try {
-            results.set(contentHashes[i], JSON.parse(cached[i]));
+            results.set(contentHashes[i], JSON.parse(cachedValue));
             await this.updateStats('hits', 1);
           } catch (parseError) {
             console.error(`❌ Error parsing cached data for ${contentHashes[i]}:`, parseError);

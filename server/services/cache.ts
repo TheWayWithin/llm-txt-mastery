@@ -10,7 +10,7 @@ import {
   analysisCache,
   emailCaptures,
 } from '@shared/schema';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, lt, sql } from 'drizzle-orm';
 
 // Helper function to implement fetch with timeout using AbortController
 async function fetchWithTimeout(
@@ -330,7 +330,7 @@ export async function cleanupExpiredCache(): Promise<void> {
     const now = new Date();
     const result = await db
       .delete(analysisCache)
-      .where(gt(now, analysisCache.expiresAt))
+      .where(lt(analysisCache.expiresAt, now))
       .returning({ id: analysisCache.id });
 
     if (result.length > 0) {
@@ -346,22 +346,18 @@ export async function getCacheStats(tier?: UserTier): Promise<any> {
   try {
     // Note: For complex aggregations like this, we'll keep raw SQL for now
     // as Drizzle ORM's aggregate functions don't support all SQL features yet
-    const tierClause = tier ? `WHERE tier = $1` : '';
-    const params = tier ? [tier] : [];
-
-    const stats = await db.execute(
-      `
+    const selectList = sql`
       SELECT 
         COUNT(*) as total_entries,
         SUM(hit_count) as total_hits,
         AVG(hit_count) as avg_hits_per_entry,
         COUNT(CASE WHEN expires_at > NOW() THEN 1 END) as active_entries,
         COUNT(CASE WHEN expires_at <= NOW() THEN 1 END) as expired_entries
-      FROM analysis_cache
-      ${tierClause}
-    `,
-      params
-    );
+      FROM analysis_cache`;
+
+    const stats = tier
+      ? await db.execute(sql`${selectList} WHERE tier = ${tier}`)
+      : await db.execute(selectList);
 
     return (
       stats.rows?.[0] || {

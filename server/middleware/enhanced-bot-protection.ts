@@ -148,7 +148,8 @@ export const costProtectionLimiter = rateLimit({
   }),
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true,
+  // trust-proxy is configured at the Express app level; express-rate-limit v8
+  // has no such option (the old key was silently ignored)
   handler: (req: EnhancedRequest, res: Response) => {
     const isBot = req.suspiciousActivity || (req.botScore || 0) >= 50;
 
