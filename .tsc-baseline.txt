@@ -22,9 +22,6 @@
 2	server/services/auth.ts|TS2769|No overload matches this call.
 1	server/services/cache.ts|TS2554|Expected 1 arguments, but got 2.
 1	server/services/cache.ts|TS2769|No overload matches this call.
-2	server/services/convertkit.ts|TS2339|Property 'fields' does not exist on type 'never'.
-10	server/services/convertkit.ts|TS2339|Property 'id' does not exist on type 'never'.
-1	server/services/convertkit.ts|TS2739|Type '{ id: string; }' is missing the following properties from type 'ConvertKitSubscriber': email, state, created_at, fields, tags
 6	server/services/feature-flags.ts|TS2531|Object is possibly 'null'.
 1	server/services/keep-alive.ts|TS2353|Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
 5	server/services/openai-enhanced.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 'gpt-4o': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-4o-mini': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-3.5-turbo': { ...; }; }'.

@@ -2,15 +2,31 @@ import { StoredUserTier } from '@shared/schema';
 // Note: convertkit-node is a CommonJS module, so we need to import it carefully
 // import ConvertKit from 'convertkit-node'
 
-// Initialize ConvertKit client (mock for now until we can fix the import)
+// Initialize ConvertKit client (mock for now until we can fix the import).
+// Return types mirror the real API so callers type-check; the empty
+// getSubscribers result means every function no-ops after its guard.
 const convertKit = {
-  addSubscriberToForm: async (formId: string, data: any) => ({
-    subscription: { subscriber: { id: 'mock-id' } },
+  addSubscriberToForm: async (
+    formId: string,
+    data: unknown
+  ): Promise<{ subscription?: { subscriber: ConvertKitSubscriber } }> => ({
+    subscription: {
+      subscriber: {
+        id: 'mock-id',
+        email: '',
+        state: 'active',
+        created_at: '',
+        fields: {},
+        tags: [],
+      },
+    },
   }),
   addTagToSubscriber: async (tagId: string, subscriberId: string) => ({}),
   removeTagFromSubscriber: async (tagId: string, subscriberId: string) => ({}),
-  updateSubscriber: async (subscriberId: string, data: any) => ({}),
-  getSubscribers: async (query: any) => ({ subscribers: [] }),
+  updateSubscriber: async (subscriberId: string, data: unknown) => ({}),
+  getSubscribers: async (query: unknown): Promise<{ subscribers: ConvertKitSubscriber[] }> => ({
+    subscribers: [],
+  }),
   addSubscriberToSequence: async (sequenceId: string, subscriberId: string) => ({}),
   unsubscribeSubscriber: async (subscriberId: string) => ({}),
 };
