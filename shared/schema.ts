@@ -64,6 +64,43 @@ export const paymentHistory = pgTable('payment_history', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Shape of sitemapAnalysis.analysis_metadata as the code actually writes it
+// (analyzeWebsiteEnhanced, the orphan detector, and the v1 API all contribute).
+export interface SitemapAnalysisMetadata {
+  siteType: 'single-page' | 'multi-page' | 'unknown';
+  sitemapFound: boolean;
+  // 'error' is written on failed analyses
+  analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl' | 'error';
+  // Some failure writes omit message
+  message?: string;
+  totalPagesFound: number;
+  userEmail?: string;
+  tier?: StoredUserTier;
+  // Written on failed analyses
+  error?: string;
+  // Sprint 6/10: JS rendering fields on completed analyses
+  jsRenderingEnabled?: boolean;
+  jsRenderedPages?: number;
+  // API v1 provenance
+  apiKeyId?: number;
+  consumer?: string;
+  // Enhanced SPA detection fields (Sprint 1: Phase 1)
+  spaDetection?: SPADetectionResult;
+  contentCoveragePercentage?: number;
+  renderingStrategy?: RenderingStrategy;
+  metrics?: {
+    cacheHit: boolean;
+    processingTime: number;
+    apiCalls: number;
+    costSaved: number;
+    analyzedPages?: number;
+    cachedPages?: number;
+    aiCallsUsed?: number;
+    htmlExtractionsUsed?: number;
+  };
+  processingTime?: number;
+}
+
 export const sitemapAnalysis = pgTable('sitemapAnalysis', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
@@ -71,30 +108,7 @@ export const sitemapAnalysis = pgTable('sitemapAnalysis', {
   sitemapContent: jsonb('sitemap_content'),
   discoveredPages: jsonb('discovered_pages').$type<DiscoveredPage[]>(),
   status: text('status').notNull().default('pending'),
-  analysisMetadata: jsonb('analysis_metadata').$type<{
-    siteType: 'single-page' | 'multi-page' | 'unknown';
-    sitemapFound: boolean;
-    analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
-    message: string;
-    totalPagesFound: number;
-    userEmail?: string;
-    tier?: StoredUserTier;
-    // Enhanced SPA detection fields (Sprint 1: Phase 1)
-    spaDetection?: SPADetectionResult;
-    contentCoveragePercentage?: number;
-    renderingStrategy?: RenderingStrategy;
-    metrics?: {
-      cacheHit: boolean;
-      processingTime: number;
-      apiCalls: number;
-      costSaved: number;
-      analyzedPages?: number;
-      cachedPages?: number;
-      aiCallsUsed?: number;
-      htmlExtractionsUsed?: number;
-    };
-    processingTime?: number;
-  }>(),
+  analysisMetadata: jsonb('analysis_metadata').$type<SitemapAnalysisMetadata>(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -198,6 +212,8 @@ export interface DiscoveredPage {
   bodyContent?: string; // Raw extracted text content (up to 4000 chars) for llms-full.txt
 }
 
+// Wire shape of GET /api/analysis/:id (see routes.ts): metadata fields are
+// flattened with fallbacks, plus the full analysisMetadata for components.
 export interface SiteAnalysisResult {
   id: number;
   url: string;
@@ -205,15 +221,19 @@ export interface SiteAnalysisResult {
   discoveredPages: DiscoveredPage[];
   siteType: 'single-page' | 'multi-page' | 'unknown';
   sitemapFound: boolean;
-  analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
+  analysisMethod: SitemapAnalysisMetadata['analysisMethod'] | 'unknown';
   message: string;
   totalPagesFound: number;
+  analysisMetadata?: SitemapAnalysisMetadata;
   metrics?: {
     cacheHit: boolean;
     processingTime: number;
     apiCalls: number;
     costSaved: number;
   };
+  spaDetection?: SPADetectionResult;
+  contentCoveragePercentage?: number;
+  renderingStrategy?: RenderingStrategy;
 }
 
 export interface SelectedPage {
@@ -223,6 +243,8 @@ export interface SelectedPage {
   selected: boolean;
   category?: string;
   qualityScore?: number;
+  // Optional per-page metadata; getPageQualityScore falls back when absent
+  analysisMetadata?: { qualityScore?: number };
   bodyContent?: string; // Raw extracted text content for llms-full.txt
 }
 

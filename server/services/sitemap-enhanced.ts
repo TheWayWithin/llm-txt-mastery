@@ -35,6 +35,8 @@ export interface AnalysisMetrics {
   totalTokensUsed: number;
   actualAiCostUSD: number;
   modelUsed: string;
+  // Set when checkAiCostCap reports the monthly cap would trigger
+  costCapWouldTrigger?: boolean;
   // Sprint 6: JS rendering metrics
   jsRenderedPages?: number;
   jsRenderingEnabled?: boolean;
@@ -474,7 +476,7 @@ async function processBatchWithCache(
 
         // Store if cap would trigger for tracking
         if (costCheck.wouldTrigger) {
-          metrics['costCapWouldTrigger'] = true;
+          metrics.costCapWouldTrigger = true;
         }
       }
 

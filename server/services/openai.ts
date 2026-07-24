@@ -35,6 +35,11 @@ export interface ContentAnalysisResult {
   qualityScore: number;
   category: string;
   relevance: number;
+  // Optional token-tracking fields. analyzePageContent does not populate these
+  // yet; sitemap-enhanced guards every read, so metrics fall back to estimates.
+  tokensUsed?: { total: number; prompt?: number; completion?: number };
+  actualCostUSD?: number;
+  model?: string;
 }
 
 /**

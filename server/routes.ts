@@ -126,7 +126,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               tier: emailCapture.tier,
               email: emailCapture.email,
               createdAt: emailCapture.createdAt,
-              updatedAt: emailCapture.updatedAt,
             }
           : null,
         debug: {
@@ -712,6 +711,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.updateAnalysis(analysisId, {
             status: 'failed',
             analysisMetadata: {
+              // Neutral defaults only matter if metadata was never written;
+              // the response builder produces the same values for absent fields
+              siteType: 'unknown',
+              sitemapFound: false,
+              analysisMethod: 'error',
+              totalPagesFound: 0,
               ...analysis.analysisMetadata,
               message:
                 'Analysis timed out. The server may have restarted during processing. Please try again.',
@@ -802,7 +807,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const limits = TIER_LIMITS[tier];
 
-      const responseData = {
+      const responseData: {
+        tier: StoredUserTier;
+        usage: {
+          analysesToday: number;
+          pagesProcessedToday: number;
+          cacheHitsToday: number;
+          costToday: number;
+        };
+        limits: { dailyAnalyses: number; maxPagesPerAnalysis: number; aiPagesLimit: number };
+        features: (typeof limits)['features'];
+        creditsRemaining?: number;
+      } = {
         tier,
         usage: {
           analysesToday: simpleUsage.count,
@@ -1406,7 +1422,7 @@ async function performAnalysisWithTimeout(
       metrics.totalTokensUsed || 0,
       metrics.actualAiCostUSD || 0,
       metrics.modelUsed || '',
-      metrics['costCapWouldTrigger'] || false
+      metrics.costCapWouldTrigger || false
     ).catch((error) => {
       // Silently fail - we don't care if complex tracking fails
       console.debug(`[USAGE] Complex tracking failed (ignored):`, error.message);
@@ -3235,5 +3251,4 @@ function generateLlmMiniTxtContent(
   return output;
 }
 
-// Helper function to get today's usage (imported from usage service)
-import { getTodayUsage } from './services/usage';
+// (getTodayUsage is imported once in the main import block at the top)

@@ -299,14 +299,18 @@ export default function ContentAnalysis({
         onAnalysisComplete(analysisData.id, analysisData.discoveredPages);
       }, 500);
     } else if (analysisData && analysisData.status === 'failed') {
-      console.error(`❌ Analysis failed: id=${analysisData.id}, error=${analysisData.error}`);
-      setLastError(analysisData.error || 'Analysis failed unexpectedly');
+      // The API carries failure detail inside analysisMetadata; there has never
+      // been a top-level error field, so the user-facing text stays generic.
+      console.error(
+        `❌ Analysis failed: id=${analysisData.id}, error=${analysisData.analysisMetadata?.error}`
+      );
+      setLastError('Analysis failed unexpectedly');
     } else if (analysisData && analysisData.status === 'processing') {
       // Update estimated time and mark discovery complete when we know the page count
       if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
         // Use API tier as source of truth (fresh from database) - userTier prop may be stale JWT
-        const apiTier = analysisData.analysisMetadata?.tier || analysisData.tier || userTier;
-        const apiTierLimit = TIER_PAGE_LIMITS[apiTier] || analysisData.totalPagesFound;
+        const apiTier = analysisData.analysisMetadata?.tier || userTier;
+        const apiTierLimit = (apiTier && TIER_PAGE_LIMITS[apiTier]) || analysisData.totalPagesFound;
         const actualPages = Math.min(analysisData.totalPagesFound, apiTierLimit);
 
         // Update effective tier state so UI shows correct tier info

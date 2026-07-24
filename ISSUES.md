@@ -16,6 +16,7 @@ ID or another repo's. Raise issues here with `python3 ~/shared/scripts/repo-issu
 
 | ID | Title | Status | Severity | Detail | MC-SYNC |
 |----|-------|--------|----------|--------|---------|
+| LTM-ISS-5 | API v1 processAnalysis pipeline is broken against the current sitemap/analyzer APIs: reads sitemapResult.pages/.found/.source (now entries/sitemapFound/analysisMethod), passes userTier where analyzeDiscoveredPagesWithCache expects userEmail, and treats its {pages,metrics} return as an array — every /api/v1 analysis crashes at the first metadata update. Needs a deliberate repair + test (which email/identity to use for usage tracking) | Open | medium | — | pending |
 | LTM-ISS-4 | verify-email: 'already logged in' fast-path after verification has never executed (refreshUser() resolves void, and it reads pendingAnalysisUrl after removing it). Decide whether to revive it by checking auth context user | Open | low | — | pending |
 | LTM-ISS-3 | Verify /api/auth/admin/reset-credits endpoint end-to-end (was crashing on undefined COFFEE_TIER_CREDITS; constant now defined at module scope = 20) | Open | low | — | pending |
 | LTM-ISS-2 | Burn down the 261-error TS baseline (.tsc-baseline.txt) to zero and restore full tsc gate | Open | low | — | pending |

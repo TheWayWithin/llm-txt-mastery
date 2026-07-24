@@ -594,14 +594,22 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
 }
 
 export async function getUserTierFromAuth(
-  user: { id: string; email: string; tier: StoredUserTier } | undefined,
+  // Accepts either a Supabase profile (string UUID) or an auth_users row
+  // (numeric id, tier as raw DB text)
+  user: { id: string | number; email: string; tier: string } | undefined,
   email?: string
 ): Promise<StoredUserTier> {
   if (user) {
-    // Get tier from authenticated user profile
-    const userProfile = await storage.getUserProfile(user.id);
+    // Get tier from authenticated user profile (profile ids are text; a numeric
+    // auth_users id stringifies to a value that matches no profile, exactly as
+    // the driver has always coerced it)
+    const userProfile = await storage.getUserProfile(String(user.id));
     // DB boundary: the tier column is text but only ever holds StoredUserTier values
-    return (userProfile?.tier as StoredUserTier | undefined) || user.tier || 'starter';
+    return (
+      (userProfile?.tier as StoredUserTier | undefined) ||
+      (user.tier as StoredUserTier | undefined) ||
+      'starter'
+    );
   } else if (email) {
     // Fallback to email-based tier lookup for backward compatibility
     return await getUserTier(email);
@@ -742,14 +750,14 @@ const JS_RENDERS_MONTHLY_LIMIT = 100; // Scale tier gets 100 JS renders per mont
  * Check if user has remaining JS renders for this month
  * Returns the current count and whether they can use more
  */
-export async function checkJsRenderQuota(userId: string): Promise<{
+export async function checkJsRenderQuota(userId: string | number): Promise<{
   hasQuota: boolean;
   rendersUsed: number;
   rendersRemaining: number;
   resetAt: Date | null;
 }> {
   try {
-    const numericUserId = parseInt(userId);
+    const numericUserId = parseInt(String(userId));
     if (isNaN(numericUserId)) {
       console.error(`[JS QUOTA] Invalid userId format: ${userId}`);
       return { hasQuota: false, rendersUsed: 0, rendersRemaining: 0, resetAt: null };
