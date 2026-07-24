@@ -25,15 +25,6 @@
 6	server/services/feature-flags.ts|TS2531|Object is possibly 'null'.
 1	server/services/keep-alive.ts|TS2353|Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
 5	server/services/openai-enhanced.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 'gpt-4o': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-4o-mini': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-3.5-turbo': { ...; }; }'.
-1	server/services/performance-benchmarks.ts|TS1308|'await' expressions are only allowed within async functions and at the top levels of modules.
-1	server/services/performance-benchmarks.ts|TS2322|Type 'null' is not assignable to type 'Redis'.
-2	server/services/performance-benchmarks.ts|TS2339|Property 'benchmarkName' does not exist on type 'PerformanceBenchmarkService'.
-1	server/services/performance-benchmarks.ts|TS2339|Property 'benchmarkSuite' does not exist on type 'PerformanceBenchmarkService'.
-1	server/services/performance-benchmarks.ts|TS2339|Property 'passed' does not exist on type 'PerformanceBenchmarkService'.
-2	server/services/performance-benchmarks.ts|TS2339|Property 'runAt' does not exist on type 'PerformanceBenchmarkService'.
-1	server/services/performance-benchmarks.ts|TS2345|Argument of type 'PerformanceBenchmarkService' is not assignable to parameter of type 'PgTable<TableConfig>'.
-2	server/services/performance-benchmarks.ts|TS2345|Argument of type 'PerformanceBenchmarkService' is not assignable to parameter of type 'SQL<unknown> | PgTable<TableConfig> | Subquery<string, Record<string, unknown>> | PgViewBase<string, boolean, ColumnsSelection>'.
-2	server/services/performance-benchmarks.ts|TS2451|Cannot redeclare block-scoped variable 'performanceBenchmarks'.
 1	server/services/redis-client.ts|TS2345|Argument of type 'string | null' is not assignable to parameter of type 'string'.
 1	server/services/semantic-monitoring.ts|TS2322|Type 'null' is not assignable to type 'Redis'.
 2	server/services/simple-tracker.ts|TS2322|Type '{}' is not assignable to type 'number'.
