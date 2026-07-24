@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { errorMessage } from '../lib/errors';
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AuthUser, JWTPayload, UserTier } from '@shared/schema';
 
@@ -64,8 +64,11 @@ function validateJWTRefreshSecret(): string {
 // Validate secrets at startup - fail fast for security
 const JWT_SECRET = validateJWTSecret();
 const JWT_REFRESH_SECRET = validateJWTRefreshSecret();
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
-const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+// jsonwebtoken v9 types expiresIn as an ms-format StringValue; these env values
+// must be valid ms durations (jwt.sign validates at runtime, unchanged)
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '15m') as SignOptions['expiresIn'];
+const JWT_REFRESH_EXPIRES_IN = (process.env.JWT_REFRESH_EXPIRES_IN ||
+  '7d') as SignOptions['expiresIn'];
 
 // Log security validation success (without exposing secrets)
 console.log(
@@ -219,7 +222,13 @@ export function verifyEmailVerificationToken(
 }
 
 // Authentication response helpers
-export function createAuthResponse(user: AuthUser, accessToken: string, refreshToken: string) {
+export function createAuthResponse(
+  // Only the public fields are read, so synthetic users (e.g. demo login) that
+  // have no passwordHash row can be passed too
+  user: Pick<AuthUser, 'id' | 'email' | 'tier' | 'creditsRemaining' | 'emailVerified'>,
+  accessToken: string,
+  refreshToken: string
+) {
   return {
     user: {
       id: user.id,

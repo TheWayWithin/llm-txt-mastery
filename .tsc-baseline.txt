@@ -12,14 +12,12 @@
 2	server/routes/api-v1.ts|TS2339|Property 'source' does not exist on type 'SitemapResult'.
 1	server/routes/api-v1.ts|TS2554|Expected 3-5 arguments, but got 2.
 1	server/routes/api-v1.ts|TS2740|Type '{ pages: DiscoveredPage[]; metrics: AnalysisMetrics; }' is missing the following properties from type 'DiscoveredPage[]': length, pop, push, concat, and 29 more.
-1	server/routes/auth.ts|TS2345|Argument of type '{ id: number; email: string; tier: UserTier; emailVerified: boolean; creditsRemaining: number; createdAt: Date; updatedAt: Date; }' is not assignable to parameter of type '{ id: number; email: string; passwordHash: string; emailVerified: boolean | null; tier: string; creditsRemaining: number | null; stripeCustomerId: string | null; createdAt: Date | null; updatedAt: Date | null; jsRendersUsedThisMonth: number | null; jsRendersResetAt: Date | null; }'.
 1	server/routes/stripe.ts|TS2561|Object literal may only specify known properties, but 'stripeSubscriptionId' does not exist in type '{ userId: number; status: string; amount: number; subscriptionId?: number | null | undefined; stripePaymentIntentId?: string | null | undefined; currency?: string | undefined; }'. Did you mean to write 'subscriptionId'?
 1	server/services/alert-system.ts|TS2484|Export declaration conflicts with exported declaration of 'Alert'.
 1	server/services/alert-system.ts|TS2484|Export declaration conflicts with exported declaration of 'AlertAction'.
 1	server/services/alert-system.ts|TS2484|Export declaration conflicts with exported declaration of 'AlertRule'.
 1	server/services/alert-system.ts|TS2484|Export declaration conflicts with exported declaration of 'NotificationChannel'.
 2	server/services/api-key-manager.ts|TS2353|Object literal may only specify known properties, and 'resolved' does not exist in type 'Omit<SecurityAlert, "resolved">'.
-2	server/services/auth.ts|TS2769|No overload matches this call.
 1	server/services/cache.ts|TS2554|Expected 1 arguments, but got 2.
 1	server/services/cache.ts|TS2769|No overload matches this call.
 6	server/services/feature-flags.ts|TS2531|Object is possibly 'null'.
