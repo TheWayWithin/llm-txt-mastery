@@ -17,6 +17,8 @@ export interface BaseEventProperties {
   page_path?: string;
   user_agent?: string;
   referrer?: string;
+  // GA4 standard monetary/weight parameter, sent on any event type
+  value?: number;
 }
 
 export interface UserEventProperties extends BaseEventProperties {
@@ -50,11 +52,11 @@ export interface ConversionEventProperties extends BusinessEventProperties {
 
 // Event type definitions for better type safety
 export interface EventDefinitions {
-  // Page view events
+  // Page view events (enriched with user context by useAnalytics)
   page_view: {
     page_title: string;
     page_location?: string;
-  } & BaseEventProperties;
+  } & UserEventProperties;
 
   // User engagement events
   tier_selected: {
@@ -144,12 +146,12 @@ export interface EventDefinitions {
     user_tier?: StoredUserTier;
   } & UserEventProperties;
 
-  // Performance events
+  // Performance events (enriched with user context by useAnalytics)
   performance_metric: {
     metric_name: string;
     metric_value: number;
     metric_unit?: string;
-  } & BaseEventProperties;
+  } & UserEventProperties;
 }
 
 export type EventName = keyof EventDefinitions;
@@ -514,6 +516,5 @@ export const analyticsHelpers = {
   },
 };
 
-// Export the main analytics object and helpers
-export { analytics };
+// analytics is already exported (named) at its declaration above
 export default analytics;

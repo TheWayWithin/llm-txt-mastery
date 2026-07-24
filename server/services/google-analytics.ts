@@ -38,7 +38,8 @@ export interface ContentPerformance {
 
 export interface AnalyticsInsights {
   property_id: string;
-  date_range: { start_date: string; end_date: string };
+  // Matches the shape actually assigned in generateContentInsights (GA API dateRange)
+  date_range: { startDate: string; endDate: string };
   total_pages: number;
   top_performing_pages: ContentPerformance[];
   content_gaps: string[];

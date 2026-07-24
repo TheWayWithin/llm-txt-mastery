@@ -11,20 +11,12 @@
 1	client/src/components/UserDashboard.tsx|TS2339|Property 'userProfile' does not exist on type 'AuthContextType'.
 1	client/src/contexts/AuthContext.tsx|TS2322|Type 'string' is not assignable to type 'number'.
 2	client/src/hooks/useABTesting.tsx|TS2339|Property 'user' does not exist on type 'AuthContextType | undefined'.
-1	client/src/hooks/useAnalytics.ts|TS2353|Object literal may only specify known properties, and 'user_tier' does not exist in type 'Partial<{ metric_name: string; metric_value: number; metric_unit?: string | undefined; } & BaseEventProperties>'.
-2	client/src/hooks/useAnalytics.ts|TS2353|Object literal may only specify known properties, and 'user_tier' does not exist in type 'Partial<{ page_title: string; page_location?: string | undefined; } & BaseEventProperties>'.
 1	client/src/hooks/useAsync.ts|TS2345|Argument of type '[]' is not assignable to parameter of type 'Args'.
 1	client/src/hooks/useFeatureFlags.tsx|TS2339|Property 'user' does not exist on type 'AuthContextType | undefined'.
 1	client/src/hooks/useFlowStateMachine.ts|TS2322|Type '{ analysisId: number; discoveredPages: DiscoveredPage[]; lastProcessedAnalysisId: number; currentState: string; progress: ProgressContext; eventCounter: Map<...>; ... 9 more ...; retryCount: number; }' is not assignable to type 'FlowContext'.
 2	client/src/hooks/useFormValidation.ts|TS2339|Property 'data' does not exist on type 'ValidationResult'.
 1	client/src/hooks/useFormValidation.ts|TS2339|Property 'pick' does not exist on type 'ZodType<T, ZodTypeDef, T>'.
 1	client/src/hooks/useUsageTracking.ts|TS18047|'clientUsage' is possibly 'null'.
-2	client/src/lib/analytics-utils.ts|TS2323|Cannot redeclare exported variable 'analytics'.
-1	client/src/lib/analytics-utils.ts|TS2353|Object literal may only specify known properties, and 'value' does not exist in type '{ analysis_id: number; user_tier: UserTier; selected_pages_count?: number | undefined; } & UserEventProperties'.
-1	client/src/lib/analytics-utils.ts|TS2353|Object literal may only specify known properties, and 'value' does not exist in type '{ file_id: number; user_tier: UserTier; file_size?: number | undefined; } & UserEventProperties'.
-1	client/src/lib/analytics-utils.ts|TS2353|Object literal may only specify known properties, and 'value' does not exist in type '{ user_tier: UserTier; analyses_count: number; limit_type: "daily_analyses" | "ai_calls" | "pages"; } & UserEventProperties'.
-1	client/src/lib/analytics-utils.ts|TS2353|Object literal may only specify known properties, and 'value' does not exist in type '{ website_url: string; pages_discovered: number; user_tier: UserTier; processing_time?: number | undefined; cache_hit?: boolean | undefined; } & AnalysisEventProperties'.
-1	client/src/lib/analytics-utils.ts|TS2484|Export declaration conflicts with exported declaration of 'analytics'.
 1	client/src/lib/error-utils.ts|TS1308|'await' expressions are only allowed within async functions and at the top levels of modules.
 1	client/src/lib/error-utils.ts|TS2353|Object literal may only specify known properties, and 'data' does not exist in type 'Promise<{ data?: T | undefined; error?: AppError | undefined; }>'.
 1	client/src/lib/error-utils.ts|TS2353|Object literal may only specify known properties, and 'error' does not exist in type 'Promise<{ data?: T | undefined; error?: AppError | undefined; }>'.
@@ -74,7 +66,6 @@
 10	server/services/convertkit.ts|TS2339|Property 'id' does not exist on type 'never'.
 1	server/services/convertkit.ts|TS2739|Type '{ id: string; }' is missing the following properties from type 'ConvertKitSubscriber': email, state, created_at, fields, tags
 6	server/services/feature-flags.ts|TS2531|Object is possibly 'null'.
-1	server/services/google-analytics.ts|TS2739|Type '{ startDate: string; endDate: string; }' is missing the following properties from type '{ start_date: string; end_date: string; }': start_date, end_date
 1	server/services/keep-alive.ts|TS2353|Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
 5	server/services/openai-enhanced.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 'gpt-4o': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-4o-mini': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-3.5-turbo': { ...; }; }'.
 1	server/services/performance-benchmarks.ts|TS1308|'await' expressions are only allowed within async functions and at the top levels of modules.
