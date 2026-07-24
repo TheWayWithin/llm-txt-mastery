@@ -1,5 +1,12 @@
 import Stripe from 'stripe';
 
+// This account/client is pinned to the 2024-06-20 API version. The SDK's types
+// only advertise the version the SDK build ships with ('2025-08-27.basil'),
+// but Stripe's API accepts any released version string at runtime — so the pin
+// is kept EXACTLY as-is via a boundary cast rather than silently changing live
+// payment behaviour. Upgrading the pin is a deliberate migration: LTM-ISS-8.
+const PINNED_STRIPE_API_VERSION = '2024-06-20' as unknown as Stripe.StripeConfig['apiVersion'];
+
 let stripeInstance: Stripe | null = null;
 
 function getStripe(): Stripe {
@@ -8,7 +15,7 @@ function getStripe(): Stripe {
       throw new Error('STRIPE_SECRET_KEY is required');
     }
     stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-06-20',
+      apiVersion: PINNED_STRIPE_API_VERSION,
     });
   }
   return stripeInstance;
