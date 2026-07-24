@@ -184,16 +184,13 @@ function AccountOverview() {
                   </Badge>
                 </div>
                 <p className="text-sm text-slate-brand mb-3">
-                  Your Solo subscription includes 20 analyses per month, up to 200 pages each with AI enhancement.
+                  Your Solo subscription includes 20 analyses per month, up to 200 pages each with
+                  AI enhancement.
                 </p>
                 {user.creditsRemaining === 0 && (
                   <div className="text-sm text-ink">
-                    <p className="mb-2">
-                      Your monthly analyses reset on your next billing cycle.
-                    </p>
-                    <p>
-                      Need more? Upgrade to Growth ($9.95/mo) for 35 analyses per month.
-                    </p>
+                    <p className="mb-2">Your monthly analyses reset on your next billing cycle.</p>
+                    <p>Need more? Upgrade to Growth ($9.95/mo) for 35 analyses per month.</p>
                   </div>
                 )}
               </div>
@@ -204,7 +201,8 @@ function AccountOverview() {
               <div className="bg-error/5 border border-error/20 rounded-lg p-4">
                 <h4 className="font-medium text-error mb-2">Subscription Ended</h4>
                 <p className="text-sm text-slate-brand mb-3">
-                  Your subscription has been cancelled. You can still view your previous analyses, but new analyses are disabled.
+                  Your subscription has been cancelled. You can still view your previous analyses,
+                  but new analyses are disabled.
                 </p>
                 <p className="text-sm text-ink mb-4">
                   Re-subscribe to continue analyzing websites and generating llms.txt files.
@@ -230,9 +228,7 @@ function AccountOverview() {
             {['growth', 'scale'].includes(user.tier) && (
               <div
                 className={`border rounded-lg p-4 ${
-                  user.tier === 'growth'
-                    ? 'bg-signal-blue/10 border-mist'
-                    : 'bg-cloud border-mist'
+                  user.tier === 'growth' ? 'bg-signal-blue/10 border-mist' : 'bg-cloud border-mist'
                 }`}
               >
                 <h4
@@ -256,7 +252,13 @@ function AccountOverview() {
                       user.tier === 'growth' ? 'text-signal-blue' : 'text-slate-brand'
                     }`}
                   >
-                    <li>{user.tier === 'growth' ? '35 monthly analyses, 500 pages each' : user.tier === 'scale' ? '100 monthly analyses, 1,000 pages each' : '20 Monthly Analyses'}</li>
+                    <li>
+                      {user.tier === 'growth'
+                        ? '35 monthly analyses, 500 pages each'
+                        : user.tier === 'scale'
+                          ? '100 monthly analyses, 1,000 pages each'
+                          : '20 Monthly Analyses'}
+                    </li>
                     <li>AI-enhanced analysis</li>
                     <li>Priority support</li>
                     {user.tier === 'scale' && (
@@ -435,7 +437,8 @@ function BillingSection() {
                       You have {user.creditsRemaining} of 20 analyses remaining this month.
                     </p>
                     <p className="text-xs text-slate-brand mt-2">
-                      Solo subscription includes 20 analyses per month, resetting each billing cycle.
+                      Solo subscription includes 20 analyses per month, resetting each billing
+                      cycle.
                     </p>
                   </div>
                 </div>
@@ -517,16 +520,18 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Solo</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-action-amber">{upgradeBilling === 'annual' ? '$3.95' : '$4.95'}</div>
-                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
+                  <div className="text-2xl font-bold text-action-amber">
+                    {upgradeBilling === 'annual' ? '$3.95' : '$4.95'}
+                  </div>
+                  <div className="text-xs text-stone-brand">
+                    {upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
                 <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    ✅ 20 Monthly Analyses
-                  </div>
+                  <div className="text-sm font-semibold text-ink mb-1">✅ 20 Monthly Analyses</div>
                   <div className="text-xs text-slate-brand">
                     vs FREE: Only 3 per day (90 per month max) - Solo gives you 20
                   </div>
@@ -551,18 +556,14 @@ function BillingSection() {
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    🤖 AI Quality Scoring
-                  </div>
+                  <div className="text-sm font-semibold text-ink mb-1">🤖 AI Quality Scoring</div>
                   <div className="text-xs text-slate-brand">
                     vs FREE: No AI analysis (basic HTML only)
                   </div>
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    💰 Incredible Value
-                  </div>
+                  <div className="text-sm font-semibold text-ink mb-1">💰 Incredible Value</div>
                   <div className="text-xs text-slate-brand">
                     20 analyses for just $4.95/month - perfect for solo founders!
                   </div>
@@ -612,8 +613,12 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Growth</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-signal-blue">{upgradeBilling === 'annual' ? '$7.95' : '$9.95'}</div>
-                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
+                  <div className="text-2xl font-bold text-signal-blue">
+                    {upgradeBilling === 'annual' ? '$7.95' : '$9.95'}
+                  </div>
+                  <div className="text-xs text-stone-brand">
+                    {upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}
+                  </div>
                 </div>
               </div>
 
@@ -629,14 +634,18 @@ function BillingSection() {
                   <div className="text-sm font-semibold text-mastery-blue mb-1">
                     📊 35 Monthly Analyses
                   </div>
-                  <div className="text-xs text-signal-blue">vs Solo: 75% more analyses per month</div>
+                  <div className="text-xs text-signal-blue">
+                    vs Solo: 75% more analyses per month
+                  </div>
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
                   <div className="text-sm font-semibold text-mastery-blue mb-1">
                     📄 500 Pages per Analysis
                   </div>
-                  <div className="text-xs text-signal-blue">vs Solo: 2.5x more content discovery</div>
+                  <div className="text-xs text-signal-blue">
+                    vs Solo: 2.5x more content discovery
+                  </div>
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
@@ -701,8 +710,12 @@ function BillingSection() {
                   <h3 className="font-bold text-lg">Scale</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-brand">{upgradeBilling === 'annual' ? '$15.95' : '$19.95'}</div>
-                  <div className="text-xs text-stone-brand">{upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}</div>
+                  <div className="text-2xl font-bold text-slate-brand">
+                    {upgradeBilling === 'annual' ? '$15.95' : '$19.95'}
+                  </div>
+                  <div className="text-xs text-stone-brand">
+                    {upgradeBilling === 'annual' ? '/mo (billed yearly)' : 'per month'}
+                  </div>
                 </div>
               </div>
 
@@ -715,9 +728,7 @@ function BillingSection() {
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    📊 100 Monthly Analyses
-                  </div>
+                  <div className="text-sm font-semibold text-ink mb-1">📊 100 Monthly Analyses</div>
                   <div className="text-xs text-slate-brand">
                     vs Growth: ~3x more analyses per month
                   </div>
@@ -727,15 +738,11 @@ function BillingSection() {
                   <div className="text-sm font-semibold text-ink mb-1">
                     📄 1,000 Pages per Analysis
                   </div>
-                  <div className="text-xs text-slate-brand">
-                    vs Growth: 2x more pages per scan
-                  </div>
+                  <div className="text-xs text-slate-brand">vs Growth: 2x more pages per scan</div>
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    ⚛️ JavaScript Rendering
-                  </div>
+                  <div className="text-sm font-semibold text-ink mb-1">⚛️ JavaScript Rendering</div>
                   <div className="text-xs text-slate-brand">
                     React, Angular, Vue & SPA sites fully supported
                   </div>
@@ -749,9 +756,7 @@ function BillingSection() {
                 </div>
 
                 <div className="bg-white border border-mist rounded-md p-3">
-                  <div className="text-sm font-semibold text-ink mb-1">
-                    📞 Priority Support
-                  </div>
+                  <div className="text-sm font-semibold text-ink mb-1">📞 Priority Support</div>
                   <div className="text-xs text-slate-brand">
                     Email support@llmtxtmastery.com for priority help
                   </div>
@@ -919,7 +924,8 @@ function ValidatorSection() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-slate-brand mb-4">
-            Enter your website URL to validate your llms.txt file against the official specification.
+            Enter your website URL to validate your llms.txt file against the official
+            specification.
           </p>
           <div className="space-y-4">
             <div className="flex gap-2">
@@ -944,7 +950,10 @@ function ValidatorSection() {
               <Label htmlFor="file-type-dashboard" className="text-sm font-medium text-ink">
                 File Location
               </Label>
-              <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
+              <Select
+                value={fileType}
+                onValueChange={(value) => setFileType(value as LlmsTxtFileType)}
+              >
                 <SelectTrigger className="border-mist focus:ring-signal-blue">
                   <SelectValue placeholder="Select file type" />
                 </SelectTrigger>
@@ -960,7 +969,8 @@ function ValidatorSection() {
 
             {url && (
               <p className="text-xs text-stone-brand">
-                Will check: {normalizeUrl(url)}{fileType === 'auto'
+                Will check: {normalizeUrl(url)}
+                {fileType === 'auto'
                   ? ' at all standard locations'
                   : FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}
               </p>
@@ -996,9 +1006,7 @@ function ValidatorSection() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-ink mb-1">
-                    Validation Score
-                  </h3>
+                  <h3 className="text-xl font-bold text-ink mb-1">Validation Score</h3>
                   <p className="text-sm text-slate-brand">
                     {validationResult.valid ? (
                       <span className="flex items-center text-success">
@@ -1032,10 +1040,7 @@ function ValidatorSection() {
               <CardContent>
                 <div className="space-y-2">
                   {validationResult.issues.map((issue: any, index: number) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-cloud rounded-md border border-mist"
-                    >
+                    <div key={index} className="p-3 bg-cloud rounded-md border border-mist">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <p className="text-sm font-medium text-ink">{issue.message}</p>
@@ -1109,9 +1114,7 @@ function ValidatorSection() {
                 <CardContent className="p-6 text-center">
                   <CheckCircle className="h-12 w-12 text-success mx-auto mb-3" />
                   <h3 className="text-xl font-bold text-ink mb-2">Perfect Score!</h3>
-                  <p className="text-success">
-                    Your llms.txt file follows all best practices.
-                  </p>
+                  <p className="text-success">Your llms.txt file follows all best practices.</p>
                 </CardContent>
               </Card>
             )}
@@ -1204,7 +1207,8 @@ export default function Dashboard() {
 
   useSEO({
     title: 'Dashboard - Manage Your Analyses',
-    description: 'View your analysis history, manage subscriptions, and track your llms.txt file generation usage.',
+    description:
+      'View your analysis history, manage subscriptions, and track your llms.txt file generation usage.',
   });
 
   // Check for tab parameter in URL

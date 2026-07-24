@@ -43,9 +43,9 @@ import {
 } from './middleware/rate-limit';
 import { smartBotProtection } from './middleware/smart-bot-protection';
 import { optionalAuth } from './middleware/auth';
-import { 
+import {
   comprehensiveAnalysisProtection,
-  costProtectionLimiter 
+  costProtectionLimiter,
 } from './middleware/enhanced-bot-protection';
 import { registerStripeRoutes } from './routes/stripe';
 import { registerCancellationRoutes } from './routes/cancellation';
@@ -388,280 +388,305 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Enhanced analyze endpoint with comprehensive bot protection
   // CRITICAL SECURITY FIX: Enhanced protection for OpenAI API cost exposure
-  app.post('/api/analyze', costProtectionLimiter, comprehensiveAnalysisProtection, optionalAuth, async (req, res) => {
-    try {
-      const {
-        url,
-        force = false,
-        email,
-      } = z
-        .object({
-          url: z.string(),
-          force: z.boolean().optional().default(false),
-          email: z.string().optional(),
-        })
-        .parse(req.body);
+  app.post(
+    '/api/analyze',
+    costProtectionLimiter,
+    comprehensiveAnalysisProtection,
+    optionalAuth,
+    async (req, res) => {
+      try {
+        const {
+          url,
+          force = false,
+          email,
+        } = z
+          .object({
+            url: z.string(),
+            force: z.boolean().optional().default(false),
+            email: z.string().optional(),
+          })
+          .parse(req.body);
 
-      // Get user information (authenticated or email-based)
-      // SPRINT 2 FIX: Changed const to let - user must be reassignable
-      // so email fallback can populate it for coffee tier credit checks
-      let user = req.user;
+        // Get user information (authenticated or email-based)
+        // SPRINT 2 FIX: Changed const to let - user must be reassignable
+        // so email fallback can populate it for coffee tier credit checks
+        let user = req.user;
 
-      // CRITICAL FIX: Properly handle authenticated users
-      let userEmail: string;
-      if (user?.email) {
-        // User is authenticated via JWT - use their verified email
-        userEmail = user.email;
-        console.log(`🔐 Authenticated user analyzing: ${userEmail} (tier: ${user.tier})`);
-      } else if (email) {
-        // Unauthenticated request - verify email ownership
-        // Check both email_captures table AND auth_users table (for authenticated users with stale JWT)
-        const emailCapture = await storage.getEmailCapture(email);
-        const authUser = !emailCapture ? await authStorage.getUserByEmail(email) : null;
+        // CRITICAL FIX: Properly handle authenticated users
+        let userEmail: string;
+        if (user?.email) {
+          // User is authenticated via JWT - use their verified email
+          userEmail = user.email;
+          console.log(`🔐 Authenticated user analyzing: ${userEmail} (tier: ${user.tier})`);
+        } else if (email) {
+          // Unauthenticated request - verify email ownership
+          // Check both email_captures table AND auth_users table (for authenticated users with stale JWT)
+          const emailCapture = await storage.getEmailCapture(email);
+          const authUser = !emailCapture ? await authStorage.getUserByEmail(email) : null;
 
-        if (!emailCapture && !authUser) {
-          console.warn(
-            `🚨 SECURITY: Attempt to analyze as unverified email ${email} from ${req.ip}`
-          );
-          return res.status(403).json({
-            message: 'Email not found. Please sign up first or log in to analyze websites.',
-          });
-        }
-
-        // If user exists in auth_users but JWT is stale, they're still a valid user
-        if (authUser && !emailCapture) {
-          console.log(`🔄 JWT stale but auth user found: ${email} (tier: ${authUser.tier})`);
-          userEmail = email;
-        } else if (emailCapture) {
-          // Check if email capture is recent (within 24 hours) to prevent old email abuse
-          // Skip this check for users who have created accounts (userId exists)
-          if (!emailCapture.userId) {
-            const emailAge = emailCapture.createdAt
-              ? Date.now() - new Date(emailCapture.createdAt).getTime()
-              : Date.now();
-            const maxEmailAge = 24 * 60 * 60 * 1000; // 24 hours
-
-            if (emailAge > maxEmailAge) {
-              console.warn(
-                `🚨 SECURITY: Attempt to use stale email capture ${email} (${Math.floor(emailAge / 1000 / 60 / 60)}h old) from ${req.ip}`
-              );
-              return res.status(403).json({
-                message: 'Email verification expired. Please sign up again to analyze websites.',
-              });
-            }
+          if (!emailCapture && !authUser) {
+            console.warn(
+              `🚨 SECURITY: Attempt to analyze as unverified email ${email} from ${req.ip}`
+            );
+            return res.status(403).json({
+              message: 'Email not found. Please sign up first or log in to analyze websites.',
+            });
           }
 
-          userEmail = email;
-          console.log(`📧 Email-based user analyzing: ${userEmail} (tier: ${emailCapture.tier})`);
+          // If user exists in auth_users but JWT is stale, they're still a valid user
+          if (authUser && !emailCapture) {
+            console.log(`🔄 JWT stale but auth user found: ${email} (tier: ${authUser.tier})`);
+            userEmail = email;
+          } else if (emailCapture) {
+            // Check if email capture is recent (within 24 hours) to prevent old email abuse
+            // Skip this check for users who have created accounts (userId exists)
+            if (!emailCapture.userId) {
+              const emailAge = emailCapture.createdAt
+                ? Date.now() - new Date(emailCapture.createdAt).getTime()
+                : Date.now();
+              const maxEmailAge = 24 * 60 * 60 * 1000; // 24 hours
+
+              if (emailAge > maxEmailAge) {
+                console.warn(
+                  `🚨 SECURITY: Attempt to use stale email capture ${email} (${Math.floor(emailAge / 1000 / 60 / 60)}h old) from ${req.ip}`
+                );
+                return res.status(403).json({
+                  message: 'Email verification expired. Please sign up again to analyze websites.',
+                });
+              }
+            }
+
+            userEmail = email;
+            console.log(`📧 Email-based user analyzing: ${userEmail} (tier: ${emailCapture.tier})`);
+          } else {
+            userEmail = email;
+          }
         } else {
-          userEmail = email;
+          userEmail = '';
         }
-      } else {
-        userEmail = '';
-      }
 
-      if (!userEmail) {
-        return res.status(400).json({
-          message: 'Email required for analysis. Please sign up first.',
-        });
-      }
-
-      // SPRINT 2 FIX: If user is still undefined (expired JWT) but we have a valid email,
-      // look up the auth user so coffee tier credit checks have access to user.id.
-      // This handles both paths: authUser-only AND emailCapture-with-auth-account.
-      if (!user && userEmail) {
-        const authUserFallback = await authStorage.getUserByEmail(userEmail);
-        if (authUserFallback) {
-          user = authUserFallback;
-          console.log(`🔄 [SPRINT 2] Populated user from email fallback: id=${authUserFallback.id}, tier=${authUserFallback.tier}`);
-        }
-      }
-
-      // Get user tier (prioritize authenticated user data)
-      const tier = await getUserTierFromAuth(user, userEmail);
-
-      // Normalize URL
-      const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-
-      // Quick page count check (also runs SPA detection)
-      const sitemapResult = await fetchSitemap(normalizedUrl);
-      const pageCount = sitemapResult.entries.length;
-
-      // Sprint 10: Auto-detect JS rendering need for Scale tier based on SPA detection
-      // JS rendering is auto-enabled when: Scale tier + site is CSR/SPA (no manual checkbox)
-      const spaDetected = sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
-                          sitemapResult.spaDetection?.framework.framework === 'angular' ||
-                          (sitemapResult.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50;
-      let jsRenderingEnabled = tier === 'scale' && spaDetected;
-      let jsRenderQuotaInfo: { hasQuota: boolean; rendersRemaining: number } = { hasQuota: true, rendersRemaining: 100 };
-
-      if (jsRenderingEnabled) {
-        console.log(`🎯 [Sprint 10] Auto-detected SPA/CSR site — JS rendering auto-enabled for Scale tier user: ${userEmail}`);
-        console.log(`   Framework: ${sitemapResult.spaDetection?.framework.framework}, Strategy: ${sitemapResult.spaDetection?.framework.renderingStrategy}, Coverage: ${sitemapResult.spaDetection?.contentCoverage.estimatedCoverage}%`);
-      } else if (tier === 'scale' && !spaDetected) {
-        console.log(`ℹ️ [Sprint 10] SSR/SSG site detected — skipping JS rendering for faster analysis`);
-      }
-
-      // Check quota for Scale tier users with auto-detected JS rendering
-      if (jsRenderingEnabled && user?.id) {
-        jsRenderQuotaInfo = await checkJsRenderQuota(user.id);
-        if (!jsRenderQuotaInfo.hasQuota) {
-          console.log(`⚠️ [Sprint 10] JS render quota exhausted for user ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} remaining)`);
-          jsRenderingEnabled = false;
-        } else {
-          console.log(`🎯 [Sprint 10] JS render quota: ${jsRenderQuotaInfo.rendersRemaining} renders remaining`);
-        }
-      }
-
-      // Check usage limits (for non-authenticated users or non-coffee tier)
-      const usageCheck = await checkUsageLimits(userEmail, pageCount);
-      if (!usageCheck.allowed) {
-        return res.status(403).json({
-          message: usageCheck.reason,
-          currentUsage: usageCheck.currentUsage,
-          limits: usageCheck.limits,
-          suggestedUpgrade: usageCheck.suggestedUpgrade,
-        });
-      }
-
-      // For Solo tier users, check credits instead of daily limits
-      if (tier === 'solo' || tier === 'coffee') {
-        console.log(`[ANALYZE] Solo tier detected, user object:`, {
-          hasUser: !!user,
-          userId: user?.id,
-          userEmail: user?.email,
-          userTier: user?.tier,
-        });
-
-        if (!user?.id) {
-          console.error(`[ANALYZE] Solo tier user but no user.id available`);
+        if (!userEmail) {
           return res.status(400).json({
-            message: 'Authentication required for Solo tier. Please log in again.',
-            tier: 'solo',
+            message: 'Email required for analysis. Please sign up first.',
           });
         }
 
-        console.log(
-          `[ANALYZE] Checking Solo tier credits for user ${user.email} (id: ${user.id})`
-        );
-        const creditCheck = await checkCoffeeCredits(user.id.toString());
-        console.log(`[ANALYZE] Credit check result:`, creditCheck);
-        if (!creditCheck.hasCredits) {
+        // SPRINT 2 FIX: If user is still undefined (expired JWT) but we have a valid email,
+        // look up the auth user so coffee tier credit checks have access to user.id.
+        // This handles both paths: authUser-only AND emailCapture-with-auth-account.
+        if (!user && userEmail) {
+          const authUserFallback = await authStorage.getUserByEmail(userEmail);
+          if (authUserFallback) {
+            user = authUserFallback;
+            console.log(
+              `🔄 [SPRINT 2] Populated user from email fallback: id=${authUserFallback.id}, tier=${authUserFallback.tier}`
+            );
+          }
+        }
+
+        // Get user tier (prioritize authenticated user data)
+        const tier = await getUserTierFromAuth(user, userEmail);
+
+        // Normalize URL
+        const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+
+        // Quick page count check (also runs SPA detection)
+        const sitemapResult = await fetchSitemap(normalizedUrl);
+        const pageCount = sitemapResult.entries.length;
+
+        // Sprint 10: Auto-detect JS rendering need for Scale tier based on SPA detection
+        // JS rendering is auto-enabled when: Scale tier + site is CSR/SPA (no manual checkbox)
+        const spaDetected =
+          sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
+          sitemapResult.spaDetection?.framework.framework === 'angular' ||
+          (sitemapResult.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50;
+        let jsRenderingEnabled = tier === 'scale' && spaDetected;
+        let jsRenderQuotaInfo: { hasQuota: boolean; rendersRemaining: number } = {
+          hasQuota: true,
+          rendersRemaining: 100,
+        };
+
+        if (jsRenderingEnabled) {
+          console.log(
+            `🎯 [Sprint 10] Auto-detected SPA/CSR site — JS rendering auto-enabled for Scale tier user: ${userEmail}`
+          );
+          console.log(
+            `   Framework: ${sitemapResult.spaDetection?.framework.framework}, Strategy: ${sitemapResult.spaDetection?.framework.renderingStrategy}, Coverage: ${sitemapResult.spaDetection?.contentCoverage.estimatedCoverage}%`
+          );
+        } else if (tier === 'scale' && !spaDetected) {
+          console.log(
+            `ℹ️ [Sprint 10] SSR/SSG site detected — skipping JS rendering for faster analysis`
+          );
+        }
+
+        // Check quota for Scale tier users with auto-detected JS rendering
+        if (jsRenderingEnabled && user?.id) {
+          jsRenderQuotaInfo = await checkJsRenderQuota(user.id);
+          if (!jsRenderQuotaInfo.hasQuota) {
+            console.log(
+              `⚠️ [Sprint 10] JS render quota exhausted for user ${userEmail} (${jsRenderQuotaInfo.rendersRemaining} remaining)`
+            );
+            jsRenderingEnabled = false;
+          } else {
+            console.log(
+              `🎯 [Sprint 10] JS render quota: ${jsRenderQuotaInfo.rendersRemaining} renders remaining`
+            );
+          }
+        }
+
+        // Check usage limits (for non-authenticated users or non-coffee tier)
+        const usageCheck = await checkUsageLimits(userEmail, pageCount);
+        if (!usageCheck.allowed) {
           return res.status(403).json({
-            message:
-              'Monthly analysis limit reached. Your analyses reset on your next billing cycle, or upgrade to Growth for more.',
-            currentCredits: creditCheck.creditsRemaining,
-            tier: 'solo',
-            suggestedUpgrade: 'growth',
+            message: usageCheck.reason,
+            currentUsage: usageCheck.currentUsage,
+            limits: usageCheck.limits,
+            suggestedUpgrade: usageCheck.suggestedUpgrade,
           });
         }
-      }
 
-      // Check if already analyzing (to prevent duplicate analysis)
-      const existingAnalysis = await storage.getAnalysisByUrl(normalizedUrl);
-      if (existingAnalysis && existingAnalysis.status === 'analyzing') {
-        return res.json({
-          analysisId: existingAnalysis.id,
-          status: 'analyzing',
-        });
-      }
+        // For Solo tier users, check credits instead of daily limits
+        if (tier === 'solo' || tier === 'coffee') {
+          console.log(`[ANALYZE] Solo tier detected, user object:`, {
+            hasUser: !!user,
+            userId: user?.id,
+            userEmail: user?.email,
+            userTier: user?.tier,
+          });
 
-      // If force flag is not set and we have a completed analysis, return it
-      if (!force && existingAnalysis && existingAnalysis.status === 'completed') {
-        // Check if it's recent enough based on tier cache duration
-        const analysisAge = existingAnalysis.createdAt
-          ? Date.now() - new Date(existingAnalysis.createdAt).getTime()
-          : Date.now();
-        const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
+          if (!user?.id) {
+            console.error(`[ANALYZE] Solo tier user but no user.id available`);
+            return res.status(400).json({
+              message: 'Authentication required for Solo tier. Please log in again.',
+              tier: 'solo',
+            });
+          }
 
-        if (analysisAge < maxAge) {
-          // ULTRA-SIMPLE: Just increment for cached results too
-          const newCount = await incrementSimpleUsage(userEmail, tier);
-          console.log(`📊 [USAGE] Cached result for ${userEmail}. Daily count: ${newCount}`);
+          console.log(
+            `[ANALYZE] Checking Solo tier credits for user ${user.email} (id: ${user.id})`
+          );
+          const creditCheck = await checkCoffeeCredits(user.id.toString());
+          console.log(`[ANALYZE] Credit check result:`, creditCheck);
+          if (!creditCheck.hasCredits) {
+            return res.status(403).json({
+              message:
+                'Monthly analysis limit reached. Your analyses reset on your next billing cycle, or upgrade to Growth for more.',
+              currentCredits: creditCheck.creditsRemaining,
+              tier: 'solo',
+              suggestedUpgrade: 'growth',
+            });
+          }
+        }
 
+        // Check if already analyzing (to prevent duplicate analysis)
+        const existingAnalysis = await storage.getAnalysisByUrl(normalizedUrl);
+        if (existingAnalysis && existingAnalysis.status === 'analyzing') {
           return res.json({
             analysisId: existingAnalysis.id,
-            status: 'completed',
-            discoveredPages: existingAnalysis.discoveredPages,
-            fromCache: true,
+            status: 'analyzing',
           });
         }
-      }
 
-      // Create new analysis record
-      const analysis = await storage.createAnalysis({
-        url: normalizedUrl,
-        status: 'analyzing',
-        sitemapContent: null,
-        discoveredPages: [],
-        // Store user email for tracking
-        analysisMetadata: { userEmail: userEmail } as any,
-      });
+        // If force flag is not set and we have a completed analysis, return it
+        if (!force && existingAnalysis && existingAnalysis.status === 'completed') {
+          // Check if it's recent enough based on tier cache duration
+          const analysisAge = existingAnalysis.createdAt
+            ? Date.now() - new Date(existingAnalysis.createdAt).getTime()
+            : Date.now();
+          const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
 
-      // Start analysis process (async with proper error handling)
-      // Pass user.id for Coffee tier credit consumption
-      // Sprint 6: Pass JS rendering options and SPA detection
-      analyzeWebsiteEnhanced(
-        analysis.id,
-        normalizedUrl,
-        userEmail,
-        tier,
-        user?.id?.toString(),
-        {
-          jsRenderingEnabled,
-          spaDetection: sitemapResult.spaDetection,
-        },
-        force
-      ).catch((error) => {
-        console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
-        // Ensure the analysis is marked as failed even on unhandled errors
-        storage
-          .updateAnalysis(analysis.id, {
-            status: 'failed',
-            discoveredPages: [],
-            analysisMetadata: {
-              siteType: 'unknown',
-              sitemapFound: false,
-              analysisMethod: 'error',
-              message: 'Analysis failed due to unexpected error',
-              totalPagesFound: 0,
-              userEmail: userEmail,
-              tier,
-              error: error.message,
-            },
-          })
-          .catch((updateError) => {
-            console.error(`🚨 CRITICAL: Failed to update analysis status:`, updateError);
-          });
+          if (analysisAge < maxAge) {
+            // ULTRA-SIMPLE: Just increment for cached results too
+            const newCount = await incrementSimpleUsage(userEmail, tier);
+            console.log(`📊 [USAGE] Cached result for ${userEmail}. Daily count: ${newCount}`);
 
-        // Track usage even for completely failed analyses
-        trackUsage(userEmail, 0, 0, 0, 0, 0).catch((trackError) => {
-          console.error(`🚨 CRITICAL: Failed to track usage for failed analysis:`, trackError);
+            return res.json({
+              analysisId: existingAnalysis.id,
+              status: 'completed',
+              discoveredPages: existingAnalysis.discoveredPages,
+              fromCache: true,
+            });
+          }
+        }
+
+        // Create new analysis record
+        const analysis = await storage.createAnalysis({
+          url: normalizedUrl,
+          status: 'analyzing',
+          sitemapContent: null,
+          discoveredPages: [],
+          // Store user email for tracking
+          analysisMetadata: { userEmail: userEmail } as any,
         });
-      });
 
-      res.json({
-        analysisId: analysis.id,
-        status: 'analyzing',
-        estimatedDuration: Math.min(300, pageCount * 0.5), // 0.5 seconds per page estimate
-        pageCount: Math.min(pageCount, TIER_LIMITS[tier].maxPagesPerAnalysis),
-        // Sprint 10: Auto-detected JS rendering info
-        jsRenderingAvailable: tier === 'scale',
-        jsRenderingEnabled,
-        jsRenderingAutoDetected: spaDetected,
-        jsRenderQuota: tier === 'scale' ? {
-          remaining: jsRenderQuotaInfo.rendersRemaining,
-          limit: getJsRenderMonthlyLimit(),
-        } : undefined,
-        spaDetected,
-      });
-    } catch (error) {
-      console.error('Analysis error:', error);
-      res.status(400).json({
-        message: error instanceof Error ? error.message : 'Failed to analyze website',
-      });
+        // Start analysis process (async with proper error handling)
+        // Pass user.id for Coffee tier credit consumption
+        // Sprint 6: Pass JS rendering options and SPA detection
+        analyzeWebsiteEnhanced(
+          analysis.id,
+          normalizedUrl,
+          userEmail,
+          tier,
+          user?.id?.toString(),
+          {
+            jsRenderingEnabled,
+            spaDetection: sitemapResult.spaDetection,
+          },
+          force
+        ).catch((error) => {
+          console.error(`🚨 CRITICAL: Unhandled analysis error for ${normalizedUrl}:`, error);
+          // Ensure the analysis is marked as failed even on unhandled errors
+          storage
+            .updateAnalysis(analysis.id, {
+              status: 'failed',
+              discoveredPages: [],
+              analysisMetadata: {
+                siteType: 'unknown',
+                sitemapFound: false,
+                analysisMethod: 'error',
+                message: 'Analysis failed due to unexpected error',
+                totalPagesFound: 0,
+                userEmail: userEmail,
+                tier,
+                error: error.message,
+              },
+            })
+            .catch((updateError) => {
+              console.error(`🚨 CRITICAL: Failed to update analysis status:`, updateError);
+            });
+
+          // Track usage even for completely failed analyses
+          trackUsage(userEmail, 0, 0, 0, 0, 0).catch((trackError) => {
+            console.error(`🚨 CRITICAL: Failed to track usage for failed analysis:`, trackError);
+          });
+        });
+
+        res.json({
+          analysisId: analysis.id,
+          status: 'analyzing',
+          estimatedDuration: Math.min(300, pageCount * 0.5), // 0.5 seconds per page estimate
+          pageCount: Math.min(pageCount, TIER_LIMITS[tier].maxPagesPerAnalysis),
+          // Sprint 10: Auto-detected JS rendering info
+          jsRenderingAvailable: tier === 'scale',
+          jsRenderingEnabled,
+          jsRenderingAutoDetected: spaDetected,
+          jsRenderQuota:
+            tier === 'scale'
+              ? {
+                  remaining: jsRenderQuotaInfo.rendersRemaining,
+                  limit: getJsRenderMonthlyLimit(),
+                }
+              : undefined,
+          spaDetected,
+        });
+      } catch (error) {
+        console.error('Analysis error:', error);
+        res.status(400).json({
+          message: error instanceof Error ? error.message : 'Failed to analyze website',
+        });
+      }
     }
-  });
+  );
 
   // Get analysis status and results with metrics
   app.get('/api/analysis/:id', async (req, res) => {
@@ -686,7 +711,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status: 'failed',
             analysisMetadata: {
               ...analysis.analysisMetadata,
-              message: 'Analysis timed out. The server may have restarted during processing. Please try again.',
+              message:
+                'Analysis timed out. The server may have restarted during processing. Please try again.',
               error: 'Orphaned analysis detected - exceeded 15 minute timeout',
             },
           });
@@ -851,10 +877,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Enrich selectedPages with bodyContent from stored analysis (Sprint 15)
-      const discoveredMap = new Map(
-        (analysis.discoveredPages || []).map(dp => [dp.url, dp])
-      );
-      const enrichedPages = selectedPages.map(page => {
+      const discoveredMap = new Map((analysis.discoveredPages || []).map((dp) => [dp.url, dp]));
+      const enrichedPages = selectedPages.map((page) => {
         const discovered = discoveredMap.get(page.url);
         return {
           ...page,
@@ -897,7 +921,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Approximate token counts (words * 1.3)
-      const tokenCount = (text: string) => Math.round(text.split(/\s+/).filter(w => w.length > 0).length * 1.3);
+      const tokenCount = (text: string) =>
+        Math.round(text.split(/\s+/).filter((w) => w.length > 0).length * 1.3);
 
       res.json({
         id: llmFile.id,
@@ -974,12 +999,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (format === 'full' || format === 'mini') {
         const analysis = llmFile.analysisId ? await storage.getAnalysis(llmFile.analysisId) : null;
         if (analysis && llmFile.selectedPages) {
-          const selectedOnly = (llmFile.selectedPages as SelectedPage[]).filter((p: SelectedPage) => p.selected !== false);
+          const selectedOnly = (llmFile.selectedPages as SelectedPage[]).filter(
+            (p: SelectedPage) => p.selected !== false
+          );
           if (format === 'full') {
-            content = generateLlmFullTxtContent(analysis.url, selectedOnly, analysis.discoveredPages || []);
+            content = generateLlmFullTxtContent(
+              analysis.url,
+              selectedOnly,
+              analysis.discoveredPages || []
+            );
             filename = 'llms-full.txt';
           } else {
-            content = generateLlmMiniTxtContent(analysis.url, selectedOnly, analysis.discoveredPages || []);
+            content = generateLlmMiniTxtContent(
+              analysis.url,
+              selectedOnly,
+              analysis.discoveredPages || []
+            );
             filename = 'llms-mini.txt';
           }
         }
@@ -997,9 +1032,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sprint 12: Deployment verification endpoint
   app.post('/api/verify-deployment', async (req, res) => {
     try {
-      const { domain } = z.object({
-        domain: z.string().min(1, 'Domain is required'),
-      }).parse(req.body);
+      const { domain } = z
+        .object({
+          domain: z.string().min(1, 'Domain is required'),
+        })
+        .parse(req.body);
 
       // Normalize domain
       const baseUrl = domain.startsWith('http') ? domain : `https://${domain}`;
@@ -1023,7 +1060,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         checks.push({
           name: 'file_accessible',
           status: fileResp.ok ? 'pass' : 'fail',
-          details: fileResp.ok ? `Found (HTTP ${fileResp.status})` : `Not found (HTTP ${fileResp.status})`,
+          details: fileResp.ok
+            ? `Found (HTTP ${fileResp.status})`
+            : `Not found (HTTP ${fileResp.status})`,
         });
 
         // Check 4: Content-Type header (only if file exists)
@@ -1037,11 +1076,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
               : `Expected text/plain, got ${contentType || 'none'}`,
           });
         } else {
-          checks.push({ name: 'content_type', status: 'fail', details: 'Cannot check — file not found' });
+          checks.push({
+            name: 'content_type',
+            status: 'fail',
+            details: 'Cannot check — file not found',
+          });
         }
       } catch {
-        checks.push({ name: 'file_accessible', status: 'error', details: 'Failed to reach server' });
-        checks.push({ name: 'content_type', status: 'error', details: 'Cannot check — server unreachable' });
+        checks.push({
+          name: 'file_accessible',
+          status: 'error',
+          details: 'Failed to reach server',
+        });
+        checks.push({
+          name: 'content_type',
+          status: 'error',
+          details: 'Cannot check — server unreachable',
+        });
       }
 
       // Check 2: HTML discovery tag
@@ -1053,11 +1104,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           signal: AbortSignal.timeout(10000),
         });
         const html = await htmlResp.text();
-        const hasLinkTag = /<link[^>]*rel=["']alternate["'][^>]*href=["'][^"']*llms\.txt["']/i.test(html);
+        const hasLinkTag = /<link[^>]*rel=["']alternate["'][^>]*href=["'][^"']*llms\.txt["']/i.test(
+          html
+        );
         checks.push({
           name: 'html_tag',
           status: hasLinkTag ? 'pass' : 'fail',
-          details: hasLinkTag ? 'Discovery tag found in <head>' : 'No <link rel="alternate" href="/llms.txt"> found',
+          details: hasLinkTag
+            ? 'Discovery tag found in <head>'
+            : 'No <link rel="alternate" href="/llms.txt"> found',
         });
       } catch {
         checks.push({ name: 'html_tag', status: 'error', details: 'Failed to fetch homepage' });
@@ -1076,13 +1131,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         checks.push({
           name: 'robots_directive',
           status: hasDirective ? 'pass' : 'fail',
-          details: hasDirective ? 'Llms-Txt directive found' : 'No Llms-Txt directive in robots.txt',
+          details: hasDirective
+            ? 'Llms-Txt directive found'
+            : 'No Llms-Txt directive in robots.txt',
         });
       } catch {
-        checks.push({ name: 'robots_directive', status: 'error', details: 'Failed to fetch robots.txt' });
+        checks.push({
+          name: 'robots_directive',
+          status: 'error',
+          details: 'Failed to fetch robots.txt',
+        });
       }
 
-      const passed = checks.filter(c => c.status === 'pass').length;
+      const passed = checks.filter((c) => c.status === 'pass').length;
       const total = checks.length;
 
       res.json({
@@ -1090,10 +1151,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         checks,
         score: passed,
         total,
-        status: passed === total ? 'fully_deployed' : passed >= Math.ceil(total / 2) ? 'partially_deployed' : 'not_deployed',
-        message: passed === total
-          ? 'Fully deployed — AI crawlers can discover your llms.txt'
-          : `${passed}/${total} checks passed — complete the remaining steps`,
+        status:
+          passed === total
+            ? 'fully_deployed'
+            : passed >= Math.ceil(total / 2)
+              ? 'partially_deployed'
+              : 'not_deployed',
+        message:
+          passed === total
+            ? 'Fully deployed — AI crawlers can discover your llms.txt'
+            : `${passed}/${total} checks passed — complete the remaining steps`,
       });
     } catch (error) {
       console.error('Verify deployment error:', error);
@@ -1170,7 +1237,15 @@ async function analyzeWebsiteEnhanced(
   try {
     // Race the analysis against the timeout
     await Promise.race([
-      performAnalysisWithTimeout(analysisId, url, userEmail, tier, authUserId, jsRenderingOptions, force),
+      performAnalysisWithTimeout(
+        analysisId,
+        url,
+        userEmail,
+        tier,
+        authUserId,
+        jsRenderingOptions,
+        force
+      ),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -1284,11 +1359,13 @@ async function performAnalysisWithTimeout(
       sitemapResult.entries,
       userEmail,
       tier,
-      jsRenderingOptions ? {
-        enabled: jsRenderingOptions.jsRenderingEnabled,
-        spaDetection: jsRenderingOptions.spaDetection,
-        forceAll: jsRenderingOptions.forceJsRendering,
-      } : undefined,
+      jsRenderingOptions
+        ? {
+            enabled: jsRenderingOptions.jsRenderingEnabled,
+            spaDetection: jsRenderingOptions.spaDetection,
+            forceAll: jsRenderingOptions.forceJsRendering,
+          }
+        : undefined,
       force
     );
     console.log(
@@ -1298,12 +1375,15 @@ async function performAnalysisWithTimeout(
     // Sprint 1: Apply CSR quality score boost for SPA sites
     // On CSR sites the crawler only sees the HTML shell, so all pages score low.
     // Boost high-value URL patterns so they get auto-selected in the frontend.
-    const isCSR = sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
-                  (sitemapResult.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50;
+    const isCSR =
+      sitemapResult.spaDetection?.framework.renderingStrategy === 'CSR' ||
+      (sitemapResult.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50;
     if (isCSR && pages.length > 0) {
       const boostedCount = applyCSRQualityBoost(pages);
       if (boostedCount > 0) {
-        console.log(`🎯 [Sprint 1] CSR site detected - boosted quality scores for ${boostedCount} high-value pages`);
+        console.log(
+          `🎯 [Sprint 1] CSR site detected - boosted quality scores for ${boostedCount} high-value pages`
+        );
       }
     }
 
@@ -1364,7 +1444,11 @@ async function performAnalysisWithTimeout(
     }
 
     // Sprint 6: Consume JS render quota if JS renders were used
-    if (jsRenderingOptions?.jsRenderingEnabled && metrics.jsRenderedPages && metrics.jsRenderedPages > 0) {
+    if (
+      jsRenderingOptions?.jsRenderingEnabled &&
+      metrics.jsRenderedPages &&
+      metrics.jsRenderedPages > 0
+    ) {
       try {
         let userId = authUserId;
         if (!userId) {
@@ -1375,7 +1459,9 @@ async function performAnalysisWithTimeout(
         if (userId) {
           const consumed = await consumeJsRenders(userId, metrics.jsRenderedPages);
           if (consumed) {
-            console.log(`🎯 [Sprint 6] Consumed ${metrics.jsRenderedPages} JS render(s) from quota for ${userEmail}`);
+            console.log(
+              `🎯 [Sprint 6] Consumed ${metrics.jsRenderedPages} JS render(s) from quota for ${userEmail}`
+            );
           } else {
             console.warn(`⚠️ [Sprint 6] Failed to consume JS renders from quota for ${userEmail}`);
           }
@@ -1520,23 +1606,47 @@ function generateSemanticTags(page: SelectedPage): string[] {
   if (tags.length === 0) {
     if (content.includes('blog') || content.includes('article') || content.includes('posted on')) {
       tags.push('[article]');
-    } else if (content.includes('guide') || content.includes('tutorial') || content.includes('how to')) {
+    } else if (
+      content.includes('guide') ||
+      content.includes('tutorial') ||
+      content.includes('how to')
+    ) {
       tags.push('[guide]');
-    } else if (content.includes('tool') || content.includes('calculator') || content.includes('analyzer')) {
+    } else if (
+      content.includes('tool') ||
+      content.includes('calculator') ||
+      content.includes('analyzer')
+    ) {
       tags.push('[tool]');
-    } else if (content.includes('product') || content.includes('pricing') || content.includes('buy')) {
+    } else if (
+      content.includes('product') ||
+      content.includes('pricing') ||
+      content.includes('buy')
+    ) {
       tags.push('[product]');
-    } else if (content.includes('about') || content.includes('our team') || content.includes('our mission')) {
+    } else if (
+      content.includes('about') ||
+      content.includes('our team') ||
+      content.includes('our mission')
+    ) {
       tags.push('[informational]');
-    } else if (content.includes('contact') || content.includes('reach us') || content.includes('get in touch')) {
+    } else if (
+      content.includes('contact') ||
+      content.includes('reach us') ||
+      content.includes('get in touch')
+    ) {
       tags.push('[contact]');
     }
   }
 
   // Add secondary purpose tag if applicable
   if (
-    tags[0] !== '[guide]' && tags[0] !== '[article]' &&
-    (content.includes('learn') || content.includes('education') || content.includes('tutorial') || content.includes('course'))
+    tags[0] !== '[guide]' &&
+    tags[0] !== '[article]' &&
+    (content.includes('learn') ||
+      content.includes('education') ||
+      content.includes('tutorial') ||
+      content.includes('course'))
   ) {
     tags.push('[educational]');
   } else if (
@@ -1705,26 +1815,26 @@ function getUrlDepth(url: string): number {
  */
 function applyCSRQualityBoost(pages: DiscoveredPage[]): number {
   const highValuePatterns: Array<{ pattern: RegExp; boost: number }> = [
-    { pattern: /^\/$/, boost: 3 },               // Homepage
-    { pattern: /^\/about\b/, boost: 2 },          // About page
-    { pattern: /^\/docs\b/, boost: 2 },           // Documentation
-    { pattern: /^\/blog\b/, boost: 2 },           // Blog
-    { pattern: /^\/features\b/, boost: 2 },       // Features
-    { pattern: /^\/guides?\b/, boost: 2 },        // Guides
+    { pattern: /^\/$/, boost: 3 }, // Homepage
+    { pattern: /^\/about\b/, boost: 2 }, // About page
+    { pattern: /^\/docs\b/, boost: 2 }, // Documentation
+    { pattern: /^\/blog\b/, boost: 2 }, // Blog
+    { pattern: /^\/features\b/, boost: 2 }, // Features
+    { pattern: /^\/guides?\b/, boost: 2 }, // Guides
     { pattern: /^\/getting-started\b/, boost: 2 }, // Getting started
     // Product feature pages (core SaaS tools)
-    { pattern: /^\/analy[sz]e\b/, boost: 2 },    // Analyzer tools
-    { pattern: /^\/validat(e|or)\b/, boost: 2 },  // Validator tools
-    { pattern: /^\/check(er)?\b/, boost: 2 },     // Checker tools
-    { pattern: /^\/scan(ner)?\b/, boost: 2 },     // Scanner tools
-    { pattern: /^\/generat(e|or)\b/, boost: 2 },  // Generator tools
-    { pattern: /^\/demo\b/, boost: 2 },           // Demo/playground
-    { pattern: /^\/playground\b/, boost: 2 },     // Interactive playground
-    { pattern: /^\/pricing\b/, boost: 1 },        // Pricing
-    { pattern: /^\/contact\b/, boost: 1 },        // Contact
-    { pattern: /^\/faq\b/, boost: 1 },            // FAQ
-    { pattern: /^\/help\b/, boost: 1 },           // Help
-    { pattern: /^\/support\b/, boost: 1 },        // Support
+    { pattern: /^\/analy[sz]e\b/, boost: 2 }, // Analyzer tools
+    { pattern: /^\/validat(e|or)\b/, boost: 2 }, // Validator tools
+    { pattern: /^\/check(er)?\b/, boost: 2 }, // Checker tools
+    { pattern: /^\/scan(ner)?\b/, boost: 2 }, // Scanner tools
+    { pattern: /^\/generat(e|or)\b/, boost: 2 }, // Generator tools
+    { pattern: /^\/demo\b/, boost: 2 }, // Demo/playground
+    { pattern: /^\/playground\b/, boost: 2 }, // Interactive playground
+    { pattern: /^\/pricing\b/, boost: 1 }, // Pricing
+    { pattern: /^\/contact\b/, boost: 1 }, // Contact
+    { pattern: /^\/faq\b/, boost: 1 }, // FAQ
+    { pattern: /^\/help\b/, boost: 1 }, // Help
+    { pattern: /^\/support\b/, boost: 1 }, // Support
   ];
 
   let boostedCount = 0;
@@ -1906,9 +2016,11 @@ function deduplicateDescriptions(pages: SelectedPage[]): SelectedPage[] {
   const groups = new Map<string, number[]>();
   result.forEach((page, idx) => {
     const norm = (page.description || '')
-      .replace(/\s*\([^)]*\)\s*$/g, '')         // Strip trailing parentheticals
+      .replace(/\s*\([^)]*\)\s*$/g, '') // Strip trailing parentheticals
       .replace(/\s*Includes \d+ structured items.*$/i, '') // Strip "Includes N structured items..."
-      .trim().toLowerCase().replace(/\s+/g, ' ');
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
     if (!groups.has(norm)) groups.set(norm, []);
     groups.get(norm)!.push(idx);
   });
@@ -1941,11 +2053,12 @@ function buildUniqueDescription(page: SelectedPage): string | null {
     const segments = url.pathname.split('/').filter((s) => s.length > 0);
 
     // Build a readable page name from the URL path
-    const pageName = segments.length > 0
-      ? segments[segments.length - 1]
-          .replace(/[-_]/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase())
-      : 'Home';
+    const pageName =
+      segments.length > 0
+        ? segments[segments.length - 1]
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase())
+        : 'Home';
 
     // Build context from the full path (e.g., "blog/fundamentals" → "Blog > Fundamentals")
     const breadcrumb = segments
@@ -1954,7 +2067,8 @@ function buildUniqueDescription(page: SelectedPage): string | null {
 
     // Use title if it's meaningfully different from the path-derived name
     const title = (page.title || '').replace(/\s*[|–—-]\s*.*$/, '').trim();
-    const titleDiffers = title.length > 10 &&
+    const titleDiffers =
+      title.length > 10 &&
       title.toLowerCase() !== pageName.toLowerCase() &&
       !title.toLowerCase().includes(url.hostname);
 
@@ -1987,9 +2101,7 @@ function extractTitleFromUrl(url: string): string {
     const lastSegment = segments[segments.length - 1];
 
     // Convert slug to title case: "getting-started" -> "Getting Started"
-    return lastSegment
-      .replace(/[-_]/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return lastSegment.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   } catch {
     return '';
   }
@@ -2146,9 +2258,10 @@ function addRelationshipContext(page: SelectedPage, relatedPages: SelectedPage[]
           .replace(/\b\w/g, (c) => c.toUpperCase());
 
         // Use page title if it differs from the original description
-        const titleBased = page.title && page.title.length > 10
-          ? `${pageName} page. ${page.title}.`
-          : `${pageName} page.`;
+        const titleBased =
+          page.title && page.title.length > 10
+            ? `${pageName} page. ${page.title}.`
+            : `${pageName} page.`;
 
         return titleBased;
       }
@@ -2251,7 +2364,12 @@ function generateSiteSummary(
   }
 
   // If we have a homepage with a good, unique description, use it as the base
-  if (homePage && homePage.description && homePage.description.length > 50 && !homepageDescIsGeneric) {
+  if (
+    homePage &&
+    homePage.description &&
+    homePage.description.length > 50 &&
+    !homepageDescIsGeneric
+  ) {
     let summary = homePage.description;
 
     // Sprint 15: Replace generic "This page" with actual site name
@@ -2275,12 +2393,12 @@ function generateSiteSummary(
   // Sprint 15: If homepage desc is generic (SPA pattern), build composite from top unique pages
   if (homepageDescIsGeneric) {
     const uniqueDescs = selectedPages
-      .filter(p => p.description && p.url !== homePage?.url)
-      .map(p => p.description)
+      .filter((p) => p.description && p.url !== homePage?.url)
+      .map((p) => p.description)
       .filter((desc, idx, arr) => arr.indexOf(desc) === idx) // deduplicate
       .slice(0, 3);
     if (uniqueDescs.length >= 2) {
-      const composite = `${siteName} features ${uniqueDescs.map(d => d.replace(/\.$/, '').toLowerCase()).join(', ')}.`;
+      const composite = `${siteName} features ${uniqueDescs.map((d) => d.replace(/\.$/, '').toLowerCase()).join(', ')}.`;
       return composite;
     }
   }
@@ -2880,14 +2998,16 @@ function generateLlmTxtContent(
   // Sprint 15: Auto-filter legal/boilerplate pages to Optional section
   const legalPattern = /\/(privacy|terms|cookies|cookie-policy|legal|tos|gdpr|disclaimer|imprint)/i;
   const legalPages: SelectedPage[] = [];
-  const contentPages = selectedPages.filter(page => {
+  const contentPages = selectedPages.filter((page) => {
     try {
       const pathname = new URL(page.url).pathname;
       if (legalPattern.test(pathname)) {
         legalPages.push(page);
         return false;
       }
-    } catch { /* keep page if URL parse fails */ }
+    } catch {
+      /* keep page if URL parse fails */
+    }
     return true;
   });
 
@@ -3049,7 +3169,7 @@ function generateLlmFullTxtContent(
 
   // Build a map of bodyContent from allDiscoveredPages for enrichment
   const bodyContentMap = new Map(
-    allDiscoveredPages.filter(dp => dp.bodyContent).map(dp => [dp.url, dp.bodyContent])
+    allDiscoveredPages.filter((dp) => dp.bodyContent).map((dp) => [dp.url, dp.bodyContent])
   );
 
   clusteredPages.forEach((pages, category) => {
@@ -3105,9 +3225,8 @@ function generateLlmMiniTxtContent(
 
   for (const page of topPages) {
     // Truncate description to 80 chars for mini format
-    const shortDesc = page.description.length > 80
-      ? page.description.substring(0, 77) + '...'
-      : page.description;
+    const shortDesc =
+      page.description.length > 80 ? page.description.substring(0, 77) + '...' : page.description;
     output += `- [${page.title}](${page.url}): ${shortDesc}\n`;
   }
 

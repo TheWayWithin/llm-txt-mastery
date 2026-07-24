@@ -1080,7 +1080,9 @@ router.post('/admin/reset-coffee-credits', async (req, res) => {
     const { handleSubscriptionRenewal } = await import('../services/usage');
     await handleSubscriptionRenewal(user.id);
 
-    console.log(`[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Solo tier user: ${email}`);
+    console.log(
+      `[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Solo tier user: ${email}`
+    );
 
     res.json({
       success: true,

@@ -1,12 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Server, Smartphone, Zap, Layers, HelpCircle } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { RenderingStrategy, SPAFrameworkIndicators } from '@shared/schema';
 
 interface RenderingStrategyTagProps {
@@ -100,14 +95,18 @@ export function RenderingStrategyTag({
         <TooltipTrigger asChild>{tag}</TooltipTrigger>
         <TooltipContent className="max-w-xs">
           <div className="space-y-2">
-            <p className="font-medium">{frameworkLabel} - {config.label} Rendering</p>
+            <p className="font-medium">
+              {frameworkLabel} - {config.label} Rendering
+            </p>
             <p className="text-xs">{config.description}</p>
             {framework.indicators.length > 0 && (
               <div className="text-xs">
                 <span className="font-medium">Detected indicators:</span>
                 <ul className="list-disc list-inside mt-1">
                   {framework.indicators.slice(0, 3).map((indicator, i) => (
-                    <li key={i} className="truncate">{indicator}</li>
+                    <li key={i} className="truncate">
+                      {indicator}
+                    </li>
                   ))}
                   {framework.indicators.length > 3 && (
                     <li>+{framework.indicators.length - 3} more</li>

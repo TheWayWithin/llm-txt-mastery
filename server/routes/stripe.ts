@@ -100,7 +100,9 @@ export function registerStripeRoutes(app: Express) {
         return res.status(400).json({ message: 'Email is required' });
       }
 
-      console.log(`✅ Processing Growth checkout for: ${userEmail} (billing: ${billing}, trial: ${trial})`);
+      console.log(
+        `✅ Processing Growth checkout for: ${userEmail} (billing: ${billing}, trial: ${trial})`
+      );
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -373,8 +375,7 @@ export function registerStripeRoutes(app: Express) {
     } catch (error) {
       console.error('Solo checkout session creation failed:', error);
       res.status(400).json({
-        message:
-          error instanceof Error ? error.message : 'Failed to create solo checkout session',
+        message: error instanceof Error ? error.message : 'Failed to create solo checkout session',
       });
     }
   };
@@ -729,7 +730,9 @@ async function handleCheckoutCompleted(session: any) {
               stripeCustomerId: session.customer,
               ...(tier === 'solo' ? { creditsRemaining: initialCredits } : {}),
             });
-            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier${tier === 'solo' ? ` with ${initialCredits} credits` : ''}`);
+            console.log(
+              `Updated authenticated user ${customerEmail} to ${tier} tier${tier === 'solo' ? ` with ${initialCredits} credits` : ''}`
+            );
           } else if (encodedPassword) {
             // Create new auth user (coming from signup flow with password)
             const { hashPassword } = await import('../services/auth');
@@ -902,9 +905,7 @@ async function handleSubscriptionCancelled(subscription: any) {
           await authStorage.updateUser(authUser.id, {
             tier: 'cancelled',
           });
-          console.log(
-            `Set auth_users for ${customerEmail} to cancelled tier (subscription ended)`
-          );
+          console.log(`Set auth_users for ${customerEmail} to cancelled tier (subscription ended)`);
         }
 
         const existingCapture = await storage.getEmailCapture(customerEmail);

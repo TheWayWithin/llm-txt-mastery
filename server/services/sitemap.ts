@@ -126,7 +126,9 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
   let spaDetection: SPADetectionResult | undefined;
   try {
     spaDetection = await analyzeHomepage(baseUrl);
-    console.log(`SPA detection complete: ${spaDetection.framework.framework} (${spaDetection.framework.renderingStrategy}), coverage: ${spaDetection.contentCoverage.estimatedCoverage}%`);
+    console.log(
+      `SPA detection complete: ${spaDetection.framework.framework} (${spaDetection.framework.renderingStrategy}), coverage: ${spaDetection.contentCoverage.estimatedCoverage}%`
+    );
   } catch (error) {
     console.log('SPA detection failed (non-blocking):', error.message);
     // Don't fail the whole analysis, just skip SPA detection
@@ -297,7 +299,8 @@ async function performSitemapDiscovery(baseUrl: string): Promise<SitemapResult> 
       entries: [{ url: baseUrl, lastmod: new Date().toISOString() }],
       sitemapFound: false,
       analysisMethod: 'homepage-only',
-      message: spaDetection.contentCoverageWarning ||
+      message:
+        spaDetection.contentCoverageWarning ||
         `No sitemap found. This appears to be a single-page site (${spaDetection.framework.framework}). Analysis includes homepage only.`,
       // Include SPA detection data for metadata
       spaDetection,
@@ -379,7 +382,11 @@ type CheerioAPI = ReturnType<typeof cheerio.load>;
 /**
  * Detect SSR indicators in HTML content
  */
-function detectSSRIndicators($: CheerioAPI): { hasNextData: boolean; hasNuxtData: boolean; hasGatsbyData: boolean } {
+function detectSSRIndicators($: CheerioAPI): {
+  hasNextData: boolean;
+  hasNuxtData: boolean;
+  hasGatsbyData: boolean;
+} {
   const html = $.html();
 
   // Check for Next.js SSR/SSG indicators:
@@ -409,12 +416,17 @@ function detectCSRIndicators($: CheerioAPI): { rootEmpty: boolean; hasLoadingInd
 
   // Check for loading/skeleton indicators
   const loadingSelectors = [
-    '.spinner', '.loading', '.loader',
-    '.skeleton', '.placeholder',
-    '[aria-busy="true"]', '[data-loading="true"]',
-    '.shimmer', '.pulse-animation'
+    '.spinner',
+    '.loading',
+    '.loader',
+    '.skeleton',
+    '.placeholder',
+    '[aria-busy="true"]',
+    '[data-loading="true"]',
+    '.shimmer',
+    '.pulse-animation',
   ];
-  const hasLoadingIndicators = loadingSelectors.some(sel => $(sel).length > 0);
+  const hasLoadingIndicators = loadingSelectors.some((sel) => $(sel).length > 0);
 
   return { rootEmpty, hasLoadingIndicators };
 }
@@ -422,7 +434,10 @@ function detectCSRIndicators($: CheerioAPI): { rootEmpty: boolean; hasLoadingInd
 /**
  * Calculate content metrics from HTML
  */
-function calculateContentMetrics($: CheerioAPI, html: string): { textLength: number; htmlSize: number; ratio: number } {
+function calculateContentMetrics(
+  $: CheerioAPI,
+  html: string
+): { textLength: number; htmlSize: number; ratio: number } {
   // Get all visible text content
   const bodyText = $('body').text() || '';
   const textLength = bodyText.replace(/\s+/g, ' ').trim().length;
@@ -460,7 +475,8 @@ function determineFramework(
   const html = $.html();
   const hasAngularElement = $('[ng-app], [data-ng-app], app-root, [ng-version]').length > 0;
   const hasAngularAttributes = html.includes('_ngcontent-') || html.includes('_nghost-');
-  const hasAngularScripts = html.includes('@angular') || html.includes('/angular/') || html.includes('angular.min.js');
+  const hasAngularScripts =
+    html.includes('@angular') || html.includes('/angular/') || html.includes('angular.min.js');
   const hasAngular = hasAngularElement || hasAngularAttributes || hasAngularScripts;
 
   // Check for Svelte indicators
@@ -605,7 +621,8 @@ function estimateContentCoverage(
   }
 
   // Adjust based on SSR indicators (BOOST coverage)
-  const hasSSRData = ssrIndicators.hasNextData || ssrIndicators.hasNuxtData || ssrIndicators.hasGatsbyData;
+  const hasSSRData =
+    ssrIndicators.hasNextData || ssrIndicators.hasNuxtData || ssrIndicators.hasGatsbyData;
   if (hasSSRData) {
     estimatedCoverage = Math.max(estimatedCoverage, 85);
     confidence = 'high';
@@ -619,8 +636,11 @@ function estimateContentCoverage(
   }
 
   // Adjust based on CSR indicators (LOWER coverage) - only if not already detected as SSG/SSR
-  if ((csrIndicators.rootEmpty || csrIndicators.hasLoadingIndicators) &&
-      renderingStrategy !== 'SSG' && renderingStrategy !== 'SSR') {
+  if (
+    (csrIndicators.rootEmpty || csrIndicators.hasLoadingIndicators) &&
+    renderingStrategy !== 'SSG' &&
+    renderingStrategy !== 'SSR'
+  ) {
     estimatedCoverage = Math.min(estimatedCoverage, 30);
     confidence = 'high';
   }
@@ -656,15 +676,18 @@ function generateCoverageWarning(
   }
 
   const strategyExplanation: Record<RenderingStrategy, string> = {
-    'CSR': 'client-side rendered (CSR)',
-    'SSR': 'server-side rendered (SSR)',
-    'SSG': 'statically generated (SSG)',
-    'HYBRID': 'partially server-rendered',
-    'UNKNOWN': 'dynamically rendered',
+    CSR: 'client-side rendered (CSR)',
+    SSR: 'server-side rendered (SSR)',
+    SSG: 'statically generated (SSG)',
+    HYBRID: 'partially server-rendered',
+    UNKNOWN: 'dynamically rendered',
   };
 
   const strategy = strategyExplanation[framework.renderingStrategy] || 'JavaScript-heavy';
-  const frameworkName = framework.framework !== 'unknown' ? ` (${framework.framework.charAt(0).toUpperCase() + framework.framework.slice(1)})` : '';
+  const frameworkName =
+    framework.framework !== 'unknown'
+      ? ` (${framework.framework.charAt(0).toUpperCase() + framework.framework.slice(1)})`
+      : '';
 
   return `⚠️ This site appears to be ${strategy}${frameworkName} with an estimated ${coverage.estimatedCoverage}% initial content coverage. The llms.txt file may be incomplete as it only captures the initial HTML.`;
 }
@@ -731,19 +754,25 @@ export async function analyzeHomepage(url: string): Promise<SPADetectionResult> 
     const framework = determineFramework($, ssrIndicators, csrIndicators);
 
     // Step 5: Estimate content coverage (pass rendering strategy for accurate estimation)
-    const contentCoverage = estimateContentCoverage(ssrIndicators, contentMetrics, csrIndicators, framework.renderingStrategy);
+    const contentCoverage = estimateContentCoverage(
+      ssrIndicators,
+      contentMetrics,
+      csrIndicators,
+      framework.renderingStrategy
+    );
 
     // Step 6: Generate warning if needed
     const contentCoverageWarning = generateCoverageWarning(contentCoverage, framework);
 
     // Determine if single-page (backward compatibility)
-    const isSinglePage = framework.framework !== 'unknown' &&
+    const isSinglePage =
+      framework.framework !== 'unknown' &&
       (framework.renderingStrategy === 'CSR' || contentCoverage.estimatedCoverage < 50);
 
     console.log(
       `Enhanced SPA detection for ${url}: framework=${framework.framework}, ` +
-      `strategy=${framework.renderingStrategy}, coverage=${contentCoverage.estimatedCoverage}%, ` +
-      `indicators=[${framework.indicators.join(', ')}]`
+        `strategy=${framework.renderingStrategy}, coverage=${contentCoverage.estimatedCoverage}%, ` +
+        `indicators=[${framework.indicators.join(', ')}]`
     );
 
     return {
@@ -1203,13 +1232,17 @@ export function shouldUseJsRendering(options: EnhancedFetchOptions): boolean {
 
     // CSR frameworks definitely need JS rendering
     if (framework.renderingStrategy === 'CSR') {
-      console.log(`[EnhancedFetch] CSR detected (${framework.framework}), JS rendering recommended`);
+      console.log(
+        `[EnhancedFetch] CSR detected (${framework.framework}), JS rendering recommended`
+      );
       return true;
     }
 
     // Low content coverage suggests JS rendering would help
     if (contentCoverage.estimatedCoverage < 50) {
-      console.log(`[EnhancedFetch] Low coverage (${contentCoverage.estimatedCoverage}%), JS rendering recommended`);
+      console.log(
+        `[EnhancedFetch] Low coverage (${contentCoverage.estimatedCoverage}%), JS rendering recommended`
+      );
       return true;
     }
 
@@ -1247,7 +1280,9 @@ export async function fetchPageContentEnhanced(
       try {
         console.log(`[EnhancedFetch] Using JS rendering for ${url}`);
         const queueStatus = getRenderQueueStatus();
-        console.log(`[EnhancedFetch] Render queue: ${queueStatus.active}/${queueStatus.max} active, ${queueStatus.queued} queued`);
+        console.log(
+          `[EnhancedFetch] Render queue: ${queueStatus.active}/${queueStatus.max} active, ${queueStatus.queued} queued`
+        );
 
         const result: BrowserRenderResult = await renderPage(url, {
           timeout: 15000,
@@ -1265,11 +1300,15 @@ export async function fetchPageContentEnhanced(
             headings: result.headings,
           };
         } else {
-          console.log(`[EnhancedFetch] JS render failed for ${url}: ${result.error}, falling back to HTTP`);
+          console.log(
+            `[EnhancedFetch] JS render failed for ${url}: ${result.error}, falling back to HTTP`
+          );
           // Fall through to HTTP fetch
         }
       } catch (error) {
-        console.log(`[EnhancedFetch] JS render exception for ${url}: ${error.message}, falling back to HTTP`);
+        console.log(
+          `[EnhancedFetch] JS render exception for ${url}: ${error.message}, falling back to HTTP`
+        );
         // Fall through to HTTP fetch
       }
     }
@@ -1669,7 +1708,9 @@ export async function analyzeDiscoveredPages(
 
   // Sprint 6: Log final JS rendering metrics
   if (jsRenderedCount > 0) {
-    console.log(`[Sprint 6] Analysis complete: ${jsRenderedCount}/${pages.length} pages used JS rendering`);
+    console.log(
+      `[Sprint 6] Analysis complete: ${jsRenderedCount}/${pages.length} pages used JS rendering`
+    );
   }
 
   return pages.sort((a, b) => b.qualityScore - a.qualityScore);

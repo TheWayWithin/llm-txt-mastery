@@ -268,7 +268,10 @@ export async function createPortalSession(
 /**
  * Validate webhook signature
  */
-export function validateWebhookSignature(payload: string | Buffer, signature: string): Stripe.Event {
+export function validateWebhookSignature(
+  payload: string | Buffer,
+  signature: string
+): Stripe.Event {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     throw new Error('STRIPE_WEBHOOK_SECRET is required');
@@ -292,8 +295,10 @@ export function getTierFromPriceId(priceId: string): 'solo' | 'growth' | 'scale'
   if (priceId === TIER_PRICES.solo.priceId) return 'solo';
   if (TIER_PRICES.solo.annualPriceId && priceId === TIER_PRICES.solo.annualPriceId) return 'solo';
   if (priceId === TIER_PRICES.growth.priceId) return 'growth';
-  if (TIER_PRICES.growth.annualPriceId && priceId === TIER_PRICES.growth.annualPriceId) return 'growth';
+  if (TIER_PRICES.growth.annualPriceId && priceId === TIER_PRICES.growth.annualPriceId)
+    return 'growth';
   if (priceId === TIER_PRICES.scale.priceId) return 'scale';
-  if (TIER_PRICES.scale.annualPriceId && priceId === TIER_PRICES.scale.annualPriceId) return 'scale';
+  if (TIER_PRICES.scale.annualPriceId && priceId === TIER_PRICES.scale.annualPriceId)
+    return 'scale';
   return null;
 }

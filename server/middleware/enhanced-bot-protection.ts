@@ -34,14 +34,7 @@ const SUSPICIOUS_PATTERNS = [
 ];
 
 // Human-like behavior indicators
-const HUMAN_INDICATORS = [
-  /mozilla/i,
-  /webkit/i,
-  /chrome/i,
-  /firefox/i,
-  /safari/i,
-  /edge/i,
-];
+const HUMAN_INDICATORS = [/mozilla/i, /webkit/i, /chrome/i, /firefox/i, /safari/i, /edge/i];
 
 /**
  * Enhanced bot detection middleware for cost-sensitive endpoints
@@ -52,17 +45,17 @@ export function enhancedBotProtection(req: EnhancedRequest, res: Response, next:
   const referer = req.get('Referer') || '';
   const acceptHeader = req.get('Accept') || '';
   const acceptLanguage = req.get('Accept-Language') || '';
-  
+
   let botScore = 0;
   const reasons: string[] = [];
 
   // Check User-Agent patterns
-  if (BOT_USER_AGENTS.some(pattern => pattern.test(userAgent))) {
+  if (BOT_USER_AGENTS.some((pattern) => pattern.test(userAgent))) {
     botScore += 50;
     reasons.push('Bot user agent detected');
   }
 
-  if (SUSPICIOUS_PATTERNS.some(pattern => pattern.test(userAgent))) {
+  if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(userAgent))) {
     botScore += 30;
     reasons.push('Suspicious automation patterns');
   }
@@ -91,7 +84,7 @@ export function enhancedBotProtection(req: EnhancedRequest, res: Response, next:
   }
 
   // Human behavior indicators (reduce bot score)
-  if (HUMAN_INDICATORS.some(pattern => pattern.test(userAgent))) {
+  if (HUMAN_INDICATORS.some((pattern) => pattern.test(userAgent))) {
     botScore -= 15;
   }
 
@@ -115,7 +108,7 @@ export function enhancedBotProtection(req: EnhancedRequest, res: Response, next:
       reasons,
       endpoint: req.path,
       method: req.method,
-      severity: botScore >= 70 ? 'HIGH' : 'MEDIUM'
+      severity: botScore >= 70 ? 'HIGH' : 'MEDIUM',
     });
   }
 
@@ -130,16 +123,20 @@ export const costProtectionLimiter = rateLimit({
   max: (req: EnhancedRequest) => {
     // Authenticated users get higher limits
     if (req.user?.id) {
-      return req.user.tier === 'scale' ? 100 : 
-             req.user.tier === 'growth' ? 50 : 
-             (req.user.tier === 'solo' || req.user.tier === 'coffee') ? 20 : 10;
+      return req.user.tier === 'scale'
+        ? 100
+        : req.user.tier === 'growth'
+          ? 50
+          : req.user.tier === 'solo' || req.user.tier === 'coffee'
+            ? 20
+            : 10;
     }
-    
+
     // Suspicious requests get very low limits
     if (req.suspiciousActivity || (req.botScore || 0) >= 50) {
       return 2;
     }
-    
+
     // Unauthenticated users get minimal limits
     return 5;
   },
@@ -147,14 +144,14 @@ export const costProtectionLimiter = rateLimit({
     error: 'Rate limit exceeded for analysis requests',
     retryAfter: '1 hour',
     reason: req.suspiciousActivity ? 'Suspicious activity detected' : 'Too many requests',
-    suggestion: req.user?.id ? 'Consider upgrading your plan' : 'Please sign up for higher limits'
+    suggestion: req.user?.id ? 'Consider upgrading your plan' : 'Please sign up for higher limits',
   }),
   standardHeaders: true,
   legacyHeaders: false,
   trustProxy: true,
   handler: (req: EnhancedRequest, res: Response) => {
     const isBot = req.suspiciousActivity || (req.botScore || 0) >= 50;
-    
+
     console.error(`🚨 COST PROTECTION: Rate limit exceeded`, {
       ip: req.ip,
       userAgent: req.get('User-Agent')?.substring(0, 100),
@@ -163,14 +160,16 @@ export const costProtectionLimiter = rateLimit({
       userTier: req.user?.tier,
       endpoint: req.path,
       severity: isBot ? 'CRITICAL' : 'HIGH',
-      suspiciousActivity: req.suspiciousActivity
+      suspiciousActivity: req.suspiciousActivity,
     });
 
     res.status(429).json({
       error: 'Rate limit exceeded for analysis requests',
       retryAfter: '1 hour',
       reason: isBot ? 'Suspicious activity detected' : 'Too many requests',
-      suggestion: req.user?.id ? 'Consider upgrading your plan' : 'Please sign up for higher limits'
+      suggestion: req.user?.id
+        ? 'Consider upgrading your plan'
+        : 'Please sign up for higher limits',
     });
   },
 });
@@ -181,7 +180,7 @@ export const costProtectionLimiter = rateLimit({
 export function requireAuthForAnalysis(req: EnhancedRequest, res: Response, next: NextFunction) {
   const isHighRiskBot = (req.botScore || 0) >= 85;
   const isSuspicious = req.suspiciousActivity && (req.botScore || 0) >= 70;
-  
+
   // Only block clearly automated requests — free tier has rate limits for abuse protection
   if ((isHighRiskBot || isSuspicious) && !req.user?.id) {
     console.warn(`🔒 AUTH REQUIRED: Blocking unauthenticated suspicious request`, {
@@ -189,13 +188,13 @@ export function requireAuthForAnalysis(req: EnhancedRequest, res: Response, next
       userAgent: req.get('User-Agent')?.substring(0, 100),
       botScore: req.botScore,
       endpoint: req.path,
-      severity: 'HIGH'
+      severity: 'HIGH',
     });
 
     return res.status(401).json({
       error: 'Authentication required for this request',
       reason: 'Suspicious activity detected',
-      message: 'Please sign up or log in to continue'
+      message: 'Please sign up or log in to continue',
     });
   }
 
@@ -205,7 +204,7 @@ export function requireAuthForAnalysis(req: EnhancedRequest, res: Response, next
     console.info(`⚠️ MEDIUM RISK: Allowing unauthenticated request with monitoring`, {
       ip: req.ip,
       botScore: req.botScore,
-      endpoint: req.path
+      endpoint: req.path,
     });
   }
 
@@ -217,15 +216,15 @@ export function requireAuthForAnalysis(req: EnhancedRequest, res: Response, next
  */
 export function openaiCostMonitoring(req: EnhancedRequest, res: Response, next: NextFunction) {
   const startTime = Date.now();
-  
+
   // Store original end function
   const originalEnd = res.end;
-  
+
   // Override end function to log API usage
-  res.end = function(chunk?: any, encoding?: any) {
+  res.end = function (chunk?: any, encoding?: any) {
     const duration = Date.now() - startTime;
     const success = res.statusCode < 400;
-    
+
     // Log OpenAI API usage for cost tracking
     console.log(`💰 OPENAI API USAGE:`, {
       ip: req.ip,
@@ -239,7 +238,7 @@ export function openaiCostMonitoring(req: EnhancedRequest, res: Response, next: 
       success,
       botScore: req.botScore,
       suspiciousActivity: req.suspiciousActivity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // Call original end function
@@ -252,15 +251,19 @@ export function openaiCostMonitoring(req: EnhancedRequest, res: Response, next: 
 /**
  * Combined middleware for comprehensive protection of analysis endpoints
  */
-export function comprehensiveAnalysisProtection(req: EnhancedRequest, res: Response, next: NextFunction) {
+export function comprehensiveAnalysisProtection(
+  req: EnhancedRequest,
+  res: Response,
+  next: NextFunction
+) {
   // Apply bot detection first
   enhancedBotProtection(req, res, (error) => {
     if (error) return next(error);
-    
+
     // Then apply authentication requirements
     requireAuthForAnalysis(req, res, (error) => {
       if (error) return next(error);
-      
+
       // Finally add cost monitoring
       openaiCostMonitoring(req, res, next);
     });

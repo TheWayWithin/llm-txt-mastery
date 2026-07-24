@@ -69,10 +69,10 @@ router.get('/api/simple-usage/:email', async (req, res) => {
     // Determine tier limits - must match TIER_LIMITS in cache.ts
     const tierLimits = {
       starter: 3,
-      solo: 20,     // Match TIER_LIMITS.solo.dailyAnalyses
-      coffee: 20,   // Legacy alias for solo
-      growth: 35,   // Match TIER_LIMITS.growth.dailyAnalyses
-      scale: 100,   // Match TIER_LIMITS.scale.dailyAnalyses
+      solo: 20, // Match TIER_LIMITS.solo.dailyAnalyses
+      coffee: 20, // Legacy alias for solo
+      growth: 35, // Match TIER_LIMITS.growth.dailyAnalyses
+      scale: 100, // Match TIER_LIMITS.scale.dailyAnalyses
     };
 
     const response: any = {

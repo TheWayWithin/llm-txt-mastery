@@ -199,7 +199,7 @@ export async function checkUsageLimits(
     // Check daily analysis limit
     if (analysesToday >= limits.dailyAnalyses) {
       const suggestedUpgrade =
-        tier === 'starter' ? 'solo' : (tier === 'solo' || tier === 'coffee') ? 'growth' : 'scale';
+        tier === 'starter' ? 'solo' : tier === 'solo' || tier === 'coffee' ? 'growth' : 'scale';
 
       // Create user-friendly messaging based on tier
       let reason: string;
@@ -615,7 +615,9 @@ export async function resetMonthlyCredits(): Promise<void> {
     const coffeeTierUsers = await db.select().from(authUsers).where(eq(authUsers.tier, 'coffee'));
     const allSoloUsers = [...soloTierUsers, ...coffeeTierUsers];
 
-    console.log(`[CREDIT RESET] Found ${allSoloUsers.length} Solo tier users (${soloTierUsers.length} solo + ${coffeeTierUsers.length} legacy coffee)`);
+    console.log(
+      `[CREDIT RESET] Found ${allSoloUsers.length} Solo tier users (${soloTierUsers.length} solo + ${coffeeTierUsers.length} legacy coffee)`
+    );
 
     const soloCredits = TIER_LIMITS.solo.dailyAnalyses;
     for (const user of allSoloUsers) {
@@ -735,9 +737,12 @@ const JS_RENDERS_MONTHLY_LIMIT = 100; // Scale tier gets 100 JS renders per mont
  * Check if user has remaining JS renders for this month
  * Returns the current count and whether they can use more
  */
-export async function checkJsRenderQuota(
-  userId: string
-): Promise<{ hasQuota: boolean; rendersUsed: number; rendersRemaining: number; resetAt: Date | null }> {
+export async function checkJsRenderQuota(userId: string): Promise<{
+  hasQuota: boolean;
+  rendersUsed: number;
+  rendersRemaining: number;
+  resetAt: Date | null;
+}> {
   try {
     const numericUserId = parseInt(userId);
     if (isNaN(numericUserId)) {
@@ -785,7 +790,9 @@ export async function checkJsRenderQuota(
 
       rendersUsed = 0;
       resetAt = nextReset;
-      console.log(`[JS QUOTA] Reset JS render counter for userId ${userId}. Next reset: ${nextReset.toISOString()}`);
+      console.log(
+        `[JS QUOTA] Reset JS render counter for userId ${userId}. Next reset: ${nextReset.toISOString()}`
+      );
     }
 
     const rendersRemaining = Math.max(0, JS_RENDERS_MONTHLY_LIMIT - rendersUsed);
@@ -795,7 +802,12 @@ export async function checkJsRenderQuota(
   } catch (error) {
     console.error(`[JS QUOTA] Failed to check JS render quota for userId ${userId}:`, error);
     // Fail open - allow usage if we can't check quota
-    return { hasQuota: true, rendersUsed: 0, rendersRemaining: JS_RENDERS_MONTHLY_LIMIT, resetAt: null };
+    return {
+      hasQuota: true,
+      rendersUsed: 0,
+      rendersRemaining: JS_RENDERS_MONTHLY_LIMIT,
+      resetAt: null,
+    };
   }
 }
 
@@ -816,23 +828,29 @@ export async function consumeJsRenders(userId: string, count: number = 1): Promi
     // First check quota
     const quota = await checkJsRenderQuota(userId);
     if (!quota.hasQuota) {
-      console.warn(`[JS QUOTA] User ${userId} has exceeded JS render quota (${quota.rendersUsed}/${JS_RENDERS_MONTHLY_LIMIT})`);
+      console.warn(
+        `[JS QUOTA] User ${userId} has exceeded JS render quota (${quota.rendersUsed}/${JS_RENDERS_MONTHLY_LIMIT})`
+      );
       return false;
     }
 
     if (quota.rendersRemaining < count) {
-      console.warn(`[JS QUOTA] User ${userId} has insufficient JS renders (${quota.rendersRemaining} remaining, ${count} requested)`);
+      console.warn(
+        `[JS QUOTA] User ${userId} has insufficient JS renders (${quota.rendersRemaining} remaining, ${count} requested)`
+      );
       return false;
     }
 
     // Consume the renders
-    const newCount = (quota.rendersUsed + count);
+    const newCount = quota.rendersUsed + count;
     await db
       .update(authUsers)
       .set({ jsRendersUsedThisMonth: newCount })
       .where(eq(authUsers.id, numericUserId));
 
-    console.log(`[JS QUOTA] Consumed ${count} JS render(s) for userId ${userId}. New total: ${newCount}/${JS_RENDERS_MONTHLY_LIMIT}`);
+    console.log(
+      `[JS QUOTA] Consumed ${count} JS render(s) for userId ${userId}. New total: ${newCount}/${JS_RENDERS_MONTHLY_LIMIT}`
+    );
     return true;
   } catch (error) {
     console.error(`[JS QUOTA] Failed to consume JS renders for userId ${userId}:`, error);
@@ -919,7 +937,9 @@ export async function checkApiJsRenderQuota(
 
       rendersUsed = 0;
       resetAt = nextReset;
-      console.log(`[API JS QUOTA] Reset counter for apiKey=${apiKeyId}, user=${externalUserId}. Next reset: ${nextReset.toISOString()}`);
+      console.log(
+        `[API JS QUOTA] Reset counter for apiKey=${apiKeyId}, user=${externalUserId}. Next reset: ${nextReset.toISOString()}`
+      );
     }
 
     const rendersRemaining = Math.max(0, API_JS_RENDERS_MONTHLY_LIMIT - rendersUsed);
@@ -932,7 +952,10 @@ export async function checkApiJsRenderQuota(
       resetAt,
     };
   } catch (error) {
-    console.error(`[API JS QUOTA] Error checking quota for apiKey=${apiKeyId}, user=${externalUserId}:`, error);
+    console.error(
+      `[API JS QUOTA] Error checking quota for apiKey=${apiKeyId}, user=${externalUserId}:`,
+      error
+    );
     // Fail open - allow usage if we can't check quota
     return {
       hasQuota: true,
@@ -960,12 +983,16 @@ export async function consumeApiJsRenders(
     // First check quota
     const quota = await checkApiJsRenderQuota(apiKeyId, externalUserId);
     if (!quota.hasQuota) {
-      console.warn(`[API JS QUOTA] Quota exceeded for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersUsed}/${quota.limit})`);
+      console.warn(
+        `[API JS QUOTA] Quota exceeded for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersUsed}/${quota.limit})`
+      );
       return false;
     }
 
     if (quota.rendersRemaining < count) {
-      console.warn(`[API JS QUOTA] Insufficient renders for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersRemaining} remaining, ${count} requested)`);
+      console.warn(
+        `[API JS QUOTA] Insufficient renders for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersRemaining} remaining, ${count} requested)`
+      );
       return false;
     }
 
@@ -981,10 +1008,15 @@ export async function consumeApiJsRenders(
         )
       );
 
-    console.log(`[API JS QUOTA] Consumed ${count} render(s) for apiKey=${apiKeyId}, user=${externalUserId}. New total: ${newCount}/${quota.limit}`);
+    console.log(
+      `[API JS QUOTA] Consumed ${count} render(s) for apiKey=${apiKeyId}, user=${externalUserId}. New total: ${newCount}/${quota.limit}`
+    );
     return true;
   } catch (error) {
-    console.error(`[API JS QUOTA] Error consuming renders for apiKey=${apiKeyId}, user=${externalUserId}:`, error);
+    console.error(
+      `[API JS QUOTA] Error consuming renders for apiKey=${apiKeyId}, user=${externalUserId}:`,
+      error
+    );
     // Fail open - allow usage if we can't update quota
     return true;
   }

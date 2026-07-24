@@ -361,7 +361,17 @@ export type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
  * Framework and rendering strategy detection result
  */
 export interface SPAFrameworkIndicators {
-  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'wordpress' | 'unknown';
+  framework:
+    | 'react'
+    | 'vue'
+    | 'angular'
+    | 'svelte'
+    | 'next'
+    | 'nuxt'
+    | 'gatsby'
+    | 'astro'
+    | 'wordpress'
+    | 'unknown';
   renderingStrategy: RenderingStrategy;
   indicators: string[];
 }
@@ -590,31 +600,34 @@ export type InsertRateLimit = typeof rateLimits.$inferInsert;
 
 // File type options for llms.txt validation (Sprint 5)
 export const LlmsTxtFileType = z.enum([
-  'auto',           // Auto-detect: check all locations
-  'llms.txt',       // Standard: /llms.txt
-  'llms-full.txt',  // Extended: /llms-full.txt
-  '.well-known',    // Well-known: /.well-known/llms.txt
-  'llms.md',        // Markdown: /llms.md
+  'auto', // Auto-detect: check all locations
+  'llms.txt', // Standard: /llms.txt
+  'llms-full.txt', // Extended: /llms-full.txt
+  '.well-known', // Well-known: /.well-known/llms.txt
+  'llms.md', // Markdown: /llms.md
 ]);
 export type LlmsTxtFileType = z.infer<typeof LlmsTxtFileType>;
 
 // Validation request schema with SSRF protection
 export const validateLlmsTxtSchema = z.object({
-  url: z.string().url('Please enter a valid URL').refine(
-    (url) => {
-      // SSRF Protection: Block localhost and private IPs
-      const privateRanges = [
-        /^https?:\/\/localhost/i,
-        /^https?:\/\/127\./,
-        /^https?:\/\/192\.168\./,
-        /^https?:\/\/10\./,
-        /^https?:\/\/172\.(1[6-9]|2\d|3[01])\./,
-        /^https?:\/\/169\.254\./,
-      ];
-      return !privateRanges.some(regex => regex.test(url));
-    },
-    { message: 'Invalid or unsafe URL (localhost/private IPs not allowed)' }
-  ),
+  url: z
+    .string()
+    .url('Please enter a valid URL')
+    .refine(
+      (url) => {
+        // SSRF Protection: Block localhost and private IPs
+        const privateRanges = [
+          /^https?:\/\/localhost/i,
+          /^https?:\/\/127\./,
+          /^https?:\/\/192\.168\./,
+          /^https?:\/\/10\./,
+          /^https?:\/\/172\.(1[6-9]|2\d|3[01])\./,
+          /^https?:\/\/169\.254\./,
+        ];
+        return !privateRanges.some((regex) => regex.test(url));
+      },
+      { message: 'Invalid or unsafe URL (localhost/private IPs not allowed)' }
+    ),
   fileType: LlmsTxtFileType.optional().default('auto'),
   includeRobotsTxt: z.boolean().optional().default(true),
   bustCache: z.boolean().optional().default(false),
@@ -660,7 +673,9 @@ export const insertApiKeySchema = createInsertSchema(apiKeys);
  */
 export const apiUsage = pgTable('api_usage', {
   id: serial('id').primaryKey(),
-  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  apiKeyId: integer('api_key_id')
+    .notNull()
+    .references(() => apiKeys.id),
   endpoint: text('endpoint').notNull(), // e.g., '/api/v1/analyze'
   method: text('method').notNull(), // GET, POST, etc.
   statusCode: integer('status_code').notNull(),
@@ -683,7 +698,9 @@ export const insertApiUsageSchema = createInsertSchema(apiUsage);
  */
 export const apiWebhooks = pgTable('api_webhooks', {
   id: serial('id').primaryKey(),
-  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  apiKeyId: integer('api_key_id')
+    .notNull()
+    .references(() => apiKeys.id),
   url: text('url').notNull(), // Webhook endpoint URL
   events: jsonb('events').notNull(), // Array like ['analysis.completed', 'generation.completed']
   isActive: boolean('is_active').notNull().default(true),
@@ -739,7 +756,9 @@ export interface ApiKeyWithStats extends ApiKey {
  */
 export const apiJsRenderQuotas = pgTable('api_js_render_quotas', {
   id: serial('id').primaryKey(),
-  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  apiKeyId: integer('api_key_id')
+    .notNull()
+    .references(() => apiKeys.id),
   externalUserId: text('external_user_id').notNull(), // Consumer-provided user ID (e.g., aimp_user_123)
   rendersUsedThisMonth: integer('renders_used_this_month').default(0).notNull(),
   resetAt: timestamp('reset_at'), // When the quota counter will reset (first of next month)
@@ -751,15 +770,43 @@ export type NewApiJsRenderQuota = typeof apiJsRenderQuotas.$inferInsert;
 export const insertApiJsRenderQuotaSchema = createInsertSchema(apiJsRenderQuotas);
 
 // Tier limits for API consumers (mapped from userTier parameter)
-export const API_TIER_LIMITS: Record<UserTier, {
-  maxPagesPerAnalysis: number;
-  aiPagesLimit: number;
-  jsRenderingEnabled: boolean;
-  jsRendersPerMonth: number;
-}> = {
-  starter: { maxPagesPerAnalysis: 20, aiPagesLimit: 20, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
-  solo: { maxPagesPerAnalysis: 200, aiPagesLimit: 200, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
-  growth: { maxPagesPerAnalysis: 500, aiPagesLimit: 500, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
-  scale: { maxPagesPerAnalysis: 1000, aiPagesLimit: 1000, jsRenderingEnabled: true, jsRendersPerMonth: 100 },
-  cancelled: { maxPagesPerAnalysis: 0, aiPagesLimit: 0, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
+export const API_TIER_LIMITS: Record<
+  UserTier,
+  {
+    maxPagesPerAnalysis: number;
+    aiPagesLimit: number;
+    jsRenderingEnabled: boolean;
+    jsRendersPerMonth: number;
+  }
+> = {
+  starter: {
+    maxPagesPerAnalysis: 20,
+    aiPagesLimit: 20,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
+  solo: {
+    maxPagesPerAnalysis: 200,
+    aiPagesLimit: 200,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
+  growth: {
+    maxPagesPerAnalysis: 500,
+    aiPagesLimit: 500,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
+  scale: {
+    maxPagesPerAnalysis: 1000,
+    aiPagesLimit: 1000,
+    jsRenderingEnabled: true,
+    jsRendersPerMonth: 100,
+  },
+  cancelled: {
+    maxPagesPerAnalysis: 0,
+    aiPagesLimit: 0,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
 };

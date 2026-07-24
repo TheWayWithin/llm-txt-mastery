@@ -72,7 +72,14 @@ export async function analyzeDiscoveredPagesWithCache(
 
   try {
     return await Promise.race([
-      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions, skipCache, PAGE_ANALYSIS_TIMEOUT),
+      performPageAnalysisWithCache(
+        entries,
+        userEmail,
+        tier,
+        jsRenderingOptions,
+        skipCache,
+        PAGE_ANALYSIS_TIMEOUT
+      ),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -113,14 +120,16 @@ async function performPageAnalysisWithCache(
 
   // Sprint 10: Auto-detect JS rendering — enabled flag comes from route-level SPA auto-detection
   // Also supports per-page auto-detection via shouldUseJsRendering() in sitemap.ts
-  const useJsRendering = tier === 'scale' && (
-    jsRenderingOptions?.enabled === true ||
-    jsRenderingOptions?.spaDetection?.framework.renderingStrategy === 'CSR' ||
-    jsRenderingOptions?.spaDetection?.framework.framework === 'angular' ||
-    (jsRenderingOptions?.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50
-  );
+  const useJsRendering =
+    tier === 'scale' &&
+    (jsRenderingOptions?.enabled === true ||
+      jsRenderingOptions?.spaDetection?.framework.renderingStrategy === 'CSR' ||
+      jsRenderingOptions?.spaDetection?.framework.framework === 'angular' ||
+      (jsRenderingOptions?.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50);
   if (useJsRendering) {
-    console.log(`🎯 [Sprint 10] JS rendering auto-enabled for Scale tier analysis (${jsRenderingOptions?.spaDetection?.framework.framework} / ${jsRenderingOptions?.spaDetection?.framework.renderingStrategy})`);
+    console.log(
+      `🎯 [Sprint 10] JS rendering auto-enabled for Scale tier analysis (${jsRenderingOptions?.spaDetection?.framework.framework} / ${jsRenderingOptions?.spaDetection?.framework.renderingStrategy})`
+    );
   }
 
   // Enhanced logging for transparency
@@ -131,7 +140,7 @@ async function performPageAnalysisWithCache(
   console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
   console.log(`   • Found ${totalDiscovered} total pages from sitemap/crawl`);
   console.log(
-    `   • Filtered out ${filteredOut} pages (${(tier === 'solo' || tier === 'coffee') ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
+    `   • Filtered out ${filteredOut} pages (${tier === 'solo' || tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
   );
   console.log(`   • ${afterFiltering} pages passed filter`);
   console.log(`   • Tier limit: ${tierLimits.maxPagesPerAnalysis} pages max`);
@@ -227,9 +236,13 @@ async function performPageAnalysisWithCache(
     if (timeBudgetMs) {
       const elapsed = Date.now() - startTime;
       const budgetUsed = elapsed / timeBudgetMs;
-      if (budgetUsed >= 0.80) {
-        console.log(`⏱️ Time budget ${Math.round(budgetUsed * 100)}% used (${(elapsed / 1000).toFixed(1)}s/${(timeBudgetMs / 1000).toFixed(0)}s). Stopping to preserve ${pages.length} analyzed pages.`);
-        console.log(`   • Pages remaining: ${pagesToAnalyze.length - i} of ${pagesToAnalyze.length}`);
+      if (budgetUsed >= 0.8) {
+        console.log(
+          `⏱️ Time budget ${Math.round(budgetUsed * 100)}% used (${(elapsed / 1000).toFixed(1)}s/${(timeBudgetMs / 1000).toFixed(0)}s). Stopping to preserve ${pages.length} analyzed pages.`
+        );
+        console.log(
+          `   • Pages remaining: ${pagesToAnalyze.length - i} of ${pagesToAnalyze.length}`
+        );
         break;
       }
     }
@@ -243,7 +256,15 @@ async function performPageAnalysisWithCache(
       const batch = pagesToAnalyze.slice(batchStart, batchEnd);
 
       batchPromises.push(
-        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics, enhancedFetchOptions, skipCache)
+        processBatchWithCache(
+          batch,
+          userEmail,
+          tier,
+          tierLimits.aiPagesLimit,
+          metrics,
+          enhancedFetchOptions,
+          skipCache
+        )
       );
     }
 
@@ -491,7 +512,9 @@ async function processBatchWithCache(
 
       // Extract body content for llms-full.txt (Strip nav, footer, sidebar, script, style)
       const $body = cheerio.load(content);
-      $body('script, style, nav, header, footer, aside, .sidebar, .menu, .navigation, .nav, .footer, .header, noscript, iframe').remove();
+      $body(
+        'script, style, nav, header, footer, aside, .sidebar, .menu, .navigation, .nav, .footer, .header, noscript, iframe'
+      ).remove();
       const mainEl = $body('main, article, .content, #content, [role="main"]').first();
       const rawBodyText = (mainEl.length > 0 ? mainEl.text() : $body('body').text())
         .replace(/\s+/g, ' ')

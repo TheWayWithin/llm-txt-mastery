@@ -8,14 +8,18 @@ const llmModel = process.env.LLM_MODEL || 'openai/gpt-4o-mini';
 
 // Use OpenRouter if OPENROUTER_API_KEY is set, otherwise fall back to direct OpenAI
 const isOpenRouter = !!process.env.OPENROUTER_API_KEY;
-const openai = apiKey ? new OpenAI({ 
-  apiKey,
-  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
-  defaultHeaders: isOpenRouter ? {
-    'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
-    'X-Title': 'LLM.txt Mastery'
-  } : undefined
-}) : null;
+const openai = apiKey
+  ? new OpenAI({
+      apiKey,
+      baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+      defaultHeaders: isOpenRouter
+        ? {
+            'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
+            'X-Title': 'LLM.txt Mastery',
+          }
+        : undefined,
+    })
+  : null;
 
 // Log LLM initialization status at module load
 console.log('🔑 LLM Service Initialization:');
@@ -73,8 +77,12 @@ function truncateDescription(text: string, maxLength: number = 400): string {
 function generateFallbackDescription(url: string, title: string, metaDescription?: string): string {
   try {
     // Check if meta description is page-specific (not a generic site-wide default)
-    const isGenericMeta = !metaDescription || metaDescription.length < 30 ||
-      /transform your website|intelligent .* generator|free analysis with premium/i.test(metaDescription);
+    const isGenericMeta =
+      !metaDescription ||
+      metaDescription.length < 30 ||
+      /transform your website|intelligent .* generator|free analysis with premium/i.test(
+        metaDescription
+      );
 
     if (!isGenericMeta && metaDescription) {
       return truncateDescription(metaDescription);
@@ -85,12 +93,14 @@ function generateFallbackDescription(url: string, title: string, metaDescription
 
     // Use URL path to generate a meaningful description
     if (path) {
-      const readable = path
-        .replace(/[-_]/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase());
+      const readable = path.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
       const cleanTitle = title.replace(/ [-|–] .*$/, '').trim();
       // If title has page-specific info (differs from path), combine them
-      if (cleanTitle && cleanTitle.length > 5 && cleanTitle.toLowerCase() !== readable.toLowerCase()) {
+      if (
+        cleanTitle &&
+        cleanTitle.length > 5 &&
+        cleanTitle.toLowerCase() !== readable.toLowerCase()
+      ) {
         return `${cleanTitle} — the ${readable.toLowerCase()} page on ${hostname}.`;
       }
       return `${readable} page on ${hostname}.`;
@@ -356,7 +366,7 @@ async function generateAIAnalysis(
     const contentSample = mainContent.substring(0, 8000); // MiniMax M2.5 has 196K context, use more
 
     // Detect if this is a thin/CSR page
-    const contentWords = contentSample.split(/\s+/).filter(w => w.length > 2).length;
+    const contentWords = contentSample.split(/\s+/).filter((w) => w.length > 2).length;
     const isThinContent = contentWords < 50;
     const metaDescription = $('meta[name="description"]').attr('content') || '';
 
@@ -364,12 +374,14 @@ async function generateAIAnalysis(
     // has one meta tag shared by all routes). Check if it mentions the site name
     // but NOT the specific page path, or matches known generic patterns.
     const urlPath = new URL(url).pathname.replace(/^\/|\/$/g, '');
-    const isGenericMeta = metaDescription.length > 0 && (
+    const isGenericMeta =
+      metaDescription.length > 0 &&
       // Contains generic phrases that apply to any page
-      /transform your website|intelligent .* generator|free analysis with premium/i.test(metaDescription) ||
-      // Title is the same site-wide default (SPA symptom)
-      htmlResult.title === $('title').text().trim()
-    );
+      (/transform your website|intelligent .* generator|free analysis with premium/i.test(
+        metaDescription
+      ) ||
+        // Title is the same site-wide default (SPA symptom)
+        htmlResult.title === $('title').text().trim());
     const hasPageSpecificMeta = metaDescription.length > 30 && !isGenericMeta;
 
     // Build contextual guidance based on what information is available
@@ -458,7 +470,7 @@ Focus on technical accuracy, information density, and AI utility.`;
       'based on the available content',
       'the content sample is',
     ];
-    const hasFiller = fillerPhrases.some(phrase =>
+    const hasFiller = fillerPhrases.some((phrase) =>
       enhancedDescription.toLowerCase().includes(phrase)
     );
     if (hasFiller) {

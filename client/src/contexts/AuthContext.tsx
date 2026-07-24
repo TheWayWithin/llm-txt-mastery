@@ -85,7 +85,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           console.warn('⚠️ Failed to refresh user data from server:', refreshError);
 
           // Determine if this is a network issue vs auth issue
-          const errMsg = refreshError instanceof Error ? refreshError.message : String(refreshError);
+          const errMsg =
+            refreshError instanceof Error ? refreshError.message : String(refreshError);
           const isNetworkError =
             errMsg?.includes('fetch') ||
             errMsg?.includes('NetworkError') ||
@@ -265,9 +266,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.log(`🔍 Attempting to recognize email-based user: ${email}`);
 
       // Check usage API to see if this email has a tier/history
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/usage/${encodeURIComponent(email)}`
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/usage/${encodeURIComponent(email)}`);
 
       if (response.ok) {
         const usageData = await response.json();

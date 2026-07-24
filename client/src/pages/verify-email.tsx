@@ -34,15 +34,12 @@ export default function VerifyEmailPage() {
 
   const verifyEmail = async (token: string) => {
     try {
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/auth/verify-email?token=${token}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/verify-email?token=${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       const data = await response.json();
 
@@ -90,7 +87,9 @@ export default function VerifyEmailPage() {
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
           // Fall back to login page
-          setTimeout(() => { window.location.href = '/login?verified=true'; }, 2000);
+          setTimeout(() => {
+            window.location.href = '/login?verified=true';
+          }, 2000);
         }
       } else {
         setVerificationState('error');

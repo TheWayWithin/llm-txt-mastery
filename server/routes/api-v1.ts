@@ -539,7 +539,9 @@ async function processAnalysis(
 
       if (jsRenderedPages > 0) {
         await consumeApiJsRenders(options.apiKeyId, options.externalUserId, jsRenderedPages);
-        console.log(`[API ANALYSIS] Consumed ${jsRenderedPages} JS renders for analysis ${analysisId}`);
+        console.log(
+          `[API ANALYSIS] Consumed ${jsRenderedPages} JS renders for analysis ${analysisId}`
+        );
       }
     }
 
