@@ -8,5 +8,4 @@
 2	server/routes/api-v1.ts|TS2339|Property 'source' does not exist on type 'SitemapResult'.
 1	server/routes/api-v1.ts|TS2554|Expected 3-5 arguments, but got 2.
 1	server/routes/api-v1.ts|TS2740|Type '{ pages: DiscoveredPage[]; metrics: AnalysisMetrics; }' is missing the following properties from type 'DiscoveredPage[]': length, pop, push, concat, and 29 more.
-1	server/routes/stripe.ts|TS2561|Object literal may only specify known properties, but 'stripeSubscriptionId' does not exist in type '{ userId: number; status: string; amount: number; subscriptionId?: number | null | undefined; stripePaymentIntentId?: string | null | undefined; currency?: string | undefined; }'. Did you mean to write 'subscriptionId'?
 1	server/services/stripe.ts|TS2322|Type '"2024-06-20"' is not assignable to type '"2025-08-27.basil"'.

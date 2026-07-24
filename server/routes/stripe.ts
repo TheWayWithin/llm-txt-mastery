@@ -861,15 +861,17 @@ async function handleSubscriptionUpdate(subscription: any) {
       );
     }
 
-    // Record payment history if subscription is active
+    // Record payment history if subscription is active.
+    // NOTE (LTM-ISS-7): earlier code also passed stripeSubscriptionId and tier,
+    // but neither is a column the insert schema accepts — drizzle dropped both
+    // silently, so no row has ever stored them. Linking payment history to the
+    // subscription needs the local subscriptions.id FK, tracked in that issue.
     if (subscription.status === 'active') {
       await storage.createPaymentHistory({
         userId,
-        stripeSubscriptionId: subscription.id,
         amount: subscription.items?.data[0]?.price?.unit_amount || 0,
         currency: subscription.items?.data[0]?.price?.currency || 'usd',
         status: 'paid',
-        tier: tier as any,
       });
     }
   } catch (error) {
