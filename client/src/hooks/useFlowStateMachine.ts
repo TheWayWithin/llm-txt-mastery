@@ -314,7 +314,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       );
       const nextState = 'REVIEW';
 
-      const newContext = {
+      const newContext: FlowContext = {
         ...updatedContext,
         analysisId: event.analysisId,
         discoveredPages: event.pages,

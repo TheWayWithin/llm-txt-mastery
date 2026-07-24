@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { InstantRefundButton } from '../InstantRefundButton';
+import type { StoredUserTier } from '@shared/schema';
 
 /**
  * Integration Test: Full Refund Flow
@@ -25,7 +26,7 @@ const mockRefreshUser = vi.fn();
 let mockUserState = {
   id: 1,
   email: 'test@example.com',
-  tier: 'solo' as const,
+  tier: 'solo' as StoredUserTier,
   creditsRemaining: 5,
   username: 'testuser',
 };

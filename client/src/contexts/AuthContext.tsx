@@ -273,12 +273,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // If user has a tier other than starter or has usage history, create email-based user object
         if (usageData.tier !== 'starter' || (usageData.usage?.analysesToday || 0) > 0) {
+          // Synthetic local-only user for returning email-only visitors; nothing
+          // reads id/emailVerified/createdAt off it (id: 0 marks "no auth_users row").
           const emailUser: AuthUser = {
-            id: `email-${email}`, // Temporary ID for email-based users
+            id: 0,
             email: email,
-            tier: usageData.tier as any,
+            tier: usageData.tier,
             creditsRemaining: usageData.usage?.creditsRemaining || 0,
-            username: email.split('@')[0],
+            emailVerified: false,
+            createdAt: new Date().toISOString(),
           };
 
           console.log(`✅ Email user recognized: ${email} with tier ${usageData.tier}`);

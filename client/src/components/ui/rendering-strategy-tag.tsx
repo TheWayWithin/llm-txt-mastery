@@ -19,6 +19,7 @@ const frameworkLabels: Record<SPAFrameworkIndicators['framework'], string> = {
   nuxt: 'Nuxt',
   gatsby: 'Gatsby',
   astro: 'Astro',
+  wordpress: 'WordPress',
   unknown: 'Unknown',
 };
 

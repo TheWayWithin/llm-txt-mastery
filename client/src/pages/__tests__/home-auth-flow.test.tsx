@@ -110,6 +110,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: false,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       renderWithQueryClient(<Home />);
@@ -143,6 +146,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: false,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       renderWithQueryClient(<Home />);
@@ -170,6 +176,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: false,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       renderWithQueryClient(<Home />);
@@ -197,7 +206,14 @@ describe.skip('Home Component - Authentication Flow', () => {
       const user = userEvent.setup();
 
       mockUseAuth.mockReturnValue({
-        user: { id: '1', email: 'test@example.com', tier: 'starter' },
+        user: {
+          id: 1,
+          email: 'test@example.com',
+          tier: 'starter',
+          creditsRemaining: 0,
+          emailVerified: true,
+          createdAt: '2025-01-01T00:00:00Z',
+        },
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -207,6 +223,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: true,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       renderWithQueryClient(<Home />);
@@ -241,6 +260,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: false,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       const { rerender } = renderWithQueryClient(<Home />);
@@ -256,7 +278,14 @@ describe.skip('Home Component - Authentication Flow', () => {
 
       // Simulate auth loading completion with authenticated user
       mockUseAuth.mockReturnValue({
-        user: { id: '1', email: 'test@example.com', tier: 'starter' },
+        user: {
+          id: 1,
+          email: 'test@example.com',
+          tier: 'starter',
+          creditsRemaining: 0,
+          emailVerified: true,
+          createdAt: '2025-01-01T00:00:00Z',
+        },
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -266,6 +295,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: true,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       rerender(
@@ -288,7 +320,14 @@ describe.skip('Home Component - Authentication Flow', () => {
 
       // Mock a scenario where email capture is shown but user data is available
       mockUseAuth.mockReturnValue({
-        user: { id: '1', email: 'prefill@example.com', tier: 'starter' },
+        user: {
+          id: 1,
+          email: 'prefill@example.com',
+          tier: 'starter',
+          creditsRemaining: 0,
+          emailVerified: true,
+          createdAt: '2025-01-01T00:00:00Z',
+        },
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -298,6 +337,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: true,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       // Force email capture to show by mocking the condition
@@ -315,6 +357,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: false,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       renderWithQueryClient(<Home />);
@@ -330,7 +375,14 @@ describe.skip('Home Component - Authentication Flow', () => {
 
       // Now simulate user becoming available (edge case scenario)
       mockUseAuth.mockReturnValue({
-        user: { id: '1', email: 'prefill@example.com', tier: 'starter' },
+        user: {
+          id: 1,
+          email: 'prefill@example.com',
+          tier: 'starter',
+          creditsRemaining: 0,
+          emailVerified: true,
+          createdAt: '2025-01-01T00:00:00Z',
+        },
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -340,6 +392,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: true,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       // The component should handle this edge case gracefully
@@ -362,6 +417,9 @@ describe.skip('Home Component - Authentication Flow', () => {
         hasCredits: false,
         canAnalyze: true,
         isAuthenticated: false,
+        authResolved: true,
+        recognizeEmailUser: vi.fn(),
+        emailBasedUser: null,
       });
 
       renderWithQueryClient(<Home />);

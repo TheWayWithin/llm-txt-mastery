@@ -230,7 +230,7 @@ export const errorHandlers = {
   /**
    * Handle async operations with consistent error handling
    */
-  async: <T>(
+  async: async <T>(
     operation: () => Promise<T>,
     errorMessage?: string
   ): Promise<{ data?: T; error?: AppError }> => {

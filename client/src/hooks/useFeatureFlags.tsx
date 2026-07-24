@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export type FeatureFlagName =
   | 'clustering'
@@ -34,7 +34,7 @@ export interface UseFeatureFlagsReturn {
  * Hook for accessing feature flags in React components
  */
 export function useFeatureFlags(): UseFeatureFlagsReturn {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [flags, setFlags] = useState<Record<FeatureFlagName, boolean>>(
     {} as Record<FeatureFlagName, boolean>
   );

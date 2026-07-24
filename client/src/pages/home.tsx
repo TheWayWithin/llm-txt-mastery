@@ -281,15 +281,18 @@ export default function Home() {
 
         {/* Email Verification Banner - Show immediately after header */}
         {user &&
-          console.log('🔍 User verification check:', {
-            hasUser: !!user,
-            email: user?.email,
-            emailVerified: user?.emailVerified,
-            typeOfEmailVerified: typeof user?.emailVerified,
-            isExactlyFalse: user?.emailVerified === false,
-            shouldShowBanner: user?.emailVerified === false,
-            fullUserObject: user,
-          })}
+          ((): null => {
+            console.log('🔍 User verification check:', {
+              hasUser: !!user,
+              email: user?.email,
+              emailVerified: user?.emailVerified,
+              typeOfEmailVerified: typeof user?.emailVerified,
+              isExactlyFalse: user?.emailVerified === false,
+              shouldShowBanner: user?.emailVerified === false,
+              fullUserObject: user,
+            });
+            return null;
+          })()}
         {user && user.emailVerified === false && (
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
             <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
@@ -477,7 +480,6 @@ export default function Home() {
                     actions.openAuthModal();
                   }}
                   onReset={resetWorkflow}
-                  prefilledEmail={user?.email || userEmail}
                   isVisible={visibility.emailCapture}
                 />
               )}

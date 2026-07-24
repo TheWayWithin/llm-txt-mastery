@@ -23,7 +23,9 @@ import { QuickHelp, InlineHelp } from './HelpSystem';
 interface ContentAnalysisProps {
   websiteUrl: string;
   userEmail: string;
-  userTier: string;
+  // Optional: the home flow renders without it and the component already falls
+  // back to the analysis API's tier (see effectiveTier), which is fresher anyway
+  userTier?: string;
   onAnalysisComplete: (analysisId: number, pages: DiscoveredPage[]) => void;
   onReset?: () => void;
   useAI?: boolean;
@@ -96,10 +98,10 @@ export default function ContentAnalysis({
   const [coldStartDetected, setColdStartDetected] = useState(false);
   const [requestStartTime, setRequestStartTime] = useState<number | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<string>('Calculating...');
-  const [effectiveTier, setEffectiveTier] = useState<string>(userTier);
+  const [effectiveTier, setEffectiveTier] = useState<string | undefined>(userTier);
 
   // Calculate tier limit for display - use effectiveTier which updates from API
-  const tierLimit = TIER_PAGE_LIMITS[effectiveTier] || 20;
+  const tierLimit = (effectiveTier && TIER_PAGE_LIMITS[effectiveTier]) || 20;
   const tierDisplayName =
     effectiveTier === 'solo' || effectiveTier === 'coffee'
       ? 'Solo'

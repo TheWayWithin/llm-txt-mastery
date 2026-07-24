@@ -168,7 +168,7 @@ export function useUsageTracking(email: string | undefined) {
       setClientUsage(newClientUsage);
 
       // Get the current tier from server usage or client usage
-      const currentTier = serverUsage?.tier || clientUsage.tier || 'starter';
+      const currentTier = serverUsage?.tier || clientUsage?.tier || 'starter';
 
       // Try to update server using simple tracking endpoint
       try {

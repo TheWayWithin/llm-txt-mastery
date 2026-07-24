@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { nanoid } from 'nanoid';
 
 export interface ExperimentAssignment {
@@ -54,7 +54,7 @@ const getSessionId = (): string => {
  * Hook for single A/B test
  */
 export function useABTest(experimentName: string): UseABTestReturn {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [assignment, setAssignment] = useState<ExperimentAssignment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +157,7 @@ export function useABTest(experimentName: string): UseABTestReturn {
  * Hook for multiple A/B tests
  */
 export function useMultipleABTests(experimentNames: string[]): UseMultipleABTestsReturn {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [assignments, setAssignments] = useState<Record<string, ExperimentAssignment>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
