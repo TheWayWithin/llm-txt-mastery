@@ -171,7 +171,7 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   }
 
   // Basic HTML parsing to extract title and create analysis
-  let $: any;
+  let $: cheerio.CheerioAPI;
   try {
     $ = cheerio.load(htmlContent);
   } catch (cheerioError) {
@@ -527,7 +527,7 @@ export async function batchAnalyzeContent(
 }
 
 // Enhanced description extraction for free tier users
-function extractSmartDescription($: any, url: string, textContent: string): string {
+function extractSmartDescription($: cheerio.CheerioAPI, url: string, textContent: string): string {
   // Strategy 1: Look for introduction/summary content
   const introSelectors = [
     '.intro, .introduction, .summary, .overview, .description',
@@ -571,7 +571,7 @@ function extractSmartDescription($: any, url: string, textContent: string): stri
   return `Content from ${new URL(url).hostname}`;
 }
 
-function extractStructuredContent($: any, url: string): string | null {
+function extractStructuredContent($: cheerio.CheerioAPI, url: string): string | null {
   const urlLower = url.toLowerCase();
 
   // API documentation pages
@@ -625,7 +625,7 @@ function extractStructuredContent($: any, url: string): string | null {
   return null;
 }
 
-function analyzeContentStructure($: any, textContent: string): string | null {
+function analyzeContentStructure($: cheerio.CheerioAPI, textContent: string): string | null {
   const codeBlockCount = $('code, pre').length;
   const listItemCount = $('li').length;
   const headingCount = $('h1, h2, h3, h4, h5, h6').length;

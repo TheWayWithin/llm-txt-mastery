@@ -91,13 +91,6 @@
 1	server/services/google-analytics.ts|TS2739|Type '{ startDate: string; endDate: string; }' is missing the following properties from type '{ start_date: string; end_date: string; }': start_date, end_date
 1	server/services/keep-alive.ts|TS2353|Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
 5	server/services/openai-enhanced.ts|TS7053|Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 'gpt-4o': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-4o-mini': { name: string; description: string; pricing: { input: number; output: number; }; maxTokens: number; recommended: boolean; }; 'gpt-3.5-turbo': { ...; }; }'.
-5	server/services/openai.ts|TS7006|Parameter '_' implicitly has an 'any' type.
-5	server/services/openai.ts|TS7006|Parameter 'el' implicitly has an 'any' type.
-2	server/services/openai.ts|TS7006|Parameter 'p' implicitly has an 'any' type.
-1	server/services/openai.ts|TS7006|Parameter 's' implicitly has an 'any' type.
-1	server/services/openai.ts|TS7006|Parameter 'section' implicitly has an 'any' type.
-1	server/services/openai.ts|TS7006|Parameter 'step' implicitly has an 'any' type.
-1	server/services/openai.ts|TS7006|Parameter 'word' implicitly has an 'any' type.
 1	server/services/performance-benchmarks.ts|TS1308|'await' expressions are only allowed within async functions and at the top levels of modules.
 1	server/services/performance-benchmarks.ts|TS2322|Type 'null' is not assignable to type 'Redis'.
 2	server/services/performance-benchmarks.ts|TS2339|Property 'benchmarkName' does not exist on type 'PerformanceBenchmarkService'.
