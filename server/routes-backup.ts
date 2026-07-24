@@ -9,6 +9,7 @@ import {
   DiscoveredPage,
   SelectedPage,
   UserTier,
+  StoredUserTier,
 } from '@shared/schema';
 import { fetchSitemap } from './services/sitemap';
 import { analyzeDiscoveredPagesWithCache } from './services/sitemap-enhanced';
@@ -171,7 +172,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use authenticated user information
       const userEmail = req.user!.email;
-      const tier = req.user!.tier;
+      // DB boundary: the tier column is text but only ever holds StoredUserTier values
+      const tier = req.user!.tier as StoredUserTier;
 
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -420,7 +422,7 @@ async function analyzeWebsiteEnhanced(
   analysisId: number,
   url: string,
   userEmail: string,
-  tier: UserTier
+  tier: StoredUserTier
 ) {
   try {
     const startTime = Date.now();

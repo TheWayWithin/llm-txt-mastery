@@ -3,6 +3,7 @@ import { db } from '../db';
 import { errorMessage, errorField } from '../lib/errors';
 import {
   UserTier,
+  StoredUserTier,
   UsageTracking,
   emailCaptures,
   usageTracking,
@@ -120,7 +121,7 @@ export interface UsageCheckResult {
 }
 
 // Get user's current tier (simplified to use emailCaptures only for now)
-export async function getUserTier(userEmail: string): Promise<UserTier> {
+export async function getUserTier(userEmail: string): Promise<StoredUserTier> {
   try {
     // Temporary manual override for Solo tier customer
     if (userEmail === 'jamie.watters.mail@icloud.com') {
@@ -130,7 +131,8 @@ export async function getUserTier(userEmail: string): Promise<UserTier> {
 
     // Check emailCaptures table directly (where Coffee tier is stored)
     const emailCapture = await storage.getEmailCapture(userEmail);
-    const tier = emailCapture?.tier || 'starter';
+    // DB boundary: the tier column is text but only ever holds StoredUserTier values
+    const tier = (emailCapture?.tier || 'starter') as StoredUserTier;
     console.log(`getUserTier for ${userEmail}: found tier "${tier}" in emailCaptures`);
     return tier;
   } catch (error) {
@@ -444,7 +446,7 @@ export async function getMonthlyAiCost(userEmail: string): Promise<{
 // Check if AI usage should be allowed based on cost caps
 export async function checkAiCostCap(
   userEmail: string,
-  tier: UserTier
+  tier: StoredUserTier
 ): Promise<{
   allowed: boolean;
   reason?: string;
@@ -463,6 +465,7 @@ export async function checkAiCostCap(
     coffee: 3.0, // Legacy alias for solo tier
     growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
     scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00'),
+    cancelled: 0, // No AI budget; cancelled users are blocked by daily limits before this runs
   };
 
   const monthlyBudget = monthlyBudgets[tier];
@@ -591,13 +594,14 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
 }
 
 export async function getUserTierFromAuth(
-  user: { id: string; email: string; tier: UserTier } | undefined,
+  user: { id: string; email: string; tier: StoredUserTier } | undefined,
   email?: string
-): Promise<UserTier> {
+): Promise<StoredUserTier> {
   if (user) {
     // Get tier from authenticated user profile
     const userProfile = await storage.getUserProfile(user.id);
-    return userProfile?.tier || user.tier || 'starter';
+    // DB boundary: the tier column is text but only ever holds StoredUserTier values
+    return (userProfile?.tier as StoredUserTier | undefined) || user.tier || 'starter';
   } else if (email) {
     // Fallback to email-based tier lookup for backward compatibility
     return await getUserTier(email);
@@ -697,7 +701,7 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
 // Estimate cost for an analysis
 export function estimateAnalysisCost(
   pagesCount: number,
-  tier: UserTier,
+  tier: StoredUserTier,
   cacheHits: number = 0
 ): number {
   const limits = TIER_LIMITS[tier];

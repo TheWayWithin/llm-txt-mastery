@@ -84,7 +84,7 @@ export interface FlowContext {
   previousState: FlowState | null;
   websiteUrl: string;
   userEmail: string;
-  userTier: UserTier;
+  userTier: AuthUser['tier'];
   analysisId: number | null;
   discoveredPages: DiscoveredPage[];
   generatedFileId: number | null;

@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import {
   DiscoveredPage,
   UserTier,
+  StoredUserTier,
   TierLimits,
   CachedAnalysis,
   analysisCache,
@@ -37,7 +38,7 @@ async function fetchWithTimeout(
 }
 
 // Tier configurations
-export const TIER_LIMITS: Record<UserTier, Omit<TierLimits, 'tier'>> = {
+export const TIER_LIMITS: Record<StoredUserTier, Omit<TierLimits, 'tier'>> = {
   starter: {
     dailyAnalyses: 3,
     maxPagesPerAnalysis: 20, // Reduced from 50 to encourage upgrades
@@ -132,7 +133,7 @@ export function generateContentHash(content: string): string {
 }
 
 // Get cache duration in milliseconds based on tier and URL
-export function getCacheDuration(url: string, tier: UserTier): number {
+export function getCacheDuration(url: string, tier: StoredUserTier): number {
   const baseDays = TIER_LIMITS[tier].cacheDurationDays;
   let days = baseDays;
 
@@ -227,7 +228,7 @@ export async function hasPageChanged(url: string, cached: CachedAnalysis): Promi
 // Get cached analysis if valid
 export async function getCachedAnalysis(
   url: string,
-  tier: UserTier
+  tier: StoredUserTier
 ): Promise<CachedAnalysis | null> {
   try {
     const urlHash = generateUrlHash(url);
@@ -269,7 +270,7 @@ export async function getCachedAnalysis(
 export async function cacheAnalysis(
   url: string,
   result: DiscoveredPage[],
-  tier: UserTier,
+  tier: StoredUserTier,
   contentHash: string,
   lastModified?: string,
   etag?: string
@@ -381,7 +382,7 @@ export async function getCacheStats(tier?: UserTier): Promise<any> {
 export async function trackCacheSavings(
   userEmail: string,
   cacheHits: number,
-  tier: UserTier
+  tier: StoredUserTier
 ): Promise<void> {
   try {
     // Estimate cost savings based on tier

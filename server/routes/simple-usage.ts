@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { sql, eq } from 'drizzle-orm';
-import { authUsers } from '../schema';
+import { sql } from 'drizzle-orm';
+import { StoredUserTier } from '@shared/schema';
 import { authStorage } from '../services/auth-storage';
 
 const router = Router();
@@ -37,13 +37,14 @@ router.get('/api/simple-usage/:email', async (req, res) => {
     console.log(`📊 [SIMPLE-USAGE] Checking usage for ${email} on ${today}`);
 
     // First, check auth_users table for tier and credits
-    let actualTier = 'starter';
+    let actualTier: StoredUserTier = 'starter';
     let creditsRemaining: number | undefined;
 
     try {
       const authUser = await authStorage.getUserByEmail(email);
       if (authUser) {
-        actualTier = authUser.tier;
+        // DB boundary: the tier column is text but only ever holds StoredUserTier values
+        actualTier = authUser.tier as StoredUserTier;
         if (authUser.tier === 'solo' || authUser.tier === 'coffee') {
           creditsRemaining = authUser.creditsRemaining || 0;
           console.log(`[SIMPLE-USAGE] Solo tier user ${email} has ${creditsRemaining} credits`);
@@ -73,6 +74,7 @@ router.get('/api/simple-usage/:email', async (req, res) => {
       coffee: 20, // Legacy alias for solo
       growth: 35, // Match TIER_LIMITS.growth.dailyAnalyses
       scale: 100, // Match TIER_LIMITS.scale.dailyAnalyses
+      cancelled: 0, // Falls through to the || 3 default below, same as before this key existed
     };
 
     const response: any = {

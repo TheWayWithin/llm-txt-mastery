@@ -10,6 +10,7 @@ import {
   DiscoveredPage,
   SelectedPage,
   UserTier,
+  StoredUserTier,
   users,
   usageTracking,
   SPADetectionResult,
@@ -347,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const simpleUsage = await getSimpleUsage(email);
 
       // Get tier
-      let tier = 'starter';
+      let tier: StoredUserTier = 'starter';
       try {
         tier = await getUserTier(email);
       } catch (e) {
@@ -764,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const simpleUsage = await getSimpleUsage(email);
 
       // Get tier (with fallback)
-      let tier = 'starter';
+      let tier: StoredUserTier = 'starter';
       try {
         tier = await getUserTier(email);
       } catch (e) {
@@ -1216,7 +1217,7 @@ async function analyzeWebsiteEnhanced(
   analysisId: number,
   url: string,
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   authUserId?: string,
   jsRenderingOptions?: AnalysisJsRenderingOptions,
   force?: boolean
@@ -1284,7 +1285,7 @@ async function performAnalysisWithTimeout(
   analysisId: number,
   url: string,
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   authUserId?: string,
   jsRenderingOptions?: AnalysisJsRenderingOptions,
   force?: boolean

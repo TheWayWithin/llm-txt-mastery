@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { analytics, analyticsHelpers, EventName, EventProperties } from '@/lib/analytics-utils';
-import { UserTier } from '@shared/schema';
+import { UserTier, StoredUserTier } from '@shared/schema';
 
 export interface UseAnalyticsOptions {
   /** Enable debug mode for this component */
@@ -17,7 +17,7 @@ export interface UseAnalyticsOptions {
   trackPageViews?: boolean;
   /** User context to include in events */
   userContext?: {
-    tier?: UserTier;
+    tier?: StoredUserTier;
     email?: string;
     creditsRemaining?: number;
   };

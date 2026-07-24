@@ -78,7 +78,7 @@ export const sitemapAnalysis = pgTable('sitemapAnalysis', {
     message: string;
     totalPagesFound: number;
     userEmail?: string;
-    tier?: UserTier;
+    tier?: StoredUserTier;
     // Enhanced SPA detection fields (Sprint 1: Phase 1)
     spaDetection?: SPADetectionResult;
     contentCoveragePercentage?: number;
@@ -348,6 +348,11 @@ export type UserProfile = typeof userProfiles.$inferSelect;
 // Tier-based types
 export type UserTier = 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
 
+// Tier as actually stored in the database: includes the legacy 'coffee' value,
+// a pre-rename alias for 'solo' still present on old rows. Runtime treats
+// 'coffee' exactly like 'solo'; new records never write it.
+export type StoredUserTier = UserTier | 'coffee';
+
 // ===================================================================
 // ENHANCED SPA DETECTION TYPES (Sprint 1: Phase 1)
 // ===================================================================
@@ -432,7 +437,7 @@ export interface CachedAnalysis {
   lastModified?: string;
   etag?: string;
   analysisResult: DiscoveredPage[];
-  tier: UserTier;
+  tier: StoredUserTier;
   cachedAt: Date;
   expiresAt: Date;
   hitCount: number;
@@ -576,7 +581,7 @@ export const refundRequests = pgTable('refund_requests', {
 export interface JWTPayload {
   userId: number;
   email: string;
-  tier: UserTier;
+  tier: StoredUserTier;
   iat: number;
   exp: number;
 }

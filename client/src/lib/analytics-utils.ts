@@ -5,7 +5,7 @@
  * and analytics hook wrapper with debug support.
  */
 
-import { UserTier } from '@shared/schema';
+import { UserTier, StoredUserTier } from '@shared/schema';
 import { trackEvent as baseTrackEvent } from '@/lib/analytics';
 
 // Enhanced event tracking with type safety
@@ -20,7 +20,7 @@ export interface BaseEventProperties {
 }
 
 export interface UserEventProperties extends BaseEventProperties {
-  user_tier?: UserTier;
+  user_tier?: StoredUserTier;
   user_email?: string;
   credits_remaining?: number;
 }
@@ -43,7 +43,7 @@ export interface AnalysisEventProperties extends UserEventProperties {
 
 export interface ConversionEventProperties extends BusinessEventProperties {
   tier_selected?: UserTier;
-  previous_tier?: UserTier;
+  previous_tier?: StoredUserTier;
   conversion_step?: string;
   funnel_position?: number;
 }
@@ -59,7 +59,7 @@ export interface EventDefinitions {
   // User engagement events
   tier_selected: {
     tier_selected: UserTier;
-    previous_tier?: UserTier | null;
+    previous_tier?: StoredUserTier | null;
     website_url?: string;
   } & UserEventProperties;
 
@@ -141,7 +141,7 @@ export interface EventDefinitions {
     error_type: string;
     error_message: string;
     error_context?: string;
-    user_tier?: UserTier;
+    user_tier?: StoredUserTier;
   } & UserEventProperties;
 
   // Performance events

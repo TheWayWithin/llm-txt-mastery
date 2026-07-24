@@ -29,6 +29,12 @@ import { userRegistrationSchema, userLoginSchema, UserTier, AuthResponse } from 
 
 const router = express.Router();
 
+// Monthly credit allocation for Solo tier (and its legacy 'coffee' alias).
+// Matches TIER_LIMITS.solo.dailyAnalyses. Was previously only defined inside the
+// fix-coffee-credits handler, leaving the reset-credits handler referencing an
+// undefined name (guaranteed ReferenceError -> 500 on that admin endpoint).
+const COFFEE_TIER_CREDITS = 20;
+
 // Rate limiting for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -1111,8 +1117,6 @@ router.post('/admin/fix-coffee-credits', async (req, res) => {
         code: 'ADMIN_ACCESS_REQUIRED',
       });
     }
-
-    const COFFEE_TIER_CREDITS = 20;
 
     // Find all Solo/Coffee tier users with less than 20 credits
     const soloUsers = await authStorage.getUsersByTier('solo');

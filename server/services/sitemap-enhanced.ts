@@ -1,4 +1,4 @@
-import { DiscoveredPage, UserTier, SPADetectionResult } from '@shared/schema';
+import { DiscoveredPage, UserTier, StoredUserTier, SPADetectionResult } from '@shared/schema';
 import { errorMessage } from '../lib/errors';
 import {
   fetchPageContent,
@@ -55,7 +55,7 @@ export interface JsRenderingOptions {
 export async function analyzeDiscoveredPagesWithCache(
   entries: SitemapEntry[],
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   jsRenderingOptions?: JsRenderingOptions,
   skipCache?: boolean
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
@@ -111,7 +111,7 @@ export async function analyzeDiscoveredPagesWithCache(
 async function performPageAnalysisWithCache(
   entries: SitemapEntry[],
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   jsRenderingOptions?: JsRenderingOptions,
   skipCache?: boolean,
   timeBudgetMs?: number
@@ -391,7 +391,7 @@ async function performPageAnalysisWithCache(
 async function processBatchWithCache(
   batch: SitemapEntry[],
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   aiPagesLimit: number,
   metrics: AnalysisMetrics,
   enhancedFetchOptions?: EnhancedFetchOptions,
