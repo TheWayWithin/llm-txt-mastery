@@ -13,7 +13,8 @@ export default function Pricing() {
 
   useSEO({
     title: 'Pricing - Simple, Transparent Plans',
-    description: 'Choose from Starter (free), Solo, Growth, or Scale plans. Generate AI-ready llms.txt files with no hidden fees.',
+    description:
+      'Choose from Starter (free), Solo, Growth, or Scale plans. Generate AI-ready llms.txt files with no hidden fees.',
   });
 
   return (
@@ -33,7 +34,11 @@ export default function Pricing() {
             </Link>
             <Link href="/">
               <a>
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-white/30 text-white hover:bg-white/10"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to App
                 </Button>
@@ -46,9 +51,7 @@ export default function Pricing() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-ink mb-4">
-            Simple, Transparent Pricing
-          </h2>
+          <h1 className="text-4xl font-bold text-ink mb-4">Simple, Transparent Pricing</h1>
           <p className="text-lg text-slate-brand max-w-2xl mx-auto">
             Start free, upgrade when you need more. No hidden fees, no surprises.
           </p>
@@ -125,18 +128,25 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
+                  <span className="text-sm text-ink">
+                    Deployment guides, zip download & verification
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-ink">
-                    {billing === 'annual' ? 'Then $7.95/mo (billed annually) — cancel anytime' : 'Then $9.95/mo — cancel anytime'}
+                    {billing === 'annual'
+                      ? 'Then $7.95/mo (billed annually) — cancel anytime'
+                      : 'Then $9.95/mo — cancel anytime'}
                   </span>
                 </li>
               </ul>
               <Link href="/signup?tier=trial">
                 <a className="block">
-                  <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
+                  <Button
+                    variant="outline"
+                    className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10"
+                  >
                     Start Free Trial
                   </Button>
                 </a>
@@ -156,7 +166,9 @@ export default function Pricing() {
                         <span className="text-sm text-slate-brand line-through">$4.95</span>
                         <span className="text-2xl font-bold text-ink">$3.95</span>
                       </div>
-                      <span className="text-xs text-slate-brand block">per month, billed annually</span>
+                      <span className="text-xs text-slate-brand block">
+                        per month, billed annually
+                      </span>
                     </>
                   ) : (
                     <>
@@ -193,7 +205,9 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
+                  <span className="text-sm text-ink">
+                    Deployment guides, zip download & verification
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
@@ -202,7 +216,10 @@ export default function Pricing() {
               </ul>
               <Link href={`/signup?tier=solo${billing === 'annual' ? '&billing=annual' : ''}`}>
                 <a className="block">
-                  <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
+                  <Button
+                    variant="outline"
+                    className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10"
+                  >
                     Generate Your File
                   </Button>
                 </a>
@@ -225,7 +242,9 @@ export default function Pricing() {
                         <span className="text-sm text-slate-brand line-through">$9.95</span>
                         <span className="text-2xl font-bold text-ink">$7.95</span>
                       </div>
-                      <span className="text-xs text-slate-brand block">per month, billed annually</span>
+                      <span className="text-xs text-slate-brand block">
+                        per month, billed annually
+                      </span>
                     </>
                   ) : (
                     <>
@@ -266,7 +285,9 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
+                  <span className="text-sm text-ink">
+                    Deployment guides, zip download & verification
+                  </span>
                 </li>
               </ul>
               <Link href={`/signup?tier=growth${billing === 'annual' ? '&billing=annual' : ''}`}>
@@ -291,7 +312,9 @@ export default function Pricing() {
                         <span className="text-sm text-slate-brand line-through">$19.95</span>
                         <span className="text-2xl font-bold text-ink">$15.95</span>
                       </div>
-                      <span className="text-xs text-slate-brand block">per month, billed annually</span>
+                      <span className="text-xs text-slate-brand block">
+                        per month, billed annually
+                      </span>
                     </>
                   ) : (
                     <>
@@ -332,12 +355,17 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-ink">Deployment guides, zip download & verification</span>
+                  <span className="text-sm text-ink">
+                    Deployment guides, zip download & verification
+                  </span>
                 </li>
               </ul>
               <Link href={`/signup?tier=scale${billing === 'annual' ? '&billing=annual' : ''}`}>
                 <a className="block">
-                  <Button variant="outline" className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10">
+                  <Button
+                    variant="outline"
+                    className="w-full min-h-[44px] border-signal-blue text-signal-blue hover:bg-signal-blue/10"
+                  >
                     Generate Your File
                   </Button>
                 </a>
