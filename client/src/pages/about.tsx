@@ -1,3 +1,4 @@
+import ContentUpdated from '@/components/content-updated';
 import React from 'react';
 import { Link } from 'wouter';
 import { Card, CardContent } from '../components/ui/card';
@@ -7,7 +8,8 @@ import { useSEO } from '@/hooks/useSEO';
 export const AboutPage: React.FC = () => {
   useSEO({
     title: 'About - From Corporate Programmer to AI Tool Builder',
-    description: 'Learn the story behind LLM.txt Mastery - how corporate bureaucracy led to building tools for solopreneurs in the AI era.',
+    description:
+      'Learn the story behind LLM.txt Mastery - how corporate bureaucracy led to building tools for solopreneurs in the AI era.',
   });
 
   return (
@@ -144,9 +146,7 @@ export const AboutPage: React.FC = () => {
         {/* Call to Action */}
         <Card className="bg-mastery-blue text-white">
           <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">
-              Ready to Make Your Site Visible to AI?
-            </h2>
+            <h2 className="text-2xl font-bold mb-4">Ready to Make Your Site Visible to AI?</h2>
             <p className="mb-6">
               Join me in building a future where creators get credit for their expertise.
             </p>
@@ -168,6 +168,7 @@ export const AboutPage: React.FC = () => {
           </p>
           <p className="mt-2">No corporate BS, just solutions that work.</p>
         </div>
+        <ContentUpdated />
       </div>
     </div>
   );

@@ -17,7 +17,9 @@ export const TermsPage: React.FC = () => {
           <p className="text-xl text-slate-brand">
             Plain English terms from a solopreneur who believes in fairness
           </p>
-          <p className="text-sm text-stone-brand mt-4">Last updated: January 13, 2025</p>
+          <p className="text-sm text-stone-brand mt-4">
+            Last updated: <time dateTime="2025-01-13">January 13, 2025</time>
+          </p>
         </div>
 
         {/* Main Content */}
@@ -172,7 +174,10 @@ export const TermsPage: React.FC = () => {
               <h2 className="text-2xl font-bold mb-4">11. Contact</h2>
               <p className="text-ink">
                 Questions about these terms? Contact me at{' '}
-                <a href="mailto:support@llmtxtmastery.com" className="text-signal-blue hover:underline">
+                <a
+                  href="mailto:support@llmtxtmastery.com"
+                  className="text-signal-blue hover:underline"
+                >
                   support@llmtxtmastery.com
                 </a>
                 . I personally read and respond to every message.

@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionManagement from '@/components/subscription-management';
 import Footer from '@/components/footer';
 import { useSEO } from '@/hooks/useSEO';
+import { StructuredData, getSoftwareApplicationSchema } from '@/lib/structured-data';
 
 export default function Pricing() {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
@@ -51,6 +52,8 @@ export default function Pricing() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
+          {/* Offers in this schema mirror the standard monthly prices below */}
+          <StructuredData schema={getSoftwareApplicationSchema()} />
           <h1 className="text-4xl font-bold text-ink mb-4">Simple, Transparent Pricing</h1>
           <p className="text-lg text-slate-brand max-w-2xl mx-auto">
             Start free, upgrade when you need more. No hidden fees, no surprises.

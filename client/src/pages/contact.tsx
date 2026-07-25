@@ -1,16 +1,28 @@
+import ContentUpdated from '@/components/content-updated';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
-import { Mail, MessageSquare, Send, Twitter, Linkedin, ExternalLink, Bug, Lightbulb, HandMetal } from 'lucide-react';
+import {
+  Mail,
+  MessageSquare,
+  Send,
+  Twitter,
+  Linkedin,
+  ExternalLink,
+  Bug,
+  Lightbulb,
+  HandMetal,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useSEO } from '@/hooks/useSEO';
 
 export const ContactPage: React.FC = () => {
   useSEO({
     title: 'Contact - Get in Touch',
-    description: 'Have questions about LLM.txt Mastery? Contact us for support, feedback, or partnership inquiries.',
+    description:
+      'Have questions about LLM.txt Mastery? Contact us for support, feedback, or partnership inquiries.',
   });
   const [formData, setFormData] = useState({
     name: '',
@@ -128,7 +140,10 @@ export const ContactPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-ink mb-4">For quick questions or feedback:</p>
-                <a href="mailto:support@llmtxtmastery.com" className="text-signal-blue hover:underline">
+                <a
+                  href="mailto:support@llmtxtmastery.com"
+                  className="text-signal-blue hover:underline"
+                >
                   support@llmtxtmastery.com
                 </a>
               </CardContent>
@@ -225,6 +240,7 @@ export const ContactPage: React.FC = () => {
           <p>No corporate support tickets. No automated responses.</p>
           <p className="mt-2">Just direct communication with the person who built this.</p>
         </div>
+        <ContentUpdated />
       </div>
     </div>
   );

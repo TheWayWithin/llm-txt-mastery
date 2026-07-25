@@ -1,3 +1,4 @@
+import ContentUpdated from '@/components/content-updated';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { FileText, BookOpen, Shield, Zap, Globe, ArrowRight } from 'lucide-react';
@@ -6,7 +7,8 @@ import { useSEO } from '@/hooks/useSEO';
 export const DocsPage: React.FC = () => {
   useSEO({
     title: 'Documentation - LLMs.txt Specification Guide',
-    description: 'Complete guide to the llms.txt specification. Learn how to implement AI attribution and visibility for your website.',
+    description:
+      'Complete guide to the llms.txt specification. Learn how to implement AI attribution and visibility for your website.',
   });
 
   return (
@@ -40,8 +42,8 @@ export const DocsPage: React.FC = () => {
 
               <p>
                 It's placed at the root of your domain (e.g.,{' '}
-                <code className="bg-cloud px-2 py-1 rounded">https://yoursite.com/llms.txt</code>
-                ) and contains structured information about your content, licensing, and attribution
+                <code className="bg-cloud px-2 py-1 rounded">https://yoursite.com/llms.txt</code>)
+                and contains structured information about your content, licensing, and attribution
                 preferences.
               </p>
 
@@ -108,9 +110,7 @@ export const DocsPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <p className="text-ink">
-                A typical llms.txt file contains several key sections:
-              </p>
+              <p className="text-ink">A typical llms.txt file contains several key sections:</p>
 
               <div className="bg-ink text-success p-4 rounded-lg overflow-x-auto">
                 <pre className="text-sm">
@@ -233,36 +233,39 @@ Website: https://yoursite.com
           </CardHeader>
           <CardContent>
             <p className="text-slate-brand mb-4">
-              LLM.txt Mastery generates three output formats from a single crawl, each designed for different AI consumption scenarios.
+              LLM.txt Mastery generates three output formats from a single crawl, each designed for
+              different AI consumption scenarios.
             </p>
             <div className="space-y-4">
               <div className="bg-cloud rounded-lg p-4">
                 <h4 className="font-semibold text-ink mb-1">llms.txt (Standard)</h4>
                 <p className="text-sm text-slate-brand">
-                  The default format per the llmstxt.org specification. Contains your site title, description,
-                  section headings, and linked pages with brief annotations. Ideal for general AI discovery.
+                  The default format per the llmstxt.org specification. Contains your site title,
+                  description, section headings, and linked pages with brief annotations. Ideal for
+                  general AI discovery.
                 </p>
               </div>
               <div className="bg-cloud rounded-lg p-4">
                 <h4 className="font-semibold text-ink mb-1">llms-full.txt (Full)</h4>
                 <p className="text-sm text-slate-brand">
-                  An expanded version with complete page content inline, not just links.
-                  Gives AI models richer context without requiring follow-up fetches. Best for comprehensive
+                  An expanded version with complete page content inline, not just links. Gives AI
+                  models richer context without requiring follow-up fetches. Best for comprehensive
                   AI understanding of your site.
                 </p>
               </div>
               <div className="bg-cloud rounded-lg p-4">
                 <h4 className="font-semibold text-ink mb-1">llms-mini.txt (Mini)</h4>
                 <p className="text-sm text-slate-brand">
-                  A condensed version optimized for smaller context windows. Keeps only your top 5 most
-                  important pages with truncated descriptions. Useful for models with limited token budgets.
+                  A condensed version optimized for smaller context windows. Keeps only your top 5
+                  most important pages with truncated descriptions. Useful for models with limited
+                  token budgets.
                 </p>
               </div>
             </div>
             <p className="text-sm text-slate-brand mt-4">
-              <strong>Recommendation:</strong> Deploy all three. AI crawlers will choose the version that fits
-              their context window. The standard llms.txt is required; the full and mini variants are optional
-              but recommended for maximum compatibility.
+              <strong>Recommendation:</strong> Deploy all three. AI crawlers will choose the version
+              that fits their context window. The standard llms.txt is required; the full and mini
+              variants are optional but recommended for maximum compatibility.
             </p>
           </CardContent>
         </Card>
@@ -277,41 +280,59 @@ Website: https://yoursite.com
           </CardHeader>
           <CardContent>
             <p className="text-slate-brand mb-4">
-              Every validated file receives an A/B/C/D compliance grade based on how well it follows the
-              official llmstxt.org specification. The grade is a weighted composite of four dimensions.
+              Every validated file receives an A/B/C/D compliance grade based on how well it follows
+              the official llmstxt.org specification. The grade is a weighted composite of four
+              dimensions.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-sm">A</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-sm">
+                  A
+                </span>
                 <div>
                   <p className="font-semibold text-ink text-sm">Grade A (95%+)</p>
-                  <p className="text-xs text-slate-brand">Fully spec-compliant with excellent content quality</p>
+                  <p className="text-xs text-slate-brand">
+                    Fully spec-compliant with excellent content quality
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm">B</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm">
+                  B
+                </span>
                 <div>
                   <p className="font-semibold text-ink text-sm">Grade B (80-94%)</p>
-                  <p className="text-xs text-slate-brand">Core structure correct with minor issues</p>
+                  <p className="text-xs text-slate-brand">
+                    Core structure correct with minor issues
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-sm">C</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-sm">
+                  C
+                </span>
                 <div>
                   <p className="font-semibold text-ink text-sm">Grade C (60-79%)</p>
-                  <p className="text-xs text-slate-brand">Basic structure but missing key elements</p>
+                  <p className="text-xs text-slate-brand">
+                    Basic structure but missing key elements
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-cloud rounded-lg p-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-red-100 text-red-700 rounded-full flex items-center justify-center font-bold text-sm">D</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-red-100 text-red-700 rounded-full flex items-center justify-center font-bold text-sm">
+                  D
+                </span>
                 <div>
                   <p className="font-semibold text-ink text-sm">Grade D (below 60%)</p>
-                  <p className="text-xs text-slate-brand">Significant issues — requires regeneration</p>
+                  <p className="text-xs text-slate-brand">
+                    Significant issues — requires regeneration
+                  </p>
                 </div>
               </div>
             </div>
             <p className="text-sm text-slate-brand">
-              <strong>Scoring weights:</strong> Spec Structure (40%), Content Quality (30%), Freshness (20%), Size Optimization (10%).
+              <strong>Scoring weights:</strong> Spec Structure (40%), Content Quality (30%),
+              Freshness (20%), Size Optimization (10%).
             </p>
           </CardContent>
         </Card>
@@ -326,8 +347,9 @@ Website: https://yoursite.com
           </CardHeader>
           <CardContent>
             <p className="text-slate-brand mb-4">
-              When the validator detects fixable formatting issues, you'll see a <strong>Quick Fix</strong> button
-              that auto-corrects common problems. Review the before/after preview, then download the corrected file.
+              When the validator detects fixable formatting issues, you'll see a{' '}
+              <strong>Quick Fix</strong> button that auto-corrects common problems. Review the
+              before/after preview, then download the corrected file.
             </p>
             <div className="space-y-3 mb-4">
               <div className="bg-cloud rounded-lg p-3">
@@ -341,9 +363,9 @@ Website: https://yoursite.com
               </div>
             </div>
             <p className="text-sm text-slate-brand">
-              <strong>Tip:</strong> Quick Fix handles structural formatting. For content improvements
-              (better descriptions, more pages), use our AI-powered <strong>Generator</strong> to create a
-              comprehensive file from scratch.
+              <strong>Tip:</strong> Quick Fix handles structural formatting. For content
+              improvements (better descriptions, more pages), use our AI-powered{' '}
+              <strong>Generator</strong> to create a comprehensive file from scratch.
             </p>
           </CardContent>
         </Card>
@@ -358,14 +380,15 @@ Website: https://yoursite.com
           </CardHeader>
           <CardContent>
             <p className="text-slate-brand mb-4">
-              Generating the file is only step one. AI crawlers need to be <strong>told</strong> the file
-              exists through discovery mechanisms. Without these, crawlers have to guess.
+              Generating the file is only step one. AI crawlers need to be <strong>told</strong> the
+              file exists through discovery mechanisms. Without these, crawlers have to guess.
             </p>
             <div className="space-y-4">
               <div className="bg-cloud rounded-lg p-4">
                 <h4 className="font-semibold text-ink mb-2">1. Upload the File</h4>
                 <p className="text-sm text-slate-brand mb-2">
-                  Upload llms.txt (and optionally llms-full.txt, llms-mini.txt) to your website's root directory.
+                  Upload llms.txt (and optionally llms-full.txt, llms-mini.txt) to your website's
+                  root directory.
                 </p>
                 <code className="text-xs bg-white px-2 py-1 rounded border border-mist">
                   https://yourdomain.com/llms.txt
@@ -377,7 +400,9 @@ Website: https://yoursite.com
                   Add this tag to the {'<head>'} section of every page:
                 </p>
                 <code className="text-xs bg-white px-2 py-1 rounded border border-mist block overflow-x-auto">
-                  {'<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">'}
+                  {
+                    '<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable version">'
+                  }
                 </code>
               </div>
               <div className="bg-cloud rounded-lg p-4">
@@ -391,16 +416,26 @@ Website: https://yoursite.com
               </div>
             </div>
             <p className="text-sm text-slate-brand mt-4">
-              After deployment, use our <strong>Verify Deployment</strong> button in the generation flow
-              to confirm all discovery mechanisms are working. You'll see an explicit <strong>deployment
-              score (X/5)</strong> with individual check results.
+              After deployment, use our <strong>Verify Deployment</strong> button in the generation
+              flow to confirm all discovery mechanisms are working. You'll see an explicit{' '}
+              <strong>deployment score (X/5)</strong> with individual check results.
             </p>
             <div className="mt-4 bg-signal-blue/5 rounded-lg p-4 border border-signal-blue/20">
               <h4 className="font-semibold text-ink mb-2">New: Bulk Download & Platform Guides</h4>
               <ul className="text-sm text-slate-brand space-y-1">
-                <li>• <strong>Download All (zip)</strong> — Download all 3 formats (llms.txt, llms-full.txt, llms-mini.txt) as a single zip file</li>
-                <li>• <strong>Format Comparison</strong> — Side-by-side view showing what each format includes, token counts, and size</li>
-                <li>• <strong>Platform-Specific Guides</strong> — Step-by-step deployment instructions for WordPress, Shopify, Squarespace, Wix, Webflow, and Next.js including HTML tag and robots.txt setup</li>
+                <li>
+                  • <strong>Download All (zip)</strong> — Download all 3 formats (llms.txt,
+                  llms-full.txt, llms-mini.txt) as a single zip file
+                </li>
+                <li>
+                  • <strong>Format Comparison</strong> — Side-by-side view showing what each format
+                  includes, token counts, and size
+                </li>
+                <li>
+                  • <strong>Platform-Specific Guides</strong> — Step-by-step deployment instructions
+                  for WordPress, Shopify, Squarespace, Wix, Webflow, and Next.js including HTML tag
+                  and robots.txt setup
+                </li>
               </ul>
             </div>
           </CardContent>
@@ -416,8 +451,8 @@ Website: https://yoursite.com
           </CardHeader>
           <CardContent>
             <p className="text-slate-brand mb-4">
-              AI crawlers use several methods to find llms.txt files. Using all three maximizes
-              your discoverability.
+              AI crawlers use several methods to find llms.txt files. Using all three maximizes your
+              discoverability.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="bg-cloud rounded-lg p-4 text-center">
@@ -497,6 +532,7 @@ Website: https://yoursite.com
             </a>
           </CardContent>
         </Card>
+        <ContentUpdated />
       </div>
     </div>
   );

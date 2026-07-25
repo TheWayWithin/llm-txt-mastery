@@ -1,5 +1,12 @@
 import { Link } from 'wouter';
 import { ExternalLink } from 'lucide-react';
+import { SITE_CONTENT_UPDATED } from '@/lib/structured-data';
+
+// Render the shared content-updated constant as a readable British date
+const CONTENT_UPDATED_DISPLAY = new Date(SITE_CONTENT_UPDATED + 'T00:00:00Z').toLocaleDateString(
+  'en-GB',
+  { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }
+);
 
 export default function Footer() {
   return (
@@ -10,8 +17,8 @@ export default function Footer() {
           <div>
             <h5 className="font-semibold mb-4">LLM.txt Mastery</h5>
             <p className="text-sm text-white/70">
-              Simple, effective AI visibility tools. Generate quality-scored llms.txt files
-              that help AI models cite and recommend your business.
+              Simple, effective AI visibility tools. Generate quality-scored llms.txt files that
+              help AI models cite and recommend your business.
             </p>
             <p className="text-sm text-white/70 mt-3">
               <a
@@ -124,6 +131,9 @@ export default function Footer() {
         {/* Copyright Section */}
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/70">
           <p>&copy; 2026 AI Search Mastery</p>
+          <p className="mt-2">
+            Content updated <time dateTime={SITE_CONTENT_UPDATED}>{CONTENT_UPDATED_DISPLAY}</time>
+          </p>
           <p className="mt-4">
             <a
               href="https://jamiewatters.work"

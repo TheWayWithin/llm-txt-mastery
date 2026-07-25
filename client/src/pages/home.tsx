@@ -33,7 +33,12 @@ import SolutionIntro from '@/components/landing/SolutionIntro';
 import ProofStack from '@/components/landing/ProofStack';
 import AudienceCards from '@/components/landing/AudienceCards';
 import PricingPreview from '@/components/landing/PricingPreview';
-import FAQSection from '@/components/landing/FAQSection';
+import FAQSection, { faqs } from '@/components/landing/FAQSection';
+import {
+  StructuredData,
+  getSoftwareApplicationSchema,
+  getFaqPageSchema,
+} from '@/lib/structured-data';
 import FormatShowcase from '@/components/landing/FormatShowcase';
 import FounderStory from '@/components/landing/FounderStory';
 import { useSEO } from '@/hooks/useSEO';
@@ -315,6 +320,10 @@ export default function Home() {
               className="bg-cloud"
             />
             <FAQSection />
+            {/* JSON-LD for the product and the FAQ rendered directly above
+                (same `faqs` constant, so markup cannot drift from the page) */}
+            <StructuredData schema={getSoftwareApplicationSchema()} />
+            <StructuredData schema={getFaqPageSchema(faqs)} />
             <FounderStory />
           </>
         )}

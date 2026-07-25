@@ -2,6 +2,8 @@
 
 > LLM.txt Mastery is a SaaS platform for validating, generating, and deploying llms.txt files. It helps website owners make their content discoverable by AI systems like ChatGPT, Claude, and Perplexity through quality-scored, spec-compliant llms.txt files with deployment guidance.
 
+Last updated: 2026-07-25
+
 ## Product Overview
 
 LLM.txt Mastery solves the problem of AI discoverability. When AI search engines (ChatGPT, Claude, Perplexity, Gemini) look for information to cite, they need structured content they can parse. The llms.txt standard provides this — a single file that tells AI systems what your website is about and which pages matter most.
