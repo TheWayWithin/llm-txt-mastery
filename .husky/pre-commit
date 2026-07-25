@@ -1,10 +1,9 @@
 echo "🔍 Running pre-commit checks..."
 
-# TypeScript gate: full-project tsc compared against the committed baseline
-# (.tsc-baseline.txt). Fails ONLY on new errors; the 261 pre-existing errors
-# are recorded debt (see ISSUES.md) and burn down via --update as they're fixed.
-echo "📝 Checking TypeScript (baseline gate)..."
-node scripts/check-types-baseline.mjs
+# TypeScript gate: full-project tsc, zero errors required.
+# (The LTM-ISS-1 error baseline was burned down to zero and removed — LTM-ISS-2.)
+echo "📝 Checking TypeScript..."
+npx tsc --noEmit
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript check failed"
   exit 1

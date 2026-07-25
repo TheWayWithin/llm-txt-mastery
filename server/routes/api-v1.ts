@@ -207,6 +207,7 @@ router.post('/analyze', apiAuthChain, async (req: Request, res: Response) => {
       jsRenderingEnabled,
       apiKeyId: apiKey.id,
       externalUserId,
+      consumer: apiKey.consumer,
     }).catch((error) => {
       console.error(`Background analysis failed for ID ${analysis.id}:`, error);
     });
@@ -486,13 +487,24 @@ interface AnalysisOptions {
   jsRenderingEnabled: boolean;
   apiKeyId: number;
   externalUserId: string;
+  /** API consumer label, used for analyzer logging/tracking in place of a user email */
+  consumer?: string;
 }
 
 /**
  * Process analysis asynchronously (fire-and-forget)
  * Sprint 7: Now tier-aware with JS rendering support
+ *
+ * LTM-ISS-5 repair: this pipeline was written against a pre-rename sitemap API
+ * (pages/found/source) and an older analyzer signature, so every run crashed on
+ * the first metadata update. Field names now match SitemapResult, the analyzer
+ * receives (entries, identity, tier) and its { pages, metrics } result is
+ * destructured. The identity is the API consumer label — analyzer-side email
+ * lookups (cost caps, cache savings) find no email-keyed records for it and
+ * fail open, which is the same fail-open path any unknown identity takes.
+ * Exported for tests (api-v1-process-analysis.test.ts).
  */
-async function processAnalysis(
+export async function processAnalysis(
   analysisId: number,
   url: string,
   maxPages: number,
@@ -500,6 +512,8 @@ async function processAnalysis(
 ): Promise<void> {
   const userTier = options?.userTier || 'starter';
   const jsRenderingEnabled = options?.jsRenderingEnabled || false;
+  const consumerLabel =
+    options?.consumer || (options?.apiKeyId ? `api-key-${options.apiKeyId}` : 'api-v1');
 
   try {
     // Update status to analyzing
@@ -514,19 +528,23 @@ async function processAnalysis(
     await storage.updateAnalysis(analysisId, {
       sitemapContent: sitemapResult,
       analysisMetadata: {
-        siteType: sitemapResult.pages.length > 1 ? 'multi-page' : 'single-page',
-        sitemapFound: sitemapResult.found,
-        analysisMethod: sitemapResult.source || 'fallback-crawl',
+        siteType: sitemapResult.entries.length > 1 ? 'multi-page' : 'single-page',
+        sitemapFound: sitemapResult.sitemapFound,
+        analysisMethod: sitemapResult.analysisMethod,
         message: sitemapResult.message || 'Processing',
-        totalPagesFound: sitemapResult.pages.length,
+        totalPagesFound: sitemapResult.entries.length,
       },
     });
 
     // Limit pages to analyze based on tier
-    const pagesToAnalyze = sitemapResult.pages.slice(0, maxPages);
+    const pagesToAnalyze = sitemapResult.entries.slice(0, maxPages);
 
     // Sprint 7: Use provided userTier instead of hardcoded 'partner'
-    const analyzedPages = await analyzeDiscoveredPagesWithCache(pagesToAnalyze, userTier);
+    const { pages: analyzedPages } = await analyzeDiscoveredPagesWithCache(
+      pagesToAnalyze,
+      consumerLabel,
+      userTier
+    );
 
     // Sprint 7: If JS rendering was enabled and pages were rendered, consume quota
     // Note: The actual JS rendering happens in the analysis pipeline
@@ -551,8 +569,8 @@ async function processAnalysis(
       discoveredPages: analyzedPages,
       analysisMetadata: {
         siteType: analyzedPages.length > 1 ? 'multi-page' : 'single-page',
-        sitemapFound: sitemapResult.found,
-        analysisMethod: sitemapResult.source || 'fallback-crawl',
+        sitemapFound: sitemapResult.sitemapFound,
+        analysisMethod: sitemapResult.analysisMethod,
         message: 'Analysis completed successfully',
         totalPagesFound: analyzedPages.length,
       },
