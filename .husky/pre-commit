@@ -13,13 +13,13 @@ fi
 echo "🧪 Running tests on staged files..."
 
 # Get staged TypeScript files
-STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | grep -v '.d.ts$')
+STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | grep -v '.d.ts$' || true)
 
 if [ ! -z "$STAGED_TS_FILES" ]; then
   echo "📊 Running unit tests for changed files..."
 
   # Run tests for frontend files
-  STAGED_CLIENT_FILES=$(echo "$STAGED_TS_FILES" | grep '^client/')
+  STAGED_CLIENT_FILES=$(echo "$STAGED_TS_FILES" | grep '^client/' || true)
   if [ ! -z "$STAGED_CLIENT_FILES" ]; then
     echo "⚛️ Testing frontend changes..."
     npm run test:run -- --changed --coverage.enabled=false --run
@@ -30,7 +30,7 @@ if [ ! -z "$STAGED_TS_FILES" ]; then
   fi
 
   # Run tests for backend files (vitest is this repo's runner; jest is not installed)
-  STAGED_SERVER_FILES=$(echo "$STAGED_TS_FILES" | grep '^server/')
+  STAGED_SERVER_FILES=$(echo "$STAGED_TS_FILES" | grep '^server/' || true)
   if [ ! -z "$STAGED_SERVER_FILES" ]; then
     echo "🖥️ Testing backend changes..."
     npx vitest related --run --passWithNoTests $STAGED_SERVER_FILES
@@ -42,7 +42,7 @@ if [ ! -z "$STAGED_TS_FILES" ]; then
 fi
 
 # Check for semantic enhancement specific files
-SEMANTIC_FILES=$(echo "$STAGED_TS_FILES" | grep -E '(semantic|cluster|embedding)')
+SEMANTIC_FILES=$(echo "$STAGED_TS_FILES" | grep -E '(semantic|cluster|embedding)' || true)
 if [ ! -z "$SEMANTIC_FILES" ]; then
   echo "🧠 Semantic enhancement files detected, running additional checks..."
 
