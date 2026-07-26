@@ -22,6 +22,14 @@ export default function Footer() {
             </p>
             <p className="text-sm text-white/70 mt-3">
               <a
+                href="mailto:support@llmtxtmastery.com"
+                className="hover:text-white transition-colors"
+              >
+                support@llmtxtmastery.com
+              </a>
+            </p>
+            <p className="text-sm text-white/70 mt-3">
+              <a
                 href="https://www.aisearchmastery.com"
                 target="_blank"
                 rel="noopener noreferrer"

@@ -48,6 +48,12 @@ export const ContactPage: React.FC = () => {
           <p className="text-xl text-slate-brand">
             Have a question, feedback, or just want to say hi? I'd love to hear from you.
           </p>
+          <p className="text-lg text-slate-brand mt-3">
+            Email us directly at{' '}
+            <a href="mailto:support@llmtxtmastery.com" className="text-signal-blue hover:underline">
+              support@llmtxtmastery.com
+            </a>
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">

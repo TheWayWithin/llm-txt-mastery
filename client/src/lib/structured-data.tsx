@@ -33,6 +33,7 @@ export function getOrganizationSchema() {
     url: SITE_URL,
     logo: `${SITE_URL}/images/logo-primary.png`,
     description: 'Simple, effective AI visibility tools from AI Search Mastery.',
+    email: 'support@llmtxtmastery.com',
     sameAs: ['https://www.aisearchmastery.com'],
   };
 }
