@@ -789,7 +789,8 @@ async function handleCheckoutCompleted(session: any) {
   }
 }
 
-async function handleSubscriptionUpdate(subscription: any) {
+// Exported for tests (LTM-ISS-7 pinning tests exercise the REAL handler, not a fixture copy)
+export async function handleSubscriptionUpdate(subscription: any) {
   try {
     const userId = subscription.metadata?.userId;
     if (!userId) {
@@ -861,14 +862,37 @@ async function handleSubscriptionUpdate(subscription: any) {
       );
     }
 
-    // Record payment history if subscription is active.
-    // NOTE (LTM-ISS-7): earlier code also passed stripeSubscriptionId and tier,
-    // but neither is a column the insert schema accepts — drizzle dropped both
-    // silently, so no row has ever stored them. Linking payment history to the
-    // subscription needs the local subscriptions.id FK, tracked in that issue.
+    // Record payment history if subscription is active, linked to the local
+    // subscriptions row (LTM-ISS-7). Nothing else populates that table, so the
+    // handler upserts the row itself; any failure degrades to a null linkage —
+    // the payment-history write must never be blocked and the webhook must
+    // still return 200 to Stripe.
     if (subscription.status === 'active') {
+      let linkedSubscriptionId: number | null = null;
+      try {
+        const existing = await storage.getSubscriptionByStripeId(subscription.id);
+        if (existing) {
+          linkedSubscriptionId = existing.id;
+        } else {
+          const created = await storage.createSubscription({
+            userId: Number(userId),
+            stripeCustomerId: subscription.customer,
+            stripeSubscriptionId: subscription.id,
+            tier,
+            status: subscription.status,
+          });
+          linkedSubscriptionId = created.id;
+        }
+      } catch (linkError) {
+        console.error(
+          `LTM-ISS-7: could not resolve local subscription for ${subscription.id} — recording payment history without linkage:`,
+          linkError
+        );
+      }
+
       await storage.createPaymentHistory({
         userId,
+        subscriptionId: linkedSubscriptionId,
         amount: subscription.items?.data[0]?.price?.unit_amount || 0,
         currency: subscription.items?.data[0]?.price?.currency || 'usd',
         status: 'paid',
