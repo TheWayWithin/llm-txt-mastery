@@ -445,7 +445,7 @@ export default function CookiesPage() {
                 <strong>Email:</strong> privacy@llmtxtmastery.com
               </p>
               <p className="text-sm text-ink">
-                <strong>Website:</strong> www.llmtxtmastery.com
+                <strong>Website:</strong> llmtxtmastery.com
               </p>
               <p className="text-sm text-ink">
                 <strong>Data Protection:</strong> We are committed to protecting your privacy and

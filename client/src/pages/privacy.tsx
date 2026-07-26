@@ -160,7 +160,7 @@ export const PrivacyPage: React.FC = () => {
                   <br />
                   <strong>Email:</strong> support@llmtxtmastery.com
                   <br />
-                  <strong>Website:</strong> www.llmtxtmastery.com
+                  <strong>Website:</strong> llmtxtmastery.com
                 </p>
               </div>
             </div>

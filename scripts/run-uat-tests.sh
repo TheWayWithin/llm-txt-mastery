@@ -101,7 +101,7 @@ set_test_environment() {
     case $env in
         production|prod)
             export TEST_ENV="production"
-            export TEST_URL="https://www.llmtxtmastery.com"
+            export TEST_URL="https://llmtxtmastery.com"
             print_info "Testing against PRODUCTION environment"
             ;;
         staging|stage)
@@ -116,7 +116,7 @@ set_test_environment() {
             ;;
         *)
             export TEST_ENV="production"
-            export TEST_URL="https://www.llmtxtmastery.com"
+            export TEST_URL="https://llmtxtmastery.com"
             print_info "Testing against PRODUCTION environment (default)"
             ;;
     esac
