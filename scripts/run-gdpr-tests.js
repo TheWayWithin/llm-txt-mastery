@@ -18,7 +18,7 @@ const projectRoot = path.resolve(__dirname, '..');
 
 console.log('🔒 GDPR Compliance Test Suite');
 console.log('================================');
-console.log('Testing against: https://www.llmtxtmastery.com');
+console.log('Testing against: https://llmtxtmastery.com');
 console.log(`Timestamp: ${new Date().toISOString()}`);
 console.log('');
 
@@ -137,7 +137,7 @@ function generateComplianceSummary() {
 
       const summary = {
         timestamp: new Date().toISOString(),
-        testUrl: 'https://www.llmtxtmastery.com',
+        testUrl: 'https://llmtxtmastery.com',
         totalTests:
           results.suites?.reduce((acc, suite) => acc + (suite.specs?.length || 0), 0) || 0,
         passedTests: 0,
