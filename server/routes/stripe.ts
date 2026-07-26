@@ -957,9 +957,14 @@ async function handleSubscriptionCancelled(subscription: any) {
   }
 }
 
-async function handlePaymentSucceeded(invoice: any) {
+// Exported for tests (LTM-ISS-8 dual-shape pinning tests)
+export async function handlePaymentSucceeded(invoice: any) {
   try {
-    const subscriptionId = invoice.subscription;
+    // invoice.subscription moved to invoice.parent.subscription_details.subscription
+    // in Stripe API 2025-03-31.basil; read both shapes while the webhook
+    // endpoint's API version migrates (LTM-ISS-8)
+    const subscriptionId =
+      invoice.subscription ?? invoice.parent?.subscription_details?.subscription;
     if (!subscriptionId) return;
 
     console.log(`Payment succeeded for subscription: ${subscriptionId}`);
@@ -1000,9 +1005,14 @@ async function handlePaymentSucceeded(invoice: any) {
   }
 }
 
-async function handlePaymentFailed(invoice: any) {
+// Exported for tests (LTM-ISS-8 dual-shape pinning tests)
+export async function handlePaymentFailed(invoice: any) {
   try {
-    const subscriptionId = invoice.subscription;
+    // invoice.subscription moved to invoice.parent.subscription_details.subscription
+    // in Stripe API 2025-03-31.basil; read both shapes while the webhook
+    // endpoint's API version migrates (LTM-ISS-8)
+    const subscriptionId =
+      invoice.subscription ?? invoice.parent?.subscription_details?.subscription;
     if (!subscriptionId) return;
 
     console.log(`Payment failed for subscription: ${subscriptionId}`);

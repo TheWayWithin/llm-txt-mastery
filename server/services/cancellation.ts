@@ -1,4 +1,32 @@
 import { stripe } from './stripe';
+
+// subscription.current_period_end moved to items.data[].current_period_end in
+// Stripe API 2025-03-31.basil (LTM-ISS-8). Direct API responses lose the old
+// field the moment the SDK pin advances, so read both shapes.
+export function subscriptionPeriodEnd(subscription: any): number | undefined {
+  return subscription?.current_period_end ?? subscription?.items?.data?.[0]?.current_period_end;
+}
+
+// invoice.payment_intent was removed in Stripe API 2025-03-31.basil in favour
+// of the invoice.payments list (LTM-ISS-8). Old shape resolves without an
+// extra API call; new shape fetches the invoice's payment records.
+export async function resolveInvoicePaymentIntentId(invoice: any): Promise<string | null> {
+  if (invoice.payment_intent) {
+    return typeof invoice.payment_intent === 'string'
+      ? invoice.payment_intent
+      : invoice.payment_intent.id;
+  }
+  try {
+    const detailed: any = await stripe().invoices.retrieve(invoice.id, { expand: ['payments'] });
+    const payments = detailed?.payments?.data ?? [];
+    const paid = payments.find((p: any) => p?.status === 'paid') ?? payments[0];
+    const pi = paid?.payment?.payment_intent;
+    return typeof pi === 'string' ? pi : (pi?.id ?? null);
+  } catch (error) {
+    console.error(`[REFUND] Could not resolve payment intent for invoice ${invoice.id}:`, error);
+    return null;
+  }
+}
 import { authStorage } from './auth-storage';
 import { storage } from '../storage';
 import { db } from '../db';
@@ -74,9 +102,19 @@ export async function calculateRefundAmount(
         const guaranteeApplies = isEligibleFor30DayGuarantee(purchaseDate);
 
         if (guaranteeApplies) {
-          return { eligible: true, amount: 495, reason: '30-day money-back guarantee', guaranteeApplies: true };
+          return {
+            eligible: true,
+            amount: 495,
+            reason: '30-day money-back guarantee',
+            guaranteeApplies: true,
+          };
         }
-        return { eligible: false, amount: 0, reason: '30-day guarantee period has passed.', guaranteeApplies: false };
+        return {
+          eligible: false,
+          amount: 0,
+          reason: '30-day guarantee period has passed.',
+          guaranteeApplies: false,
+        };
       }
 
       // Solo is now a subscription — check Stripe like Growth/Scale
@@ -90,7 +128,12 @@ export async function calculateRefundAmount(
     // Growth/Scale tiers (subscriptions)
     if (tier === 'growth' || tier === 'scale') {
       if (!user.stripeCustomerId) {
-        return { eligible: false, amount: 0, reason: 'No Stripe customer found', guaranteeApplies: false };
+        return {
+          eligible: false,
+          amount: 0,
+          reason: 'No Stripe customer found',
+          guaranteeApplies: false,
+        };
       }
       return await calculateSubscriptionRefund(user.stripeCustomerId);
     }
@@ -98,7 +141,12 @@ export async function calculateRefundAmount(
     return { eligible: false, amount: 0, reason: 'Invalid tier', guaranteeApplies: false };
   } catch (error) {
     console.error('❌ [REFUND ERROR]', error);
-    return { eligible: false, amount: 0, reason: 'Error calculating refund amount', guaranteeApplies: false };
+    return {
+      eligible: false,
+      amount: 0,
+      reason: 'Error calculating refund amount',
+      guaranteeApplies: false,
+    };
   }
 }
 
@@ -123,10 +171,17 @@ async function calculateSubscriptionRefund(stripeCustomerId: string): Promise<Re
         limit: 5,
       });
       subscription = allSubs.data.find(
-        (s: any) => s.status === 'active' || (s.status === 'canceled' && s.current_period_end * 1000 > Date.now())
+        (s: any) =>
+          s.status === 'active' ||
+          (s.status === 'canceled' && (subscriptionPeriodEnd(s) ?? 0) * 1000 > Date.now())
       );
       if (!subscription) {
-        return { eligible: false, amount: 0, reason: 'No active subscription found', guaranteeApplies: false };
+        return {
+          eligible: false,
+          amount: 0,
+          reason: 'No active subscription found',
+          guaranteeApplies: false,
+        };
       }
     }
 
@@ -135,7 +190,12 @@ async function calculateSubscriptionRefund(stripeCustomerId: string): Promise<Re
 
     if (guaranteeApplies) {
       const amountPaid = subscription.items.data[0].price.unit_amount || 0;
-      return { eligible: true, amount: amountPaid, reason: '30-day money-back guarantee', guaranteeApplies: true };
+      return {
+        eligible: true,
+        amount: amountPaid,
+        reason: '30-day money-back guarantee',
+        guaranteeApplies: true,
+      };
     } else {
       // No prorated refund for cancel-at-period-end — user keeps access until period end
       return {
@@ -147,7 +207,12 @@ async function calculateSubscriptionRefund(stripeCustomerId: string): Promise<Re
     }
   } catch (error) {
     console.error('Error fetching subscription from Stripe:', error);
-    return { eligible: false, amount: 0, reason: 'Error calculating refund amount', guaranteeApplies: false };
+    return {
+      eligible: false,
+      amount: 0,
+      reason: 'Error calculating refund amount',
+      guaranteeApplies: false,
+    };
   }
 }
 
@@ -156,7 +221,9 @@ async function calculateSubscriptionRefund(stripeCustomerId: string): Promise<Re
  * 1. Within 30 days: instant refund + immediate access revocation
  * 2. After 30 days: cancel at period end, access continues until then
  */
-export async function requestCancellation(request: CancellationRequest): Promise<CancellationResult> {
+export async function requestCancellation(
+  request: CancellationRequest
+): Promise<CancellationResult> {
   try {
     const { userId, reason, immediateRefund = true } = request;
 
@@ -384,22 +451,34 @@ async function processSubscriptionCancellation(
     const validSub = allSubs.data.find(
       (s: any) =>
         s.status === 'active' ||
-        (s.cancel_at_period_end && s.current_period_end * 1000 > Date.now())
+        (s.cancel_at_period_end && (subscriptionPeriodEnd(s) ?? 0) * 1000 > Date.now())
     );
 
     if (validSub) {
-      const endDate = new Date((validSub as any).current_period_end * 1000);
-      console.log(`[CANCEL] Subscription ${validSub.id} already cancelling, ends ${endDate.toISOString()}`);
+      const endDate = new Date((subscriptionPeriodEnd(validSub) ?? NaN) * 1000);
+      console.log(
+        `[CANCEL] Subscription ${validSub.id} already cancelling, ends ${endDate.toISOString()}`
+      );
       return {
-        periodEndDate: endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        periodEndDate: endDate.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
         periodEndISO: endDate.toISOString(),
       };
     }
 
     // No active subscription at all — already fully cancelled
-    console.log(`[CANCEL] No active subscription found for customer ${stripeCustomerId} — already cancelled`);
+    console.log(
+      `[CANCEL] No active subscription found for customer ${stripeCustomerId} — already cancelled`
+    );
     return {
-      periodEndDate: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      periodEndDate: new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }),
       periodEndISO: new Date().toISOString(),
     };
   }
@@ -412,11 +491,20 @@ async function processSubscriptionCancellation(
     });
 
     if (refundCalc.eligible && refundCalc.amount > 0) {
-      await processSubscriptionRefund(stripeCustomerId, subscription.id, cancellationId, refundCalc);
+      await processSubscriptionRefund(
+        stripeCustomerId,
+        subscription.id,
+        cancellationId,
+        refundCalc
+      );
     }
 
     return {
-      periodEndDate: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      periodEndDate: new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }),
       periodEndISO: new Date().toISOString(),
     };
   } else {
@@ -425,11 +513,17 @@ async function processSubscriptionCancellation(
       cancel_at_period_end: true,
     });
 
-    const endDate = new Date(subscription.current_period_end * 1000);
-    console.log(`[CANCEL] Subscription ${subscription.id} set to cancel at period end: ${endDate.toISOString()}`);
+    const endDate = new Date((subscriptionPeriodEnd(subscription) ?? NaN) * 1000);
+    console.log(
+      `[CANCEL] Subscription ${subscription.id} set to cancel at period end: ${endDate.toISOString()}`
+    );
 
     return {
-      periodEndDate: endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      periodEndDate: endDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }),
       periodEndISO: endDate.toISOString(),
     };
   }
@@ -452,12 +546,8 @@ async function processSubscriptionRefund(
   });
 
   const invoice: any = invoices.data[0];
-  if (invoice && invoice.payment_intent) {
-    const paymentIntentId =
-      typeof invoice.payment_intent === 'string'
-        ? invoice.payment_intent
-        : invoice.payment_intent.id;
-
+  const paymentIntentId = invoice ? await resolveInvoicePaymentIntentId(invoice) : null;
+  if (paymentIntentId) {
     const refund = await stripe().refunds.create({
       payment_intent: paymentIntentId,
       amount: refundCalc.amount,
@@ -528,6 +618,11 @@ export async function checkRefundEligibility(userId: number): Promise<RefundCalc
     return await calculateRefundAmount(userId, user.tier);
   } catch (error) {
     console.error('Error checking refund eligibility:', error);
-    return { eligible: false, amount: 0, reason: 'Error checking eligibility', guaranteeApplies: false };
+    return {
+      eligible: false,
+      amount: 0,
+      reason: 'Error checking eligibility',
+      guaranteeApplies: false,
+    };
   }
 }
