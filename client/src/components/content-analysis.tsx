@@ -23,7 +23,9 @@ import { QuickHelp, InlineHelp } from './HelpSystem';
 interface ContentAnalysisProps {
   websiteUrl: string;
   userEmail: string;
-  userTier: string;
+  // Optional: the home flow renders without it and the component already falls
+  // back to the analysis API's tier (see effectiveTier), which is fresher anyway
+  userTier?: string;
   onAnalysisComplete: (analysisId: number, pages: DiscoveredPage[]) => void;
   onReset?: () => void;
   useAI?: boolean;
@@ -45,7 +47,7 @@ const analysisSteps: AnalysisStep[] = [
 // Tier page limits (must match server/services/cache.ts TIER_LIMITS)
 const TIER_PAGE_LIMITS: Record<string, number> = {
   starter: 20,
-  coffee: 200,  // Coffee = Solo equivalent (legacy tier name)
+  coffee: 200, // Coffee = Solo equivalent (legacy tier name)
   solo: 200,
   growth: 500,
   scale: 1000,
@@ -96,13 +98,18 @@ export default function ContentAnalysis({
   const [coldStartDetected, setColdStartDetected] = useState(false);
   const [requestStartTime, setRequestStartTime] = useState<number | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<string>('Calculating...');
-  const [effectiveTier, setEffectiveTier] = useState<string>(userTier);
+  const [effectiveTier, setEffectiveTier] = useState<string | undefined>(userTier);
 
   // Calculate tier limit for display - use effectiveTier which updates from API
-  const tierLimit = TIER_PAGE_LIMITS[effectiveTier] || 20;
-  const tierDisplayName = (effectiveTier === 'solo' || effectiveTier === 'coffee') ? 'Solo' :
-    effectiveTier === 'growth' ? 'Growth' :
-    effectiveTier === 'scale' ? 'Scale' : 'Starter';
+  const tierLimit = (effectiveTier && TIER_PAGE_LIMITS[effectiveTier]) || 20;
+  const tierDisplayName =
+    effectiveTier === 'solo' || effectiveTier === 'coffee'
+      ? 'Solo'
+      : effectiveTier === 'growth'
+        ? 'Growth'
+        : effectiveTier === 'scale'
+          ? 'Scale'
+          : 'Starter';
 
   const startAnalysisMutation = useMutation({
     mutationFn: async ({
@@ -174,7 +181,11 @@ export default function ContentAnalysis({
     // For 403, check if it's a website blocking us vs our own auth error
     if (errorMsg.includes('403')) {
       // If message contains our specific auth errors, don't show "website blocking" message
-      if (errorMsg.includes('Email') || errorMsg.includes('sign up') || errorMsg.includes('log in')) {
+      if (
+        errorMsg.includes('Email') ||
+        errorMsg.includes('sign up') ||
+        errorMsg.includes('log in')
+      ) {
         return 'Session expired. Please refresh the page and try again.';
       }
       return 'Access denied. The website might be blocking automated analysis. Try a different website.';
@@ -199,7 +210,11 @@ export default function ContentAnalysis({
     }
   };
 
-  const { data: analysisData, error, isRefetching } = useQuery<SiteAnalysisResult>({
+  const {
+    data: analysisData,
+    error,
+    isRefetching,
+  } = useQuery<SiteAnalysisResult>({
     queryKey: ['/api/analysis', analysisId],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/analysis/${analysisId}`);
@@ -284,14 +299,18 @@ export default function ContentAnalysis({
         onAnalysisComplete(analysisData.id, analysisData.discoveredPages);
       }, 500);
     } else if (analysisData && analysisData.status === 'failed') {
-      console.error(`❌ Analysis failed: id=${analysisData.id}, error=${analysisData.error}`);
-      setLastError(analysisData.error || 'Analysis failed unexpectedly');
+      // The API carries failure detail inside analysisMetadata; there has never
+      // been a top-level error field, so the user-facing text stays generic.
+      console.error(
+        `❌ Analysis failed: id=${analysisData.id}, error=${analysisData.analysisMetadata?.error}`
+      );
+      setLastError('Analysis failed unexpectedly');
     } else if (analysisData && analysisData.status === 'processing') {
       // Update estimated time and mark discovery complete when we know the page count
       if (analysisData.totalPagesFound && analysisData.totalPagesFound > 0) {
         // Use API tier as source of truth (fresh from database) - userTier prop may be stale JWT
-        const apiTier = analysisData.analysisMetadata?.tier || analysisData.tier || userTier;
-        const apiTierLimit = TIER_PAGE_LIMITS[apiTier] || analysisData.totalPagesFound;
+        const apiTier = analysisData.analysisMetadata?.tier || userTier;
+        const apiTierLimit = (apiTier && TIER_PAGE_LIMITS[apiTier]) || analysisData.totalPagesFound;
         const actualPages = Math.min(analysisData.totalPagesFound, apiTierLimit);
 
         // Update effective tier state so UI shows correct tier info
@@ -299,7 +318,9 @@ export default function ContentAnalysis({
         setTotalPages(analysisData.totalPagesFound);
         setEstimatedTime(getEstimatedTime(analysisData.totalPagesFound, apiTier));
 
-        console.log(`📊 Analysis tier info: tier=${apiTier}, limit=${apiTierLimit}, totalPages=${analysisData.totalPagesFound}, analyzing=${actualPages}`);
+        console.log(
+          `📊 Analysis tier info: tier=${apiTier}, limit=${apiTierLimit}, totalPages=${analysisData.totalPagesFound}, analyzing=${actualPages}`
+        );
 
         // Discovery is complete once we have the page count
         // Now we're in content extraction / AI analysis phase
@@ -480,8 +501,8 @@ export default function ContentAnalysis({
                     </>
                   ) : (
                     <>{totalPages} pages found</>
-                  )}
-                  {' '} • Estimated time: <strong>{estimatedTime}</strong>
+                  )}{' '}
+                  • Estimated time: <strong>{estimatedTime}</strong>
                 </p>
               </div>
               {isLimited && (
@@ -534,7 +555,9 @@ export default function ContentAnalysis({
                   startAnalysisMutation.mutate({ url: websiteUrl, force: true, email: userEmail });
                 }}
               >
-                <RotateCcw className={`h-3.5 w-3.5 mr-1.5 ${startAnalysisMutation.isPending ? 'animate-spin' : ''}`} />
+                <RotateCcw
+                  className={`h-3.5 w-3.5 mr-1.5 ${startAnalysisMutation.isPending ? 'animate-spin' : ''}`}
+                />
                 Re-analyze
               </Button>
             </div>
@@ -571,15 +594,11 @@ export default function ContentAnalysis({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-brand">Pages Found:</span>
-                <span className="text-ink font-medium">
-                  {analysisData.totalPagesFound}
-                </span>
+                <span className="text-ink font-medium">{analysisData.totalPagesFound}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-brand">Pages Analyzed:</span>
-                <span className="text-ink font-medium">
-                  {analysisData.discoveredPages.length}
-                </span>
+                <span className="text-ink font-medium">{analysisData.discoveredPages.length}</span>
               </div>
               {analysisData.discoveredPages.length < analysisData.totalPagesFound && (
                 <div className="flex items-center justify-between">

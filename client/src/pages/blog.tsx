@@ -1,3 +1,4 @@
+import ContentUpdated from '@/components/content-updated';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
@@ -45,7 +46,8 @@ const blogPosts: BlogPost[] = [
 export const BlogPage: React.FC = () => {
   useSEO({
     title: 'Blog - AI, Web Survival & Building Tools That Matter',
-    description: 'Insights on AI attribution, the llms.txt specification, and strategies for website visibility in the age of large language models.',
+    description:
+      'Insights on AI attribution, the llms.txt specification, and strategies for website visibility in the age of large language models.',
   });
 
   return (
@@ -149,6 +151,7 @@ export const BlogPage: React.FC = () => {
             </Card>
           </div>
         </div>
+        <ContentUpdated />
       </div>
     </div>
   );

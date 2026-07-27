@@ -1,11 +1,9 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 echo "🔍 Running pre-commit checks..."
 
-# Run TypeScript check
+# TypeScript gate: full-project tsc, zero errors required.
+# (The LTM-ISS-1 error baseline was burned down to zero and removed — LTM-ISS-2.)
 echo "📝 Checking TypeScript..."
-npm run check
+npx tsc --noEmit
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript check failed"
   exit 1
@@ -15,13 +13,13 @@ fi
 echo "🧪 Running tests on staged files..."
 
 # Get staged TypeScript files
-STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | grep -v '.d.ts$')
+STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | grep -v '.d.ts$' || true)
 
 if [ ! -z "$STAGED_TS_FILES" ]; then
   echo "📊 Running unit tests for changed files..."
-  
+
   # Run tests for frontend files
-  STAGED_CLIENT_FILES=$(echo "$STAGED_TS_FILES" | grep '^client/')
+  STAGED_CLIENT_FILES=$(echo "$STAGED_TS_FILES" | grep '^client/' || true)
   if [ ! -z "$STAGED_CLIENT_FILES" ]; then
     echo "⚛️ Testing frontend changes..."
     npm run test:run -- --changed --coverage.enabled=false --run
@@ -30,13 +28,12 @@ if [ ! -z "$STAGED_TS_FILES" ]; then
       exit 1
     fi
   fi
-  
-  # Run tests for backend files
-  STAGED_SERVER_FILES=$(echo "$STAGED_TS_FILES" | grep '^server/')
+
+  # Run tests for backend files (vitest is this repo's runner; jest is not installed)
+  STAGED_SERVER_FILES=$(echo "$STAGED_TS_FILES" | grep '^server/' || true)
   if [ ! -z "$STAGED_SERVER_FILES" ]; then
     echo "🖥️ Testing backend changes..."
-    # Run Jest for backend files
-    npx jest --findRelatedTests $STAGED_SERVER_FILES --coverage=false --passWithNoTests
+    npx vitest related --run --passWithNoTests $STAGED_SERVER_FILES
     if [ $? -ne 0 ]; then
       echo "❌ Backend tests failed"
       exit 1
@@ -45,10 +42,10 @@ if [ ! -z "$STAGED_TS_FILES" ]; then
 fi
 
 # Check for semantic enhancement specific files
-SEMANTIC_FILES=$(echo "$STAGED_TS_FILES" | grep -E '(semantic|cluster|embedding)')
+SEMANTIC_FILES=$(echo "$STAGED_TS_FILES" | grep -E '(semantic|cluster|embedding)' || true)
 if [ ! -z "$SEMANTIC_FILES" ]; then
   echo "🧠 Semantic enhancement files detected, running additional checks..."
-  
+
   # Run performance benchmarks on semantic changes (quick subset)
   echo "⚡ Running performance checks..."
   if [ -f "scripts/performance-testing-harness.ts" ]; then
@@ -58,26 +55,36 @@ if [ ! -z "$SEMANTIC_FILES" ]; then
   fi
 fi
 
-# Check for potential secrets or sensitive data
-echo "🔒 Checking for sensitive data..."
-if git diff --cached --name-only | xargs grep -l -i -E "(api[_-]?key|password|secret|token)" | grep -v -E "\.(md|txt|example)$"; then
-  echo "❌ Potential sensitive data detected in staged files"
-  echo "Please review and remove any hardcoded secrets"
-  exit 1
+# Check for hardcoded credential ASSIGNMENTS (name = "value"), not bare word
+# mentions — the old word-grep blocked any file containing e.g. "token".
+# Primary secret scan is gitleaks in the global hook (~/.git-hooks/pre-commit).
+echo "🔒 Checking for hardcoded credentials..."
+CRED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -v -E '\.(md|txt|example)$' | grep -v '^\.husky/' || true)
+if [ ! -z "$CRED_FILES" ]; then
+  CRED_HITS=$(echo "$CRED_FILES" | xargs grep -l -i -E "(api[_-]?key|password|secret|token)[A-Za-z0-9_]*[\"']?[[:space:]]*[:=][[:space:]]*[\"'][A-Za-z0-9_/+.-]{12,}" 2>/dev/null || true)
+  if [ ! -z "$CRED_HITS" ]; then
+    echo "❌ Possible hardcoded credential assignment detected in:"
+    echo "$CRED_HITS"
+    echo "Real values belong only in a gitignored .env."
+    exit 1
+  fi
 fi
 
 # Check for console.log statements in production code
 echo "🔍 Checking for console.log statements..."
-CONSOLE_LOGS=$(git diff --cached --name-only | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|\\.d\\.ts)$' | xargs grep -n "console\\.log" || true)
-if [ ! -z "$CONSOLE_LOGS" ]; then
-  echo "⚠️ console.log statements found in production code:"
-  echo "$CONSOLE_LOGS"
-  echo "Consider removing or replacing with proper logging"
-  # Don't fail, just warn
+CONSOLE_CANDIDATES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|\.d\.ts)$' || true)
+if [ ! -z "$CONSOLE_CANDIDATES" ]; then
+  CONSOLE_LOGS=$(echo "$CONSOLE_CANDIDATES" | xargs grep -n "console\.log" 2>/dev/null || true)
+  if [ ! -z "$CONSOLE_LOGS" ]; then
+    echo "⚠️ console.log statements found in production code:"
+    echo "$CONSOLE_LOGS"
+    echo "Consider removing or replacing with proper logging"
+    # Don't fail, just warn
+  fi
 fi
 
-# Format check (if prettier is configured)
-if [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; then
+# Format check (if prettier is configured and TS files are staged)
+if [ ! -z "$STAGED_TS_FILES" ] && { [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; }; then
   echo "💅 Checking code formatting..."
   npx prettier --check $STAGED_TS_FILES || {
     echo "❌ Code formatting issues detected"
@@ -86,8 +93,8 @@ if [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; then
   }
 fi
 
-# Lint check (if ESLint is configured)
-if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; then
+# Lint check (if ESLint is configured and TS files are staged)
+if [ ! -z "$STAGED_TS_FILES" ] && { [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; }; then
   echo "🔍 Running ESLint..."
   npx eslint $STAGED_TS_FILES || {
     echo "❌ ESLint issues detected"

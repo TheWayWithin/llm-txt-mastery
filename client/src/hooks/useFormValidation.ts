@@ -18,8 +18,8 @@ import { AppError } from '@/lib/error-utils';
 export interface UseFormValidationOptions<T> {
   /** Initial form values */
   initialValues?: Partial<T>;
-  /** Validation schema */
-  schema: z.ZodSchema<T>;
+  /** Validation schema — an object schema, so per-field validation can .pick() */
+  schema: z.ZodObject<z.ZodRawShape, z.UnknownKeysParam, z.ZodTypeAny, T>;
   /** Validate on change */
   validateOnChange?: boolean;
   /** Validate on blur */
@@ -334,9 +334,10 @@ export function useFormValidation<T extends Record<string, any>>(
           return;
         }
 
-        // Submit form
+        // Submit form. validateFormFn returns pass/fail only (no parsed data),
+        // so submission has always used the live form values.
         if (onSubmit) {
-          await onSubmit(validation.data || (state.values as T));
+          await onSubmit(state.values as T);
         }
 
         setState((prev) => ({
@@ -345,7 +346,7 @@ export function useFormValidation<T extends Record<string, any>>(
           isSubmitted: true,
         }));
 
-        onSuccess?.(validation.data || (state.values as T));
+        onSuccess?.(state.values as T);
 
         // Reset form if requested
         if (resetOnSuccess) {
@@ -462,7 +463,7 @@ export function useFormValidation<T extends Record<string, any>>(
  * Simplified form validation hook for basic use cases
  */
 export function useSimpleForm<T extends Record<string, any>>(
-  schema: z.ZodSchema<T>,
+  schema: z.ZodObject<z.ZodRawShape, z.UnknownKeysParam, z.ZodTypeAny, T>,
   onSubmit: (data: T) => Promise<void> | void,
   initialValues?: Partial<T>
 ) {

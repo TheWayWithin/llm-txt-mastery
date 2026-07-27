@@ -193,7 +193,6 @@ class APIKeyStorage {
         service: keyInfo.service,
         message: `API key rotation required for ${keyInfo.service}${reason ? `: ${reason}` : ''}`,
         created_at: new Date(),
-        resolved: false,
         metadata: { key_id: keyId, reason },
       });
 
@@ -232,7 +231,6 @@ class APIKeyStorage {
         service: keyInfo.service,
         message: `API key revoked for ${keyInfo.service}${reason ? `: ${reason}` : ''}`,
         created_at: new Date(),
-        resolved: false,
         metadata: { key_id: keyId, reason },
       });
 

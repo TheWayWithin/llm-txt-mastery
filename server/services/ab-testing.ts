@@ -74,7 +74,8 @@ export interface TargetingRule {
   type: 'user_property' | 'session_property' | 'random';
   property?: string;
   operator: 'equals' | 'not_equals' | 'in' | 'not_in' | 'greater_than' | 'less_than' | 'contains';
-  value: any;
+  // Optional: rules of type 'random' carry no value (mirrors the zod schema)
+  value?: any;
 }
 
 export interface ExperimentMetric {

@@ -33,7 +33,12 @@ import SolutionIntro from '@/components/landing/SolutionIntro';
 import ProofStack from '@/components/landing/ProofStack';
 import AudienceCards from '@/components/landing/AudienceCards';
 import PricingPreview from '@/components/landing/PricingPreview';
-import FAQSection from '@/components/landing/FAQSection';
+import FAQSection, { faqs } from '@/components/landing/FAQSection';
+import {
+  StructuredData,
+  getSoftwareApplicationSchema,
+  getFaqPageSchema,
+} from '@/lib/structured-data';
 import FormatShowcase from '@/components/landing/FormatShowcase';
 import FounderStory from '@/components/landing/FounderStory';
 import { useSEO } from '@/hooks/useSEO';
@@ -76,7 +81,8 @@ export default function Home() {
   // Set page-specific SEO metadata
   useSEO({
     title: 'LLM.txt Mastery - AI-Ready Website Content Generator',
-    description: 'Generate optimized llms.txt files for your website. Help AI systems understand your content with our intelligent analyzer and file generator.',
+    description:
+      'Generate optimized llms.txt files for your website. Help AI systems understand your content with our intelligent analyzer and file generator.',
   });
 
   // Fetch usage data to check limits
@@ -166,10 +172,22 @@ export default function Home() {
               <div className="hidden md:flex items-center space-x-6">
                 {!user && (
                   <>
-                    <a href="#how-it-works" className="text-sm text-white/80 hover:text-white transition-colors">How It Works</a>
-                    <a href="#pricing" className="text-sm text-white/80 hover:text-white transition-colors">Pricing</a>
+                    <a
+                      href="#how-it-works"
+                      className="text-sm text-white/80 hover:text-white transition-colors"
+                    >
+                      How It Works
+                    </a>
+                    <a
+                      href="#pricing"
+                      className="text-sm text-white/80 hover:text-white transition-colors"
+                    >
+                      Pricing
+                    </a>
                     <Link href="/validator">
-                      <a className="text-sm text-white/80 hover:text-white transition-colors">Validator</a>
+                      <a className="text-sm text-white/80 hover:text-white transition-colors">
+                        Validator
+                      </a>
                     </Link>
                   </>
                 )}
@@ -219,13 +237,35 @@ export default function Home() {
             {/* Mobile overlay menu */}
             {mobileMenuOpen && (
               <div className="md:hidden fixed inset-0 top-[60px] bg-[#1E3A5F] z-50 flex flex-col items-center pt-8 space-y-4 overflow-y-auto">
-                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">How It Works</a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">Pricing</a>
+                <a
+                  href="#how-it-works"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg text-white min-h-[44px] flex items-center px-4"
+                >
+                  How It Works
+                </a>
+                <a
+                  href="#pricing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg text-white min-h-[44px] flex items-center px-4"
+                >
+                  Pricing
+                </a>
                 <Link href="/validator">
-                  <a onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">Validator</a>
+                  <a
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg text-white min-h-[44px] flex items-center px-4"
+                  >
+                    Validator
+                  </a>
                 </Link>
                 <Link href="/login">
-                  <a onClick={() => setMobileMenuOpen(false)} className="text-lg text-white min-h-[44px] flex items-center px-4">Sign In</a>
+                  <a
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg text-white min-h-[44px] flex items-center px-4"
+                  >
+                    Sign In
+                  </a>
                 </Link>
                 <Button
                   className="bg-signal-blue hover:bg-[#1D4ED8] text-white px-6 min-h-[44px]"
@@ -246,15 +286,18 @@ export default function Home() {
 
         {/* Email Verification Banner - Show immediately after header */}
         {user &&
-          console.log('🔍 User verification check:', {
-            hasUser: !!user,
-            email: user?.email,
-            emailVerified: user?.emailVerified,
-            typeOfEmailVerified: typeof user?.emailVerified,
-            isExactlyFalse: user?.emailVerified === false,
-            shouldShowBanner: user?.emailVerified === false,
-            fullUserObject: user,
-          })}
+          ((): null => {
+            console.log('🔍 User verification check:', {
+              hasUser: !!user,
+              email: user?.email,
+              emailVerified: user?.emailVerified,
+              typeOfEmailVerified: typeof user?.emailVerified,
+              isExactlyFalse: user?.emailVerified === false,
+              shouldShowBanner: user?.emailVerified === false,
+              fullUserObject: user,
+            });
+            return null;
+          })()}
         {user && user.emailVerified === false && (
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
             <EmailVerificationBanner userEmail={user.email} emailVerified={user.emailVerified} />
@@ -270,226 +313,233 @@ export default function Home() {
             <FormatShowcase />
             <ProofStack />
             <AudienceCards />
-            <PricingPreview id="pricing" highlightTier="growth" showAllTiers={true} className="bg-cloud" />
+            <PricingPreview
+              id="pricing"
+              highlightTier="growth"
+              showAllTiers={true}
+              className="bg-cloud"
+            />
             <FAQSection />
+            {/* JSON-LD for the product and the FAQ rendered directly above
+                (same `faqs` constant, so markup cannot drift from the page) */}
+            <StructuredData schema={getSoftwareApplicationSchema()} />
+            <StructuredData schema={getFaqPageSchema(faqs)} />
             <FounderStory />
           </>
         )}
 
         {/* App Workflow */}
         {showWorkflow && (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Back Message for Authenticated Users - Only show when NOT in URL_INPUT state */}
-          {user && currentState !== 'URL_INPUT' && (
-            <section className="mb-8">
-              <div className="bg-success/10 border border-mist rounded-lg p-6 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center mr-3">
-                    <User className="h-4 w-4 text-success" />
+          <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Welcome Back Message for Authenticated Users - Only show when NOT in URL_INPUT state */}
+            {user && currentState !== 'URL_INPUT' && (
+              <section className="mb-8">
+                <div className="bg-success/10 border border-mist rounded-lg p-6 text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center mr-3">
+                      <User className="h-4 w-4 text-success" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-ink">
+                      Welcome back, {user.email.split('@')[0]}!
+                    </h3>
                   </div>
-                  <h3 className="text-lg font-semibold text-ink">
-                    Welcome back, {user.email.split('@')[0]}!
-                  </h3>
-                </div>
-                <p className="text-success mb-4">
-                  {(user.tier === 'solo' || user.tier === 'coffee')
-                    ? `Your Solo subscription is active! ${
-                        user.creditsRemaining > 0
-                          ? `${user.creditsRemaining} of 20 analyses remaining this month.`
-                          : 'Monthly analyses used — resets on your next billing cycle.'
-                      }`
-                    : user.tier === 'starter'
-                      ? 'Ready for your next analysis?'
-                      : `Your ${getTierDisplayName(user.tier)} tier gives you unlimited access to premium features.`}
-                </p>
-                <div className="flex items-center justify-center space-x-4">
-                  <Link href="/dashboard">
-                    <a>
+                  <p className="text-success mb-4">
+                    {user.tier === 'solo' || user.tier === 'coffee'
+                      ? `Your Solo subscription is active! ${
+                          user.creditsRemaining > 0
+                            ? `${user.creditsRemaining} of 20 analyses remaining this month.`
+                            : 'Monthly analyses used — resets on your next billing cycle.'
+                        }`
+                      : user.tier === 'starter'
+                        ? 'Ready for your next analysis?'
+                        : `Your ${getTierDisplayName(user.tier)} tier gives you unlimited access to premium features.`}
+                  </p>
+                  <div className="flex items-center justify-center space-x-4">
+                    <Link href="/dashboard">
+                      <a>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-success border-mist hover:bg-success/10"
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Go to Dashboard
+                        </Button>
+                      </a>
+                    </Link>
+                    {user.tier === 'solo' && (
                       <Button
-                        variant="outline"
                         size="sm"
-                        className="text-success border-mist hover:bg-success/10"
+                        className="bg-action-amber hover:bg-action-amber/90"
+                        onClick={() => {
+                          console.log(
+                            '☕ Coffee user starting new analysis - using smart reset to preserve context'
+                          );
+                          startNewAnalysis();
+                        }}
                       >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Go to Dashboard
+                        <Coffee className="h-4 w-4 mr-2" />
+                        Start New Analysis
                       </Button>
-                    </a>
-                  </Link>
-                  {user.tier === 'solo' && (
-                    <Button
-                      size="sm"
-                      className="bg-action-amber hover:bg-action-amber/90"
-                      onClick={() => {
-                        console.log(
-                          '☕ Coffee user starting new analysis - using smart reset to preserve context'
-                        );
-                        startNewAnalysis();
-                      }}
-                    >
-                      <Coffee className="h-4 w-4 mr-2" />
-                      Start New Analysis
-                    </Button>
-                  )}
-                  {user.tier === 'starter' && (
-                    <Button
-                      size="sm"
-                      className="bg-action-amber hover:bg-action-amber/90"
-                      onClick={startNewAnalysis}
-                    >
-                      <Coffee className="h-4 w-4 mr-2" />
-                      Start New Analysis
-                    </Button>
-                  )}
+                    )}
+                    {user.tier === 'starter' && (
+                      <Button
+                        size="sm"
+                        className="bg-action-amber hover:bg-action-amber/90"
+                        onClick={startNewAnalysis}
+                      >
+                        <Coffee className="h-4 w-4 mr-2" />
+                        Start New Analysis
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </section>
-          )}
+              </section>
+            )}
 
-          {/* Simple Message for Authenticated Users When URL Input is Visible */}
-          {user && currentState === 'URL_INPUT' && (
-            <section className="mb-6">
-              <div className="bg-success/10 border border-mist rounded-lg p-4 text-center">
-                <p className="text-success">
-                  <span className="font-medium">Welcome back, {user.email.split('@')[0]}!</span>{' '}
-                  Enter a URL below to start your analysis.
-                </p>
-              </div>
-            </section>
-          )}
+            {/* Simple Message for Authenticated Users When URL Input is Visible */}
+            {user && currentState === 'URL_INPUT' && (
+              <section className="mb-6">
+                <div className="bg-success/10 border border-mist rounded-lg p-4 text-center">
+                  <p className="text-success">
+                    <span className="font-medium">Welcome back, {user.email.split('@')[0]}!</span>{' '}
+                    Enter a URL below to start your analysis.
+                  </p>
+                </div>
+              </section>
+            )}
 
-          {/* Progress Breadcrumb - Show when user has started the flow */}
-          {currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING' && (
-            <ProgressBreadcrumb
-              steps={FLOW_STEPS}
-              currentStep={progress.currentStep}
-              completedSteps={progress.completedSteps}
-              className="mb-8"
-            />
-          )}
-
-          {/* Progressive Steps */}
-          <div className="space-y-8">
-            {/* Error State Display */}
-            {visibility.error && error && (
-              <ErrorDisplay
-                error={error}
-                onRetry={() => actions.retryCurrentOperation()}
-                onRecover={(targetState) => actions.recoverFromError(targetState)}
-                onReset={resetWorkflow}
-                retryCount={retryCount}
-                maxRetries={3}
+            {/* Progress Breadcrumb - Show when user has started the flow */}
+            {currentState !== 'URL_INPUT' && currentState !== 'INITIALIZING' && (
+              <ProgressBreadcrumb
+                steps={FLOW_STEPS}
+                currentStep={progress.currentStep}
+                completedSteps={progress.completedSteps}
+                className="mb-8"
               />
             )}
 
-            {/* Usage Display for logged in users */}
-            {effectiveEmail && !visibility.error && <UsageDisplay userEmail={effectiveEmail} />}
+            {/* Progressive Steps */}
+            <div className="space-y-8">
+              {/* Error State Display */}
+              {visibility.error && error && (
+                <ErrorDisplay
+                  error={error}
+                  onRetry={() => actions.retryCurrentOperation()}
+                  onRecover={(targetState) => actions.recoverFromError(targetState)}
+                  onReset={resetWorkflow}
+                  retryCount={retryCount}
+                  maxRetries={3}
+                />
+              )}
 
-            {/* Daily Limit Modal */}
-            {showDailyLimitModal && usageData && (
-              <DailyLimitModal
-                isOpen={showDailyLimitModal}
-                onClose={() => setShowDailyLimitModal(false)}
-                userEmail={effectiveEmail}
-                currentUsage={usageData.usage?.analysesToday || 0}
-                dailyLimit={usageData.limits?.dailyAnalyses || 3}
-                websiteUrl={websiteUrl}
+              {/* Usage Display for logged in users */}
+              {effectiveEmail && !visibility.error && <UsageDisplay userEmail={effectiveEmail} />}
+
+              {/* Daily Limit Modal */}
+              {showDailyLimitModal && usageData && (
+                <DailyLimitModal
+                  isOpen={showDailyLimitModal}
+                  onClose={() => setShowDailyLimitModal(false)}
+                  userEmail={effectiveEmail}
+                  currentUsage={usageData.usage?.analysesToday || 0}
+                  dailyLimit={usageData.limits?.dailyAnalyses || 3}
+                  websiteUrl={websiteUrl}
+                />
+              )}
+
+              {/* Step 2: URL Input (after email capture) */}
+              <UrlInput
+                onAnalysisStart={(url) => {
+                  console.log('🌐 Analysis started for URL:', url);
+                  actions.submitUrl(url);
+                }}
+                isVisible={visibility.urlInput}
+                prefilledUrl={websiteUrl}
               />
-            )}
 
-            {/* Step 2: URL Input (after email capture) */}
-            <UrlInput
-              onAnalysisStart={(url) => {
-                console.log('🌐 Analysis started for URL:', url);
-                actions.submitUrl(url);
-              }}
-              isVisible={visibility.urlInput}
-              prefilledUrl={websiteUrl}
-            />
+              {/* Loading state during auth check */}
+              {visibility.authLoading && <EnhancedLoading state={LOADING_STATES.AUTH_CHECK} />}
 
-            {/* Loading state during auth check */}
-            {visibility.authLoading && <EnhancedLoading state={LOADING_STATES.AUTH_CHECK} />}
+              {/* Step 1: Email Capture (first step for unauthenticated users) */}
+              {visibility.emailCapture && (
+                <EmailCapture
+                  websiteUrl={websiteUrl || undefined}
+                  onEmailCaptured={async (email, tier) => {
+                    console.log(`📧 Email captured: ${email} with tier ${tier}`);
 
-            {/* Step 1: Email Capture (first step for unauthenticated users) */}
-            {visibility.emailCapture && (
-              <EmailCapture
-                websiteUrl={websiteUrl || undefined}
-                onEmailCaptured={async (email, tier) => {
-                  console.log(`📧 Email captured: ${email} with tier ${tier}`);
-
-                  // First, try to recognize if this is a returning user
-                  try {
-                    const recognizedUser = await recognizeEmailUser(email);
-                    if (recognizedUser) {
-                      console.log(
-                        `🔍 Recognized returning user: ${email} with tier ${recognizedUser.tier}`
-                      );
-                      actions.recognizeEmail(recognizedUser);
-                      return;
+                    // First, try to recognize if this is a returning user
+                    try {
+                      const recognizedUser = await recognizeEmailUser(email);
+                      if (recognizedUser) {
+                        console.log(
+                          `🔍 Recognized returning user: ${email} with tier ${recognizedUser.tier}`
+                        );
+                        actions.recognizeEmail(recognizedUser);
+                        return;
+                      }
+                    } catch (error) {
+                      console.warn(`Email recognition failed for ${email}:`, error);
                     }
-                  } catch (error) {
-                    console.warn(`Email recognition failed for ${email}:`, error);
-                  }
 
-                  // Fallback to normal email capture flow
-                  actions.captureEmail(email, tier);
-                }}
-                onLoginRequested={() => {
-                  actions.openAuthModal();
-                }}
-                onReset={resetWorkflow}
-                prefilledEmail={user?.email || userEmail}
-                isVisible={visibility.emailCapture}
-              />
-            )}
+                    // Fallback to normal email capture flow
+                    actions.captureEmail(email, tier);
+                  }}
+                  onLoginRequested={() => {
+                    actions.openAuthModal();
+                  }}
+                  onReset={resetWorkflow}
+                  isVisible={visibility.emailCapture}
+                />
+              )}
 
-            {/* Step 3: Tier Limits Check */}
-            {visibility.tierLimits && (
-              <TierLimitsDisplay
-                url={websiteUrl}
-                email={effectiveEmail}
-                onProceed={() => actions.proceedToAnalysis()}
-                isVisible={visibility.tierLimits}
-              />
-            )}
+              {/* Step 3: Tier Limits Check */}
+              {visibility.tierLimits && (
+                <TierLimitsDisplay
+                  url={websiteUrl}
+                  email={effectiveEmail}
+                  onProceed={() => actions.proceedToAnalysis()}
+                  isVisible={visibility.tierLimits}
+                />
+              )}
 
-            {/* Step 4: Content Analysis */}
-            {visibility.analysis && (
-              <ContentAnalysis
-                websiteUrl={websiteUrl}
-                userEmail={effectiveEmail}
-                onAnalysisComplete={handleAnalysisComplete}
-                onReset={resetWorkflow}
-                useAI={effectiveTier !== 'starter'}
-                onProgressUpdate={(stage, totalPages, processedPages) => {
-                  actions.updateAnalysisProgress(stage, totalPages, processedPages);
-                }}
-              />
-            )}
+              {/* Step 4: Content Analysis */}
+              {visibility.analysis && (
+                <ContentAnalysis
+                  websiteUrl={websiteUrl}
+                  userEmail={effectiveEmail}
+                  onAnalysisComplete={handleAnalysisComplete}
+                  onReset={resetWorkflow}
+                  useAI={effectiveTier !== 'starter'}
+                  onProgressUpdate={(stage, totalPages, processedPages) => {
+                    actions.updateAnalysisProgress(stage, totalPages, processedPages);
+                  }}
+                />
+              )}
 
-            {/* Step 5: Content Review */}
-            {visibility.review && (
-              <ContentReview
-                analysisId={analysisId!}
-                discoveredPages={discoveredPages}
-                onFileGenerated={handleFileGenerated}
-                onStartOver={resetWorkflow}
-                onStartNewAnalysis={startNewAnalysis}
-              />
-            )}
+              {/* Step 5: Content Review */}
+              {visibility.review && (
+                <ContentReview
+                  analysisId={analysisId!}
+                  discoveredPages={discoveredPages}
+                  onFileGenerated={handleFileGenerated}
+                  onStartOver={resetWorkflow}
+                  onStartNewAnalysis={startNewAnalysis}
+                />
+              )}
 
-            {/* Step 6: File Generation */}
-            {visibility.generation && (
-              <FileGeneration
-                fileId={generatedFileId!}
-                analysisId={analysisId || undefined}
-                onStartOver={resetWorkflow}
-                onStartNewAnalysis={startNewAnalysis}
-                onViewAnalysis={handleViewAnalysisDetails}
-              />
-            )}
-          </div>
-
-        </main>
+              {/* Step 6: File Generation */}
+              {visibility.generation && (
+                <FileGeneration
+                  fileId={generatedFileId!}
+                  analysisId={analysisId || undefined}
+                  onStartOver={resetWorkflow}
+                  onStartNewAnalysis={startNewAnalysis}
+                  onViewAnalysis={handleViewAnalysisDetails}
+                />
+              )}
+            </div>
+          </main>
         )}
 
         {/* Footer */}

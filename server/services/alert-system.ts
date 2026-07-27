@@ -561,5 +561,4 @@ if (ENABLE_ALERTS) {
   console.log(`   - Max stored alerts: ${MAX_ALERTS_STORED}`);
 }
 
-// Export types
-export type { Alert, AlertAction, AlertRule, NotificationChannel };
+// (Alert, AlertAction, AlertRule and NotificationChannel are exported at their declarations)

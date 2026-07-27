@@ -10,6 +10,7 @@ import {
   InsertAuthUser,
   InsertUserSession,
   UserTier,
+  StoredUserTier,
 } from '@shared/schema';
 import { hashToken } from './auth';
 
@@ -42,7 +43,7 @@ export class AuthStorage {
     return updatedUser || null;
   }
 
-  async getUsersByTier(tier: UserTier): Promise<AuthUser[]> {
+  async getUsersByTier(tier: StoredUserTier): Promise<AuthUser[]> {
     const users = await db.select().from(authUsers).where(eq(authUsers.tier, tier));
     return users;
   }

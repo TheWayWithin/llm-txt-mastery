@@ -1,21 +1,47 @@
+import { StoredUserTier } from '@shared/schema';
 // Note: convertkit-node is a CommonJS module, so we need to import it carefully
 // import ConvertKit from 'convertkit-node'
 
-// Initialize ConvertKit client (mock for now until we can fix the import)
+// Initialize ConvertKit client (mock for now until we can fix the import).
+// Return types mirror the real API so callers type-check; the empty
+// getSubscribers result means every function no-ops after its guard.
 const convertKit = {
-  addSubscriberToForm: async (formId: string, data: any) => ({
-    subscription: { subscriber: { id: 'mock-id' } },
+  addSubscriberToForm: async (
+    formId: string,
+    data: unknown
+  ): Promise<{ subscription?: { subscriber: ConvertKitSubscriber } }> => ({
+    subscription: {
+      subscriber: {
+        id: 'mock-id',
+        email: '',
+        state: 'active',
+        created_at: '',
+        fields: {},
+        tags: [],
+      },
+    },
   }),
   addTagToSubscriber: async (tagId: string, subscriberId: string) => ({}),
   removeTagFromSubscriber: async (tagId: string, subscriberId: string) => ({}),
-  updateSubscriber: async (subscriberId: string, data: any) => ({}),
-  getSubscribers: async (query: any) => ({ subscribers: [] }),
+  updateSubscriber: async (subscriberId: string, data: unknown) => ({}),
+  getSubscribers: async (query: unknown): Promise<{ subscribers: ConvertKitSubscriber[] }> => ({
+    subscribers: [],
+  }),
   addSubscriberToSequence: async (sequenceId: string, subscriberId: string) => ({}),
   unsubscribeSubscriber: async (subscriberId: string) => ({}),
 };
 
-// ConvertKit configuration
-const CONVERTKIT_CONFIG = {
+// ConvertKit configuration. forms/tags are keyed by tier but deliberately do not
+// cover every StoredUserTier ('solo'/'cancelled' have no ConvertKit assets); the
+// call sites all guard against a missing ID.
+const CONVERTKIT_CONFIG: {
+  forms: Partial<Record<StoredUserTier, string>>;
+  sequences: Record<string, string>;
+  tags: Partial<Record<StoredUserTier, string>> & {
+    analysisCompleted: string;
+    limitReached: string;
+  };
+} = {
   forms: {
     starter: process.env.CONVERTKIT_STARTER_FORM_ID || '',
     coffee: process.env.CONVERTKIT_COFFEE_FORM_ID || '',
@@ -52,7 +78,7 @@ export interface ConvertKitSubscriber {
 // Subscribe user to ConvertKit based on tier
 export async function subscribeToTier(
   email: string,
-  tier: 'starter' | 'coffee' | 'growth' | 'scale',
+  tier: StoredUserTier,
   firstName?: string,
   lastName?: string
 ): Promise<ConvertKitSubscriber | null> {
@@ -92,10 +118,7 @@ export async function subscribeToTier(
 }
 
 // Update user tier in ConvertKit
-export async function updateSubscriberTier(
-  email: string,
-  newTier: 'starter' | 'coffee' | 'growth' | 'scale'
-): Promise<void> {
+export async function updateSubscriberTier(email: string, newTier: StoredUserTier): Promise<void> {
   try {
     // Get subscriber by email
     const subscribers = await convertKit.getSubscribers({ email_address: email });
@@ -184,7 +207,7 @@ export async function trackAnalysisCompleted(
 // Trigger upgrade sequence when user hits limits
 export async function triggerUpgradeSequence(
   email: string,
-  currentTier: 'starter' | 'coffee' | 'growth' | 'scale',
+  currentTier: StoredUserTier,
   limitType: 'daily_analyses' | 'page_limit' | 'ai_limit'
 ): Promise<void> {
   try {
@@ -233,7 +256,7 @@ export async function triggerUpgradeSequence(
 // Send welcome email with onboarding sequence
 export async function triggerOnboardingSequence(
   email: string,
-  tier: 'starter' | 'coffee' | 'growth' | 'scale'
+  tier: StoredUserTier
 ): Promise<void> {
   try {
     const subscribers = await convertKit.getSubscribers({ email_address: email });

@@ -9,7 +9,7 @@
 
 import { chromium } from 'playwright';
 
-const PRODUCTION_URL = 'https://www.llmtxtmastery.com';
+const PRODUCTION_URL = 'https://llmtxtmastery.com';
 
 async function inspectGDPR() {
   const browser = await chromium.launch({ headless: false });

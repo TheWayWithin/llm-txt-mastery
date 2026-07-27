@@ -85,7 +85,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           console.warn('⚠️ Failed to refresh user data from server:', refreshError);
 
           // Determine if this is a network issue vs auth issue
-          const errMsg = refreshError instanceof Error ? refreshError.message : String(refreshError);
+          const errMsg =
+            refreshError instanceof Error ? refreshError.message : String(refreshError);
           const isNetworkError =
             errMsg?.includes('fetch') ||
             errMsg?.includes('NetworkError') ||
@@ -265,21 +266,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.log(`🔍 Attempting to recognize email-based user: ${email}`);
 
       // Check usage API to see if this email has a tier/history
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/usage/${encodeURIComponent(email)}`
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/usage/${encodeURIComponent(email)}`);
 
       if (response.ok) {
         const usageData = await response.json();
 
         // If user has a tier other than starter or has usage history, create email-based user object
         if (usageData.tier !== 'starter' || (usageData.usage?.analysesToday || 0) > 0) {
+          // Synthetic local-only user for returning email-only visitors; nothing
+          // reads id/emailVerified/createdAt off it (id: 0 marks "no auth_users row").
           const emailUser: AuthUser = {
-            id: `email-${email}`, // Temporary ID for email-based users
+            id: 0,
             email: email,
-            tier: usageData.tier as any,
+            tier: usageData.tier,
             creditsRemaining: usageData.usage?.creditsRemaining || 0,
-            username: email.split('@')[0],
+            emailVerified: false,
+            createdAt: new Date().toISOString(),
           };
 
           console.log(`✅ Email user recognized: ${email} with tier ${usageData.tier}`);

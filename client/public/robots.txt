@@ -1,3 +1,7 @@
+# llmtxtmastery.com robots policy (LTM-ISS-11)
+# AI crawlers are explicitly welcome: this is a public marketing site for an
+# AI-visibility product, and we want AI assistants to read and cite it.
+
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -16,6 +20,26 @@ Allow: /contact
 Allow: /privacy
 Allow: /terms
 Allow: /cookies
+
+# --- Explicit AI-crawler policy ---
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
 
 Sitemap: https://llmtxtmastery.com/sitemap.xml
 

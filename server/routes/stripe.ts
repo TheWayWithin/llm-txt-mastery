@@ -100,7 +100,9 @@ export function registerStripeRoutes(app: Express) {
         return res.status(400).json({ message: 'Email is required' });
       }
 
-      console.log(`✅ Processing Growth checkout for: ${userEmail} (billing: ${billing}, trial: ${trial})`);
+      console.log(
+        `✅ Processing Growth checkout for: ${userEmail} (billing: ${billing}, trial: ${trial})`
+      );
 
       // Get or create email capture record
       let emailCapture = await storage.getEmailCapture(userEmail);
@@ -373,8 +375,7 @@ export function registerStripeRoutes(app: Express) {
     } catch (error) {
       console.error('Solo checkout session creation failed:', error);
       res.status(400).json({
-        message:
-          error instanceof Error ? error.message : 'Failed to create solo checkout session',
+        message: error instanceof Error ? error.message : 'Failed to create solo checkout session',
       });
     }
   };
@@ -729,7 +730,9 @@ async function handleCheckoutCompleted(session: any) {
               stripeCustomerId: session.customer,
               ...(tier === 'solo' ? { creditsRemaining: initialCredits } : {}),
             });
-            console.log(`Updated authenticated user ${customerEmail} to ${tier} tier${tier === 'solo' ? ` with ${initialCredits} credits` : ''}`);
+            console.log(
+              `Updated authenticated user ${customerEmail} to ${tier} tier${tier === 'solo' ? ` with ${initialCredits} credits` : ''}`
+            );
           } else if (encodedPassword) {
             // Create new auth user (coming from signup flow with password)
             const { hashPassword } = await import('../services/auth');
@@ -786,7 +789,8 @@ async function handleCheckoutCompleted(session: any) {
   }
 }
 
-async function handleSubscriptionUpdate(subscription: any) {
+// Exported for tests (LTM-ISS-7 pinning tests exercise the REAL handler, not a fixture copy)
+export async function handleSubscriptionUpdate(subscription: any) {
   try {
     const userId = subscription.metadata?.userId;
     if (!userId) {
@@ -858,15 +862,40 @@ async function handleSubscriptionUpdate(subscription: any) {
       );
     }
 
-    // Record payment history if subscription is active
+    // Record payment history if subscription is active, linked to the local
+    // subscriptions row (LTM-ISS-7). Nothing else populates that table, so the
+    // handler upserts the row itself; any failure degrades to a null linkage —
+    // the payment-history write must never be blocked and the webhook must
+    // still return 200 to Stripe.
     if (subscription.status === 'active') {
+      let linkedSubscriptionId: number | null = null;
+      try {
+        const existing = await storage.getSubscriptionByStripeId(subscription.id);
+        if (existing) {
+          linkedSubscriptionId = existing.id;
+        } else {
+          const created = await storage.createSubscription({
+            userId: Number(userId),
+            stripeCustomerId: subscription.customer,
+            stripeSubscriptionId: subscription.id,
+            tier,
+            status: subscription.status,
+          });
+          linkedSubscriptionId = created.id;
+        }
+      } catch (linkError) {
+        console.error(
+          `LTM-ISS-7: could not resolve local subscription for ${subscription.id} — recording payment history without linkage:`,
+          linkError
+        );
+      }
+
       await storage.createPaymentHistory({
         userId,
-        stripeSubscriptionId: subscription.id,
+        subscriptionId: linkedSubscriptionId,
         amount: subscription.items?.data[0]?.price?.unit_amount || 0,
         currency: subscription.items?.data[0]?.price?.currency || 'usd',
         status: 'paid',
-        tier: tier as any,
       });
     }
   } catch (error) {
@@ -902,9 +931,7 @@ async function handleSubscriptionCancelled(subscription: any) {
           await authStorage.updateUser(authUser.id, {
             tier: 'cancelled',
           });
-          console.log(
-            `Set auth_users for ${customerEmail} to cancelled tier (subscription ended)`
-          );
+          console.log(`Set auth_users for ${customerEmail} to cancelled tier (subscription ended)`);
         }
 
         const existingCapture = await storage.getEmailCapture(customerEmail);

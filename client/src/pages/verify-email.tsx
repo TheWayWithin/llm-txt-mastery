@@ -34,15 +34,12 @@ export default function VerifyEmailPage() {
 
   const verifyEmail = async (token: string) => {
     try {
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/auth/verify-email?token=${token}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/verify-email?token=${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       const data = await response.json();
 
@@ -56,7 +53,7 @@ export default function VerifyEmailPage() {
 
         // Refresh the user data in the auth context to update emailVerified status
         try {
-          const updatedUser = await refreshUser();
+          await refreshUser();
           console.log('✅ User data refreshed after email verification');
 
           // Force update the stored user data to ensure emailVerified is true
@@ -68,29 +65,23 @@ export default function VerifyEmailPage() {
             console.log('✅ Updated stored user emailVerified status');
           }
 
-          // Auto-redirect after successful verification
+          // Auto-redirect after successful verification.
+          // An earlier version branched on refreshUser()'s return value to send
+          // already-logged-in users straight to /analyze, but refreshUser resolves
+          // void so that branch never executed (see LTM-ISS-4) — every verified
+          // user has always taken this login redirect.
           setTimeout(() => {
             localStorage.removeItem('pendingVerificationEmail');
             localStorage.removeItem('pendingAnalysisUrl');
-
-            if (updatedUser) {
-              // Already logged in — go straight to analyze
-              const pendingUrl = localStorage.getItem('pendingAnalysisUrl');
-              const targetUrl = pendingUrl
-                ? `/analyze?url=${encodeURIComponent(pendingUrl)}`
-                : '/analyze';
-              console.log('✅ Logged in, redirecting to:', targetUrl);
-              window.location.href = targetUrl;
-            } else {
-              // Not logged in (post-payment new user) — go to login
-              console.log('✅ Not logged in, redirecting to /login');
-              window.location.href = '/login?verified=true';
-            }
+            console.log('✅ Verified, redirecting to /login');
+            window.location.href = '/login?verified=true';
           }, 2000);
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
           // Fall back to login page
-          setTimeout(() => { window.location.href = '/login?verified=true'; }, 2000);
+          setTimeout(() => {
+            window.location.href = '/login?verified=true';
+          }, 2000);
         }
       } else {
         setVerificationState('error');

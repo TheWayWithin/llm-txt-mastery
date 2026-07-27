@@ -84,7 +84,7 @@ export interface FlowContext {
   previousState: FlowState | null;
   websiteUrl: string;
   userEmail: string;
-  userTier: UserTier;
+  userTier: AuthUser['tier'];
   analysisId: number | null;
   discoveredPages: DiscoveredPage[];
   generatedFileId: number | null;
@@ -314,7 +314,7 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
       );
       const nextState = 'REVIEW';
 
-      const newContext = {
+      const newContext: FlowContext = {
         ...updatedContext,
         analysisId: event.analysisId,
         discoveredPages: event.pages,

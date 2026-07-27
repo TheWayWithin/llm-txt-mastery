@@ -47,7 +47,9 @@ export default function CookiesPage() {
             <Cookie className="h-8 w-8 text-signal-blue" />
             <h1 className="text-3xl font-bold text-ink">Cookie Policy</h1>
           </div>
-          <p className="text-slate-brand">Last updated: {lastUpdated}</p>
+          <p className="text-slate-brand">
+            Last updated: <time dateTime="2025-01-06">{lastUpdated}</time>
+          </p>
         </div>
 
         {/* Cookie Management Widget */}
@@ -254,9 +256,7 @@ export default function CookiesPage() {
         {/* Third-Party Services */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-xl font-semibold text-ink mb-4">
-              Third-Party Services
-            </h2>
+            <h2 className="text-xl font-semibold text-ink mb-4">Third-Party Services</h2>
             <p className="text-slate-brand mb-4">
               We integrate with the following third-party services that may set their own cookies:
             </p>
@@ -314,17 +314,13 @@ export default function CookiesPage() {
         {/* Your Rights */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-xl font-semibold text-ink mb-4">
-              Your Rights & Choices
-            </h2>
+            <h2 className="text-xl font-semibold text-ink mb-4">Your Rights & Choices</h2>
 
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <Info className="h-5 w-5 text-signal-blue mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-ink mb-1">
-                    Accept or Reject Cookies
-                  </h3>
+                  <h3 className="font-semibold text-ink mb-1">Accept or Reject Cookies</h3>
                   <p className="text-sm text-slate-brand">
                     You can choose to accept all cookies, reject non-essential cookies, or customize
                     your preferences using our cookie management tool.
@@ -426,9 +422,7 @@ export default function CookiesPage() {
         {/* Updates to This Policy */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-xl font-semibold text-ink mb-4">
-              Updates to This Policy
-            </h2>
+            <h2 className="text-xl font-semibold text-ink mb-4">Updates to This Policy</h2>
             <p className="text-slate-brand">
               We may update this Cookie Policy from time to time to reflect changes in our practices
               or for legal, operational, or regulatory reasons. We will notify you of any material
@@ -451,7 +445,7 @@ export default function CookiesPage() {
                 <strong>Email:</strong> privacy@llmtxtmastery.com
               </p>
               <p className="text-sm text-ink">
-                <strong>Website:</strong> www.llmtxtmastery.com
+                <strong>Website:</strong> llmtxtmastery.com
               </p>
               <p className="text-sm text-ink">
                 <strong>Data Protection:</strong> We are committed to protecting your privacy and
@@ -460,7 +454,6 @@ export default function CookiesPage() {
             </div>
           </CardContent>
         </Card>
-
       </main>
 
       {/* Footer */}

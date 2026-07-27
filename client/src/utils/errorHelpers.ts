@@ -1,5 +1,8 @@
 import { ErrorContext } from '@/hooks/useFlowStateMachine';
 
+// Re-export so consumers (e.g. lib/error-utils) can import the type from here
+export type { ErrorContext };
+
 export function createErrorContext(
   type: ErrorContext['type'],
   message: string,

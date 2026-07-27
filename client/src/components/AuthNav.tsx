@@ -9,7 +9,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { User, BarChart3, Crown, Zap, Star, LogOut, Settings, CreditCard, Search } from 'lucide-react';
+import {
+  User,
+  BarChart3,
+  Crown,
+  Zap,
+  Star,
+  LogOut,
+  Settings,
+  CreditCard,
+  Search,
+} from 'lucide-react';
 import { useLocation } from 'wouter';
 import { getTierDisplayName } from '@/lib/tier-utils';
 
@@ -58,7 +68,12 @@ export function AuthNav() {
         <Button variant="outline" onClick={() => setLocation('/login')}>
           Sign In
         </Button>
-        <Button className="bg-signal-blue hover:bg-[#1D4ED8]" onClick={() => setLocation('/signup')}>Generate Your File</Button>
+        <Button
+          className="bg-signal-blue hover:bg-[#1D4ED8]"
+          onClick={() => setLocation('/signup')}
+        >
+          Generate Your File
+        </Button>
       </div>
     );
   }

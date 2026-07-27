@@ -1,7 +1,9 @@
 import { storage } from '../storage';
 import { db } from '../db';
+import { errorMessage, errorField } from '../lib/errors';
 import {
   UserTier,
+  StoredUserTier,
   UsageTracking,
   emailCaptures,
   usageTracking,
@@ -12,7 +14,7 @@ import {
 } from '@shared/schema';
 import { authStorage } from '../services/auth-storage';
 import { TIER_LIMITS } from './cache';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, sql } from 'drizzle-orm';
 
 // CRITICAL FIX: Shared user resolution logic to prevent race conditions
 // Both trackUsage() and getTodayUsage() use this to ensure consistent behavior
@@ -119,7 +121,7 @@ export interface UsageCheckResult {
 }
 
 // Get user's current tier (simplified to use emailCaptures only for now)
-export async function getUserTier(userEmail: string): Promise<UserTier> {
+export async function getUserTier(userEmail: string): Promise<StoredUserTier> {
   try {
     // Temporary manual override for Solo tier customer
     if (userEmail === 'jamie.watters.mail@icloud.com') {
@@ -129,7 +131,8 @@ export async function getUserTier(userEmail: string): Promise<UserTier> {
 
     // Check emailCaptures table directly (where Coffee tier is stored)
     const emailCapture = await storage.getEmailCapture(userEmail);
-    const tier = emailCapture?.tier || 'starter';
+    // DB boundary: the tier column is text but only ever holds StoredUserTier values
+    const tier = (emailCapture?.tier || 'starter') as StoredUserTier;
     console.log(`getUserTier for ${userEmail}: found tier "${tier}" in emailCaptures`);
     return tier;
   } catch (error) {
@@ -172,9 +175,9 @@ export async function getTodayUsage(userEmail: string): Promise<UsageTracking | 
   } catch (error) {
     console.error('🚨 [GET USAGE] ERROR:', error);
     console.error('🚨 [GET USAGE] Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
+      message: errorMessage(error),
+      code: errorField(error, 'code'),
+      detail: errorField(error, 'detail'),
     });
     return null;
   }
@@ -199,7 +202,7 @@ export async function checkUsageLimits(
     // Check daily analysis limit
     if (analysesToday >= limits.dailyAnalyses) {
       const suggestedUpgrade =
-        tier === 'starter' ? 'solo' : (tier === 'solo' || tier === 'coffee') ? 'growth' : 'scale';
+        tier === 'starter' ? 'solo' : tier === 'solo' || tier === 'coffee' ? 'growth' : 'scale';
 
       // Create user-friendly messaging based on tier
       let reason: string;
@@ -310,7 +313,10 @@ export async function trackUsage(
           );
           // Continue with the found userId
           const foundUserId = emailCapture.userId;
-          await storage.createUsageTracking({
+          // createOrUpdateUsage is the method both storage classes implement;
+          // the old name here (createUsageTracking) existed on neither, so this
+          // rescue path always threw straight into the catch below
+          await storage.createOrUpdateUsage({
             userId: foundUserId,
             date: today,
             analysesCount: 1,
@@ -392,12 +398,12 @@ export async function trackUsage(
   } catch (error) {
     console.error('🚨 [USAGE TRACKING] ERROR:', error);
     console.error('🚨 [USAGE TRACKING] Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
-      table: error.table,
-      column: error.column,
-      constraint: error.constraint,
+      message: errorMessage(error),
+      code: errorField(error, 'code'),
+      detail: errorField(error, 'detail'),
+      table: errorField(error, 'table'),
+      column: errorField(error, 'column'),
+      constraint: errorField(error, 'constraint'),
     });
   }
 }
@@ -443,7 +449,7 @@ export async function getMonthlyAiCost(userEmail: string): Promise<{
 // Check if AI usage should be allowed based on cost caps
 export async function checkAiCostCap(
   userEmail: string,
-  tier: UserTier
+  tier: StoredUserTier
 ): Promise<{
   allowed: boolean;
   reason?: string;
@@ -462,6 +468,7 @@ export async function checkAiCostCap(
     coffee: 3.0, // Legacy alias for solo tier
     growth: parseFloat(process.env.AI_COST_CAP_GROWTH || '8.00'),
     scale: parseFloat(process.env.AI_COST_CAP_SCALE || '16.00'),
+    cancelled: 0, // No AI budget; cancelled users are blocked by daily limits before this runs
   };
 
   const monthlyBudget = monthlyBudgets[tier];
@@ -531,7 +538,7 @@ export async function checkCoffeeCredits(
       return { hasCredits: false, creditsRemaining: 0 };
     }
 
-    const creditsRemaining = authUser.creditsRemaining;
+    const creditsRemaining = authUser.creditsRemaining ?? 0;
     console.log(
       `[DEBUG] Found user ${authUser.email} with ${creditsRemaining} credits (tier: ${authUser.tier})`
     );
@@ -565,7 +572,7 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
       .from(authUsers)
       .where(eq(authUsers.id, numericUserId));
 
-    if (!authUser || authUser.creditsRemaining <= 0) {
+    if (!authUser || (authUser.creditsRemaining ?? 0) <= 0) {
       console.log(
         `[DEBUG] User ${authUser?.email || 'unknown'} has ${authUser?.creditsRemaining || 0} credits - cannot consume`
       );
@@ -573,7 +580,7 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
     }
 
     // Consume one credit directly in auth_users table
-    const newCredits = authUser.creditsRemaining - 1;
+    const newCredits = (authUser.creditsRemaining ?? 0) - 1;
     await db
       .update(authUsers)
       .set({ creditsRemaining: newCredits })
@@ -590,13 +597,22 @@ export async function consumeCoffeeCredit(userId: string): Promise<boolean> {
 }
 
 export async function getUserTierFromAuth(
-  user: { id: string; email: string; tier: UserTier } | undefined,
+  // Accepts either a Supabase profile (string UUID) or an auth_users row
+  // (numeric id, tier as raw DB text)
+  user: { id: string | number; email: string; tier: string } | undefined,
   email?: string
-): Promise<UserTier> {
+): Promise<StoredUserTier> {
   if (user) {
-    // Get tier from authenticated user profile
-    const userProfile = await storage.getUserProfile(user.id);
-    return userProfile?.tier || user.tier || 'starter';
+    // Get tier from authenticated user profile (profile ids are text; a numeric
+    // auth_users id stringifies to a value that matches no profile, exactly as
+    // the driver has always coerced it)
+    const userProfile = await storage.getUserProfile(String(user.id));
+    // DB boundary: the tier column is text but only ever holds StoredUserTier values
+    return (
+      (userProfile?.tier as StoredUserTier | undefined) ||
+      (user.tier as StoredUserTier | undefined) ||
+      'starter'
+    );
   } else if (email) {
     // Fallback to email-based tier lookup for backward compatibility
     return await getUserTier(email);
@@ -615,7 +631,9 @@ export async function resetMonthlyCredits(): Promise<void> {
     const coffeeTierUsers = await db.select().from(authUsers).where(eq(authUsers.tier, 'coffee'));
     const allSoloUsers = [...soloTierUsers, ...coffeeTierUsers];
 
-    console.log(`[CREDIT RESET] Found ${allSoloUsers.length} Solo tier users (${soloTierUsers.length} solo + ${coffeeTierUsers.length} legacy coffee)`);
+    console.log(
+      `[CREDIT RESET] Found ${allSoloUsers.length} Solo tier users (${soloTierUsers.length} solo + ${coffeeTierUsers.length} legacy coffee)`
+    );
 
     const soloCredits = TIER_LIMITS.solo.dailyAnalyses;
     for (const user of allSoloUsers) {
@@ -655,8 +673,11 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const result = await db.execute(
-      `
+    // NOTE (LTM-ISS-6): this query still references email_captures, which is not
+    // the table's real name ("emailCaptures"), so it fails and the catch below
+    // returns null — exactly as the previous two-argument db.execute call did.
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const result = await db.execute(sql`
       SELECT 
         COUNT(*) as days_active,
         SUM(analyses_count) as total_analyses,
@@ -667,11 +688,9 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
         AVG(analyses_count) as avg_analyses_per_day,
         AVG(pages_processed) as avg_pages_per_day
       FROM usage_tracking 
-      WHERE user_id = (SELECT id FROM email_captures WHERE email = $1 LIMIT 1)
-      AND date >= $2
-    `,
-      [userEmail, startDate.toISOString().split('T')[0]]
-    );
+      WHERE user_id = (SELECT id FROM email_captures WHERE email = ${userEmail} LIMIT 1)
+      AND date >= ${startDateStr}
+    `);
 
     return (
       result.rows?.[0] || {
@@ -694,7 +713,7 @@ export async function getUserUsageStats(userEmail: string, days: number = 30): P
 // Estimate cost for an analysis
 export function estimateAnalysisCost(
   pagesCount: number,
-  tier: UserTier,
+  tier: StoredUserTier,
   cacheHits: number = 0
 ): number {
   const limits = TIER_LIMITS[tier];
@@ -735,11 +754,14 @@ const JS_RENDERS_MONTHLY_LIMIT = 100; // Scale tier gets 100 JS renders per mont
  * Check if user has remaining JS renders for this month
  * Returns the current count and whether they can use more
  */
-export async function checkJsRenderQuota(
-  userId: string
-): Promise<{ hasQuota: boolean; rendersUsed: number; rendersRemaining: number; resetAt: Date | null }> {
+export async function checkJsRenderQuota(userId: string | number): Promise<{
+  hasQuota: boolean;
+  rendersUsed: number;
+  rendersRemaining: number;
+  resetAt: Date | null;
+}> {
   try {
-    const numericUserId = parseInt(userId);
+    const numericUserId = parseInt(String(userId));
     if (isNaN(numericUserId)) {
       console.error(`[JS QUOTA] Invalid userId format: ${userId}`);
       return { hasQuota: false, rendersUsed: 0, rendersRemaining: 0, resetAt: null };
@@ -785,7 +807,9 @@ export async function checkJsRenderQuota(
 
       rendersUsed = 0;
       resetAt = nextReset;
-      console.log(`[JS QUOTA] Reset JS render counter for userId ${userId}. Next reset: ${nextReset.toISOString()}`);
+      console.log(
+        `[JS QUOTA] Reset JS render counter for userId ${userId}. Next reset: ${nextReset.toISOString()}`
+      );
     }
 
     const rendersRemaining = Math.max(0, JS_RENDERS_MONTHLY_LIMIT - rendersUsed);
@@ -795,7 +819,12 @@ export async function checkJsRenderQuota(
   } catch (error) {
     console.error(`[JS QUOTA] Failed to check JS render quota for userId ${userId}:`, error);
     // Fail open - allow usage if we can't check quota
-    return { hasQuota: true, rendersUsed: 0, rendersRemaining: JS_RENDERS_MONTHLY_LIMIT, resetAt: null };
+    return {
+      hasQuota: true,
+      rendersUsed: 0,
+      rendersRemaining: JS_RENDERS_MONTHLY_LIMIT,
+      resetAt: null,
+    };
   }
 }
 
@@ -816,23 +845,29 @@ export async function consumeJsRenders(userId: string, count: number = 1): Promi
     // First check quota
     const quota = await checkJsRenderQuota(userId);
     if (!quota.hasQuota) {
-      console.warn(`[JS QUOTA] User ${userId} has exceeded JS render quota (${quota.rendersUsed}/${JS_RENDERS_MONTHLY_LIMIT})`);
+      console.warn(
+        `[JS QUOTA] User ${userId} has exceeded JS render quota (${quota.rendersUsed}/${JS_RENDERS_MONTHLY_LIMIT})`
+      );
       return false;
     }
 
     if (quota.rendersRemaining < count) {
-      console.warn(`[JS QUOTA] User ${userId} has insufficient JS renders (${quota.rendersRemaining} remaining, ${count} requested)`);
+      console.warn(
+        `[JS QUOTA] User ${userId} has insufficient JS renders (${quota.rendersRemaining} remaining, ${count} requested)`
+      );
       return false;
     }
 
     // Consume the renders
-    const newCount = (quota.rendersUsed + count);
+    const newCount = quota.rendersUsed + count;
     await db
       .update(authUsers)
       .set({ jsRendersUsedThisMonth: newCount })
       .where(eq(authUsers.id, numericUserId));
 
-    console.log(`[JS QUOTA] Consumed ${count} JS render(s) for userId ${userId}. New total: ${newCount}/${JS_RENDERS_MONTHLY_LIMIT}`);
+    console.log(
+      `[JS QUOTA] Consumed ${count} JS render(s) for userId ${userId}. New total: ${newCount}/${JS_RENDERS_MONTHLY_LIMIT}`
+    );
     return true;
   } catch (error) {
     console.error(`[JS QUOTA] Failed to consume JS renders for userId ${userId}:`, error);
@@ -919,7 +954,9 @@ export async function checkApiJsRenderQuota(
 
       rendersUsed = 0;
       resetAt = nextReset;
-      console.log(`[API JS QUOTA] Reset counter for apiKey=${apiKeyId}, user=${externalUserId}. Next reset: ${nextReset.toISOString()}`);
+      console.log(
+        `[API JS QUOTA] Reset counter for apiKey=${apiKeyId}, user=${externalUserId}. Next reset: ${nextReset.toISOString()}`
+      );
     }
 
     const rendersRemaining = Math.max(0, API_JS_RENDERS_MONTHLY_LIMIT - rendersUsed);
@@ -932,7 +969,10 @@ export async function checkApiJsRenderQuota(
       resetAt,
     };
   } catch (error) {
-    console.error(`[API JS QUOTA] Error checking quota for apiKey=${apiKeyId}, user=${externalUserId}:`, error);
+    console.error(
+      `[API JS QUOTA] Error checking quota for apiKey=${apiKeyId}, user=${externalUserId}:`,
+      error
+    );
     // Fail open - allow usage if we can't check quota
     return {
       hasQuota: true,
@@ -960,12 +1000,16 @@ export async function consumeApiJsRenders(
     // First check quota
     const quota = await checkApiJsRenderQuota(apiKeyId, externalUserId);
     if (!quota.hasQuota) {
-      console.warn(`[API JS QUOTA] Quota exceeded for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersUsed}/${quota.limit})`);
+      console.warn(
+        `[API JS QUOTA] Quota exceeded for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersUsed}/${quota.limit})`
+      );
       return false;
     }
 
     if (quota.rendersRemaining < count) {
-      console.warn(`[API JS QUOTA] Insufficient renders for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersRemaining} remaining, ${count} requested)`);
+      console.warn(
+        `[API JS QUOTA] Insufficient renders for apiKey=${apiKeyId}, user=${externalUserId} (${quota.rendersRemaining} remaining, ${count} requested)`
+      );
       return false;
     }
 
@@ -981,10 +1025,15 @@ export async function consumeApiJsRenders(
         )
       );
 
-    console.log(`[API JS QUOTA] Consumed ${count} render(s) for apiKey=${apiKeyId}, user=${externalUserId}. New total: ${newCount}/${quota.limit}`);
+    console.log(
+      `[API JS QUOTA] Consumed ${count} render(s) for apiKey=${apiKeyId}, user=${externalUserId}. New total: ${newCount}/${quota.limit}`
+    );
     return true;
   } catch (error) {
-    console.error(`[API JS QUOTA] Error consuming renders for apiKey=${apiKeyId}, user=${externalUserId}:`, error);
+    console.error(
+      `[API JS QUOTA] Error consuming renders for apiKey=${apiKeyId}, user=${externalUserId}:`,
+      error
+    );
     // Fail open - allow usage if we can't update quota
     return true;
   }

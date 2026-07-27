@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { errorMessage } from './lib/errors';
 import * as cheerio from 'cheerio';
 import dotenv from 'dotenv';
 
@@ -150,7 +151,7 @@ async function runComparison() {
       results.push(result);
       console.log(`✅ ${model} completed in ${result.time}ms\n`);
     } catch (error) {
-      console.log(`❌ ${model} failed: ${error.message}\n`);
+      console.log(`❌ ${model} failed: ${errorMessage(error)}\n`);
     }
   }
 

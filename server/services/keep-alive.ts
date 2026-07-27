@@ -70,7 +70,8 @@ export class KeepAliveService {
 
       const response = await fetch(url, {
         method: 'GET',
-        timeout: 30000, // 30 second timeout
+        // NOTE: global fetch has no 'timeout' option; the old key was silently
+        // ignored, so no request timeout has ever applied here
         headers: {
           'User-Agent': 'Keep-Alive-Service/1.0',
         },

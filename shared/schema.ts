@@ -64,6 +64,43 @@ export const paymentHistory = pgTable('payment_history', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Shape of sitemapAnalysis.analysis_metadata as the code actually writes it
+// (analyzeWebsiteEnhanced, the orphan detector, and the v1 API all contribute).
+export interface SitemapAnalysisMetadata {
+  siteType: 'single-page' | 'multi-page' | 'unknown';
+  sitemapFound: boolean;
+  // 'error' is written on failed analyses
+  analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl' | 'error';
+  // Some failure writes omit message
+  message?: string;
+  totalPagesFound: number;
+  userEmail?: string;
+  tier?: StoredUserTier;
+  // Written on failed analyses
+  error?: string;
+  // Sprint 6/10: JS rendering fields on completed analyses
+  jsRenderingEnabled?: boolean;
+  jsRenderedPages?: number;
+  // API v1 provenance
+  apiKeyId?: number;
+  consumer?: string;
+  // Enhanced SPA detection fields (Sprint 1: Phase 1)
+  spaDetection?: SPADetectionResult;
+  contentCoveragePercentage?: number;
+  renderingStrategy?: RenderingStrategy;
+  metrics?: {
+    cacheHit: boolean;
+    processingTime: number;
+    apiCalls: number;
+    costSaved: number;
+    analyzedPages?: number;
+    cachedPages?: number;
+    aiCallsUsed?: number;
+    htmlExtractionsUsed?: number;
+  };
+  processingTime?: number;
+}
+
 export const sitemapAnalysis = pgTable('sitemapAnalysis', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
@@ -71,30 +108,7 @@ export const sitemapAnalysis = pgTable('sitemapAnalysis', {
   sitemapContent: jsonb('sitemap_content'),
   discoveredPages: jsonb('discovered_pages').$type<DiscoveredPage[]>(),
   status: text('status').notNull().default('pending'),
-  analysisMetadata: jsonb('analysis_metadata').$type<{
-    siteType: 'single-page' | 'multi-page' | 'unknown';
-    sitemapFound: boolean;
-    analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
-    message: string;
-    totalPagesFound: number;
-    userEmail?: string;
-    tier?: UserTier;
-    // Enhanced SPA detection fields (Sprint 1: Phase 1)
-    spaDetection?: SPADetectionResult;
-    contentCoveragePercentage?: number;
-    renderingStrategy?: RenderingStrategy;
-    metrics?: {
-      cacheHit: boolean;
-      processingTime: number;
-      apiCalls: number;
-      costSaved: number;
-      analyzedPages?: number;
-      cachedPages?: number;
-      aiCallsUsed?: number;
-      htmlExtractionsUsed?: number;
-    };
-    processingTime?: number;
-  }>(),
+  analysisMetadata: jsonb('analysis_metadata').$type<SitemapAnalysisMetadata>(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -198,6 +212,8 @@ export interface DiscoveredPage {
   bodyContent?: string; // Raw extracted text content (up to 4000 chars) for llms-full.txt
 }
 
+// Wire shape of GET /api/analysis/:id (see routes.ts): metadata fields are
+// flattened with fallbacks, plus the full analysisMetadata for components.
 export interface SiteAnalysisResult {
   id: number;
   url: string;
@@ -205,15 +221,19 @@ export interface SiteAnalysisResult {
   discoveredPages: DiscoveredPage[];
   siteType: 'single-page' | 'multi-page' | 'unknown';
   sitemapFound: boolean;
-  analysisMethod: 'sitemap' | 'robots.txt' | 'homepage-only' | 'fallback-crawl';
+  analysisMethod: SitemapAnalysisMetadata['analysisMethod'] | 'unknown';
   message: string;
   totalPagesFound: number;
+  analysisMetadata?: SitemapAnalysisMetadata;
   metrics?: {
     cacheHit: boolean;
     processingTime: number;
     apiCalls: number;
     costSaved: number;
   };
+  spaDetection?: SPADetectionResult;
+  contentCoveragePercentage?: number;
+  renderingStrategy?: RenderingStrategy;
 }
 
 export interface SelectedPage {
@@ -223,6 +243,8 @@ export interface SelectedPage {
   selected: boolean;
   category?: string;
   qualityScore?: number;
+  // Optional per-page metadata; getPageQualityScore falls back when absent
+  analysisMetadata?: { qualityScore?: number };
   bodyContent?: string; // Raw extracted text content for llms-full.txt
 }
 
@@ -308,7 +330,7 @@ export const insertOneTimeCreditSchema = createInsertSchema(oneTimeCredits).pick
   productType: true,
   priceId: true,
   stripePaymentIntentId: true,
-  expiresAt: true,
+  // expiresAt intentionally absent: the column was removed from the table above
 });
 
 export const insertUserProfileSchema = createInsertSchema(userProfiles).pick({
@@ -348,6 +370,11 @@ export type UserProfile = typeof userProfiles.$inferSelect;
 // Tier-based types
 export type UserTier = 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
 
+// Tier as actually stored in the database: includes the legacy 'coffee' value,
+// a pre-rename alias for 'solo' still present on old rows. Runtime treats
+// 'coffee' exactly like 'solo'; new records never write it.
+export type StoredUserTier = UserTier | 'coffee';
+
 // ===================================================================
 // ENHANCED SPA DETECTION TYPES (Sprint 1: Phase 1)
 // ===================================================================
@@ -361,7 +388,17 @@ export type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
  * Framework and rendering strategy detection result
  */
 export interface SPAFrameworkIndicators {
-  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'wordpress' | 'unknown';
+  framework:
+    | 'react'
+    | 'vue'
+    | 'angular'
+    | 'svelte'
+    | 'next'
+    | 'nuxt'
+    | 'gatsby'
+    | 'astro'
+    | 'wordpress'
+    | 'unknown';
   renderingStrategy: RenderingStrategy;
   indicators: string[];
 }
@@ -422,7 +459,7 @@ export interface CachedAnalysis {
   lastModified?: string;
   etag?: string;
   analysisResult: DiscoveredPage[];
-  tier: UserTier;
+  tier: StoredUserTier;
   cachedAt: Date;
   expiresAt: Date;
   hitCount: number;
@@ -481,6 +518,7 @@ export const userLoginSchema = z.object({
 });
 
 export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
 export type AuthUser = typeof authUsers.$inferSelect;
 export type InsertAuthUser = z.infer<typeof insertAuthUserSchema>;
 export type UserSession = typeof userSessions.$inferSelect;
@@ -566,7 +604,7 @@ export const refundRequests = pgTable('refund_requests', {
 export interface JWTPayload {
   userId: number;
   email: string;
-  tier: UserTier;
+  tier: StoredUserTier;
   iat: number;
   exp: number;
 }
@@ -590,31 +628,34 @@ export type InsertRateLimit = typeof rateLimits.$inferInsert;
 
 // File type options for llms.txt validation (Sprint 5)
 export const LlmsTxtFileType = z.enum([
-  'auto',           // Auto-detect: check all locations
-  'llms.txt',       // Standard: /llms.txt
-  'llms-full.txt',  // Extended: /llms-full.txt
-  '.well-known',    // Well-known: /.well-known/llms.txt
-  'llms.md',        // Markdown: /llms.md
+  'auto', // Auto-detect: check all locations
+  'llms.txt', // Standard: /llms.txt
+  'llms-full.txt', // Extended: /llms-full.txt
+  '.well-known', // Well-known: /.well-known/llms.txt
+  'llms.md', // Markdown: /llms.md
 ]);
 export type LlmsTxtFileType = z.infer<typeof LlmsTxtFileType>;
 
 // Validation request schema with SSRF protection
 export const validateLlmsTxtSchema = z.object({
-  url: z.string().url('Please enter a valid URL').refine(
-    (url) => {
-      // SSRF Protection: Block localhost and private IPs
-      const privateRanges = [
-        /^https?:\/\/localhost/i,
-        /^https?:\/\/127\./,
-        /^https?:\/\/192\.168\./,
-        /^https?:\/\/10\./,
-        /^https?:\/\/172\.(1[6-9]|2\d|3[01])\./,
-        /^https?:\/\/169\.254\./,
-      ];
-      return !privateRanges.some(regex => regex.test(url));
-    },
-    { message: 'Invalid or unsafe URL (localhost/private IPs not allowed)' }
-  ),
+  url: z
+    .string()
+    .url('Please enter a valid URL')
+    .refine(
+      (url) => {
+        // SSRF Protection: Block localhost and private IPs
+        const privateRanges = [
+          /^https?:\/\/localhost/i,
+          /^https?:\/\/127\./,
+          /^https?:\/\/192\.168\./,
+          /^https?:\/\/10\./,
+          /^https?:\/\/172\.(1[6-9]|2\d|3[01])\./,
+          /^https?:\/\/169\.254\./,
+        ];
+        return !privateRanges.some((regex) => regex.test(url));
+      },
+      { message: 'Invalid or unsafe URL (localhost/private IPs not allowed)' }
+    ),
   fileType: LlmsTxtFileType.optional().default('auto'),
   includeRobotsTxt: z.boolean().optional().default(true),
   bustCache: z.boolean().optional().default(false),
@@ -660,7 +701,9 @@ export const insertApiKeySchema = createInsertSchema(apiKeys);
  */
 export const apiUsage = pgTable('api_usage', {
   id: serial('id').primaryKey(),
-  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  apiKeyId: integer('api_key_id')
+    .notNull()
+    .references(() => apiKeys.id),
   endpoint: text('endpoint').notNull(), // e.g., '/api/v1/analyze'
   method: text('method').notNull(), // GET, POST, etc.
   statusCode: integer('status_code').notNull(),
@@ -683,7 +726,9 @@ export const insertApiUsageSchema = createInsertSchema(apiUsage);
  */
 export const apiWebhooks = pgTable('api_webhooks', {
   id: serial('id').primaryKey(),
-  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  apiKeyId: integer('api_key_id')
+    .notNull()
+    .references(() => apiKeys.id),
   url: text('url').notNull(), // Webhook endpoint URL
   events: jsonb('events').notNull(), // Array like ['analysis.completed', 'generation.completed']
   isActive: boolean('is_active').notNull().default(true),
@@ -739,7 +784,9 @@ export interface ApiKeyWithStats extends ApiKey {
  */
 export const apiJsRenderQuotas = pgTable('api_js_render_quotas', {
   id: serial('id').primaryKey(),
-  apiKeyId: integer('api_key_id').notNull().references(() => apiKeys.id),
+  apiKeyId: integer('api_key_id')
+    .notNull()
+    .references(() => apiKeys.id),
   externalUserId: text('external_user_id').notNull(), // Consumer-provided user ID (e.g., aimp_user_123)
   rendersUsedThisMonth: integer('renders_used_this_month').default(0).notNull(),
   resetAt: timestamp('reset_at'), // When the quota counter will reset (first of next month)
@@ -751,15 +798,43 @@ export type NewApiJsRenderQuota = typeof apiJsRenderQuotas.$inferInsert;
 export const insertApiJsRenderQuotaSchema = createInsertSchema(apiJsRenderQuotas);
 
 // Tier limits for API consumers (mapped from userTier parameter)
-export const API_TIER_LIMITS: Record<UserTier, {
-  maxPagesPerAnalysis: number;
-  aiPagesLimit: number;
-  jsRenderingEnabled: boolean;
-  jsRendersPerMonth: number;
-}> = {
-  starter: { maxPagesPerAnalysis: 20, aiPagesLimit: 20, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
-  solo: { maxPagesPerAnalysis: 200, aiPagesLimit: 200, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
-  growth: { maxPagesPerAnalysis: 500, aiPagesLimit: 500, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
-  scale: { maxPagesPerAnalysis: 1000, aiPagesLimit: 1000, jsRenderingEnabled: true, jsRendersPerMonth: 100 },
-  cancelled: { maxPagesPerAnalysis: 0, aiPagesLimit: 0, jsRenderingEnabled: false, jsRendersPerMonth: 0 },
+export const API_TIER_LIMITS: Record<
+  UserTier,
+  {
+    maxPagesPerAnalysis: number;
+    aiPagesLimit: number;
+    jsRenderingEnabled: boolean;
+    jsRendersPerMonth: number;
+  }
+> = {
+  starter: {
+    maxPagesPerAnalysis: 20,
+    aiPagesLimit: 20,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
+  solo: {
+    maxPagesPerAnalysis: 200,
+    aiPagesLimit: 200,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
+  growth: {
+    maxPagesPerAnalysis: 500,
+    aiPagesLimit: 500,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
+  scale: {
+    maxPagesPerAnalysis: 1000,
+    aiPagesLimit: 1000,
+    jsRenderingEnabled: true,
+    jsRendersPerMonth: 100,
+  },
+  cancelled: {
+    maxPagesPerAnalysis: 0,
+    aiPagesLimit: 0,
+    jsRenderingEnabled: false,
+    jsRendersPerMonth: 0,
+  },
 };

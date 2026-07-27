@@ -26,8 +26,18 @@ export const EMBEDDING_MODELS = {
   },
 };
 
-// Model configuration with pricing (as of Jan 2025)
-export const OPENAI_MODELS = {
+// Model configuration with pricing (as of Jan 2025). Keyed by model id; looked
+// up with env-configured strings, so unknown ids miss (call sites guard).
+export const OPENAI_MODELS: Record<
+  string,
+  {
+    name: string;
+    description: string;
+    pricing: { input: number; output: number };
+    maxTokens: number;
+    recommended: boolean;
+  }
+> = {
   'gpt-4o': {
     name: 'gpt-4o',
     description: 'Most capable, highest quality',
@@ -57,14 +67,18 @@ const selectedModel = process.env.LLM_MODEL || process.env.OPENAI_MODEL || 'open
 // Initialize LLM client via OpenRouter (OpenAI-compatible)
 const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
 const isOpenRouter = !!process.env.OPENROUTER_API_KEY;
-const openai = apiKey ? new OpenAI({ 
-  apiKey,
-  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
-  defaultHeaders: isOpenRouter ? {
-    'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
-    'X-Title': 'LLM.txt Mastery'
-  } : undefined
-}) : null;
+const openai = apiKey
+  ? new OpenAI({
+      apiKey,
+      baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+      defaultHeaders: isOpenRouter
+        ? {
+            'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
+            'X-Title': 'LLM.txt Mastery',
+          }
+        : undefined,
+    })
+  : null;
 
 // Log configuration at startup
 console.log('🤖 LLM Service Configuration (Enhanced):');
@@ -75,7 +89,9 @@ console.log(`  - Model: ${selectedModel}`);
 const modelKey = selectedModel.replace('openai/', '');
 if (OPENAI_MODELS[modelKey]) {
   const model = OPENAI_MODELS[modelKey];
-  console.log(`  - Est. Pricing: $${model.pricing.input}/1M input, $${model.pricing.output}/1M output`);
+  console.log(
+    `  - Est. Pricing: $${model.pricing.input}/1M input, $${model.pricing.output}/1M output`
+  );
 }
 
 export interface ContentAnalysisResult {

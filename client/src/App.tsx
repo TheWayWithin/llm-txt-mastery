@@ -32,6 +32,7 @@ import ValidatePage from '@/pages/validate';
 import ValidatorPage from '@/pages/validator';
 import CheckEmailPage from '@/pages/check-email';
 import NotFound from '@/pages/not-found';
+import { StructuredData, getOrganizationSchema, getWebSiteSchema } from '@/lib/structured-data';
 import AnalysisDetailPage from '@/pages/analysis-detail';
 
 function Router() {
@@ -79,6 +80,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
+          {/* Site-wide JSON-LD; reaches crawlers via the prerendered marketing pages */}
+          <StructuredData schema={getOrganizationSchema()} />
+          <StructuredData schema={getWebSiteSchema()} />
           <Toaster />
           <Sonner position="top-center" />
           <Router />

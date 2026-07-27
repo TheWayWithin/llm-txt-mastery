@@ -58,7 +58,9 @@ export async function incrementSimpleUsage(
       RETURNING count
     `);
 
-    const newCount = result.rows[0]?.count || 1;
+    // pg returns INTEGER columns as JS numbers; type the row at the boundary
+    const row = result.rows[0] as { count?: number } | undefined;
+    const newCount = row?.count || 1;
     console.log(
       `✅ [SIMPLE-TRACKER] INCREMENT SUCCESS: ${normalizedEmail}: ${newCount} analyses today (date: ${today})`
     );
@@ -94,7 +96,8 @@ export async function getSimpleUsage(email: string): Promise<{ count: number; ti
       RETURNING count, tier
     `);
 
-    const usage = result.rows[0];
+    // pg returns INTEGER as number and TEXT as string; type the row at the boundary
+    const usage = result.rows[0] as { count?: number; tier?: string } | undefined;
     console.log(
       `✅ [SIMPLE-TRACKER] GET SUCCESS: ${normalizedEmail}: count=${usage?.count || 0}, tier=${usage?.tier || 'starter'} (date: ${today})`
     );

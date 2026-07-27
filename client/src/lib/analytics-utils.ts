@@ -5,7 +5,7 @@
  * and analytics hook wrapper with debug support.
  */
 
-import { UserTier } from '@shared/schema';
+import { UserTier, StoredUserTier } from '@shared/schema';
 import { trackEvent as baseTrackEvent } from '@/lib/analytics';
 
 // Enhanced event tracking with type safety
@@ -17,10 +17,12 @@ export interface BaseEventProperties {
   page_path?: string;
   user_agent?: string;
   referrer?: string;
+  // GA4 standard monetary/weight parameter, sent on any event type
+  value?: number;
 }
 
 export interface UserEventProperties extends BaseEventProperties {
-  user_tier?: UserTier;
+  user_tier?: StoredUserTier;
   user_email?: string;
   credits_remaining?: number;
 }
@@ -43,23 +45,23 @@ export interface AnalysisEventProperties extends UserEventProperties {
 
 export interface ConversionEventProperties extends BusinessEventProperties {
   tier_selected?: UserTier;
-  previous_tier?: UserTier;
+  previous_tier?: StoredUserTier;
   conversion_step?: string;
   funnel_position?: number;
 }
 
 // Event type definitions for better type safety
 export interface EventDefinitions {
-  // Page view events
+  // Page view events (enriched with user context by useAnalytics)
   page_view: {
     page_title: string;
     page_location?: string;
-  } & BaseEventProperties;
+  } & UserEventProperties;
 
   // User engagement events
   tier_selected: {
     tier_selected: UserTier;
-    previous_tier?: UserTier | null;
+    previous_tier?: StoredUserTier | null;
     website_url?: string;
   } & UserEventProperties;
 
@@ -141,15 +143,15 @@ export interface EventDefinitions {
     error_type: string;
     error_message: string;
     error_context?: string;
-    user_tier?: UserTier;
+    user_tier?: StoredUserTier;
   } & UserEventProperties;
 
-  // Performance events
+  // Performance events (enriched with user context by useAnalytics)
   performance_metric: {
     metric_name: string;
     metric_value: number;
     metric_unit?: string;
-  } & BaseEventProperties;
+  } & UserEventProperties;
 }
 
 export type EventName = keyof EventDefinitions;
@@ -514,6 +516,5 @@ export const analyticsHelpers = {
   },
 };
 
-// Export the main analytics object and helpers
-export { analytics };
+// analytics is already exported (named) at its declaration above
 export default analytics;

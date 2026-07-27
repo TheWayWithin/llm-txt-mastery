@@ -1,16 +1,17 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { errorMessage } from '../lib/errors';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AuthUser, JWTPayload, UserTier } from '@shared/schema';
 
 // Environment variables for JWT with security validation
 function validateJWTSecret(): string {
   const secret = process.env.JWT_SECRET;
-  
+
   if (!secret) {
     throw new Error('CRITICAL SECURITY ERROR: JWT_SECRET environment variable is required');
   }
-  
+
   // Security validation - reject weak or default secrets
   const weakSecrets = [
     'fallback-secret-for-development',
@@ -22,23 +23,23 @@ function validateJWTSecret(): string {
     'password',
     '123456',
   ];
-  
+
   if (weakSecrets.includes(secret.toLowerCase()) || secret.length < 32) {
     throw new Error(
       `CRITICAL SECURITY ERROR: JWT_SECRET is too weak. Must be at least 32 characters and not a common default. Current length: ${secret.length}`
     );
   }
-  
+
   return secret;
 }
 
 function validateJWTRefreshSecret(): string {
   const secret = process.env.JWT_REFRESH_SECRET;
-  
+
   if (!secret) {
     throw new Error('CRITICAL SECURITY ERROR: JWT_REFRESH_SECRET environment variable is required');
   }
-  
+
   // Security validation - reject weak or default secrets
   const weakSecrets = [
     'fallback-refresh-secret-for-development',
@@ -50,24 +51,29 @@ function validateJWTRefreshSecret(): string {
     'password',
     '123456',
   ];
-  
+
   if (weakSecrets.includes(secret.toLowerCase()) || secret.length < 32) {
     throw new Error(
       `CRITICAL SECURITY ERROR: JWT_REFRESH_SECRET is too weak. Must be at least 32 characters and not a common default. Current length: ${secret.length}`
     );
   }
-  
+
   return secret;
 }
 
 // Validate secrets at startup - fail fast for security
 const JWT_SECRET = validateJWTSecret();
 const JWT_REFRESH_SECRET = validateJWTRefreshSecret();
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
-const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+// jsonwebtoken v9 types expiresIn as an ms-format StringValue; these env values
+// must be valid ms durations (jwt.sign validates at runtime, unchanged)
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '15m') as SignOptions['expiresIn'];
+const JWT_REFRESH_EXPIRES_IN = (process.env.JWT_REFRESH_EXPIRES_IN ||
+  '7d') as SignOptions['expiresIn'];
 
 // Log security validation success (without exposing secrets)
-console.log(`✅ JWT Security validation passed - secrets are secure (${JWT_SECRET.length} chars, ${JWT_REFRESH_SECRET.length} chars)`);
+console.log(
+  `✅ JWT Security validation passed - secrets are secure (${JWT_SECRET.length} chars, ${JWT_REFRESH_SECRET.length} chars)`
+);
 
 // Password hashing
 export async function hashPassword(password: string): Promise<string> {
@@ -107,7 +113,7 @@ export function verifyAccessToken(token: string): JWTPayload | null {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;
   } catch (error) {
-    console.error('Access token verification failed:', error.message);
+    console.error('Access token verification failed:', errorMessage(error));
     return null;
   }
 }
@@ -120,7 +126,7 @@ export function verifyRefreshToken(token: string): { userId: number; type: strin
     }
     return { userId: decoded.userId, type: decoded.type };
   } catch (error) {
-    console.error('Refresh token verification failed:', error.message);
+    console.error('Refresh token verification failed:', errorMessage(error));
     return null;
   }
 }
@@ -210,13 +216,19 @@ export function verifyEmailVerificationToken(
     }
     return { userId: decoded.userId, email: decoded.email };
   } catch (error) {
-    console.error('Email verification token failed:', error.message);
+    console.error('Email verification token failed:', errorMessage(error));
     return null;
   }
 }
 
 // Authentication response helpers
-export function createAuthResponse(user: AuthUser, accessToken: string, refreshToken: string) {
+export function createAuthResponse(
+  // Only the public fields are read, so synthetic users (e.g. demo login) that
+  // have no passwordHash row can be passed too
+  user: Pick<AuthUser, 'id' | 'email' | 'tier' | 'creditsRemaining' | 'emailVerified'>,
+  accessToken: string,
+  refreshToken: string
+) {
   return {
     user: {
       id: user.id,

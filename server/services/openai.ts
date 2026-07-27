@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import * as cheerio from 'cheerio';
+import { errorMessage, errorField } from '../lib/errors';
 
 // Initialize LLM client via OpenRouter (OpenAI-compatible)
 // Supports any model available on OpenRouter - configure via LLM_MODEL env var
@@ -8,14 +9,18 @@ const llmModel = process.env.LLM_MODEL || 'openai/gpt-4o-mini';
 
 // Use OpenRouter if OPENROUTER_API_KEY is set, otherwise fall back to direct OpenAI
 const isOpenRouter = !!process.env.OPENROUTER_API_KEY;
-const openai = apiKey ? new OpenAI({ 
-  apiKey,
-  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
-  defaultHeaders: isOpenRouter ? {
-    'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
-    'X-Title': 'LLM.txt Mastery'
-  } : undefined
-}) : null;
+const openai = apiKey
+  ? new OpenAI({
+      apiKey,
+      baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+      defaultHeaders: isOpenRouter
+        ? {
+            'HTTP-Referer': process.env.SITE_URL || 'https://llmtxtmastery.com',
+            'X-Title': 'LLM.txt Mastery',
+          }
+        : undefined,
+    })
+  : null;
 
 // Log LLM initialization status at module load
 console.log('🔑 LLM Service Initialization:');
@@ -30,6 +35,11 @@ export interface ContentAnalysisResult {
   qualityScore: number;
   category: string;
   relevance: number;
+  // Optional token-tracking fields. analyzePageContent does not populate these
+  // yet; sitemap-enhanced guards every read, so metrics fall back to estimates.
+  tokensUsed?: { total: number; prompt?: number; completion?: number };
+  actualCostUSD?: number;
+  model?: string;
 }
 
 /**
@@ -73,8 +83,12 @@ function truncateDescription(text: string, maxLength: number = 400): string {
 function generateFallbackDescription(url: string, title: string, metaDescription?: string): string {
   try {
     // Check if meta description is page-specific (not a generic site-wide default)
-    const isGenericMeta = !metaDescription || metaDescription.length < 30 ||
-      /transform your website|intelligent .* generator|free analysis with premium/i.test(metaDescription);
+    const isGenericMeta =
+      !metaDescription ||
+      metaDescription.length < 30 ||
+      /transform your website|intelligent .* generator|free analysis with premium/i.test(
+        metaDescription
+      );
 
     if (!isGenericMeta && metaDescription) {
       return truncateDescription(metaDescription);
@@ -85,12 +99,14 @@ function generateFallbackDescription(url: string, title: string, metaDescription
 
     // Use URL path to generate a meaningful description
     if (path) {
-      const readable = path
-        .replace(/[-_]/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase());
+      const readable = path.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
       const cleanTitle = title.replace(/ [-|–] .*$/, '').trim();
       // If title has page-specific info (differs from path), combine them
-      if (cleanTitle && cleanTitle.length > 5 && cleanTitle.toLowerCase() !== readable.toLowerCase()) {
+      if (
+        cleanTitle &&
+        cleanTitle.length > 5 &&
+        cleanTitle.toLowerCase() !== readable.toLowerCase()
+      ) {
         return `${cleanTitle} — the ${readable.toLowerCase()} page on ${hostname}.`;
       }
       return `${readable} page on ${hostname}.`;
@@ -160,11 +176,11 @@ function generateHTMLAnalysis(url: string, htmlContent: string): ContentAnalysis
   }
 
   // Basic HTML parsing to extract title and create analysis
-  let $: any;
+  let $: cheerio.CheerioAPI;
   try {
     $ = cheerio.load(htmlContent);
   } catch (cheerioError) {
-    throw new Error(`Failed to parse HTML for ${url}: ${cheerioError.message}`);
+    throw new Error(`Failed to parse HTML for ${url}: ${errorMessage(cheerioError)}`);
   }
 
   // Extract text content for analysis first (needed by other functions)
@@ -356,7 +372,7 @@ async function generateAIAnalysis(
     const contentSample = mainContent.substring(0, 8000); // MiniMax M2.5 has 196K context, use more
 
     // Detect if this is a thin/CSR page
-    const contentWords = contentSample.split(/\s+/).filter(w => w.length > 2).length;
+    const contentWords = contentSample.split(/\s+/).filter((w) => w.length > 2).length;
     const isThinContent = contentWords < 50;
     const metaDescription = $('meta[name="description"]').attr('content') || '';
 
@@ -364,12 +380,14 @@ async function generateAIAnalysis(
     // has one meta tag shared by all routes). Check if it mentions the site name
     // but NOT the specific page path, or matches known generic patterns.
     const urlPath = new URL(url).pathname.replace(/^\/|\/$/g, '');
-    const isGenericMeta = metaDescription.length > 0 && (
+    const isGenericMeta =
+      metaDescription.length > 0 &&
       // Contains generic phrases that apply to any page
-      /transform your website|intelligent .* generator|free analysis with premium/i.test(metaDescription) ||
-      // Title is the same site-wide default (SPA symptom)
-      htmlResult.title === $('title').text().trim()
-    );
+      (/transform your website|intelligent .* generator|free analysis with premium/i.test(
+        metaDescription
+      ) ||
+        // Title is the same site-wide default (SPA symptom)
+        htmlResult.title === $('title').text().trim());
     const hasPageSpecificMeta = metaDescription.length > 30 && !isGenericMeta;
 
     // Build contextual guidance based on what information is available
@@ -458,7 +476,7 @@ Focus on technical accuracy, information density, and AI utility.`;
       'based on the available content',
       'the content sample is',
     ];
-    const hasFiller = fillerPhrases.some(phrase =>
+    const hasFiller = fillerPhrases.some((phrase) =>
       enhancedDescription.toLowerCase().includes(phrase)
     );
     if (hasFiller) {
@@ -477,11 +495,12 @@ Focus on technical accuracy, information density, and AI utility.`;
     };
   } catch (error) {
     console.error(`[AI ANALYSIS ERROR] Failed for ${url}:`, error);
-    if (error.response) {
-      console.error(`[AI ANALYSIS ERROR] Response status: ${error.response.status}`);
-      console.error(`[AI ANALYSIS ERROR] Response data:`, error.response.data);
+    const response = errorField(error, 'response');
+    if (response) {
+      console.error(`[AI ANALYSIS ERROR] Response status: ${errorField(response, 'status')}`);
+      console.error(`[AI ANALYSIS ERROR] Response data:`, errorField(response, 'data'));
     }
-    if (error.message?.includes('401')) {
+    if (errorMessage(error).includes('401')) {
       console.error(`[AI ANALYSIS ERROR] Authentication failed - check if OPENAI_API_KEY is valid`);
     }
     console.log(`[AI ANALYSIS] Falling back to HTML analysis for ${url}`);
@@ -513,7 +532,7 @@ export async function batchAnalyzeContent(
 }
 
 // Enhanced description extraction for free tier users
-function extractSmartDescription($: any, url: string, textContent: string): string {
+function extractSmartDescription($: cheerio.CheerioAPI, url: string, textContent: string): string {
   // Strategy 1: Look for introduction/summary content
   const introSelectors = [
     '.intro, .introduction, .summary, .overview, .description',
@@ -557,7 +576,7 @@ function extractSmartDescription($: any, url: string, textContent: string): stri
   return `Content from ${new URL(url).hostname}`;
 }
 
-function extractStructuredContent($: any, url: string): string | null {
+function extractStructuredContent($: cheerio.CheerioAPI, url: string): string | null {
   const urlLower = url.toLowerCase();
 
   // API documentation pages
@@ -611,7 +630,7 @@ function extractStructuredContent($: any, url: string): string | null {
   return null;
 }
 
-function analyzeContentStructure($: any, textContent: string): string | null {
+function analyzeContentStructure($: cheerio.CheerioAPI, textContent: string): string | null {
   const codeBlockCount = $('code, pre').length;
   const listItemCount = $('li').length;
   const headingCount = $('h1, h2, h3, h4, h5, h6').length;

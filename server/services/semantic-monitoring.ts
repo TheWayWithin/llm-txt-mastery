@@ -128,7 +128,7 @@ export interface DashboardMetrics {
 }
 
 class SemanticMonitoringService {
-  private redis: Redis;
+  private redis: Redis | null;
   private metricsBuffer: Map<string, any[]> = new Map();
   private flushInterval: NodeJS.Timeout;
   private alertThresholds = {
@@ -201,6 +201,7 @@ class SemanticMonitoringService {
 
       // Also update real-time Redis metrics
       const redisKey = `metrics:realtime:${key}`;
+      if (!this.redis) throw new Error('Redis client unavailable');
       await this.redis.lpush(
         redisKey,
         JSON.stringify({
@@ -397,6 +398,7 @@ class SemanticMonitoringService {
   private async updateRealtimeMetrics(entry: SemanticLogEntry): Promise<void> {
     const timestamp = new Date().toISOString();
 
+    if (!this.redis) throw new Error('Redis client unavailable');
     // Update counters
     await this.redis.hincrby(`metrics:counters:${entry.feature}`, 'total', 1);
     if (entry.status === 'success') {
@@ -464,6 +466,7 @@ class SemanticMonitoringService {
     }
 
     // Store alerts in Redis
+    if (!this.redis) throw new Error('Redis client unavailable');
     for (const alert of alerts) {
       await this.redis.lpush('semantic:alerts', JSON.stringify(alert));
       await this.redis.ltrim('semantic:alerts', 0, 49); // Keep last 50 alerts
@@ -476,6 +479,7 @@ class SemanticMonitoringService {
    */
   private async getActiveAlerts(): Promise<any[]> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       const alertStrings = await this.redis.lrange('semantic:alerts', 0, -1);
       return alertStrings
         .map((alertStr) => JSON.parse(alertStr))
@@ -634,6 +638,7 @@ class SemanticMonitoringService {
    */
   async healthCheck(): Promise<{ status: string; details: any }> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       await this.redis.ping();
 
       const recentLogs = await db

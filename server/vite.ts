@@ -70,7 +70,15 @@ export function serveStatic(app: Express) {
   // Simple static file serving - this is the original working logic
   app.use(express.static(distPath));
 
-  // SPA fallback - serve index.html for non-API routes
+  // SPA fallback - serve the app shell for non-API routes.
+  // When the build was prerendered (LTM-ISS-9), dist/public/index.html is the
+  // prerendered HOMEPAGE and the pristine shell lives at app-shell/index.html;
+  // app routes must fall back to the shell so they don't flash homepage copy.
+  const appShellPath = path.resolve(distPath, 'app-shell', 'index.html');
+  const fallbackPath = fs.existsSync(appShellPath)
+    ? appShellPath
+    : path.resolve(distPath, 'index.html');
+
   app.use('*', (req, res, next) => {
     // Don't serve index.html for API routes - let them 404 properly
     // Check both req.path and req.originalUrl to handle all cases
@@ -78,6 +86,6 @@ export function serveStatic(app: Express) {
       return next();
     }
 
-    res.sendFile(path.resolve(distPath, 'index.html'));
+    res.sendFile(fallbackPath);
   });
 }

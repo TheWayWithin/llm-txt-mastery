@@ -6,7 +6,9 @@ const API_BASE_URL = getApiBaseUrl();
 export interface AuthUser {
   id: number;
   email: string;
-  tier: 'starter' | 'solo' | 'growth' | 'scale' | 'cancelled';
+  // Mirrors StoredUserTier in @shared/schema: 'coffee' is a legacy alias for
+  // 'solo' the API can still return for pre-rename accounts.
+  tier: 'starter' | 'solo' | 'coffee' | 'growth' | 'scale' | 'cancelled';
   creditsRemaining: number;
   emailVerified: boolean;
   createdAt: string;

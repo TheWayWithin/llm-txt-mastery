@@ -9,6 +9,7 @@ import {
   DiscoveredPage,
   SelectedPage,
   UserTier,
+  StoredUserTier,
 } from '@shared/schema';
 import { fetchSitemap } from './services/sitemap';
 import { analyzeDiscoveredPagesWithCache } from './services/sitemap-enhanced';
@@ -171,7 +172,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use authenticated user information
       const userEmail = req.user!.email;
-      const tier = req.user!.tier;
+      // DB boundary: the tier column is text but only ever holds StoredUserTier values
+      const tier = req.user!.tier as StoredUserTier;
 
       // Normalize URL
       const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -187,8 +189,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (isConvertKitConfigured()) {
           try {
             let limitType: 'daily_analyses' | 'page_limit' | 'ai_limit' = 'page_limit';
-            if (usageCheck.reason.includes('daily')) limitType = 'daily_analyses';
-            if (usageCheck.reason.includes('AI')) limitType = 'ai_limit';
+            if (usageCheck.reason?.includes('daily')) limitType = 'daily_analyses';
+            if (usageCheck.reason?.includes('AI')) limitType = 'ai_limit';
 
             await triggerUpgradeSequence(userEmail, tier, limitType);
           } catch (error) {
@@ -216,7 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If force flag is not set and we have a completed analysis, return it
       if (!force && existingAnalysis && existingAnalysis.status === 'completed') {
         // Check if it's recent enough based on tier cache duration
-        const analysisAge = Date.now() - new Date(existingAnalysis.createdAt).getTime();
+        // null createdAt has always coerced to the epoch (stale -> refetch)
+        const analysisAge = Date.now() - new Date(existingAnalysis.createdAt ?? 0).getTime();
         const maxAge = TIER_LIMITS[tier].cacheDurationDays * 24 * 60 * 60 * 1000;
 
         if (analysisAge < maxAge) {
@@ -420,7 +423,7 @@ async function analyzeWebsiteEnhanced(
   analysisId: number,
   url: string,
   userEmail: string,
-  tier: UserTier
+  tier: StoredUserTier
 ) {
   try {
     const startTime = Date.now();

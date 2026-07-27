@@ -17,7 +17,7 @@ import { semanticMonitoring } from './semantic-monitoring';
 import OpenAI from 'openai';
 
 // Benchmark database table
-export const performanceBenchmarks = pgTable('performance_benchmarks', {
+export const performanceBenchmarksTable = pgTable('performance_benchmarks', {
   id: serial('id').primaryKey(),
   benchmarkSuite: text('benchmark_suite').notNull(), // 'clustering', 'embeddings', 'database', 'integration'
   benchmarkName: text('benchmark_name').notNull(),
@@ -97,7 +97,7 @@ export interface BenchmarkSuiteResult {
 }
 
 class PerformanceBenchmarkService {
-  private redis: Redis;
+  private redis: Redis | null;
   private baselineThresholds = {
     clustering: {
       maxDurationMs: 10000, // 10 seconds for 100 pages
@@ -287,22 +287,22 @@ class PerformanceBenchmarkService {
       // Run clustering benchmarks
       console.log('📊 Running clustering benchmarks...');
       const clusteringResults = await this.runClusteringBenchmarks();
-      suiteResults.push(this.analyzeSuiteResults('clustering', clusteringResults));
+      suiteResults.push(await this.analyzeSuiteResults('clustering', clusteringResults));
 
       // Run embedding benchmarks
       console.log('🧠 Running embedding benchmarks...');
       const embeddingResults = await this.runEmbeddingBenchmarks();
-      suiteResults.push(this.analyzeSuiteResults('embeddings', embeddingResults));
+      suiteResults.push(await this.analyzeSuiteResults('embeddings', embeddingResults));
 
       // Run database benchmarks
       console.log('💾 Running database benchmarks...');
       const databaseResults = await this.runDatabaseBenchmarks();
-      suiteResults.push(this.analyzeSuiteResults('database', databaseResults));
+      suiteResults.push(await this.analyzeSuiteResults('database', databaseResults));
 
       // Run integration benchmarks
       console.log('🔗 Running integration benchmarks...');
       const integrationResults = await this.runIntegrationBenchmarks();
-      suiteResults.push(this.analyzeSuiteResults('integration', integrationResults));
+      suiteResults.push(await this.analyzeSuiteResults('integration', integrationResults));
 
       console.log('✅ All benchmarks completed!');
 
@@ -389,7 +389,7 @@ class PerformanceBenchmarkService {
     );
 
     // Store benchmark result
-    await db.insert(performanceBenchmarks).values({
+    await db.insert(performanceBenchmarksTable).values({
       benchmarkSuite: suite,
       benchmarkName: name,
       environment: process.env.NODE_ENV || 'development',
@@ -915,7 +915,10 @@ class PerformanceBenchmarkService {
   /**
    * Analyze suite results and generate summary
    */
-  private analyzeSuiteResults(suite: string, results: BenchmarkResult[]): BenchmarkSuiteResult {
+  private async analyzeSuiteResults(
+    suite: string,
+    results: BenchmarkResult[]
+  ): Promise<BenchmarkSuiteResult> {
     const passedBenchmarks = results.filter((r) => r.passed).length;
     const failedBenchmarks = results.length - passedBenchmarks;
     const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
@@ -956,17 +959,17 @@ class PerformanceBenchmarkService {
 
       const historicalResults = await db
         .select({
-          benchmarkName: performanceBenchmarks.benchmarkName,
+          benchmarkName: performanceBenchmarksTable.benchmarkName,
           avgDuration: sql<number>`avg(duration)`,
           avgThroughput: sql<number>`avg(cast(throughput as decimal))`,
         })
-        .from(performanceBenchmarks)
+        .from(performanceBenchmarksTable)
         .where(
-          sql`${performanceBenchmarks.benchmarkSuite} = ${suite} 
-              AND ${performanceBenchmarks.runAt} >= ${sevenDaysAgo}
-              AND ${performanceBenchmarks.passed} = true`
+          sql`${performanceBenchmarksTable.benchmarkSuite} = ${suite} 
+              AND ${performanceBenchmarksTable.runAt} >= ${sevenDaysAgo}
+              AND ${performanceBenchmarksTable.passed} = true`
         )
-        .groupBy(performanceBenchmarks.benchmarkName);
+        .groupBy(performanceBenchmarksTable.benchmarkName);
 
       // Check for significant degradation (>20% slower or >20% lower throughput)
       for (const result of results) {
@@ -1062,6 +1065,7 @@ class PerformanceBenchmarkService {
         ),
       };
 
+      if (!this.redis) throw new Error('Redis client unavailable');
       await this.redis.setex('benchmark:latest_summary', 86400, JSON.stringify(summary)); // 24 hours
       await this.redis.lpush('benchmark:history', JSON.stringify(summary));
       await this.redis.ltrim('benchmark:history', 0, 29); // Keep last 30 runs
@@ -1075,6 +1079,7 @@ class PerformanceBenchmarkService {
    */
   async getLatestResults(): Promise<any> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       const summary = await this.redis.get('benchmark:latest_summary');
       return summary ? JSON.parse(summary) : null;
     } catch (error) {
@@ -1088,6 +1093,7 @@ class PerformanceBenchmarkService {
    */
   async getBenchmarkHistory(limit: number = 10): Promise<any[]> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       const history = await this.redis.lrange('benchmark:history', 0, limit - 1);
       return history.map((h) => JSON.parse(h));
     } catch (error) {
@@ -1101,12 +1107,13 @@ class PerformanceBenchmarkService {
    */
   async healthCheck(): Promise<{ status: string; details: any }> {
     try {
+      if (!this.redis) throw new Error('Redis client unavailable');
       await this.redis.ping();
 
       const recentBenchmarks = await db
         .select({ count: sql<number>`count(*)` })
-        .from(performanceBenchmarks)
-        .where(gte(performanceBenchmarks.runAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
+        .from(performanceBenchmarksTable)
+        .where(gte(performanceBenchmarksTable.runAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
 
       return {
         status: 'healthy',

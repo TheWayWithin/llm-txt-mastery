@@ -1,4 +1,5 @@
-import { DiscoveredPage, UserTier, SPADetectionResult } from '@shared/schema';
+import { DiscoveredPage, UserTier, StoredUserTier, SPADetectionResult } from '@shared/schema';
+import { errorMessage } from '../lib/errors';
 import {
   fetchPageContent,
   filterRelevantPages,
@@ -34,6 +35,8 @@ export interface AnalysisMetrics {
   totalTokensUsed: number;
   actualAiCostUSD: number;
   modelUsed: string;
+  // Set when checkAiCostCap reports the monthly cap would trigger
+  costCapWouldTrigger?: boolean;
   // Sprint 6: JS rendering metrics
   jsRenderedPages?: number;
   jsRenderingEnabled?: boolean;
@@ -54,7 +57,7 @@ export interface JsRenderingOptions {
 export async function analyzeDiscoveredPagesWithCache(
   entries: SitemapEntry[],
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   jsRenderingOptions?: JsRenderingOptions,
   skipCache?: boolean
 ): Promise<{ pages: DiscoveredPage[]; metrics: AnalysisMetrics }> {
@@ -72,7 +75,14 @@ export async function analyzeDiscoveredPagesWithCache(
 
   try {
     return await Promise.race([
-      performPageAnalysisWithCache(entries, userEmail, tier, jsRenderingOptions, skipCache, PAGE_ANALYSIS_TIMEOUT),
+      performPageAnalysisWithCache(
+        entries,
+        userEmail,
+        tier,
+        jsRenderingOptions,
+        skipCache,
+        PAGE_ANALYSIS_TIMEOUT
+      ),
       timeoutPromise,
     ]);
   } catch (error) {
@@ -103,7 +113,7 @@ export async function analyzeDiscoveredPagesWithCache(
 async function performPageAnalysisWithCache(
   entries: SitemapEntry[],
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   jsRenderingOptions?: JsRenderingOptions,
   skipCache?: boolean,
   timeBudgetMs?: number
@@ -113,14 +123,16 @@ async function performPageAnalysisWithCache(
 
   // Sprint 10: Auto-detect JS rendering — enabled flag comes from route-level SPA auto-detection
   // Also supports per-page auto-detection via shouldUseJsRendering() in sitemap.ts
-  const useJsRendering = tier === 'scale' && (
-    jsRenderingOptions?.enabled === true ||
-    jsRenderingOptions?.spaDetection?.framework.renderingStrategy === 'CSR' ||
-    jsRenderingOptions?.spaDetection?.framework.framework === 'angular' ||
-    (jsRenderingOptions?.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50
-  );
+  const useJsRendering =
+    tier === 'scale' &&
+    (jsRenderingOptions?.enabled === true ||
+      jsRenderingOptions?.spaDetection?.framework.renderingStrategy === 'CSR' ||
+      jsRenderingOptions?.spaDetection?.framework.framework === 'angular' ||
+      (jsRenderingOptions?.spaDetection?.contentCoverage.estimatedCoverage ?? 100) < 50);
   if (useJsRendering) {
-    console.log(`🎯 [Sprint 10] JS rendering auto-enabled for Scale tier analysis (${jsRenderingOptions?.spaDetection?.framework.framework} / ${jsRenderingOptions?.spaDetection?.framework.renderingStrategy})`);
+    console.log(
+      `🎯 [Sprint 10] JS rendering auto-enabled for Scale tier analysis (${jsRenderingOptions?.spaDetection?.framework.framework} / ${jsRenderingOptions?.spaDetection?.framework.renderingStrategy})`
+    );
   }
 
   // Enhanced logging for transparency
@@ -131,7 +143,7 @@ async function performPageAnalysisWithCache(
   console.log(`📊 Page Discovery Results for ${userEmail} (${tier} tier):`);
   console.log(`   • Found ${totalDiscovered} total pages from sitemap/crawl`);
   console.log(
-    `   • Filtered out ${filteredOut} pages (${(tier === 'solo' || tier === 'coffee') ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
+    `   • Filtered out ${filteredOut} pages (${tier === 'solo' || tier === 'coffee' ? 'assets and truly irrelevant pages only' : 'duplicates, navigation, assets, etc.'})`
   );
   console.log(`   • ${afterFiltering} pages passed filter`);
   console.log(`   • Tier limit: ${tierLimits.maxPagesPerAnalysis} pages max`);
@@ -227,9 +239,13 @@ async function performPageAnalysisWithCache(
     if (timeBudgetMs) {
       const elapsed = Date.now() - startTime;
       const budgetUsed = elapsed / timeBudgetMs;
-      if (budgetUsed >= 0.80) {
-        console.log(`⏱️ Time budget ${Math.round(budgetUsed * 100)}% used (${(elapsed / 1000).toFixed(1)}s/${(timeBudgetMs / 1000).toFixed(0)}s). Stopping to preserve ${pages.length} analyzed pages.`);
-        console.log(`   • Pages remaining: ${pagesToAnalyze.length - i} of ${pagesToAnalyze.length}`);
+      if (budgetUsed >= 0.8) {
+        console.log(
+          `⏱️ Time budget ${Math.round(budgetUsed * 100)}% used (${(elapsed / 1000).toFixed(1)}s/${(timeBudgetMs / 1000).toFixed(0)}s). Stopping to preserve ${pages.length} analyzed pages.`
+        );
+        console.log(
+          `   • Pages remaining: ${pagesToAnalyze.length - i} of ${pagesToAnalyze.length}`
+        );
         break;
       }
     }
@@ -243,7 +259,15 @@ async function performPageAnalysisWithCache(
       const batch = pagesToAnalyze.slice(batchStart, batchEnd);
 
       batchPromises.push(
-        processBatchWithCache(batch, userEmail, tier, tierLimits.aiPagesLimit, metrics, enhancedFetchOptions, skipCache)
+        processBatchWithCache(
+          batch,
+          userEmail,
+          tier,
+          tierLimits.aiPagesLimit,
+          metrics,
+          enhancedFetchOptions,
+          skipCache
+        )
       );
     }
 
@@ -369,7 +393,7 @@ async function performPageAnalysisWithCache(
 async function processBatchWithCache(
   batch: SitemapEntry[],
   userEmail: string,
-  tier: UserTier,
+  tier: StoredUserTier,
   aiPagesLimit: number,
   metrics: AnalysisMetrics,
   enhancedFetchOptions?: EnhancedFetchOptions,
@@ -452,7 +476,7 @@ async function processBatchWithCache(
 
         // Store if cap would trigger for tracking
         if (costCheck.wouldTrigger) {
-          metrics['costCapWouldTrigger'] = true;
+          metrics.costCapWouldTrigger = true;
         }
       }
 
@@ -491,7 +515,9 @@ async function processBatchWithCache(
 
       // Extract body content for llms-full.txt (Strip nav, footer, sidebar, script, style)
       const $body = cheerio.load(content);
-      $body('script, style, nav, header, footer, aside, .sidebar, .menu, .navigation, .nav, .footer, .header, noscript, iframe').remove();
+      $body(
+        'script, style, nav, header, footer, aside, .sidebar, .menu, .navigation, .nav, .footer, .header, noscript, iframe'
+      ).remove();
       const mainEl = $body('main, article, .content, #content, [role="main"]').first();
       const rawBodyText = (mainEl.length > 0 ? mainEl.text() : $body('body').text())
         .replace(/\s+/g, ' ')
@@ -514,16 +540,16 @@ async function processBatchWithCache(
       results.push({ page, success: true });
     } catch (error) {
       console.error(`🚨 ANALYSIS FAILURE for ${entry.url}:`, {
-        error: error.message,
-        stack: error.stack,
-        type: error.constructor.name,
+        error: errorMessage(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        type: error instanceof Error ? error.constructor.name : typeof error,
         url: entry.url,
         userEmail,
         tier,
       });
 
       // Skip fallback for 403 errors - server explicitly denied access, retrying won't help
-      const is403 = error.message?.includes('403');
+      const is403 = errorMessage(error).includes('403');
       if (is403) {
         console.log(`   ⛔ Skipping fallback for ${entry.url} - access denied (403)`);
         results.push({ page: null as any, success: false });
@@ -551,7 +577,7 @@ async function processBatchWithCache(
         } catch (fallbackError) {
           console.error(
             `❌ Even fallback HTML extraction failed for ${entry.url}:`,
-            fallbackError.message
+            errorMessage(fallbackError)
           );
           // Only now mark as failure - this allows real bot protection detection
           results.push({ page: null as any, success: false });

@@ -4,6 +4,7 @@
  */
 
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import { errorMessage } from '../lib/errors';
 
 // Configuration from environment
 const PROPERTY_ID = process.env.GA4_PROPERTY_ID;
@@ -37,7 +38,8 @@ export interface ContentPerformance {
 
 export interface AnalyticsInsights {
   property_id: string;
-  date_range: { start_date: string; end_date: string };
+  // Matches the shape actually assigned in generateContentInsights (GA API dateRange)
+  date_range: { startDate: string; endDate: string };
   total_pages: number;
   top_performing_pages: ContentPerformance[];
   content_gaps: string[];
@@ -118,7 +120,7 @@ if (ENABLE_ANALYTICS && PROPERTY_ID) {
   } catch (error) {
     console.warn(
       '⚠️ Google Analytics initialization failed (running without Analytics):',
-      error.message
+      errorMessage(error)
     );
     analyticsClient = null;
   }
@@ -213,9 +215,9 @@ export async function getPageAnalytics(
     cache.set(cacheKey, analytics);
     console.log(`[Analytics] Retrieved ${analytics.length} page analytics records`);
     return analytics;
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Analytics] Failed to get page analytics:', error);
-    throw new Error(`Analytics API error: ${error.message}`);
+    throw new Error(`Analytics API error: ${errorMessage(error)}`);
   }
 }
 
@@ -342,9 +344,9 @@ export async function generateContentInsights(
     cache.set(cacheKey, insights);
     console.log(`[Analytics] Generated insights for ${insights.total_pages} pages`);
     return insights;
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Analytics] Failed to generate content insights:', error);
-    throw new Error(`Analytics insights error: ${error.message}`);
+    throw new Error(`Analytics insights error: ${errorMessage(error)}`);
   }
 }
 
@@ -382,7 +384,7 @@ export async function getHighPriorityUrls(
 
     console.log(`[Analytics] Generated ${priorityUrls.length} high-priority URLs`);
     return priorityUrls;
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Analytics] Failed to get high-priority URLs:', error);
     return []; // Graceful degradation
   }
@@ -436,12 +438,12 @@ export async function testAnalyticsConnection(): Promise<{
         date_range: '7 days',
       },
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Analytics Test] Connection failed:', error);
     return {
       success: false,
       message: 'Analytics API connection failed',
-      error: error.message,
+      error: errorMessage(error),
     };
   }
 }

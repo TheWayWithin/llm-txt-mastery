@@ -8,8 +8,18 @@ import { createCoffeeCheckoutSession } from '@/lib/stripe';
 import { useState } from 'react';
 
 export function UserDashboard() {
-  const { user, userProfile, signOut, refreshProfile } = useAuth();
+  const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Legacy Supabase-era profile shape. AuthContext no longer exposes a separate
+  // profile, so this component (not routed anywhere) bails out below exactly as
+  // it always has since the auth migration.
+  const legacyProfile = (): {
+    tier: string;
+    creditsRemaining: number;
+    subscriptionStatus?: string;
+  } | null => null;
+  const userProfile = legacyProfile();
 
   if (!user || !userProfile) {
     return null;

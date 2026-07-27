@@ -6,7 +6,8 @@ import { useSEO } from '@/hooks/useSEO';
 export const PrivacyPage: React.FC = () => {
   useSEO({
     title: 'Privacy Policy - LLM.txt Mastery',
-    description: 'Privacy policy for LLM.txt Mastery. Your privacy matters - here is exactly what we do and do not do with your data.',
+    description:
+      'Privacy policy for LLM.txt Mastery. Your privacy matters - here is exactly what we do and do not do with your data.',
   });
   return (
     <div className="min-h-screen bg-cloud">
@@ -18,7 +19,7 @@ export const PrivacyPage: React.FC = () => {
             Your privacy matters. Here's exactly what we do (and don't do) with your data.
           </p>
           <p className="text-sm text-stone-brand mt-4">
-            Last updated: August 19, 2025 • GDPR Compliant
+            Last updated: <time dateTime="2025-08-19">August 19, 2025</time> • GDPR Compliant
           </p>
         </div>
 
@@ -159,7 +160,7 @@ export const PrivacyPage: React.FC = () => {
                   <br />
                   <strong>Email:</strong> support@llmtxtmastery.com
                   <br />
-                  <strong>Website:</strong> www.llmtxtmastery.com
+                  <strong>Website:</strong> llmtxtmastery.com
                 </p>
               </div>
             </div>
@@ -245,9 +246,7 @@ export const PrivacyPage: React.FC = () => {
                 </div>
 
                 <div className="bg-cloud p-4 rounded-lg border border-mist">
-                  <h3 className="font-bold text-ink mb-2">
-                    Article 16 - Right to Rectification
-                  </h3>
+                  <h3 className="font-bold text-ink mb-2">Article 16 - Right to Rectification</h3>
                   <p className="text-ink text-sm">
                     Correct any inaccurate or incomplete personal data we hold about you.
                   </p>
@@ -264,9 +263,7 @@ export const PrivacyPage: React.FC = () => {
                 </div>
 
                 <div className="bg-cloud p-4 rounded-lg border border-mist">
-                  <h3 className="font-bold text-ink mb-2">
-                    Article 18 - Right to Restriction
-                  </h3>
+                  <h3 className="font-bold text-ink mb-2">Article 18 - Right to Restriction</h3>
                   <p className="text-ink text-sm">
                     Limit how we process your data while disputes are resolved or accuracy is
                     verified.
@@ -356,7 +353,10 @@ export const PrivacyPage: React.FC = () => {
               <h2 className="text-2xl font-bold mb-4">Questions?</h2>
               <p className="text-ink">
                 If you have any privacy concerns or questions, contact me directly at{' '}
-                <a href="mailto:support@llmtxtmastery.com" className="text-signal-blue hover:underline">
+                <a
+                  href="mailto:support@llmtxtmastery.com"
+                  className="text-signal-blue hover:underline"
+                >
                   support@llmtxtmastery.com
                 </a>
                 . No support tickets, no runaround—just direct answers from the person who built

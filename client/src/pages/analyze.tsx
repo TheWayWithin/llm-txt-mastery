@@ -42,7 +42,8 @@ import { useUsageTracking } from '@/hooks/useUsageTracking';
 export default function AnalyzePage() {
   useSEO({
     title: 'Analyze Your Website - LLM.txt Mastery',
-    description: "Analyze your website's AI readiness. Discover all pages, assess content quality, and generate an optimized llms.txt file.",
+    description:
+      "Analyze your website's AI readiness. Discover all pages, assess content quality, and generate an optimized llms.txt file.",
   });
   const [, navigate] = useLocation();
   const { user, isAuthenticated, authResolved, loading: authLoading } = useAuth();
@@ -229,12 +230,15 @@ export default function AnalyzePage() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
-              <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <Link
+                href="/"
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              >
                 <img
                   src="/images/logo-primary.png"
-                    alt="LLM.txt Mastery"
-                    className="h-20 md:h-24 w-auto"
-                  />
+                  alt="LLM.txt Mastery"
+                  className="h-20 md:h-24 w-auto"
+                />
               </Link>
               <div className="flex items-center space-x-4">
                 <AuthNav />
@@ -261,12 +265,13 @@ export default function AnalyzePage() {
               </p>
               <p className="text-sm text-slate-brand mb-4">
                 Your previous analyses are still available in your{' '}
-                <Link href="/dashboard" className="text-signal-blue underline">dashboard</Link>.
+                <Link href="/dashboard" className="text-signal-blue underline">
+                  dashboard
+                </Link>
+                .
               </p>
               <Link href="/dashboard">
-                <Button className="bg-signal-blue hover:bg-[#1D4ED8]">
-                  Re-subscribe
-                </Button>
+                <Button className="bg-signal-blue hover:bg-[#1D4ED8]">Re-subscribe</Button>
               </Link>
             </div>
           )}
@@ -324,10 +329,12 @@ export default function AnalyzePage() {
                   <BarChart3 className="h-5 w-5 text-signal-blue" />
                   <div>
                     <p className="text-sm font-medium text-ink">
-                      {(user.tier === 'solo' || user.tier === 'coffee') ? 'Monthly Analyses' : "Today's Usage"}
+                      {user.tier === 'solo' || user.tier === 'coffee'
+                        ? 'Monthly Analyses'
+                        : "Today's Usage"}
                     </p>
                     <p className="text-xs text-slate-brand">
-                      {(user.tier === 'solo' || user.tier === 'coffee')
+                      {user.tier === 'solo' || user.tier === 'coffee'
                         ? `${Math.min(usageData?.creditsRemaining || 0, 20)} of 20 remaining`
                         : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || (user.tier === 'scale' ? 100 : user.tier === 'growth' ? 35 : 3)}`}
                     </p>
@@ -420,9 +427,7 @@ export default function AnalyzePage() {
               <Card className="bg-white shadow-sm border border-mist">
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-ink mb-2">
-                      Analyze Your Website
-                    </h2>
+                    <h2 className="text-2xl font-bold text-ink mb-2">Analyze Your Website</h2>
                     <p className="text-slate-brand">
                       Enter your website URL to discover pages and generate an optimized llms.txt
                       file
@@ -437,10 +442,7 @@ export default function AnalyzePage() {
                     className="space-y-4"
                   >
                     <div>
-                      <Label
-                        htmlFor="website-url"
-                        className="text-sm font-medium text-ink"
-                      >
+                      <Label htmlFor="website-url" className="text-sm font-medium text-ink">
                         Website URL
                       </Label>
                       <div className="relative mt-2">
@@ -543,9 +545,7 @@ export default function AnalyzePage() {
               <section className="mt-8">
                 <Card className="bg-white shadow-sm border border-mist">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-ink mb-4">
-                      Recent Analyses
-                    </h3>
+                    <h3 className="text-lg font-semibold text-ink mb-4">Recent Analyses</h3>
                     <div className="space-y-3">
                       {recentAnalyses.slice(0, 5).map((analysis: any) => (
                         <div
@@ -553,9 +553,7 @@ export default function AnalyzePage() {
                           className="flex items-center justify-between p-3 bg-cloud rounded-lg hover:bg-cloud transition-colors"
                         >
                           <div className="flex-1">
-                            <p className="font-medium text-ink truncate">
-                              {analysis.websiteUrl}
-                            </p>
+                            <p className="font-medium text-ink truncate">{analysis.websiteUrl}</p>
                             <p className="text-sm text-slate-brand">
                               {analysis.discoveredPages} pages •{' '}
                               {new Date(analysis.createdAt).toLocaleDateString()}

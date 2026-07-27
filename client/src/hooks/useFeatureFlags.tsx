@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
-export type FeatureFlagName = 
+export type FeatureFlagName =
   | 'clustering'
   | 'semantic_tags'
   | 'enhanced_descriptions'
@@ -34,8 +34,10 @@ export interface UseFeatureFlagsReturn {
  * Hook for accessing feature flags in React components
  */
 export function useFeatureFlags(): UseFeatureFlagsReturn {
-  const { user } = useContext(AuthContext);
-  const [flags, setFlags] = useState<Record<FeatureFlagName, boolean>>({} as Record<FeatureFlagName, boolean>);
+  const { user } = useAuth();
+  const [flags, setFlags] = useState<Record<FeatureFlagName, boolean>>(
+    {} as Record<FeatureFlagName, boolean>
+  );
   const [enabledFeatures, setEnabledFeatures] = useState<FeatureFlagName[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +51,8 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          ...(user?.id && { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` })
-        }
+          ...(user?.id && { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }),
+        },
       });
 
       if (!response.ok) {
@@ -64,7 +66,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load feature flags';
       setError(errorMessage);
       console.error('Feature flags error:', err);
-      
+
       // Set default flags for graceful degradation
       setFlags({
         clustering: false,
@@ -73,7 +75,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
         multi_sequencing: false,
         blockquote_summaries: false,
         admin_dashboard: false,
-        performance_metrics: process.env.NODE_ENV === 'development'
+        performance_metrics: process.env.NODE_ENV === 'development',
       } as Record<FeatureFlagName, boolean>);
       setEnabledFeatures([]);
     } finally {
@@ -81,9 +83,12 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
     }
   }, [user?.id]);
 
-  const isEnabled = useCallback((flag: FeatureFlagName): boolean => {
-    return flags[flag] === true;
-  }, [flags]);
+  const isEnabled = useCallback(
+    (flag: FeatureFlagName): boolean => {
+      return flags[flag] === true;
+    },
+    [flags]
+  );
 
   useEffect(() => {
     fetchFlags();
@@ -101,7 +106,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
     loading,
     error,
     refresh: fetchFlags,
-    isEnabled
+    isEnabled,
   };
 }
 
@@ -118,7 +123,7 @@ export function useFeatureFlag(flag: FeatureFlagName): {
   return {
     isEnabled: flags[flag] === true,
     loading,
-    error
+    error,
   };
 }
 
@@ -180,8 +185,8 @@ export function useFeatureFlagAdmin() {
 
       const response = await fetch('/api/admin/feature-flags', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
       });
 
       if (!response.ok) {
@@ -198,51 +203,57 @@ export function useFeatureFlagAdmin() {
     }
   }, []);
 
-  const updateFlag = useCallback(async (flagName: string, updates: any) => {
-    try {
-      const response = await fetch(`/api/admin/feature-flags/${flagName}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(updates)
-      });
+  const updateFlag = useCallback(
+    async (flagName: string, updates: any) => {
+      try {
+        const response = await fetch(`/api/admin/feature-flags/${flagName}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+          body: JSON.stringify(updates),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Failed to update flag: ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Failed to update flag: ${response.statusText}`);
+        }
+
+        await fetchAdminFlags(); // Refresh the list
+        return true;
+      } catch (err) {
+        console.error('Flag update error:', err);
+        return false;
       }
+    },
+    [fetchAdminFlags]
+  );
 
-      await fetchAdminFlags(); // Refresh the list
-      return true;
-    } catch (err) {
-      console.error('Flag update error:', err);
-      return false;
-    }
-  }, [fetchAdminFlags]);
+  const setUserOverride = useCallback(
+    async (flagName: string, userId: string, enabled: boolean) => {
+      try {
+        const response = await fetch(`/api/admin/feature-flags/${flagName}/users/${userId}`, {
+          method: enabled ? 'PUT' : 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+          body: enabled ? JSON.stringify({ enabled }) : undefined,
+        });
 
-  const setUserOverride = useCallback(async (flagName: string, userId: string, enabled: boolean) => {
-    try {
-      const response = await fetch(`/api/admin/feature-flags/${flagName}/users/${userId}`, {
-        method: enabled ? 'PUT' : 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: enabled ? JSON.stringify({ enabled }) : undefined
-      });
+        if (!response.ok) {
+          throw new Error(`Failed to set user override: ${response.statusText}`);
+        }
 
-      if (!response.ok) {
-        throw new Error(`Failed to set user override: ${response.statusText}`);
+        await fetchAdminFlags(); // Refresh the list
+        return true;
+      } catch (err) {
+        console.error('User override error:', err);
+        return false;
       }
-
-      await fetchAdminFlags(); // Refresh the list
-      return true;
-    } catch (err) {
-      console.error('User override error:', err);
-      return false;
-    }
-  }, [fetchAdminFlags]);
+    },
+    [fetchAdminFlags]
+  );
 
   return {
     flags: adminFlags,
@@ -250,6 +261,6 @@ export function useFeatureFlagAdmin() {
     error: adminError,
     refresh: fetchAdminFlags,
     updateFlag,
-    setUserOverride
+    setUserOverride,
   };
 }

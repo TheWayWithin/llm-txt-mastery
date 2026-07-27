@@ -232,10 +232,12 @@ export function useAsync<T, Args extends any[] = []>(
     }));
   }, []);
 
-  // Execute immediately if requested
+  // Execute immediately if requested. `immediate` is only meaningful for
+  // zero-argument async functions (Args = [], the default type parameter);
+  // this has always called execute with no arguments.
   useEffect(() => {
     if (immediate && latestArgsRef.current === null) {
-      execute();
+      execute(...([] as unknown as Args));
     }
   }, [immediate, execute]);
 
