@@ -1,11 +1,11 @@
 import Stripe from 'stripe';
 
-// This account/client is pinned to the 2024-06-20 API version. The SDK's types
-// only advertise the version the SDK build ships with ('2025-08-27.basil'),
-// but Stripe's API accepts any released version string at runtime — so the pin
-// is kept EXACTLY as-is via a boundary cast rather than silently changing live
-// payment behaviour. Upgrading the pin is a deliberate migration: LTM-ISS-8.
-const PINNED_STRIPE_API_VERSION = '2024-06-20' as unknown as Stripe.StripeConfig['apiVersion'];
+// Pinned to the API version this stripe-node build ships types for. The typed
+// literal (no cast) means tsc forces this pin and the SDK to move in lockstep
+// on future upgrades. Migrated from 2024-06-20 in LTM-ISS-8; the only breaking
+// release in between was 2025-03-31.basil, and every consumed field was
+// audited against it (see the LTM-ISS-8 branch summary).
+const PINNED_STRIPE_API_VERSION: Stripe.StripeConfig['apiVersion'] = '2025-08-27.basil';
 
 let stripeInstance: Stripe | null = null;
 
@@ -99,7 +99,10 @@ export async function createSubscription(
       items: [{ price: params.priceId }],
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },
-      expand: ['latest_invoice.payment_intent'],
+      // latest_invoice.payment_intent is not an expandable path on basil
+      // (invoice.payment_intent was removed in 2025-03-31.basil); expand the
+      // invoice itself and read confirmation_secret/payments as needed
+      expand: ['latest_invoice'],
       metadata: {
         userId: params.userId,
       },
