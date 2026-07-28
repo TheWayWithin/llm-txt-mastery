@@ -73,7 +73,17 @@ interface RobotsConflict {
 type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
 
 interface SPAFrameworkIndicators {
-  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'wordpress' | 'unknown';
+  framework:
+    | 'react'
+    | 'vue'
+    | 'angular'
+    | 'svelte'
+    | 'next'
+    | 'nuxt'
+    | 'gatsby'
+    | 'astro'
+    | 'wordpress'
+    | 'unknown';
   renderingStrategy: RenderingStrategy;
   indicators: string[];
 }
@@ -212,7 +222,8 @@ export default function ValidatorPage() {
 
   useSEO({
     title: 'Free llms.txt Validator - Check Your AI Readiness | LLM.txt Mastery',
-    description: 'Validate your llms.txt file for free. Check robots.txt conflicts, content quality, and framework compatibility. The only validator that catches silent AI blocking issues.',
+    description:
+      'Validate your llms.txt file for free. Check robots.txt conflicts, content quality, and framework compatibility. The only validator that catches silent AI blocking issues.',
   });
 
   const normalizeUrl = (value: string) => {
@@ -379,8 +390,12 @@ export default function ValidatorPage() {
     // Fix 1: Missing H1 title — add one if absent
     if (!/^#\s+.+/m.test(fixed)) {
       // Try to infer title from first non-empty line
-      const firstContentLine = fixed.split('\n').find(l => l.trim().length > 0);
-      if (firstContentLine && !firstContentLine.startsWith('#') && !firstContentLine.startsWith('>')) {
+      const firstContentLine = fixed.split('\n').find((l) => l.trim().length > 0);
+      if (
+        firstContentLine &&
+        !firstContentLine.startsWith('#') &&
+        !firstContentLine.startsWith('>')
+      ) {
         fixed = `# ${firstContentLine.trim()}\n\n${fixed}`;
         changes.push('Added missing H1 title from first content line');
       } else if (!firstContentLine?.startsWith('#')) {
@@ -394,18 +409,26 @@ export default function ValidatorPage() {
     if (h1Match && !/^>\s+.+/m.test(fixed)) {
       const h1Index = fixed.indexOf(h1Match[0]);
       const afterH1 = h1Index + h1Match[0].length;
-      fixed = fixed.slice(0, afterH1) + '\n\n> A brief description of this website and its purpose.\n' + fixed.slice(afterH1);
+      fixed =
+        fixed.slice(0, afterH1) +
+        '\n\n> A brief description of this website and its purpose.\n' +
+        fixed.slice(afterH1);
       changes.push('Added placeholder blockquote description (edit to describe your site)');
     }
 
     // Fix 3: Malformed list items — fix common patterns
     // Fix "- URL" without brackets → "- [URL](URL)"
     const lines = fixed.split('\n');
-    const fixedLines = lines.map(line => {
+    const fixedLines = lines.map((line) => {
       const plainUrlItem = line.match(/^(\s*)-\s+(https?:\/\/\S+)$/);
       if (plainUrlItem) {
         const [, indent, itemUrl] = plainUrlItem;
-        const pageName = itemUrl.replace(/https?:\/\//, '').split('/').filter(Boolean).pop() || 'Page';
+        const pageName =
+          itemUrl
+            .replace(/https?:\/\//, '')
+            .split('/')
+            .filter(Boolean)
+            .pop() || 'Page';
         changes.push(`Fixed malformed list item: plain URL → linked format`);
         return `${indent}- [${pageName}](${itemUrl}): Description needed`;
       }
@@ -446,24 +469,28 @@ export default function ValidatorPage() {
     if (score >= 90) {
       return {
         headline: 'Great Score! Now Generate the Perfect File.',
-        description: 'Your llms.txt is well-structured. Take the next step — let our AI analyzer generate a comprehensive, quality-scored llms.txt that ensures AI systems cite your best content.',
+        description:
+          'Your llms.txt is well-structured. Take the next step — let our AI analyzer generate a comprehensive, quality-scored llms.txt that ensures AI systems cite your best content.',
         ctaText: 'Generate Your llms.txt File',
-        urgency: 'You\'re ahead of 90% of websites. Lock in your advantage.',
+        urgency: "You're ahead of 90% of websites. Lock in your advantage.",
       };
     }
     if (score >= 75) {
       return {
-        headline: 'Good Start — Let\'s Make It Great.',
-        description: 'You\'re close! Our AI-powered generator will fix the remaining issues and create a file optimized for maximum AI visibility.',
+        headline: "Good Start — Let's Make It Great.",
+        description:
+          "You're close! Our AI-powered generator will fix the remaining issues and create a file optimized for maximum AI visibility.",
         ctaText: 'Fix & Generate Automatically',
         urgency: 'Most sites score below 50. A few improvements could set you apart.',
       };
     }
     return {
       headline: 'Issues Found — We Can Fix This Automatically.',
-      description: 'Don\'t worry — our AI-powered analyzer will scan your entire site, prioritize your best content by quality, and generate a perfect llms.txt file.',
-      ctaText: 'Fix My Site\'s AI Visibility',
-      urgency: 'Without a proper llms.txt, AI systems like ChatGPT and Claude can\'t find your content.',
+      description:
+        "Don't worry — our AI-powered analyzer will scan your entire site, prioritize your best content by quality, and generate a perfect llms.txt file.",
+      ctaText: "Fix My Site's AI Visibility",
+      urgency:
+        "Without a proper llms.txt, AI systems like ChatGPT and Claude can't find your content.",
     };
   };
 
@@ -473,7 +500,7 @@ export default function ValidatorPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" asChild>
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <img
                   src="/images/logo-primary.png"
@@ -494,16 +521,17 @@ export default function ValidatorPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
           <div className="inline-flex items-center justify-center px-4 py-2 bg-signal-blue/10 border border-signal-blue/30 rounded-full mb-6">
             <Shield className="h-4 w-4 text-signal-blue mr-2" />
-            <span className="text-sm font-semibold text-signal-blue">100% Free — No Sign-up Required</span>
+            <span className="text-sm font-semibold text-signal-blue">
+              100% Free — No Sign-up Required
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink mb-4">
-            Is Your Website Visible to{' '}
-            <span className="text-signal-blue">AI Search?</span>
+            Is Your Website Visible to <span className="text-signal-blue">AI Search?</span>
           </h1>
           <p className="text-lg text-slate-brand max-w-2xl mx-auto mb-6">
-            ChatGPT, Claude, and Perplexity are crawling websites right now. Validate your llms.txt file
-            in seconds — and find out if AI can actually discover your content.
+            ChatGPT, Claude, and Perplexity are crawling websites right now. Validate your llms.txt
+            file in seconds — and find out if AI can actually discover your content.
           </p>
 
           {/* Trust Signals */}
@@ -543,8 +571,9 @@ export default function ValidatorPage() {
           <Alert className="mb-6 bg-signal-blue/10 border-signal-blue">
             <Info className="h-4 w-4 text-signal-blue" />
             <AlertDescription className="text-ink">
-              Free validation: 3 checks per day. Need unlimited validations + AI-powered llms.txt generation?{' '}
-              <Link href="/pricing">
+              Free validation: 3 checks per day. Need unlimited validations + AI-powered llms.txt
+              generation?{' '}
+              <Link href="/pricing" asChild>
                 <a className="font-semibold text-signal-blue hover:underline">
                   See plans from $4.95/mo
                 </a>
@@ -593,8 +622,8 @@ export default function ValidatorPage() {
                       ? `${normalizeUrl(url)} at all standard locations`
                       : `${normalizeUrl(url)}${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`
                     : fileType === 'auto'
-                    ? 'your-site.com at all standard locations'
-                    : `your-site.com${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`}
+                      ? 'your-site.com at all standard locations'
+                      : `your-site.com${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`}
                 </p>
               </div>
 
@@ -603,7 +632,10 @@ export default function ValidatorPage() {
                 <Label htmlFor="file-type" className="text-sm font-medium text-ink">
                   File Location
                 </Label>
-                <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
+                <Select
+                  value={fileType}
+                  onValueChange={(value) => setFileType(value as LlmsTxtFileType)}
+                >
                   <SelectTrigger className="mt-2 border-mist focus:ring-signal-blue">
                     <SelectValue placeholder="Select file type" />
                   </SelectTrigger>
@@ -716,9 +748,7 @@ export default function ValidatorPage() {
                             fileResult.found ? 'text-success' : 'text-slate-400'
                           }`}
                         />
-                        <span className="text-sm font-medium text-ink">
-                          {fileResult.fileType}
-                        </span>
+                        <span className="text-sm font-medium text-ink">{fileResult.fileType}</span>
                       </div>
                       <p className="text-xs text-slate-brand mb-2">{fileResult.path}</p>
                       {fileResult.found && fileResult.result ? (
@@ -802,9 +832,7 @@ export default function ValidatorPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-ink mb-1">
-                      Validation Score
-                    </h2>
+                    <h2 className="text-2xl font-bold text-ink mb-1">Validation Score</h2>
                     <p className="text-sm text-slate-brand">
                       {validationResult.valid ? (
                         <span className="flex items-center text-success">
@@ -822,18 +850,25 @@ export default function ValidatorPage() {
                   <div className="flex items-center gap-4">
                     {/* Sprint 12: Compliance Grade Badge */}
                     {validationResult.compliance && (
-                      <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl font-bold text-3xl text-white ${
-                        validationResult.compliance.grade === 'A' ? 'bg-emerald-500' :
-                        validationResult.compliance.grade === 'B' ? 'bg-blue-500' :
-                        validationResult.compliance.grade === 'C' ? 'bg-amber-500' :
-                        'bg-red-500'
-                      }`}>
+                      <div
+                        className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl font-bold text-3xl text-white ${
+                          validationResult.compliance.grade === 'A'
+                            ? 'bg-emerald-500'
+                            : validationResult.compliance.grade === 'B'
+                              ? 'bg-blue-500'
+                              : validationResult.compliance.grade === 'C'
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                        }`}
+                      >
                         {validationResult.compliance.grade}
                         <span className="text-[10px] font-normal -mt-1 opacity-80">grade</span>
                       </div>
                     )}
                     <div className="text-right">
-                      <div className={`text-6xl font-bold ${getScoreColor(validationResult.score)}`}>
+                      <div
+                        className={`text-6xl font-bold ${getScoreColor(validationResult.score)}`}
+                      >
                         {validationResult.score}
                       </div>
                       <div className="text-sm text-slate-brand">out of 100</div>
@@ -879,7 +914,8 @@ export default function ValidatorPage() {
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-ink mb-4 flex items-center">
                     <Shield className="h-5 w-5 mr-2 text-signal-blue" />
-                    Spec Compliance — Grade {validationResult.compliance.grade} ({validationResult.compliance.score}%)
+                    Spec Compliance — Grade {validationResult.compliance.grade} (
+                    {validationResult.compliance.score}%)
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -887,16 +923,31 @@ export default function ValidatorPage() {
                     <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-ink">Spec Structure</span>
-                        <span className={`text-sm font-bold ${
-                          validationResult.compliance.sections.specStructure.score >= 80 ? 'text-emerald-600' :
-                          validationResult.compliance.sections.specStructure.score >= 60 ? 'text-amber-600' : 'text-red-600'
-                        }`}>{validationResult.compliance.sections.specStructure.score}%</span>
+                        <span
+                          className={`text-sm font-bold ${
+                            validationResult.compliance.sections.specStructure.score >= 80
+                              ? 'text-emerald-600'
+                              : validationResult.compliance.sections.specStructure.score >= 60
+                                ? 'text-amber-600'
+                                : 'text-red-600'
+                          }`}
+                        >
+                          {validationResult.compliance.sections.specStructure.score}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                        <div className={`h-2 rounded-full ${
-                          validationResult.compliance.sections.specStructure.score >= 80 ? 'bg-emerald-500' :
-                          validationResult.compliance.sections.specStructure.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                        }`} style={{ width: `${validationResult.compliance.sections.specStructure.score}%` }} />
+                        <div
+                          className={`h-2 rounded-full ${
+                            validationResult.compliance.sections.specStructure.score >= 80
+                              ? 'bg-emerald-500'
+                              : validationResult.compliance.sections.specStructure.score >= 60
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                          }`}
+                          style={{
+                            width: `${validationResult.compliance.sections.specStructure.score}%`,
+                          }}
+                        />
                       </div>
                       {validationResult.compliance.sections.specStructure.passed.map((p, i) => (
                         <p key={i} className="text-xs text-emerald-700 flex items-center gap-1">
@@ -914,43 +965,75 @@ export default function ValidatorPage() {
                     <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-ink">Content Quality</span>
-                        <span className={`text-sm font-bold ${
-                          validationResult.compliance.sections.contentQuality.score >= 80 ? 'text-emerald-600' :
-                          validationResult.compliance.sections.contentQuality.score >= 60 ? 'text-amber-600' : 'text-red-600'
-                        }`}>{validationResult.compliance.sections.contentQuality.score}%</span>
+                        <span
+                          className={`text-sm font-bold ${
+                            validationResult.compliance.sections.contentQuality.score >= 80
+                              ? 'text-emerald-600'
+                              : validationResult.compliance.sections.contentQuality.score >= 60
+                                ? 'text-amber-600'
+                                : 'text-red-600'
+                          }`}
+                        >
+                          {validationResult.compliance.sections.contentQuality.score}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                        <div className={`h-2 rounded-full ${
-                          validationResult.compliance.sections.contentQuality.score >= 80 ? 'bg-emerald-500' :
-                          validationResult.compliance.sections.contentQuality.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                        }`} style={{ width: `${validationResult.compliance.sections.contentQuality.score}%` }} />
+                        <div
+                          className={`h-2 rounded-full ${
+                            validationResult.compliance.sections.contentQuality.score >= 80
+                              ? 'bg-emerald-500'
+                              : validationResult.compliance.sections.contentQuality.score >= 60
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                          }`}
+                          style={{
+                            width: `${validationResult.compliance.sections.contentQuality.score}%`,
+                          }}
+                        />
                       </div>
                       {validationResult.compliance.sections.contentQuality.passed.map((p, i) => (
                         <p key={i} className="text-xs text-emerald-700 flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" /> {p}
                         </p>
                       ))}
-                      {validationResult.compliance.sections.contentQuality.issues.map((issue, i) => (
-                        <p key={i} className="text-xs text-red-600 flex items-center gap-1">
-                          <XCircle className="h-3 w-3" /> {issue}
-                        </p>
-                      ))}
+                      {validationResult.compliance.sections.contentQuality.issues.map(
+                        (issue, i) => (
+                          <p key={i} className="text-xs text-red-600 flex items-center gap-1">
+                            <XCircle className="h-3 w-3" /> {issue}
+                          </p>
+                        )
+                      )}
                     </div>
 
                     {/* Freshness */}
                     <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-ink">Freshness</span>
-                        <span className={`text-sm font-bold ${
-                          validationResult.compliance.sections.freshness.score >= 80 ? 'text-emerald-600' :
-                          validationResult.compliance.sections.freshness.score >= 60 ? 'text-amber-600' : 'text-red-600'
-                        }`}>{validationResult.compliance.sections.freshness.score}%</span>
+                        <span
+                          className={`text-sm font-bold ${
+                            validationResult.compliance.sections.freshness.score >= 80
+                              ? 'text-emerald-600'
+                              : validationResult.compliance.sections.freshness.score >= 60
+                                ? 'text-amber-600'
+                                : 'text-red-600'
+                          }`}
+                        >
+                          {validationResult.compliance.sections.freshness.score}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                        <div className={`h-2 rounded-full ${
-                          validationResult.compliance.sections.freshness.score >= 80 ? 'bg-emerald-500' :
-                          validationResult.compliance.sections.freshness.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                        }`} style={{ width: `${validationResult.compliance.sections.freshness.score}%` }} />
+                        <div
+                          className={`h-2 rounded-full ${
+                            validationResult.compliance.sections.freshness.score >= 80
+                              ? 'bg-emerald-500'
+                              : validationResult.compliance.sections.freshness.score >= 60
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                          }`}
+                          style={{
+                            width: `${validationResult.compliance.sections.freshness.score}%`,
+                          }}
+                        />
                       </div>
                       {validationResult.compliance.sections.freshness.passed.map((p, i) => (
                         <p key={i} className="text-xs text-emerald-700 flex items-center gap-1">
@@ -959,11 +1042,14 @@ export default function ValidatorPage() {
                       ))}
                       {validationResult.compliance.sections.freshness.staleEntries.length > 0 && (
                         <div className="mt-1">
-                          {validationResult.compliance.sections.freshness.staleEntries.map((entry, i) => (
-                            <p key={i} className="text-xs text-red-600 flex items-center gap-1">
-                              <XCircle className="h-3 w-3" /> {entry.url.substring(0, 50)}... — {entry.details}
-                            </p>
-                          ))}
+                          {validationResult.compliance.sections.freshness.staleEntries.map(
+                            (entry, i) => (
+                              <p key={i} className="text-xs text-red-600 flex items-center gap-1">
+                                <XCircle className="h-3 w-3" /> {entry.url.substring(0, 50)}... —{' '}
+                                {entry.details}
+                              </p>
+                            )
+                          )}
                         </div>
                       )}
                     </div>
@@ -972,19 +1058,36 @@ export default function ValidatorPage() {
                     <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-ink">Size & Tokens</span>
-                        <span className={`text-sm font-bold ${
-                          validationResult.compliance.sections.sizeOptimization.score >= 80 ? 'text-emerald-600' :
-                          validationResult.compliance.sections.sizeOptimization.score >= 60 ? 'text-amber-600' : 'text-red-600'
-                        }`}>{validationResult.compliance.sections.sizeOptimization.score}%</span>
+                        <span
+                          className={`text-sm font-bold ${
+                            validationResult.compliance.sections.sizeOptimization.score >= 80
+                              ? 'text-emerald-600'
+                              : validationResult.compliance.sections.sizeOptimization.score >= 60
+                                ? 'text-amber-600'
+                                : 'text-red-600'
+                          }`}
+                        >
+                          {validationResult.compliance.sections.sizeOptimization.score}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                        <div className={`h-2 rounded-full ${
-                          validationResult.compliance.sections.sizeOptimization.score >= 80 ? 'bg-emerald-500' :
-                          validationResult.compliance.sections.sizeOptimization.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                        }`} style={{ width: `${validationResult.compliance.sections.sizeOptimization.score}%` }} />
+                        <div
+                          className={`h-2 rounded-full ${
+                            validationResult.compliance.sections.sizeOptimization.score >= 80
+                              ? 'bg-emerald-500'
+                              : validationResult.compliance.sections.sizeOptimization.score >= 60
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                          }`}
+                          style={{
+                            width: `${validationResult.compliance.sections.sizeOptimization.score}%`,
+                          }}
+                        />
                       </div>
                       <p className="text-xs text-slate-brand mb-1">
-                        ~{validationResult.compliance.sections.sizeOptimization.tokenCount.toLocaleString()} tokens
+                        ~
+                        {validationResult.compliance.sections.sizeOptimization.tokenCount.toLocaleString()}{' '}
+                        tokens
                       </p>
                       <p className="text-xs text-slate-brand">
                         {validationResult.compliance.sections.sizeOptimization.recommendation}
@@ -1003,9 +1106,13 @@ export default function ValidatorPage() {
                   {/* Compliance recommendations */}
                   {validationResult.compliance.recommendations.length > 0 && (
                     <div className="mt-4 p-3 bg-amber-50 rounded-lg">
-                      <p className="text-xs font-semibold text-amber-800 mb-1">Recommendations to improve grade:</p>
+                      <p className="text-xs font-semibold text-amber-800 mb-1">
+                        Recommendations to improve grade:
+                      </p>
                       {validationResult.compliance.recommendations.map((rec, i) => (
-                        <p key={i} className="text-xs text-amber-700 ml-2">• {rec}</p>
+                        <p key={i} className="text-xs text-amber-700 ml-2">
+                          • {rec}
+                        </p>
                       ))}
                     </div>
                   )}
@@ -1027,11 +1134,11 @@ export default function ValidatorPage() {
                         key={index}
                         className="flex items-start space-x-3 p-3 bg-cloud rounded-lg"
                       >
-                        <div className="flex-shrink-0 mt-0.5">{getSeverityIcon(issue.severity)}</div>
+                        <div className="flex-shrink-0 mt-0.5">
+                          {getSeverityIcon(issue.severity)}
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-ink">
-                            {issue.message}
-                          </p>
+                          <p className="text-sm font-medium text-ink">{issue.message}</p>
                           {issue.suggestion && (
                             <p className="text-sm text-slate-brand mt-1 flex items-start">
                               <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5 text-signal-blue" />
@@ -1056,7 +1163,8 @@ export default function ValidatorPage() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-ink flex items-center">
                       <Wrench className="h-5 w-5 mr-2 text-signal-blue" />
-                      Quick Fix ({quickFixResult.changes.length} issue{quickFixResult.changes.length !== 1 ? 's' : ''})
+                      Quick Fix ({quickFixResult.changes.length} issue
+                      {quickFixResult.changes.length !== 1 ? 's' : ''})
                     </h3>
                     <Button
                       onClick={() => setShowQuickFix(!showQuickFix)}
@@ -1068,7 +1176,8 @@ export default function ValidatorPage() {
                   </div>
 
                   <p className="text-sm text-slate-brand mb-3">
-                    We detected formatting issues that can be auto-corrected. Review the changes and download the fixed file.
+                    We detected formatting issues that can be auto-corrected. Review the changes and
+                    download the fixed file.
                   </p>
 
                   {/* Changes list */}
@@ -1085,7 +1194,9 @@ export default function ValidatorPage() {
                   {showQuickFix && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <h4 className="text-sm font-semibold text-red-600 mb-2">Before (Original)</h4>
+                        <h4 className="text-sm font-semibold text-red-600 mb-2">
+                          Before (Original)
+                        </h4>
                         <div className="bg-red-50 border border-red-200 rounded-lg p-3 max-h-64 overflow-y-auto">
                           <pre className="text-xs font-mono whitespace-pre-wrap text-red-900">
                             {validationResult.rawContent.slice(0, 2000)}
@@ -1094,7 +1205,9 @@ export default function ValidatorPage() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-emerald-600 mb-2">After (Fixed)</h4>
+                        <h4 className="text-sm font-semibold text-emerald-600 mb-2">
+                          After (Fixed)
+                        </h4>
                         <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 max-h-64 overflow-y-auto">
                           <pre className="text-xs font-mono whitespace-pre-wrap text-emerald-900">
                             {quickFixResult.fixed.slice(0, 2000)}
@@ -1157,9 +1270,7 @@ export default function ValidatorPage() {
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-semibold text-ink">
-                              {rec.title}
-                            </p>
+                            <p className="text-sm font-semibold text-ink">{rec.title}</p>
                             {getPriorityBadge(rec.priority)}
                           </div>
                           <p className="text-sm text-slate-brand mb-3">{rec.description}</p>
@@ -1240,25 +1351,34 @@ export default function ValidatorPage() {
                         <span className="text-sm font-medium text-slate-brand">Rendering</span>
                       </div>
                       <p className="text-lg font-semibold text-ink">
-                        {validationResult.spaDetection.framework.renderingStrategy === 'SSR' && 'Server-Side'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'SSG' && 'Static (SSG)'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'CSR' && 'Client-Side'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'HYBRID' && 'Hybrid'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' && 'Traditional'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'SSR' &&
+                          'Server-Side'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'SSG' &&
+                          'Static (SSG)'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'CSR' &&
+                          'Client-Side'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'HYBRID' &&
+                          'Hybrid'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' &&
+                          'Traditional'}
                       </p>
                     </div>
                     <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="h-4 w-4 text-signal-blue" />
-                        <span className="text-sm font-medium text-slate-brand">Content Coverage</span>
+                        <span className="text-sm font-medium text-slate-brand">
+                          Content Coverage
+                        </span>
                       </div>
-                      <p className={`text-lg font-semibold ${
-                        validationResult.spaDetection.contentCoverage.estimatedCoverage >= 70
-                          ? 'text-success'
-                          : validationResult.spaDetection.contentCoverage.estimatedCoverage >= 40
-                          ? 'text-action-amber'
-                          : 'text-error'
-                      }`}>
+                      <p
+                        className={`text-lg font-semibold ${
+                          validationResult.spaDetection.contentCoverage.estimatedCoverage >= 70
+                            ? 'text-success'
+                            : validationResult.spaDetection.contentCoverage.estimatedCoverage >= 40
+                              ? 'text-action-amber'
+                              : 'text-error'
+                        }`}
+                      >
                         {validationResult.spaDetection.contentCoverage.estimatedCoverage}%
                         <span className="text-xs text-slate-brand ml-1">
                           ({validationResult.spaDetection.contentCoverage.confidence})
@@ -1314,15 +1434,17 @@ export default function ValidatorPage() {
                       <p className="text-xs text-slate-brand">Words</p>
                     </div>
                     <div className="p-4 bg-cloud rounded-lg text-center">
-                      <p className={`text-2xl font-bold ${
-                        validationResult.contentDepth.depthScore >= 80
-                          ? 'text-success'
-                          : validationResult.contentDepth.depthScore >= 55
-                          ? 'text-signal-blue'
-                          : validationResult.contentDepth.depthScore >= 30
-                          ? 'text-action-amber'
-                          : 'text-error'
-                      }`}>
+                      <p
+                        className={`text-2xl font-bold ${
+                          validationResult.contentDepth.depthScore >= 80
+                            ? 'text-success'
+                            : validationResult.contentDepth.depthScore >= 55
+                              ? 'text-signal-blue'
+                              : validationResult.contentDepth.depthScore >= 30
+                                ? 'text-action-amber'
+                                : 'text-error'
+                        }`}
+                      >
                         {validationResult.contentDepth.depthScore}
                       </p>
                       <p className="text-xs text-slate-brand">Depth Score</p>
@@ -1331,15 +1453,17 @@ export default function ValidatorPage() {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-mist">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-slate-brand">Content Level:</span>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        validationResult.contentDepth.depthLevel === 'comprehensive'
-                          ? 'bg-success/10 text-ink'
-                          : validationResult.contentDepth.depthLevel === 'good'
-                          ? 'bg-signal-blue/10 text-mastery-blue'
-                          : validationResult.contentDepth.depthLevel === 'basic'
-                          ? 'bg-action-amber/10 text-ink'
-                          : 'bg-error/10 text-error'
-                      }`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          validationResult.contentDepth.depthLevel === 'comprehensive'
+                            ? 'bg-success/10 text-ink'
+                            : validationResult.contentDepth.depthLevel === 'good'
+                              ? 'bg-signal-blue/10 text-mastery-blue'
+                              : validationResult.contentDepth.depthLevel === 'basic'
+                                ? 'bg-action-amber/10 text-ink'
+                                : 'bg-error/10 text-error'
+                        }`}
+                      >
                         {validationResult.contentDepth.depthLevel.charAt(0).toUpperCase() +
                           validationResult.contentDepth.depthLevel.slice(1)}
                       </span>
@@ -1403,7 +1527,7 @@ export default function ValidatorPage() {
                         {cta.ctaText}
                         <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
-                      <Link href="/pricing">
+                      <Link href="/pricing" asChild>
                         <a>
                           <Button
                             size="lg"
@@ -1416,8 +1540,12 @@ export default function ValidatorPage() {
                       </Link>
                     </div>
                     <div className="flex items-center justify-center gap-4 mt-6 text-sm text-white/70">
-                      <span className="flex items-center"><CheckCircle className="h-4 w-4 mr-1" /> Free tier available</span>
-                      <span className="flex items-center"><Shield className="h-4 w-4 mr-1" /> 30-day money-back</span>
+                      <span className="flex items-center">
+                        <CheckCircle className="h-4 w-4 mr-1" /> Free tier available
+                      </span>
+                      <span className="flex items-center">
+                        <Shield className="h-4 w-4 mr-1" /> 30-day money-back
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -1502,28 +1630,36 @@ export default function ValidatorPage() {
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">robots.txt conflict detection</span>
-                          <span className="text-xs block text-success">Catches silent blocking issues</span>
+                          <span className="text-xs block text-success">
+                            Catches silent blocking issues
+                          </span>
                         </div>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">Content quality scoring</span>
-                          <span className="text-xs block text-success">Not just format — actual quality</span>
+                          <span className="text-xs block text-success">
+                            Not just format — actual quality
+                          </span>
                         </div>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">15+ framework detection</span>
-                          <span className="text-xs block text-success">React, Next.js, Vue, Angular, Astro...</span>
+                          <span className="text-xs block text-success">
+                            React, Next.js, Vue, Angular, Astro...
+                          </span>
                         </div>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
                         <div>
                           <span className="font-medium">All 4 file locations</span>
-                          <span className="text-xs block text-success">llms.txt, llms-full.txt, .well-known/, llms.md</span>
+                          <span className="text-xs block text-success">
+                            llms.txt, llms-full.txt, .well-known/, llms.md
+                          </span>
                         </div>
                       </li>
                     </ul>
@@ -1555,11 +1691,7 @@ export default function ValidatorPage() {
             </section>
 
             {/* Pricing Preview */}
-            <PricingPreview
-              highlightTier="growth"
-              showAllTiers={true}
-              className="mb-8"
-            />
+            <PricingPreview highlightTier="growth" showAllTiers={true} className="mb-8" />
 
             {/* Trust Badges */}
             <section className="mb-8">
@@ -1578,14 +1710,20 @@ export default function ValidatorPage() {
                     <div>
                       <h4 className="font-medium text-ink mb-2">AI Search is Here</h4>
                       <p className="text-sm text-slate-brand">
-                        ChatGPT, Claude, and Perplexity are replacing traditional search for millions of users. If they can't find your content, you're invisible.
+                        ChatGPT, Claude, and Perplexity are replacing traditional search for
+                        millions of users. If they can't find your content, you're invisible.
                       </p>
                     </div>
                     <div>
                       <h4 className="font-medium text-ink mb-2">llms.txt is the Standard</h4>
                       <p className="text-sm text-slate-brand">
                         The{' '}
-                        <a href="https://llmstxt.org" target="_blank" rel="noopener noreferrer" className="text-signal-blue hover:underline">
+                        <a
+                          href="https://llmstxt.org"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-signal-blue hover:underline"
+                        >
                           llmstxt.org specification
                         </a>{' '}
                         tells AI systems exactly what your site offers and which pages matter most.
@@ -1594,7 +1732,8 @@ export default function ValidatorPage() {
                     <div>
                       <h4 className="font-medium text-ink mb-2">Early Adopter Advantage</h4>
                       <p className="text-sm text-slate-brand">
-                        Less than 1% of websites have a proper llms.txt file. Set yours up now and be discoverable before your competitors.
+                        Less than 1% of websites have a proper llms.txt file. Set yours up now and
+                        be discoverable before your competitors.
                       </p>
                     </div>
                   </div>
@@ -1604,9 +1743,7 @@ export default function ValidatorPage() {
 
             {/* Final CTA */}
             <div className="text-center mb-8">
-              <p className="text-slate-brand mb-4">
-                Ready to make your website AI-discoverable?
-              </p>
+              <p className="text-slate-brand mb-4">Ready to make your website AI-discoverable?</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Button
                   size="lg"
@@ -1639,11 +1776,7 @@ export default function ValidatorPage() {
         {/* Post-results: Additional conversion content */}
         {validationResult && (
           <section className="mt-8 mb-8">
-            <PricingPreview
-              highlightTier="growth"
-              showAllTiers={true}
-              className="mb-8"
-            />
+            <PricingPreview highlightTier="growth" showAllTiers={true} className="mb-8" />
           </section>
         )}
       </main>

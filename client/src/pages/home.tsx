@@ -157,11 +157,13 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Link href="/">
+                <Link href="/" asChild>
                   <a>
                     <img
                       src="/images/logo-primary.png"
                       alt="LLM.txt Mastery"
+                      width={300}
+                      height={200}
                       className="h-12 md:h-14 w-auto brightness-0 invert"
                     />
                   </a>
@@ -184,7 +186,7 @@ export default function Home() {
                     >
                       Pricing
                     </a>
-                    <Link href="/validator">
+                    <Link href="/validator" asChild>
                       <a className="text-sm text-white/80 hover:text-white transition-colors">
                         Validator
                       </a>
@@ -251,7 +253,7 @@ export default function Home() {
                 >
                   Pricing
                 </a>
-                <Link href="/validator">
+                <Link href="/validator" asChild>
                   <a
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-lg text-white min-h-[44px] flex items-center px-4"
@@ -259,7 +261,7 @@ export default function Home() {
                     Validator
                   </a>
                 </Link>
-                <Link href="/login">
+                <Link href="/login" asChild>
                   <a
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-lg text-white min-h-[44px] flex items-center px-4"
@@ -355,7 +357,7 @@ export default function Home() {
                         : `Your ${getTierDisplayName(user.tier)} tier gives you unlimited access to premium features.`}
                   </p>
                   <div className="flex items-center justify-center space-x-4">
-                    <Link href="/dashboard">
+                    <Link href="/dashboard" asChild>
                       <a>
                         <Button
                           variant="outline"

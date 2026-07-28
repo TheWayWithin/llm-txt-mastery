@@ -9,6 +9,10 @@ interface OptimizedImageProps {
   sizes?: string;
   // Set to true for small logos/icons that don't have responsive sizes
   singleSize?: boolean;
+  // Intrinsic dimensions: lets the browser reserve the box via aspect-ratio
+  // before the file arrives, preventing layout shift (LTM-ISS-13)
+  width?: number;
+  height?: number;
 }
 
 // Small logos and icons that don't have responsive sizes
@@ -27,15 +31,20 @@ export function OptimizedImage({
   loading = 'lazy',
   sizes = '100vw',
   singleSize,
+  width,
+  height,
 }: OptimizedImageProps) {
   // Extract base name and extension
-  const filename = src.split('/').pop()?.replace(/\.png$/, '') || '';
+  const filename =
+    src
+      .split('/')
+      .pop()
+      ?.replace(/\.png$/, '') || '';
   const basename = src.replace(/\.png$/, '').replace('/images/', '/images/optimized/');
 
   // Auto-detect if this is a single-size image
-  const isSingleSize = singleSize !== undefined
-    ? singleSize
-    : SINGLE_SIZE_IMAGES.includes(filename);
+  const isSingleSize =
+    singleSize !== undefined ? singleSize : SINGLE_SIZE_IMAGES.includes(filename);
 
   // For single-size images (logos, small icons)
   if (isSingleSize) {
@@ -48,6 +57,8 @@ export function OptimizedImage({
           alt={alt}
           className={className}
           loading={loading}
+          width={width}
+          height={height}
         />
       </picture>
     );
@@ -90,6 +101,8 @@ export function OptimizedImage({
         alt={alt}
         className={className}
         loading={loading}
+        width={width}
+        height={height}
       />
     </picture>
   );

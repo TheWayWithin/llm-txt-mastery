@@ -13,10 +13,12 @@ export default function HeroSection({ user }: HeroSectionProps) {
     <section className="bg-white py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink mb-4 max-w-[680px] mx-auto">
-          AI assistants are answering questions about your industry right now. Is your site part of the conversation?
+          AI assistants are answering questions about your industry right now. Is your site part of
+          the conversation?
         </h1>
         <p className="text-base sm:text-lg text-slate-brand mb-6 max-w-2xl mx-auto">
-          LLM.txt Mastery generates a quality-scored file that tells AI models exactly how to cite and recommend your business. See where you stand in 60 seconds.
+          LLM.txt Mastery generates a quality-scored file that tells AI models exactly how to cite
+          and recommend your business. See where you stand in 60 seconds.
         </p>
 
         {/* Moat Badges */}
@@ -30,7 +32,10 @@ export default function HeroSection({ user }: HeroSectionProps) {
               'All 4 File Locations',
               '47+ Updates in 2025',
             ].map((label) => (
-              <div key={label} className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-mist">
+              <div
+                key={label}
+                className="flex items-center justify-center space-x-2 bg-white rounded-md px-3 py-2 border border-mist"
+              >
                 <Check className="h-4 w-4 text-clarity-teal flex-shrink-0" />
                 <span className="text-ink">{label}</span>
               </div>
@@ -43,9 +48,11 @@ export default function HeroSection({ user }: HeroSectionProps) {
           <OptimizedImage
             src="/images/hero-illustration-professional.png"
             alt="Website transformation into AI-ready content"
-            className="max-w-full h-auto max-h-64 rounded-lg shadow-lg"
+            className="max-w-full w-auto h-auto max-h-64 rounded-lg shadow-lg"
             loading="eager"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            width={1200}
+            height={800}
           />
         </div>
 
@@ -61,8 +68,12 @@ export default function HeroSection({ user }: HeroSectionProps) {
           >
             Generate Your File
           </Button>
-          <Link href="/validator">
-            <a onClick={() => (window as any).plausible?.('hero-cta-click', { props: { variant: 'validate' } })}>
+          <Link href="/validator" asChild>
+            <a
+              onClick={() =>
+                (window as any).plausible?.('hero-cta-click', { props: { variant: 'validate' } })
+              }
+            >
               <Button
                 size="lg"
                 variant="outline"

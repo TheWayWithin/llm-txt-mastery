@@ -113,15 +113,12 @@ export function AnalysisHistory() {
         return;
       }
 
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/auth/my-analyses`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/my-analyses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -256,7 +253,7 @@ export function AnalysisHistory() {
                 : 'Transform your website content into AI-ready format with our expert analysis tools'}
             </p>
             {!searchTerm && statusFilter === 'all' && (
-              <Link href="/">
+              <Link href="/" asChild>
                 <a>
                   <Button className="bg-signal-blue hover:bg-signal-blue/90">
                     <Globe className="h-4 w-4 mr-2" />
@@ -325,7 +322,7 @@ export function AnalysisHistory() {
                   <div className="flex items-center space-x-2 ml-4">
                     {analysis.status === 'completed' && (
                       <>
-                        <Link href={`/analysis/${analysis.id}`}>
+                        <Link href={`/analysis/${analysis.id}`} asChild>
                           <a>
                             <Button variant="outline" size="sm">
                               <Eye className="h-4 w-4 mr-2" />

@@ -135,15 +135,12 @@ export default function AnalysisDetailPage() {
         return;
       }
 
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/auth/my-analyses/${analysisId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/my-analyses/${analysisId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -205,7 +202,7 @@ export default function AnalysisDetailPage() {
               <p className="text-slate-brand mb-6">
                 The analysis you're looking for could not be found or accessed.
               </p>
-              <Link href="/dashboard">
+              <Link href="/dashboard" asChild>
                 <a>
                   <Button>
                     <ArrowLeft className="h-4 w-4 mr-2" />
@@ -229,7 +226,7 @@ export default function AnalysisDetailPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
-          <Link href="/dashboard">
+          <Link href="/dashboard" asChild>
             <a className="inline-flex items-center text-signal-blue hover:text-signal-blue/80 mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
@@ -338,7 +335,9 @@ export default function AnalysisDetailPage() {
                 <div>
                   <h4 className="font-medium text-ink mb-2">Content Coverage</h4>
                   <ContentCoverageBadge
-                    coverage={analysis.analysisMetadata.spaDetection.contentCoverage.estimatedCoverage}
+                    coverage={
+                      analysis.analysisMetadata.spaDetection.contentCoverage.estimatedCoverage
+                    }
                     confidence={analysis.analysisMetadata.spaDetection.contentCoverage.confidence}
                     warning={analysis.analysisMetadata.spaDetection.contentCoverageWarning}
                   />
@@ -364,19 +363,28 @@ export default function AnalysisDetailPage() {
                 <div className="mt-2 p-3 bg-cloud rounded-md text-xs text-slate-brand space-y-1">
                   <p>
                     <strong>Text-to-HTML Ratio:</strong>{' '}
-                    {(analysis.analysisMetadata.spaDetection.contentCoverage.signals.textToHtmlRatio * 100).toFixed(1)}%
+                    {(
+                      analysis.analysisMetadata.spaDetection.contentCoverage.signals
+                        .textToHtmlRatio * 100
+                    ).toFixed(1)}
+                    %
                   </p>
                   <p>
                     <strong>Has SSR Data:</strong>{' '}
-                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.hasSSRData ? 'Yes' : 'No'}
+                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.hasSSRData
+                      ? 'Yes'
+                      : 'No'}
                   </p>
                   <p>
                     <strong>Has Skeleton UI:</strong>{' '}
-                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.hasSkeletonUI ? 'Yes' : 'No'}
+                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.hasSkeletonUI
+                      ? 'Yes'
+                      : 'No'}
                   </p>
                   <p>
                     <strong>Body Content Length:</strong>{' '}
-                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.bodyContentLength.toLocaleString()} chars
+                    {analysis.analysisMetadata.spaDetection.contentCoverage.signals.bodyContentLength.toLocaleString()}{' '}
+                    chars
                   </p>
                 </div>
               </details>
@@ -507,7 +515,7 @@ export default function AnalysisDetailPage() {
             </Button>
           )}
 
-          <Link href="/dashboard">
+          <Link href="/dashboard" asChild>
             <a>
               <Button variant="outline">
                 <ArrowLeft className="h-4 w-4 mr-2" />

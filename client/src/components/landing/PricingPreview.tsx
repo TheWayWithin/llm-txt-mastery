@@ -37,7 +37,9 @@ export default function PricingPreview({
         '35 analyses, 500 pages each',
         'AI-enhanced analysis',
         'Priority processing',
-        billing === 'annual' ? 'Then $7.95/mo (billed annually) — cancel anytime' : 'Then $9.95/mo — cancel anytime',
+        billing === 'annual'
+          ? 'Then $7.95/mo (billed annually) — cancel anytime'
+          : 'Then $9.95/mo — cancel anytime',
       ],
       cta: 'Start Free Trial',
       ctaVariant: 'outline' as const,
@@ -108,7 +110,7 @@ export default function PricingPreview({
     },
   ];
 
-  const visibleTiers = showAllTiers ? tiers : tiers.filter(t => ['free', 'solo'].includes(t.id));
+  const visibleTiers = showAllTiers ? tiers : tiers.filter((t) => ['free', 'solo'].includes(t.id));
   const sectionRef = useRef<HTMLElement>(null);
   const hasFired = useRef(false);
 
@@ -197,14 +199,22 @@ export default function PricingPreview({
                       {billing === 'annual' && tier.monthlyOriginal ? (
                         <>
                           <div className="flex items-baseline gap-1 justify-end">
-                            <span className="text-sm text-slate-brand line-through">{tier.monthlyOriginal}</span>
-                            <span className="text-2xl sm:text-3xl font-bold text-ink">{tier.annualPrice}</span>
+                            <span className="text-sm text-slate-brand line-through">
+                              {tier.monthlyOriginal}
+                            </span>
+                            <span className="text-2xl sm:text-3xl font-bold text-ink">
+                              {tier.annualPrice}
+                            </span>
                           </div>
-                          <span className="text-xs text-slate-brand block">{tier.annualPeriod}</span>
+                          <span className="text-xs text-slate-brand block">
+                            {tier.annualPeriod}
+                          </span>
                         </>
                       ) : (
                         <>
-                          <span className="text-2xl sm:text-3xl font-bold text-ink">{tier.monthlyPrice}</span>
+                          <span className="text-2xl sm:text-3xl font-bold text-ink">
+                            {tier.monthlyPrice}
+                          </span>
                           {tier.period && (
                             <span className="text-xs text-slate-brand block">{tier.period}</span>
                           )}
@@ -214,7 +224,7 @@ export default function PricingPreview({
                   </div>
                   <CardTitle className="text-lg">{tier.name}</CardTitle>
                   <CardDescription className="text-sm">
-                    <span className="text-signal-blue font-medium">Best for: {tier.bestFor}</span>
+                    <span className="text-signal-blue font-medium">{`Best for: ${tier.bestFor}`}</span>
                     <br />
                     {tier.description}
                   </CardDescription>
@@ -232,7 +242,13 @@ export default function PricingPreview({
                   </ul>
 
                   {/* CTA Button */}
-                  <Link href={tier.id === 'free' ? '/signup?tier=trial' : `/signup?tier=${tier.id}${billing === 'annual' ? '&billing=annual' : ''}`}>
+                  <Link
+                    href={
+                      tier.id === 'free'
+                        ? '/signup?tier=trial'
+                        : `/signup?tier=${tier.id}${billing === 'annual' ? '&billing=annual' : ''}`
+                    }
+                  >
                     <Button
                       variant={tier.ctaVariant}
                       className={`w-full min-h-[44px] ${

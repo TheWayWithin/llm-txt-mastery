@@ -84,7 +84,7 @@ export default function FAQSection() {
           ))}
         </Accordion>
         <p className="text-sm text-slate-brand text-center mt-8">
-          Want to learn more about AI search visibility?{' '}
+          {'Want to learn more about AI search visibility? '}
           <a
             href="https://www.aisearchmastery.com"
             target="_blank"

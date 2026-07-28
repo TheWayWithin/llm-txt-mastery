@@ -12,15 +12,15 @@ export default function FounderStory() {
             </h3>
             <div className="mb-6 max-w-[680px]">
               <p className="text-sm text-slate-brand mb-3">
-                ChatGPT, Claude, and Perplexity are already crawling websites — but most
-                businesses are invisible to them. I built this tool because my own content
-                wasn't getting found by AI search engines. Having the need, skills, and
-                experience to fix this problem, I created the solution.
+                ChatGPT, Claude, and Perplexity are already crawling websites — but most businesses
+                are invisible to them. I built this tool because my own content wasn't getting found
+                by AI search engines. Having the need, skills, and experience to fix this problem, I
+                created the solution.
               </p>
               <p className="text-sm text-slate-brand mb-4">
-                Now I'm sharing it with other creators, solopreneurs, founders, and small
-                businesses so they can leverage AI to connect directly with the people who need
-                their services. Built by someone who actually uses these tools daily.
+                Now I'm sharing it with other creators, solopreneurs, founders, and small businesses
+                so they can leverage AI to connect directly with the people who need their services.
+                Built by someone who actually uses these tools daily.
               </p>
             </div>
 
@@ -42,7 +42,7 @@ export default function FounderStory() {
                   </li>
                   <li className="flex items-start">
                     <Check className="h-4 w-4 text-success mr-2 mt-0.5 flex-shrink-0" />
-                    Built following the official{' '}
+                    {'Built following the official '}
                     <a
                       href="https://llmstxt.org/"
                       target="_blank"
@@ -55,9 +55,7 @@ export default function FounderStory() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-ink mb-2">
-                  How to deploy (3 steps)
-                </h4>
+                <h4 className="font-medium text-ink mb-2">How to deploy (3 steps)</h4>
                 <ol className="text-sm text-slate-brand space-y-1">
                   <li>1. Download your llms.txt file</li>
                   <li>2. Upload it to your site's root</li>
@@ -72,7 +70,10 @@ export default function FounderStory() {
 
             <div className="mt-6 pt-4 border-t border-mist">
               <p className="text-xs text-slate-brand">
-                <strong>Tip:</strong> Update your llms.txt when you publish new content. Monthly works for most sites. Learn more at the{' '}
+                <strong>Tip:</strong>
+                {
+                  ' Update your llms.txt when you publish new content. Monthly works for most sites. Learn more at the '
+                }
                 <a
                   href="https://llmstxt.org/"
                   target="_blank"

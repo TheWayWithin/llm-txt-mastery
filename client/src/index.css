@@ -13,7 +13,7 @@
   --card-foreground: hsl(15, 23%, 4%);
   --border: hsl(214, 32%, 91%);
   --input: hsl(214, 32%, 91%);
-  --primary: #2563EB;
+  --primary: #2563eb;
   --primary-foreground: hsl(210, 40%, 98%);
   --secondary: hsl(210, 40%, 96%);
   --secondary-foreground: hsl(222, 84%, 5%);
@@ -25,23 +25,23 @@
   --radius: 0.5rem;
 
   /* Brand colors - AI Search Mastery palette */
-  --mastery-blue: #1E3A5F;
-  --signal-blue: #2563EB;
-  --clarity-teal: #0D9488;
+  --mastery-blue: #1e3a5f;
+  --signal-blue: #2563eb;
+  --clarity-teal: #0d9488;
   --slate-brand: #475569;
-  --ink: #1E293B;
-  --action-amber: #D97706;
-  --stone-brand: #94A3B8;
-  --mist: #E2E8F0;
-  --cloud: #F1F5F9;
+  --ink: #1e293b;
+  --action-amber: #d97706;
+  --stone-brand: #94a3b8;
+  --mist: #e2e8f0;
+  --cloud: #f1f5f9;
   --success: #059669;
-  --error: #DC2626;
+  --error: #dc2626;
 
   /* Legacy aliases (progressive migration) */
   --authority-white: hsl(0, 0%, 100%);
-  --innovation-teal: #0D9488;
+  --innovation-teal: #0d9488;
   --ai-silver: #475569;
-  --framework-black: #1E293B;
+  --framework-black: #1e293b;
 }
 
 .dark {
@@ -142,4 +142,15 @@
   .bg-framework-black {
     background-color: var(--framework-black);
   }
+}
+
+/* Cookie-consent banner (Enzuzo, injected at runtime via GTM) — LTM-ISS-13.
+   Its ~800-character description is a bigger text block than the hero h1, so on
+   throttled connections the late-arriving banner becomes the page's LCP element
+   (~7-8s) even though real content painted seconds earlier. Capping the
+   description's height (scroll for the rest) keeps the hero as the largest
+   contentful element; all consent controls remain fully visible and clickable. */
+#ez-cookie-notification .enzuzo-notification-desc {
+  max-height: 6.5em;
+  overflow-y: auto;
 }

@@ -46,22 +46,22 @@ export default function Footer() {
             <h5 className="font-semibold mb-4">Resources</h5>
             <ul className="text-sm text-white/70 space-y-2">
               <li>
-                <Link href="/docs">
+                <Link href="/docs" asChild>
                   <a className="hover:text-white transition-colors">Documentation</a>
                 </Link>
               </li>
               <li>
-                <Link href="/docs#best-practices">
+                <Link href="/docs#best-practices" asChild>
                   <a className="hover:text-white transition-colors">Best Practices</a>
                 </Link>
               </li>
               <li>
-                <Link href="/pricing">
+                <Link href="/pricing" asChild>
                   <a className="hover:text-white transition-colors">Pricing</a>
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
+                <Link href="/contact" asChild>
                   <a className="hover:text-white transition-colors">Support</a>
                 </Link>
               </li>
@@ -73,22 +73,22 @@ export default function Footer() {
             <h5 className="font-semibold mb-4">Legal & Connect</h5>
             <ul className="text-sm text-white/70 space-y-2">
               <li>
-                <Link href="/privacy">
+                <Link href="/privacy" asChild>
                   <a className="hover:text-white transition-colors">Privacy Policy</a>
                 </Link>
               </li>
               <li>
-                <Link href="/terms">
+                <Link href="/terms" asChild>
                   <a className="hover:text-white transition-colors">Terms of Service</a>
                 </Link>
               </li>
               <li>
-                <Link href="/cookies">
+                <Link href="/cookies" asChild>
                   <a className="hover:text-white transition-colors">Cookie Policy</a>
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
+                <Link href="/contact" asChild>
                   <a className="hover:text-white transition-colors">Contact</a>
                 </Link>
               </li>

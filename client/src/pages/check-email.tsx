@@ -66,9 +66,7 @@ export default function CheckEmailPage() {
             </div>
 
             <div className="bg-signal-blue/5 rounded-lg p-4 space-y-2">
-              <p className="text-sm text-ink font-medium">
-                To complete your registration:
-              </p>
+              <p className="text-sm text-ink font-medium">To complete your registration:</p>
               <ol className="text-sm text-slate-brand space-y-1 ml-4">
                 <li>1. Check your email inbox</li>
                 <li>2. Click the verification link</li>
@@ -99,7 +97,7 @@ export default function CheckEmailPage() {
                 )}
               </Button>
 
-              <Link href="/login">
+              <Link href="/login" asChild>
                 <a className="block">
                   <Button variant="outline" className="w-full">
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -112,7 +110,7 @@ export default function CheckEmailPage() {
             <div className="text-center text-xs text-slate-brand pt-2 border-t">
               <p>
                 Already verified?{' '}
-                <Link href="/login">
+                <Link href="/login" asChild>
                   <a className="text-signal-blue hover:underline">Sign in here</a>
                 </Link>
               </p>

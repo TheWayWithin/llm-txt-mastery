@@ -147,8 +147,15 @@ function flowReducer(context: FlowContext, event: FlowEvent): FlowContext {
         `🔐 AUTH_RESOLVED: currentState=${context.currentState}, hasUser=${!!user}, userTier=${user?.tier || 'none'}`
       );
 
-      // Handle authenticated users
-      if (context.currentState === 'INITIALIZING' || context.currentState === 'AUTH_CHECK') {
+      // Handle authenticated users. LANDING is included because the machine can
+      // now START there (auth already resolved at mount, LTM-ISS-13) — an
+      // authenticated resolution from LANDING must still reach URL_INPUT, and
+      // an anonymous one is a no-op re-entry to LANDING.
+      if (
+        context.currentState === 'INITIALIZING' ||
+        context.currentState === 'AUTH_CHECK' ||
+        context.currentState === 'LANDING'
+      ) {
         if (user) {
           console.log('✅ AUTH_RESOLVED: Authenticated user - going to /analyze (URL_INPUT)');
           return {
@@ -605,7 +612,11 @@ function updateProgressForState(state: FlowState, progress: ProgressContext): Pr
 
 // Initial state factory
 function createInitialState(urlParams: URLParams, authLoading: boolean): FlowContext {
-  let initialState: FlowState = 'INITIALIZING';
+  // When auth is already resolved at mount (anonymous visitor, no stored token)
+  // start directly in LANDING — the same state the AUTH_RESOLVED effect would
+  // reach one tick later. This makes the first client render match the
+  // prerendered marketing HTML so hydration can reuse it (LTM-ISS-13).
+  let initialState: FlowState = authLoading ? 'INITIALIZING' : 'LANDING';
   let websiteUrl = '';
   let userEmail = '';
   let userTier: UserTier = 'starter';

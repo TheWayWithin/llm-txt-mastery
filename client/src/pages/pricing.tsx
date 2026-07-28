@@ -24,7 +24,7 @@ export default function Pricing() {
       <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" asChild>
               <a className="flex items-center space-x-3">
                 <img
                   src="/images/logo-primary.png"
@@ -33,7 +33,7 @@ export default function Pricing() {
                 />
               </a>
             </Link>
-            <Link href="/">
+            <Link href="/" asChild>
               <a>
                 <Button
                   variant="outline"
@@ -144,7 +144,7 @@ export default function Pricing() {
                   </span>
                 </li>
               </ul>
-              <Link href="/signup?tier=trial">
+              <Link href="/signup?tier=trial" asChild>
                 <a className="block">
                   <Button
                     variant="outline"
@@ -217,7 +217,10 @@ export default function Pricing() {
                   <span className="text-sm text-ink">30-day money-back guarantee</span>
                 </li>
               </ul>
-              <Link href={`/signup?tier=solo${billing === 'annual' ? '&billing=annual' : ''}`}>
+              <Link
+                href={`/signup?tier=solo${billing === 'annual' ? '&billing=annual' : ''}`}
+                asChild
+              >
                 <a className="block">
                   <Button
                     variant="outline"
@@ -293,7 +296,10 @@ export default function Pricing() {
                   </span>
                 </li>
               </ul>
-              <Link href={`/signup?tier=growth${billing === 'annual' ? '&billing=annual' : ''}`}>
+              <Link
+                href={`/signup?tier=growth${billing === 'annual' ? '&billing=annual' : ''}`}
+                asChild
+              >
                 <a className="block">
                   <Button className="w-full min-h-[44px] bg-signal-blue hover:bg-[#1D4ED8] text-white">
                     Generate Your File
@@ -363,7 +369,10 @@ export default function Pricing() {
                   </span>
                 </li>
               </ul>
-              <Link href={`/signup?tier=scale${billing === 'annual' ? '&billing=annual' : ''}`}>
+              <Link
+                href={`/signup?tier=scale${billing === 'annual' ? '&billing=annual' : ''}`}
+                asChild
+              >
                 <a className="block">
                   <Button
                     variant="outline"

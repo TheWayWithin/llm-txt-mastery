@@ -18,7 +18,7 @@ export default function CookiesPage() {
       <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" asChild>
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <img
                   src="/images/logo-primary.png"
@@ -34,7 +34,7 @@ export default function CookiesPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
-        <Link href="/">
+        <Link href="/" asChild>
           <a className="inline-flex items-center text-signal-blue hover:text-mastery-blue mb-6">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home

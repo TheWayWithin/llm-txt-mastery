@@ -14,7 +14,7 @@ export default function ProofStack() {
         <div className="bg-white rounded-lg border border-mist p-6">
           <h3 className="font-semibold text-ink mb-3">Sample generated output</h3>
           <pre className="bg-ink text-cloud text-sm rounded-lg p-4 overflow-x-auto font-mono leading-relaxed">
-{`# FreecalcHub.com
+            {`# FreecalcHub.com
 > Online calculator platform with 147 tools
 
 ## Quality-Scored Pages (Top 5)
@@ -31,7 +31,8 @@ export default function ProofStack() {
   Quick split and tip calculations`}
           </pre>
           <p className="text-xs text-slate-brand mt-2">
-            Real output from FreecalcHub.com analysis. Quality scores help AI models prioritize your best content.
+            Real output from FreecalcHub.com analysis. Quality scores help AI models prioritize your
+            best content.
           </p>
         </div>
 
@@ -41,7 +42,8 @@ export default function ProofStack() {
           <div className="bg-white rounded-lg border border-mist p-6">
             <h3 className="font-semibold text-ink mb-3">Free validator</h3>
             <p className="text-sm text-slate-brand mb-4">
-              Check your existing llms.txt file for formatting issues, broken links, and robots.txt conflicts — before AI models try to read it.
+              Check your existing llms.txt file for formatting issues, broken links, and robots.txt
+              conflicts — before AI models try to read it.
             </p>
             <div className="bg-cloud rounded-lg p-3 mb-4 text-sm">
               <div className="flex items-center justify-between mb-1">
@@ -57,9 +59,12 @@ export default function ProofStack() {
                 <span className="text-action-amber font-medium">1 warning</span>
               </div>
             </div>
-            <Link href="/validator">
+            <Link href="/validator" asChild>
               <a onClick={() => (window as any).plausible?.('validator-preview-click')}>
-                <Button variant="outline" className="w-full border-signal-blue text-signal-blue hover:bg-signal-blue/10">
+                <Button
+                  variant="outline"
+                  className="w-full border-signal-blue text-signal-blue hover:bg-signal-blue/10"
+                >
                   Validate Your File Free
                 </Button>
               </a>
@@ -105,7 +110,8 @@ export default function ProofStack() {
               47+ updates shipped in 2025. This is a dedicated platform, not a side project.
             </p>
             <p className="text-xs text-slate-brand">
-              Recent: partial timeout results, usage tracking fixes, priority sorting, CSR dedup improvements.
+              Recent: partial timeout results, usage tracking fixes, priority sorting, CSR dedup
+              improvements.
             </p>
           </div>
 
@@ -116,14 +122,15 @@ export default function ProofStack() {
               <h3 className="font-semibold text-ink">30-day money-back guarantee</h3>
             </div>
             <p className="text-sm text-slate-brand">
-              If you don't see improvement in your AI visibility within 30 days, we'll refund your money. No questions asked.
+              If you don't see improvement in your AI visibility within 30 days, we'll refund your
+              money. No questions asked.
             </p>
           </div>
         </div>
 
         {/* Ecosystem Cross-Link */}
         <p className="text-sm text-slate-brand text-center">
-          Diagnosed a visibility gap with{' '}
+          {'Diagnosed a visibility gap with '}
           <a
             href="https://www.aimpactscanner.com"
             target="_blank"

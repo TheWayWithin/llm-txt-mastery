@@ -156,7 +156,12 @@ export default function SignupPage() {
       }
 
       // Handle paid tier checkouts BEFORE creating user (Solo, Growth, Scale, Trial)
-      if (selectedTier === 'solo' || selectedTier === 'growth' || selectedTier === 'scale' || selectedTier === 'trial') {
+      if (
+        selectedTier === 'solo' ||
+        selectedTier === 'growth' ||
+        selectedTier === 'scale' ||
+        selectedTier === 'trial'
+      ) {
         const isTrial = selectedTier === 'trial';
         const displayTier = isTrial ? 'growth' : selectedTier;
         console.log(
@@ -358,7 +363,7 @@ export default function SignupPage() {
       <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" asChild>
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <img
                   src="/images/logo-primary.png"
@@ -477,9 +482,7 @@ export default function SignupPage() {
                       {/* Upgrade Hint */}
                       {upgradeHint && (
                         <div className="mt-3 p-3 bg-white border border-mist rounded-lg">
-                          <p className="text-xs text-slate-brand mb-1">
-                            {upgradeHint.text}
-                          </p>
+                          <p className="text-xs text-slate-brand mb-1">{upgradeHint.text}</p>
                           <button
                             type="button"
                             onClick={() => setSelectedTier(upgradeHint.targetTier)}
@@ -558,7 +561,9 @@ export default function SignupPage() {
                 <div className="flex items-start space-x-3">
                   <User className="h-6 w-6 text-slate-brand mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium text-ink">Built by a solopreneur, for solopreneurs</h4>
+                    <h4 className="font-medium text-ink">
+                      Built by a solopreneur, for solopreneurs
+                    </h4>
                     <p className="text-sm text-slate-brand">
                       Not VC-funded. Real indie maker who uses these tools daily.
                     </p>
@@ -586,7 +591,9 @@ export default function SignupPage() {
             {/* Step 2: Create Account */}
             <Card className="w-full border-2 border-signal-blue bg-white">
               <CardHeader className="space-y-1 bg-signal-blue/5">
-                <CardTitle className="text-xl text-center text-ink">Step 2: Create Your Account</CardTitle>
+                <CardTitle className="text-xl text-center text-ink">
+                  Step 2: Create Your Account
+                </CardTitle>
                 <CardDescription className="text-center">
                   Ready to get found by AI? Enter your details below.
                 </CardDescription>
@@ -747,13 +754,11 @@ export default function SignupPage() {
                   {/* Terms Agreement */}
                   <div className="text-xs text-slate-brand bg-cloud p-3 rounded">
                     By creating an account, you agree to our{' '}
-                    <Link href="/terms">
-                      <a className="text-signal-blue hover:underline">
-                        Terms of Service
-                      </a>
+                    <Link href="/terms" asChild>
+                      <a className="text-signal-blue hover:underline">Terms of Service</a>
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy">
+                    <Link href="/privacy" asChild>
                       <a className="text-signal-blue hover:underline">Privacy Policy</a>
                     </Link>
                   </div>
@@ -792,7 +797,7 @@ export default function SignupPage() {
                 <div className="mt-6 text-center">
                   <p className="text-sm text-slate-brand">
                     Already have an account?{' '}
-                    <Link href="/login">
+                    <Link href="/login" asChild>
                       <a className="text-signal-blue hover:underline font-medium">Sign in</a>
                     </Link>
                   </p>

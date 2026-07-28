@@ -64,7 +64,17 @@ interface RobotsConflict {
 type RenderingStrategy = 'SSR' | 'SSG' | 'CSR' | 'HYBRID' | 'UNKNOWN';
 
 interface SPAFrameworkIndicators {
-  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'next' | 'nuxt' | 'gatsby' | 'astro' | 'wordpress' | 'unknown';
+  framework:
+    | 'react'
+    | 'vue'
+    | 'angular'
+    | 'svelte'
+    | 'next'
+    | 'nuxt'
+    | 'gatsby'
+    | 'astro'
+    | 'wordpress'
+    | 'unknown';
   renderingStrategy: RenderingStrategy;
   indicators: string[];
 }
@@ -155,7 +165,8 @@ interface BatchValidationResult {
 export default function ValidatePage() {
   useSEO({
     title: 'Validate Your llms.txt - LLM.txt Mastery',
-    description: 'Check your llms.txt file against the official specification. Get actionable feedback to improve AI discoverability.',
+    description:
+      'Check your llms.txt file against the official specification. Get actionable feedback to improve AI discoverability.',
   });
   const { user, isAuthenticated, getAccessToken } = useAuth();
   const [url, setUrl] = useState('');
@@ -335,7 +346,7 @@ export default function ValidatePage() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" asChild>
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <img
                   src="/images/logo-primary.png"
@@ -355,9 +366,7 @@ export default function ValidatePage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-ink mb-3">
-            Validate Your llms.txt File
-          </h1>
+          <h1 className="text-4xl font-bold text-ink mb-3">Validate Your llms.txt File</h1>
           <p className="text-lg text-slate-brand max-w-2xl mx-auto">
             Check if your llms.txt file follows the official{' '}
             <a
@@ -378,8 +387,9 @@ export default function ValidatePage() {
           <Alert className="mb-6 bg-signal-blue/10 border-signal-blue">
             <Info className="h-4 w-4 text-signal-blue" />
             <AlertDescription className="text-ink">
-              Free validation: 3 checks per day. Need unlimited validations + AI-powered llms.txt generation?{' '}
-              <Link href="/pricing">
+              Free validation: 3 checks per day. Need unlimited validations + AI-powered llms.txt
+              generation?{' '}
+              <Link href="/pricing" asChild>
                 <a className="font-semibold text-signal-blue hover:underline">
                   See plans from $4.95/mo
                 </a>
@@ -424,8 +434,8 @@ export default function ValidatePage() {
                       ? `${normalizeUrl(url)} at all standard locations`
                       : `${normalizeUrl(url)}${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`
                     : fileType === 'auto'
-                    ? 'your-site.com at all standard locations'
-                    : `your-site.com${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`}
+                      ? 'your-site.com at all standard locations'
+                      : `your-site.com${FILE_TYPE_OPTIONS.find((o) => o.value === fileType)?.path}`}
                 </p>
               </div>
 
@@ -434,7 +444,10 @@ export default function ValidatePage() {
                 <Label htmlFor="file-type" className="text-sm font-medium text-ink">
                   File Location
                 </Label>
-                <Select value={fileType} onValueChange={(value) => setFileType(value as LlmsTxtFileType)}>
+                <Select
+                  value={fileType}
+                  onValueChange={(value) => setFileType(value as LlmsTxtFileType)}
+                >
                   <SelectTrigger className="mt-2 border-mist focus:ring-signal-blue">
                     <SelectValue placeholder="Select file type" />
                   </SelectTrigger>
@@ -548,9 +561,7 @@ export default function ValidatePage() {
                             fileResult.found ? 'text-success' : 'text-slate-400'
                           }`}
                         />
-                        <span className="text-sm font-medium text-ink">
-                          {fileResult.fileType}
-                        </span>
+                        <span className="text-sm font-medium text-ink">{fileResult.fileType}</span>
                       </div>
                       <p className="text-xs text-slate-brand mb-2">{fileResult.path}</p>
                       {fileResult.found && fileResult.result ? (
@@ -637,9 +648,7 @@ export default function ValidatePage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-ink mb-1">
-                      Validation Score
-                    </h2>
+                    <h2 className="text-2xl font-bold text-ink mb-1">Validation Score</h2>
                     <p className="text-sm text-slate-brand">
                       {validationResult.valid ? (
                         <span className="flex items-center text-success">
@@ -709,11 +718,11 @@ export default function ValidatePage() {
                         key={index}
                         className="flex items-start space-x-3 p-3 bg-cloud rounded-lg"
                       >
-                        <div className="flex-shrink-0 mt-0.5">{getSeverityIcon(issue.severity)}</div>
+                        <div className="flex-shrink-0 mt-0.5">
+                          {getSeverityIcon(issue.severity)}
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-ink">
-                            {issue.message}
-                          </p>
+                          <p className="text-sm font-medium text-ink">{issue.message}</p>
                           {issue.suggestion && (
                             <p className="text-sm text-slate-brand mt-1 flex items-start">
                               <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5 text-signal-blue" />
@@ -747,9 +756,7 @@ export default function ValidatePage() {
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-semibold text-ink">
-                              {rec.title}
-                            </p>
+                            <p className="text-sm font-semibold text-ink">{rec.title}</p>
                             {getPriorityBadge(rec.priority)}
                           </div>
                           <p className="text-sm text-slate-brand mb-3">{rec.description}</p>
@@ -833,11 +840,16 @@ export default function ValidatePage() {
                         <span className="text-sm font-medium text-slate-brand">Rendering</span>
                       </div>
                       <p className="text-lg font-semibold text-ink">
-                        {validationResult.spaDetection.framework.renderingStrategy === 'SSR' && 'Server-Side'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'SSG' && 'Static (SSG)'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'CSR' && 'Client-Side'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'HYBRID' && 'Hybrid'}
-                        {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' && 'Traditional'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'SSR' &&
+                          'Server-Side'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'SSG' &&
+                          'Static (SSG)'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'CSR' &&
+                          'Client-Side'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'HYBRID' &&
+                          'Hybrid'}
+                        {validationResult.spaDetection.framework.renderingStrategy === 'UNKNOWN' &&
+                          'Traditional'}
                       </p>
                     </div>
 
@@ -845,15 +857,19 @@ export default function ValidatePage() {
                     <div className="p-4 bg-cloud rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="h-4 w-4 text-signal-blue" />
-                        <span className="text-sm font-medium text-slate-brand">Content Coverage</span>
+                        <span className="text-sm font-medium text-slate-brand">
+                          Content Coverage
+                        </span>
                       </div>
-                      <p className={`text-lg font-semibold ${
-                        validationResult.spaDetection.contentCoverage.estimatedCoverage >= 70
-                          ? 'text-success'
-                          : validationResult.spaDetection.contentCoverage.estimatedCoverage >= 40
-                          ? 'text-action-amber'
-                          : 'text-error'
-                      }`}>
+                      <p
+                        className={`text-lg font-semibold ${
+                          validationResult.spaDetection.contentCoverage.estimatedCoverage >= 70
+                            ? 'text-success'
+                            : validationResult.spaDetection.contentCoverage.estimatedCoverage >= 40
+                              ? 'text-action-amber'
+                              : 'text-error'
+                        }`}
+                      >
                         {validationResult.spaDetection.contentCoverage.estimatedCoverage}%
                         <span className="text-xs text-slate-brand ml-1">
                           ({validationResult.spaDetection.contentCoverage.confidence})
@@ -920,15 +936,17 @@ export default function ValidatePage() {
 
                     {/* Depth Score */}
                     <div className="p-4 bg-cloud rounded-lg text-center">
-                      <p className={`text-2xl font-bold ${
-                        validationResult.contentDepth.depthScore >= 80
-                          ? 'text-success'
-                          : validationResult.contentDepth.depthScore >= 55
-                          ? 'text-signal-blue'
-                          : validationResult.contentDepth.depthScore >= 30
-                          ? 'text-action-amber'
-                          : 'text-error'
-                      }`}>
+                      <p
+                        className={`text-2xl font-bold ${
+                          validationResult.contentDepth.depthScore >= 80
+                            ? 'text-success'
+                            : validationResult.contentDepth.depthScore >= 55
+                              ? 'text-signal-blue'
+                              : validationResult.contentDepth.depthScore >= 30
+                                ? 'text-action-amber'
+                                : 'text-error'
+                        }`}
+                      >
                         {validationResult.contentDepth.depthScore}
                       </p>
                       <p className="text-xs text-slate-brand">Depth Score</p>
@@ -939,15 +957,17 @@ export default function ValidatePage() {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-mist">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-slate-brand">Content Level:</span>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        validationResult.contentDepth.depthLevel === 'comprehensive'
-                          ? 'bg-success/10 text-ink'
-                          : validationResult.contentDepth.depthLevel === 'good'
-                          ? 'bg-signal-blue/10 text-mastery-blue'
-                          : validationResult.contentDepth.depthLevel === 'basic'
-                          ? 'bg-action-amber/10 text-ink'
-                          : 'bg-error/10 text-error'
-                      }`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          validationResult.contentDepth.depthLevel === 'comprehensive'
+                            ? 'bg-success/10 text-ink'
+                            : validationResult.contentDepth.depthLevel === 'good'
+                              ? 'bg-signal-blue/10 text-mastery-blue'
+                              : validationResult.contentDepth.depthLevel === 'basic'
+                                ? 'bg-action-amber/10 text-ink'
+                                : 'bg-error/10 text-error'
+                        }`}
+                      >
                         {validationResult.contentDepth.depthLevel.charAt(0).toUpperCase() +
                           validationResult.contentDepth.depthLevel.slice(1)}
                       </span>
@@ -993,7 +1013,7 @@ export default function ValidatePage() {
                   Use our AI-powered analyzer to automatically generate a perfect llms.txt file for
                   your website.
                 </p>
-                <Link href="/analyze">
+                <Link href="/analyze" asChild>
                   <a>
                     <Button
                       size="lg"

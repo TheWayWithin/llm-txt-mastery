@@ -130,13 +130,23 @@ for (const routePath of MARKETING_ROUTES) {
 
   let html = await page.content();
 
-  // The GTM bootstrap in the shell injects a gtm.js <script> tag at runtime;
-  // captured copies would double-inject on real page loads. Strip only that
-  // runtime-injected tag — the inline bootstrap itself stays untouched.
+  // Runtime-injected third-party <script> tags get serialised into the snapshot,
+  // where they lose their injected-async behaviour and become PARSER-BLOCKING on
+  // real page loads (LTM-ISS-13: the captured js.stripe.com tag alone cost ~3.8s
+  // of blocked render at 240KB). Strip them all — the SPA re-injects each one
+  // asynchronously at boot (GTM bootstrap; @stripe/stripe-js loadStripe), so
+  // browsers lose nothing and crawlers/first paint don't pay for them.
   html = html.replace(
-    /<script[^>]*src="https:\/\/www\.googletagmanager\.com\/gtm\.js[^"]*"[^>]*><\/script>/g,
+    /<script[^>]*src="https:\/\/(www\.googletagmanager\.com\/gtm\.js|js\.stripe\.com\/[^"]*)[^"]*"[^>]*><\/script>/g,
     ''
   );
+
+  // Hydration compatibility (LTM-ISS-13): the browser serialises inline styles
+  // as "prop: value;" but React expects the compact "prop:value" it generates,
+  // and the mismatch makes hydrateRoot discard the entire prerendered DOM
+  // (visible as a full-page layout shift on slow connections). Normalise the
+  // one affected attribute (Radix toast viewport) back to React's format.
+  html = html.replaceAll('style="pointer-events: none;"', 'style="pointer-events:none"');
 
   const h1 = await page
     .locator('h1')

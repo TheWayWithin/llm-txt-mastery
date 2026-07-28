@@ -110,7 +110,7 @@ export default function LoginPage() {
       <header className="bg-mastery-blue shadow-sm border-b border-mastery-blue">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" asChild>
               <a className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <img
                   src="/images/logo-primary.png"
@@ -198,8 +198,10 @@ export default function LoginPage() {
 
               {/* Forgot Password Link */}
               <div className="text-right">
-                <Link href="/forgot-password">
-                  <a className="text-sm text-signal-blue hover:text-mastery-blue">Forgot your password?</a>
+                <Link href="/forgot-password" asChild>
+                  <a className="text-sm text-signal-blue hover:text-mastery-blue">
+                    Forgot your password?
+                  </a>
                 </Link>
               </div>
 
@@ -230,8 +232,11 @@ export default function LoginPage() {
                 Don't have an account?{' '}
                 <Link
                   href={`/signup?tier=${tierParam || 'solo'}${emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''}${websiteUrlParam ? `&websiteUrl=${encodeURIComponent(websiteUrlParam)}` : ''}`}
+                  asChild
                 >
-                  <a className="text-signal-blue hover:text-mastery-blue font-medium">Sign up for free</a>
+                  <a className="text-signal-blue hover:text-mastery-blue font-medium">
+                    Sign up for free
+                  </a>
                 </Link>
               </p>
             </div>
@@ -240,7 +245,7 @@ export default function LoginPage() {
             <div className="mt-4 pt-4 border-t border-mist">
               <div className="text-center">
                 <p className="text-sm text-stone-brand mb-3">Want to try it first?</p>
-                <Link href="/">
+                <Link href="/" asChild>
                   <a>
                     <Button variant="outline" className="w-full">
                       Try Demo Mode

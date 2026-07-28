@@ -42,8 +42,12 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [authResolved, setAuthResolved] = useState(false);
+  // Anonymous visitors are knowable synchronously (stored token check), so the
+  // first render can be the settled logged-out UI. This keeps hydration of the
+  // prerendered marketing pages from mismatching on a one-tick loading skeleton
+  // and wiping the DOM (LTM-ISS-13). Stored-auth users keep the loading pass.
+  const [loading, setLoading] = useState(() => authApi.isAuthenticated());
+  const [authResolved, setAuthResolved] = useState(() => !authApi.isAuthenticated());
   const [emailBasedUser, setEmailBasedUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {

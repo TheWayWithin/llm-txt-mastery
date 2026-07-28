@@ -36,16 +36,13 @@ export default function CoffeeSuccess() {
         // We'll attempt to refresh the current user or check if account exists
 
         // Try to get account by email (we'll add this endpoint)
-        const response = await fetch(
-          `${getApiBaseUrl()}/api/auth/check-account`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-          }
-        );
+        const response = await fetch(`${getApiBaseUrl()}/api/auth/check-account`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
 
         if (response.ok) {
           const { hasAccount, user: accountUser } = await response.json();
@@ -53,19 +50,16 @@ export default function CoffeeSuccess() {
           if (hasAccount && accountUser) {
             // Account exists, create a temporary login session for the coffee purchase
             // This is safe because we know they just completed payment
-            const tempLoginResponse = await fetch(
-              `${getApiBaseUrl()}/api/auth/coffee-login`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  email,
-                  sessionId, // Verify the purchase
-                }),
-              }
-            );
+            const tempLoginResponse = await fetch(`${getApiBaseUrl()}/api/auth/coffee-login`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email,
+                sessionId, // Verify the purchase
+              }),
+            });
 
             if (tempLoginResponse.ok) {
               const authData = await tempLoginResponse.json();
@@ -177,7 +171,7 @@ export default function CoffeeSuccess() {
                   <>
                     {/* Authenticated user - priority on dashboard and analysis */}
                     {websiteUrl ? (
-                      <Link href={`/?url=${encodeURIComponent(websiteUrl)}&coffee=true`}>
+                      <Link href={`/?url=${encodeURIComponent(websiteUrl)}&coffee=true`} asChild>
                         <a className="block">
                           <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <ArrowRight className="h-4 w-4 mr-2" />
@@ -186,7 +180,7 @@ export default function CoffeeSuccess() {
                         </a>
                       </Link>
                     ) : (
-                      <Link href="/dashboard">
+                      <Link href="/dashboard" asChild>
                         <a className="block">
                           <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <UserCheck className="h-4 w-4 mr-2" />
@@ -195,7 +189,7 @@ export default function CoffeeSuccess() {
                         </a>
                       </Link>
                     )}
-                    <Link href="/">
+                    <Link href="/" asChild>
                       <a className="block">
                         <Button variant="outline" className="w-full">
                           <ArrowRight className="h-4 w-4 mr-2" />
@@ -210,6 +204,7 @@ export default function CoffeeSuccess() {
                     {websiteUrl && email ? (
                       <Link
                         href={`/?url=${encodeURIComponent(websiteUrl)}&email=${encodeURIComponent(email)}&coffee=true`}
+                        asChild
                       >
                         <a className="block">
                           <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
@@ -219,7 +214,7 @@ export default function CoffeeSuccess() {
                         </a>
                       </Link>
                     ) : (
-                      <Link href="/">
+                      <Link href="/" asChild>
                         <a className="block">
                           <Button className="w-full bg-signal-blue hover:bg-[#1D4ED8]">
                             <ArrowRight className="h-4 w-4 mr-2" />
