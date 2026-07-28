@@ -6,7 +6,52 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import { getApiBaseUrl } from '@/lib/api-config';
+import { authApi } from '@/lib/auth-api';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+/**
+ * Where a freshly verified user should land, and why (LTM-ISS-4).
+ *
+ * "Authenticated" here means exactly what `authApi.isAuthenticated()` means:
+ * this tab's sessionStorage holds BOTH a live access token and a stored user.
+ * It is read at redirect time rather than from the auth context's `user` state,
+ * because this runs inside a mount-effect closure that captured `user` from the
+ * first render and would never observe refreshUser()'s update. Branching on a
+ * stale value like that is what made the original fast-path dead code.
+ *
+ * Auth tokens live in sessionStorage, which is per-tab, so a verification link
+ * opened in a new tab is correctly treated as unauthenticated. The tab that
+ * performed the signup still holds the session and skips the login round-trip.
+ *
+ * `pendingAnalysisUrl` (localStorage, so it survives across tabs) is read BEFORE
+ * the keys are cleared and handed to whichever destination can use it: /analyze
+ * directly when authenticated, or /login?websiteUrl=..., which already forwards
+ * it to /analyze after sign-in.
+ */
+export function resolveVerifiedRedirect(
+  isAuthenticated: boolean,
+  pendingAnalysisUrl: string | null
+): string {
+  if (isAuthenticated) {
+    return pendingAnalysisUrl
+      ? `/analyze?url=${encodeURIComponent(pendingAnalysisUrl)}`
+      : '/analyze';
+  }
+  return pendingAnalysisUrl
+    ? `/login?verified=true&websiteUrl=${encodeURIComponent(pendingAnalysisUrl)}`
+    : '/login?verified=true';
+}
+
+/** Consume the pending-signup keys and send the verified user to the right place. */
+function redirectAfterVerification() {
+  const pendingAnalysisUrl = localStorage.getItem('pendingAnalysisUrl');
+  localStorage.removeItem('pendingVerificationEmail');
+  localStorage.removeItem('pendingAnalysisUrl');
+
+  const target = resolveVerifiedRedirect(authApi.isAuthenticated(), pendingAnalysisUrl);
+  console.log('✅ Verified, redirecting to', target);
+  window.location.href = target;
+}
 
 export default function VerifyEmailPage() {
   const [, setLocation] = useLocation();
@@ -65,23 +110,13 @@ export default function VerifyEmailPage() {
             console.log('✅ Updated stored user emailVerified status');
           }
 
-          // Auto-redirect after successful verification.
-          // An earlier version branched on refreshUser()'s return value to send
-          // already-logged-in users straight to /analyze, but refreshUser resolves
-          // void so that branch never executed (see LTM-ISS-4) — every verified
-          // user has always taken this login redirect.
-          setTimeout(() => {
-            localStorage.removeItem('pendingVerificationEmail');
-            localStorage.removeItem('pendingAnalysisUrl');
-            console.log('✅ Verified, redirecting to /login');
-            window.location.href = '/login?verified=true';
-          }, 2000);
+          // Auto-redirect after successful verification. See resolveVerifiedRedirect
+          // above for what "authenticated" means here and why it is read live.
+          setTimeout(redirectAfterVerification, 2000);
         } catch (error) {
           console.error('Failed to refresh user data after verification:', error);
-          // Fall back to login page
-          setTimeout(() => {
-            window.location.href = '/login?verified=true';
-          }, 2000);
+          // The refresh failed, but the email is verified — send them on anyway.
+          setTimeout(redirectAfterVerification, 2000);
         }
       } else {
         setVerificationState('error');
