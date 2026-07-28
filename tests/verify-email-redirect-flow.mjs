@@ -10,7 +10,10 @@
  * No real token, mailbox, or database is involved: the verification and
  * current-user endpoints are stubbed, and storage is seeded per case.
  *
- * Usage (two terminals, from the repo root):
+ * Usage against a deployed environment:
+ *   node tests/verify-email-redirect-flow.mjs https://develop--llm-txt-mastery.netlify.app
+ *
+ * Usage against a local dev server (two terminals, from the repo root):
  *   1. VITE_API_URL=https://llm-txt-mastery-staging.up.railway.app \
  *        npx vite --port 5199 --strictPort
  *   2. node tests/verify-email-redirect-flow.mjs
@@ -19,7 +22,7 @@
  */
 import { chromium } from 'playwright';
 
-const BASE = 'http://localhost:5199';
+const BASE = (process.argv[2] || 'http://localhost:5199').replace(/\/$/, '');
 const PENDING = 'https://example.com/docs';
 const results = [];
 
