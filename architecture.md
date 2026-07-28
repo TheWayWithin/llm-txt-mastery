@@ -1,8 +1,8 @@
 # LLM.txt Mastery - System Architecture Documentation
 
-**Version**: 4.0
-**Last Updated**: March 29, 2026
-**Changelog**: v3.4 Site modernization → v4.0 Solo tier rename (Sprint 9), multi-format generation + validator compliance grading (Sprint 12), deployment polish (Sprint 13), generation quality overhaul with MiniMax M2.5, body content extraction, dedup, legal filtering (Sprint 15)
+**Version**: 5.0
+**Last Updated**: July 27, 2026
+**Changelog**: v3.4 Site modernization → v4.0 Solo tier rename (Sprint 9), multi-format generation + validator compliance grading (Sprint 12), deployment polish (Sprint 13), generation quality overhaul with MiniMax M2.5, body content extraction, dedup, legal filtering (Sprint 15) → v5.0 July 2026 hardening arc: TypeScript baseline 261→0 with full tsc pre-commit gate, marketing-page prerender for non-JS/AI crawlers, JSON-LD + non-www canonicals + AI-crawler robots policy (AImpactScanner 36→82), Stripe API migration to 2025-08-27.basil with dual-shape webhook handlers, first-ever production live webhook endpoint (LTM-ISS-15), payment_history↔subscriptions linkage, husky v9 production deploy guard, staging environment revived. Details in Appendix A.15.
 
 ---
 
@@ -20,7 +20,7 @@ LLM.txt Mastery is a full-stack TypeScript application that analyzes websites an
 - **Multi-Format Generation**: Standard (llms.txt), Full (llms-full.txt with body content), Mini (llms-mini.txt — exclusive format)
 - **Production-Grade Security**: JWT authentication, comprehensive rate limiting, smart bot protection
 
-**Current Status**: ✅ Production operational with enhanced LLMs.txt features active, dual authentication system, coffee tier credit management, and comprehensive financial tracking implemented.
+**Current Status**: ✅ Production operational with enhanced LLMs.txt features active, dual authentication system, coffee tier credit management, and comprehensive financial tracking implemented. As of July 2026: TypeScript-clean (zero-error tsc gate enforced pre-commit), marketing pages prerendered for non-JS/AI crawlers, Stripe pinned to API 2025-08-27.basil with dual-shape webhook handling, and live Stripe webhooks verified end-to-end in production for the first time.
 
 ## System Overview
 
@@ -93,7 +93,7 @@ Production Environment:
 │           │                                       │                             │
 │           │ HTTPS API Requests                    │ PostgreSQL Connection       │
 │           ▼                                       ▼                             │
-│ www.llmtxtmastery.com                llm-txt-mastery-production.up.railway.app │
+│ llmtxtmastery.com                llm-txt-mastery-production.up.railway.app │
 │                                                   │                             │
 │                                   ┌───────────────▼─────────────────────────┐   │
 │                                   │           Neon PostgreSQL               │   │
@@ -113,7 +113,7 @@ Production Environment:
 #### Frontend Infrastructure (Netlify)
 
 - **Platform**: Netlify Global CDN with Edge Functions
-- **Domain**: www.llmtxtmastery.com (production)
+- **Domain**: llmtxtmastery.com (production; canonical is the apex domain — www 301-redirects to it, and every page stamps a self-referential non-www canonical + og:url since July 2026)
 - **Build**: Vite-powered automatic deployment from GitHub (`client/` directory)
 - **Deployment**: `dist/public` output directory with optimized assets
 - **Features**:
@@ -1167,7 +1167,7 @@ Enhanced Git-based Deployment Pipeline
 │         │    │                           │                                     │
 │         │    └── Vite Build ────────────┤                                     │
 │         │                               ├─── Global CDN Distribution          │
-│         │                               ├─── www.llmtxtmastery.com            │
+│         │                               ├─── llmtxtmastery.com            │
 │         │                               └─── Edge Functions (Backup APIs)     │
 │         │                                                                       │
 │         └─── server/ ──────────────────→ Railway Production                    │
@@ -1180,6 +1180,29 @@ Enhanced Git-based Deployment Pipeline
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Deployment reality (verified July 2026 — differs from the diagram above):**
+
+- **Netlify (frontend)** auto-deploys from GitHub `main` as drawn. The build runs
+  `npx playwright install chromium && npm run build:prerender`: after the Vite build,
+  `scripts/prerender.mjs` snapshots 9 marketing routes to static HTML
+  (`dist/public/<route>/index.html`) so non-JS and AI crawlers get full content; tool
+  routes fall back to `app-shell/index.html` (SPA).
+- **Railway (backend)** does NOT currently auto-deploy on push. Deploys are made with the
+  CLI from a clean checkout of the target branch: `railway up -e production -s
+  llm-txt-mastery --detach --ci` (or `-e staging`). `.railwayignore` trims the upload
+  payload. Always confirm with `railway deployment list` — deploy failures have been
+  silent before (LTM-ISS-14).
+- **Husky guard**: `npm ci` on Railway has no devDependencies, so `package.json`'s
+  `prepare` runs `.husky/install.mjs`, which swallows only ERR_MODULE_NOT_FOUND. Do not
+  revert `prepare` to a bare `husky` call — that broke every backend deploy for 3 days.
+- **Staging** (revived July 2026): same Railway service, `staging` environment,
+  `llm-txt-mastery-staging.up.railway.app`, its own Neon project and TEST-mode Stripe
+  keys. Deploy from a `develop` checkout via `railway up -e staging`. Its test-mode
+  Stripe webhook endpoint is pinned to API version 2025-08-27.basil.
+- **Pre-commit gate**: `.husky/pre-commit` runs a full `npx tsc --noEmit` (zero-error
+  policy, no baseline) plus the global gitleaks hook via `core.hooksPath` chaining. Never
+  set a repo-local `core.hooksPath`; it silently disables the gitleaks chain.
 
 ### Environment Configuration
 
@@ -1221,10 +1244,14 @@ AI_COST_TRACKING_ENABLED=true
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
-# Product Configuration
-STRIPE_COFFEE_PRICE_ID=price_...
-STRIPE_GROWTH_PRICE_ID=price_...
-STRIPE_SCALE_PRICE_ID=price_...
+# Product Configuration (monthly + annual per paid tier)
+STRIPE_LLM_TXT_COFFEE_PRICE_ID=price_...
+STRIPE_LLM_TXT_SOLO_PRICE_ID=price_...
+STRIPE_LLM_TXT_SOLO_ANNUAL_PRICE_ID=price_...
+STRIPE_LLM_TXT_GROWTH_PRICE_ID=price_...
+STRIPE_LLM_TXT_GROWTH_ANNUAL_PRICE_ID=price_...
+STRIPE_LLM_TXT_SCALE_PRICE_ID=price_...
+STRIPE_LLM_TXT_SCALE_ANNUAL_PRICE_ID=price_...
 
 # Email Service
 RESEND_API_KEY=re_...
@@ -1587,9 +1614,9 @@ The system is designed with clear evolution paths from the current monolithic ar
 **Business Impact:**
 The architecture directly enables the business model with sophisticated freemium support, multiple payment tiers, comprehensive usage tracking, and AI cost optimization that maintains healthy unit economics across all customer segments.
 
-**Last Updated**: March 1, 2026
-**Architecture Version**: 3.4
-**Status**: Production Ready - A+ Security, 98/100 Lighthouse, Brand-Aligned Design System ✅
+**Last Updated**: July 27, 2026
+**Architecture Version**: 5.0
+**Status**: Production Ready - A+ Security, TypeScript-clean with enforced tsc gate, live Stripe webhooks verified in production, AImpactScanner 82/100 ✅
 **Next Review**: Q2 2026
 
 ---
@@ -2101,6 +2128,67 @@ Production Implementation:
 - Innovative solutions to market challenges (coffee tier, cost optimization)
 - Sustainable technical and business architecture
 - Clear roadmap for continued evolution and scale
+
+### A.15 July 2026 Hardening Arc (v5.0)
+
+A concentrated reliability and visibility push (23–27 July 2026), tracked as LTM-ISS-2
+and LTM-ISS-7 through LTM-ISS-15 in ISSUES.md. What changed and why it matters:
+
+**Type safety restored (LTM-ISS-1/2).** The 261-error TypeScript baseline was burned to
+zero across 12 root-cause batches with types made true — no `any`-spam, no `@ts-ignore`,
+no tsconfig loosening. The pre-commit hook now runs a full `npx tsc --noEmit` with a
+zero-error policy (the interim `.tsc-baseline.txt` gate is gone). Key modelling decision:
+`StoredUserTier = UserTier | 'coffee' | ...` distinguishes what the DB may hold from what
+live business logic accepts, with casts confined to the DB boundary.
+
+**AI/SEO visibility (LTM-ISS-9/10/11/12).** The marketing site was a client-rendered
+shell invisible to non-JS crawlers. Now: build-time Playwright prerender of 9 marketing
+routes; honest JSON-LD (Organization, WebSite, SoftwareApplication with real tier
+prices, FAQPage sourced from the same constant as the visible FAQ); dated content with
+`time[datetime]`; self-referential non-www canonicals; robots.txt explicitly allowing
+GPTBot/OAI-SearchBot/ClaudeBot/Claude-Web/PerplexityBot/Google-Extended. AImpactScanner
+score moved 36 → 82 over the arc. Residual: real-network LCP work is LTM-ISS-13.
+
+**Deploy pipeline truth (LTM-ISS-14).** Railway backend deploys had been silently
+failing for 3 days (husky `prepare` under devDep-less `npm ci`). Fixed with the
+`.husky/install.mjs` guard; deployment discipline is now: deploy via `railway up`,
+verify via `railway deployment list`, never assume a push deployed.
+
+**Stripe correctness (LTM-ISS-7/8/15/16).** Three linked fixes:
+
+1. *Payment linkage (ISS-7)*: the invoice/subscription webhook handlers now upsert a
+   local `subscriptions` row and link `payment_history.subscription_id` to it (never
+   throwing inside a webhook; miss path records null).
+2. *API version migration (ISS-8)*: SDK pin moved from a cast '2024-06-20' to the typed
+   '2025-08-27.basil'. The only breaking release in range (2025-03-31.basil) moved three
+   consumed fields; all read sites are dual-shape (`invoice.subscription` OR
+   `invoice.parent.subscription_details.subscription`; `subscription.current_period_end`
+   OR `items.data[].current_period_end`; `invoice.payment_intent` OR the
+   `invoice.payments` list), pinned by tests/unit/stripe-basil-shapes.test.ts. Staging
+   verified BOTH endpoint API versions end-to-end with real DB writes.
+3. *Production webhooks existed only on paper (ISS-15)*: live mode had NO webhook
+   endpoint for the production URL — production webhooks had never been delivered.
+   Created (dashboard-only: Stripe excludes webhook_endpoints writes from CLI keys) with
+   five events (checkout.session.completed, customer.subscription.updated/deleted,
+   invoice.payment_failed, invoice.payment_succeeded), signing secret rotated into
+   Railway, verified by probe (`scripts/probe-stripe-webhook.mjs` distinguishes
+   missing-secret vs signature-validation-failed without learning the secret). The live
+   endpoint runs API version 2020-08-27 (dashboard no longer offers basil); the
+   dual-shape code tolerates this, and a deliberate migration to a newer version is
+   tracked as LTM-ISS-16.
+
+**Stripe account topology (operational knowledge).** All LLM.txt Mastery Stripe objects
+live in the main "Aisearchmastery" account (acct_1KSrA8...); the "llm-txt-mastery"
+sandbox visible in the dashboard is empty and unused. Test mode holds the staging
+endpoint; live mode holds the production endpoint plus unrelated endpoints for other
+products (evolve-7, waywithin) — never modify those from this repo's tooling.
+
+**Schema quirks (verified against staging, mirrors production).** The legacy `users`
+table (id/username/password) is separate from `auth_users` (the real account table);
+`payment_history.user_id` and `subscriptions.user_id` FK-reference `users(id)`, not
+`auth_users(id)` — the ids coincide in practice but any schema work here must reconcile
+this deliberately. `emailCaptures` is camelCase in the DB (the getUserUsageStats bug,
+LTM-ISS-6, stems from querying `email_captures`).
 
 ---
 
