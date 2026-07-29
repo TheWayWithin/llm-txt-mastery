@@ -1188,11 +1188,12 @@ Enhanced Git-based Deployment Pipeline
   `scripts/prerender.mjs` snapshots 9 marketing routes to static HTML
   (`dist/public/<route>/index.html`) so non-JS and AI crawlers get full content; tool
   routes fall back to `app-shell/index.html` (SPA).
-- **Railway (backend)** does NOT currently auto-deploy on push. Deploys are made with the
-  CLI from a clean checkout of the target branch: `railway up -e production -s
-  llm-txt-mastery --detach --ci` (or `-e staging`). `.railwayignore` trims the upload
-  payload. Always confirm with `railway deployment list` — deploy failures have been
-  silent before (LTM-ISS-14).
+- **Railway (backend)** auto-deploys from GitHub on push: `main` -> production,
+  `develop` -> staging, same as Netlify. A manual CLI deploy is still available when needed
+  (`railway up -e production -s llm-txt-mastery --detach --ci`, or `-e staging`);
+  `.railwayignore` trims that upload payload. A push triggers a deploy but does not
+  guarantee it succeeded: always confirm with `railway deployment list`, because deploy
+  failures have been silent before (LTM-ISS-14).
 - **Husky guard**: `npm ci` on Railway has no devDependencies, so `package.json`'s
   `prepare` runs `.husky/install.mjs`, which swallows only ERR_MODULE_NOT_FOUND. Do not
   revert `prepare` to a bare `husky` call — that broke every backend deploy for 3 days.
@@ -2151,8 +2152,9 @@ score moved 36 → 82 over the arc. Residual: real-network LCP work is LTM-ISS-1
 
 **Deploy pipeline truth (LTM-ISS-14).** Railway backend deploys had been silently
 failing for 3 days (husky `prepare` under devDep-less `npm ci`). Fixed with the
-`.husky/install.mjs` guard; deployment discipline is now: deploy via `railway up`,
-verify via `railway deployment list`, never assume a push deployed.
+`.husky/install.mjs` guard. The backend auto-deploys on push (`main` -> production,
+`develop` -> staging); deployment discipline is to always verify the result via
+`railway deployment list` rather than assume the push deployed cleanly.
 
 **Stripe correctness (LTM-ISS-7/8/15/16).** Three linked fixes:
 
