@@ -28,7 +28,7 @@ CREATE INDEX IF NOT EXISTS idx_embedding_cache_embedding ON embedding_cache
 USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 
 -- Add semantic clustering columns to existing sitemapAnalysis table
-ALTER TABLE sitemapAnalysis 
+ALTER TABLE "sitemapAnalysis" 
 ADD COLUMN IF NOT EXISTS semantic_clusters JSONB DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS clustering_metadata JSONB DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS content_embeddings JSONB DEFAULT NULL;
@@ -36,7 +36,7 @@ ADD COLUMN IF NOT EXISTS content_embeddings JSONB DEFAULT NULL;
 -- Create page relationships table for hierarchical clustering
 CREATE TABLE IF NOT EXISTS page_relationships (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   parent_url text NOT NULL,
   child_url text NOT NULL,
   relationship_type text NOT NULL, -- 'hierarchical', 'semantic', 'thematic'
@@ -51,7 +51,7 @@ CREATE INDEX IF NOT EXISTS idx_page_relationships_parent_url ON page_relationshi
 -- Create semantic tags table for enhanced tagging
 CREATE TABLE IF NOT EXISTS semantic_tags (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   url text NOT NULL,
   tags JSONB NOT NULL DEFAULT '[]'::jsonb,
   confidence_scores JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -68,7 +68,7 @@ CREATE INDEX IF NOT EXISTS idx_semantic_tags_tags ON semantic_tags USING gin(tag
 -- Create content clusters table for storing cluster results
 CREATE TABLE IF NOT EXISTS content_clusters (
   id serial PRIMARY KEY,
-  analysis_id integer NOT NULL REFERENCES sitemapAnalysis(id) ON DELETE CASCADE,
+  analysis_id integer NOT NULL REFERENCES "sitemapAnalysis"(id) ON DELETE CASCADE,
   cluster_id integer NOT NULL,
   cluster_name text NOT NULL,
   cluster_description text,

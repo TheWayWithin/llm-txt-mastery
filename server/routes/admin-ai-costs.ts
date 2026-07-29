@@ -36,7 +36,7 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
         MAX(ut.actual_ai_cost) / 100.0 as max_user_cost,
         COUNT(DISTINCT CASE WHEN ut.cost_cap_would_trigger THEN ut.user_id END) as users_hitting_cap
       FROM usage_tracking ut
-      JOIN email_captures ec ON ec.user_id = ut.user_id
+      JOIN "emailCaptures" ec ON ec.user_id = ut.user_id
       WHERE ut.date >= ${monthStartStr}
       GROUP BY ec.tier
       ORDER BY total_ai_cost_usd DESC
@@ -64,7 +64,7 @@ router.get('/ai-costs/summary', requireAdmin, async (req, res) => {
         MAX(ut.model_used) as last_model_used
       FROM usage_tracking ut
       JOIN users u ON u.id = ut.user_id
-      JOIN email_captures ec ON ec.user_id = u.id
+      JOIN "emailCaptures" ec ON ec.user_id = u.id
       WHERE ut.date >= ${monthStartStr}
       GROUP BY u.id, u.username, ec.email, ec.tier
       ORDER BY total_cost DESC
@@ -185,7 +185,7 @@ router.post('/ai-costs/simulation', requireAdmin, async (req, res) => {
           ec.email,
           SUM(ut.actual_ai_cost) / 100.0 as monthly_cost
         FROM usage_tracking ut
-        JOIN email_captures ec ON ec.user_id = ut.user_id
+        JOIN "emailCaptures" ec ON ec.user_id = ut.user_id
         WHERE ut.date >= ${monthStartStr}
         GROUP BY ut.user_id, ec.tier, ec.email
       )
