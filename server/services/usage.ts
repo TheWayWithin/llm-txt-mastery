@@ -667,48 +667,23 @@ export async function handleSubscriptionRenewal(userId: number): Promise<void> {
   }
 }
 
-// Get usage statistics for a user
-export async function getUserUsageStats(userEmail: string, days: number = 30): Promise<any> {
-  try {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-
-    // NOTE (LTM-ISS-6): this query still references email_captures, which is not
-    // the table's real name ("emailCaptures"), so it fails and the catch below
-    // returns null — exactly as the previous two-argument db.execute call did.
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const result = await db.execute(sql`
-      SELECT 
-        COUNT(*) as days_active,
-        SUM(analyses_count) as total_analyses,
-        SUM(pages_processed) as total_pages,
-        SUM(ai_calls_count) as total_ai_calls,
-        SUM(cache_hits) as total_cache_hits,
-        SUM(total_cost) as total_cost,
-        AVG(analyses_count) as avg_analyses_per_day,
-        AVG(pages_processed) as avg_pages_per_day
-      FROM usage_tracking 
-      WHERE user_id = (SELECT id FROM email_captures WHERE email = ${userEmail} LIMIT 1)
-      AND date >= ${startDateStr}
-    `);
-
-    return (
-      result.rows?.[0] || {
-        days_active: 0,
-        total_analyses: 0,
-        total_pages: 0,
-        total_ai_calls: 0,
-        total_cache_hits: 0,
-        total_cost: 0,
-        avg_analyses_per_day: 0,
-        avg_pages_per_day: 0,
-      }
-    );
-  } catch (error) {
-    console.error('Error getting user usage stats:', error);
-    return null;
-  }
-}
+// getUserUsageStats was removed here (LTM-ISS-6, 2026-07-29).
+//
+// It aggregated 30 days of usage_tracking for one email, but it had never once
+// executed successfully and had no callers anywhere in the repo. Two independent
+// faults: it read `FROM email_captures` when the table is declared as
+// pgTable('emailCaptures') — a quoted camelCase name that unquoted SQL can never
+// resolve, since Postgres folds unquoted identifiers to lowercase — and it
+// matched usage_tracking.user_id against `SELECT id FROM emailCaptures`, when
+// that column is a foreign key to users.id and rows are written keyed by
+// emailCaptures.user_id (see server/routes.ts and resolveUserFromEmail above).
+// Correcting only the quoting would have produced confidently wrong numbers.
+//
+// Deleted rather than repaired because nothing consumed it and no route exposes
+// it; the working admin surface for the same data is /api/admin/ai-costs/*, and
+// resolveUserFromEmail + Drizzle's query builder are the safe way to rebuild an
+// aggregate if one is ever wanted. tests/unit/raw-sql-table-quoting.test.ts
+// guards the whole bug class against reintroduction.
 
 // Estimate cost for an analysis
 export function estimateAnalysisCost(

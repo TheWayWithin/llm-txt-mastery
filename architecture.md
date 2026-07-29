@@ -2187,8 +2187,15 @@ products (evolve-7, waywithin) — never modify those from this repo's tooling.
 table (id/username/password) is separate from `auth_users` (the real account table);
 `payment_history.user_id` and `subscriptions.user_id` FK-reference `users(id)`, not
 `auth_users(id)` — the ids coincide in practice but any schema work here must reconcile
-this deliberately. `emailCaptures` is camelCase in the DB (the getUserUsageStats bug,
-LTM-ISS-6, stems from querying `email_captures`).
+this deliberately. Three tables are quoted camelCase in the DB — `emailCaptures`,
+`sitemapAnalysis`, `llmTextFiles` — while the other eighteen are snake_case. Raw SQL
+must double-quote those three, because Postgres folds unquoted identifiers to
+lowercase; Drizzle's query builder quotes for you and is always safe. LTM-ISS-6 was
+this bug in four places: the dead `getUserUsageStats` helper (deleted 2026-07-29,
+it had no callers and also joined the wrong id column) and three live
+`/api/admin/ai-costs/*` queries, which had been returning 500 since they were
+written. `tests/unit/raw-sql-table-quoting.test.ts` now fails the build if raw SQL
+in `server/` or `shared/` names one of the three unquoted.
 
 ---
 
