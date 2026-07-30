@@ -1,0 +1,113 @@
+name: Deploy Verify
+
+# LTM-ISS-19: catch a push that never reaches the running service.
+#
+# On 2026-07-30 a push to main produced NO production deployment at all — not a
+# failed one, none — for over 10 minutes, while staging deployed normally. Nothing
+# turned red, so a security fix sat unshipped until a human happened to notice.
+#
+# A "did the deploy succeed?" check cannot catch that: with no deployment, the
+# previous deployment's SUCCESS is still the latest, and a stale SUCCESS is
+# indistinguishable from a fresh one. So this workflow does not look at deployment
+# records at all. It asks the running service which commit it is serving, and
+# fails unless that becomes the commit we just pushed. That single assertion covers
+# both failure modes — a deploy that failed, and a deploy that never happened.
+#
+# On failure, ci-alert.yml (workflow_run on main/develop) opens a GitHub issue and
+# auto-closes it when the next run passes, so no extra notification wiring or
+# secrets are needed here.
+
+on:
+  push:
+    branches: [main, develop]
+  # Drill: run manually with simulate_failure=true to prove the alarm still fires
+  # (it should fail, and ci-alert.yml should raise an issue). Re-run this after any
+  # change to the alerting path, so we never find out it is broken during a real one.
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: 'Expect a SHA that can never appear, to prove the alarm fires'
+        type: boolean
+        default: false
+
+# A newer push supersedes an older one for the same branch.
+concurrency:
+  group: deploy-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Resolve target environment
+        id: target
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "url=https://llm-txt-mastery-production.up.railway.app" >> "$GITHUB_OUTPUT"
+            echo "name=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=https://llm-txt-mastery-staging.up.railway.app" >> "$GITHUB_OUTPUT"
+            echo "name=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for ${{ steps.target.outputs.name }} to serve this commit
+        env:
+          TARGET_URL: ${{ steps.target.outputs.url }}
+          TARGET_NAME: ${{ steps.target.outputs.name }}
+          # The drill deliberately expects a SHA no deploy can ever report.
+          EXPECTED_SHA: ${{ inputs.simulate_failure && '0000000000000000000000000000000000000000' || github.sha }}
+          # Observed: a staging deploy took ~3.5 min end to end. 12 minutes leaves
+          # generous headroom for a slow build without letting a genuine no-deploy
+          # sit unreported for long.
+          TIMEOUT_SECONDS: ${{ inputs.simulate_failure && '60' || '720' }}
+          POLL_SECONDS: '20'
+        run: |
+          set -uo pipefail
+          deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+          attempt=0
+          last=""
+
+          echo "Waiting for $TARGET_NAME to report commitSha=$EXPECTED_SHA"
+
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            attempt=$((attempt + 1))
+            # A failed curl (service down mid-deploy) must not kill the loop.
+            body=$(curl -fsS --max-time 15 "$TARGET_URL/health" 2>/dev/null || echo '')
+            sha=$(printf '%s' "$body" | jq -r '.commitSha // empty' 2>/dev/null || echo '')
+            last="${sha:-<no response>}"
+            echo "attempt $attempt: commitSha=$last"
+
+            if [ "$sha" = "$EXPECTED_SHA" ]; then
+              echo "::notice title=Deploy verified::$TARGET_NAME is serving $EXPECTED_SHA"
+              exit 0
+            fi
+
+            sleep "$POLL_SECONDS"
+          done
+
+          echo "::error title=Deploy did not reach $TARGET_NAME::After ${TIMEOUT_SECONDS}s, $TARGET_NAME is serving '$last', not the pushed commit $EXPECTED_SHA."
+          cat <<EOF
+          ────────────────────────────────────────────────────────────
+          THE PUSHED COMMIT IS NOT LIVE ON $TARGET_NAME.
+
+          Expected commitSha : $EXPECTED_SHA
+          Currently serving  : $last
+
+          This means either the deployment failed, or — as in LTM-ISS-19 — no
+          deployment was created at all. Check the TIMESTAMP, not just the status:
+
+            railway deployment list -e $TARGET_NAME -s llm-txt-mastery
+
+          A SUCCESS dated before this push is a stale deploy, not proof. If no new
+          deployment exists, ship it by hand from a clean checkout of the branch:
+
+            railway up -e $TARGET_NAME -s llm-txt-mastery --detach --ci
+
+          Note: a manual 'railway up' has no git context, so /health reports
+          commitSha "unknown" and this check will still fail. That is deliberate —
+          it means automatic deployment is still broken and needs fixing.
+          ────────────────────────────────────────────────────────────
+          EOF
+          exit 1
