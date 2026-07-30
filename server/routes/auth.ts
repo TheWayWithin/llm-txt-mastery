@@ -17,6 +17,7 @@ import {
 } from '../services/auth';
 import { authStorage } from '../services/auth-storage';
 import { authenticate, optionalAuth } from '../middleware/auth';
+import { requireAdminSecret } from '../middleware/admin-secret-auth';
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -1038,133 +1039,127 @@ router.post('/demo/reset', async (req, res) => {
   }
 });
 
-// Admin endpoint to manually reset Coffee tier credits (for testing renewals)
-router.post('/admin/reset-coffee-credits', async (req, res) => {
-  try {
-    // Security check - require admin access
-    const adminKey = req.headers['x-admin-key'] as string;
-    if (adminKey !== process.env.ADMIN_KEY) {
-      return res.status(403).json({
-        error: 'Admin access required',
-        code: 'ADMIN_ACCESS_REQUIRED',
-      });
-    }
+// Admin endpoint to manually reset Coffee tier credits (for testing renewals).
+// Guarded by the shared fail-closed middleware (LTM-ISS-18): the previous inline
+// `adminKey !== process.env.ADMIN_KEY` check passed when ADMIN_KEY was unset,
+// because undefined !== undefined is false.
+router.post(
+  '/admin/reset-coffee-credits',
+  requireAdminSecret('ADMIN_KEY', 'x-admin-key'),
+  async (req, res) => {
+    try {
+      const { email } = req.body;
 
-    const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({
+          error: 'Email required',
+          code: 'EMAIL_REQUIRED',
+        });
+      }
 
-    if (!email) {
-      return res.status(400).json({
-        error: 'Email required',
-        code: 'EMAIL_REQUIRED',
-      });
-    }
+      // Get the user
+      const user = await authStorage.getUserByEmail(email);
 
-    // Get the user
-    const user = await authStorage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({
+          error: 'User not found',
+          code: 'USER_NOT_FOUND',
+        });
+      }
 
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found',
-        code: 'USER_NOT_FOUND',
-      });
-    }
+      if (user.tier !== 'solo' && user.tier !== 'coffee') {
+        return res.status(400).json({
+          error: 'User is not on Solo tier',
+          code: 'NOT_SOLO_TIER',
+          userTier: user.tier,
+        });
+      }
 
-    if (user.tier !== 'solo' && user.tier !== 'coffee') {
-      return res.status(400).json({
-        error: 'User is not on Solo tier',
-        code: 'NOT_SOLO_TIER',
-        userTier: user.tier,
-      });
-    }
-
-    // Reset credits to proper Solo tier allocation
-    await authStorage.updateUser(user.id, {
-      creditsRemaining: COFFEE_TIER_CREDITS,
-    });
-
-    // Also call the renewal handler
-    const { handleSubscriptionRenewal } = await import('../services/usage');
-    await handleSubscriptionRenewal(user.id);
-
-    console.log(
-      `[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Solo tier user: ${email}`
-    );
-
-    res.json({
-      success: true,
-      message: 'Credits reset successfully',
-      user: email,
-      newCredits: COFFEE_TIER_CREDITS,
-      previousCredits: user.creditsRemaining,
-    });
-  } catch (error) {
-    console.error('Admin credit reset error:', error);
-    res.status(500).json({
-      error: 'Failed to reset credits',
-      code: 'RESET_ERROR',
-    });
-  }
-});
-
-// Admin endpoint to fix existing Coffee tier users with incorrect credit amounts
-router.post('/admin/fix-coffee-credits', async (req, res) => {
-  try {
-    // Security check - require admin access (this is a temporary migration endpoint)
-    const adminKey = req.headers['x-admin-key'] as string;
-    if (adminKey !== process.env.ADMIN_KEY) {
-      return res.status(403).json({
-        error: 'Admin access required',
-        code: 'ADMIN_ACCESS_REQUIRED',
-      });
-    }
-
-    // Find all Solo/Coffee tier users with less than 20 credits
-    const soloUsers = await authStorage.getUsersByTier('solo');
-    const coffeeUsers = await authStorage.getUsersByTier('coffee');
-    const allSoloUsers = [...soloUsers, ...coffeeUsers];
-    const usersToFix = allSoloUsers.filter(
-      (user) => (user.creditsRemaining || 0) < COFFEE_TIER_CREDITS
-    );
-
-    console.log(`Found ${usersToFix.length} Solo tier users needing credit adjustment`);
-
-    const fixes = [];
-
-    for (const user of usersToFix) {
-      const currentCredits = user.creditsRemaining || 0;
-      const creditDiff = COFFEE_TIER_CREDITS - currentCredits;
-
-      // Update user to have proper Coffee tier credits
+      // Reset credits to proper Solo tier allocation
       await authStorage.updateUser(user.id, {
         creditsRemaining: COFFEE_TIER_CREDITS,
       });
 
-      fixes.push({
-        userId: user.id,
-        email: user.email,
-        oldCredits: currentCredits,
-        newCredits: COFFEE_TIER_CREDITS,
-        creditsAdded: creditDiff,
-      });
+      // Also call the renewal handler
+      const { handleSubscriptionRenewal } = await import('../services/usage');
+      await handleSubscriptionRenewal(user.id);
 
       console.log(
-        `Fixed Coffee user ${user.email}: ${currentCredits} -> ${COFFEE_TIER_CREDITS} credits`
+        `[ADMIN] Manually reset credits to ${COFFEE_TIER_CREDITS} for Solo tier user: ${email}`
       );
-    }
 
-    res.json({
-      success: true,
-      message: `Fixed ${fixes.length} Coffee tier users`,
-      fixes,
-    });
-  } catch (error) {
-    console.error('❌ Coffee credits fix failed:', error);
-    res.status(500).json({
-      error: 'Coffee credits fix failed',
-      code: 'COFFEE_CREDITS_FIX_ERROR',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
+      res.json({
+        success: true,
+        message: 'Credits reset successfully',
+        user: email,
+        newCredits: COFFEE_TIER_CREDITS,
+        previousCredits: user.creditsRemaining,
+      });
+    } catch (error) {
+      console.error('Admin credit reset error:', error);
+      res.status(500).json({
+        error: 'Failed to reset credits',
+        code: 'RESET_ERROR',
+      });
+    }
   }
-});
+);
+
+// Admin endpoint to fix existing Coffee tier users with incorrect credit amounts.
+// Same shared fail-closed guard as its sibling above (LTM-ISS-18).
+router.post(
+  '/admin/fix-coffee-credits',
+  requireAdminSecret('ADMIN_KEY', 'x-admin-key'),
+  async (req, res) => {
+    try {
+      // Find all Solo/Coffee tier users with less than 20 credits
+      const soloUsers = await authStorage.getUsersByTier('solo');
+      const coffeeUsers = await authStorage.getUsersByTier('coffee');
+      const allSoloUsers = [...soloUsers, ...coffeeUsers];
+      const usersToFix = allSoloUsers.filter(
+        (user) => (user.creditsRemaining || 0) < COFFEE_TIER_CREDITS
+      );
+
+      console.log(`Found ${usersToFix.length} Solo tier users needing credit adjustment`);
+
+      const fixes = [];
+
+      for (const user of usersToFix) {
+        const currentCredits = user.creditsRemaining || 0;
+        const creditDiff = COFFEE_TIER_CREDITS - currentCredits;
+
+        // Update user to have proper Coffee tier credits
+        await authStorage.updateUser(user.id, {
+          creditsRemaining: COFFEE_TIER_CREDITS,
+        });
+
+        fixes.push({
+          userId: user.id,
+          email: user.email,
+          oldCredits: currentCredits,
+          newCredits: COFFEE_TIER_CREDITS,
+          creditsAdded: creditDiff,
+        });
+
+        console.log(
+          `Fixed Coffee user ${user.email}: ${currentCredits} -> ${COFFEE_TIER_CREDITS} credits`
+        );
+      }
+
+      res.json({
+        success: true,
+        message: `Fixed ${fixes.length} Coffee tier users`,
+        fixes,
+      });
+    } catch (error) {
+      console.error('❌ Coffee credits fix failed:', error);
+      res.status(500).json({
+        error: 'Coffee credits fix failed',
+        code: 'COFFEE_CREDITS_FIX_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+);
 
 export default router;

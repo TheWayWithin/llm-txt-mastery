@@ -1,9 +1,9 @@
 /**
  * CRITICAL SECURITY: Startup Security Validation
- * 
+ *
  * This module performs security validation at application startup
  * to ensure production environments have secure configuration.
- * 
+ *
  * SECURITY FIX: CVSS 9.1 - JWT Secret Environment Variable Security
  */
 
@@ -22,7 +22,7 @@ function validateJWTSecurity(): SecurityValidationResult {
     passed: false,
     warnings: [],
     errors: [],
-    criticalErrors: []
+    criticalErrors: [],
   };
 
   const jwtSecret = process.env.JWT_SECRET;
@@ -43,20 +43,26 @@ function validateJWTSecurity(): SecurityValidationResult {
     const weakSecrets = [
       'fallback-secret-for-development',
       'development',
-      'dev', 
+      'dev',
       'test',
       'secret',
       'jwt-secret',
       'password',
-      '123456'
+      '123456',
     ];
 
     if (weakSecrets.includes(jwtSecret.toLowerCase())) {
-      result.criticalErrors.push(`CRITICAL: JWT_SECRET is using a weak/default value: ${jwtSecret}`);
+      result.criticalErrors.push(
+        `CRITICAL: JWT_SECRET is using a weak/default value: ${jwtSecret}`
+      );
     } else if (jwtSecret.length < 32) {
-      result.criticalErrors.push(`CRITICAL: JWT_SECRET is too short (${jwtSecret.length} chars, minimum 32)`);
+      result.criticalErrors.push(
+        `CRITICAL: JWT_SECRET is too short (${jwtSecret.length} chars, minimum 32)`
+      );
     } else if (nodeEnv === 'production' && jwtSecret.length < 64) {
-      result.warnings.push(`WARNING: JWT_SECRET should be at least 64 characters in production (current: ${jwtSecret.length})`);
+      result.warnings.push(
+        `WARNING: JWT_SECRET should be at least 64 characters in production (current: ${jwtSecret.length})`
+      );
     }
   }
 
@@ -65,19 +71,25 @@ function validateJWTSecurity(): SecurityValidationResult {
       'fallback-refresh-secret-for-development',
       'development',
       'dev',
-      'test', 
+      'test',
       'secret',
       'refresh-secret',
       'password',
-      '123456'
+      '123456',
     ];
 
     if (weakRefreshSecrets.includes(jwtRefreshSecret.toLowerCase())) {
-      result.criticalErrors.push(`CRITICAL: JWT_REFRESH_SECRET is using a weak/default value: ${jwtRefreshSecret}`);
+      result.criticalErrors.push(
+        `CRITICAL: JWT_REFRESH_SECRET is using a weak/default value: ${jwtRefreshSecret}`
+      );
     } else if (jwtRefreshSecret.length < 32) {
-      result.criticalErrors.push(`CRITICAL: JWT_REFRESH_SECRET is too short (${jwtRefreshSecret.length} chars, minimum 32)`);
+      result.criticalErrors.push(
+        `CRITICAL: JWT_REFRESH_SECRET is too short (${jwtRefreshSecret.length} chars, minimum 32)`
+      );
     } else if (nodeEnv === 'production' && jwtRefreshSecret.length < 64) {
-      result.warnings.push(`WARNING: JWT_REFRESH_SECRET should be at least 64 characters in production (current: ${jwtRefreshSecret.length})`);
+      result.warnings.push(
+        `WARNING: JWT_REFRESH_SECRET should be at least 64 characters in production (current: ${jwtRefreshSecret.length})`
+      );
     }
   }
 
@@ -98,7 +110,7 @@ function validateOpenAISecurity(): SecurityValidationResult {
     passed: false,
     warnings: [],
     errors: [],
-    criticalErrors: []
+    criticalErrors: [],
   };
 
   const openrouterApiKey = process.env.OPENROUTER_API_KEY;
@@ -108,32 +120,41 @@ function validateOpenAISecurity(): SecurityValidationResult {
   // Check for LLM API key (OpenRouter preferred, OpenAI fallback)
   if (!openrouterApiKey && !openaiApiKey) {
     if (nodeEnv === 'production') {
-      result.errors.push('ERROR: No LLM API key (OPENROUTER_API_KEY or OPENAI_API_KEY) in production');
+      result.errors.push(
+        'ERROR: No LLM API key (OPENROUTER_API_KEY or OPENAI_API_KEY) in production'
+      );
     } else {
       result.warnings.push('WARNING: No LLM API key set (AI features will be disabled)');
     }
   } else if (openrouterApiKey) {
     // Validate OpenRouter key format
     if (!openrouterApiKey.startsWith('sk-or-')) {
-      result.warnings.push('WARNING: OPENROUTER_API_KEY may not be valid (expected "sk-or-" prefix)');
+      result.warnings.push(
+        'WARNING: OPENROUTER_API_KEY may not be valid (expected "sk-or-" prefix)'
+      );
     }
     console.log('✅ Using OpenRouter for LLM calls');
   } else if (openaiApiKey) {
     // Validate OpenAI key format (fallback)
     if (!openaiApiKey.startsWith('sk-')) {
-      result.errors.push('ERROR: OPENAI_API_KEY does not appear to be valid (should start with "sk-")');
+      result.errors.push(
+        'ERROR: OPENAI_API_KEY does not appear to be valid (should start with "sk-")'
+      );
     } else if (openaiApiKey.length < 40) {
       result.errors.push(`ERROR: OPENAI_API_KEY appears too short (${openaiApiKey.length} chars)`);
     }
     console.log('⚠️ Using OpenAI directly (consider switching to OpenRouter)');
 
     // Check for test/development keys in production
-    if (nodeEnv === 'production' && (
-      openaiApiKey.includes('test') || 
-      openaiApiKey.includes('dev') ||
-      openaiApiKey.includes('fake')
-    )) {
-      result.criticalErrors.push('CRITICAL: Test/development OpenAI API key detected in production');
+    if (
+      nodeEnv === 'production' &&
+      (openaiApiKey.includes('test') ||
+        openaiApiKey.includes('dev') ||
+        openaiApiKey.includes('fake'))
+    ) {
+      result.criticalErrors.push(
+        'CRITICAL: Test/development OpenAI API key detected in production'
+      );
     }
   }
 
@@ -149,7 +170,7 @@ function validateDatabaseSecurity(): SecurityValidationResult {
     passed: false,
     warnings: [],
     errors: [],
-    criticalErrors: []
+    criticalErrors: [],
   };
 
   const databaseUrl = process.env.DATABASE_URL;
@@ -163,27 +184,77 @@ function validateDatabaseSecurity(): SecurityValidationResult {
       if (databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1')) {
         result.criticalErrors.push('CRITICAL: Database URL points to localhost in production');
       }
-      
+
       if (databaseUrl.startsWith('postgres://') && !databaseUrl.includes('sslmode=require')) {
         result.warnings.push('WARNING: Database connection may not be using SSL in production');
       }
-      
+
       if (databaseUrl.includes('password=') || databaseUrl.includes(':@')) {
         result.warnings.push('WARNING: Database URL may contain credentials in plain text');
       }
     }
 
     // Check for test/development databases in production
-    if (nodeEnv === 'production' && (
-      databaseUrl.includes('test') ||
-      databaseUrl.includes('dev') ||
-      databaseUrl.includes('local')
-    )) {
+    if (
+      nodeEnv === 'production' &&
+      (databaseUrl.includes('test') || databaseUrl.includes('dev') || databaseUrl.includes('local'))
+    ) {
       result.criticalErrors.push('CRITICAL: Test/development database detected in production');
     }
   }
 
   result.passed = result.criticalErrors.length === 0;
+  return result;
+}
+
+/**
+ * Validate shared-secret admin endpoints (LTM-ISS-18)
+ *
+ * ADMIN_KEY guards /api/auth/admin/*, ADMIN_API_TOKEN guards /api/admin/ai-costs/*.
+ * Both were previously compared with a bare `!==`, which passed when the variable
+ * was unset. That is fixed in server/middleware/admin-secret-auth.ts, which fails
+ * CLOSED, so a missing secret now means those endpoints answer 403 rather than
+ * serving anyone.
+ *
+ * Deliberately reported as errors, NOT criticalErrors: the runtime guard already
+ * makes a missing secret safe, so refusing to boot would trade a contained
+ * degradation (admin endpoints unavailable) for a total outage of a live revenue
+ * product. Loud, visible, non-fatal is the right severity here.
+ */
+function validateAdminSecrets(): SecurityValidationResult {
+  const result: SecurityValidationResult = {
+    passed: false,
+    warnings: [],
+    errors: [],
+    criticalErrors: [],
+  };
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  const MIN_LENGTH = 32;
+
+  for (const name of ['ADMIN_KEY', 'ADMIN_API_TOKEN']) {
+    const value = process.env[name];
+
+    if (!value || value.trim() === '') {
+      const message =
+        `${name} is not set — the admin endpoints it guards will refuse every ` +
+        `request (fail-closed). Set it to re-enable them.`;
+      if (isProduction) {
+        result.errors.push(`ERROR: ${message}`);
+      } else {
+        result.warnings.push(`WARNING: ${message}`);
+      }
+      continue;
+    }
+
+    if (value.length < MIN_LENGTH) {
+      result.warnings.push(
+        `WARNING: ${name} is short (${value.length} chars, recommended minimum ${MIN_LENGTH})`
+      );
+    }
+  }
+
+  result.passed = result.criticalErrors.length === 0 && result.errors.length === 0;
   return result;
 }
 
@@ -196,25 +267,26 @@ export function performStartupSecurityValidation(): void {
   const jwtValidation = validateJWTSecurity();
   const openaiValidation = validateOpenAISecurity();
   const dbValidation = validateDatabaseSecurity();
+  const adminValidation = validateAdminSecrets();
 
   // Report JWT Security
   console.log('🔑 JWT Security Validation:');
   if (jwtValidation.passed) {
     console.log('  ✅ JWT secrets are secure');
   } else {
-    jwtValidation.criticalErrors.forEach(error => console.error(`  ❌ ${error}`));
-    jwtValidation.errors.forEach(error => console.error(`  🔴 ${error}`));
-    jwtValidation.warnings.forEach(warning => console.warn(`  ⚠️  ${warning}`));
+    jwtValidation.criticalErrors.forEach((error) => console.error(`  ❌ ${error}`));
+    jwtValidation.errors.forEach((error) => console.error(`  🔴 ${error}`));
+    jwtValidation.warnings.forEach((warning) => console.warn(`  ⚠️  ${warning}`));
   }
 
-  // Report OpenAI Security  
+  // Report OpenAI Security
   console.log('\n🤖 OpenAI API Security Validation:');
   if (openaiValidation.passed) {
     console.log('  ✅ OpenAI configuration is secure');
   } else {
-    openaiValidation.criticalErrors.forEach(error => console.error(`  ❌ ${error}`));
-    openaiValidation.errors.forEach(error => console.error(`  🔴 ${error}`));
-    openaiValidation.warnings.forEach(warning => console.warn(`  ⚠️  ${warning}`));
+    openaiValidation.criticalErrors.forEach((error) => console.error(`  ❌ ${error}`));
+    openaiValidation.errors.forEach((error) => console.error(`  🔴 ${error}`));
+    openaiValidation.warnings.forEach((warning) => console.warn(`  ⚠️  ${warning}`));
   }
 
   // Report Database Security
@@ -222,23 +294,39 @@ export function performStartupSecurityValidation(): void {
   if (dbValidation.passed) {
     console.log('  ✅ Database configuration is secure');
   } else {
-    dbValidation.criticalErrors.forEach(error => console.error(`  ❌ ${error}`));
-    dbValidation.errors.forEach(error => console.error(`  🔴 ${error}`));
-    dbValidation.warnings.forEach(warning => console.warn(`  ⚠️  ${warning}`));
+    dbValidation.criticalErrors.forEach((error) => console.error(`  ❌ ${error}`));
+    dbValidation.errors.forEach((error) => console.error(`  🔴 ${error}`));
+    dbValidation.warnings.forEach((warning) => console.warn(`  ⚠️  ${warning}`));
+  }
+
+  // Report Admin Secret Security (LTM-ISS-18)
+  console.log('\n🛡️  Admin Endpoint Secret Validation:');
+  if (adminValidation.passed && adminValidation.warnings.length === 0) {
+    console.log('  ✅ Admin endpoint secrets are configured');
+  } else {
+    adminValidation.criticalErrors.forEach((error) => console.error(`  ❌ ${error}`));
+    adminValidation.errors.forEach((error) => console.error(`  🔴 ${error}`));
+    adminValidation.warnings.forEach((warning) => console.warn(`  ⚠️  ${warning}`));
   }
 
   // Summary
-  const totalCriticalErrors = jwtValidation.criticalErrors.length + 
-                             openaiValidation.criticalErrors.length + 
-                             dbValidation.criticalErrors.length;
+  const totalCriticalErrors =
+    jwtValidation.criticalErrors.length +
+    openaiValidation.criticalErrors.length +
+    dbValidation.criticalErrors.length +
+    adminValidation.criticalErrors.length;
 
-  const totalErrors = jwtValidation.errors.length + 
-                     openaiValidation.errors.length + 
-                     dbValidation.errors.length;
+  const totalErrors =
+    jwtValidation.errors.length +
+    openaiValidation.errors.length +
+    dbValidation.errors.length +
+    adminValidation.errors.length;
 
-  const totalWarnings = jwtValidation.warnings.length + 
-                       openaiValidation.warnings.length + 
-                       dbValidation.warnings.length;
+  const totalWarnings =
+    jwtValidation.warnings.length +
+    openaiValidation.warnings.length +
+    dbValidation.warnings.length +
+    adminValidation.warnings.length;
 
   console.log('\n📊 SECURITY VALIDATION SUMMARY:');
   console.log(`  Critical Errors: ${totalCriticalErrors}`);
@@ -247,17 +335,23 @@ export function performStartupSecurityValidation(): void {
 
   // Fail startup if critical errors exist
   if (totalCriticalErrors > 0) {
-    console.error('\n🚨 STARTUP ABORTED: Critical security issues must be resolved before starting the application');
+    console.error(
+      '\n🚨 STARTUP ABORTED: Critical security issues must be resolved before starting the application'
+    );
     console.error('🔧 Fix the critical errors above and restart the application');
     process.exit(1);
   }
 
   if (totalErrors > 0) {
-    console.warn('\n⚠️  WARNING: Security errors detected. Application will start but should be fixed soon.');
+    console.warn(
+      '\n⚠️  WARNING: Security errors detected. Application will start but should be fixed soon.'
+    );
   }
 
   if (totalWarnings > 0) {
-    console.info('\n💡 INFO: Security warnings detected. Consider addressing for optimal security.');
+    console.info(
+      '\n💡 INFO: Security warnings detected. Consider addressing for optimal security.'
+    );
   }
 
   if (totalCriticalErrors === 0 && totalErrors === 0 && totalWarnings === 0) {
@@ -281,7 +375,7 @@ export function generateSecureJWTSecret(length: number = 64): string {
 export function generateSecurityEnvironmentTemplate(): string {
   const jwtSecret = generateSecureJWTSecret(64);
   const refreshSecret = generateSecureJWTSecret(64);
-  
+
   return `# CRITICAL SECURITY: JWT Secrets
 # Generate new secrets for each environment using: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 JWT_SECRET=${jwtSecret}
