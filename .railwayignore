@@ -1,0 +1,15 @@
+# Trim the `railway up` upload payload. The working tree is ~1.2GB, mostly the
+# Netlify CLI's bundled chromium and build output, and uploading it all makes the
+# deploy time out. None of this is needed to build the backend on Railway.
+.netlify/
+.playwright-mcp/
+dist/
+node_modules/
+.git/
+coverage/
+test-results/
+playwright-report/
+llmstxtfiles/
+progress/
+*.png
+*.log

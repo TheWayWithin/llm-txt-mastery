@@ -1189,11 +1189,16 @@ Enhanced Git-based Deployment Pipeline
   (`dist/public/<route>/index.html`) so non-JS and AI crawlers get full content; tool
   routes fall back to `app-shell/index.html` (SPA).
 - **Railway (backend)** auto-deploys from GitHub on push: `main` -> production,
-  `develop` -> staging, same as Netlify. A manual CLI deploy is still available when needed
-  (`railway up -e production -s llm-txt-mastery --detach --ci`, or `-e staging`);
-  `.railwayignore` trims that upload payload. A push triggers a deploy but does not
-  guarantee it succeeded: always confirm with `railway deployment list`, because deploy
-  failures have been silent before (LTM-ISS-14).
+  `develop` -> staging, same as Netlify — but **do not rely on it**. On 2026-07-30 a push
+  to `main` produced no production deployment at all for 10+ minutes while staging fired
+  normally, leaving a security fix unshipped (LTM-ISS-19); the same push-to-deploy had
+  worked hours earlier. So: always confirm with `railway deployment list` and check the
+  deployment's TIMESTAMP, not just its status — a stale SUCCESS from a previous deploy
+  reads identically to a fresh one. When no deployment appears, fall back to
+  `railway up -e production -s llm-txt-mastery --detach --ci` from a clean checkout of the
+  target branch; `.railwayignore` (tracked, keep it) trims a 1.2GB working tree down so
+  that upload does not time out. Deploy failures have also been silent before
+  (LTM-ISS-14).
 - **Husky guard**: `npm ci` on Railway has no devDependencies, so `package.json`'s
   `prepare` runs `.husky/install.mjs`, which swallows only ERR_MODULE_NOT_FOUND. Do not
   revert `prepare` to a bare `husky` call — that broke every backend deploy for 3 days.
