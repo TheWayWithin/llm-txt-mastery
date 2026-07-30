@@ -3,19 +3,16 @@ import { db } from '../db';
 import { usageTracking, emailCaptures, users } from '@shared/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { getMonthlyAiCost } from '../services/usage';
+import { requireAdminSecret } from '../middleware/admin-secret-auth';
 
 const router = Router();
 
-// Admin authentication middleware (simple implementation)
-const requireAdmin = (req: any, res: any, next: any) => {
-  // For now, check for admin header
-  // TODO: Replace with proper admin authentication
-  const adminToken = req.headers['x-admin-token'];
-  if (adminToken !== process.env.ADMIN_API_TOKEN && process.env.NODE_ENV === 'production') {
-    return res.status(403).json({ error: 'Admin access required' });
-  }
-  next();
-};
+// Shared fail-closed admin guard (LTM-ISS-18). The previous inline check
+// (`adminToken !== process.env.ADMIN_API_TOKEN && NODE_ENV === 'production'`)
+// failed OPEN two ways: an unset ADMIN_API_TOKEN made it `undefined !== undefined`
+// = false, and the NODE_ENV clause disabled it entirely outside production. Both
+// were live: these routes served unauthenticated requests in production.
+const requireAdmin = requireAdminSecret('ADMIN_API_TOKEN', 'x-admin-token');
 
 // Get AI cost summary for all users
 router.get('/ai-costs/summary', requireAdmin, async (req, res) => {

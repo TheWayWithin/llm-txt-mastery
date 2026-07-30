@@ -246,3 +246,53 @@ describe('POST /api/auth/admin/fix-coffee-credits (sibling, shares COFFEE_TIER_C
     expect(mockUpdateUser).toHaveBeenCalledWith(3, { creditsRemaining: RESET_CREDITS });
   });
 });
+
+/**
+ * LTM-ISS-18: these two endpoints shared the fail-open guard that left
+ * /api/admin/ai-costs/* exposed in production. They were protected in practice
+ * only because ADMIN_KEY happened to be set in both environments — an accident of
+ * configuration, not a control. These tests remove that luck from the equation.
+ */
+describe('LTM-ISS-18: credit endpoints fail closed when ADMIN_KEY is unset', () => {
+  let app: express.Application;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete process.env.ADMIN_KEY;
+    mockGetUserByEmail.mockResolvedValue(soloUser);
+    mockUpdateUser.mockResolvedValue({ ...soloUser, creditsRemaining: RESET_CREDITS });
+    app = makeApp();
+  });
+
+  it('reset-coffee-credits is refused with no ADMIN_KEY configured, even with a header', async () => {
+    const res = await request(app)
+      .post(RESET_PATH)
+      .set('x-admin-key', 'anything-at-all')
+      .send({ email: soloUser.email });
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe('ADMIN_ACCESS_REQUIRED');
+    expect(mockUpdateUser).not.toHaveBeenCalled();
+  });
+
+  it('reset-coffee-credits is refused with no ADMIN_KEY and no header', async () => {
+    const res = await request(app).post(RESET_PATH).send({ email: soloUser.email });
+    expect(res.status).toBe(403);
+    expect(mockUpdateUser).not.toHaveBeenCalled();
+  });
+
+  it('fix-coffee-credits is refused with no ADMIN_KEY configured', async () => {
+    const res = await request(app).post(FIX_PATH).set('x-admin-key', 'anything-at-all').send({});
+    expect(res.status).toBe(403);
+    expect(mockGetUsersByTier).not.toHaveBeenCalled();
+  });
+
+  it('an empty-string ADMIN_KEY is treated as unset, not as a valid secret', async () => {
+    process.env.ADMIN_KEY = '   ';
+    const res = await request(app)
+      .post(RESET_PATH)
+      .set('x-admin-key', '   ')
+      .send({ email: soloUser.email });
+    expect(res.status).toBe(403);
+    expect(mockUpdateUser).not.toHaveBeenCalled();
+  });
+});
