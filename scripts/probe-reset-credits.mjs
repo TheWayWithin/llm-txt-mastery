@@ -35,11 +35,11 @@ const base = (process.argv[2] || process.env.PROBE_BASE_URL || DEFAULT_BASE).rep
 const path = '/api/auth/admin/reset-coffee-credits';
 const url = `${base}${path}`;
 
-// Hard guard: this endpoint writes credits. Refuse to run against production.
-if (/production/.test(base) || /llmtxtmastery\.com/.test(base)) {
-  console.error(`REFUSING to probe a production URL (${base}). Staging only.`);
-  process.exit(2);
-}
+// Only the success check (F) writes credits. It is hard-disabled against
+// production regardless of environment variables; every other check is read-only
+// and safe to run anywhere, including as a production regression check for the
+// LTM-ISS-18 admin exposure.
+const IS_PRODUCTION = /production/.test(base) || /llmtxtmastery\.com/.test(base);
 
 const adminKey = process.env.ADMIN_KEY || '';
 const starterEmail = process.env.RESET_STARTER_EMAIL || '';
@@ -150,7 +150,9 @@ if (adminKey && starterEmail) {
 }
 
 // F. valid key, Solo/coffee tier -> 200, credits reset to 20 (THE ONE WRITE)
-if (adminKey && targetEmail) {
+if (IS_PRODUCTION) {
+  skip('F. valid key + Solo user (MUTATES)', 'refusing to write credits against production');
+} else if (adminKey && targetEmail) {
   try {
     const r = await post({ 'x-admin-key': adminKey }, { email: targetEmail });
     record(
@@ -163,6 +165,37 @@ if (adminKey && targetEmail) {
   }
 } else {
   skip('F. valid key + Solo user (MUTATES)', 'ADMIN_KEY or RESET_TARGET_EMAIL not set');
+}
+
+// G-I. The /api/admin/ai-costs/* routes must refuse unauthenticated callers.
+//
+// LTM-ISS-18: these three served 200 with JSON to anyone in production, because
+// their guard read `token !== process.env.ADMIN_API_TOKEN && NODE_ENV === 'production'`
+// and ADMIN_API_TOKEN was set in no environment. All three are read-only probes
+// (the POST sends an empty body and must be rejected before any handler runs), so
+// this section is safe to run anywhere — including production, where it is the
+// regression check that the hole stayed shut.
+const adminCostRoutes = [
+  ['G', 'GET', '/api/admin/ai-costs/summary'],
+  ['H', 'GET', '/api/admin/ai-costs/user/probe%40example.com'],
+  ['I', 'POST', '/api/admin/ai-costs/simulation'],
+];
+
+for (const [label, method, routePath] of adminCostRoutes) {
+  try {
+    const res = await fetch(`${base}${routePath}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      ...(method === 'POST' ? { body: JSON.stringify({}) } : {}),
+    });
+    record(
+      `${label}. ${method} ${routePath} rejects unauthenticated request`,
+      res.status === 403,
+      `status ${res.status}${res.status === 200 ? ' — STILL EXPOSED' : ''}`
+    );
+  } catch (err) {
+    record(`${label}. ${method} ${routePath} rejects unauthenticated request`, false, err.message);
+  }
 }
 
 const failed = results.filter((r) => !r.pass);
