@@ -5,6 +5,16 @@ name: CI Failure Alert
 
 on:
   workflow_run:
+    # `workflows` is REQUIRED for a workflow_run trigger. Without it GitHub rejects
+    # the file as invalid, so every run failed instantly ("workflow file issue") and
+    # no alert was ever raised — this workflow had never worked, which is why the
+    # deploy-failure alerting follow-up from LTM-ISS-14 was still outstanding and
+    # why LTM-ISS-19's silent no-deploy went unnoticed. Add new workflows here or
+    # they will not be watched.
+    workflows:
+      - 'CI/CD Pipeline'
+      - 'Semantic Features CI/CD Pipeline'
+      - 'Deploy Verify'
     types: [completed]
     branches: [main, develop, master]
 
