@@ -1199,6 +1199,17 @@ Enhanced Git-based Deployment Pipeline
   target branch; `.railwayignore` (tracked, keep it) trims a 1.2GB working tree down so
   that upload does not time out. Deploy failures have also been silent before
   (LTM-ISS-14).
+- **You no longer have to remember to check** (LTM-ISS-19). `/health` reports `commitSha`
+  (Railway's `RAILWAY_GIT_COMMIT_SHA`; `"unknown"` for manual `railway up`, which has no git
+  context) and a truthful `startedAt`. `.github/workflows/deploy-verify.yml` polls that after
+  every push to `main`/`develop` and fails unless the pushed SHA becomes the SHA actually
+  being served — which catches a failed deploy AND a deploy that never happened, without
+  needing a Railway API token. `ci-alert.yml` turns any such failure into a GitHub issue and
+  auto-closes it when green. Run the workflow manually with `simulate_failure=true` to
+  re-prove the alarm still fires. Note `ci-alert.yml` must stay valid **on `main`**:
+  `workflow_run` always uses the default branch's copy, and a missing `workflows:` key makes
+  it silently invalid — that is exactly why the repo had no working alerting at all until
+  2026-07-30.
 - **Husky guard**: `npm ci` on Railway has no devDependencies, so `package.json`'s
   `prepare` runs `.husky/install.mjs`, which swallows only ERR_MODULE_NOT_FOUND. Do not
   revert `prepare` to a bare `husky` call — that broke every backend deploy for 3 days.
