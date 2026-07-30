@@ -2,9 +2,45 @@ import { stripe } from './stripe';
 
 // subscription.current_period_end moved to items.data[].current_period_end in
 // Stripe API 2025-03-31.basil (LTM-ISS-8). Direct API responses lose the old
-// field the moment the SDK pin advances, so read both shapes.
+// field the moment the SDK pin advances, so read both shapes. Across items we
+// take the LATEST period end, because that is what Stripe itself uses when it
+// resolves a flexible-mode cancellation date (LTM-ISS-17); single-item
+// subscriptions — every subscription we sell today — are unaffected.
 export function subscriptionPeriodEnd(subscription: any): number | undefined {
-  return subscription?.current_period_end ?? subscription?.items?.data?.[0]?.current_period_end;
+  if (subscription?.current_period_end != null) return subscription.current_period_end;
+  const itemEnds = (subscription?.items?.data ?? [])
+    .map((item: any) => item?.current_period_end)
+    .filter((end: unknown): end is number => typeof end === 'number');
+  return itemEnds.length ? Math.max(...itemEnds) : undefined;
+}
+
+// Statuses in which Stripe is still serving the customer. A subscription
+// scheduled to cancel keeps its live status until the date passes.
+const LIVE_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due', 'unpaid', 'paused']);
+
+// The date access actually ends. In flexible billing mode (the creation default
+// from 2025-09-30.clover onward, so every subscription created under our dahlia
+// pin) Stripe resolves a scheduled cancellation to a fixed `cancel_at` timestamp
+// and does NOT re-derive it when an item's period end moves — so when cancel_at
+// is set it is authoritative, not the item period end.
+export function effectiveSubscriptionEndAt(subscription: any): number | undefined {
+  if (typeof subscription?.cancel_at === 'number') return subscription.cancel_at;
+  return subscriptionPeriodEnd(subscription);
+}
+
+// "Scheduled to cancel but still serving the customer."
+//
+// Stripe represents this differently per billing mode, and reading only
+// cancel_at_period_end silently misses the modern one (LTM-ISS-17):
+//   - classic:  cancel_at_period_end = true,  cancel_at = period end
+//   - flexible: cancel_at_period_end = FALSE, cancel_at = resolved timestamp
+// Docs: https://docs.stripe.com/billing/subscriptions/billing-mode/compare
+// So accept either signal, and require the end date to still be in the future.
+export function isCancellationScheduled(subscription: any, nowMs: number = Date.now()): boolean {
+  if (!LIVE_SUBSCRIPTION_STATUSES.has(subscription?.status)) return false;
+  if (!subscription?.cancel_at && !subscription?.cancel_at_period_end) return false;
+  const endAt = effectiveSubscriptionEndAt(subscription);
+  return (endAt ?? 0) * 1000 > nowMs;
 }
 
 // invoice.payment_intent was removed in Stripe API 2025-03-31.basil in favour
@@ -449,13 +485,11 @@ async function processSubscriptionCancellation(
     });
 
     const validSub = allSubs.data.find(
-      (s: any) =>
-        s.status === 'active' ||
-        (s.cancel_at_period_end && (subscriptionPeriodEnd(s) ?? 0) * 1000 > Date.now())
+      (s: any) => s.status === 'active' || isCancellationScheduled(s)
     );
 
     if (validSub) {
-      const endDate = new Date((subscriptionPeriodEnd(validSub) ?? NaN) * 1000);
+      const endDate = new Date((effectiveSubscriptionEndAt(validSub) ?? NaN) * 1000);
       console.log(
         `[CANCEL] Subscription ${validSub.id} already cancelling, ends ${endDate.toISOString()}`
       );
@@ -508,12 +542,17 @@ async function processSubscriptionCancellation(
       periodEndISO: new Date().toISOString(),
     };
   } else {
-    // After 30 days: cancel at period end — user keeps access
-    await stripe().subscriptions.update(subscription.id, {
+    // After 30 days: cancel at period end — user keeps access.
+    // cancel_at_period_end is deprecated in favour of the cancel_at enums but is
+    // still accepted and behaviourally unchanged, so the write stays as-is
+    // (LTM-ISS-17). Read the end date off the UPDATE RESPONSE rather than the
+    // stale pre-update object: under flexible billing mode Stripe resolves the
+    // cancellation to a fixed cancel_at, which is the authoritative end date.
+    const cancellingSub: any = await stripe().subscriptions.update(subscription.id, {
       cancel_at_period_end: true,
     });
 
-    const endDate = new Date((subscriptionPeriodEnd(subscription) ?? NaN) * 1000);
+    const endDate = new Date((effectiveSubscriptionEndAt(cancellingSub) ?? NaN) * 1000);
     console.log(
       `[CANCEL] Subscription ${subscription.id} set to cancel at period end: ${endDate.toISOString()}`
     );

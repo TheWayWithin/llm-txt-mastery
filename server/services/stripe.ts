@@ -2,10 +2,11 @@ import Stripe from 'stripe';
 
 // Pinned to the API version this stripe-node build ships types for. The typed
 // literal (no cast) means tsc forces this pin and the SDK to move in lockstep
-// on future upgrades. Migrated from 2024-06-20 in LTM-ISS-8; the only breaking
-// release in between was 2025-03-31.basil, and every consumed field was
-// audited against it (see the LTM-ISS-8 branch summary).
-const PINNED_STRIPE_API_VERSION: Stripe.StripeConfig['apiVersion'] = '2025-08-27.basil';
+// on future upgrades. Migrated 2024-06-20 -> 2025-08-27.basil in LTM-ISS-8, then
+// basil -> 2026-06-24.dahlia in LTM-ISS-17 alongside the stripe-node 18 -> 22
+// upgrade, so direct API reads now match the production webhook endpoint's
+// version (see docs/Operations/stripe-api-version-audit-2026-07.md).
+const PINNED_STRIPE_API_VERSION: Stripe.StripeConfig['apiVersion'] = '2026-06-24.dahlia';
 
 let stripeInstance: Stripe | null = null;
 
