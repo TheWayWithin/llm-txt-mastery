@@ -16,10 +16,30 @@ import { registerRoutes } from './routes';
 import { setupVite, serveStatic, log } from './vite';
 import { setupSecurityMiddleware, corsOptions } from './middleware/security';
 import { nonceInjectionMiddleware, cspViolationReporter } from './middleware/nonce-injection';
-import { enhancedSessionSecurity, securityMonitoring, enhancedInputValidation, apiSecurityHeaders, productionErrorSanitizer } from './middleware/advanced-security';
+import {
+  enhancedSessionSecurity,
+  securityMonitoring,
+  enhancedInputValidation,
+  apiSecurityHeaders,
+  productionErrorSanitizer,
+} from './middleware/advanced-security';
 import { keepAliveService } from './services/keep-alive';
 
 const app = express();
+
+// Captured once at module load, so this is the moment THIS process started —
+// i.e. when the running build actually went live. It used to be new Date() inside
+// the handler, which just echoed request time and so could never reveal a stale
+// deploy (LTM-ISS-19).
+const PROCESS_STARTED_AT = new Date().toISOString();
+
+// The commit this container is running. Railway injects RAILWAY_GIT_COMMIT_SHA
+// only for GitHub-triggered deploys, so a manual `railway up` honestly reports
+// "unknown" rather than a stale or invented value.
+// .github/workflows/deploy-verify.yml polls this after every push and fails if the
+// pushed SHA never appears — that is how a push which silently never deployed gets
+// caught (LTM-ISS-19).
+const COMMIT_SHA = process.env.RAILWAY_GIT_COMMIT_SHA || 'unknown';
 
 // Health check endpoint - available immediately for Railway
 app.get('/health', (req, res) => {
@@ -29,7 +49,9 @@ app.get('/health', (req, res) => {
     message: 'Server is running',
     environment: process.env.NODE_ENV || 'production',
     version: '2.1.0-phase2-validation-api',
-    deployedAt: new Date().toISOString(),
+    commitSha: COMMIT_SHA,
+    startedAt: PROCESS_STARTED_AT,
+    deployedAt: PROCESS_STARTED_AT,
     phase2: {
       validationAPI: true,
       rateLimiting: true,
