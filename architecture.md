@@ -1087,6 +1087,63 @@ Development Environment & Build System
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Branch history: why ancestry is NOT a merged/unmerged oracle here
+
+**Do not use `git branch --merged`, `git cherry`, or "is it an ancestor of main" to decide whether
+a branch's work has landed in this repo. All three give false negatives, for two independent
+reasons:**
+
+1. **This repo squash-merges PRs.** A squash produces a brand-new commit hash, so the source
+   branch's own commits are never ancestors of main even though every line of their content is.
+   PRs #22, #24 and others all landed this way.
+2. **Two patch-identical histories are both reachable from main**, diverging at `3791e93`
+   (2025-07-19). Feature branches were cut from one line while PRs merged from the other, so
+   the same change exists twice under different hashes.
+
+**The correct oracle is `git patch-id`**, which hashes the diff content rather than the commit:
+
+```bash
+# Does this branch commit already exist in main under a different hash?
+pid=$(git show <branch-commit> | git patch-id --stable | awk '{print $1}')
+git log --format='%H' origin/main | while read c; do
+  [ "$(git show $c | git patch-id --stable | awk '{print $1}')" = "$pid" ] && echo "already in main: $c"
+done
+```
+
+**Patch-id alone is not sufficient either** — confirm the match is genuinely reachable, and check
+what a merge would actually produce:
+
+```bash
+git merge-base --is-ancestor <matched-commit> origin/main   # the twin really is in main
+git merge-tree --write-tree origin/main <branch>            # first line == main's tree => no-op
+```
+
+Read `merge-tree` carefully: it writes **conflict markers** into the result, and reports conflicted
+paths as stage 1/2/3 triples. A tree that differs from main's therefore means "this would conflict",
+NOT "this carries unmerged work". An `add/add` conflict on a file that already exists in main is the
+signature of superseded work: the branch's version landed once and main has since evolved it.
+
+This is how LTM-ISS-20 was settled (2026-08-05). All six "unmerged" branches showed 1-3 commits
+ahead of main; all 10 of those commits were exact patch-id matches of commits already in main, all
+10 twins were confirmed ancestors of main, and the behaviour was verified live in main's own source.
+`merge-tree` then showed three branches merging as literal no-ops and the other three producing only
+conflicts. Nothing was merged; all six were archived.
+
+The earlier attempt (commit `41b539b`) reached the opposite conclusion by reading a three-dot
+`main...branch` diff as evidence of unmerged work. It is not: a three-dot diff is branch-tip versus
+merge-base, so it still shows every change the branch made even when main already contains all of
+them via a twin commit. Divergence and unmerged work look identical in that view.
+
+**Deleted branches are recoverable via `archive/*` tags.** Before any branch deletion, tag the tip
+as `archive/<branch-name>` with an annotated message recording why it was archived, and push the
+tag. The tags are permanent refs, so the commits are never garbage-collected:
+
+```bash
+git tag -a archive/feature/foo origin/feature/foo -m "Archived <date> (<issue>). Reason..."
+git push origin refs/tags/archive/feature/foo
+git ls-remote --tags origin 'archive/*'   # confirm on remote BEFORE deleting the branch
+```
+
 ### Enhanced Monorepo Structure
 
 ```
