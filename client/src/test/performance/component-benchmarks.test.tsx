@@ -1,6 +1,15 @@
 /**
  * Component Performance Benchmarks
  *
+ * NOT PART OF THE DEFAULT TEST RUN AND NOT IN CI. Run with `npm run test:perf`.
+ * The thresholds below are absolute wall-clock times, so they measure the machine
+ * as much as the code: on a shared GitHub Actions runner they came in at 166ms,
+ * 524ms and 46ms against limits of 150, 400 and 20, which held CI red on main and
+ * develop continuously from ~2026-07-30. A pipeline that is always red is a broken
+ * smoke alarm, so these moved to vitest.perf.config.ts. See that file for why
+ * raising the numbers was rejected. Treat a failure here as a signal to
+ * investigate, not as a build gate.
+ *
  * PURPOSE: Establish performance baselines before refactoring
  * CRITICAL: These benchmarks ensure refactoring doesn't degrade performance
  *

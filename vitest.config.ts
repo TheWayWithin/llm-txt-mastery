@@ -36,6 +36,16 @@ export default defineConfig({
       // real postgres, so wiring the step would turn CI red on every push. See the
       // diagnosis at the top of tests/integration/tier-upgrade-integration.test.ts.
       'tests/integration/tier-upgrade-integration.test.ts',
+      // Performance benchmarks assert absolute wall-clock times (render < 150ms,
+      // state updates < 400ms, visibility toggle < 20ms). Those numbers hold on a
+      // developer Mac and do not hold on a shared GitHub Actions runner, so this
+      // file had CI red on main and develop continuously from ~2026-07-30: 166ms,
+      // 524ms and 46ms against those limits. A permanently-red pipeline is a broken
+      // smoke alarm, which is the same failure that hid LTM-ISS-14 and LTM-ISS-19.
+      // Benchmarks are a measurement, not a correctness gate, so they run on demand
+      // via `npm run test:perf` (vitest.perf.config.ts). Raising the thresholds was
+      // rejected: it just delays the next drift and picks numbers nothing justifies.
+      'client/src/test/performance/**',
     ],
     coverage: {
       provider: 'v8',
