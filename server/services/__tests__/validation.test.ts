@@ -4,7 +4,7 @@
  * Basic tests for the real validation logic implementation
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { validateLlmsTxt } from '../validation';
 
 describe('Phase 1A - Validation Logic', () => {
@@ -27,17 +27,25 @@ describe('Phase 1A - Validation Logic', () => {
   });
 
   it('should handle 404 errors gracefully', async () => {
-    const result = await validateLlmsTxt('https://example.com/nonexistent');
+    // Mocked rather than hitting the network: the previous version fetched
+    // example.com for real, so the assertion had to be loosened to
+    // `toBeTruthy()` to survive a network-restricted CI runner. That accepted
+    // any non-empty string, including a regressed message. Mocking makes the
+    // real 404 copy deterministic, so the assertion can be exact again.
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('Not Found', { status: 404, statusText: 'Not Found' }));
 
-    expect(result.valid).toBe(false);
-    expect(result.score).toBe(0);
-    // Sprint 16: This test makes a real network request, so the exact error
-    // message depends on whether example.com is reachable from the test runner.
-    // Local: returns friendly "doesn't have an llms.txt" message.
-    // CI: may return "fetch failed" if network is restricted.
-    // Both are acceptable — the contract is "validation fails with score 0".
-    expect(result.issues.length).toBeGreaterThan(0);
-    expect(result.issues[0].message).toBeTruthy();
+    try {
+      const result = await validateLlmsTxt('https://example.com/nonexistent');
+
+      expect(result.valid).toBe(false);
+      expect(result.score).toBe(0);
+      expect(result.issues.length).toBeGreaterThan(0);
+      expect(result.issues[0].message).toContain("doesn't have an llms.txt file yet");
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it('should validate real llms.txt file from Anthropic', async () => {
