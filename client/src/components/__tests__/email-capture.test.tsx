@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import EmailCapture from '../email-capture';
@@ -28,11 +28,12 @@ const renderWithQueryClient = (ui: React.ReactElement) => {
   return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 };
 
-// Sprint 16 (issue #23): Skipped — characterizes pre-Sprint-9 Coffee tier UI
-// (e.g. "☕ Already purchased Coffee tier?", "$4.95 Coffee tier" copy) that
-// has been refactored to Solo branding. Rewrite with current copy in a future
-// sprint or replace with behavior-driven tests.
-describe.skip('EmailCapture Component', () => {
+// Sprint 16 (issue #23) skipped this suite because it characterised the
+// pre-Sprint-9 Coffee-tier UI. LTM-ISS-22 un-skipped it and re-pointed every
+// assertion at the copy and behaviour the component renders today: the email
+// input and its client-side submit were replaced by direct navigation to the
+// /login and /signup routes carrying the selected tier.
+describe('EmailCapture Component', () => {
   const mockProps = {
     websiteUrl: 'https://example.com',
     onEmailCaptured: vi.fn(),
@@ -41,6 +42,9 @@ describe.skip('EmailCapture Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // The component navigates via wouter (history.pushState), so reset the
+    // jsdom URL between tests.
+    window.history.pushState({}, '', '/');
   });
 
   it('renders correctly when visible', () => {
@@ -60,37 +64,41 @@ describe.skip('EmailCapture Component', () => {
     expect(screen.queryByText('Choose Your Analysis Type')).not.toBeInTheDocument();
   });
 
-  it('shows login option when onLoginRequested is provided', () => {
-    const onLoginRequested = vi.fn();
-    renderWithQueryClient(<EmailCapture {...mockProps} onLoginRequested={onLoginRequested} />);
-
-    expect(screen.getByText('Already have an account?')).toBeInTheDocument();
-    expect(screen.getByText('Login Instead')).toBeInTheDocument();
-  });
-
-  it('calls onLoginRequested when login button is clicked', async () => {
+  it('navigates to the login route with the selected tier when Sign In is clicked', async () => {
     const user = userEvent.setup();
-    const onLoginRequested = vi.fn();
-
-    renderWithQueryClient(<EmailCapture {...mockProps} onLoginRequested={onLoginRequested} />);
-
-    const loginButton = screen.getByText('Login Instead');
-    await user.click(loginButton);
-
-    expect(onLoginRequested).toHaveBeenCalledTimes(1);
-  });
-
-  it('defaults to coffee tier selection', () => {
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
-    const coffeeRadio = screen.getByLabelText(/Solopreneur Special/i) as HTMLInputElement;
-    expect(coffeeRadio.checked).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      '/login?tier=solo&website=https%3A%2F%2Fexample.com'
+    );
+  });
+
+  it('navigates to the signup route with the selected tier when Sign Up is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(<EmailCapture {...mockProps} />);
+
+    // Switch off the default tier first so the URL proves the selection is carried
+    await user.click(screen.getByRole('radio', { name: /Professional Power \(\$9\.95\/mo\)/i }));
+    await user.click(screen.getByRole('button', { name: 'Sign Up' }));
+
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      '/signup?tier=growth&website=https%3A%2F%2Fexample.com'
+    );
+  });
+
+  it('defaults to the solo (Coffee Power) tier selection', () => {
+    renderWithQueryClient(<EmailCapture {...mockProps} />);
+
+    const soloRadio = screen.getByRole('radio', { name: /Coffee Power \(\$4\.95\/month\)/i });
+    expect(soloRadio).toBeChecked();
   });
 
   it('shows authentication options when tier is selected', () => {
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
-    // Since coffee is default, auth buttons should be visible
+    // Since solo is default, auth buttons should be visible
     expect(screen.getByText('Sign In')).toBeInTheDocument();
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
   });
@@ -99,17 +107,21 @@ describe.skip('EmailCapture Component', () => {
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
     // Check tier options
-    expect(screen.getByText('Free')).toBeInTheDocument();
-    expect(screen.getByText('Coffee Analysis ($4.95)')).toBeInTheDocument();
-    expect(screen.getByText('Growth ($25/mo)')).toBeInTheDocument();
-    expect(screen.getByText('Scale ($99/mo)')).toBeInTheDocument();
+    expect(screen.getByText('Free (But Crippled)')).toBeInTheDocument();
+    expect(screen.getByText('Coffee Power ($4.95/month)')).toBeInTheDocument();
+    expect(screen.getByText('Professional Power ($9.95/mo)')).toBeInTheDocument();
+    expect(screen.getByText('Agency & API ($19.95/mo)')).toBeInTheDocument();
 
     // Check tier descriptions
     expect(
-      screen.getByText(/3 analyses per day.*20 pages max.*HTML extraction.*Smart categorization/)
+      screen.getByText(
+        /3 analyses per day.*20 pages only.*No AI quality scoring.*Basic HTML extraction only/
+      )
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/1 premium analysis.*200 pages.*Full AI-enhanced.*No subscription/)
+      screen.getByText(
+        /20 monthly analyses.*200 pages per analysis.*AI-powered content scoring.*Beat competitors/
+      )
     ).toBeInTheDocument();
   });
 
@@ -117,68 +129,59 @@ describe.skip('EmailCapture Component', () => {
     const user = userEvent.setup();
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
-    // Initially Free tier should be selected
-    const freeRadio = screen.getByRole('radio', { name: /free/i });
-    expect(freeRadio).toBeChecked();
+    // Initially the solo (Coffee Power) tier is selected
+    const soloRadio = screen.getByRole('radio', { name: /Coffee Power \(\$4\.95\/month\)/i });
+    const starterRadio = screen.getByRole('radio', { name: /Free \(But Crippled\)/i });
+    expect(soloRadio).toBeChecked();
+    expect(starterRadio).not.toBeChecked();
 
-    // Select Coffee tier
-    const coffeeRadio = screen.getByRole('radio', { name: /coffee analysis/i });
-    await user.click(coffeeRadio);
-    expect(coffeeRadio).toBeChecked();
-    expect(freeRadio).not.toBeChecked();
+    // Select the free (starter) tier
+    await user.click(starterRadio);
+    expect(starterRadio).toBeChecked();
+    expect(soloRadio).not.toBeChecked();
   });
 
-  it('validates email input', async () => {
+  it('shows the tier benefit reminder for the selected tier', async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
-    const submitButton = screen.getByText('Start Analysis');
-    await user.click(submitButton);
+    expect(
+      screen.getByText(
+        '🚀 SMART CHOICE: Full power • 30-day guarantee • Cancel instantly • Risk-FREE'
+      )
+    ).toBeInTheDocument();
 
-    // Should show validation error for empty email
-    await waitFor(() => {
-      expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
-    });
-  });
+    await user.click(screen.getByRole('radio', { name: /Free \(But Crippled\)/i }));
 
-  it('submits form with correct data', async () => {
-    const user = userEvent.setup();
-    const onEmailCaptured = vi.fn();
-
-    renderWithQueryClient(<EmailCapture {...mockProps} onEmailCaptured={onEmailCaptured} />);
-
-    // Fill email
-    const emailInput = screen.getByLabelText('Email Address');
-    await user.type(emailInput, 'test@example.com');
-
-    // Select Coffee tier
-    const coffeeRadio = screen.getByRole('radio', { name: /coffee analysis/i });
-    await user.click(coffeeRadio);
-
-    // Submit form
-    const submitButton = screen.getByText('Start Analysis');
-    await user.click(submitButton);
-
-    // Wait for form submission
-    await waitFor(() => {
-      expect(onEmailCaptured).toHaveBeenCalledWith('test@example.com', 'solo');
-    });
+    expect(
+      screen.getByText(
+        '⚠️ WARNING: Severely limited • Will miss critical pages • Competitors will outrank you'
+      )
+    ).toBeInTheDocument();
   });
 
   it('shows correct trust indicators', () => {
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
-    expect(screen.getByText('Secure & Private')).toBeInTheDocument();
-    expect(screen.getByText('No Spam')).toBeInTheDocument();
-    expect(screen.getByText('Expert Quality')).toBeInTheDocument();
+    // The indicators render as one assembled line, not separate elements
+    const trustLine = screen.getByText(/Secure & Private/);
+    expect(trustLine.textContent).toContain('✅ Secure & Private');
+    expect(trustLine.textContent).toContain('✅ No Spam Ever');
+    expect(trustLine.textContent).toContain('✅ Built by Expert Solopreneur');
+    expect(trustLine.textContent).toContain('✅ Self Not VC-Funded');
   });
 
   it('shows returning customer notice', () => {
     renderWithQueryClient(<EmailCapture {...mockProps} />);
 
-    expect(screen.getByText('☕ Already purchased Coffee tier?')).toBeInTheDocument();
-    expect(
-      screen.getByText(/If you recently purchased the \$4\.95 Coffee tier/)
-    ).toBeInTheDocument();
+    const returningNotice = screen.getByText('Returning user?').closest('p');
+    expect(returningNotice).not.toBeNull();
+    expect(returningNotice!.textContent).toBe('Returning user? Click "Sign In" above.');
+
+    const newUserNotice = screen.getByText('New to LLM.txt Mastery?').closest('p');
+    expect(newUserNotice).not.toBeNull();
+    expect(newUserNotice!.textContent).toBe(
+      'New to LLM.txt Mastery? Click "Sign Up" to create your account.'
+    );
   });
 });

@@ -169,11 +169,11 @@ vi.mock('@/hooks/useUsageTracking', () => ({
   }),
 }));
 
-// Sprint 16 (issue #23): Skipped — characterization tests against pre-Sprint-10
-// Analyze page UI. Some assertions reference the removed Enhanced JS Rendering
-// checkbox and pre-Solo tier labels. Rewrite against current page in a future
-// sprint.
-describe.skip('Analyze Page Component - Characterization Tests', () => {
+// LTM-ISS-22 (Aug 2026): Un-skipped and re-pinned against the CURRENT Analyze
+// page. Tier labels now come from getTierDisplayName() ("Solo" / "Starter", not
+// the retired "COFFEE"/"SOLO"/"FREE" upper-case labels), and the builder credit
+// lives in the site footer, which this page does not render.
+describe('Analyze Page Component - Characterization Tests', () => {
   const mockUseAuth = vi.spyOn(AuthContext, 'useAuth');
 
   beforeEach(() => {
@@ -261,11 +261,18 @@ describe.skip('Analyze Page Component - Characterization Tests', () => {
       expect(screen.getByTestId('auth-nav')).toBeInTheDocument();
     });
 
-    it('shows builder credit in header', () => {
+    it('links the header logo home and carries no builder credit', () => {
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(screen.getByText('Built by Jamie Watters')).toBeInTheDocument();
-      expect(screen.getByText('Solopreneur & Tool Builder')).toBeInTheDocument();
+      // The logo is the only branding in the header, wrapped in a link to "/".
+      const logoLink = screen.getByAltText('LLM.txt Mastery').closest('a');
+      expect(logoLink).toHaveAttribute('href', '/');
+
+      // The builder credit ("Built by Jamie Watters" / "Solopreneur & Tool
+      // Builder") lives in client/src/components/footer.tsx, and the Analyze
+      // page renders no footer — so it must not appear here.
+      expect(screen.queryByText('Built by Jamie Watters')).not.toBeInTheDocument();
+      expect(screen.queryByText('Solopreneur & Tool Builder')).not.toBeInTheDocument();
     });
   });
 
@@ -318,8 +325,9 @@ describe.skip('Analyze Page Component - Characterization Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(screen.getByText('Current Tier')).toBeInTheDocument();
-      expect(screen.getByText('SOLO')).toBeInTheDocument();
+      // Tier label is rendered by getTierDisplayName(): "Solo", not "SOLO".
+      const tierStat = screen.getByText('Current Tier').closest('div')!;
+      expect(tierStat.textContent).toBe('Current TierSolo');
     });
 
     it('displays usage statistics', () => {
@@ -350,8 +358,15 @@ describe.skip('Analyze Page Component - Characterization Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      // Note: Credit display not currently shown in this view
-      expect(screen.getByText('SOLO')).toBeInTheDocument();
+      // Solo tier swaps the daily-usage stat for a monthly credit balance. The two
+      // places that show a credit figure MUST agree. They used to disagree: the stat
+      // read only usageData (0 when the hook has not loaded, as it is here) while the
+      // form's info line read only user.creditsRemaining (5), so the same screen
+      // showed "0 of 20 remaining" beside "5 premium analyses remaining". Both now
+      // fall back to the user value until usageData arrives, so both read 5.
+      const usageStat = screen.getByText('Monthly Analyses').closest('div')!;
+      expect(usageStat.textContent).toBe('Monthly Analyses5 of 20 remaining');
+      expect(screen.getByText('5 premium analyses remaining')).toBeInTheDocument();
     });
 
     it('shows different credit display for starter tier', () => {
@@ -366,8 +381,12 @@ describe.skip('Analyze Page Component - Characterization Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      // Note: Tier-specific analysis text not currently displayed in this view
-      expect(screen.getByText('FREE')).toBeInTheDocument();
+      // Starter is labelled "Starter" (the old "FREE" label is retired) and
+      // keeps the daily-usage stat instead of a monthly credit balance.
+      const tierStat = screen.getByText('Current Tier').closest('div')!;
+      expect(tierStat.textContent).toBe('Current TierStarter');
+      expect(screen.getByText("Today's Usage")).toBeInTheDocument();
+      expect(screen.queryByText('Monthly Analyses')).not.toBeInTheDocument();
     });
   });
 
@@ -441,8 +460,9 @@ describe.skip('Analyze Page Component - Characterization Tests', () => {
     it('displays tier-specific analysis information', () => {
       renderWithQueryClient(<AnalyzePage />);
 
-      // Note: Premium analysis count not displayed in current analyze view
-      expect(screen.getByText('SOLO')).toBeInTheDocument();
+      // The URL-input form carries the tier's analysis allowance. Solo users
+      // (no creditsRemaining on the mock user) see the premium-credit line.
+      expect(screen.getByText('0 premium analyses remaining')).toBeInTheDocument();
     });
 
     it('shows analyze button', () => {

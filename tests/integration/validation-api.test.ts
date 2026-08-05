@@ -61,11 +61,13 @@ describe('POST /api/validate-llms-txt', () => {
     // Mock database operations
     (db.insert as any).mockReturnValue({
       values: vi.fn().mockReturnValue({
-        returning: vi.fn().mockResolvedValue([{
-          id: 1,
-          url: 'https://example.com',
-          createdAt: new Date(),
-        }]),
+        returning: vi.fn().mockResolvedValue([
+          {
+            id: 1,
+            url: 'https://example.com',
+            createdAt: new Date(),
+          },
+        ]),
       }),
     });
 
@@ -78,13 +80,11 @@ describe('POST /api/validate-llms-txt', () => {
 
   describe('Anonymous User Flow', () => {
     it('should validate request and generate anonymous ID cookie', async () => {
-      const response = await request(app)
-        .post('/api/validate-llms-txt')
-        .send({
-          url: 'https://example.com',
-          includeRobotsTxt: true,
-          bustCache: false,
-        });
+      const response = await request(app).post('/api/validate-llms-txt').send({
+        url: 'https://example.com',
+        includeRobotsTxt: true,
+        bustCache: false,
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -183,9 +183,7 @@ describe('POST /api/validate-llms-txt', () => {
     });
 
     it('should increment validationsCount in usage tracking', async () => {
-      await request(app)
-        .post('/api/validate-llms-txt')
-        .send({ url: 'https://example.com' });
+      await request(app).post('/api/validate-llms-txt').send({ url: 'https://example.com' });
 
       // Verify usage tracking was called
       expect(db.insert).toHaveBeenCalledTimes(2); // validation + usage tracking
@@ -205,9 +203,7 @@ describe('POST /api/validate-llms-txt', () => {
     });
 
     it('should reject missing URL', async () => {
-      const response = await request(app)
-        .post('/api/validate-llms-txt')
-        .send({});
+      const response = await request(app).post('/api/validate-llms-txt').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Invalid request');
@@ -232,9 +228,7 @@ describe('POST /api/validate-llms-txt', () => {
       ];
 
       for (const url of privateIPs) {
-        const response = await request(app)
-          .post('/api/validate-llms-txt')
-          .send({ url });
+        const response = await request(app).post('/api/validate-llms-txt').send({ url });
 
         expect(response.status).toBe(400);
         expect(response.body.details[0].message).toContain('localhost/private IPs not allowed');
@@ -242,13 +236,11 @@ describe('POST /api/validate-llms-txt', () => {
     });
 
     it('should accept optional parameters', async () => {
-      const response = await request(app)
-        .post('/api/validate-llms-txt')
-        .send({
-          url: 'https://example.com',
-          includeRobotsTxt: false,
-          bustCache: true,
-        });
+      const response = await request(app).post('/api/validate-llms-txt').send({
+        url: 'https://example.com',
+        includeRobotsTxt: false,
+        bustCache: true,
+      });
 
       expect(response.status).toBe(200);
 
@@ -269,7 +261,7 @@ describe('POST /api/validate-llms-txt', () => {
       (rateLimitMiddleware as any).mockImplementation((req: any, res: any) => {
         res.status(429).json({
           error: 'Rate limit exceeded',
-          message: 'You\'ve reached your daily limit',
+          message: "You've reached your daily limit",
         });
       });
 
@@ -293,9 +285,7 @@ describe('POST /api/validate-llms-txt', () => {
 
   describe('Database Persistence', () => {
     it('should save validation result to database', async () => {
-      await request(app)
-        .post('/api/validate-llms-txt')
-        .send({ url: 'https://example.com' });
+      await request(app).post('/api/validate-llms-txt').send({ url: 'https://example.com' });
 
       expect(db.insert).toHaveBeenCalled();
       const insertCall = (db.insert as any).mock.results[0].value.values.mock.calls[0][0];
@@ -312,43 +302,51 @@ describe('POST /api/validate-llms-txt', () => {
     });
 
     it('should create URL hash for deduplication', async () => {
-      await request(app)
-        .post('/api/validate-llms-txt')
-        .send({ url: 'https://example.com' });
+      await request(app).post('/api/validate-llms-txt').send({ url: 'https://example.com' });
 
       const insertCall = (db.insert as any).mock.results[0].value.values.mock.calls[0][0];
       expect(insertCall.urlHash).toBeDefined();
       expect(insertCall.urlHash).toHaveLength(64); // SHA-256 hex string
     });
 
-    it.skip('should set correct expiry dates by tier', async () => {
-      // Sprint 16 (issue #23): Skipped — this test reads from
-      // `db.insert.mock.results[0]` (always the first call) inside a loop, so
-      // every iteration after the first compares stale data against fresh
-      // expectations. Fix requires reading the latest call per iteration AND
-      // verifying the current per-tier day counts after Sprint 9 (coffee→solo).
+    it('should set correct expiry dates by tier', async () => {
+      // The beforeEach mock builds ONE `values` spy and returns it from every
+      // db.insert() call, so `mock.results[0].value.values.mock.calls[0][0]` always
+      // read the FIRST iteration's arguments: every tier after the first compared
+      // stale data against fresh expectations. Each iteration now installs its own
+      // `values` spy and reads that, so the assertion sees the tier under test.
+      // Day counts mirror getExpiryDate() in server/routes/validation.ts, which
+      // still accepts the legacy 'coffee' id alongside the current 'solo'.
       const tiers = [
         { tier: 'starter', expectedDays: 7 },
+        { tier: 'solo', expectedDays: 30 },
         { tier: 'coffee', expectedDays: 30 },
         { tier: 'growth', expectedDays: 90 },
       ];
 
       for (const { tier, expectedDays } of tiers) {
+        const values = vi.fn().mockReturnValue({
+          onConflictDoUpdate: vi.fn().mockResolvedValue({}),
+          returning: vi.fn().mockResolvedValue([{ id: 1 }]),
+        });
+        (db.insert as any).mockReturnValue({ values });
+
         (optionalAuth as any).mockImplementation((req: any, res: any, next: any) => {
           req.user = { id: 1, tier, email: 'test@example.com', creditsRemaining: 0 };
           next();
         });
 
-        await request(app)
-          .post('/api/validate-llms-txt')
-          .send({ url: 'https://example.com' });
+        await request(app).post('/api/validate-llms-txt').send({ url: 'https://example.com' });
 
-        const insertCall = (db.insert as any).mock.results[0].value.values.mock.calls[0][0];
+        const insertCall = values.mock.calls[0][0];
         const expiresAt = new Date(insertCall.expiresAt);
         const expectedExpiry = new Date(Date.now() + expectedDays * 24 * 60 * 60 * 1000);
 
         // Allow 1 minute tolerance
-        expect(Math.abs(expiresAt.getTime() - expectedExpiry.getTime())).toBeLessThan(60000);
+        expect(
+          Math.abs(expiresAt.getTime() - expectedExpiry.getTime()),
+          `expiry for tier "${tier}" should be ${expectedDays} days out`
+        ).toBeLessThan(60000);
       }
     });
 
@@ -358,9 +356,7 @@ describe('POST /api/validate-llms-txt', () => {
         next();
       });
 
-      await request(app)
-        .post('/api/validate-llms-txt')
-        .send({ url: 'https://example.com' });
+      await request(app).post('/api/validate-llms-txt').send({ url: 'https://example.com' });
 
       const insertCall = (db.insert as any).mock.results[0].value.values.mock.calls[0][0];
       expect(insertCall.expiresAt).toBeNull();
@@ -495,9 +491,7 @@ describe('POST /api/validate-llms-txt', () => {
     it('should complete validation in reasonable time', async () => {
       const startTime = Date.now();
 
-      await request(app)
-        .post('/api/validate-llms-txt')
-        .send({ url: 'https://example.com' });
+      await request(app).post('/api/validate-llms-txt').send({ url: 'https://example.com' });
 
       const duration = Date.now() - startTime;
       expect(duration).toBeLessThan(5000); // 5 seconds max for mock

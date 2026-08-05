@@ -5,8 +5,8 @@
  * CRITICAL: These tests document existing behavior, not ideal behavior
  *
  * Component Overview:
- * - 843 lines of complex tier selection and navigation logic
- * - Default: Coffee tier selected ($4.95/month subscription)
+ * - Complex tier selection and navigation logic
+ * - Default: Solo tier selected (still labelled "Coffee Power ($4.95/month)" in the UI copy)
  * - Navigation: Direct auth page navigation (no email capture)
  * - Analytics tracking for tier selections
  * - Complex UI with multiple tiers and guarantees
@@ -38,10 +38,14 @@ vi.mock('../HelpSystem', () => ({
   ),
 }));
 
-// Sprint 16 (issue #23): Skipped — characterization tests against pre-Sprint-9
-// EmailCapture UI. Tier labels, navigation routes, and help-context structure
-// have all changed. Rewrite against current UI in a future sprint.
-describe.skip('EmailCapture Component - Characterization Tests', () => {
+// Collapse whitespace so assembled textContent can be compared exactly when copy
+// is split across multiple elements (e.g. <strong> lead-ins, inline <span>s).
+const normalize = (text: string | null | undefined): string =>
+  (text ?? '').replace(/\s+/g, ' ').trim();
+
+// LTM-ISS-22: un-skipped and re-pinned against the CURRENT EmailCapture UI.
+// The tier id is 'solo' throughout, while the visible copy still says "Coffee".
+describe('EmailCapture Component - Characterization Tests', () => {
   const defaultProps = {
     websiteUrl: 'https://example.com',
     onEmailCaptured: vi.fn(),
@@ -101,8 +105,8 @@ describe.skip('EmailCapture Component - Characterization Tests', () => {
       expect(screen.getByText('Free (But Crippled)')).toBeInTheDocument();
       expect(screen.getByText('⚠️ SEVERELY LIMITED')).toBeInTheDocument();
 
-      // Coffee tier
-      expect(screen.getByText('Coffee Power ($4.95/month subscription)')).toBeInTheDocument();
+      // Solo tier (still labelled "Coffee Power" in the UI copy)
+      expect(screen.getByText('Coffee Power ($4.95/month)')).toBeInTheDocument();
       expect(screen.getByText('🏆 CRUSH YOUR COMPETITION')).toBeInTheDocument();
 
       // Growth tier
@@ -116,20 +120,27 @@ describe.skip('EmailCapture Component - Characterization Tests', () => {
       // Free tier warnings
       expect(screen.getByText(/Only 3 analyses per day/)).toBeInTheDocument();
       expect(screen.getByText(/Severely limited to 20 pages only/)).toBeInTheDocument();
-      expect(screen.getByText(/Your competitors will find 10x more pages/)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /WARNING: AI sees only 20 pages - missing your pricing, features, case studies & what makes you unique!/
+        )
+      ).toBeInTheDocument();
 
-      // Coffee tier benefits
-      expect(screen.getByText(/UNLIMITED daily analyses/)).toBeInTheDocument();
-      expect(screen.getByText(/200 pages per analysis/)).toBeInTheDocument();
-      expect(screen.getByText(/AI-powered content scoring/)).toBeInTheDocument();
+      // Solo ("Coffee") tier benefits
+      expect(screen.getByText(/20 monthly analyses \(vs 3 on free\)/)).toBeInTheDocument();
+      expect(screen.getByText(/200 pages per analysis \(10x more than free\)/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/AI-powered content scoring \(find hidden gems\)/)
+      ).toBeInTheDocument();
 
       // Growth tier features
-      expect(screen.getByText(/1,000 pages per analysis/)).toBeInTheDocument();
-      expect(screen.getByText(/Team collaboration/)).toBeInTheDocument();
+      expect(screen.getByText(/35 analyses\/month, 500 pages each/)).toBeInTheDocument();
+      expect(screen.getByText(/Bulk website processing/)).toBeInTheDocument();
 
       // Scale tier features
-      expect(screen.getByText(/Full API access/)).toBeInTheDocument();
-      expect(screen.getByText(/White-label options/)).toBeInTheDocument();
+      expect(screen.getByText(/100 analyses\/month, 1,000 pages each/)).toBeInTheDocument();
+      expect(screen.getByText(/API access for automation/)).toBeInTheDocument();
+      expect(screen.getByText(/JS rendering \(React\/Angular\/Vue\)/)).toBeInTheDocument();
     });
 
     it('shows tier images for each option', () => {
@@ -224,7 +235,7 @@ describe.skip('EmailCapture Component - Characterization Tests', () => {
       await user.click(screen.getByText('Sign In'));
 
       expect(mockSetLocation).toHaveBeenCalledWith(
-        '/login?tier=coffee&website=https%3A//example.com'
+        '/login?tier=solo&website=https%3A%2F%2Fexample.com'
       );
     });
 
@@ -235,7 +246,7 @@ describe.skip('EmailCapture Component - Characterization Tests', () => {
       await user.click(screen.getByText('Sign Up'));
 
       expect(mockSetLocation).toHaveBeenCalledWith(
-        '/signup?tier=coffee&website=https%3A//example.com'
+        '/signup?tier=solo&website=https%3A%2F%2Fexample.com'
       );
     });
 
@@ -277,7 +288,7 @@ describe.skip('EmailCapture Component - Characterization Tests', () => {
       await user.click(screen.getByText('Sign In'));
 
       expect(mockSetLocation).toHaveBeenCalledWith(
-        '/login?tier=growth&website=https%3A//example.com'
+        '/login?tier=growth&website=https%3A%2F%2Fexample.com'
       );
     });
   });
@@ -286,20 +297,34 @@ describe.skip('EmailCapture Component - Characterization Tests', () => {
     it('shows help context for email-capture', () => {
       renderWithQueryClient(<EmailCapture {...defaultProps} />);
 
-      expect(screen.getAllByTestId('quick-help-email-capture')).toHaveLength(2);
+      // Exactly one QuickHelp renders in the normal (no-error) state: the one in
+      // the "Need help choosing?" row. A second instance only mounts inside the
+      // error panel, which is not rendered unless lastError is set.
+      expect(screen.getAllByTestId('quick-help-email-capture')).toHaveLength(1);
     });
 
     it('displays returning user guidance', () => {
       renderWithQueryClient(<EmailCapture {...defaultProps} />);
 
-      expect(screen.getByText(/Returning user?.*Sign In/)).toBeInTheDocument();
-      expect(screen.getByText(/New to LLM.txt Mastery?.*Sign Up/)).toBeInTheDocument();
+      // Copy is split across <strong> and a sibling text node, so assert on the
+      // assembled textContent of the paragraph anchored by the bold lead-in.
+      const returningUser = screen.getByText('Returning user?').closest('p');
+      expect(normalize(returningUser?.textContent)).toBe('Returning user? Click "Sign In" above.');
+
+      const newUser = screen.getByText('New to LLM.txt Mastery?').closest('p');
+      expect(normalize(newUser?.textContent)).toBe(
+        'New to LLM.txt Mastery? Click "Sign Up" to create your account.'
+      );
     });
 
     it('shows tier selection guidance text', () => {
       renderWithQueryClient(<EmailCapture {...defaultProps} />);
 
-      expect(screen.getByText(/Need help choosing?.*Coffee tier.*is perfect/)).toBeInTheDocument();
+      // "Coffee tier" sits in its own <span>, so the sentence spans three nodes.
+      const guidance = screen.getByText('Coffee tier').parentElement;
+      expect(normalize(guidance?.textContent)).toBe(
+        'Need help choosing? Coffee tier is perfect for most users.'
+      );
     });
   });
 

@@ -18,11 +18,13 @@ import { registerStripeRoutes } from '../../server/routes/stripe';
 
 // Sprint 16: Use vi.hoisted() so mock factory has access to these refs
 // before vitest hoists vi.mock() above all top-level statements.
-const { mockValidateWebhookSignature, mockGetTierFromPriceId, mockGetStripeCustomer } = vi.hoisted(() => ({
-  mockValidateWebhookSignature: vi.fn(),
-  mockGetTierFromPriceId: vi.fn(),
-  mockGetStripeCustomer: vi.fn(),
-}));
+const { mockValidateWebhookSignature, mockGetTierFromPriceId, mockGetStripeCustomer } = vi.hoisted(
+  () => ({
+    mockValidateWebhookSignature: vi.fn(),
+    mockGetTierFromPriceId: vi.fn(),
+    mockGetStripeCustomer: vi.fn(),
+  })
+);
 
 vi.mock('../../server/services/stripe', () => ({
   validateWebhookSignature: mockValidateWebhookSignature,
@@ -40,11 +42,35 @@ vi.mock('../../server/services/stripe', () => ({
   },
 }));
 
-// Sprint 16 (issue #23): Skipped — integration tests use fragile mocking of
-// the Stripe service module. Webhook handler contracts have drifted since
-// these tests were written. Rewrite against the current handler signatures
-// (preferably with a real Stripe test fixture) in a future sprint.
-describe.skip('Tier Upgrade Integration Tests', () => {
+/**
+ * STATUS (LTM-ISS-22, 2026-08-05): these tests now RUN, and 5 of 6 FAIL against a
+ * real postgres. They are no longer describe.skip'd and no longer hidden behind a
+ * vague "contracts have drifted" note. They are excluded from the default vitest
+ * config (see vitest.config.ts) because they need a live database, and reachable
+ * via `npm run test:db`. They are deliberately NOT wired into CI yet, because a
+ * failing step would turn CI red on every push.
+ *
+ * Verified against a real postgres 17, schema pushed with drizzle-kit. Diagnosis so
+ * far, so the next person starts from here rather than from scratch:
+ *
+ *  - The solo test's payload sets metadata.paymentType='subscription' and
+ *    productType='solo' but omits `session.subscription`. handleCheckoutCompleted
+ *    (server/routes/stripe.ts:601) takes branch 1 only when paymentType==='one_time',
+ *    and branch 2 only when session.subscription is truthy. This payload matches
+ *    NEITHER, so no write happens and emailCaptures.tier stays 'starter'. A real
+ *    Stripe subscription checkout always carries `subscription`, so this is an
+ *    unrealistic fixture, not a handler bug.
+ *  - The growth/scale tests DO set `subscription`, reach branch 2, return 200, and
+ *    still leave userProfiles.subscriptionId null. That one is NOT explained yet:
+ *    storage.updateUserProfile(userId, ...) is called with the fixture id
+ *    'test-user-123' and appears not to persist. Establish whether updateUserProfile
+ *    silently swallows a miss before assuming either side is correct.
+ *
+ * Do not "fix" these by relaxing the assertions. The contract they protect (a tier
+ * change must update BOTH emailCaptures and userProfiles) is the revenue-protection
+ * bug they were written for, and it is worth getting right.
+ */
+describe('Tier Upgrade Integration Tests', () => {
   let app: express.Application;
   let testEmailCaptureId: number;
   let testUserProfileId: string;

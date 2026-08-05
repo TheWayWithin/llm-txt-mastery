@@ -335,7 +335,12 @@ export default function AnalyzePage() {
                     </p>
                     <p className="text-xs text-slate-brand">
                       {user.tier === 'solo' || user.tier === 'coffee'
-                        ? `${Math.min(usageData?.creditsRemaining || 0, 20)} of 20 remaining`
+                        ? // Same source as the "premium analyses remaining" line further
+                          // down. These two previously disagreed: this stat read only
+                          // usageData while the other read only user.creditsRemaining, so
+                          // before usageData loaded a Solo customer saw "0 of 20 remaining"
+                          // beside "5 premium analyses remaining" on the same screen.
+                          `${Math.min(usageData?.creditsRemaining ?? user.creditsRemaining ?? 0, 20)} of 20 remaining`
                         : `${usageData?.currentUsage || 0} / ${usageData?.dailyAnalyses || (user.tier === 'scale' ? 100 : user.tier === 'growth' ? 35 : 3)}`}
                     </p>
                   </div>
@@ -472,7 +477,15 @@ export default function AnalyzePage() {
                           {user.tier === 'starter'
                             ? 'AI analysis for first 5 pages'
                             : user.tier === 'solo'
-                              ? `${Math.min(user.creditsRemaining || 0, 20)} premium analyses remaining`
+                              ? // Read the same source as the "Monthly Analyses" stat above.
+                                // This line used to read user.creditsRemaining (an AuthContext
+                                // snapshot taken at sign-in) while the stat read the live
+                                // usageData, so a Solo customer could be shown two different
+                                // credit figures at once, e.g. "0 of 20 remaining" beside
+                                // "5 premium analyses remaining". usageData is fetched from
+                                // /api/usage and is authoritative; fall back to the snapshot
+                                // only until it loads.
+                                `${Math.min(usageData?.creditsRemaining ?? user.creditsRemaining ?? 0, 20)} premium analyses remaining`
                               : user.tier === 'growth'
                                 ? '35 AI-enhanced analyses/month'
                                 : '100 AI-enhanced analyses/month'}

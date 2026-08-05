@@ -27,9 +27,16 @@ vi.mock('../InstantRefundModal', () => ({
     isOpen ? <div data-testid="refund-modal">Mock Refund Modal</div> : null,
 }));
 
-// Sprint 16 (issue #23): Skipped — InstantRefundButton mock setup has drifted.
-// Rewrite in a future sprint.
-describe.skip('InstantRefundButton', () => {
+// The component builds its request as `${getApiBaseUrl()}/api/refund/eligibility`.
+// getApiBaseUrl() resolves from VITE_API_URL or window.location, so under jsdom it
+// would otherwise return the real production Railway URL. Pin it to a fixed base so
+// the endpoint assertion is exact and deterministic instead of environment-dependent.
+const TEST_API_BASE = 'https://api.test.local';
+vi.mock('@/lib/api-config', () => ({
+  getApiBaseUrl: () => TEST_API_BASE,
+}));
+
+describe('InstantRefundButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetAccessToken.mockReturnValue('mock-token');
@@ -169,7 +176,7 @@ describe.skip('InstantRefundButton', () => {
     render(<InstantRefundButton />);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/refund/eligibility', {
+      expect(global.fetch).toHaveBeenCalledWith(`${TEST_API_BASE}/api/refund/eligibility`, {
         headers: {
           Authorization: 'Bearer mock-token',
         },

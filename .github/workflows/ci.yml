@@ -64,6 +64,11 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/llm_txt_mastery_test
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
+      # NOT YET WIRED: `npm run test:db` runs the DB-backed integration tests, but 5
+      # of its 6 tests currently fail against a real postgres (see the diagnosis at
+      # the top of tests/integration/tier-upgrade-integration.test.ts). Adding the
+      # step now would turn CI red on every push. Add it once those tests pass.
+
   security:
     runs-on: ubuntu-latest
     steps:
