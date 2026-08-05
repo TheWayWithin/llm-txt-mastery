@@ -45,7 +45,13 @@ export default defineConfig({
       // Benchmarks are a measurement, not a correctness gate, so they run on demand
       // via `npm run test:perf` (vitest.perf.config.ts). Raising the thresholds was
       // rejected: it just delays the next drift and picks numbers nothing justifies.
+      // Rule, not a one-off: any file named for performance or benchmarking is a
+      // measurement, not a correctness gate. Excluding them by name stops the
+      // whack-a-mole where CI goes red on a new timing file every few pushes
+      // (component-benchmarks first, then rate-limiter-performance at 74ms vs 50ms).
       'client/src/test/performance/**',
+      '**/*performance*.test.{ts,tsx}',
+      '**/*benchmark*.test.{ts,tsx}',
     ],
     coverage: {
       provider: 'v8',

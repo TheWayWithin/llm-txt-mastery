@@ -32,7 +32,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
-    include: ['client/src/test/performance/**/*.test.{ts,tsx}'],
+    include: [
+      'client/src/test/performance/**/*.test.{ts,tsx}',
+      '**/*performance*.test.{ts,tsx}',
+      '**/*benchmark*.test.{ts,tsx}',
+    ],
     exclude: ['node_modules/**'],
     testTimeout: 30000,
     hookTimeout: 10000,
