@@ -32,9 +32,7 @@ export default defineConfig({
       // the default local run. They are not skipped: `npm run test:db` runs them via
       // vitest.db.config.ts. Keeping them here would make `npx vitest run` fail on
       // any machine without a database, which is what drove them to describe.skip in
-      // the first place. CI does not run them YET: 5 of the 6 still fail against a
-      // real postgres, so wiring the step would turn CI red on every push. See the
-      // diagnosis at the top of tests/integration/tier-upgrade-integration.test.ts.
+      // the first place. CI does run them, against its postgres service.
       'tests/integration/tier-upgrade-integration.test.ts',
       // Performance benchmarks assert absolute wall-clock times (render < 150ms,
       // state updates < 400ms, visibility toggle < 20ms). Those numbers hold on a

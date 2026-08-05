@@ -64,10 +64,15 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/llm_txt_mastery_test
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      # NOT YET WIRED: `npm run test:db` runs the DB-backed integration tests, but 5
-      # of its 6 tests currently fail against a real postgres (see the diagnosis at
-      # the top of tests/integration/tier-upgrade-integration.test.ts). Adding the
-      # step now would turn CI red on every push. Add it once those tests pass.
+      # DB-backed integration tests are excluded from the default vitest config so
+      # `npx vitest run` stays green on a machine with no postgres. This job has a
+      # postgres service, so they run here. Without this step the tier-upgrade
+      # contract (a paid tier change must land on emailCaptures) is enforced nowhere.
+      - name: Run DB-backed integration tests
+        run: npm run test:db
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/llm_txt_mastery_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
   security:
     runs-on: ubuntu-latest

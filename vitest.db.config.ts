@@ -14,8 +14,8 @@ import path from 'path';
  * Run them with:
  *   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/llm_txt_mastery_test npm run test:db
  *
- * CI does NOT run this config yet (5 of 6 tests still fail against a real
- * postgres). Wire it into .github/workflows/ci.yml once they pass.
+ * CI runs this config against its postgres service (see .github/workflows/ci.yml),
+ * so the tier-upgrade contract is enforced on every push.
  *
  * Mocking the db module instead was considered and rejected: it produces
  * assertions about internal .update().set().where() call chains rather than
