@@ -26,8 +26,14 @@ export default defineConfig({
     ],
     exclude: [
       'node_modules/**',
-      'tests/e2e/**',           // Playwright tests - run separately
-      'tests/**/*.spec.ts',     // Playwright spec files
+      'tests/e2e/**', // Playwright tests - run separately
+      'tests/**/*.spec.ts', // Playwright spec files
+      // DB-backed integration tests need a live postgres, so they are NOT part of
+      // the default local run. They are not skipped: `npm run test:db` runs them
+      // via vitest.db.config.ts, and CI runs that against its postgres service.
+      // Keeping them here would make `npx vitest run` fail on any machine without
+      // a database, which is what drove them to describe.skip in the first place.
+      'tests/integration/tier-upgrade-integration.test.ts',
     ],
     coverage: {
       provider: 'v8',
