@@ -16,20 +16,11 @@ vi.mock('@/components/url-input', () => ({
     ) : null,
 }));
 
+// Home still mounts EmailCapture behind `visibility.emailCapture`, but no
+// reducer case in useFlowStateMachine returns the EMAIL_CAPTURE state any more,
+// so this stub only exists to keep the real component out of the module graph.
 vi.mock('@/components/email-capture', () => ({
-  default: ({ isVisible, onEmailCaptured, onLoginRequested, prefilledEmail }: any) =>
-    isVisible ? (
-      <div data-testid="email-capture">
-        <div>Email Capture Component</div>
-        {prefilledEmail && <div data-testid="prefilled-email">{prefilledEmail}</div>}
-        {onLoginRequested && (
-          <button onClick={onLoginRequested} data-testid="login-button">
-            Login Instead
-          </button>
-        )}
-        <button onClick={() => onEmailCaptured('test@example.com', 'starter')}>Submit Email</button>
-      </div>
-    ) : null,
+  default: ({ isVisible }: any) => (isVisible ? <div data-testid="email-capture" /> : null),
 }));
 
 vi.mock('@/components/tier-limits-display', () => ({
@@ -84,11 +75,13 @@ const renderWithQueryClient = (ui: React.ReactElement) => {
   return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 };
 
-// Sprint 16 (issue #23): Skipped — references pre-refactor Home page elements
-// (data-testid="url-input", "Start Analysis" button, etc.) that no longer exist.
-// AuthContext mock is also missing properties added in later sprints. Rewrite
-// against current Home page in a future sprint.
-describe.skip('Home Component - Authentication Flow', () => {
+// Unskipped and rewritten against the current Home page (LTM-ISS-22).
+// Current behaviour these tests pin down:
+//   - unauthenticated visitors get the marketing landing page, NOT the workflow
+//   - authenticated visitors land straight in URL_INPUT and skip email capture
+//   - the auth modal is opened from the demo-mode banner (the only remaining
+//     caller of actions.openAuthModal that Home can actually reach)
+describe('Home Component - Authentication Flow', () => {
   const mockUseAuth = vi.spyOn(AuthContext, 'useAuth');
 
   beforeEach(() => {
@@ -96,9 +89,7 @@ describe.skip('Home Component - Authentication Flow', () => {
   });
 
   describe('Unauthenticated User Flow', () => {
-    it('shows email capture for unauthenticated users after URL input', async () => {
-      const user = userEvent.setup();
-
+    it('shows the marketing landing page and no workflow step', async () => {
       mockUseAuth.mockReturnValue({
         user: null,
         loading: false,
@@ -117,87 +108,26 @@ describe.skip('Home Component - Authentication Flow', () => {
 
       renderWithQueryClient(<Home />);
 
-      // Initially shows URL input
-      expect(screen.getByTestId('url-input')).toBeInTheDocument();
+      // Auth resolves anonymous => LANDING (useFlowStateMachine AUTH_RESOLVED),
+      // so Home renders HeroSection instead of any workflow step.
+      await waitFor(() => {
+        expect(
+          screen.getByText(/AI assistants are answering questions about your industry right now/)
+        ).toBeInTheDocument();
+      });
+
+      const heroHeading = screen.getByText(
+        /AI assistants are answering questions about your industry right now/
+      );
+      expect(heroHeading.textContent).toBe(
+        'AI assistants are answering questions about your industry right now. Is your site part of the conversation?'
+      );
+
+      // No workflow steps for anonymous visitors: they sign up first.
+      expect(screen.queryByTestId('url-input')).not.toBeInTheDocument();
       expect(screen.queryByTestId('email-capture')).not.toBeInTheDocument();
-
-      // Click start analysis
-      const startButton = screen.getByText('Start Analysis');
-      await user.click(startButton);
-
-      // Should show email capture
-      await waitFor(() => {
-        expect(screen.getByTestId('email-capture')).toBeInTheDocument();
-        expect(screen.queryByTestId('url-input')).not.toBeInTheDocument();
-      });
-    });
-
-    it('shows login option in email capture', async () => {
-      const user = userEvent.setup();
-
-      mockUseAuth.mockReturnValue({
-        user: null,
-        loading: false,
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        refreshUser: vi.fn(),
-        getAccessToken: vi.fn(),
-        hasCredits: false,
-        canAnalyze: true,
-        isAuthenticated: false,
-        authResolved: true,
-        recognizeEmailUser: vi.fn(),
-        emailBasedUser: null,
-      });
-
-      renderWithQueryClient(<Home />);
-
-      // Navigate to email capture
-      const startButton = screen.getByText('Start Analysis');
-      await user.click(startButton);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('login-button')).toBeInTheDocument();
-      });
-    });
-
-    it('opens auth modal when login is requested', async () => {
-      const user = userEvent.setup();
-
-      mockUseAuth.mockReturnValue({
-        user: null,
-        loading: false,
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        refreshUser: vi.fn(),
-        getAccessToken: vi.fn(),
-        hasCredits: false,
-        canAnalyze: true,
-        isAuthenticated: false,
-        authResolved: true,
-        recognizeEmailUser: vi.fn(),
-        emailBasedUser: null,
-      });
-
-      renderWithQueryClient(<Home />);
-
-      // Navigate to email capture
-      const startButton = screen.getByText('Start Analysis');
-      await user.click(startButton);
-
-      // Click login button
-      await waitFor(() => {
-        const loginButton = screen.getByTestId('login-button');
-        return user.click(loginButton);
-      });
-
-      // Should show auth modal
-      await waitFor(() => {
-        expect(screen.getByTestId('auth-modal')).toBeInTheDocument();
-        expect(screen.getByText('Auth Modal - login')).toBeInTheDocument();
-      });
+      expect(screen.queryByTestId('tier-limits')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('auth-modal')).not.toBeInTheDocument();
     });
   });
 
@@ -267,14 +197,13 @@ describe.skip('Home Component - Authentication Flow', () => {
 
       const { rerender } = renderWithQueryClient(<Home />);
 
-      // Click start analysis during loading
-      const startButton = screen.getByText('Start Analysis');
-      await user.click(startButton);
-
-      // Should show loading indicator
-      await waitFor(() => {
-        expect(screen.getByText('Checking authentication status...')).toBeInTheDocument();
-      });
+      // While auth is loading the machine sits in INITIALIZING: no workflow step
+      // is offered yet, and the landing page is withheld too.
+      expect(screen.queryByTestId('url-input')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tier-limits')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/AI assistants are answering questions about your industry right now/)
+      ).not.toBeInTheDocument();
 
       // Simulate auth loading completion with authenticated user
       mockUseAuth.mockReturnValue({
@@ -306,132 +235,76 @@ describe.skip('Home Component - Authentication Flow', () => {
         </QueryClientProvider>
       );
 
-      // Should automatically skip to tier limits
+      // AUTH_RESOLVED with a user moves INITIALIZING -> URL_INPUT
+      await waitFor(() => {
+        expect(screen.getByTestId('url-input')).toBeInTheDocument();
+      });
+
+      // And the URL then submits straight through to the tier-limits step
+      await user.click(screen.getByText('Start Analysis'));
+
       await waitFor(() => {
         expect(screen.getByTestId('tier-limits')).toBeInTheDocument();
-        expect(screen.queryByText('Checking authentication status...')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('url-input')).not.toBeInTheDocument();
       });
     });
   });
 
-  describe('Email Pre-fill', () => {
-    it('pre-fills email from authenticated user in edge cases', async () => {
-      const user = userEvent.setup();
-
-      // Mock a scenario where email capture is shown but user data is available
-      mockUseAuth.mockReturnValue({
-        user: {
-          id: 1,
-          email: 'prefill@example.com',
-          tier: 'starter',
-          creditsRemaining: 0,
-          emailVerified: true,
-          createdAt: '2025-01-01T00:00:00Z',
-        },
-        loading: false,
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        refreshUser: vi.fn(),
-        getAccessToken: vi.fn(),
-        hasCredits: false,
-        canAnalyze: true,
-        isAuthenticated: true,
-        authResolved: true,
-        recognizeEmailUser: vi.fn(),
-        emailBasedUser: null,
-      });
-
-      // Force email capture to show by mocking the condition
-      const originalUseAuth = mockUseAuth.getMockImplementation();
-
-      // Temporarily show email capture as if user wasn't authenticated
-      mockUseAuth.mockReturnValue({
-        user: null,
-        loading: false,
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        refreshUser: vi.fn(),
-        getAccessToken: vi.fn(),
-        hasCredits: false,
-        canAnalyze: true,
-        isAuthenticated: false,
-        authResolved: true,
-        recognizeEmailUser: vi.fn(),
-        emailBasedUser: null,
-      });
-
-      renderWithQueryClient(<Home />);
-
-      // Navigate to email capture
-      const startButton = screen.getByText('Start Analysis');
-      await user.click(startButton);
-
-      // Wait for email capture to appear
-      await waitFor(() => {
-        expect(screen.getByTestId('email-capture')).toBeInTheDocument();
-      });
-
-      // Now simulate user becoming available (edge case scenario)
-      mockUseAuth.mockReturnValue({
-        user: {
-          id: 1,
-          email: 'prefill@example.com',
-          tier: 'starter',
-          creditsRemaining: 0,
-          emailVerified: true,
-          createdAt: '2025-01-01T00:00:00Z',
-        },
-        loading: false,
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        refreshUser: vi.fn(),
-        getAccessToken: vi.fn(),
-        hasCredits: false,
-        canAnalyze: true,
-        isAuthenticated: true,
-        authResolved: true,
-        recognizeEmailUser: vi.fn(),
-        emailBasedUser: null,
-      });
-
-      // The component should handle this edge case gracefully
-      // (In practice, this would transition to limits step due to useEffect)
-    });
-  });
+  // DELETED (LTM-ISS-22): the 'Email Pre-fill' test drove Home into the
+  // EMAIL_CAPTURE state, which no reducer case in useFlowStateMachine can reach
+  // any more, and it asserted nothing about pre-filling once there.
 
   describe('Auth Modal Integration', () => {
-    it('closes auth modal when requested', async () => {
-      const user = userEvent.setup();
+    // The demo-mode banner is the only path left in Home that calls
+    // actions.openAuthModal(); the EmailCapture onLoginRequested wiring below it
+    // is unreachable because the EMAIL_CAPTURE state is never entered.
+    const demoUserAuth = {
+      user: {
+        id: 1,
+        email: 'demo@example.com',
+        tier: 'starter' as const,
+        creditsRemaining: 0,
+        emailVerified: true,
+        createdAt: '2025-01-01T00:00:00Z',
+        isDemo: true,
+      },
+      loading: false,
+      signUp: vi.fn(),
+      signIn: vi.fn(),
+      signOut: vi.fn(),
+      refreshUser: vi.fn(),
+      getAccessToken: vi.fn(),
+      hasCredits: false,
+      canAnalyze: true,
+      isAuthenticated: true,
+      authResolved: true,
+      recognizeEmailUser: vi.fn(),
+      emailBasedUser: null,
+    };
 
-      mockUseAuth.mockReturnValue({
-        user: null,
-        loading: false,
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        refreshUser: vi.fn(),
-        getAccessToken: vi.fn(),
-        hasCredits: false,
-        canAnalyze: true,
-        isAuthenticated: false,
-        authResolved: true,
-        recognizeEmailUser: vi.fn(),
-        emailBasedUser: null,
-      });
+    it('opens the auth modal in login mode when a demo user asks to log in', async () => {
+      const user = userEvent.setup();
+      mockUseAuth.mockReturnValue(demoUserAuth);
 
       renderWithQueryClient(<Home />);
 
-      // Navigate to email capture and open modal
-      const startButton = screen.getByText('Start Analysis');
-      await user.click(startButton);
+      expect(screen.queryByTestId('auth-modal')).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /Login with Real Account/ }));
 
       await waitFor(() => {
-        const loginButton = screen.getByTestId('login-button');
-        return user.click(loginButton);
+        expect(screen.getByTestId('auth-modal')).toBeInTheDocument();
       });
+      expect(screen.getByText('Auth Modal - login')).toBeInTheDocument();
+    });
+
+    it('closes auth modal when requested', async () => {
+      const user = userEvent.setup();
+      mockUseAuth.mockReturnValue(demoUserAuth);
+
+      renderWithQueryClient(<Home />);
+
+      await user.click(screen.getByRole('button', { name: /Login with Real Account/ }));
 
       // Modal should be open
       await waitFor(() => {

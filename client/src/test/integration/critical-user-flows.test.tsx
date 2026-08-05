@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderWithQueryClient, createMockAuthContext, createMockUser } from '@/test/test-utils';
@@ -43,10 +43,11 @@ import Home from '@/pages/home';
 import AnalyzePage from '@/pages/analyze';
 import EmailCapture from '@/components/email-capture';
 
-// Sprint 16 (issue #23): Skipped — references pre-refactor Home/Analyze page
-// elements (data-testid="usage-display", "Start Analysis" text) that no longer
-// exist. Rewrite against current UI in a future sprint.
-describe.skip('Critical User Flows - Integration Tests', () => {
+// Unskipped and realigned with the current /analyze UI (LTM-ISS-22): tier names
+// come from getTierDisplayName ("Solo"/"Starter"/"Growth", not "SOLO"/"FREE"),
+// the verification banner is a shadcn Alert with no test id, and UsageDisplay
+// renders only once the shared ['/api/usage', email] query has data.
+describe('Critical User Flows - Integration Tests', () => {
   const mockUseAuth = vi.spyOn(AuthContext, 'useAuth');
 
   beforeEach(() => {
@@ -56,6 +57,11 @@ describe.skip('Critical User Flows - Integration Tests', () => {
       writable: true,
     });
   });
+
+  // getTierDisplayName renders in two places on /analyze (the AuthNav badge and
+  // the "Current Tier" quick stat), so scope tier assertions to the quick stat.
+  const currentTierStat = () =>
+    (screen.getByText('Current Tier').parentElement as HTMLElement).textContent;
 
   describe('Flow 1: Unauthenticated User Journey', () => {
     it('should guide user from homepage through email capture to auth', async () => {
@@ -186,9 +192,10 @@ describe.skip('Critical User Flows - Integration Tests', () => {
       expect(screen.getByText('Analyze Your Website')).toBeInTheDocument();
       expect(screen.getByLabelText('Website URL')).toBeInTheDocument();
 
-      // Should show user stats
-      expect(screen.getByText('SOLO')).toBeInTheDocument();
-      expect(screen.getByText('5 remaining')).toBeInTheDocument();
+      // Should show user stats: tier stat uses getTierDisplayName('solo')
+      expect(currentTierStat()).toBe('Current TierSolo');
+      // ...and the URL-input hint reports the user's remaining Solo credits
+      expect(screen.getByText('5 premium analyses remaining')).toBeInTheDocument();
     });
 
     it('should handle URL prefill for authenticated users', () => {
@@ -230,8 +237,16 @@ describe.skip('Critical User Flows - Integration Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(screen.getByTestId('email-verification-banner')).toBeInTheDocument();
-      expect(screen.getByText('Verify email: unverified@example.com')).toBeInTheDocument();
+      // EmailVerificationBanner renders a shadcn <Alert role="alert">; its copy is
+      // split across two spans, so assert the assembled text of the alert itself.
+      const banner = screen.getByText('Verify your email address').closest('[role="alert"]');
+      expect(banner).not.toBeNull();
+      expect(banner!.textContent).toContain(
+        'Verify your email addressto unlock all features including password reset and tier upgrades.'
+      );
+      expect(
+        within(banner as HTMLElement).getByRole('button', { name: 'Resend Email' })
+      ).toBeInTheDocument();
     });
 
     it('should not show verification banner for verified users', () => {
@@ -249,7 +264,8 @@ describe.skip('Critical User Flows - Integration Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      expect(screen.queryByTestId('email-verification-banner')).not.toBeInTheDocument();
+      expect(screen.queryByText('Verify your email address')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Resend Email' })).not.toBeInTheDocument();
     });
   });
 
@@ -268,17 +284,17 @@ describe.skip('Critical User Flows - Integration Tests', () => {
       const { rerender } = renderWithQueryClient(<AnalyzePage />);
 
       expect(screen.getByText('AI analysis for first 5 pages')).toBeInTheDocument();
-      // Note: Tier-specific features not displayed in current analyze view
-      expect(screen.getByText('FREE')).toBeInTheDocument();
+      expect(currentTierStat()).toBe('Current TierStarter');
+      expect(screen.getByText('Upgrade Available')).toBeInTheDocument();
 
-      // Test coffee tier limits
-      const coffeeUser = createMockUser({
+      // Test Solo tier limits (the tier that replaced "Coffee")
+      const soloUser = createMockUser({
         tier: 'solo',
         creditsRemaining: 3,
       });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
-          user: coffeeUser,
+          user: soloUser,
           isAuthenticated: true,
           authResolved: true,
         })
@@ -287,10 +303,12 @@ describe.skip('Critical User Flows - Integration Tests', () => {
       rerender(<AnalyzePage />);
 
       expect(screen.getByText('3 premium analyses remaining')).toBeInTheDocument();
-      expect(screen.getByText('3 remaining')).toBeInTheDocument();
+      expect(currentTierStat()).toBe('Current TierSolo');
+      expect(screen.getByText('Manage Subscription')).toBeInTheDocument();
+      expect(screen.queryByText('AI analysis for first 5 pages')).not.toBeInTheDocument();
     });
 
-    it('should show unlimited for growth tier', () => {
+    it('should show growth tier limits', () => {
       const growthUser = createMockUser({ tier: 'growth' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
@@ -302,8 +320,11 @@ describe.skip('Critical User Flows - Integration Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      // Note: Tier-specific unlimited features not displayed in current analyze view
-      expect(screen.getByText('GROWTH')).toBeInTheDocument();
+      // Growth is metered, not unlimited: 35 AI-enhanced analyses a month.
+      expect(currentTierStat()).toBe('Current TierGrowth');
+      expect(screen.getByText('35 AI-enhanced analyses/month')).toBeInTheDocument();
+      expect(screen.getByText('Pro Features Active')).toBeInTheDocument();
+      expect(screen.getByText('500 pages per site')).toBeInTheDocument();
     });
   });
 
@@ -516,12 +537,15 @@ describe.skip('Critical User Flows - Integration Tests', () => {
 
       renderWithQueryClient(<AnalyzePage />);
 
-      // Should redirect, but let's verify no usage display shows before redirect
+      // Should redirect, and render nothing at all (no usage panel) before it
       expect(mockSetLocation).toHaveBeenCalledWith('/signup');
+      expect(screen.queryByText("Today's Progress")).not.toBeInTheDocument();
 
-      // Test authenticated state
+      // Test authenticated state. UsageDisplay renders null until the shared
+      // ['/api/usage', email] query has data, so seed the cache rather than
+      // letting it hit the network.
       mockSetLocation.mockClear();
-      const mockUser = createMockUser({ email: 'test@example.com' });
+      const mockUser = createMockUser({ email: 'test@example.com', tier: 'starter' });
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           user: mockUser,
@@ -530,10 +554,26 @@ describe.skip('Critical User Flows - Integration Tests', () => {
         })
       );
 
-      const { rerender } = renderWithQueryClient(<AnalyzePage />);
-      rerender(<AnalyzePage />);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      queryClient.setQueryData(['/api/usage', 'test@example.com'], {
+        tier: 'starter',
+        usage: { analysesToday: 1, cacheHitsToday: 2 },
+        limits: { dailyAnalyses: 3, maxPagesPerAnalysis: 20, aiPagesLimit: 5 },
+      });
 
-      expect(screen.getByTestId('usage-display')).toBeInTheDocument();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AnalyzePage />
+        </QueryClientProvider>
+      );
+
+      // The real UsageDisplay is mounted with that user's email
+      expect(screen.getByText("Today's Progress")).toBeInTheDocument();
+      const dailyRow = screen.getByText('Daily Analyses').parentElement as HTMLElement;
+      expect(dailyRow.textContent).toBe('Daily Analyses1 / 3');
+      expect(screen.getByText('• 3 free analyses per day')).toBeInTheDocument();
       expect(mockSetLocation).not.toHaveBeenCalled();
     });
   });
