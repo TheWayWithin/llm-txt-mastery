@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { InstantRefundButton } from '../InstantRefundButton';
 import type { StoredUserTier } from '@shared/schema';
@@ -42,17 +42,23 @@ vi.mock('@/contexts/AuthContext', () => ({
 // Use actual InstantRefundModal for integration test
 vi.unmock('../InstantRefundModal');
 
-// Sprint 16 (issue #23): Skipped — refund flow component contracts have drifted
-// since these tests were written. Mocks no longer match the current API surface.
-// Rewrite against current InstantRefund implementation in a future sprint.
-describe.skip('Full Refund Flow Integration', () => {
+// Both components build requests as `${getApiBaseUrl()}/api/...`. Pin the base so
+// endpoint assertions are exact rather than resolving to the real Railway URL.
+const TEST_API_BASE = 'https://api.test.local';
+vi.mock('@/lib/api-config', () => ({
+  getApiBaseUrl: () => TEST_API_BASE,
+}));
+
+describe('Full Refund Flow Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetAccessToken.mockReturnValue('mock-token');
     global.fetch = vi.fn();
     delete (window as any).location;
     (window as any).location = { reload: vi.fn() };
-    vi.useFakeTimers();
+    // NOTE: no vi.useFakeTimers() here. It was installed for every test but never
+    // advanced, so waitFor never ticked and every interaction test hung to timeout.
+    // Tests that need to reach the modal's 3s auto-close install them locally.
 
     // Reset user to coffee tier
     mockUserState = {
@@ -69,7 +75,11 @@ describe.skip('Full Refund Flow Integration', () => {
   });
 
   it('should complete full refund flow successfully', async () => {
-    const user = userEvent.setup({ delay: null });
+    // This test reaches step 10, the modal's 3s auto-close, so it needs fake timers
+    // installed BEFORE the interaction that schedules them. shouldAdvanceTime keeps
+    // waitFor and userEvent ticking while faked.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ delay: null, advanceTimers: vi.advanceTimersByTime });
 
     // Mock eligibility check
     const mockEligibility = {
@@ -109,7 +119,14 @@ describe.skip('Full Refund Flow Integration', () => {
     // Step 3: Verify refund button is visible
     const refundButton = screen.getByRole('button', { name: /Get Instant Refund/ });
     expect(refundButton).toBeInTheDocument();
-    expect(screen.getByText(/Get your.*\$4\.95.*back instantly/)).toBeInTheDocument();
+    // The component renders "Get your <strong>$4.95</strong> back instantly", so the
+    // sentence is split across elements and a plain text matcher cannot see it.
+    // Anchor on the description element, then assert its assembled text, rather
+    // than dropping the assertion.
+    const description = screen.getByText(/Not satisfied\?/);
+    expect(description.textContent?.replace(/\s+/g, ' ')).toMatch(
+      /Get your \$4\.95 back instantly/
+    );
 
     // Step 4: Click refund button
     await user.click(refundButton);
@@ -118,8 +135,11 @@ describe.skip('Full Refund Flow Integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Confirm Instant Refund')).toBeInTheDocument();
     });
-    expect(screen.getByText('$4.95')).toBeInTheDocument();
-    expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument();
+    // Once the modal is open the amount appears twice: in the button's alert and in
+    // the dialog. Scope to the dialog, which is what this step is actually asserting.
+    const dialog = within(screen.getByRole('dialog'));
+    expect(dialog.getByText('$4.95')).toBeInTheDocument();
+    expect(dialog.getByText(/This action cannot be undone/)).toBeInTheDocument();
 
     // Step 6: Confirm refund
     const confirmButton = screen.getByRole('button', { name: /Confirm Refund/ });
@@ -127,7 +147,7 @@ describe.skip('Full Refund Flow Integration', () => {
 
     // Step 7: Verify API call was made
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/cancel', {
+      expect(global.fetch).toHaveBeenCalledWith(`${TEST_API_BASE}/api/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

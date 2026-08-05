@@ -23,10 +23,15 @@ vi.mock('@/contexts/AuthContext', () => ({
   }),
 }));
 
-// Sprint 16 (issue #23): Skipped — InstantRefundModal component contract has
-// drifted. Tests reference assertions that no longer match the current
-// implementation. Rewrite in a future sprint.
-describe.skip('InstantRefundModal', () => {
+// The modal builds its request as `${getApiBaseUrl()}/api/cancel`. getApiBaseUrl()
+// resolves from VITE_API_URL or window.location, so under jsdom it would otherwise
+// return the real production Railway URL. Pin it so the endpoint assertion is exact.
+const TEST_API_BASE = 'https://api.test.local';
+vi.mock('@/lib/api-config', () => ({
+  getApiBaseUrl: () => TEST_API_BASE,
+}));
+
+describe('InstantRefundModal', () => {
   const mockEligibility = {
     eligible: true,
     amount: 495,
@@ -42,7 +47,10 @@ describe.skip('InstantRefundModal', () => {
     vi.clearAllMocks();
     mockGetAccessToken.mockReturnValue('mock-token');
     global.fetch = vi.fn();
-    vi.useFakeTimers();
+    // NOTE: no global vi.useFakeTimers() here. It used to be installed for every
+    // test but never advanced, so testing-library's waitFor never ticked and all
+    // six interaction tests hung until the 30s timeout. Only the auto-close test
+    // needs fake timers, and it installs them itself.
   });
 
   afterEach(() => {
@@ -104,7 +112,7 @@ describe.skip('InstantRefundModal', () => {
     await user.click(confirmButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/cancel', {
+      expect(global.fetch).toHaveBeenCalledWith(`${TEST_API_BASE}/api/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,6 +227,48 @@ describe.skip('InstantRefundModal', () => {
 
     expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument();
     expect(screen.getByText(/downgraded to the Starter tier immediately/)).toBeInTheDocument();
+  });
+
+  it('should auto-close and reload 3 seconds after a successful refund', async () => {
+    // New cover: the component schedules onClose() + window.location.reload() on a
+    // 3s timer after success. Nothing asserted it, so the downgrade-then-reload step
+    // of the refund path was untested.
+    // Fake timers must be installed BEFORE the click, otherwise the component's
+    // setTimeout is scheduled on real timers and advanceTimersByTime cannot reach it.
+    // shouldAdvanceTime keeps waitFor and userEvent ticking while they are faked.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ delay: null, advanceTimers: vi.advanceTimersByTime });
+    const reload = vi.fn();
+    const original = window.location;
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...original, reload },
+    });
+
+    (global.fetch as any).mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, message: 'Refund processed' }),
+    });
+
+    try {
+      render(
+        <InstantRefundModal isOpen={true} onClose={mockOnClose} eligibility={mockEligibility} />
+      );
+
+      await user.click(screen.getByRole('button', { name: /Confirm Refund/ }));
+      await waitFor(() => expect(screen.getByText('Refund Processing')).toBeInTheDocument());
+
+      // Before the timer fires, neither has happened.
+      expect(mockOnClose).not.toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(3000);
+
+      expect(mockOnClose).toHaveBeenCalled();
+      expect(reload).toHaveBeenCalled();
+    } finally {
+      Object.defineProperty(window, 'location', { configurable: true, value: original });
+    }
   });
 
   it('should not render when closed', () => {
