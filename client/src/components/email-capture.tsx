@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 // Input import removed - no longer using email input
@@ -29,17 +29,34 @@ export default function EmailCapture({
   isVisible,
 }: EmailCaptureProps) {
   // useToast hook removed - no longer using toast notifications
-  const [selectedTier, setSelectedTier] = useState<
-    'starter' | 'solo' | 'growth' | 'scale' | null
-  >('solo');
+  const [selectedTier, setSelectedTier] = useState<'starter' | 'solo' | 'growth' | 'scale' | null>(
+    'solo'
+  );
+
+  // Every tier card has an onClick AND sits inside a RadioGroup with onValueChange.
+  // Both are needed: the card handler makes the whole card clickable, and
+  // onValueChange is what fires for keyboard arrow navigation. But a mouse click on
+  // the radio itself triggers onValueChange and then bubbles to the card, so
+  // handleTierSelection ran TWICE per click and sent two identical tier_selected
+  // events, roughly doubling tier-selection counts in GA/GTM.
+  //
+  // Deduped on a ref rather than on selectedTier: both handlers run inside the same
+  // event, before React re-renders, so the state value is stale in both and cannot
+  // tell them apart. The ref updates synchronously, so the second call sees it.
+  // Re-selecting a different tier and coming back still tracks, because the ref
+  // holds the last tier tracked, not a "has tracked" flag.
+  const lastTrackedTier = useRef<'starter' | 'solo' | 'growth' | 'scale' | null>(null);
 
   const handleTierSelection = (tier: 'starter' | 'solo' | 'growth' | 'scale') => {
-    trackEvent('tier_selected', {
-      tier_selected: tier,
-      previous_tier: selectedTier,
-      website_url: websiteUrl,
-      event_category: 'engagement',
-    });
+    if (lastTrackedTier.current !== tier) {
+      trackEvent('tier_selected', {
+        tier_selected: tier,
+        previous_tier: selectedTier,
+        website_url: websiteUrl,
+        event_category: 'engagement',
+      });
+      lastTrackedTier.current = tier;
+    }
     setSelectedTier(tier);
   };
   const [lastError, setLastError] = useState<string | null>(null);
@@ -193,9 +210,7 @@ export default function EmailCapture({
               <div className="pr-8">
                 <Label htmlFor="solo" className="flex items-center space-x-2 cursor-pointer mt-2">
                   <img src="/images/tier-coffee.png" alt="Coffee Tier" className="w-8 h-8" />
-                  <span className="font-bold text-xl text-ink">
-                    Coffee Power ($4.95/month)
-                  </span>
+                  <span className="font-bold text-xl text-ink">Coffee Power ($4.95/month)</span>
                 </Label>
                 <p className="text-sm font-medium text-success mt-2">
                   ✅ Go from INVISIBLE to Gen AI → INDEXED & REFERENCED instantly

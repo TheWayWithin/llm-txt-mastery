@@ -17,6 +17,11 @@ vi.mock('@/hooks/use-toast', () => ({
   }),
 }));
 
+const mockTrackEvent = vi.fn();
+vi.mock('@/lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}));
+
 const renderWithQueryClient = (ui: React.ReactElement) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -139,6 +144,32 @@ describe('EmailCapture Component', () => {
     await user.click(starterRadio);
     expect(starterRadio).toBeChecked();
     expect(soloRadio).not.toBeChecked();
+  });
+
+  it('fires exactly one tier_selected event per tier click', async () => {
+    // Regression cover. Each card has an onClick and also sits inside a RadioGroup
+    // with onValueChange, so a click on the radio fired both and sent two identical
+    // tier_selected events, roughly doubling tier counts in GA/GTM. Nothing caught
+    // it because analytics was never mocked in this suite.
+    const user = userEvent.setup();
+    renderWithQueryClient(<EmailCapture {...mockProps} />);
+
+    await user.click(screen.getByRole('radio', { name: /Free \(But Crippled\)/i }));
+
+    const starterEvents = mockTrackEvent.mock.calls.filter(
+      ([name, payload]) => name === 'tier_selected' && payload?.tier_selected === 'starter'
+    );
+    expect(starterEvents).toHaveLength(1);
+
+    // Switching away and back must still track: the guard remembers the last tier
+    // tracked, not merely that something was tracked.
+    await user.click(screen.getByRole('radio', { name: /Coffee Power/i }));
+    await user.click(screen.getByRole('radio', { name: /Free \(But Crippled\)/i }));
+
+    const starterAgain = mockTrackEvent.mock.calls.filter(
+      ([name, payload]) => name === 'tier_selected' && payload?.tier_selected === 'starter'
+    );
+    expect(starterAgain).toHaveLength(2);
   });
 
   it('shows the tier benefit reminder for the selected tier', async () => {
